@@ -79,13 +79,23 @@ const logBingAdsResponse = (
   response: ModifiedResponse
 ): void => {
   if (!debugLogging || !logger) return
-  const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
-  const partialErrors = (response.data as { PartialErrors?: PartialError[] } | undefined)?.PartialErrors
-  const line =
-    `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
-    `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
-    `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
-  logger.info(line.slice(0, 4096))
+  // Isolate from delivery control flow: this runs inside the syncUser try/catch after Bing has
+  // already accepted the records, so a throwing/partial logger must never fail an otherwise
+  // successful (batch) delivery or trigger a duplicate re-send on retry.
+  try {
+    const { CustomerListItemSubType, CustomerListItems } = sentPayload.CustomerListUserData
+    const partialErrors = (response.data as { PartialErrors?: PartialError[] } | undefined)?.PartialErrors
+    const line =
+      `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
+      `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
+      `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
+    // Emit at warn: the delivery runtime's logger filters out info-level lines, so info never
+    // reaches the log pipeline. warn is the lowest level that reliably ships. Uses the optional
+    // ?.warn?.() call idiom so a partial logger no-ops rather than throwing.
+    logger?.warn?.(line.slice(0, 4096))
+  } catch {
+    // Best-effort debug logging — intentionally swallowed.
+  }
 }
 
 /**

@@ -267,7 +267,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
   describe('debug logging (actions-ms-bing-ads-audiences-debug-logging flag)', () => {
     const DEBUG_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
 
-    const makeLogger = () => ({ info: jest.fn(), error: jest.fn() } as any)
+    const makeLogger = () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() } as any)
 
     const addEvent = () =>
       createTestEvent({
@@ -289,7 +289,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: false }
       })
 
-      expect(logger.info).not.toHaveBeenCalled()
+      expect(logger.warn).not.toHaveBeenCalled()
     })
 
     it('logs the tracking id and metadata when on, without leaking hashed identifiers', async () => {
@@ -307,8 +307,8 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      expect(logger.info).toHaveBeenCalledTimes(1)
-      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      expect(logger.warn).toHaveBeenCalledTimes(1)
+      const logged = (logger.warn as jest.Mock).mock.calls[0][0] as string
       expect(logged).toContain('[ms-bing-ads-audiences][DEBUG]')
       expect(logged).toContain('trackingId=abc-123-track')
       expect(logged).toContain('identifierType=Email')
@@ -330,7 +330,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      const logged = (logger.warn as jest.Mock).mock.calls[0][0] as string
       expect(logged).toContain('trackingId=body-track-789')
     })
 
@@ -361,12 +361,33 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      const logged = (logger.info as jest.Mock).mock.calls[0][0] as string
+      const logged = (logger.warn as jest.Mock).mock.calls[0][0] as string
       expect(logged).toContain('InvalidCustomerListItem')
       // The free-text fields (and any identifier they echo) must not be logged.
       expect(logged).not.toContain('crm_secret_12345')
       expect(logged).not.toContain('Message')
       expect(logged).not.toContain('FieldPath')
+    })
+
+    it('does not let a throwing logger break the delivery', async () => {
+      // Debug logging runs after Bing has accepted the records; a throwing logger must not
+      // fail the delivery (which would trigger a duplicate re-send on retry).
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+      ;(logger.warn as jest.Mock).mockImplementation(() => {
+        throw new Error('logger down')
+      })
+
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(response[0].status).toBe(200)
     })
 
     it('does not log on the error path (only success responses are logged)', async () => {
@@ -382,7 +403,7 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      expect(logger.info).not.toHaveBeenCalled()
+      expect(logger.warn).not.toHaveBeenCalled()
       expect(utils.handleHttpError).toHaveBeenCalled()
       expect(response[0].status).toBe(500)
     })
