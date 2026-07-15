@@ -89,7 +89,10 @@ const logBingAdsResponse = (
       `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
       `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
       `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
-    logger.info(line.slice(0, 4096))
+    // Emit at warn: the delivery runtime's logger filters out info-level lines, so info never
+    // reaches the log pipeline. warn is the lowest level that reliably ships. Uses the optional
+    // ?.warn?.() call idiom so a partial logger no-ops rather than throwing.
+    logger?.warn?.(line.slice(0, 4096))
   } catch {
     // Best-effort debug logging — intentionally swallowed.
   }
