@@ -490,16 +490,12 @@
           "properties": null,
           "category": null,
           "depends_on": {
-            "match": "any",
+            "match": "all",
             "conditions": [
               {
                 "fieldKey": "custom_properties_mode",
-                "operator": "is",
-                "value": "v1"
-              },
-              {
-                "fieldKey": "custom_properties_mode",
-                "operator": "is"
+                "operator": "is_not",
+                "value": "v2"
               }
             ]
           },

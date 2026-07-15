@@ -60,8 +60,17 @@ export interface Payload {
    * Custom properties for the user. Each property requires a name, type, and value.
    */
   custom_user_properties?: {
+    /**
+     * The name of the custom user property.
+     */
     name: string
+    /**
+     * The data type of the custom user property.
+     */
     type: string
+    /**
+     * The value of the custom user property.
+     */
     value?: string
   }[]
   /**
@@ -87,7 +96,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Segment computation class used to determine if input event is from an Engage Audience'.
+   * Segment computation class used to determine if input event is from an Engage Audience.
    */
   segment_computation_class: string
   /**
