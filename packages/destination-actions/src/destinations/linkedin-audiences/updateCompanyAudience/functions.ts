@@ -132,6 +132,12 @@ export async function send(
   }
 
   if (!isBatch) {
+    // LinkedIn's batch-style endpoint can return HTTP 200 while reporting a per-element failure.
+    // For single-item perform, inspect the first element result and throw if it is not 2xx.
+    const element = response.data?.elements?.[0]
+    if (!element || element.status < 200 || element.status >= 300) {
+      handleRequestError(element?.status ?? 400, statsContext)
+    }
     return response
   }
 

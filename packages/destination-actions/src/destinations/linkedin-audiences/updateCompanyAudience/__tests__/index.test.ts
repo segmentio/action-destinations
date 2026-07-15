@@ -192,6 +192,41 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(error.code).not.toBe('RETRYABLE_ERROR')
       expect(error.status).toBe(404)
     })
+
+    // LinkedIn's batch-style endpoint returns HTTP 200 even when the single company fails,
+    // reporting the real outcome in elements[0].status. These cover that per-element check.
+    const performWithElement = (body: unknown) => {
+      nock(BASE_URL).post(`/dmpSegments/${SEGMENT_ID}/companies`).reply(200, body)
+      return testDestination.testAction('updateCompanyAudience', {
+        event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { action: 'ADD', ...hookOutputs }
+      })
+    }
+
+    it('throws a non-retryable error when HTTP 200 but elements[0].status is 400', async () => {
+      const error = await performWithElement({
+        elements: [{ status: 400, error: { message: 'Invalid organization urn' } }]
+      }).catch((e) => e)
+      expect(error.code).not.toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(400)
+    })
+
+    it('throws a retryable error when HTTP 200 but elements[0].status is 429', async () => {
+      const error = await performWithElement({ elements: [{ status: 429 }] }).catch((e) => e)
+      expect(error.code).toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(429)
+    })
+
+    it('throws a non-retryable error when HTTP 200 but no element result is returned', async () => {
+      const error = await performWithElement({ elements: [] }).catch((e) => e)
+      expect(error.code).not.toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(400)
+    })
+    // The happy path (HTTP 200 + elements[0].status 2xx) is covered by the "adds a single company"
+    // tests above; they run before any throwing test, avoiding testAction's stale-response leakage.
   })
 
   describe('performBatch', () => {
