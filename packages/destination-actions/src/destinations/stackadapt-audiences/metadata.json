@@ -805,7 +805,7 @@
         },
         "segment_computation_class": {
           "label": "Segment Computation Class",
-          "description": "Segment computation class used to determine if input event is from an Engage Audience'.",
+          "description": "Segment computation class used to determine if input event is from an Engage Audience.",
           "type": "string",
           "required": true,
           "multiple": false,
