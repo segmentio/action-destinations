@@ -185,7 +185,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
           request,
           createAudienceInput.settings.customerId,
           dataManagerAccessToken,
-          loginCustomerId
+          loginCustomerId,
+          createAudienceInput.statsContext
         )
 
         // Step 3: Create the Customer Match user list.

@@ -176,7 +176,8 @@ export async function createDataManagerPartnerLink(
   request: RequestClient,
   customerId: string,
   customerAccessToken: string,
-  loginCustomerId?: string
+  loginCustomerId?: string,
+  statsContext?: StatsContext
 ): Promise<PartnerLinkResponse> {
   const partnerAccountId = '262932431'
   if (!partnerAccountId) {
@@ -190,6 +191,9 @@ export async function createDataManagerPartnerLink(
   // When the customer uses an MCC to access a sub-account, the owningAccount
   // must be the MCC (loginCustomerId), not the sub-account.
   const owningAccountId = loginCustomerId || customerId
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
 
   const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
 
@@ -205,7 +209,9 @@ export async function createDataManagerPartnerLink(
       partnerAccount: { accountId: partnerAccountId, accountType: 'DATA_PARTNER' }
     }
   })
-
+  if (response.data) {
+    statsClient?.incr('createAudience.error', 1, statsTags)
+  }
   return response.data
 }
 
