@@ -5,7 +5,13 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
-import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  verifyCustomerId,
+  createDataManagerPartnerLink,
+  exchangeForAccessToken
+} from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -139,68 +145,91 @@ const destination: AudienceDestinationDefinition<Settings> = {
       type: 'synced', // Indicates that the audience is synced on some schedule; update as necessary
       full_audience_sync: false // If true, we send the entire audience. If false, we just send the delta.
     },
+    /**
+     * Called automatically by Segment when a destination is first connected to a source.
+     * Steps:
+     *   1. Exchange the customer's refresh token for an access token (datamanager.partnerlink scope).
+     *      This token authorises the partner link creation on behalf of the customer.
+     *   2. Exchange Segment's partner refresh token for an access token (datamanager scope).
+     *      This token authorises user list creation/management on Segment's Data Partner account.
+     *   3. Create a partner link — links the advertiser's Google Ads account to Segment's
+     *      Data Partner account. For MCC setups loginCustomerId is used as the owningAccount.
+     *   4. Create the Customer Match user list via the Data Manager API.
+     */
     async createAudience(request, createAudienceInput: CreateAudienceInput) {
-      // When supports_conversions is enabled streaming mode is forced for this destination.
-      // This guarantees that uploadCallConversion, uploadClickConversion and uploadConversionAdjustment actions are usable with Engage sources.
+      // supports_conversions mode: used for uploadCallConversion / uploadClickConversion /
+      // uploadConversionAdjustment actions with Engage sources. No audience list is created.
       if (createAudienceInput.audienceSettings.supports_conversions) {
-        return {
-          externalId: 'segment'
-        }
+        return { externalId: 'segment' }
       }
 
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
+
+      // Normalise loginCustomerId (strip dashes) — used as owningAccount for MCC setups.
+      // Use || so an empty string after trimming is treated as absent (falls back to customerId).
+      const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+
       const auth = createAudienceInput.settings.oauth
-
-      let userListId
-      try {
-        userListId = await createGoogleAudience(
-          request,
-          createAudienceInput,
-          auth,
-          createAudienceInput.features,
-          createAudienceInput.statsContext
-        )
-      } catch (err) {
-        let status = err.status || err.code
-        if (!status && err.response && err.response.status) {
-          status = Number(err.response.status)
-        }
-        // NOTE:
-        // We are embedding the entire error message here.
-        // This is not ideal as we should properly parse it and assemble the respective error message.
-        // For now, this and its counterpart in EAMS will parse the error and show it to the user but
-        // ultimately destinations should own this.
-        const message = err.response?.content || err.message
-
-        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
+      if (!auth?.refresh_token) {
+        throw new IntegrationError('OAuth refresh token is missing.', 'MISSING_OAUTH_TOKEN', 400)
       }
 
-      return {
-        externalId: userListId
+      try {
+        // Step 1: Data Manager token for partner link creation (datamanager.partnerlink scope).
+
+        const dataManagerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+
+        // Step 2: Link the advertiser's Google Ads account to Segment's Data Partner account.
+        // This is idempotent — Google returns the existing link if one already exists.
+        await createDataManagerPartnerLink(
+          request,
+          createAudienceInput.settings.customerId,
+          dataManagerAccessToken,
+          loginCustomerId
+        )
+
+        // Step 3: Create the Customer Match user list.
+        const userListId = await createGoogleAudience(
+          request,
+          createAudienceInput,
+          dataManagerAccessToken,
+          createAudienceInput.statsContext
+        )
+
+        return { externalId: userListId, refresh_token: auth.refresh_token }
+      } catch (err) {
+        const status = err.status || err.code || (err.response && Number(err.response.status)) || 400
+        const message = err.response?.content || err.message
+        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status)
       }
     },
 
+    /**
+     * Called by Segment to verify an audience still exists in Google.
+     * Uses the Data Manager userLists.get endpoint with Segment's partner account token.
+     * Connections created before this method was added carry externalId='segment'
+     * and are passed through unchanged.
+     */
     async getAudience(request, getAudienceInput: GetAudienceInput) {
-      // The connections that were created before the audience methods
-      // were added will have the externalId field as segment.
       if (getAudienceInput.externalId === 'segment') {
-        return {
-          externalId: getAudienceInput.externalId
-        }
+        return { externalId: getAudienceInput.externalId }
       }
+
       getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
+
+      const dataManagerAccessToken = await exchangeForAccessToken(
+        request,
+        getAudienceInput.settings.oauth?.refresh_token || ''
+      )
       const response: UserListResponse = await getGoogleAudience(
         request,
         getAudienceInput.settings,
         getAudienceInput.externalId,
-        getAudienceInput.settings.oauth,
-        getAudienceInput.features,
+        dataManagerAccessToken,
         getAudienceInput.statsContext
       )
 
-      return {
-        externalId: response.results[0].userList.id
-      }
+      return { externalId: response.results[0].userList.id }
     }
   },
   actions: {

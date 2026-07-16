@@ -5,9 +5,9 @@ import {
   createGoogleAudience,
   getGoogleAudience,
   getListIds,
-  handleUpdate,
-  processBatchPayload,
-  verifyCustomerId
+  verifyCustomerId,
+  exchangeForAccessToken,
+  handleDataManagerUpdate
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -231,22 +231,29 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
         settings.customerId = verifyCustomerId(settings.customerId)
+
+        let dataManagerAccessToken: string
+        try {
+          dataManagerAccessToken = await exchangeForAccessToken(request, auth?.refreshToken || '')
+        } catch (e) {
+          const message = (e as IntegrationError).message || 'Failed to obtain access token'
+          return { error: { message, code: 'TOKEN_EXCHANGE_FAILURE' } }
+        }
+
+        // Use an existing list if list_id is provided
         if (hookInputs.list_id) {
           try {
             const response: UserListResponse = await getGoogleAudience(
               request,
               settings,
               hookInputs.list_id,
-              {
-                refresh_token: auth?.refreshToken
-              },
-              features,
+              dataManagerAccessToken,
               statsContext
             )
             return {
-              successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
+              successMessage: `Using existing list '${response.results[0].userList.name}' (id: ${hookInputs.list_id})`,
               savedData: {
                 id: hookInputs.list_id,
                 name: response.results[0].userList.name,
@@ -256,31 +263,21 @@ const action: ActionDefinition<Settings, Payload> = {
           } catch (e) {
             const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
             const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
-            return {
-              error: {
-                message,
-                code
-              }
-            }
+            return { error: { message, code } }
           }
         }
 
+        // Create a new list
         try {
           const input = {
             audienceName: hookInputs.list_name,
-            settings: settings,
+            settings,
             audienceSettings: {
               external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO',
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(
-            request,
-            input,
-            { refresh_token: auth?.refreshToken },
-            features,
-            statsContext
-          )
+          const listId = await createGoogleAudience(request, input, dataManagerAccessToken, statsContext)
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
@@ -293,19 +290,27 @@ const action: ActionDefinition<Settings, Payload> = {
         } catch (e) {
           const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
           const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
-          return {
-            error: {
-              message,
-              code
-            }
-          }
+          return { error: { message, code } }
         }
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }) => {
+  perform: async (
+    request,
+    {
+      settings,
+      audienceSettings,
+      payload,
+      hookOutputs,
+      statsContext,
+      syncMode,
+      features,
+      audienceMembership,
+      personasContext
+    }
+  ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-    return await handleUpdate(
+    return await handleDataManagerUpdate(
       request,
       settings,
       audienceSettings,
@@ -315,15 +320,26 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership
+      audienceMembership,
+      personasContext
     )
   },
   performBatch: async (
     request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
+    {
+      settings,
+      audienceSettings,
+      payload,
+      hookOutputs,
+      statsContext,
+      syncMode,
+      features,
+      audienceMembership,
+      personasContext
+    }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-    return await processBatchPayload(
+    return await handleDataManagerUpdate(
       request,
       settings,
       audienceSettings,
@@ -333,7 +349,8 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership
+      audienceMembership,
+      personasContext
     )
   }
 }

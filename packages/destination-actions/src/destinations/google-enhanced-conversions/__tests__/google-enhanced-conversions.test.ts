@@ -7,6 +7,13 @@ const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight 
 const conversionTrackingId = '_conversion_id_'
 const conversionLabel = '_conversion_'
 
+const DATA_MANAGER_HOST = 'https://datamanager.googleapis.com'
+const CUSTOMER_ID = '1234567890'
+const REFRESH_TOKEN = 'test-refresh-token'
+const ACCESS_TOKEN = 'test-access-token'
+const USER_LIST_ID = 'ul_abc123'
+const PARTNER_ACCOUNT_ID = '262932431'
+
 describe('GoogleEnhancedConversions', () => {
   describe('testAuthentication', () => {
     it('should validate loginCustomerId format - valid format', async () => {
@@ -443,5 +450,264 @@ describe('GoogleEnhancedConversions', () => {
         })
       ).rejects.toHaveProperty('response.status', 400)
     })
+  })
+})
+
+// ─── STRATCONN-6707: createAudience / getAudience OAuth flow ─────────────────
+
+describe('GoogleEnhancedConversions — createAudience (STRATCONN-6707)', () => {
+  const savedClientId = process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID
+  const savedClientSecret = process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+
+  beforeEach(() => {
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID = 'client-id'
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET = 'client-secret'
+    nock.cleanAll()
+  })
+
+  afterEach(() => {
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID = savedClientId
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET = savedClientSecret
+    nock.cleanAll()
+  })
+
+  const baseInput = {
+    audienceName: 'Test Audience',
+    audienceSettings: { supports_conversions: false, external_id_type: 'CONTACT_INFO' },
+    settings: { customerId: CUSTOMER_ID, oauth: { refresh_token: REFRESH_TOKEN } }
+  }
+
+  it('returns { externalId: "segment" } immediately when supports_conversions is true', async () => {
+    const result = await testDestination.createAudience({
+      ...baseInput,
+      audienceSettings: { supports_conversions: true }
+    })
+    expect(result).toEqual({ externalId: 'segment' })
+  })
+
+  it('throws MISSING_OAUTH_TOKEN when oauth refresh_token is absent', async () => {
+    await expect(
+      testDestination.createAudience({
+        ...baseInput,
+        settings: { customerId: CUSTOMER_ID, oauth: {} }
+      })
+    ).rejects.toMatchObject({ code: 'MISSING_OAUTH_TOKEN' })
+  })
+
+  it('full happy path: exchanges token → creates partner link → creates user list → returns externalId', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks`)
+      .reply(200, {
+        name: `accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks/link1`,
+        partnerLinkId: 'link1',
+        owningAccount: { accountId: CUSTOMER_ID, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists`)
+      .reply(200, { name: 'some/name', id: USER_LIST_ID, displayName: 'Test Audience' })
+
+    const result = await testDestination.createAudience(baseInput)
+    expect(result).toMatchObject({ externalId: USER_LIST_ID, refresh_token: REFRESH_TOKEN })
+  })
+
+  it('uses loginCustomerId (dashes stripped) as owning account in partner link', async () => {
+    const strippedLoginId = '9876543210'
+    let capturedPartnerLinkBody: any
+
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks`, (body) => {
+        capturedPartnerLinkBody = body
+        return true
+      })
+      .reply(200, {
+        name: `accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks/link1`,
+        partnerLinkId: 'link1',
+        owningAccount: { accountId: strippedLoginId, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists`)
+      .reply(200, { name: 'some/name', id: USER_LIST_ID, displayName: 'Test Audience' })
+
+    await testDestination.createAudience({
+      ...baseInput,
+      settings: { customerId: CUSTOMER_ID, loginCustomerId: '987-654-3210', oauth: { refresh_token: REFRESH_TOKEN } }
+    })
+
+    expect(capturedPartnerLinkBody?.owningAccount?.accountId).toBe(strippedLoginId)
+  })
+
+  it('normalises customerId by stripping dashes before calling Data Manager', async () => {
+    const customerIdWithDashes = '123-456-7890'
+    const customerIdStripped = '1234567890'
+
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${customerIdStripped}/partnerLinks`)
+      .reply(200, {
+        name: `accountTypes/GOOGLE_ADS/accounts/${customerIdStripped}/partnerLinks/link1`,
+        partnerLinkId: 'link1',
+        owningAccount: { accountId: customerIdStripped, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${customerIdStripped}/userLists`)
+      .reply(200, { name: 'some/name', id: USER_LIST_ID, displayName: 'Test Audience' })
+
+    const result = await testDestination.createAudience({
+      ...baseInput,
+      settings: { customerId: customerIdWithDashes, oauth: { refresh_token: REFRESH_TOKEN } }
+    })
+
+    expect(result).toMatchObject({ externalId: USER_LIST_ID })
+  })
+
+  it('wraps partner link errors as CREATE_AUDIENCE_FAILED', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks`)
+      .reply(403, { error: { message: 'Permission denied' } })
+
+    await expect(testDestination.createAudience(baseInput)).rejects.toMatchObject({ code: 'CREATE_AUDIENCE_FAILED' })
+  })
+
+  it('wraps user list creation errors as CREATE_AUDIENCE_FAILED', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks`)
+      .reply(200, {
+        name: `accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks/link1`,
+        partnerLinkId: 'link1',
+        owningAccount: { accountId: CUSTOMER_ID, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists`)
+      .reply(500, { error: { message: 'Internal error' } })
+
+    await expect(testDestination.createAudience(baseInput)).rejects.toMatchObject({ code: 'CREATE_AUDIENCE_FAILED' })
+  })
+
+  it('throws CREATE_AUDIENCE_FAILED when user list response has no id', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks`)
+      .reply(200, {
+        name: `accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/partnerLinks/link1`,
+        partnerLinkId: 'link1',
+        owningAccount: { accountId: CUSTOMER_ID, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      })
+
+    nock(DATA_MANAGER_HOST)
+      .post(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists`)
+      .reply(200, { name: 'some/name', displayName: 'Test' }) // no `id`
+
+    await expect(testDestination.createAudience(baseInput)).rejects.toMatchObject({ code: 'CREATE_AUDIENCE_FAILED' })
+  })
+})
+
+describe('GoogleEnhancedConversions — getAudience (STRATCONN-6707)', () => {
+  const savedClientId = process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID
+  const savedClientSecret = process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+
+  beforeEach(() => {
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID = 'client-id'
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET = 'client-secret'
+    nock.cleanAll()
+  })
+
+  afterEach(() => {
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID = savedClientId
+    process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET = savedClientSecret
+    nock.cleanAll()
+  })
+
+  it('returns legacy externalId unchanged when it equals "segment"', async () => {
+    const result = await testDestination.getAudience({
+      externalId: 'segment',
+      settings: { customerId: CUSTOMER_ID, oauth: { refresh_token: REFRESH_TOKEN } }
+    })
+    expect(result).toEqual({ externalId: 'segment' })
+  })
+
+  it('full happy path: exchanges token → GETs user list from Data Manager → returns externalId', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .get(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists/${USER_LIST_ID}`)
+      .reply(200, {
+        name: `accounts/${CUSTOMER_ID}/userLists/${USER_LIST_ID}`,
+        id: USER_LIST_ID,
+        displayName: 'Test Audience'
+      })
+
+    const result = await testDestination.getAudience({
+      externalId: USER_LIST_ID,
+      settings: { customerId: CUSTOMER_ID, oauth: { refresh_token: REFRESH_TOKEN } }
+    })
+
+    expect(result).toEqual({ externalId: USER_LIST_ID })
+  })
+
+  it('throws INVALID_RESPONSE when Data Manager returns a user list with no id', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .get(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists/${USER_LIST_ID}`)
+      .reply(200, { name: 'some/name', displayName: 'Test' }) // no `id`
+
+    await expect(
+      testDestination.getAudience({
+        externalId: USER_LIST_ID,
+        settings: { customerId: CUSTOMER_ID, oauth: { refresh_token: REFRESH_TOKEN } }
+      })
+    ).rejects.toMatchObject({ code: 'INVALID_RESPONSE' })
+  })
+
+  it('propagates HTTP errors from the Data Manager GET endpoint', async () => {
+    nock('https://www.googleapis.com')
+      .post('/oauth2/v4/token')
+      .reply(200, { access_token: ACCESS_TOKEN, expires_in: 3600, token_type: 'Bearer' })
+
+    nock(DATA_MANAGER_HOST)
+      .get(`/v1/accountTypes/GOOGLE_ADS/accounts/${CUSTOMER_ID}/userLists/${USER_LIST_ID}`)
+      .reply(404, { error: { message: 'Not found' } })
+
+    await expect(
+      testDestination.getAudience({
+        externalId: USER_LIST_ID,
+        settings: { customerId: CUSTOMER_ID, oauth: { refresh_token: REFRESH_TOKEN } }
+      })
+    ).rejects.toBeDefined()
   })
 })
