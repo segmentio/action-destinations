@@ -24,8 +24,20 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
-      companyDomain: { '@path': '$.traits.company_domain' },
-      linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
+      companyDomain: {
+        '@if': {
+          exists: { '@path': '$.traits.company_domain' },
+          then: { '@path': '$.traits.company_domain' },
+          else: { '@path': '$.properties.company_domain' }
+        }
+      },
+      linkedInCompanyId: {
+        '@if': {
+          exists: { '@path': '$.traits.linkedin_company_id' },
+          then: { '@path': '$.traits.linkedin_company_id' },
+          else: { '@path': '$.properties.linkedin_company_id' }
+        }
+      }
     }
   },
   dmp_company_action: {
@@ -40,14 +52,15 @@ export const fields: Record<string, InputField> = {
   },
   audience_source: {
     label: 'Audience Source',
-    description: 'Choose "Engage or Reverse ETL" when the Audience is configured in Engage or Reverse ETL. If connecting from a Connections Source, for example a node.js Source, select Connections, then provide a name for your Segment.',
+    description:
+      'Choose "Engage or Reverse ETL" when the Audience is configured in Engage or Reverse ETL. If connecting from a Connections Source, for example a node.js Source, select Connections, then provide a name for your Segment.',
     type: 'string',
     required: true,
     default: AUDIENCE_SOURCE.ENGAGE_RETL,
     choices: [
       { label: 'Engage or Reverse ETL', value: AUDIENCE_SOURCE.ENGAGE_RETL },
       { label: 'Connections', value: AUDIENCE_SOURCE.CONNECTIONS }
-    ],
+    ]
   },
   segment_name: {
     label: 'Segment Name',
@@ -78,7 +91,7 @@ export const fields: Record<string, InputField> = {
   computation_key: {
     label: 'Audience Key',
     description:
-      "The computation key used to identify the LinkedIn DMP Company Segment. Used only when Audience Source is \"Engage or Reverse ETL\".",
+      'The computation key used to identify the LinkedIn DMP Company Segment. Used only when Audience Source is "Engage or Reverse ETL".',
     type: 'string',
     unsafe_hidden: true,
     required: {
