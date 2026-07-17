@@ -126,6 +126,91 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(sentBody.elements[0].action).toBe('REMOVE')
     })
 
+    // The action is governed solely by the dmp_company_action field. Even when the inbound event
+    // carries an Engage/RETL audience-membership boolean at properties[computation_key], that boolean
+    // must be ignored — the customer's dmp_company_action selection wins.
+    it('uses dmp_company_action=ADD even when the membership boolean says remove (false)', async () => {
+      mockLookup()
+      let sentBody: any
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, { elements: [{ status: 201 }] })
+
+      await testDestination.testAction('updateCompanyAudience', {
+        // Engage-shaped event: membership boolean at properties.aud_key = false means "remove".
+        event: {
+          type: 'track',
+          properties: { aud_key: false },
+          context: { traits: { company_domain: 'microsoft.com' } }
+        } as any,
+        settings,
+        auth,
+        mapping: {
+          dmp_company_action: 'ADD',
+          audience_source: 'ENGAGE_RETL',
+          computation_key: SOURCE_SEGMENT_ID,
+          identifiers: { companyDomain: { '@path': '$.context.traits.company_domain' } }
+        }
+      })
+
+      // Boolean says remove, but dmp_company_action says ADD — ADD must win.
+      expect(sentBody.elements[0].action).toBe('ADD')
+    })
+
+    it('uses dmp_company_action=REMOVE even when the membership boolean says add (true)', async () => {
+      mockLookup()
+      let sentBody: any
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, { elements: [{ status: 201 }] })
+
+      await testDestination.testAction('updateCompanyAudience', {
+        event: {
+          type: 'track',
+          properties: { aud_key: true },
+          context: { traits: { company_domain: 'microsoft.com' } }
+        } as any,
+        settings,
+        auth,
+        mapping: {
+          dmp_company_action: 'REMOVE',
+          audience_source: 'ENGAGE_RETL',
+          computation_key: SOURCE_SEGMENT_ID,
+          identifiers: { companyDomain: { '@path': '$.context.traits.company_domain' } }
+        }
+      })
+
+      expect(sentBody.elements[0].action).toBe('REMOVE')
+    })
+
+    it('follows dmp_company_action when no membership boolean is present in the payload', async () => {
+      mockLookup()
+      let sentBody: any
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, { elements: [{ status: 201 }] })
+
+      await testDestination.testAction('updateCompanyAudience', {
+        // No properties[computation_key] at all — the action must not depend on it existing.
+        event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { dmp_company_action: 'ADD', ...baseMapping }
+      })
+
+      expect(sentBody.elements[0].action).toBe('ADD')
+    })
+
     it('creates a new COMPANY segment when the lookup returns no COMPANY match', async () => {
       // Lookup returns only a USER segment sharing the sourceSegmentId; it must be ignored and a
       // new COMPANY segment created. The new id comes back in the x-restli-id header.
