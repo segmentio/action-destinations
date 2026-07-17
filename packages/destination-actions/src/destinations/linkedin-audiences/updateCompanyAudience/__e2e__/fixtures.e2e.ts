@@ -31,13 +31,39 @@ const FAILURE_HINT =
   'for the Audiences program. Access tokens last ~60 days; if a run returns 401 the token has expired, ' +
   'so re-mint it the same way.'
 
-// A minimal track event. Company identifiers and action come from the mapping (not the event body),
-// so the event itself carries no personas/audience context.
-const companyEvent = (properties: Record<string, string> = {}): SegmentEvent =>
+// The (fixed) audience key + computation id used by the Engage/RETL helper events below.
+const HELPER_COMPUTATION_KEY = 'e2e_company_audience'
+const HELPER_COMPUTATION_ID = 'e2e_company_computation'
+
+// CONNECTIONS events are plain Segment Connections track events (no personas/audience context).
+// createE2EEvent is the dedicated "Connections event" helper. Company identifier goes in properties.
+const connectionsEvent = (properties: Record<string, string> = {}): SegmentEvent =>
   createE2EEvent('track', 'Company Audience Sync', { properties })
 
-// The (fixed) audience key used by the Engage/RETL helper fixtures below.
-const HELPER_COMPUTATION_KEY = 'e2e_company_audience'
+// Engage events carry the membership boolean at properties[computationKey]; the company identifier
+// (and, for batches, the per-event dmp action string) ride in enrichedTraits, which the helper
+// spreads into properties. `membership` sets that boolean — irrelevant to our action, but for the
+// realism fixtures we set it OPPOSITE to dmp_company_action to document that the boolean is ignored.
+const engageEvent = (enrichedTraits: Record<string, string> = {}, membership: 'add' | 'remove' = 'add'): SegmentEvent =>
+  createE2EEngageAudienceEvent({
+    type: 'track',
+    action: membership,
+    computationKey: HELPER_COMPUTATION_KEY,
+    computationId: HELPER_COMPUTATION_ID,
+    enrichedTraits
+  })
+
+// Reverse ETL events use RETL event names ('new'/'updated'/'deleted'); 'deleted' => membership false.
+const retlEvent = (
+  enrichedTraits: Record<string, string> = {},
+  eventName: 'new' | 'updated' | 'deleted' = 'new'
+): SegmentEvent =>
+  createE2ERetlAudienceEvent({
+    eventName,
+    computationKey: HELPER_COMPUTATION_KEY,
+    computationId: HELPER_COMPUTATION_ID,
+    enrichedTraits
+  })
 
 // defaultValues wires the hidden batching fields. Each fixture overrides identifiers, action, and the
 // segment-resolution fields (audience_source + computation_key/segment_name) as needed.
@@ -421,13 +447,19 @@ const perEventIdentifiers = {
 }
 
 const fixtures: E2EFixture[] = [
-  // ---- ENGAGE_RETL: populate an EXISTING audience (fixed key) ----
+  // ---- ENGAGE (Engage audience event): populate an EXISTING audience (fixed key) ----
+  // The Engage event's membership boolean is intentionally 'remove' while dmp_company_action is ADD,
+  // documenting that the action is governed by dmp_company_action, not the boolean. (The boolean is
+  // truly unobservable at the e2e layer — the override itself is proven in the unit tests.)
   {
-    description: 'ENGAGE_RETL: single ADD by company domain (existing audience)',
+    description: 'Engage: single ADD by company domain (existing audience); dmp_company_action governs',
     subscribe: 'type = "track"',
-    mapping: engage(EXISTING_ENGAGE_KEY, { identifiers: { companyDomain: 'microsoft.com' }, dmp_company_action: 'ADD' }),
+    mapping: engage(EXISTING_ENGAGE_KEY, {
+      identifiers: { companyDomain: { '@path': '$.properties.companyDomain' } },
+      dmp_company_action: 'ADD'
+    }),
     mode: 'single',
-    event: companyEvent(),
+    event: engageEvent({ companyDomain: 'microsoft.com' }, 'remove'),
     // A freshly-created segment can briefly reject writes; retries give it time to settle.
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
@@ -436,39 +468,42 @@ const fixtures: E2EFixture[] = [
   // e2e layer they are indistinguishable from the ADD-by-domain case (LinkedIn returns 201 for every
   // valid add/remove and the runner can't inspect the outbound request body). Both are covered by the
   // batch fixtures below, and the ADD/REMOVE-vs-membership-boolean behavior is proven in the unit tests.
-  // ---- ENGAGE_RETL: CREATE a new audience (unique key per run) ----
+  // ---- ENGAGE: CREATE a new audience (unique key per run) ----
   {
-    description: 'ENGAGE_RETL: single ADD creates a new audience when none exists for the key',
+    description: 'Engage: single ADD creates a new audience when none exists for the key',
     subscribe: 'type = "track"',
-    mapping: engage(NEW_ENGAGE_KEY, { identifiers: { companyDomain: 'microsoft.com' }, dmp_company_action: 'ADD' }),
+    mapping: engage(NEW_ENGAGE_KEY, {
+      identifiers: { companyDomain: { '@path': '$.properties.companyDomain' } },
+      dmp_company_action: 'ADD'
+    }),
     mode: 'single',
-    event: companyEvent(),
+    event: engageEvent({ companyDomain: 'microsoft.com' }),
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
   },
-  // ---- CONNECTIONS: populate an EXISTING audience (fixed key) ----
+  // ---- CONNECTIONS (plain Connections event): populate an EXISTING audience (fixed key) ----
   {
-    description: 'CONNECTIONS: single ADD by company domain (existing audience via segment_name)',
+    description: 'Connections: single ADD by company domain (existing audience via segment_name)',
     subscribe: 'type = "track"',
     mapping: connections(EXISTING_CONNECTIONS_KEY, {
       identifiers: { companyDomain: 'microsoft.com' },
       dmp_company_action: 'ADD'
     }),
     mode: 'single',
-    event: companyEvent(),
+    event: connectionsEvent(),
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
   },
   // ---- CONNECTIONS: CREATE a new audience (unique key per run) ----
   {
-    description: 'CONNECTIONS: single ADD creates a new audience when segment_name does not exist',
+    description: 'Connections: single ADD creates a new audience when segment_name does not exist',
     subscribe: 'type = "track"',
     mapping: connections(NEW_CONNECTIONS_KEY, {
       identifiers: { companyDomain: 'microsoft.com' },
       dmp_company_action: 'ADD'
     }),
     mode: 'single',
-    event: companyEvent(),
+    event: connectionsEvent(),
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
   },
@@ -479,7 +514,7 @@ const fixtures: E2EFixture[] = [
     // Required object present, but neither sub-identifier set => client-side validation error.
     mapping: engage(EXISTING_ENGAGE_KEY, { identifiers: {}, dmp_company_action: 'ADD' }),
     mode: 'single',
-    event: companyEvent(),
+    event: connectionsEvent(),
     expect: {
       status: 'error',
       errorType: 'PayloadValidationError',
@@ -499,7 +534,7 @@ const fixtures: E2EFixture[] = [
       dmp_company_action: 'ADD'
     },
     mode: 'single',
-    event: companyEvent(),
+    event: connectionsEvent(),
     expect: {
       status: 'error',
       errorType: 'AggregateAjvError',
@@ -508,16 +543,16 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
-  // ---- ENGAGE_RETL batch: mixed valid add/add/remove ----
+  // ---- ENGAGE batch: mixed valid add/add/remove (Engage audience events) ----
   {
-    description: 'ENGAGE_RETL batch: ADD by domain + ADD by id + REMOVE by domain, all valid',
+    description: 'Engage batch: ADD by domain + ADD by id + REMOVE by domain, all valid',
     subscribe: 'type = "track"',
     mapping: engage(EXISTING_ENGAGE_KEY, perEventIdentifiers),
     mode: 'batchWithMultistatus',
     events: [
-      companyEvent({ companyDomain: 'linkedin.com', action: 'ADD' }),
-      companyEvent({ linkedInCompanyId: '1337', action: 'ADD' }),
-      companyEvent({ companyDomain: 'salesforce.com', action: 'REMOVE' })
+      engageEvent({ companyDomain: 'linkedin.com', action: 'ADD' }),
+      engageEvent({ linkedInCompanyId: '1337', action: 'ADD' }),
+      engageEvent({ companyDomain: 'salesforce.com', action: 'REMOVE' }, 'remove')
     ],
     // LinkedIn returns 201 per element for successful add/remove (idempotent by design).
     expect: {
@@ -526,17 +561,17 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
-  // ---- ENGAGE_RETL batch: per-item no-identifier 400, other rows still succeed ----
+  // ---- ENGAGE batch: per-item no-identifier 400, other rows still succeed ----
   {
-    description: 'ENGAGE_RETL batch with a valid ADD, a valid REMOVE, and a no-identifier row (per-item 400)',
+    description: 'Engage batch with a valid ADD, a valid REMOVE, and a no-identifier row (per-item 400)',
     subscribe: 'type = "track"',
     mapping: engage(EXISTING_ENGAGE_KEY, perEventIdentifiers),
     mode: 'batchWithMultistatus',
     events: [
-      companyEvent({ companyDomain: 'microsoft.com', action: 'ADD' }),
-      companyEvent({ companyDomain: 'salesforce.com', action: 'REMOVE' }),
+      engageEvent({ companyDomain: 'microsoft.com', action: 'ADD' }),
+      engageEvent({ companyDomain: 'salesforce.com', action: 'REMOVE' }, 'remove'),
       // No identifier => per-item PAYLOAD_VALIDATION_FAILED, other rows still succeed.
-      companyEvent({ action: 'ADD' })
+      engageEvent({ action: 'ADD' })
     ],
     expect: {
       status: 'success',
@@ -544,25 +579,25 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
-  // ---- ENGAGE_RETL batch: duplicate companies collapse to one element, every row still gets a status ----
+  // ---- ENGAGE batch: duplicate companies collapse to one element, every row still gets a status ----
   {
-    description: 'ENGAGE_RETL batch with duplicate companies collapses to one element, every row still gets a status',
+    description: 'Engage batch with duplicate companies collapses to one element, every row still gets a status',
     subscribe: 'type = "track"',
     mapping: engage(EXISTING_ENGAGE_KEY, perEventIdentifiers),
     mode: 'batchWithMultistatus',
     events: [
-      companyEvent({ companyDomain: 'Adobe.com', linkedInCompanyId: '1480', action: 'ADD' }),
-      companyEvent({ companyDomain: 'oracle.com', action: 'ADD' }),
-      companyEvent({ action: 'ADD' }),
-      companyEvent({ companyDomain: 'adobe.com', linkedInCompanyId: 'urn:li:organization:1480', action: 'ADD' }),
-      companyEvent({ linkedInCompanyId: '1476', action: 'ADD' }),
-      companyEvent({ companyDomain: 'ibm.com', action: 'ADD' }),
-      companyEvent({ companyDomain: 'ADOBE.COM', linkedInCompanyId: '1480', action: 'ADD' }),
-      companyEvent({ action: 'REMOVE' }),
-      companyEvent({ companyDomain: ' oracle.com ', action: 'ADD' }),
-      companyEvent({ linkedInCompanyId: 'urn:li:organization:1476', action: 'ADD' }),
-      companyEvent({ companyDomain: 'IBM.com', action: 'ADD' }),
-      companyEvent({ companyDomain: 'adobe.com', linkedInCompanyId: '1480', action: 'ADD' })
+      engageEvent({ companyDomain: 'Adobe.com', linkedInCompanyId: '1480', action: 'ADD' }),
+      engageEvent({ companyDomain: 'oracle.com', action: 'ADD' }),
+      engageEvent({ action: 'ADD' }),
+      engageEvent({ companyDomain: 'adobe.com', linkedInCompanyId: 'urn:li:organization:1480', action: 'ADD' }),
+      engageEvent({ linkedInCompanyId: '1476', action: 'ADD' }),
+      engageEvent({ companyDomain: 'ibm.com', action: 'ADD' }),
+      engageEvent({ companyDomain: 'ADOBE.COM', linkedInCompanyId: '1480', action: 'ADD' }),
+      engageEvent({ action: 'REMOVE' }, 'remove'),
+      engageEvent({ companyDomain: ' oracle.com ', action: 'ADD' }),
+      engageEvent({ linkedInCompanyId: 'urn:li:organization:1476', action: 'ADD' }),
+      engageEvent({ companyDomain: 'IBM.com', action: 'ADD' }),
+      engageEvent({ companyDomain: 'adobe.com', linkedInCompanyId: '1480', action: 'ADD' })
     ],
     expect: {
       status: 'success',
@@ -583,16 +618,17 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
-  // ---- ENGAGE_RETL large batch ----
+  // ---- Reverse ETL large batch (RETL audience events) ----
   {
-    description: 'ENGAGE_RETL large batch: add 350 company domains to the audience',
+    description: 'Reverse ETL large batch: add 350 company domains to the audience',
     subscribe: 'type = "track"',
     mapping: engage(EXISTING_ENGAGE_KEY, {
       identifiers: { companyDomain: { '@path': '$.properties.companyDomain' } },
       dmp_company_action: 'ADD'
     }),
     mode: 'batchWithMultistatus',
-    events: COMPANY_DOMAINS.map((companyDomain) => companyEvent({ companyDomain })),
+    // RETL events ('new' => membership true); dmp_company_action ADD drives the add regardless.
+    events: COMPANY_DOMAINS.map((companyDomain) => retlEvent({ companyDomain })),
     // LinkedIn returns 201 per element for a successful add; every one of the 350 rows should succeed.
     expect: {
       status: 'success',
@@ -600,48 +636,20 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
-  // ---- Realistic inbound event shapes (Engage + Reverse ETL) ----
-  // These use the shared audience-event helpers so the action runs against payloads shaped like real
-  // Engage/RETL events (membership boolean at properties[computationKey], identifier via enrichedTraits).
-  // The membership boolean is intentionally set OPPOSITE to dmp_company_action to document that the
-  // action is governed by dmp_company_action, not the boolean. NOTE: at the e2e layer this only asserts
-  // the call succeeds (LinkedIn returns 201 for both add and remove, and the runner can't inspect the
-  // outbound request body) — the actual "dmp_company_action overrides the membership boolean" behavior
-  // is proven in the unit tests.
+  // ---- Reverse ETL single (RETL audience event); dmp_company_action governs ----
+  // The RETL event is 'deleted' (membership false) while dmp_company_action is ADD, documenting that
+  // the action is governed by dmp_company_action, not the event name. At the e2e layer this only
+  // asserts the call succeeds (LinkedIn returns 201 for both add and remove, and the runner can't
+  // inspect the outbound request body) — the override itself is proven in the unit tests.
   {
-    description: 'Engage-shaped event runs end-to-end; dmp_company_action governs (boolean says remove, action ADD)',
+    description: 'Reverse ETL: single ADD (event "deleted") into existing audience; dmp_company_action governs',
     subscribe: 'type = "track"',
     mapping: engage(EXISTING_ENGAGE_KEY, {
       identifiers: { companyDomain: { '@path': '$.properties.companyDomain' } },
       dmp_company_action: 'ADD'
     }),
     mode: 'single',
-    // action: 'remove' => properties[HELPER_COMPUTATION_KEY] = false (Engage says "remove").
-    event: createE2EEngageAudienceEvent({
-      type: 'track',
-      action: 'remove',
-      computationKey: HELPER_COMPUTATION_KEY,
-      computationId: 'e2e_company_computation',
-      enrichedTraits: { companyDomain: 'microsoft.com' }
-    }),
-    expect: { status: 'success', httpStatus: 200 },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    description: 'Reverse ETL-shaped event runs end-to-end; dmp_company_action governs (event "deleted", action ADD)',
-    subscribe: 'type = "track"',
-    mapping: engage(EXISTING_ENGAGE_KEY, {
-      identifiers: { companyDomain: { '@path': '$.properties.companyDomain' } },
-      dmp_company_action: 'ADD'
-    }),
-    mode: 'single',
-    // eventName: 'deleted' => properties[HELPER_COMPUTATION_KEY] = false (RETL says "remove").
-    event: createE2ERetlAudienceEvent({
-      eventName: 'deleted',
-      computationKey: HELPER_COMPUTATION_KEY,
-      computationId: 'e2e_company_computation',
-      enrichedTraits: { companyDomain: 'microsoft.com' }
-    }),
+    event: retlEvent({ companyDomain: 'microsoft.com' }, 'deleted'),
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
   }
