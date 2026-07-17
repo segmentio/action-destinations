@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-dub-plugins",
-  "version": "1.14.0",
+  "version": "1.16.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/dub-plugins"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,7 +20,7 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/browser-destination-runtime": "^1.97.0"
+    "@segment/browser-destination-runtime": "^1.99.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
