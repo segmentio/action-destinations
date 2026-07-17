@@ -24,8 +24,20 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
-      companyDomain: { '@path': '$.traits.company_domain' },
-      linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
+      companyDomain: {
+        '@if': {
+          exists: { '@path': '$.traits.company_domain' },
+          then: { '@path': '$.traits.company_domain' },
+          else: { '@path': '$.properties.company_domain' }
+        }
+      },
+      linkedInCompanyId: {
+        '@if': {
+          exists: { '@path': '$.traits.linkedin_company_id' },
+          then: { '@path': '$.traits.linkedin_company_id' },
+          else: { '@path': '$.properties.linkedin_company_id' }
+        }
+      }
     }
   },
   dmp_company_action: {
