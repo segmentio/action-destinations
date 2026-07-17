@@ -3,7 +3,7 @@
  * API reference: https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-audience-management/audience-api?view=li-lms-2024-05
  * Changelog: https://learn.microsoft.com/en-us/linkedin/marketing/integrations/recent-changes
  */
-export const LINKEDIN_AUDIENCES_API_VERSION = '202506'
+export const LINKEDIN_AUDIENCES_API_VERSION = '202511'
 
 /** LINKEDIN_AUDIENCES_CANARY_API_VERSION
  * LinkedIn Audiences API version (canary/feature-flagged).
