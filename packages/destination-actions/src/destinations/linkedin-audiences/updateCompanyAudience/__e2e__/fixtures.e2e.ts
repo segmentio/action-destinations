@@ -2,33 +2,34 @@ import type { E2EFixture, SegmentEvent } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import updateCompanyAudience from '../index'
 
-// The real, pre-created COMPANY-type DMP segment these fixtures sync into. Fixtures run in the same
-// process as the runner, so they can read process.env directly (the $env marker only resolves inside
-// settings). See ../../__e2e__/index.ts for the full list of required environment variables.
-const COMPANY_SEGMENT_ID = process.env.E2E_LINKEDIN_COMPANY_SEGMENT_ID ?? ''
+// updateCompanyAudience resolves its LinkedIn DMP Company Segment at perform time (no mapping-save
+// hooks): it looks the segment up by `sourceSegmentId` via GET /dmpSegments, and creates it if none
+// exists. The lookup key is `computation_key` when `audience_source` is ENGAGE_RETL, or `segment_name`
+// when it is CONNECTIONS. These fixtures drive that real lookup-or-create flow against LinkedIn.
 
-// updateCompanyAudience is hook-gated: send() resolves the DMP segment id from
-// hookOutputs.retlOnMappingSave.outputs.id. The runner does not execute mapping-save hooks, but
-// destination-kit builds hookOutputs by reading the hook key straight off the raw mapping
-// (action.ts: `bundle.mapping?.[hookType]`). So we embed the hook output directly in the mapping —
-// mirroring how the unit tests supply it — which exercises the real hook-consuming code path with
-// no change to the action source. Omit this key to test the "no audience connected" error.
-const hookOutputs = {
-  retlOnMappingSave: {
-    inputs: {},
-    outputs: { id: COMPANY_SEGMENT_ID, name: 'e2e Company Audience' }
-  }
-}
+// A fixed key whose segment is created on the first-ever run and simply found (populated) on every
+// run after that — this is our "populate an existing audience" scenario. One per audience_source so
+// the ENGAGE_RETL and CONNECTIONS existing-segment tests don't collide.
+const EXISTING_ENGAGE_KEY = 'e2e-existing-company-audience'
+const EXISTING_CONNECTIONS_KEY = 'e2e-existing-connections-audience'
+
+// A unique-per-run key so the "creates a new audience" scenario genuinely exercises the create path
+// every run. NOTE: LinkedIn has no segment-delete API, so each run leaves a new COMPANY segment in the
+// ad account. These accumulate over time and should be cleaned up manually in Campaign Manager
+// periodically. Date.now() is fine here — this is a normal Node module, not a deterministic workflow.
+const NEW_ENGAGE_KEY = `e2e-new-company-${Date.now()}`
+const NEW_CONNECTIONS_KEY = `e2e-new-connections-${Date.now()}`
 
 const FAILURE_HINT =
-  'Ensure E2E_LINKEDIN_AUDIENCES_ACCESS_TOKEN, E2E_LINKEDIN_AUDIENCES_AD_ACCOUNT_ID, and ' +
-  'E2E_LINKEDIN_COMPANY_SEGMENT_ID (a COMPANY-type DMP segment id) are set. ' +
-  'To mint a fresh access token: LinkedIn Developer Portal (https://www.linkedin.com/developers/apps) ' +
-  '-> open the actions-linkedin-audiences app (its Client ID matches the linkedin-audiences-client-id ' +
-  'secret) -> Auth tab -> OAuth 2.0 tools -> Create token -> check the rw_dmp_segments scope -> ' +
-  'Request access token, and approve the consent popup as a member with a non-VIEWER role on the ad ' +
-  'account. If the scope is missing, the app is not approved for the Audiences program. Access tokens ' +
-  'last ~60 days; if a run returns 401 the token has expired, so re-mint it the same way.'
+  'Ensure E2E_LINKEDIN_AUDIENCES_ACCESS_TOKEN and E2E_LINKEDIN_AUDIENCES_AD_ACCOUNT_ID are set. ' +
+  'The DMP Company Segment is looked up (or created) live by sourceSegmentId, so no segment id env ' +
+  'var is required. To mint a fresh access token: LinkedIn Developer Portal ' +
+  '(https://www.linkedin.com/developers/apps) -> open the actions-linkedin-audiences app (its Client ' +
+  'ID matches the linkedin-audiences-client-id secret) -> Auth tab -> OAuth 2.0 tools -> Create token ' +
+  '-> check the rw_dmp_segments scope -> Request access token, and approve the consent popup as a ' +
+  'member with a non-VIEWER role on the ad account. If the scope is missing, the app is not approved ' +
+  'for the Audiences program. Access tokens last ~60 days; if a run returns 401 the token has expired, ' +
+  'so re-mint it the same way.'
 
 // A minimal track event. Company identifiers and action come from the mapping (not the event body),
 // so the event itself carries no personas/audience context.
@@ -42,9 +43,23 @@ function companyEvent(properties: Record<string, unknown> = {}): SegmentEvent {
   } as unknown as SegmentEvent
 }
 
-// defaultValues wires the hidden batching fields. We override identifiers + action per case and
-// spread in hookOutputs so send() can resolve the segment id.
+// defaultValues wires the hidden batching fields. Each fixture overrides identifiers, action, and the
+// segment-resolution fields (audience_source + computation_key/segment_name) as needed.
 const baseMapping = defaultValues(updateCompanyAudience.fields)
+
+// Mapping helpers for the two sources, so fixtures stay concise and can't drift on field names.
+const engage = (key: string, extra: Record<string, unknown>) => ({
+  ...baseMapping,
+  audience_source: 'ENGAGE_RETL',
+  computation_key: key,
+  ...extra
+})
+const connections = (key: string, extra: Record<string, unknown>) => ({
+  ...baseMapping,
+  audience_source: 'CONNECTIONS',
+  segment_name: key,
+  ...extra
+})
 
 // 350 real company domains for the large-batch e2e test below.
 const COMPANY_DOMAINS: string[] = [
@@ -400,16 +415,21 @@ const COMPANY_DOMAINS: string[] = [
   'cognizant.com'
 ]
 
+// Per-event identifiers/action for batch fixtures (a single mapping covers the whole batch).
+const perEventIdentifiers = {
+  identifiers: {
+    companyDomain: { '@path': '$.properties.companyDomain' },
+    linkedInCompanyId: { '@path': '$.properties.linkedInCompanyId' }
+  },
+  dmp_company_action: { '@path': '$.properties.action' }
+}
+
 const fixtures: E2EFixture[] = [
+  // ---- ENGAGE_RETL: populate an EXISTING audience (fixed key) ----
   {
-    description: 'Single ADD by company domain',
+    description: 'ENGAGE_RETL: single ADD by company domain (existing audience)',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      identifiers: { companyDomain: 'microsoft.com' },
-      action: 'ADD',
-      ...hookOutputs
-    },
+    mapping: engage(EXISTING_ENGAGE_KEY, { identifiers: { companyDomain: 'microsoft.com' }, dmp_company_action: 'ADD' }),
     mode: 'single',
     event: companyEvent(),
     // A freshly-created segment can briefly reject writes; retries give it time to settle.
@@ -417,43 +437,68 @@ const fixtures: E2EFixture[] = [
     verboseFailureHint: FAILURE_HINT
   },
   {
-    description: 'Single ADD by bare LinkedIn company id (wrapped to organizationUrn)',
+    description: 'ENGAGE_RETL: single ADD by bare LinkedIn company id (wrapped to organizationUrn)',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      identifiers: { linkedInCompanyId: '1035' },
-      action: 'ADD',
-      ...hookOutputs
-    },
+    mapping: engage(EXISTING_ENGAGE_KEY, { identifiers: { linkedInCompanyId: '1035' }, dmp_company_action: 'ADD' }),
     mode: 'single',
     event: companyEvent(),
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
   },
   {
-    description: 'Single REMOVE by company domain',
+    description: 'ENGAGE_RETL: single REMOVE by company domain (existing audience)',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
+    mapping: engage(EXISTING_ENGAGE_KEY, {
       identifiers: { companyDomain: 'microsoft.com' },
-      action: 'REMOVE',
-      ...hookOutputs
-    },
+      dmp_company_action: 'REMOVE'
+    }),
     mode: 'single',
     event: companyEvent(),
     expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint: FAILURE_HINT
   },
+  // ---- ENGAGE_RETL: CREATE a new audience (unique key per run) ----
+  {
+    description: 'ENGAGE_RETL: single ADD creates a new audience when none exists for the key',
+    subscribe: 'type = "track"',
+    mapping: engage(NEW_ENGAGE_KEY, { identifiers: { companyDomain: 'microsoft.com' }, dmp_company_action: 'ADD' }),
+    mode: 'single',
+    event: companyEvent(),
+    expect: { status: 'success', httpStatus: 200 },
+    verboseFailureHint: FAILURE_HINT
+  },
+  // ---- CONNECTIONS: populate an EXISTING audience (fixed key) ----
+  {
+    description: 'CONNECTIONS: single ADD by company domain (existing audience via segment_name)',
+    subscribe: 'type = "track"',
+    mapping: connections(EXISTING_CONNECTIONS_KEY, {
+      identifiers: { companyDomain: 'microsoft.com' },
+      dmp_company_action: 'ADD'
+    }),
+    mode: 'single',
+    event: companyEvent(),
+    expect: { status: 'success', httpStatus: 200 },
+    verboseFailureHint: FAILURE_HINT
+  },
+  // ---- CONNECTIONS: CREATE a new audience (unique key per run) ----
+  {
+    description: 'CONNECTIONS: single ADD creates a new audience when segment_name does not exist',
+    subscribe: 'type = "track"',
+    mapping: connections(NEW_CONNECTIONS_KEY, {
+      identifiers: { companyDomain: 'microsoft.com' },
+      dmp_company_action: 'ADD'
+    }),
+    mode: 'single',
+    event: companyEvent(),
+    expect: { status: 'success', httpStatus: 200 },
+    verboseFailureHint: FAILURE_HINT
+  },
+  // ---- Negative: no identifier (single) => validation error before any HTTP request ----
   {
     description: 'Single with no identifier throws PayloadValidationError before any HTTP request',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      // Required object present, but neither sub-identifier set => client-side validation error.
-      identifiers: {},
-      action: 'ADD',
-      ...hookOutputs
-    },
+    // Required object present, but neither sub-identifier set => client-side validation error.
+    mapping: engage(EXISTING_ENGAGE_KEY, { identifiers: {}, dmp_company_action: 'ADD' }),
     mode: 'single',
     event: companyEvent(),
     expect: {
@@ -463,38 +508,32 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
+  // ---- Negative: missing lookup key for the chosen source => conditional-required validation error ----
   {
-    description: 'Single with no connected audience (hook output omitted) throws PayloadValidationError',
+    description: 'ENGAGE_RETL with empty computation_key fails schema validation (conditionally required)',
     subscribe: 'type = "track"',
     mapping: {
       ...baseMapping,
+      audience_source: 'ENGAGE_RETL',
+      computation_key: '',
       identifiers: { companyDomain: 'microsoft.com' },
-      action: 'ADD'
-      // hookOutputs intentionally omitted => send() cannot resolve a segment id.
+      dmp_company_action: 'ADD'
     },
     mode: 'single',
     event: companyEvent(),
     expect: {
       status: 'error',
-      errorType: 'PayloadValidationError',
+      errorType: 'AggregateAjvError',
       errorMessage:
-        'No LinkedIn Company Audience is connected to this mapping. Please re-save the mapping to create or select a Company Audience.'
+        'The root value is missing the required field \'computation_key\'. The root value must match "then" schema.'
     },
     verboseFailureHint: FAILURE_HINT
   },
+  // ---- ENGAGE_RETL batch: mixed valid add/add/remove ----
   {
-    description: 'Batch ADD by domain + ADD by id + REMOVE by domain, all valid',
+    description: 'ENGAGE_RETL batch: ADD by domain + ADD by id + REMOVE by domain, all valid',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      // identifiers/action come from each event's properties so a single mapping covers the batch.
-      identifiers: {
-        companyDomain: { '@path': '$.properties.companyDomain' },
-        linkedInCompanyId: { '@path': '$.properties.linkedInCompanyId' }
-      },
-      action: { '@path': '$.properties.action' },
-      ...hookOutputs
-    },
+    mapping: engage(EXISTING_ENGAGE_KEY, perEventIdentifiers),
     mode: 'batchWithMultistatus',
     events: [
       companyEvent({ companyDomain: 'linkedin.com', action: 'ADD' }),
@@ -508,18 +547,11 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
+  // ---- ENGAGE_RETL batch: per-item no-identifier 400, other rows still succeed ----
   {
-    description: 'Batch with a valid ADD, a valid REMOVE, and a no-identifier row (per-item 400)',
+    description: 'ENGAGE_RETL batch with a valid ADD, a valid REMOVE, and a no-identifier row (per-item 400)',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      identifiers: {
-        companyDomain: { '@path': '$.properties.companyDomain' },
-        linkedInCompanyId: { '@path': '$.properties.linkedInCompanyId' }
-      },
-      action: { '@path': '$.properties.action' },
-      ...hookOutputs
-    },
+    mapping: engage(EXISTING_ENGAGE_KEY, perEventIdentifiers),
     mode: 'batchWithMultistatus',
     events: [
       companyEvent({ companyDomain: 'microsoft.com', action: 'ADD' }),
@@ -533,18 +565,11 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
+  // ---- ENGAGE_RETL batch: duplicate companies collapse to one element, every row still gets a status ----
   {
-    description: 'Batch with duplicate companies collapses to one element, every row still gets a status',
+    description: 'ENGAGE_RETL batch with duplicate companies collapses to one element, every row still gets a status',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      identifiers: {
-        companyDomain: { '@path': '$.properties.companyDomain' },
-        linkedInCompanyId: { '@path': '$.properties.linkedInCompanyId' }
-      },
-      action: { '@path': '$.properties.action' },
-      ...hookOutputs
-    },
+    mapping: engage(EXISTING_ENGAGE_KEY, perEventIdentifiers),
     mode: 'batchWithMultistatus',
     events: [
       companyEvent({ companyDomain: 'Adobe.com', linkedInCompanyId: '1480', action: 'ADD' }),
@@ -579,17 +604,14 @@ const fixtures: E2EFixture[] = [
     },
     verboseFailureHint: FAILURE_HINT
   },
+  // ---- ENGAGE_RETL large batch ----
   {
-    description: 'Large batch: add 350 company domains to the audience',
+    description: 'ENGAGE_RETL large batch: add 350 company domains to the audience',
     subscribe: 'type = "track"',
-    mapping: {
-      ...baseMapping,
-      identifiers: {
-        companyDomain: { '@path': '$.properties.companyDomain' }
-      },
-      action: 'ADD',
-      ...hookOutputs
-    },
+    mapping: engage(EXISTING_ENGAGE_KEY, {
+      identifiers: { companyDomain: { '@path': '$.properties.companyDomain' } },
+      dmp_company_action: 'ADD'
+    }),
     mode: 'batchWithMultistatus',
     events: COMPANY_DOMAINS.map((companyDomain) => companyEvent({ companyDomain })),
     // LinkedIn returns 201 per element for a successful add; every one of the 350 rows should succeed.

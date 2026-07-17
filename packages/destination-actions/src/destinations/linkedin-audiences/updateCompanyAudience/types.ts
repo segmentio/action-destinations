@@ -37,17 +37,3 @@ export interface LinkedInBatchUpdateResponse {
 }
 
 export type ValidCompanyPayload = Payload & { index: number }
-
-export interface HookOutputs {
-  retlOnMappingSave?: { outputs?: { id?: string } }
-  onMappingSave?: { outputs?: { id?: string } }
-}
-
-export interface CompanyHookInputs {
-  existing_audience_id?: string
-  segment_creation_name?: string
-}
-
-export type CompanyHookResult =
-  | { successMessage: string; savedData: { id: string; name: string } }
-  | { error: { message: string; code: string } }

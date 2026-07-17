@@ -3,22 +3,17 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { fields } from './fields'
 import { send } from './functions'
-import { companyAudienceHook } from './hooks'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync To LinkedIn DMP Company Segment',
   description: 'Syncs companies to LinkedIn DMP Company Segments.',
   defaultSubscription: 'type = "track"',
   fields,
-  hooks: {
-    retlOnMappingSave: companyAudienceHook,
-    onMappingSave: companyAudienceHook
+  perform: async (request, { settings, payload, statsContext, stateContext, features }) => {
+    return await send(request, settings, [payload], false, statsContext, stateContext, features)
   },
-  perform: async (request, { payload, hookOutputs, statsContext }) => {
-    return await send(request, [payload], hookOutputs, false, statsContext)
-  },
-  performBatch: async (request, { payload, hookOutputs, statsContext }) => {
-    return await send(request, payload, hookOutputs, true, statsContext)
+  performBatch: async (request, { settings, payload, statsContext, stateContext, features }) => {
+    return await send(request, settings, payload, true, statsContext, stateContext, features)
   }
 }
 
