@@ -78,6 +78,16 @@ const logBingAdsResponse = (
   sentPayload: SyncAudiencePayload,
   response: ModifiedResponse
 ): void => {
+  // TEMPORARY DIAGNOSTIC: log BEFORE the guard, via console (never gated on `logger`), so staging
+  // logs tell us which precondition fails. If this [PROBE] line is absent, logBingAdsResponse
+  // isn't being called at all on this delivery path; if present, it reports whether debugLogging
+  // and logger are actually set. Remove once the logger behaviour is confirmed.
+  // eslint-disable-next-line no-console
+  console.log(
+    `[ms-bing-ads-audiences][PROBE] ${action} audienceId=${audienceId} debugLogging=${debugLogging} hasLogger=${Boolean(
+      logger
+    )} loggerType=${typeof logger?.warn}`
+  )
   if (!debugLogging || !logger) return
   // Isolate from delivery control flow: this runs inside the syncUser try/catch after Bing has
   // already accepted the records, so a throwing/partial logger must never fail an otherwise
@@ -89,11 +99,9 @@ const logBingAdsResponse = (
       `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
       `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
       `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
-    // TEMPORARY DIAGNOSTIC: emit the same summary via console.log AND logger.warn so we can tell,
-    // from staging logs, WHICH channel surfaces. The warn line already carries the
-    // [ms-bing-ads-audiences][DEBUG] marker; the console line carries [CONSOLE]. If [CONSOLE]
-    // appears but [DEBUG] doesn't, the injected logger is the problem (broken/absent/filtered),
-    // not this code path. Remove once the logger behaviour is confirmed.
+    // TEMPORARY DIAGNOSTIC: confirm the emit is reached and surfaces via console (ungated on the
+    // logger's own health). If [CONSOLE] appears but the [DEBUG] warn below doesn't, the logger
+    // itself is the problem. Remove once the logger behaviour is confirmed.
     // eslint-disable-next-line no-console
     console.log(`[ms-bing-ads-audiences][CONSOLE] ${line.slice(0, 4096)}`)
     // Emit at warn: the delivery runtime's logger filters out info-level lines, so info never
