@@ -89,6 +89,13 @@ const logBingAdsResponse = (
       `[ms-bing-ads-audiences][DEBUG] ${action} audienceId=${audienceId} status=${response.status} ` +
       `trackingId=${extractTrackingId(response)} identifierType=${CustomerListItemSubType} ` +
       `itemCount=${CustomerListItems.length} partialErrors=${summarizeErrors(partialErrors)}`
+    // TEMPORARY DIAGNOSTIC: emit the same summary via console.log AND logger.warn so we can tell,
+    // from staging logs, WHICH channel surfaces. The warn line already carries the
+    // [ms-bing-ads-audiences][DEBUG] marker; the console line carries [CONSOLE]. If [CONSOLE]
+    // appears but [DEBUG] doesn't, the injected logger is the problem (broken/absent/filtered),
+    // not this code path. Remove once the logger behaviour is confirmed.
+    // eslint-disable-next-line no-console
+    console.log(`[ms-bing-ads-audiences][CONSOLE] ${line.slice(0, 4096)}`)
     // Emit at warn: the delivery runtime's logger filters out info-level lines, so info never
     // reaches the log pipeline. warn is the lowest level that reliably ships. Uses the optional
     // ?.warn?.() call idiom so a partial logger no-ops rather than throwing.
