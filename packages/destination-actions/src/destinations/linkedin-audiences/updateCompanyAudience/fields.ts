@@ -1,5 +1,5 @@
 import { InputField } from '@segment/actions-core'
-import { AUDIENCE_ACTION } from './constants'
+import { AUDIENCE_ACTION, AUDIENCE_SOURCE } from './constants'
 
 export const fields: Record<string, InputField> = {
   identifiers: {
@@ -28,7 +28,7 @@ export const fields: Record<string, InputField> = {
       linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
     }
   },
-  action: {
+  dmp_company_action: {
     label: 'Company Segment Action',
     description: 'Whether the company should be added to or removed from the LinkedIn DMP Company Segment.',
     type: 'string',
@@ -37,6 +37,63 @@ export const fields: Record<string, InputField> = {
       { label: 'Add to Company Audience', value: AUDIENCE_ACTION.ADD },
       { label: 'Remove from Company Audience', value: AUDIENCE_ACTION.REMOVE }
     ]
+  },
+  audience_source: {
+    label: 'Audience Source',
+    description: 'Choose "Engage or Reverse ETL" when the Audience is configured in Engage or Reverse ETL. If connecting from a Connections Source, for example a node.js Source, select Connections, then provide a name for your Segment.',
+    type: 'string',
+    required: true,
+    default: AUDIENCE_SOURCE.ENGAGE_RETL,
+    choices: [
+      { label: 'Engage or Reverse ETL', value: AUDIENCE_SOURCE.ENGAGE_RETL },
+      { label: 'Connections', value: AUDIENCE_SOURCE.CONNECTIONS }
+    ],
+  },
+  segment_name: {
+    label: 'Segment Name',
+    description:
+      'The name of the LinkedIn DMP Company Segment to sync to. Used only when Audience Source is "Connections". If a segment with this name does not already exist, it will be created in LinkedIn.',
+    type: 'string',
+    required: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'audience_source',
+          operator: 'is',
+          value: AUDIENCE_SOURCE.CONNECTIONS
+        }
+      ]
+    },
+    depends_on: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'audience_source',
+          operator: 'is',
+          value: AUDIENCE_SOURCE.CONNECTIONS
+        }
+      ]
+    }
+  },
+  computation_key: {
+    label: 'Audience Key',
+    description:
+      "The computation key used to identify the LinkedIn DMP Company Segment. Used only when Audience Source is \"Engage or Reverse ETL\".",
+    type: 'string',
+    unsafe_hidden: true,
+    required: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'audience_source',
+          operator: 'is',
+          value: AUDIENCE_SOURCE.ENGAGE_RETL
+        }
+      ]
+    },
+    default: {
+      '@path': '$.context.personas.computation_key'
+    }
   },
   enable_batching: {
     label: 'Enable Batching',
@@ -59,6 +116,6 @@ export const fields: Record<string, InputField> = {
     unsafe_hidden: true,
     required: false,
     multiple: true,
-    default: ['action']
+    default: ['dmp_company_action', 'audience_source', 'segment_name', 'computation_key']
   }
 }

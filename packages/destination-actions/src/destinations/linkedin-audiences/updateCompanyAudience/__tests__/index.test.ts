@@ -1,10 +1,8 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
-import createRequestClient from '../../../../../../core/src/create-request-client'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
 import { toOrganizationUrn } from '../functions'
-import { performCompanyHook, getCompanyAudiences } from '../hooks'
 import type { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(Destination)
@@ -16,27 +14,26 @@ const settings: Settings = {
 }
 
 const SEGMENT_ID = 'dmp_segment_id'
+const SOURCE_SEGMENT_ID = 'aud_key'
 const auth = { accessToken: 'token', refreshToken: 'refresh' }
 
-// A plain RequestClient used to exercise the hook helpers directly (there is no testHook helper
-// in the framework). nock matches on URL/body, so the auth header from extendRequest is not needed.
-const requestClient = createRequestClient()
-
-const hookOutputs = {
-  retlOnMappingSave: {
-    inputs: {},
-    outputs: { id: SEGMENT_ID, name: 'My ABM Audience' }
-  }
+// The segment id is resolved at perform time by looking up the COMPANY segment for the
+// resolved sourceSegmentId. Mock that GET so perform can proceed to the companies batch endpoint.
+const mockLookup = (elements: Array<{ id: string; name: string; type: string }> = [
+  { id: SEGMENT_ID, name: 'My ABM Audience', type: 'COMPANY' }
+]) => {
+  nock(BASE_URL).get('/dmpSegments').query(true).reply(200, { elements })
 }
 
-// Full explicit mapping for executeBatch, which (unlike testBatchAction) does not apply useDefaultMappings.
-const batchMapping = {
-  action: 'ADD',
+// Common mapping bits: identifiers come from traits. Audience Source defaults to Engage/Reverse ETL,
+// so the lookup key comes from computation_key.
+const baseMapping = {
+  audience_source: 'ENGAGE_RETL',
+  computation_key: SOURCE_SEGMENT_ID,
   identifiers: {
     companyDomain: { '@path': '$.traits.company_domain' },
     linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
-  },
-  ...hookOutputs
+  }
 }
 
 describe('LinkedinAudiences.updateCompanyAudience', () => {
@@ -55,6 +52,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
   describe('perform', () => {
     it('adds a single company with both identifiers', async () => {
+      mockLookup()
       let sentBody: any
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
@@ -71,13 +69,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         settings,
         auth,
         useDefaultMappings: true,
-        mapping: {
-          action: 'ADD',
-          ...hookOutputs
-        }
+        mapping: { dmp_company_action: 'ADD', ...baseMapping }
       })
 
-      expect(responses[0].status).toBe(200)
+      expect(responses[responses.length - 1].status).toBe(200)
       expect(sentBody).toEqual({
         elements: [
           {
@@ -90,6 +85,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     })
 
     it('sends only the provided identifier (domain only)', async () => {
+      mockLookup()
       let sentBody: any
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
@@ -103,13 +99,14 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         settings,
         auth,
         useDefaultMappings: true,
-        mapping: { action: 'ADD', ...hookOutputs }
+        mapping: { dmp_company_action: 'ADD', ...baseMapping }
       })
 
       expect(sentBody.elements[0]).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
     })
 
     it('sends REMOVE when the action field is Remove', async () => {
+      mockLookup()
       let sentBody: any
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
@@ -123,22 +120,179 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         settings,
         auth,
         useDefaultMappings: true,
-        mapping: { action: 'REMOVE', ...hookOutputs }
+        mapping: { dmp_company_action: 'REMOVE', ...baseMapping }
       })
 
       expect(sentBody.elements[0].action).toBe('REMOVE')
     })
 
-    it('throws when no company audience is connected (no hook output)', async () => {
+    it('creates a new COMPANY segment when the lookup returns no COMPANY match', async () => {
+      // Lookup returns only a USER segment sharing the sourceSegmentId; it must be ignored and a
+      // new COMPANY segment created. The new id comes back in the x-restli-id header.
+      mockLookup([{ id: 'user_segment', name: 'A User List', type: 'USER' }])
+      let createBody: any
+      nock(BASE_URL)
+        .post('/dmpSegments', (body) => {
+          createBody = body
+          return true
+        })
+        .reply(201, {}, { 'x-restli-id': 'created_company_id' })
+      let sentBody: any
+      nock(BASE_URL)
+        .post(`/dmpSegments/created_company_id/companies`, (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, { elements: [{ status: 201 }] })
+
+      await testDestination.testAction('updateCompanyAudience', {
+        event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { dmp_company_action: 'ADD', ...baseMapping }
+      })
+
+      // The resolved key (computation_key) doubles as the created segment's name and sourceSegmentId.
+      expect(createBody).toMatchObject({
+        type: 'COMPANY',
+        name: SOURCE_SEGMENT_ID,
+        sourceSegmentId: SOURCE_SEGMENT_ID
+      })
+      expect(sentBody.elements[0]).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
+    })
+
+    it('uses the customer-provided Segment Name as the lookup/create key when Audience Source is Connections', async () => {
+      // Connections ignores computation_key; the Segment Name is used as name + sourceSegmentId.
+      mockLookup([])
+      let createBody: any
+      nock(BASE_URL)
+        .post('/dmpSegments', (body) => {
+          createBody = body
+          return true
+        })
+        .reply(201, {}, { 'x-restli-id': 'created_company_id' })
+      nock(BASE_URL)
+        .post(`/dmpSegments/created_company_id/companies`)
+        .reply(200, { elements: [{ status: 201 }] })
+
+      await testDestination.testAction('updateCompanyAudience', {
+        event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: {
+          dmp_company_action: 'ADD',
+          audience_source: 'CONNECTIONS',
+          segment_name: 'My Connections Audience',
+          identifiers: { companyDomain: { '@path': '$.traits.company_domain' } }
+        }
+      })
+
+      expect(createBody).toMatchObject({
+        type: 'COMPANY',
+        name: 'My Connections Audience',
+        sourceSegmentId: 'My Connections Audience'
+      })
+    })
+
+    it('throws a retryable error when the segment lookup returns a retryable status (500)', async () => {
+      nock(BASE_URL).get('/dmpSegments').query(true).reply(500, {})
+      const error = await testDestination
+        .testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: { dmp_company_action: 'ADD', ...baseMapping }
+        })
+        .catch((e) => e)
+      expect(error.code).toBe('RETRYABLE_ERROR')
+    })
+
+    it('treats a 409 conflict on segment create as retryable', async () => {
+      mockLookup([])
+      nock(BASE_URL).post('/dmpSegments').reply(409, {})
+      const error = await testDestination
+        .testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: { dmp_company_action: 'ADD', ...baseMapping }
+        })
+        .catch((e) => e)
+      expect(error.code).toBe('RETRYABLE_ERROR')
+    })
+
+    it('throws a non-retryable error when segment create returns a 400', async () => {
+      mockLookup([])
+      nock(BASE_URL).post('/dmpSegments').reply(400, {})
+      const error = await testDestination
+        .testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: { dmp_company_action: 'ADD', ...baseMapping }
+        })
+        .catch((e) => e)
+      expect(error.code).not.toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(400)
+    })
+
+    // computation_key is conditionally required when audience_source is ENGAGE_RETL, so the
+    // framework's schema validation rejects the payload before perform runs.
+    it('throws a validation error when the computation_key is missing (Engage/Reverse ETL)', async () => {
       await expect(
         testDestination.testAction('updateCompanyAudience', {
           event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
           settings,
           auth,
           useDefaultMappings: true,
-          mapping: { action: 'ADD' }
+          mapping: {
+            dmp_company_action: 'ADD',
+            audience_source: 'ENGAGE_RETL',
+            identifiers: { companyDomain: { '@path': '$.traits.company_domain' } }
+          }
         })
-      ).rejects.toThrow('No LinkedIn Company Audience is connected to this mapping')
+      ).rejects.toThrow("missing the required field 'computation_key'")
+    })
+
+    // segment_name is conditionally required when audience_source is CONNECTIONS.
+    it('throws a validation error when Segment Name is missing (Connections)', async () => {
+      await expect(
+        testDestination.testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: {
+            dmp_company_action: 'ADD',
+            audience_source: 'CONNECTIONS',
+            identifiers: { companyDomain: { '@path': '$.traits.company_domain' } }
+          }
+        })
+      ).rejects.toThrow("missing the required field 'segment_name'")
+    })
+
+    // Whitespace-only values satisfy the schema's presence check but resolve to empty; the
+    // runtime resolver (resolveSourceSegmentId) guards this case with a clearer message.
+    it('throws a runtime validation error when the Audience Key is only whitespace', async () => {
+      await expect(
+        testDestination.testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: {
+            dmp_company_action: 'ADD',
+            audience_source: 'ENGAGE_RETL',
+            computation_key: '   ',
+            identifiers: { companyDomain: { '@path': '$.traits.company_domain' } }
+          }
+        })
+      ).rejects.toThrow('`Audience Key` field is required')
     })
 
     it('throws a validation error when no identifier is provided', async () => {
@@ -148,19 +302,20 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           settings,
           auth,
           useDefaultMappings: true,
-          mapping: { action: 'ADD', identifiers: {}, ...hookOutputs }
+          mapping: { dmp_company_action: 'ADD', ...baseMapping, identifiers: {} }
         })
       ).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required")
     })
 
     const performWithStatus = (status: number) => {
+      mockLookup()
       nock(BASE_URL).post(`/dmpSegments/${SEGMENT_ID}/companies`).reply(status, {})
       return testDestination.testAction('updateCompanyAudience', {
         event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
         settings,
         auth,
         useDefaultMappings: true,
-        mapping: { action: 'ADD', ...hookOutputs }
+        mapping: { dmp_company_action: 'ADD', ...baseMapping }
       })
     }
 
@@ -196,13 +351,14 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     // LinkedIn's batch-style endpoint returns HTTP 200 even when the single company fails,
     // reporting the real outcome in elements[0].status. These cover that per-element check.
     const performWithElement = (body: unknown) => {
+      mockLookup()
       nock(BASE_URL).post(`/dmpSegments/${SEGMENT_ID}/companies`).reply(200, body)
       return testDestination.testAction('updateCompanyAudience', {
         event: { type: 'track', traits: { company_domain: 'microsoft.com' } } as any,
         settings,
         auth,
         useDefaultMappings: true,
-        mapping: { action: 'ADD', ...hookOutputs }
+        mapping: { dmp_company_action: 'ADD', ...baseMapping }
       })
     }
 
@@ -230,12 +386,24 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
   })
 
   describe('performBatch', () => {
+    // Full explicit mapping for executeBatch, which (unlike testBatchAction) does not apply useDefaultMappings.
+    const batchMapping = {
+      dmp_company_action: 'ADD',
+      audience_source: 'ENGAGE_RETL',
+      computation_key: SOURCE_SEGMENT_ID,
+      identifiers: {
+        companyDomain: { '@path': '$.traits.company_domain' },
+        linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
+      }
+    }
+
     it('dedupes same-company payloads and fans each result back to every original index', async () => {
       // The 10 valid rows below collapse to 4 unique company+action elements. Case, surrounding
       // whitespace, and bare-id-vs-URN forms of the same company all key the same:
       //   Adobe (idx 0,3,6,11), oracle.com (idx 1,8), org 1476 (idx 4,9), ibm.com (idx 5,10).
       // LinkedIn is sent exactly 4 elements; its per-element result is copied to every original
       // index in that group, and the two no-identifier rows (idx 2,7) fail before the request.
+      mockLookup()
       let sentBody: any
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
@@ -252,12 +420,13 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         })
 
       const perEventMapping = {
-        action: { '@path': '$.traits.action' },
+        dmp_company_action: { '@path': '$.traits.action' },
+        audience_source: 'ENGAGE_RETL',
+        computation_key: SOURCE_SEGMENT_ID,
         identifiers: {
           companyDomain: { '@path': '$.traits.company_domain' },
           linkedInCompanyId: { '@path': '$.traits.linkedin_company_id' }
-        },
-        ...hookOutputs
+        }
       }
 
       const events = [
@@ -296,37 +465,38 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         ]
       })
 
+      // `sent` = the element POSTed to LinkedIn; `body` = LinkedIn's per-element response.
       const adobe = {
         status: 201,
         sent: { action: 'ADD', companyWebsiteDomain: 'adobe.com', organizationUrn: 'urn:li:organization:1480' },
-        body: { action: 'ADD', identifiers: { companyDomain: 'adobe.com', linkedInCompanyId: '1480' }, index: 0 }
+        body: { status: 201 }
       }
       const oracle = {
         status: 201,
         sent: { action: 'ADD', companyWebsiteDomain: 'oracle.com' },
-        body: { action: 'ADD', identifiers: { companyDomain: 'oracle.com' }, index: 1 }
+        body: { status: 201 }
       }
       const ibm = {
         status: 201,
         sent: { action: 'ADD', companyWebsiteDomain: 'ibm.com' },
-        body: { action: 'ADD', identifiers: { companyDomain: 'ibm.com' }, index: 5 }
+        body: { status: 201 }
       }
       const org1476Error = {
         status: 400,
         errortype: 'BAD_REQUEST',
         errormessage: 'Invalid organization urn',
         sent: { action: 'ADD', organizationUrn: 'urn:li:organization:1476' },
-        body: { action: 'ADD', identifiers: { linkedInCompanyId: '1476' }, index: 4 },
+        body: { status: 400, error: { message: 'Invalid organization urn' } },
         errorreporter: 'DESTINATION'
       }
-      const noIdentifier = (action: string) => ({
+      // No identifier is a Segment-side validation failure: nothing sent, no response, so
+      // `sent`/`body` are omitted and the error is reported by INTEGRATIONS.
+      const noIdentifier = () => ({
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage:
           "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.",
-        sent: { action, identifiers: {} },
-        body: {},
-        errorreporter: 'DESTINATION'
+        errorreporter: 'INTEGRATIONS'
       })
 
       // Every original index gets a status; duplicate rows carry the representative's sent/body,
@@ -334,12 +504,12 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(response).toEqual([
         adobe, // 0
         oracle, // 1
-        noIdentifier('ADD'), // 2
+        noIdentifier(), // 2
         adobe, // 3 (dup of 0)
         org1476Error, // 4
         ibm, // 5
         adobe, // 6 (dup of 0)
-        noIdentifier('REMOVE'), // 7
+        noIdentifier(), // 7
         oracle, // 8 (dup of 1, whitespace-normalized)
         org1476Error, // 9 (dup of 4, URN form)
         ibm, // 10 (dup of 5, case-normalized)
@@ -348,6 +518,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     })
 
     it('returns a per-item MultiStatusResponse for a mixed batch', async () => {
+      mockLookup()
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`)
         .reply(200, {
@@ -370,14 +541,15 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(response[1].status).toBe(400)
       expect((response[1] as any).errormessage).toBe('Invalid company')
 
-      // sent = the element sent to LinkedIn; body = the Segment payload into performBatch
+      // sent = the element sent to LinkedIn; body = LinkedIn's per-element response
       expect((response[0] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
-      expect((response[0] as any).body).toMatchObject({ identifiers: { companyDomain: 'microsoft.com' } })
+      expect((response[0] as any).body).toEqual({ status: 201 })
       expect((response[1] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'invalid' })
-      expect((response[1] as any).body).toMatchObject({ identifiers: { companyDomain: 'invalid' } })
+      expect((response[1] as any).body).toEqual({ status: 400, error: { message: 'Invalid company' } })
     })
 
     it('marks payloads with no identifier as per-item errors without failing the batch', async () => {
+      mockLookup()
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`)
         .reply(200, { elements: [{ status: 201 }] })
@@ -401,6 +573,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
     it('fails a payload non-retryably when LinkedIn returns fewer results than sent', async () => {
       // Two companies sent, but LinkedIn returns only one element in the 200 body.
+      mockLookup()
       nock(BASE_URL)
         .post(`/dmpSegments/${SEGMENT_ID}/companies`)
         .reply(200, { elements: [{ status: 201 }] })
@@ -421,75 +594,62 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(response[1].status).toBe(400)
       expect((response[1] as any).errormessage).toContain('did not return a result')
     })
-  })
 
-  describe('hook: performCompanyHook', () => {
-    it('creates a new COMPANY segment and returns the id from the x-restli-id header', async () => {
-      nock(BASE_URL)
-        .post('/dmpSegments', (body) => body.type === 'COMPANY' && body.name === 'My New Audience')
-        .reply(201, {}, { 'x-restli-id': 'new_segment_id' })
+    it('fans a non-retryable segment-create failure to every item instead of failing the whole batch', async () => {
+      // The batch cannot resolve a segment (create returns a non-retryable 400). Rather than throw
+      // and fail the entire batch opaquely, each item is marked as a per-item error.
+      mockLookup([])
+      nock(BASE_URL).post('/dmpSegments').reply(400, {})
 
-      const result = await performCompanyHook(requestClient, settings, { segment_creation_name: 'My New Audience' })
+      const events = [
+        { type: 'track', traits: { company_domain: 'microsoft.com' } },
+        { type: 'track', traits: { company_domain: 'segment.com' } }
+      ] as any
 
-      expect(result).toEqual({
-        successMessage: expect.stringContaining('new_segment_id'),
-        savedData: { id: 'new_segment_id', name: 'My New Audience' }
+      const response = await testDestination.executeBatch('updateCompanyAudience', {
+        events,
+        settings,
+        auth,
+        mapping: batchMapping
       })
+
+      expect(response[0].status).toBe(400)
+      expect(response[1].status).toBe(400)
     })
 
-    it('validates and reuses a selected existing COMPANY segment', async () => {
-      nock(BASE_URL).get('/dmpSegments/999').reply(200, { id: '999', name: 'Existing ABM', type: 'COMPANY' })
+    it('rethrows a retryable segment-resolution failure so the whole batch is retried', async () => {
+      // A retryable lookup failure must propagate (not become per-item errors) so the framework
+      // retries the entire batch.
+      nock(BASE_URL).get('/dmpSegments').query(true).reply(500, {})
 
-      const result = await performCompanyHook(requestClient, settings, { existing_audience_id: '999' })
+      const events = [
+        { type: 'track', traits: { company_domain: 'microsoft.com' } },
+        { type: 'track', traits: { company_domain: 'segment.com' } }
+      ] as any
 
-      expect(result).toEqual({
-        successMessage: expect.stringContaining('Existing ABM'),
-        savedData: { id: '999', name: 'Existing ABM' }
-      })
+      const error = await testDestination
+        .executeBatch('updateCompanyAudience', { events, settings, auth, mapping: batchMapping })
+        .catch((e) => e)
+      expect(error.code).toBe('RETRYABLE_ERROR')
     })
 
-    it('rejects a selected segment that is not a COMPANY segment', async () => {
-      nock(BASE_URL).get('/dmpSegments/999').reply(200, { id: '999', name: 'A User List', type: 'USER' })
+    it('fans a whitespace-only Audience Key validation error to every item in batch mode', async () => {
+      // No lookup/create is attempted; resolveSourceSegmentId throws before any request.
+      const events = [
+        { type: 'track', traits: { company_domain: 'microsoft.com' } },
+        { type: 'track', traits: { company_domain: 'segment.com' } }
+      ] as any
 
-      const result = await performCompanyHook(requestClient, settings, { existing_audience_id: '999' })
-
-      expect(result).toEqual({
-        error: {
-          message: expect.stringContaining('cannot be used as a Company Audience'),
-          code: 'INVALID_SEGMENT_TYPE'
-        }
+      const response = await testDestination.executeBatch('updateCompanyAudience', {
+        events,
+        settings,
+        auth,
+        mapping: { ...batchMapping, computation_key: '   ' }
       })
-    })
 
-    it('returns an error when neither an existing id nor a name is provided', async () => {
-      const result = await performCompanyHook(requestClient, settings, {})
-      expect(result).toEqual({
-        error: { message: expect.stringContaining('Provide a name'), code: 'MISSING_SEGMENT_NAME' }
-      })
-    })
-  })
-
-  describe('hook dropdown: getCompanyAudiences', () => {
-    it('lists only COMPANY-type segments as choices', async () => {
-      nock(BASE_URL)
-        .get('/dmpSegments')
-        .query(true)
-        .reply(200, {
-          elements: [
-            { id: '1', name: 'Company Aud', type: 'COMPANY' },
-            { id: '2', name: 'User Aud', type: 'USER' },
-            { id: '3', name: 'Another Company', type: 'COMPANY' }
-          ]
-        })
-
-      const result = await getCompanyAudiences(requestClient, settings)
-
-      expect(result).toEqual({
-        choices: [
-          { value: '1', label: 'Company Aud' },
-          { value: '3', label: 'Another Company' }
-        ]
-      })
+      expect(response[0].status).toBe(400)
+      expect(response[1].status).toBe(400)
+      expect((response[0] as any).errormessage).toContain('`Audience Key` field is required')
     })
   })
 })

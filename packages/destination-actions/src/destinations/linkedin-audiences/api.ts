@@ -80,7 +80,10 @@ export class LinkedInAudiences {
     })
   }
 
-  async listDmpSegmentsByAccount(settings: Settings): Promise<ModifiedResponse<GetDMPSegmentsResponse>> {
+  async getCompanyDmpSegment(
+    settings: Settings,
+    sourceSegmentId: string
+  ): Promise<ModifiedResponse<GetDMPSegmentsResponse>> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'GET',
       headers: {
@@ -90,22 +93,14 @@ export class LinkedInAudiences {
       searchParams: {
         q: 'account',
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
+        sourceSegmentId,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
-  async getDmpSegmentById(dmpSegmentId: string): Promise<ModifiedResponse<{ id: string; name: string; type: string }>> {
-    return this.request(`${BASE_URL}/dmpSegments/${dmpSegmentId}`, {
-      method: 'GET',
-      headers: {
-        'X-Restli-Protocol-Version': LINKEDIN_PROTOCOL_VERSION,
-        'LinkedIn-Version': getApiVersion(this.features)
-      }
-    })
-  }
-
-  async createCompanyDmpSegment(settings: Settings, segmentName: string): Promise<ModifiedResponse> {
+  async createCompanyDmpSegment(settings: Settings, sourceSegmentId: string): Promise<ModifiedResponse> {
     return this.request(`${BASE_URL}/dmpSegments`, {
       method: 'POST',
       headers: {
@@ -113,8 +108,9 @@ export class LinkedInAudiences {
         'LinkedIn-Version': getApiVersion(this.features)
       },
       json: {
-        name: segmentName,
+        name: sourceSegmentId,
         sourcePlatform: LINKEDIN_SOURCE_PLATFORM,
+        sourceSegmentId,
         account: `urn:li:sponsoredAccount:${settings.ad_account_id}`,
         type: SEGMENT_TYPES.COMPANY,
         destinations: [
@@ -122,7 +118,8 @@ export class LinkedInAudiences {
             destination: 'LINKEDIN'
           }
         ]
-      }
+      },
+      throwHttpErrors: false
     })
   }
 
