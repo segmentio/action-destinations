@@ -27,9 +27,9 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       // NOTE (v3 migration): `test_mode` is a v2.0-only mechanism. Reddit CAPI v3 replaces it
-      // with a per-request `test_id` string (see V3-API-REFERENCE.md §5). This setting is only
-      // sent on the v2.0 path and should be deprecated/removed once v3 is promoted to stable
-      // and the feature flag is cleaned up.
+      // with a per-request `test_id` field (see the customEvent/standardEvent action fields).
+      // This setting is only sent on the v2.0 path and should be deprecated/removed once v3
+      // is promoted to stable and the feature flag is cleaned up.
       test_mode: {
         label: 'Test Mode',
         description: 'Indicates if events should be treated as test events by Reddit.',
