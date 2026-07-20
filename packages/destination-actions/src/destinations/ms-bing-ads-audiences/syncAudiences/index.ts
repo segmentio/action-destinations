@@ -188,6 +188,36 @@ const syncUser = async (
       handleMultistatusResponse(msResponse, response, removeItems, removeMap, payload, isBatch)
     }
   } catch (error) {
+    // TEMPORARY DIAGNOSTIC: the debug logging above only runs on the HTTP-success branch, so a
+    // non-2xx from Bing (which throws here) produced no logs at all. Log the real error on the
+    // catch path — status, tracking id, and response body — to see what Bing is rejecting. Fully
+    // isolated so logging can never alter delivery control flow. Remove once diagnosed.
+    try {
+      const isHttp = error instanceof HTTPError
+      const status = isHttp ? error.response?.status : undefined
+      const trackingId = isHttp
+        ? error.response?.headers?.get('trackingid') || error.response?.headers?.get('x-ms-trackingid') || 'none'
+        : 'none'
+      let body = ''
+      if (isHttp) {
+        // error.response.json() consumes the stream; clone first so handleHttpError can still read it.
+        try {
+          body = JSON.stringify(await error.response?.clone()?.json())
+        } catch {
+          body = '<unreadable body>'
+        }
+      }
+      const line =
+        `[ms-bing-ads-audiences][CATCH] audienceId=${audienceId} isHTTPError=${isHttp} status=${status} ` +
+        `trackingId=${trackingId} name=${(error as Error)?.name} message=${(error as Error)?.message} ` +
+        `body=${body.slice(0, 4096)}`
+      // eslint-disable-next-line no-console
+      console.log(`[CONSOLE] ${line}`)
+      logger?.warn?.(line)
+    } catch {
+      // Best-effort diagnostic — never let it interfere with the delivery.
+    }
+
     if (!isBatch) {
       throw error
     }
