@@ -3,6 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
 import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME } from '../utils'
+import { toEpochMs } from '../v3'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
@@ -1132,6 +1133,35 @@ describe('Reddit Conversions Api', () => {
         expect(responses[0].status).toBe(200)
         const body = responses[0].options.json as { data: { test_id?: string } }
         expect(body.data.test_id).toBe('test-123')
+      })
+    })
+
+    describe('toEpochMs (v3 event_at coercion)', () => {
+      it('accepts ISO 8601 strings', () => {
+        expect(toEpochMs('2024-01-08T13:52:50.212Z')).toBe(Date.parse('2024-01-08T13:52:50.212Z'))
+      })
+
+      it('accepts epoch milliseconds (number and 13-digit string)', () => {
+        expect(toEpochMs(1704721970212)).toBe(1704721970212)
+        expect(toEpochMs('1704721970212')).toBe(1704721970212)
+      })
+
+      it('rejects epoch seconds (10-digit) instead of silently misreading as ms', () => {
+        expect(() => toEpochMs(1704721970)).toThrow(/epoch milliseconds/)
+        expect(() => toEpochMs('1704721970')).toThrow(/epoch milliseconds/)
+      })
+
+      it('rejects non-integer numbers', () => {
+        expect(() => toEpochMs(1704721970212.5)).toThrow(/epoch milliseconds/)
+      })
+
+      it('rejects unparseable strings', () => {
+        expect(() => toEpochMs('not-a-date')).toThrow(/epoch milliseconds/)
+      })
+
+      it('rejects missing values', () => {
+        expect(() => toEpochMs(undefined)).toThrow(/required/)
+        expect(() => toEpochMs('')).toThrow(/required/)
       })
     })
   })

@@ -87,16 +87,21 @@ function createRedditPayloadV3(payloads: StandardEvent[] | CustomEvent[]): V3Pay
 
 // v3 requires event_at as an integer Unix epoch in milliseconds. We own the
 // timestamp source (defaults to $.timestamp, an ISO string), so we accept ISO
-// strings and 13-digit epoch-ms; anything else is rejected rather than sent wrong.
+// strings and epoch-ms; anything else is rejected rather than sent wrong.
+// EPOCH_MS_MIN guards against epoch *seconds* being misread as ms (a 10-digit
+// seconds value is < 1e12, so it's rejected instead of landing in 1970).
+const EPOCH_MS_MIN = 1e12
 export function toEpochMs(value: string | number | undefined): number {
   if (value === undefined || value === null || value === '') {
     throw new PayloadValidationError('event_at is required')
   }
-  // Already epoch milliseconds (number or 13-digit numeric string).
-  if (typeof value === 'number' && Number.isInteger(value)) return value
-  if (typeof value === 'string' && /^\d{13}$/.test(value.trim())) return Number(value.trim())
+  // Already epoch milliseconds (number or numeric string), only if plausibly ms.
+  if (typeof value === 'number' && Number.isInteger(value) && value >= EPOCH_MS_MIN) return value
+  if (typeof value === 'string' && /^\d+$/.test(value.trim()) && Number(value.trim()) >= EPOCH_MS_MIN) {
+    return Number(value.trim())
+  }
   // ISO 8601 / RFC3339 string.
-  if (typeof value === 'string') {
+  if (typeof value === 'string' && !/^\d+$/.test(value.trim())) {
     const ms = Date.parse(value)
     if (!Number.isNaN(ms)) return ms
   }
