@@ -9,7 +9,7 @@ import {
   IntegrationError
 } from '@segment/actions-core'
 import { BASE_URL } from './constants'
-import { SyncAudiencePayload, PartialError, Action, Identifier } from './types'
+import { SyncAudiencePayload, PartialError, Action, Identifier, BingError, BingFaultResponse } from './types'
 
 /**
  * Hashes an email address using the SHA-256 algorithm and returns the result as a hexadecimal string.
@@ -167,20 +167,56 @@ export const handleMultistatusResponse = (
  * @param payload - The array of payloads that were attempted to be sent.
  * @returns A promise that resolves when all error responses have been set.
  */
+// Bing auth error codes that mean the access token must be refreshed (invalid or expired). We map
+// these to HTTP 401 in the multistatus response so the framework's built-in OAuth retry
+// (destination-kit: shouldRetry -> handleAuthError) refreshes the token and retries the batch.
+// 106 (user has no access to the entity) is deliberately NOT here: a token refresh can't grant
+// access, so retrying would just loop — it's surfaced as the real error instead.
+// Docs: https://learn.microsoft.com/en-us/advertising/guides/handle-service-errors-exceptions
+const REFRESHABLE_AUTH_ERROR_CODES = new Set([105, 109])
+
+// Parse a Bing whole-request fault into the fields we record per item. Bing does NOT put a `status`
+// in the body (the old code read errorResponse?.status, which was always undefined) — the HTTP
+// status is on error.response.status. Bing also sometimes returns HTTP 500 for faults that are
+// really auth failures, so we additionally inspect the body's error code and normalize auth
+// failures to 401 so token-refresh-and-retry kicks in regardless of the HTTP status Bing chose.
+export const parseBingFault = (
+  fault: BingFaultResponse | undefined,
+  httpStatus: number | undefined,
+  fallbackMessage: string
+): { status: number; errormessage: string; trackingId?: string; errorCode?: string } => {
+  // AdApiFaultDetail nests under Errors, ApiFaultDetail under OperationErrors.
+  const firstError: BingError | undefined = fault?.Errors?.[0] ?? fault?.OperationErrors?.[0]
+  const isRefreshableAuthError = firstError?.Code !== undefined && REFRESHABLE_AUTH_ERROR_CODES.has(firstError.Code)
+
+  // Normalize refreshable auth failures to 401 so the framework retries after refreshing the token,
+  // even when Bing returned them as HTTP 500. Otherwise fall back to the real HTTP status.
+  const status = isRefreshableAuthError ? 401 : httpStatus ?? 500
+
+  const errormessage = firstError
+    ? `${firstError.ErrorCode ?? 'UnknownError'} (${firstError.Code}): ${firstError.Message ?? fallbackMessage}`
+    : fallbackMessage
+
+  return { status, errormessage, trackingId: fault?.TrackingId, errorCode: firstError?.ErrorCode }
+}
+
 export const handleHttpError = async (
   msResponse: MultiStatusResponse,
   error: HTTPError,
   listItemsMap: Map<string, number[]>,
   payload: Payload[]
 ): Promise<void> => {
-  const errorResponse = await error?.response?.json()
+  // Bing's fault body has no top-level `status`; the real status is on the HTTP response.
+  const fault = (await error?.response?.json().catch(() => undefined)) as BingFaultResponse | undefined
+  const { status, errormessage, trackingId } = parseBingFault(fault, error?.response?.status, error.message)
+
   listItemsMap.forEach((indices) => {
     indices.forEach((index) => {
       msResponse.setErrorResponseAtIndex(index, {
-        status: errorResponse?.status,
-        errormessage: errorResponse?.message || error.message,
+        status,
+        errormessage,
         sent: payload[index] as unknown as JSONLikeObject,
-        body: JSON.stringify(errorResponse)
+        body: JSON.stringify({ trackingId, ...fault })
       })
     })
   })

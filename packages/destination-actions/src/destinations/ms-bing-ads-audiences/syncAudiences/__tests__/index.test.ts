@@ -390,7 +390,9 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       expect(response[0].status).toBe(200)
     })
 
-    it('does not log on the error path (only success responses are logged)', async () => {
+    it('logs a delivery-error summary (tracking id + status) on the error path', async () => {
+      // The success-path [DEBUG] line never fires on a failed call; instead the catch path logs a
+      // [DELIVERY_ERROR] summary so the Bing tracking id is available for support tickets.
       nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
       const logger = makeLogger()
 
@@ -403,7 +405,10 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
         features: { [DEBUG_FLAG]: true }
       })
 
-      expect(logger.warn).not.toHaveBeenCalled()
+      const warned = (logger.warn as jest.Mock).mock.calls.map((c) => c[0]).join('\n')
+      expect(warned).toContain('[ms-bing-ads-audiences][DELIVERY_ERROR]')
+      // The success-path DEBUG line must NOT appear on a failed delivery.
+      expect(warned).not.toContain('[ms-bing-ads-audiences][DEBUG]')
       expect(utils.handleHttpError).toHaveBeenCalled()
       expect(response[0].status).toBe(500)
     })
@@ -440,5 +445,84 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     // Verify handleHttpError was NOT called (since it's not an HTTPError)
     const handleHttpErrorMock = utils.handleHttpError as jest.Mock
     expect(handleHttpErrorMock).not.toHaveBeenCalled()
+  })
+
+  describe('Bing fault handling / 401 auto-refresh', () => {
+    const DEBUG_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
+
+    // parseBingFault normalizes Bing's non-standard fault envelope into the status we record per
+    // item. The status is what the framework's OAuth retry keys on, so getting 401 right here is
+    // what makes token refresh-and-retry work.
+    it('parseBingFault: token expired (code 109, HTTP 401) -> status 401', () => {
+      const fault = {
+        Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }],
+        TrackingId: 'track-109',
+        Type: 'AdApiFaultDetail'
+      }
+      const { status, errormessage, trackingId } = utils.parseBingFault(fault, 401, 'Unauthorized')
+      expect(status).toBe(401)
+      expect(trackingId).toBe('track-109')
+      expect(errormessage).toContain('AuthenticationTokenExpired')
+    })
+
+    it('parseBingFault: invalid token (code 105) returned as HTTP 500 -> normalized to 401', () => {
+      const fault = { Errors: [{ Code: 105, ErrorCode: 'AuthenticationTokenInvalid', Message: 'bad token' }] }
+      expect(utils.parseBingFault(fault, 500, 'Internal Server Error').status).toBe(401)
+    })
+
+    it('parseBingFault: no access (code 106) -> keeps real status, NOT 401 (non-retryable)', () => {
+      const fault = { Errors: [{ Code: 106, ErrorCode: 'UserIsNotAuthorized', Message: 'no access' }] }
+      expect(utils.parseBingFault(fault, 403, 'Forbidden').status).toBe(403)
+    })
+
+    it('parseBingFault: ApiFaultDetail (OperationErrors) parsed like Errors', () => {
+      const fault = { OperationErrors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }] }
+      expect(utils.parseBingFault(fault, 401, 'Unauthorized').status).toBe(401)
+    })
+
+    it('parseBingFault: non-auth error (117 rate limit) keeps its real HTTP status', () => {
+      const fault = { Errors: [{ Code: 117, ErrorCode: 'CallRateExceeded', Message: 'slow down' }] }
+      expect(utils.parseBingFault(fault, 429, 'Too Many Requests').status).toBe(429)
+    })
+
+    it('parseBingFault: empty/unknown body falls back to the HTTP status and message', () => {
+      const { status, errormessage } = utils.parseBingFault(undefined, 500, 'Server Error')
+      expect(status).toBe(500)
+      expect(errormessage).toBe('Server Error')
+    })
+
+    it('logs the tracking id on a Bing 401 delivery failure (for support tickets)', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(
+          401,
+          {
+            Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'Authentication token expired.' }],
+            TrackingId: 'track-e2e',
+            Type: 'AdApiFaultDetail'
+          },
+          { TrackingId: 'track-e2e' }
+        )
+      const logger = { info: jest.fn(), warn: jest.fn(), error: jest.fn() } as any
+
+      await testDestination.testBatchAction('syncAudiences', {
+        events: [
+          createTestEvent({
+            type: 'identify',
+            properties: { aud_key: true },
+            context: { traits: { email: 'one@segment.com' } }
+          })
+        ],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const warned = (logger.warn as jest.Mock).mock.calls.map((c) => c[0]).join('\n')
+      expect(warned).toContain('[ms-bing-ads-audiences][DELIVERY_ERROR]')
+      expect(warned).toContain('trackingId=track-e2e')
+    })
   })
 })
