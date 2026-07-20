@@ -53,3 +53,22 @@ export interface SyncAudiencePayload {
 export type Identifier = 'Email' | 'CRM'
 
 export type Action = 'Add' | 'Remove'
+
+// A single error object inside a Bing Ads fault. AdApiFaultDetail nests these under `Errors`,
+// ApiFaultDetail under `OperationErrors`. Both use the same PascalCase shape.
+// Docs: https://learn.microsoft.com/en-us/advertising/guides/handle-service-errors-exceptions
+export interface BingError {
+  Code: number
+  ErrorCode: string
+  Message: string
+  Detail?: string | null
+}
+
+// Whole-request fault body returned by Bing (as opposed to per-item PartialErrors). Every fault
+// derives from ApplicationFault, so TrackingId is always present at the top level.
+export interface BingFaultResponse {
+  Errors?: BingError[]
+  OperationErrors?: BingError[]
+  TrackingId?: string
+  Type?: string
+}
