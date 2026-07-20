@@ -8,14 +8,6 @@ const actionSlug = 'updateCompanyAudience'
 const destinationSlug = 'LinkedinAudiences'
 const seedName = `${destinationSlug}#${actionSlug}`
 
-// The segment id normally comes from the mapping-save hook. Supply it here so perform can run.
-const hookOutputs = {
-  retlOnMappingSave: {
-    inputs: {},
-    outputs: { id: 'dmp_segment_id', name: 'Company Audience' }
-  }
-}
-
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
@@ -37,12 +29,14 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       // At least one identifier value is required; the auto-generated data leaves them empty.
-      mapping: { ...event.properties, identifiers: { companyDomain: 'microsoft.com' }, ...hookOutputs },
+      // computation_key is the (hidden) lookup key and is likewise supplied here so perform can resolve the segment.
+      mapping: { ...event.properties, identifiers: { companyDomain: 'microsoft.com' }, computation_key: 'aud_key' },
       settings: settingsData,
       auth: undefined
     })
 
-    const request = responses[0].request
+    // The first response is the segment lookup GET; the companies batch POST is the last one.
+    const request = responses[responses.length - 1].request
     const rawBody = await request.text()
 
     try {
@@ -75,12 +69,13 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
-      mapping: { ...event.properties, ...hookOutputs },
+      mapping: { ...event.properties },
       settings: settingsData,
       auth: undefined
     })
 
-    const request = responses[0].request
+    // The first response is the segment lookup GET; the companies batch POST is the last one.
+    const request = responses[responses.length - 1].request
     const rawBody = await request.text()
 
     try {

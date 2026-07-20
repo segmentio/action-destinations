@@ -17,7 +17,19 @@ export interface Payload {
   /**
    * Whether the company should be added to or removed from the LinkedIn DMP Company Segment.
    */
-  action: string
+  dmp_company_action: string
+  /**
+   * Choose "Engage or Reverse ETL" when the Audience is configured in Engage or Reverse ETL. If connecting from a Connections Source, for example a node.js Source, select Connections, then provide a name for your Segment.
+   */
+  audience_source: string
+  /**
+   * The name of the LinkedIn DMP Company Segment to sync to. Used only when Audience Source is "Connections". If a segment with this name does not already exist, it will be created in LinkedIn.
+   */
+  segment_name?: string
+  /**
+   * The computation key used to identify the LinkedIn DMP Company Segment. Used only when Audience Source is "Engage or Reverse ETL".
+   */
+  computation_key?: string
   /**
    * Enable batching of requests to the LinkedIn DMP Company Segment.
    */
@@ -30,52 +42,4 @@ export interface Payload {
    * The keys to use for batching the events.
    */
   batch_keys?: string[]
-}
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface RetlOnMappingSaveInputs {
-  /**
-   * Select an existing LinkedIn DMP Company Segment to sync to. If provided, a new audience will not be created.
-   */
-  existing_audience_id?: string
-  /**
-   * The name of the LinkedIn DMP Company Segment to create. Only used when an existing audience is not selected above.
-   */
-  segment_creation_name?: string
-}
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface RetlOnMappingSaveOutputs {
-  /**
-   * The ID of the LinkedIn DMP Company Segment that companies will be synced to.
-   */
-  id?: string
-  /**
-   * The name of the LinkedIn DMP Company Segment that companies will be synced to.
-   */
-  name?: string
-}
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface OnMappingSaveInputs {
-  /**
-   * Select an existing LinkedIn DMP Company Segment to sync to. If provided, a new audience will not be created.
-   */
-  existing_audience_id?: string
-  /**
-   * The name of the LinkedIn DMP Company Segment to create. Only used when an existing audience is not selected above.
-   */
-  segment_creation_name?: string
-}
-// Generated file. DO NOT MODIFY IT BY HAND.
-
-export interface OnMappingSaveOutputs {
-  /**
-   * The ID of the LinkedIn DMP Company Segment that companies will be synced to.
-   */
-  id?: string
-  /**
-   * The name of the LinkedIn DMP Company Segment that companies will be synced to.
-   */
-  name?: string
 }
