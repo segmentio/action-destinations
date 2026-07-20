@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-hubble-web",
-  "version": "1.84.0",
+  "version": "1.86.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/hubble-web"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +20,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.168.0",
-    "@segment/browser-destination-runtime": "^1.97.0"
+    "@segment/actions-core": "^3.170.0",
+    "@segment/browser-destination-runtime": "^1.99.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

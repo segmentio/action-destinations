@@ -13,6 +13,13 @@ jest.mock('fs-extra', () => ({
   }
 }))
 
+// Prevent the command's post-generation `execFileSync('npx', ['prettier', ...])`
+// from spawning a real npx process during tests — it isn't needed here and is
+// slow enough to exceed Jest's timeout in CI.
+jest.mock('child_process', () => ({
+  execFileSync: jest.fn()
+}))
+
 import fs from 'fs-extra'
 import { generatePublicMetadata } from '../commands/generate/metadata-payload'
 import { resolveSourceDir, extractDestinationDirs } from '../commands/generate/metadata-payload'
