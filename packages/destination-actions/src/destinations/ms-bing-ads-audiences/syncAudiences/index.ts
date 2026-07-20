@@ -37,10 +37,28 @@ const action: ActionDefinition<Settings, Payload> = {
     computation_class
   },
   perform: async (request, { payload, features, logger }) => {
+    // TEMPORARY DIAGNOSTIC: unconditional entry log (no flag/logger/item gate) via BOTH console and
+    // logger.warn, to tell apart (a) action not running / stdout not captured — neither line shows,
+    // vs (b) logger broken — only [CONSOLE] shows. Remove once logging behaviour is confirmed.
+    const entryLine = `[ms-bing-ads-audiences][ENTRY] perform items=1 debugFlag=${isDebugLoggingEnabled(
+      features
+    )} hasLogger=${Boolean(logger)}`
+    // eslint-disable-next-line no-console
+    console.log(`[CONSOLE] ${entryLine}`)
+    logger?.warn?.(`[WARN] ${entryLine}`)
     return await syncUser(request, [payload], false, isDebugLoggingEnabled(features), logger)
   },
 
   performBatch: async (request, { payload, features, logger }) => {
+    // TEMPORARY DIAGNOSTIC: unconditional entry log (no flag/logger/item gate) via BOTH console and
+    // logger.warn, to tell apart (a) action not running / stdout not captured — neither line shows,
+    // vs (b) logger broken — only [CONSOLE] shows. Remove once logging behaviour is confirmed.
+    const entryLine = `[ms-bing-ads-audiences][ENTRY] performBatch items=${
+      Array.isArray(payload) ? payload.length : 'n/a'
+    } debugFlag=${isDebugLoggingEnabled(features)} hasLogger=${Boolean(logger)}`
+    // eslint-disable-next-line no-console
+    console.log(`[CONSOLE] ${entryLine}`)
+    logger?.warn?.(`[WARN] ${entryLine}`)
     return await syncUser(request, payload, true, isDebugLoggingEnabled(features), logger)
   }
 }
