@@ -613,6 +613,38 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
+    it('should not send empty or whitespace-only strings as hashed values', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        messageId: 'msg-whitespace',
+        timestamp: '2024-01-18T12:00:00.000Z',
+        type: 'track',
+        properties: {
+          order_id: 'order-ws',
+          revenue: 50.00,
+          currency: 'USD'
+        },
+        userId: 'user-ws'
+      })
+
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_identities.email).toBeUndefined()
+          expect(body.user_identities.other).toBeUndefined()
+          expect(body.user_identities.customerid).toBe('user-ws')
+          expect(body.user_attributes.firstname).toBeUndefined()
+          expect(body.user_attributes.firstnamesha256).toBeUndefined()
+          expect(body.user_attributes.lastname).toBeUndefined()
+          expect(body.user_attributes.lastnamesha256).toBeUndefined()
+          expect(body.user_attributes.mobile).toBeUndefined()
+          expect(body.user_attributes.mobilesha256).toBeUndefined()
+          expect(body.user_attributes.billingzipcode).toBeUndefined()
+          expect(body.user_attributes.billingzipsha256).toBeUndefined()
+          expect(body.device_info.http_header_user_agent).toBeUndefined()
+          expect(body.device_info.ios_advertising_id).toBeUndefined()
+          expect(body.ip).toBeUndefined()
+          return true
+        })
     it('should use distinct source_message_ids when a conversion and an audience event are sent together', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
@@ -680,6 +712,28 @@ describe('RoktCapi.send', () => {
         event,
         useDefaultMappings: true,
         mapping: {
+          hashingConfiguration: {
+            hashEmail: true,
+            hashFirstName: true,
+            hashLastName: true,
+            hashMobile: true,
+            hashBillingZipcode: true
+          },
+          user_identities: {
+            email: '   ',
+            customerid: 'user-ws'
+          },
+          user_attributes: {
+            firstname: '',
+            lastname: '   ',
+            mobile: ' ',
+            billingzipcode: ''
+          },
+          device_info: {
+            http_header_user_agent: '  ',
+            ios_advertising_id: ''
+          },
+          ip: '   '
           eventDetails: {
             conversiontype: 'Order Completed',
             source_message_id: 'msg-combined',
