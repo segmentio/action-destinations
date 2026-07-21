@@ -73,7 +73,7 @@ function cleanPropObj(
     ) {
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (!isNaN(Number(value))) {
+    } else if (!isNaN(Number(value)) && !(typeof value === 'string' && value.trim().startsWith('+'))) {
       if (typeof value === 'string' && value.trim() === '') {
         hasEmptyStringToNumber = true
       }
