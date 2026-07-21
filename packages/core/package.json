@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.171.0",
+  "version": "3.172.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -84,8 +84,8 @@
   },
   "dependencies": {
     "@lukeed/uuid": "^2.0.0",
-    "@segment/ajv-human-errors": "^2.17.0",
-    "@segment/destination-subscriptions": "^3.38.0",
+    "@segment/ajv-human-errors": "^2.18.0",
+    "@segment/destination-subscriptions": "^3.39.0",
     "@types/node": "^22.13.1",
     "aggregate-error": "^3.1.0",
     "ajv": "^8.18.0",
