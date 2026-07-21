@@ -4,6 +4,7 @@ import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
 import { flattenObject, transformEventName, GetCustomEventResponse } from '../utils'
 import { HubSpotError } from '../errors'
+import { HUBSPOT_CRM_API_VERSION } from '../versioning-info'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -72,10 +73,13 @@ const action: ActionDefinition<Settings, Payload> = {
   dynamicFields: {
     eventName: async (request): Promise<DynamicFieldResponse> => {
       try {
-        const result: GetCustomEventResponse = await request(`${HUBSPOT_BASE_URL}/events/v3/event-definitions`, {
-          method: 'get',
-          skipResponseCloning: true
-        })
+        const result: GetCustomEventResponse = await request(
+          `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions`,
+          {
+            method: 'get',
+            skipResponseCloning: true
+          }
+        )
         const choices = result.data.results.map((event) => {
           return { value: event.fullyQualifiedName, label: event.name }
         })
@@ -123,7 +127,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
     }
 
-    return request(`${HUBSPOT_BASE_URL}/events/v3/send`, {
+    return request(`${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/send`, {
       method: 'post',
       json: event
     })

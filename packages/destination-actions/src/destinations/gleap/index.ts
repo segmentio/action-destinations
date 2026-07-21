@@ -13,7 +13,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiToken: {
-        type: 'string',
+        type: 'password',
         label: 'Secret API token',
         description: 'Found in `Project settings` -> `Secret API token`.',
         required: true

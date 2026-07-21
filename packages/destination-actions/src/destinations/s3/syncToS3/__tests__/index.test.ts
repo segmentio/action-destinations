@@ -1,7 +1,20 @@
-import { generateFile } from '../../functions' // Adjust the import path
+import { generateFile } from '../functions' // Adjust the import path
 import { Payload } from '../generated-types'
-import { clean, encodeString, getAudienceAction } from '../../functions'
-import { ColumnHeader } from '../../types'
+import { clean, encodeString, getAudienceAction } from '../functions'
+import { ColumnHeader } from '../types'
+
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
 
 describe('clean', () => {
   it('should remove delimiter from string', () => {

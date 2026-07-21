@@ -54,7 +54,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Your June API Key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

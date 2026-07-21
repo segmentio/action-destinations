@@ -1,7 +1,6 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-
 import reportWebEvent from './reportWebEvent'
 
 const productProperties = {
@@ -64,7 +63,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Access Token',
         description:
           'Your TikTok Access Token. Please see TikTok’s [Events API documentation](https://ads.tiktok.com/marketing_api/docs?id=1701890979375106) for information on how to generate an access token via the TikTok Ads Manager or API.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       pixelCode: {

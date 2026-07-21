@@ -19,7 +19,7 @@ const destination: DestinationDefinition<Settings> = {
       api_key: {
         label: 'API Key',
         description: 'Spiffy Org API Key',
-        type: 'string',
+        type: 'password',
         required: true
       },
       environment: {

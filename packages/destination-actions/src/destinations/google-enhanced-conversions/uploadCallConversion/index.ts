@@ -76,7 +76,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad user data. For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -88,7 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -100,7 +100,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Google Enhanced Conversions',
       description:
         'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: false
     },
     batch_size: {
@@ -236,9 +236,10 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadCallConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(
+        features,
+        statsContext
+      )}/customers/${customerId}:uploadCallConversions`,
       {
         method: 'post',
         headers: {

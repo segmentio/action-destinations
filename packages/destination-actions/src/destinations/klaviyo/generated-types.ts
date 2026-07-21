@@ -10,8 +10,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Insert the ID of the default list that you'd like to subscribe users to when you call .identify().
-   *        NOTE: List ID takes precedence set within Actions.
+   * The default List ID to subscribe users to. This list takes precedence over the new list segment auto creates when attaching this destination to an audience.
    */
   listId?: string
 }

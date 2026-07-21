@@ -7,7 +7,7 @@ Object {
   },
   "cascadeCreate": true,
   "itemId": "FcP0tLN]UE",
-  "portion": 1,
+  "portion": 0.324297156650573,
   "recommId": "FcP0tLN]UE",
   "sessionId": "FcP0tLN]UE",
   "timestamp": "FcP0tLN]UE",
@@ -17,9 +17,14 @@ Object {
 
 exports[`Testing snapshot for Recombee's setViewPortionFromWatchTime destination action: required fields 1`] = `
 Object {
+  "additionalData": Object {},
   "cascadeCreate": true,
   "itemId": "FcP0tLN]UE",
-  "portion": 1,
+  "portion": 0.324297156650573,
   "userId": "FcP0tLN]UE",
 }
 `;
+
+exports[`Testing snapshot for Recombee's setViewPortionFromWatchTime destination action: should fail when totalLength is 0 1`] = `"The total length of the item cannot be zero."`;
+
+exports[`Testing snapshot for Recombee's setViewPortionFromWatchTime destination action: should fail when watchTime is greater than totalLength 1`] = `"The watch time of the item cannot be greater than the total length of the item."`;

@@ -99,6 +99,117 @@ describe('Testing _build_attribute_object', () => {
   it('should correctly format an attribute', () => {
     expect(_private._build_attributes_object(valid_attributes_payload)).toEqual(airship_attributes_payload)
   })
+
+  it('should NOT parse non-date string attributes as dates', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        shop_last_store_name: 'SOUMAGNE 2',
+        shop_visited_store_names: 'BARCHON | HOGNOUL | JEMEPPE | SOUMAGNE 2',
+        shop_last_store_id: '30290'
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    
+    // These should remain as strings, not be converted to dates
+    const shopNameAttr = result.find((attr: any) => attr.key === 'shop_last_store_name')
+    expect(shopNameAttr?.value).toBe('SOUMAGNE 2')
+    
+    const shopNamesAttr = result.find((attr: any) => attr.key === 'shop_visited_store_names')
+    expect(shopNamesAttr?.value).toBe('BARCHON | HOGNOUL | JEMEPPE | SOUMAGNE 2')
+    
+    const shopIdAttr = result.find((attr: any) => attr.key === 'shop_last_store_id')
+    expect(shopIdAttr?.value).toBe('30290')
+  })
+
+  it('should still parse date-like strings as dates', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        birthdate: '1965-01-25T00:47:43.378Z',
+        account_creation: '2023-05-09T00:47:43.378Z',
+        custom_date_field: '2025-06-11',
+        another_date: '01/25/1965'
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    
+    const birthdateAttr = result.find((attr: any) => attr.key === 'birthdate')
+    expect(birthdateAttr?.value).toBe('1965-01-25T00:47:43')
+    
+    const accountCreationAttr = result.find((attr: any) => attr.key === 'account_creation')
+    expect(accountCreationAttr?.value).toBe('2023-05-09T00:47:43')
+
+    const customDateAttr = result.find((attr: any) => attr.key === 'custom_date_field')
+    // The date '2025-06-11' is parsed in local timezone, so the resulting UTC date may be
+    // 2025-06-10 or 2025-06-11 depending on the timezone where tests run
+    expect(customDateAttr?.value).toMatch(/2025-06-1[012]/)
+
+    const anotherDateAttr = result.find((attr: any) => attr.key === 'another_date')
+    // The date '01/25/1965' is parsed in local timezone, so the resulting UTC date may be
+    // 1965-01-24 or 1965-01-25 or 1965-01-26 depending on the timezone where tests run
+    expect(anotherDateAttr?.value).toMatch(/1965-01-2[456]/)
+
+  })
+})
+
+describe('Testing _build_attribute_object with JSON (array/object) values', () => {
+  it('should append #default to array attribute keys without an instance ID', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        favourite_teams: ['Team A', 'Team B', 'Team C']
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'favourite_teams#default')
+    expect(attr?.action).toBe('set')
+    expect(attr?.value).toEqual(['Team A', 'Team B', 'Team C'])
+  })
+
+  it('should append #default to object attribute keys without an instance ID', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        preferences: { theme: 'dark', language: 'en' }
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'preferences#default')
+    expect(attr?.action).toBe('set')
+    expect(attr?.value).toEqual({ theme: 'dark', language: 'en' })
+  })
+
+  it('should preserve a user-supplied instance ID in the key', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        'reservation#a001': { flight: 'UA123', seat: '12A' }
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'reservation#a001')
+    expect(attr?.action).toBe('set')
+    expect(attr?.value).toEqual({ flight: 'UA123', seat: '12A' })
+  })
+
+  it('should set action to remove for null value', () => {
+    const payload: AttributesPayload = {
+      named_user_id: 'test-user',
+      occurred: occurred.toISOString(),
+      attributes: {
+        favourite_teams: null
+      }
+    }
+    const result = _private._build_attributes_object(payload)
+    const attr = result.find((a: any) => a.key === 'favourite_teams')
+    expect(attr?.action).toBe('remove')
+  })
 })
 
 describe('Testing _build_tags_object', () => {
@@ -121,6 +232,32 @@ describe('Testing _parse_date', () => {
   })
 })
 
+describe('Testing _parse_date', () => {
+  it('should NOT parse a short string into a date object', () => {
+    expect(_private._parse_date('30122')).toBeNull()
+  })
+})
+
+describe('Testing _parse_date', () => {
+  it('should parse a date-looking string into a date object', () => {
+    expect(_private._parse_date('2025-06-11')).toBeInstanceOf(Date)
+  })
+
+  it('should NOT parse strings without date-like patterns', () => {
+    expect(_private._parse_date('SOUMAGNE 2')).toBeNull()
+    expect(_private._parse_date('BARCHON | HOGNOUL | JEMEPPE | SOUMAGNE 2')).toBeNull()
+    expect(_private._parse_date('30290')).toBeNull()
+    expect(_private._parse_date('SOUMAGNE')).toBeNull()
+  })
+
+  it('should parse valid date formats', () => {
+    expect(_private._parse_date('2023-05-09T00:47:43.378Z')).toBeInstanceOf(Date)
+    expect(_private._parse_date('2025-06-11')).toBeInstanceOf(Date)
+    expect(_private._parse_date('01/25/1965')).toBeInstanceOf(Date)
+    expect(_private._parse_date('1965-01-25')).toBeInstanceOf(Date)
+  })
+})
+
 describe('Testing _parse_and_format_date', () => {
   it('should modify a valid date string', () => {
     expect(_private._parse_and_format_date('2023-05-09T00:47:43.378Z')).toEqual('2023-05-09T00:47:43')
@@ -130,5 +267,95 @@ describe('Testing _parse_and_format_date', () => {
 describe('Testing _parse_and_format_date', () => {
   it('should return the original string', () => {
     expect(_private._parse_and_format_date('foo')).toEqual('foo')
+  })
+})
+
+describe('Testing _channel_type_to_key', () => {
+  it('should map known platform types to platform-specific keys', () => {
+    expect(_private._channel_type_to_key('ios')).toBe('ios_channel')
+    expect(_private._channel_type_to_key('android')).toBe('android_channel')
+    expect(_private._channel_type_to_key('amazon')).toBe('amazon_channel')
+    expect(_private._channel_type_to_key('web')).toBe('web_channel')
+  })
+
+  it('should fall back to the generic channel key for unknown types', () => {
+    expect(_private._channel_type_to_key('email')).toBe('channel')
+    expect(_private._channel_type_to_key('sms')).toBe('channel')
+  })
+})
+
+describe('Testing _build_audience', () => {
+  it('should return named_user_id audience when only named_user_id is provided', () => {
+    expect(_private._build_audience({ named_user_id: 'user-123' })).toEqual({ named_user_id: 'user-123' })
+  })
+
+  it('should use the platform-specific key when channel_type maps to one', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc', channel_type: 'ios' })).toEqual({ ios_channel: 'chan-abc' })
+  })
+
+  it('should use the generic channel key when channel_type is not a known platform', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc', channel_type: 'email' })).toEqual({ channel: 'chan-abc' })
+  })
+
+  it('should use the generic channel key when channel_type is omitted', () => {
+    expect(_private._build_audience({ channel_id: 'chan-abc' })).toEqual({ channel: 'chan-abc' })
+  })
+
+  it('should prefer channel_id over named_user_id when both provided', () => {
+    expect(_private._build_audience({ named_user_id: 'user-123', channel_id: 'chan-abc', channel_type: 'ios' })).toEqual({
+      ios_channel: 'chan-abc'
+    })
+  })
+
+  it('should throw when neither named_user_id nor channel_id is provided', () => {
+    expect(() => _private._build_audience({})).toThrow('Either Named User ID or Channel ID must be provided')
+  })
+})
+
+describe('Testing _build_custom_event_object with channel_id', () => {
+  it('should use the platform-specific key for a known channel type', () => {
+    const payload: CustomEventsPayload = {
+      channel_id: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302',
+      channel_type: 'ios',
+      name: 'Test Event',
+      occurred: occurred.toISOString(),
+      enable_batching: false
+    }
+    const result = _private._build_custom_event_object(payload) as any
+    expect(result.user).toEqual({ ios_channel: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302' })
+  })
+
+  it('should use the generic channel key when channel_type is omitted', () => {
+    const payload: CustomEventsPayload = {
+      channel_id: 'chan-abc',
+      name: 'Test Event',
+      occurred: occurred.toISOString(),
+      enable_batching: false
+    }
+    const result = _private._build_custom_event_object(payload) as any
+    expect(result.user).toEqual({ channel: 'chan-abc' })
+  })
+})
+
+describe('Testing _build_tags_object with channel_id', () => {
+  it('should use the platform-specific key for a known channel type', () => {
+    const payload: ManageTagsPayload = {
+      channel_id: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302',
+      channel_type: 'ios',
+      tag_group: 'segment-integration',
+      tags: { trait3: true }
+    }
+    const result = _private._build_tags_object(payload) as any
+    expect(result.audience).toEqual({ ios_channel: 'bddb6f5d-dcc3-4b0b-ba50-61b169077302' })
+  })
+
+  it('should use the generic channel key when channel_type is omitted', () => {
+    const payload: ManageTagsPayload = {
+      channel_id: 'chan-abc',
+      tag_group: 'segment-integration',
+      tags: { trait3: true }
+    }
+    const result = _private._build_tags_object(payload) as any
+    expect(result.audience).toEqual({ channel: 'chan-abc' })
   })
 })

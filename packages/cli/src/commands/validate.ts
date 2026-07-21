@@ -1,5 +1,5 @@
 import { Command, flags } from '@oclif/command'
-import type { BaseActionDefinition } from '@segment/actions-core'
+import type { BaseActionDefinition, InputField } from '@segment/actions-core'
 import { ErrorCondition, parseFql } from '@segment/destination-subscriptions'
 import ora from 'ora'
 import { getManifest, DestinationDefinition } from '../lib/destinations'
@@ -80,7 +80,37 @@ export default class Validate extends Command {
         if (!field.description) {
           errors.push(new Error(`The action "${actionKey}" is missing a description for the field "${fieldKey}".`))
         }
+        if (fieldKey == 'batch_keys') {
+          errors.push(...this.validateBatchKeysField(field, actionKey, action))
+        }
       }
+    }
+
+    return errors
+  }
+
+  validateBatchKeysField(field: InputField, actionKey: string, action: BaseActionDefinition): Error[] {
+    const errors: Error[] = []
+    const batchKeys = field.default as string[]
+    if (batchKeys.length > 3) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a "batch_keys" field that has more than 3 keys. Max allowed is 3.`)
+      )
+    }
+    const unknownKeys = batchKeys.filter((key) => action.fields[key] === undefined)
+    if (unknownKeys.length > 0) {
+      errors.push(
+        new Error(
+          `The action "${actionKey}" has a "batch_keys" field that has unknown keys: ${unknownKeys.join(
+            ', '
+          )}. only allowed keys are: ${Object.keys(action.fields).join(', ')}`
+        )
+      )
+    }
+    if (batchKeys.includes('batch_keys')) {
+      errors.push(
+        new Error(`The action "${actionKey}" has a "batch_keys" field that includes itself. This is not allowed.`)
+      )
     }
 
     return errors
@@ -140,7 +170,7 @@ export default class Validate extends Command {
         // this.isInvalid = true
         const typ = fieldValues?.type
 
-        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != "undefined") {
+        if ((typ === 'boolean' || typ === 'number') && typeof fieldValues?.default != 'undefined') {
           if (typeof fieldValues?.default !== typ) {
             errors.push(
               new Error(

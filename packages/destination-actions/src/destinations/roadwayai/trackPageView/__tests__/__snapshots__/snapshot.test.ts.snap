@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Roadwayai's trackPageView destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "iJnoyP^H",
+    "data": Object {
+      "testType": "iJnoyP^H",
+    },
+    "enable_batching": true,
+    "event_id": "iJnoyP^H",
+    "id": "iJnoyP^H",
+    "referrer": "iJnoyP^H",
+    "timestamp": "iJnoyP^H",
+    "url": "iJnoyP^H",
+    "utm_campaign": "iJnoyP^H",
+    "utm_content": "iJnoyP^H",
+    "utm_medium": "iJnoyP^H",
+    "utm_source": "iJnoyP^H",
+    "utm_term": "iJnoyP^H",
+  },
+]
+`;
+
+exports[`Testing snapshot for Roadwayai's trackPageView destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "iJnoyP^H",
+    "event_id": "iJnoyP^H",
+    "id": "iJnoyP^H",
+    "url": "iJnoyP^H",
+  },
+]
+`;

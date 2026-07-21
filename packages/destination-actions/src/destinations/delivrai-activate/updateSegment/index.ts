@@ -32,7 +32,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.email' },
           else: { '@path': '$.context.traits.email' } // Phone is sent as identify's trait or track's context.trait
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone: {
       label: 'User Phone',
@@ -46,7 +47,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.traits.phone' }, // Phone is sent as identify's trait or track's property
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     device_type: {
       label: 'User Mobile Device Type', // This field is required to determine the type of the advertising Id: IDFA or GAID

@@ -43,15 +43,6 @@ const action: ActionDefinition<Settings, Payload> = {
       format: 'email',
       default: {
         '@path': '$.traits.email'
-      },
-      depends_on: {
-        conditions: [
-          {
-            fieldKey: 'role',
-            operator: 'is',
-            value: 'user'
-          }
-        ]
       }
     },
     phone: {
@@ -82,12 +73,14 @@ const action: ActionDefinition<Settings, Payload> = {
     signed_up_at: {
       label: 'Signed Up Timestamp',
       type: 'datetime',
-      description: 'The time specified for when a contact signed up.'
+      description:
+        'The time specified for when a contact signed up. Accepts ISO 8601 date-time or a UTC Unix timestamp (in seconds). Segment will convert to Unix if not already converted.'
     },
     last_seen_at: {
       label: 'Last Seen Timestamp',
       type: 'datetime',
-      description: 'The time when the contact was last seen.',
+      description:
+        'The time when the contact was last seen. Accepts ISO 8601 date-time or a UTC Unix timestamp (in seconds). Segment will convert to Unix if not already converted.',
       default: {
         '@path': '$.timestamp'
       }

@@ -29,7 +29,7 @@ describe('Wisepops.trackEvent', () => {
     const [trackEvent] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
-    })
+    } as any)
 
     expect(trackEvent).toBeDefined()
 
@@ -43,7 +43,7 @@ describe('Wisepops.trackEvent', () => {
         eventParam: 'An event parameter'
       }
     })
-    trackEvent.track?.(context)
+    await trackEvent.track?.(context)
 
     expect(window.wisepops.q.push).toHaveBeenCalledWith(['event', 'Something happens'])
   })

@@ -1,9 +1,9 @@
-import type { DestinationDefinition } from '@segment/actions-core';
-import type { Settings } from './generated-types';
-import forwardIdentifyEvent from './forwardIdentifyEvent';
-import forwardGroupEvent from './forwardGroupEvent';
-import forwardTrackEvent from './forwardTrackEvent';
-import { presets } from './presets';
+import type { DestinationDefinition } from '@segment/actions-core'
+import type { Settings } from './generated-types'
+import forwardIdentifyEvent from './forwardIdentifyEvent'
+import forwardGroupEvent from './forwardGroupEvent'
+import forwardTrackEvent from './forwardTrackEvent'
+import { presets } from './presets'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Outfunnel',
@@ -22,16 +22,16 @@ const destination: DestinationDefinition<Settings> = {
       apiToken: {
         label: 'API Token',
         description: 'Outfunnel API Token. This is found under Account',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
 
     testAuthentication: async (request) => {
       try {
-        return await request('https://api-pls.outfunnel.com/v1/user');
+        return await request('https://api-pls.outfunnel.com/v1/user')
       } catch (error) {
-        throw new Error('Test authentication failed');
+        throw new Error('Test authentication failed')
       }
     }
   },
@@ -51,6 +51,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   presets
-};
+}
 
-export default destination;
+export default destination

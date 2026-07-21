@@ -1,7 +1,9 @@
-import { PayloadValidationError } from '@segment/actions-core'
+import { PayloadValidationError, StatsContext } from '@segment/actions-core'
 import { Payload } from '../generated-types'
+import { Association, AssociationPayload } from '../types'
+import { getListPayloadType, getListName } from '../functions/hubspot-list-functions'
 
-export function validate(payloads: Payload[]): Payload[] {
+export function validate(payloads: Payload[], flag?: boolean): Payload[] {
   const length = payloads.length
 
   const cleaned: Payload[] = payloads.filter((payload) => {
@@ -19,11 +21,40 @@ export function validate(payloads: Payload[]): Payload[] {
     )
   }
 
+  if (flag === true) {
+    const hasEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_engage_audience_payload')
+    const hasNonEngageAudience = cleaned.some((p) => getListPayloadType(p) === 'is_non_engage_audience_payload')
+
+    if (hasEngageAudience && hasNonEngageAudience) {
+      throw new PayloadValidationError('Engage and non Engage payloads cannot be mixed in the same batch.')
+    }
+
+    const listNames = Array.from(new Set(cleaned.map((p) => getListName(p)).filter(Boolean)))
+
+    if (listNames.length > 1) {
+      throw new PayloadValidationError(
+        `When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: ${listNames
+          .slice(0, 3)
+          .join(', ')}`
+      )
+    }
+  }
+
   cleaned.forEach((payload) => {
     payload.properties = cleanPropObj(payload.properties)
     payload.sensitive_properties = cleanPropObj(payload.sensitive_properties)
 
     payload.associations = payload.associations?.filter((association) => {
+      const fieldsToCheck = [
+        association.id_field_name,
+        association.object_type,
+        association.id_field_value,
+        association.association_label
+      ]
+      return fieldsToCheck.every((field) => field !== null && field !== '')
+    })
+
+    payload.dissociations = payload.dissociations?.filter((association) => {
       const fieldsToCheck = [
         association.id_field_name,
         association.object_type,
@@ -52,15 +83,14 @@ function cleanPropObj(
 
     if (typeof value === 'boolean' || typeof value === 'number') {
       cleanObj[cleanKey] = value
-    } else if (
-      typeof value === 'string' &&
-      (value.toLowerCase().trim() === 'true' || value.toLowerCase().trim() === 'false')
-    ) {
-      // If the value can be cast to a boolean
-      cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (!isNaN(Number(value)) && value !== '' && value !== null) {
-      // If the value can be cast to a number
-      cleanObj[cleanKey] = Number(value)
+    } else if (typeof value === 'string') {
+      if (value.toLowerCase().trim() === 'true' || value.toLowerCase().trim() === 'false') {
+        // If the value can be cast to a boolean
+        cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
+      } else {
+        // This ensures that values like "123" will remain strings.
+        cleanObj[cleanKey] = value.trim()
+      }
     } else if (typeof value === 'object' && value !== null) {
       // If the value is an object
       cleanObj[cleanKey] = JSON.stringify(value).trim()
@@ -85,4 +115,155 @@ function cleanProp(str: string): string {
     )
   }
   return str
+}
+
+/**
+ * Merges an array of payloads by their unique `id_field_value`, deduplicating entries and merging their properties.
+ *
+ * For each unique ID:
+ * - Properties and sensitive properties are merged, preferring values from the payload with the latest timestamp.
+ * - Associations are merged.
+ * - The resulting payload for each ID contains merged properties, sensitive properties, and associations.
+ * - The `timestamp` field is used only for determining recency and is removed from the final output.
+ *
+ * @param payloads - An array of payloads to merge and deduplicate.
+ * @returns An array of merged and deduplicated payloads, with timestamps removed.
+ */
+export function mergeAndDeduplicateById(payloads: Payload[], statsContext?: StatsContext): Payload[] {
+  const mergedMap = new Map<string, Payload>()
+
+  for (const incoming of payloads) {
+    const id = incoming.object_details?.id_field_value
+    if (!id) continue
+
+    const incomingTimestamp = incoming.timestamp ? new Date(incoming.timestamp).getTime() : 0
+
+    const existing = mergedMap.get(id)
+    if (!existing) {
+      mergedMap.set(id, { ...incoming })
+      continue
+    }
+
+    const existingTimestamp = existing.timestamp ? new Date(existing.timestamp).getTime() : 0
+    statsContext?.statsClient?.incr('hubspot.upsert_object.merged_payload', 1, statsContext?.tags)
+
+    // Merge properties
+    const mergedProps: Record<string, unknown> = { ...existing.properties }
+    for (const [key, value] of Object.entries(incoming.properties || {})) {
+      if (!(key in mergedProps) || incomingTimestamp >= existingTimestamp) {
+        mergedProps[key] = value
+      }
+    }
+
+    // Merge sensitive_properties
+    const mergedSensProps: Record<string, unknown> = { ...existing.sensitive_properties }
+    for (const [key, value] of Object.entries(incoming.sensitive_properties || {})) {
+      if (!(key in mergedSensProps) || incomingTimestamp >= existingTimestamp) {
+        mergedSensProps[key] = value
+      }
+    }
+
+    // Merge associations
+    const existingAssociations = existing.associations || []
+    const incomingAssociations = incoming.associations || []
+
+    const associationKey = (assoc: Association) =>
+      `${assoc.object_type}|${assoc.association_label}|${assoc.id_field_name}|${assoc.id_field_value}`
+
+    const existingAssocMap = new Map(existingAssociations.map((a) => [associationKey(a), a]))
+
+    for (const assoc of incomingAssociations) {
+      const key = associationKey(assoc)
+      if (!existingAssocMap.has(key)) {
+        statsContext?.statsClient?.incr('hubspot.upsert_object.merged_associations', 1, statsContext?.tags)
+        existingAssocMap.set(key, assoc)
+      }
+    }
+
+    const mergedAssociations = Array.from(existingAssocMap.values())
+
+    // Save merged record with the latest timestamp
+    mergedMap.set(id, {
+      ...existing,
+      properties: mergedProps,
+      sensitive_properties: mergedSensProps,
+      associations: mergedAssociations,
+      timestamp: incomingTimestamp >= existingTimestamp ? incoming.timestamp : existing.timestamp
+    })
+  }
+
+  // Final output with timestamp removed
+  return Array.from(mergedMap.values()).map(({ timestamp, ...rest }) => rest)
+}
+
+/**
+ * Ensures that each payload in the provided array has a valid timestamp.
+ * If a payload's timestamp is invalid, it attempts to use the corresponding timestamp from the `rawData` array if it is valid.
+ * If neither is valid, it sets the timestamp to the current ISO date string.
+ *
+ * @param payloads - The array of payload objects to validate and update.
+ * @param rawData - (Optional) An array of raw payload objects to use as a fallback for timestamps.
+ * @returns The updated array of payloads with valid timestamps.
+ */
+export function ensureValidTimestamps(payloads: Payload[], rawData?: Payload[]): Payload[] {
+  payloads.forEach((item, index) => {
+    if (!isValidTimestamp(item.timestamp)) {
+      item.timestamp =
+        rawData && Array.isArray(rawData) && rawData[index] && isValidTimestamp(rawData[index]?.timestamp)
+          ? rawData[index]?.timestamp
+          : new Date().toISOString()
+    }
+  })
+  return payloads
+}
+
+/**
+ * Checks if the provided value is a valid timestamp.
+ *
+ * Accepts strings, numbers, or Date objects and verifies if they can be converted
+ * to a valid date. Returns `true` if the value represents a valid timestamp,
+ * otherwise returns `false`.
+ *
+ * @param ts - The value to validate as a timestamp.
+ * @returns `true` if `ts` is a valid timestamp, otherwise `false`.
+ */
+function isValidTimestamp(ts: unknown): ts is string | number | Date {
+  if (typeof ts === 'string' || typeof ts === 'number' || ts instanceof Date) {
+    return !isNaN(new Date(ts).getTime())
+  }
+  return false
+}
+
+/**
+ * Removes duplicate associations from the provided array based on a composite key
+ *
+ * @param associationGroups - An array of arrays of `AssociationPayload` objects.
+ * @returns An array of arrays of unique `AssociationPayload` objects.
+ */
+export function deDuplicateAssociations(associationGroups: AssociationPayload[][]): AssociationPayload[][] {
+  if (!associationGroups || associationGroups.length === 0) {
+    return associationGroups
+  }
+
+  return associationGroups.map((group) => {
+    if (!group || group.length === 0) return group
+
+    const associationKey = (assoc: AssociationPayload) =>
+      JSON.stringify({
+        object_type: assoc.object_details.object_type,
+        association_label: assoc.association_details.association_label,
+        id_field_name: assoc.object_details.id_field_name,
+        id_field_value: assoc.object_details.id_field_value
+      })
+
+    const uniqueAssociationsMap = new Map<string, AssociationPayload>()
+
+    for (const assoc of group) {
+      uniqueAssociationsMap.set(associationKey(assoc), assoc)
+    }
+
+    const dedupedGroup = Array.from(uniqueAssociationsMap.values())
+
+    return dedupedGroup
+  })
 }

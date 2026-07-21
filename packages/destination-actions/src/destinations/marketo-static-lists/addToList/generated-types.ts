@@ -32,29 +32,27 @@ export interface Payload {
    */
   event_name: string
 }
-// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+// Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface HookBundle {
-  retlOnMappingSave: {
-    inputs?: {
-      /**
-       * The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.
-       */
-      list_id?: string
-      /**
-       * The name of the Marketo Static List that you would like to create.
-       */
-      list_name?: string
-    }
-    outputs?: {
-      /**
-       * The ID of the created Marketo Static List that users will be synced to.
-       */
-      id?: string
-      /**
-       * The name of the created Marketo Static List that users will be synced to.
-       */
-      name?: string
-    }
-  }
+export interface RetlOnMappingSaveInputs {
+  /**
+   * The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.
+   */
+  list_id?: string
+  /**
+   * The name of the Marketo Static List that you would like to create.
+   */
+  list_name?: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveOutputs {
+  /**
+   * The ID of the created Marketo Static List that users will be synced to.
+   */
+  id?: string
+  /**
+   * The name of the created Marketo Static List that users will be synced to.
+   */
+  name?: string
 }

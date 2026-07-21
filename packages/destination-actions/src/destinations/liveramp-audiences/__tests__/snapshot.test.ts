@@ -1,6 +1,19 @@
 // eslint-disable-next-line no-var
 var sftpPut = jest.fn().mockImplementation((args) => args)
 
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../lib/test-data'
 import destination from '../index'
@@ -81,6 +94,7 @@ describe(`Testing snapshot for ${destinationSlug}'s audienceEnteredS3 destinatio
     eventData.s3_aws_bucket_name = 'bucket'
     eventData.s3_aws_region = 'us-west'
     eventData.filename = 'myfile'
+    eventData.s3_aws_bucket_path = 'folder1/folder2'
 
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)

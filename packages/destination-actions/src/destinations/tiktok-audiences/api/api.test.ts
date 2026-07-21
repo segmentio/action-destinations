@@ -1,7 +1,8 @@
 import nock from 'nock'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import { TikTokAudiences } from './index'
-import { BASE_URL, TIKTOK_API_VERSION } from '../constants'
+import { BASE_URL } from '../constants'
+import { TIKTOK_AUDIENCES_API_VERSION } from '../versioning-info'
 const settings = {
   advertiser_ids: ['1234567890', '0987654321', '2345675643']
 }
@@ -13,7 +14,7 @@ describe('TikTok', () => {
     const tiktok: TikTokAudiences = new TikTokAudiences(requestClient)
 
     it('should fetch a list of advertisers, with their names', async () => {
-      nock(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info`)
+      nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/advertiser/info`)
         .get(`/`)
         .query({ advertiser_ids: JSON.stringify(settings.advertiser_ids) })
         .reply(200, {
@@ -86,7 +87,7 @@ describe('TikTok', () => {
     })
 
     it('should fallback to stored advertiser_ids if tiktok returns an error', async () => {
-      nock(`${BASE_URL}${TIKTOK_API_VERSION}/advertiser/info`)
+      nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/advertiser/info`)
         .get(`/`)
         .query({ advertiser_ids: JSON.stringify(settings.advertiser_ids) })
         .reply(500, {
@@ -125,7 +126,7 @@ describe('TikTok', () => {
     const page_number = 1
 
     it('should dynamically fetch list of audiences and name', async () => {
-      nock(`${BASE_URL}${TIKTOK_API_VERSION}/dmp/custom_audience/list/`)
+      nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/dmp/custom_audience/list/`)
         .get(`/`)
         .query({
           advertiser_id: selected_advertiser_id,

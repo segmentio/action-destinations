@@ -1,9 +1,10 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { TaboolaClient } from './syncAudience/client'
 
 import syncAudience from './syncAudience'
+import { TABOOLA_API_VERSION } from './versioning-info'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Taboola (Actions)',
@@ -22,7 +23,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       client_secret: {
         label: 'Client Secret',
         description: "The client's secret from your Taboola account.",
-        type: 'string',
+        type: 'password',
         required: true
       },
       audience_identifier: {
@@ -30,8 +31,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         description: 'The audience identifier from your Taboola account.',
         type: 'string',
         choices: [
-          {label: 'Audience Computation Key', value: 'computation_key'},
-          {label: 'Audience Name', value: 'audience_name'}
+          { label: 'Audience Computation Key', value: 'computation_key' },
+          { label: 'Audience Name', value: 'audience_name' }
         ],
         required: false,
         default: 'computation_key'
@@ -77,7 +78,10 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.settings?.audience_identifier === 'computation_key' ? createAudienceInput.personas?.computation_key : createAudienceInput.audienceName
+      const audienceName =
+        createAudienceInput.settings?.audience_identifier === 'computation_key'
+          ? createAudienceInput.personas?.computation_key
+          : createAudienceInput.audienceName
       const ttlInHours = createAudienceInput.audienceSettings?.ttl_in_hours
       const excludeFromCampaigns = createAudienceInput.audienceSettings?.exclude_from_campaigns
       const accountId = createAudienceInput.audienceSettings?.account_id
@@ -94,13 +98,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         const accessToken = (await TaboolaClient.refreshAccessToken(request, createAudienceInput.settings)).accessToken
 
         const response = await request(
-          `https://backstage.taboola.com/backstage/api/1.0/${accountId}/audience_onboarding/create`,
+          `https://backstage.taboola.com/backstage/api/${TABOOLA_API_VERSION}/${accountId}/audience_onboarding/create`,
           {
             method: 'post',
             json: {
               audience_name: audienceName,
               ttl_in_hours: ttlInHours,
-              exclude_from_campaigns: excludeFromCampaigns
+              exclude_from_campaigns: excludeFromCampaigns,
+              integration_source: 'segment.com'
             },
             headers: {
               authorization: `Bearer ${accessToken}`,
@@ -141,7 +146,37 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination

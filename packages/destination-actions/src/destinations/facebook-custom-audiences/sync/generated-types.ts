@@ -14,10 +14,6 @@ export interface Payload {
    */
   phone?: string
   /**
-   * User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.
-   */
-  country?: string
-  /**
    * User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)
    */
   birth?: {
@@ -34,6 +30,10 @@ export interface Payload {
     firstInitial?: string
   }
   /**
+   * User’s gender (m for male, f for female)
+   */
+  gender?: string
+  /**
    * User’s city. Use a-z only. No punctuation. No special characters.
    */
   city?: string
@@ -46,9 +46,9 @@ export interface Payload {
    */
   zip?: string
   /**
-   * User’s gender (m for male, f for female)
+   * User’s country. Use 2-letter country codes in ISO 3166-1 alpha-2 format.
    */
-  gender?: string
+  country?: string
   /**
    * User’s Apple IDFA, Android Ad ID, or Facebook app scoped ID. Keep hyphens (ex: AB1234CD-E123-12FG-J123)
    */
@@ -62,6 +62,14 @@ export interface Payload {
    */
   pageId?: string
   /**
+   * The Instagram account ID of the user.
+   */
+  igAccountIds?: string
+  /**
+   * The ID representing the Facebook identifier. This is the identifier that is returned during audience creation.'
+   */
+  external_audience_id?: string
+  /**
    * Enable batching of requests.
    */
   enable_batching: boolean
@@ -70,33 +78,31 @@ export interface Payload {
    */
   batch_size: number
 }
-// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.
+// Generated file. DO NOT MODIFY IT BY HAND.
 
-export interface HookBundle {
-  retlOnMappingSave: {
-    inputs?: {
-      /**
-       * Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.
-       */
-      operation?: string
-      /**
-       * The name of the audience in Facebook.
-       */
-      audienceName?: string
-      /**
-       * The ID of the audience in Facebook.
-       */
-      existingAudienceId?: string
-    }
-    outputs?: {
-      /**
-       * The name of the audience in Facebook this mapping is connected to.
-       */
-      audienceName: string
-      /**
-       * The ID of the audience in Facebook.
-       */
-      audienceId: string
-    }
-  }
+export interface RetlOnMappingSaveInputs {
+  /**
+   * Choose to either create a new custom audience or use an existing one. If you opt to create a new audience, we will display the required fields for audience creation. If you opt to use an existing audience, a drop-down menu will appear, allowing you to select from all the custom audiences in your ad account.
+   */
+  operation?: string
+  /**
+   * The name of the audience in Facebook.
+   */
+  audienceName?: string
+  /**
+   * The ID of the audience in Facebook.
+   */
+  existingAudienceId?: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveOutputs {
+  /**
+   * The name of the audience in Facebook this mapping is connected to.
+   */
+  audienceName: string
+  /**
+   * The ID of the audience in Facebook.
+   */
+  audienceId: string
 }

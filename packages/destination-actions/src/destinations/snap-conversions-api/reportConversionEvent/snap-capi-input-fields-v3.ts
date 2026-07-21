@@ -344,58 +344,69 @@ const user_data: InputField = {
       description:
         'Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.',
       type: 'string',
-      multiple: true // changed the type from string to array of strings.
+      multiple: true, // changed the type from string to array of strings.
+      category: 'hashedPII'
     },
     email: {
       label: 'Email',
       description: 'An email address in lowercase.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     phone: {
       label: 'Phone',
       description:
         'A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     gender: {
       label: 'Gender',
       description: 'Gender in lowercase. Either f or m.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     dateOfBirth: {
       label: 'Date of Birth',
       description: 'A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     lastName: {
       label: 'Last Name',
       description: 'A last name in lowercase.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     firstName: {
       label: 'First Name',
       description: 'A first name in lowercase.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
       description: 'A city in lowercase without spaces or punctuation. Example: menlopark.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     state: {
       label: 'State',
       description: 'A two-letter state code in lowercase. Example: ca.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     zip: {
       label: 'Zip Code',
       description: 'A five-digit zip code for United States. For other locations, follow each country`s standards.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     country: {
       label: 'Country',
       description: 'A two-letter country code in lowercase.',
-      type: 'string'
+      type: 'string',
+      category: 'hashedPII'
     },
     client_ip_address: {
       label: 'Client IP Address',

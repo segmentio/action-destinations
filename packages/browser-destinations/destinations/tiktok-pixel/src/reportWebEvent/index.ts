@@ -1,9 +1,13 @@
 import type { BrowserActionDefinition } from '@segment/browser-destination-runtime/types'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { formatPhone, handleArrayInput, formatString, formatAddress } from '../formatter'
+import { getUser } from '../utils'
+import { getAllProperties } from './utils'
 import { TikTokPixel } from '../types'
-import { commonFields } from '../common_fields'
+import { track_fields } from './fields'
+import { common_fields } from '../fields/common_fields'
+import { travel_fields } from './travel_fields'
+import { vehicle_fields } from './vehicle_fields'
 
 const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   title: 'Report Web Event',
@@ -12,36 +16,20 @@ const action: BrowserActionDefinition<Settings, TikTokPixel, Payload> = {
   platform: 'web',
   defaultSubscription: 'type = "track"',
   fields: {
-    ...commonFields
+    ...track_fields,
+    ...common_fields,
+    vehicle_fields,
+    travel_fields
   },
   perform: (ttq, { payload, settings }) => {
     if (payload.email || payload.phone_number || payload.external_id) {
-      ttq.identify({
-        email: handleArrayInput(payload.email),
-        phone_number: formatPhone(handleArrayInput(payload.phone_number)),
-        external_id: handleArrayInput(payload.external_id),
-        first_name: formatString(payload.first_name),
-        last_name: formatString(payload.last_name),
-        city: formatAddress(payload.address?.city),
-        state: formatAddress(payload.address?.state),
-        country: formatAddress(payload.address?.country),
-        zip_code: formatString(payload.address?.zip_code)
-      })
+      ttq.instance(settings.pixelCode).identify(getUser(payload))
     }
 
     ttq.instance(settings.pixelCode).track(
-      payload.event,
-      {
-        contents: payload.contents ? payload.contents : [],
-        content_type: payload.content_type ? payload.content_type : undefined,
-        currency: payload.currency ? payload.currency : 'USD',
-        value: payload.value || payload.value === 0 ? payload.value : undefined,
-        query: payload.query ? payload.query : undefined,
-        description: payload.description ? payload.description : undefined,
-        order_id: payload.order_id ? payload.order_id : undefined,
-        shop_id: payload.shop_id ? payload.shop_id : undefined
-      },
-      {
+      payload.event, 
+      getAllProperties(payload), 
+      { 
         event_id: payload.event_id ? payload.event_id : ''
       }
     )

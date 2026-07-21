@@ -13,7 +13,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -26,6 +30,101 @@ describe('Amplitude', () => {
             country: 'United States'
           })
         ])
+      })
+    })
+
+    it('should work with library2.behavior and platform.behavior fields set to use_mapping', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'custom-device-type'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library2: {
+          behavior: 'use_mapping',
+          mapping: { '@path': '$.context.library.name' }
+        }
+      }
+
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "custom-device-type",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
+    it('should work with platform.behavior field not set', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'ios'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "iOS",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
       })
     })
 
@@ -173,7 +272,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -367,7 +469,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
@@ -414,7 +517,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -468,7 +574,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logPurchase', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -583,9 +692,12 @@ describe('Amplitude', () => {
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36'
         }
       })
+      
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
+
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logPurchase', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
@@ -633,7 +745,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -690,7 +803,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -744,7 +858,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        trackRevenuePerProduct: true
+        trackRevenuePerProduct: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
@@ -788,17 +903,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "mapping",
-            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&mapping=%5B%7B%22user_id%22%3A%22some-previous-user-id%22%2C%22global_user_id%22%3A%22some-user-id%22%7D%5D"`
+      )
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -822,17 +929,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "mapping",
-            "[{\\"user_id\\":\\"some-previous-user-id\\",\\"global_user_id\\":\\"some-user-id\\"}]",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&mapping=%5B%7B%22user_id%22%3A%22some-previous-user-id%22%2C%22global_user_id%22%3A%22some-user-id%22%7D%5D"`
+      )
     })
   })
 
@@ -855,6 +954,101 @@ describe('Amplitude', () => {
             country: 'United States'
           })
         ])
+      })
+    })
+
+    it('should work with library2.behavior and platform.behavior fields set to use_mapping', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'custom-device-type'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library2: {
+          behavior: 'use_mapping',
+          mapping: { '@path': '$.context.library.name' }
+        }
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "custom-device-type",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
+    it('should work with platform.behavior field not set', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'ios'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "iOS",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
       })
     })
 
@@ -945,8 +1139,11 @@ describe('Amplitude', () => {
       })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -977,7 +1174,8 @@ describe('Amplitude', () => {
       const mapping = {
         revenue: {
           '@path': '$.properties.bitcoin_rev'
-        }
+        },
+        library2: {}
       }
 
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1090,7 +1288,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1136,8 +1335,10 @@ describe('Amplitude', () => {
       })
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
-
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1191,7 +1392,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEvent', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+
+      const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1307,7 +1512,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1359,6 +1565,101 @@ describe('Amplitude', () => {
             country: 'United States'
           })
         ])
+      })
+    })
+
+    it('should work with library2.behavior and platform.behavior fields set to use_mapping', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'custom-device-type'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const mapping = {
+        library2: {
+          behavior: 'use_mapping',
+          mapping: { '@path': '$.context.library.name' }
+        }
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "custom-device-type",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
+      })
+    })
+
+    it('should work with platform.behavior field not set', async () => {
+      const event = createTestEvent({ timestamp, event: 'Test Event' })
+
+      event.context = event.context || {}
+      event.context.library = { name: 'custom-library-name', version: '1.0.0'}
+      event.context.device = event.context.device || {}
+      event.context.device.type = 'ios'
+
+      nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
+
+      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].data).toMatchObject({})
+      expect(responses[0].options.json).toEqual({
+        api_key: undefined,
+        events: [
+          {
+            city: "San Francisco",
+            country: "United States",
+            device_id: "anonId1234",
+            device_manufacturer: "Apple",
+            device_model: "iPhone",
+            device_type: "mobile",
+            event_properties: {},
+            event_type: "Test Event",
+            ip: "8.8.8.8",
+            language: "en-US",
+            library: "custom-library-name",
+            location_lat: 40.2964197,
+            location_lng: -76.9411617,
+            os_name: "iOS",
+            os_version: "9",
+            platform: "iOS",
+            time: 1629213675449,
+            use_batch_endpoint: false,
+            user_id: "user1234",
+            user_properties: {}
+          }
+        ],
+        options: undefined
       })
     })
 
@@ -1450,7 +1751,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].options.json).toMatchObject({
@@ -1481,7 +1786,8 @@ describe('Amplitude', () => {
       const mapping = {
         revenue: {
           '@path': '$.properties.bitcoin_rev'
-        }
+        },
+        library2: {}
       }
 
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1594,7 +1900,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1641,8 +1948,11 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
 
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
@@ -1695,7 +2005,10 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
 
-      const responses = await testDestination.testAction('logEventV2', { event, useDefaultMappings: true })
+      const mapping = {
+        library2: {}
+      }
+      const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
@@ -1908,7 +2221,8 @@ describe('Amplitude', () => {
         }
       })
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
       nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
       const responses = await testDestination.testAction('logEventV2', { event, mapping, useDefaultMappings: true })
@@ -1954,7 +2268,8 @@ describe('Amplitude', () => {
       }
     })
     const mapping = {
-      userAgentParsing: false
+      userAgentParsing: false,
+      library2: {}
     }
     nock('https://api2.amplitude.com/2').post('/httpapi').reply(200, {})
     const responses = await testDestination.testAction('logEvent', { event, mapping, useDefaultMappings: true })
@@ -1999,19 +2314,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should support referrer and utm user_properties', async () => {
@@ -2042,19 +2347,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\",\\"$set\\":{\\"utm_source\\":\\"Newsletter\\",\\"utm_medium\\":\\"email\\",\\"utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"utm_term\\":\\"tps reports\\",\\"utm_content\\":\\"image link\\",\\"referrer\\":\\"some-referrer\\"},\\"$setOnce\\":{\\"initial_utm_source\\":\\"Newsletter\\",\\"initial_utm_medium\\":\\"email\\",\\"initial_utm_campaign\\":\\"TPS Innovation Newsletter\\",\\"initial_utm_term\\":\\"tps reports\\",\\"initial_utm_content\\":\\"image link\\",\\"initial_referrer\\":\\"some-referrer\\"}},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%2C%22%24set%22%3A%7B%22utm_source%22%3A%22Newsletter%22%2C%22utm_medium%22%3A%22email%22%2C%22utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22utm_term%22%3A%22tps+reports%22%2C%22utm_content%22%3A%22image+link%22%2C%22referrer%22%3A%22some-referrer%22%7D%2C%22%24setOnce%22%3A%7B%22initial_utm_source%22%3A%22Newsletter%22%2C%22initial_utm_medium%22%3A%22email%22%2C%22initial_utm_campaign%22%3A%22TPS+Innovation+Newsletter%22%2C%22initial_utm_term%22%3A%22tps+reports%22%2C%22initial_utm_content%22%3A%22image+link%22%2C%22initial_referrer%22%3A%22some-referrer%22%7D%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('shouldnt append $ keys to user_properties if referrer/utm are not specified', async () => {
@@ -2073,19 +2368,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should support parsing userAgent when the setting is true', async () => {
@@ -2108,7 +2393,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
@@ -2116,19 +2402,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"Mac OS\\",\\"os_version\\":\\"53\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22Mac+OS%22%2C%22os_version%22%3A%2253%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should not send parsed user agent properties when setting is false', async () => {
@@ -2159,19 +2435,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should change casing for device type when value is android', async () => {
@@ -2190,19 +2456,9 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"Android\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22user1234%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%7D%2C%22platform%22%3A%22Android%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should change casing for device type when value is ios', async () => {
@@ -2221,19 +2477,9 @@ describe('Amplitude', () => {
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       const responses = await testDestination.testAction('identifyUser', { event, mapping, useDefaultMappings: true })
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"user_id\\":\\"user1234\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{},\\"platform\\":\\"iOS\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22user_id%22%3A%22user1234%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%7D%2C%22platform%22%3A%22iOS%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should send data to the EU endpoint', async () => {
@@ -2260,19 +2506,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "{\\"os_name\\":\\"iOS\\",\\"os_version\\":\\"9\\",\\"device_manufacturer\\":\\"Apple\\",\\"device_model\\":\\"iPhone\\",\\"device_type\\":\\"mobile\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"some-anonymous-id\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"country\\":\\"United States\\",\\"city\\":\\"San Francisco\\",\\"language\\":\\"en-US\\",\\"platform\\":\\"Web\\",\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%7B%22os_name%22%3A%22iOS%22%2C%22os_version%22%3A%229%22%2C%22device_manufacturer%22%3A%22Apple%22%2C%22device_model%22%3A%22iPhone%22%2C%22device_type%22%3A%22mobile%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22some-anonymous-id%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22country%22%3A%22United+States%22%2C%22city%22%3A%22San+Francisco%22%2C%22language%22%3A%22en-US%22%2C%22platform%22%3A%22Web%22%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
 
     it('should give precedence to OS properties over userAgent properties', async () => {
@@ -2299,7 +2535,8 @@ describe('Amplitude', () => {
       })
 
       const mapping = {
-        userAgentParsing: true
+        userAgentParsing: true,
+        library2: {}
       }
 
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
@@ -2307,19 +2544,9 @@ describe('Amplitude', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
       expect(responses[0].data).toMatchObject({})
-      expect(responses[0].options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "{\\"os_name\\":\\"iPhone OS\\",\\"os_version\\":\\"8.1.3\\",\\"device_model\\":\\"Mac OS\\",\\"user_id\\":\\"some-user-id\\",\\"device_id\\":\\"foo\\",\\"user_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"library\\":\\"segment\\"}",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(responses[0].options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%7B%22os_name%22%3A%22iPhone+OS%22%2C%22os_version%22%3A%228.1.3%22%2C%22device_model%22%3A%22Mac+OS%22%2C%22user_id%22%3A%22some-user-id%22%2C%22device_id%22%3A%22foo%22%2C%22user_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22library%22%3A%22segment%22%7D&options=undefined"`
+      )
     })
   })
 
@@ -2340,7 +2567,7 @@ describe('Amplitude', () => {
       group_value: 'some-value'
     }
 
-    it('should fire identify call to Amplitude', async () => {
+    it('should fire identify call to Amplitude, if user_id or device_id is present', async () => {
       nock('https://api2.amplitude.com').post('/identify').reply(200, {})
       nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
 
@@ -2352,19 +2579,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%5B%7B%22device_id%22%3A%22some-anonymous-id%22%2C%22groups%22%3A%7B%22some-type%22%3A%22some-value%22%7D%2C%22insert_id%22%3A%22some-insert-id%22%2C%22library%22%3A%22segment%22%2C%22time%22%3A1618245157710%2C%22user_id%22%3A%22some-user-id%22%2C%22user_properties%22%3A%7B%22some-type%22%3A%22some-value%22%7D%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire groupidentify call to Amplitude', async () => {
@@ -2379,22 +2596,12 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "undefined",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=undefined&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
     })
 
-    it('should fire identify call to Amplitude EU endpoint', async () => {
+    it('should fire identify call to Amplitude EU endpoint, if user_id or device_id is present', async () => {
       nock('https://api.eu.amplitude.com').post('/identify').reply(200, {})
       nock('https://api.eu.amplitude.com').post('/groupidentify').reply(200, {})
 
@@ -2411,19 +2618,9 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"device_id\\":\\"some-anonymous-id\\",\\"groups\\":{\\"some-type\\":\\"some-value\\"},\\"insert_id\\":\\"some-insert-id\\",\\"library\\":\\"segment\\",\\"time\\":1618245157710,\\"user_id\\":\\"some-user-id\\",\\"user_properties\\":{\\"some-type\\":\\"some-value\\"}}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
-        }
-      `)
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22device_id%22%3A%22some-anonymous-id%22%2C%22groups%22%3A%7B%22some-type%22%3A%22some-value%22%7D%2C%22insert_id%22%3A%22some-insert-id%22%2C%22library%22%3A%22segment%22%2C%22time%22%3A1618245157710%2C%22user_id%22%3A%22some-user-id%22%2C%22user_properties%22%3A%7B%22some-type%22%3A%22some-value%22%7D%7D%5D&options=undefined"`
+      )
     })
 
     it('should fire groupidentify call to Amplitude EU endpoint', async () => {
@@ -2443,19 +2640,74 @@ describe('Amplitude', () => {
 
       expect(response.status).toBe(200)
       expect(response.data).toMatchObject({})
-      expect(response.options.body).toMatchInlineSnapshot(`
-        URLSearchParams {
-          Symbol(query): Array [
-            "api_key",
-            "",
-            "identification",
-            "[{\\"group_properties\\":{\\"some-trait-key\\":\\"some-trait-value\\"},\\"group_value\\":\\"some-value\\",\\"group_type\\":\\"some-type\\",\\"library\\":\\"segment\\"}]",
-            "options",
-            "undefined",
-          ],
-          Symbol(context): null,
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_properties%22%3A%7B%22some-trait-key%22%3A%22some-trait-value%22%7D%2C%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
+    })
+
+    it('should only fire groupidentify call to Amplitude, if user_id and device_id are missing', async () => {
+      // Create a new event without userId and deviceId
+      const eventWithoutIds = createTestEvent({
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        traits: {
+          'some-trait-key': 'some-trait-value'
         }
-      `)
+      })
+
+      nock('https://api2.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const responses = await testDestination.testAction('groupIdentifyUser', {
+        event: eventWithoutIds,
+        mapping,
+        settings: {
+          apiKey: '',
+          secretKey: ''
+        }
+      })
+
+      // There should only be one response since no identify call should be made
+      expect(responses.length).toBe(1)
+      const response = responses[0]
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
+    })
+
+    it('should only fire groupidentify call to Amplitude EU endpoint, if user_id and device_id are missing', async () => {
+      // Create a new event without userId and deviceId
+      const eventWithoutIds = createTestEvent({
+        timestamp: '2021-04-12T16:32:37.710Z',
+        type: 'group',
+        traits: {
+          'some-trait-key': 'some-trait-value'
+        }
+      })
+
+      nock('https://api.eu.amplitude.com').post('/groupidentify').reply(200, {})
+
+      const responses = await testDestination.testAction('groupIdentifyUser', {
+        event: eventWithoutIds,
+        mapping,
+        settings: {
+          apiKey: '',
+          secretKey: '',
+          endpoint: 'europe'
+        }
+      })
+
+      // There should only be one response since no identify call should be made
+      expect(responses.length).toBe(1)
+      const response = responses[0]
+
+      expect(response.status).toBe(200)
+      expect(response.data).toMatchObject({})
+      expect(response.options.body?.toString()).toMatchInlineSnapshot(
+        `"api_key=&identification=%5B%7B%22group_value%22%3A%22some-value%22%2C%22group_type%22%3A%22some-type%22%2C%22library%22%3A%22segment%22%7D%5D&options=undefined"`
+      )
     })
   })
 

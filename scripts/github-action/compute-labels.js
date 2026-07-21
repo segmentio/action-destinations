@@ -70,13 +70,15 @@ async function computeFileBasedLabels(github, context, core) {
   const MODE_CLOUD_LABEL = 'mode:cloud'
   const MODE_DEVICE_LABEL = 'mode:device'
   const ACTIONS_CORE_LABEL = 'actions:core'
+  const MAPPING_KIT_LABEL = 'actions:mappingkit'
 
   const allLabels = [
     DEPLOY_REGISTRATION_LABEL,
     DEPLOY_PUSH_LABEL,
     MODE_CLOUD_LABEL,
     MODE_DEVICE_LABEL,
-    ACTIONS_CORE_LABEL
+    ACTIONS_CORE_LABEL,
+    MAPPING_KIT_LABEL
   ]
 
   const newLabels = []
@@ -131,6 +133,12 @@ async function computeFileBasedLabels(github, context, core) {
   const generatedTypesRegex = /packages\/.*\/generated\-types.ts/i
   if (files.some((file) => generatedTypesRegex.test(file.filename))) {
     newLabels.push(DEPLOY_PUSH_LABEL)
+  }
+
+  // Check if PR contains changes to mapping-kit
+  const mappingKitRegex = /packages\/core\/src\/mapping\-kit\/.*/i
+  if (files.some((file) => mappingKitRegex.test(file.filename))) {
+    newLabels.push(MAPPING_KIT_LABEL)
   }
 
   // Remove the existing custom labels if they are not required anymore

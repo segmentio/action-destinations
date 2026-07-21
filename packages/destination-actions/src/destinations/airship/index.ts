@@ -30,7 +30,7 @@ const destination: DestinationDefinition<Settings> = {
       app_key: {
         label: 'App Key',
         description: 'The App Key identifies the Airship Project to which API requests are made.',
-        type: 'string',
+        type: 'password',
         // default: process.env.DEFAULT_APP_KEY,
         required: true
       },
@@ -92,7 +92,8 @@ const destination: DestinationDefinition<Settings> = {
         Authorization: `Bearer ${settings.access_token}`,
         'X-UA-Appkey': `${settings.app_key}`,
         Accept: 'application/vnd.urbanairship+json; version=3',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': `PartnerIntegrations/Segment (${settings.app_key})`
       }
     }
   },

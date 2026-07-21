@@ -23,6 +23,7 @@ For more detailed instruction, see the following READMEs:
 
 ## Table of Contents:
 
+- [Generate a Destination with Claude Code](#generate-a-destination-with-claude-code)
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
 - [Example Destination](#example-destination)
@@ -31,9 +32,36 @@ For more detailed instruction, see the following READMEs:
 - [Presets](#presets)
 - [perform function](#the-perform-function)
 - [Batching Requests](#batching-requests)
+- [Parsing MultiStatus Responses](#parsing-multistatus-responses)
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
+
+## Generate a Destination with Claude Code
+
+If you use [Claude Code](https://claude.com/claude-code), this repo ships skills that scaffold a full destination for you — from API docs to working code and tests.
+
+The simplest way is the one-command pipeline. Just run:
+
+```
+/orchestrate <Destination Name>
+```
+
+Then provide your **API source** (a docs URL, an OpenAPI spec, or a PRD) when prompted. It walks through every step — analyzing the API, mapping actions to endpoints, writing the code, and generating tests — pausing for your review along the way.
+
+Prefer to run one step at a time? These skills also work on their own:
+
+| Command                 | What it does                                    |
+| ----------------------- | ----------------------------------------------- |
+| `/refined-actions`      | Turn a PRD or API docs into a list of actions   |
+| `/endpoint-mapping`     | Map those actions to API endpoints and fields   |
+| `/spec-generator`       | Produce a full destination spec document        |
+| `/generate-destination` | Generate the destination code, types, and tests |
+| `/test-destination-e2e` | Generate a Jest e2e test suite that runs against a local serve server |
+
+📖 See [`.claude/skills/README.md`](./.claude/skills/README.md) and [`.claude/skills/QUICK_START.md`](./.claude/skills/QUICK_START.md) for details.
+
+> These skills accelerate the boilerplate — always review the generated code and follow the [Contributing Guide](./CONTRIBUTING.md) before opening a PR.
 
 ## Get started
 
@@ -59,7 +87,7 @@ Structure:
 You'll need to have some tools installed locally to build and test action destinations.
 
 - Yarn 1.x
-- Node 18.12 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
+- Node 18.17 (latest LTS, we recommand using [`nvm`](https://github.com/nvm-sh/nvm) for managing Node versions)
 
 If you are a Segment employee you can directly `git clone` the repository locally. Otherwise you'll want to fork this repository for your organization to submit Pull Requests against the main Segment repository. Once you've got a fork, you can `git clone` that locally.
 
@@ -71,7 +99,7 @@ cd action-destinations
 npm login
 yarn login
 
-# Requires node 18.12.1, optionally: nvm use 18.12.1
+# Requires node 18.17.1, optionally: nvm use 18.17.1
 yarn --ignore-optional
 yarn install
 yarn build
@@ -81,6 +109,9 @@ yarn test-partners
 
 # For segment employees, you can run:
 yarn test
+
+# to reset all caches and rebuild again
+yarn clean-build
 ```
 
 ### Actions CLI
@@ -357,6 +388,61 @@ const destination = {
 ```
 
 In addition to default values for input fields, you can also specify the defaultSubscription for a given action – this is the FQL query that will be automatically populated when a customer configures a new subscription triggering a given action.
+
+## Handling Password and Secret Fields with type: password
+
+When working with sensitive data such as API keys, tokens, passwords, or other credentials, it's critical to properly mark these fields with `type: 'password'`. This ensures proper security handling across Segment's infrastructure, including:
+
+- **UI Security**: Fields are automatically obfuscated in the Segment App interface, as well as through the public API for security purposes.
+- **Git Sync Integration**: Properly marked password fields are excluded from git sync operations to prevent secrets from being committed to version control
+
+### Identifying Fields That Should Use type: 'password'
+
+Fields containing any of the following should always use `type: 'password'`:
+
+- **API Keys**: Any field containing API keys, access keys, or similar authentication tokens
+- **Passwords**: User passwords, service account passwords, or any authentication credentials
+- **Tokens**: Access tokens, refresh tokens, bearer tokens, OAuth tokens, or JWT tokens
+- **Secrets**: Client secrets, shared secrets, or any confidential authentication data
+- **Authorization Codes**: OAuth authorization codes or similar one-time codes
+- **Authentication Data**: Any field used for authentication or authorization purposes
+
+### Keywords to Watch For
+
+When defining field names or descriptions, look for these patterns that often indicate sensitive data:
+
+- Field names containing: `key`, `token`, `secret`, `password`, `code`, `auth`, `credential`, `bearer`
+- Descriptions mentioning: authentication, authorization, credentials, sensitive, confidential
+
+### Example Implementation
+
+```js
+const destination = {
+  authentication: {
+    scheme: 'custom',
+    fields: {
+      apiKey: {
+        label: 'API Key',
+        description: 'Your API key for authentication',
+        type: 'password', // ✅ Correct: API keys should be password type
+        required: true
+      },
+      clientSecret: {
+        label: 'Client Secret',
+        description: 'OAuth client secret',
+        type: 'password', // ✅ Correct: Client secrets should be password type
+        required: true
+      },
+      subdomain: {
+        label: 'Subdomain',
+        description: 'Your account subdomain',
+        type: 'string', // ✅ Correct: Subdomains are not sensitive
+        required: true
+      }
+    }
+  }
+}
+```
 
 ## Required Fields
 
@@ -650,6 +736,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
 - `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
+- `personasContext` - An object containing Personas/Engage metadata extracted from the event's `context.personas` field. Available fields: `computation_key`, `computation_id`, `namespace`, and any additional keys present on the personas context. This is populated automatically by the runtime when the event originates from a Personas/Engage source — no field mapping required. For non-Personas events the value is `undefined`. For internal Twilio/Segment use only.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
 - `engageDestinationCache` - EngageDestinationCache can only be used by internal Twilio/Segment employees. EngageDestinationCache should not be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.
@@ -689,7 +776,7 @@ The perform method will be invoked once for every event subscription that trigge
 
 ## Batching Requests
 
-Sometimes your customers have a lot of events, and your API supports a more efficient way to receive and process those large sets of data. We have early, experimental support for batching.
+Sometimes your customers have a lot of events, and your API supports a more efficient way to receive and process those large sets of data.
 
 You can implement an _additional_ perform method named `performBatch` in the action definition, alongside the `perform` method. The method signature looks like identical to `perform` except the `payload` is an array of data, where each item is an object matching your action’s field schema:
 
@@ -731,7 +818,100 @@ Keep in mind a few important things about how batching works:
 - Batches may have to up 1,000 events, currently. This, too, is subject to change.
 - Batch sizes are not guaranteed. Due to the way that batches are accumulated internally, you may see smaller batch sizes than you expect when sending low rates of events.
 
-Additionally, you’ll need to coordinate with Segment’s R&D team for the time being. Please reach out to us in your dedicated Slack channel!
+### Advanced batching configurations
+
+The following are some advanced batching configurations for Cloud Mode destinations. Please consult with Segment before using any of these features as this could have significant impact on your destination's performance.
+
+### Batch Keys
+
+By default, Segment groups events using destination instance, settings, action instance, and action mapping settings. For `AudienceDestinationDefinition` implementations, `computation_key` (audience key), audience config settings, and `externalAudienceId` (unique external audience identifier) are also used for batch grouping.
+
+In case you have special requirement to group events into batches based on mapping resolved value of certain field configurations, you can declare those using `batch_keys` field in your action configuration. It is important that the fields chosen for grouping are of low cardinality to avoid forming small batches.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...}
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true, // this should always be hidden and shouldn't be exposed to customers.
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    },
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+### Batch Size
+
+In case you need to control the maximum number of events that can be batched together for a specific action, you can declare the `batch_size` field in your action configuration. This field allows you to define the upper limit for the number of events in a single batch. It is important to use judgement when deciding to expose this field to customers, as it can impact delivery performance. When exposed, ensure that min and max limits of batch size values is enforced for validation. If a `batch_size` is not specified, the default batch size of 1000 will be used. Please note this default value is subject to change.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...}
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The maximum number of events to include in a single batch.',
+      type: 'number',
+      unsafe_hidden: true, // consider if this should be exposed to customers.
+      default: 10000,
+      required: false
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+### Batch Bytes
+
+In addition to `batch_size`, you can also control the maximum size of a batch in terms of bytes using the `batch_bytes` field in your action configuration. This field allows you to set an upper limit on the total byte size of the batch payload that can be received in your `performBatch` function. This can be useful when the destination API has limitations on request payload size. Exercise caution when using this field and avoid exposing it to customers as it can affect delivery performance. If not specified, a default byte limit of 4MB will be considered. Please note this default value is subject to change.
+
+```js
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Account',
+  description: 'Represents an individual account, which is an organization or person involved with your business.',
+  defaultSubscription: 'type = "group"',
+  fields: {
+    list_id: {...},
+    enable_batching: {...},
+    batch_size: {
+      label: 'Batch Size',
+      description: 'The maximum number of events to include in a single batch.',
+      type: 'number',
+      unsafe_hidden: true,
+      required: false
+    },
+    batch_bytes: {
+      label: 'Batch Bytes',
+      description: 'The maximum size of a batch in bytes.',
+      type: 'number',
+      unsafe_hidden: true, // consider if this should be exposed to customers. Please avoid by default.
+      required: false,
+      default: 2000000 // 2 MB
+    }
+  },
+  performBatch: async (request, { settings, payload }) => { ... }
+}
+```
+
+## Parsing MultiStatus Responses
+
+When a batch request to a destination returns a 207 MultiStatus response, the `performBatch` method will typically receive an array of responses, indicating the status of each event in the batch. The Actions Framework provides a `MultiStatusResponse` class to help you parse these responses to report a more granular success or failure status for each event.
+
+A detailed example of how to use the `MultiStatusResponse` class can be found in the [MultiStatus Documentation](./docs/multistatus.md).
 
 ## Action Hooks
 
@@ -957,6 +1137,50 @@ There are a few subtle differences from the Fetch API which are meant to limit t
 - some options and behaviors are not applicable to Node.js and will be ignored by `node-fetch`. See this list of [known differences](https://github.com/node-fetch/node-fetch/blob/1780f5ae89107ded4f232f43219ab0e548b0647c/docs/v2-LIMITS.md).
 - `method` will automatically get upcased for consistency.
 
+## Automatic Hashing Detection with `processHashing`
+
+Our popular segment Adtect destinations support [automatic hash detection](https://segment.com/docs/connections/destinations/#hashing) of personally identifyable information (PII). If your destination hashes PII data, we recommend you use the `processHashing` utility instead of `createHash` from `crypto` module.
+This utility automatically detects if a value is already hashed. It will only apply a hash if the value appears to be unhashed.
+
+The `processHashing` utility supports `md5`, `sha1`,`sha224`,`sha256`,`sha384` and`sha512` hashing algorithms. It can output digests in `hex` or `base64` format.
+
+**Note**: For empty or whitespace-only strings, the `processHashing` outputs an empty string instead of throwing an error like `createHash` hash module.
+
+### Example 1: Hashing an Email Address
+
+```
+  import { processHashing } from 'destination-actions/lib/hashing-utils'
+
+  const email = ' Person@email.com '
+  const hashedEmail = processHashing(
+    email,
+    'sha256',
+    'hex',
+    (value) => value.trim().toLowerCase()
+  )
+
+  console.log(hashedEmail) // hashed string
+```
+
+### Example 2: Hashing a Phone Number
+
+```
+  const phone = '+1(706)-767-5127'
+  const normalizePhone = (value: string) => value.replace(/[^0-9]/g, '')
+
+  const hashedPhone = processHashing(
+    phone,
+    'sha256',
+    'hex',
+    normalizePhone
+  )
+
+  console.log(hashedPhone) // hashed string
+```
+
+**Requesting Additional Algorithms**
+To request additional hash algorithms, contact partner-support@segment.com.
+
 ## Support
 
 For any issues, please contact our support team at partner-support@segment.com.
@@ -965,7 +1189,7 @@ For any issues, please contact our support team at partner-support@segment.com.
 
 MIT License
 
-Copyright (c) 2024 Segment
+Copyright (c) 2025 Segment
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

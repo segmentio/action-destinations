@@ -62,6 +62,10 @@ export interface Payload {
      * The value from the first-party Pixel '_rdt_uuid' cookie on your domain. Note that it is in the '{timestamp}.{uuid}' format. You may use the full value or just the UUID portion.
      */
     uuid?: string
+    /**
+     * The phone number of the user in E.164 standard format.
+     */
+    phone_number?: string
   }
   /**
    * A structure of data processing options to specify the processing type for the event.
@@ -111,7 +115,7 @@ export interface Payload {
     value_decimal?: number
   }
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event.
+   * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.
    */
   conversion_id?: string
 }

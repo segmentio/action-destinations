@@ -316,7 +316,7 @@ export abstract class MessageSendPerformer<
    * populate the logDetails object with the data that should be logged for every message
    */
   beforePerform() {
-    super.beforePerform?.()
+    void super.beforePerform?.()
 
     //adding common tags to the the tags that will be added to every single metric added via this.stats*
     if (this.executeInput.statsContext)

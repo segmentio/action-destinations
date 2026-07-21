@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { AggregateAjvError } from '@segment/ajv-human-errors'
 import Definition from '../../index'
 import { API_URL } from '../../config'
-import { AggregateAjvError } from '@segment/ajv-human-errors'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -23,6 +23,22 @@ describe('Remove List from Profile', () => {
     await expect(testDestination.testAction('removeProfileFromList', { event, settings })).rejects.toThrowError(
       AggregateAjvError
     )
+  })
+
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      properties: {}
+    })
+
+    const mapping = {
+      list_id: listId,
+      external_id: 'a'.repeat(256)
+    }
+
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, mapping, settings })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 
   it('should throw an error for invalid phone number format', async () => {
@@ -189,5 +205,29 @@ describe('Remove List from Profile', () => {
     await expect(
       testDestination.testAction('removeProfileFromList', { event, mapping, settings })
     ).resolves.not.toThrowError()
+  })
+
+  it('should throw payload validation error when no profile is mapped with provided identifier', async () => {
+    const email = 'test@example.com'
+    nock(`${API_URL}/profiles`).get(`/?filter=any(email,["${email}"])`).reply(200, {
+      data: []
+    })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        },
+        traits: {
+          email: 'test@example.com'
+        }
+      }
+    })
+
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, settings, useDefaultMappings: true })
+    ).rejects.toThrowError('No profiles found for the provided identifiers.')
   })
 })

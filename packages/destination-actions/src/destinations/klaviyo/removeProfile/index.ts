@@ -6,6 +6,7 @@ import {
   getListIdDynamicData,
   getProfiles,
   processPhoneNumber,
+  validateExternalId,
   removeBulkProfilesFromList,
   removeProfileFromList
 } from '../functions'
@@ -36,7 +37,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true
     },
     enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size, default: 1000 },
+    batch_size: { ...batch_size, default: 1000, minimum: 100, maximum: 1000 },
     phone_number: {
       label: 'Phone Number',
       description: `Individual's phone number in E.164 format. If SMS is not enabled and if you use Phone Number as identifier, then you have to provide one of Email or External ID.`,
@@ -45,6 +46,15 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     country_code: {
       ...country_code
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
     }
   },
   dynamicFields: {
@@ -58,16 +68,20 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
+    validateExternalId(external_id)
     const profileIds = await getProfiles(
       request,
       email ? [email] : undefined,
       external_id ? [external_id] : undefined,
       phone_number ? [phone_number] : undefined
     )
+    if (!profileIds?.length) {
+      throw new PayloadValidationError('No profiles found for the provided identifiers.')
+    }
     return await removeProfileFromList(request, profileIds, list_id)
   },
-  performBatch: async (request, { payload }) => {
-    return await removeBulkProfilesFromList(request, payload)
+  performBatch: async (request, { payload, statsContext }) => {
+    return await removeBulkProfilesFromList(request, payload, statsContext)
   }
 }
 

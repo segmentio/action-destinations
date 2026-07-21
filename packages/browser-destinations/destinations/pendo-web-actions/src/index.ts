@@ -27,7 +27,7 @@ export const destination: BrowserDestinationDefinition<Settings, PendoSDK> = {
     apiKey: {
       label: 'Pendo API Key',
       description: 'Pendo API Key',
-      type: 'string',
+      type: 'password',
       required: true
     },
     region: {

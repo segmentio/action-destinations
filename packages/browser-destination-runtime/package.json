@@ -1,6 +1,11 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.73.0",
+  "version": "1.102.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destination-runtime"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -62,7 +67,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "^3.144.0"
+    "@segment/actions-core": "^3.173.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"

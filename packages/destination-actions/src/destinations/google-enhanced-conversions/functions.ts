@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import {
   ConversionCustomVariable,
@@ -9,7 +10,11 @@ import {
   CreateAudienceInput,
   CreateGoogleAudienceResponse,
   UserListResponse,
-  UserList
+  UserList,
+  OfflineUserJobPayload,
+  AddOperationPayload,
+  KeyValuePairList,
+  KeyValueItem
 } from './types'
 import {
   ModifiedResponse,
@@ -17,19 +22,33 @@ import {
   IntegrationError,
   RetryableError,
   PayloadValidationError,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  Features,
+  MultiStatusResponse,
+  JSONLikeObject,
+  ErrorCodes
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { Features } from '@segment/actions-core/mapping-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
-import { sha256SmartHash } from '@segment/actions-core'
+import type { Payload as ClickConversionPayload } from './uploadClickConversion/generated-types'
+import type { Payload as ClickConversionPayload2 } from './uploadClickConversion2/generated-types'
 import { RefreshTokenResponse } from '.'
+import { STATUS_CODE_MAPPING } from './constants'
+import { processHashing } from '../../lib/hashing-utils'
+import {
+  GOOGLE_ENHANCED_CONVERSIONS_API_VERSION,
+  GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
+} from './versioning-info'
 
-export const API_VERSION = 'v17'
-export const CANARY_API_VERSION = 'v17'
+export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
+export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
+export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+
+const phoneUtil = PhoneNumberUtil.getInstance()
 
 type GoogleAdsErrorData = {
   error: {
@@ -206,7 +225,18 @@ export function convertTimestamp(timestamp: string | undefined): string | undefi
   if (!timestamp) {
     return undefined
   }
-  return timestamp.replace(/T/, ' ').replace(/\..+/, '+00:00')
+  return timestamp.replace(/T/, ' ').replace(/(\.\d+)?Z/, '+00:00')
+}
+
+export function timestampToEpochMicroseconds(timestamp: string): string | undefined {
+  if (!timestamp) {
+    return undefined
+  }
+  const date = new Date(timestamp)
+  if (!isNaN(date.getTime())) {
+    return (date.getTime() * 1000).toString()
+  }
+  return undefined
 }
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
@@ -220,15 +250,8 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
 }
 
 export const isHashedInformation = (information: string): boolean => new RegExp(/[0-9abcdef]{64}/gi).test(information)
-export const commonHashedEmailValidation = (email: string): string => {
-  if (isHashedInformation(email)) {
-    return email
-  }
-
+export const commonEmailValidation = (email: string): string => {
   // https://github.com/ajv-validator/ajv-formats/blob/master/src/formats.ts#L64-L65
-  if (!(fullFormats.email as RegExp).test(email)) {
-    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
-  }
   const googleDomain = new RegExp('^(gmail|googlemail).s*', 'g')
   let normalizedEmail = email.toLowerCase().trim()
   const emailParts = normalizedEmail.split('@')
@@ -236,8 +259,11 @@ export const commonHashedEmailValidation = (email: string): string => {
     emailParts[0] = emailParts[0].replace('.', '')
     normalizedEmail = `${emailParts[0]}@${emailParts[1]}`
   }
+  if (!(fullFormats.email as RegExp).test(normalizedEmail)) {
+    throw new PayloadValidationError("Email provided doesn't seem to be in a valid format.")
+  }
 
-  return String(hash(normalizedEmail))
+  return normalizedEmail
 }
 
 export async function getListIds(
@@ -325,7 +351,7 @@ export async function createGoogleAudience(
             uploadKeyType: input.audienceSettings.external_id_type,
             appId: input.audienceSettings.app_id
           },
-          membershipLifeSpan: '10000', // In days. 10000 is interpreted as 'unlimited'.
+          membershipLifeSpan: '540',
           name: `${input.audienceName}`
         }
       }
@@ -434,16 +460,73 @@ export function formatToE164(phoneNumber: string, countryCode: string): string {
   if (!formattedPhoneNumber.startsWith('+')) {
     formattedPhoneNumber = '+' + formattedPhoneNumber
   }
-
   return formattedPhoneNumber
 }
 
-const formatPhone = (phone: string, countryCode?: string): string => {
-  const formattedPhone = formatToE164(phone, countryCode ?? '+1')
-  return sha256SmartHash(formattedPhone)
+export const formatPhone = (
+  phone: string,
+  countryCode?: string,
+  features?: Features,
+  statsContext?: StatsContext
+): string => {
+  // Check if phone number is already hashed before doing any formatting
+  if (isHashedInformation(phone)) {
+    return phone
+  }
+  let formattedPhone
+  if (features && features[FLAGON_NAME_PHONE_VALIDATION_CHECK]) {
+    formattedPhone = validateAndFormatToE164(phone, countryCode ?? '+1', statsContext)
+  } else {
+    // If phone validation check is disabled, just format to E.164
+    formattedPhone = formatToE164(phone, countryCode ?? '+1')
+  }
+
+  // TODO: Log stats for pre-formatted phone numbers, Will remove it in clean up
+  if (phone == formattedPhone) {
+    statsContext?.statsClient?.incr('validateAndFormatPhone.pre_formatted', 1, statsContext?.tags)
+  }
+  return formattedPhone
 }
 
-const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syncMode?: string) => {
+export const validateAndFormatToE164 = (
+  phoneNumber: string,
+  countryCode?: string,
+  statsContext?: StatsContext
+): string => {
+  try {
+    let regionCode = 'US' // default region
+
+    // If numeric country code is provided, convert to region code
+    if (countryCode) {
+      const intCode = parseInt(countryCode.replace(/\D/g, ''))
+      regionCode = phoneUtil.getRegionCodeForCountryCode(intCode) || 'US'
+    }
+
+    // Parse the phone number using region
+    const parsedNumber = phoneUtil.parseAndKeepRawInput(phoneNumber, regionCode)
+
+    // Validate the number
+    if (!phoneUtil.isValidNumber(parsedNumber)) {
+      statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
+      throw new PayloadValidationError('Invalid phone number or country code.')
+    }
+
+    statsContext?.statsClient?.incr('validateAndFormatPhone.success', 1, statsContext?.tags)
+    // Return E.164 formatted number
+    return phoneUtil.format(parsedNumber, PhoneNumberFormat.E164)
+  } catch (error) {
+    statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
+    throw new PayloadValidationError((error as Error).message || 'Invalid phone number or country code.')
+  }
+}
+
+const extractUserIdentifiers = (
+  payloads: UserListPayload[],
+  idType: string,
+  syncMode?: string,
+  features?: Features | undefined,
+  statsContext?: StatsContext | undefined
+) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
   // Map user data to Google Ads API format
@@ -458,23 +541,27 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
       const identifiers = []
       if (payload.email) {
         identifiers.push({
-          hashedEmail: commonHashedEmailValidation(payload.email)
+          hashedEmail: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
         })
       }
       if (payload.phone) {
         identifiers.push({
-          hashedPhoneNumber: formatPhone(payload.phone, payload.phone_country_code)
+          hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code, features, statsContext)
+          )
         })
       }
       if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
-        identifiers.push({
-          addressInfo: {
-            hashedFirstName: sha256SmartHash(payload.first_name ?? ''),
-            hashedLastName: sha256SmartHash(payload.last_name ?? ''),
-            countryCode: payload.country_code ?? '',
-            postalCode: payload.postal_code ?? ''
-          }
-        })
+        const addressInfo: any = {}
+        if (payload.first_name) {
+          addressInfo.hashedFirstName = processHashing(payload.first_name, 'sha256', 'hex')
+        }
+        if (payload.last_name) {
+          addressInfo.hashedLastName = processHashing(payload.last_name, 'sha256', 'hex')
+        }
+        addressInfo.countryCode = payload.country_code ?? ''
+        addressInfo.postalCode = payload.postal_code ?? ''
+        identifiers.push({ addressInfo })
       }
       return identifiers
     }
@@ -484,7 +571,7 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && payload.event_name === 'new')
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
     ) {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (
@@ -500,9 +587,8 @@ const extractUserIdentifiers = (payloads: UserListPayload[], idType: string, syn
 
 const createOfflineUserJob = async (
   request: RequestClient,
-  payload: UserListPayload,
+  offlineUserJobPayload: OfflineUserJobPayload,
   settings: CreateAudienceInput['settings'],
-  hookListId?: string,
   features?: Features | undefined,
   statsContext?: StatsContext | undefined
 ) => {
@@ -510,46 +596,28 @@ const createOfflineUserJob = async (
     settings.customerId
   }/offlineUserDataJobs:create`
 
-  let external_audience_id = payload.external_audience_id
-  if (hookListId) {
-    external_audience_id = hookListId
-  }
-
-  const json = {
-    job: {
-      type: 'CUSTOMER_MATCH_USER_LIST',
-      customerMatchUserListMetadata: {
-        userList: `customers/${settings.customerId}/userLists/${external_audience_id}`,
-        consent: {
-          adUserData: payload.ad_user_data_consent_state,
-          adPersonalization: payload.ad_personalization_consent_state
-        }
-      }
-    }
-  }
-
   try {
     const response = await request(url, {
       method: 'post',
       headers: {
         'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
       },
-      json
+      json: offlineUserJobPayload
     })
-    return (response.data as any).resourceName
+    return { success: true, data: (response.data as any).resourceName }
   } catch (error) {
     statsContext?.statsClient?.incr('error.createJob', 1, statsContext?.tags)
-    handleGoogleAdsError(error)
+    return { success: false, error }
   }
 }
 
 const handleGoogleAdsError = (error: any) => {
   // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
   // We rewrite this error to a 500 so that Centrifuge can retry the request
-  const errors = (error as GoogleAdsError).response?.data?.error?.details ?? []
+  const errors = (error as GoogleAdsError)?.response?.data?.error?.details ?? []
   for (const errorDetails of errors) {
     for (const errorItem of errorDetails.errors) {
-      // https://developers.google.com/google-ads/api/reference/rpc/v17/DatabaseErrorEnum.DatabaseError
+      // https://developers.google.com/google-ads/api/reference/rpc/v21/DatabaseErrorEnum.DatabaseError
       if (errorItem?.errorCode?.databaseError === 'CONCURRENT_MODIFICATION') {
         throw new RetryableError(
           errorItem?.message ??
@@ -562,37 +630,220 @@ const handleGoogleAdsError = (error: any) => {
 
   throw error
 }
-
 const addOperations = async (
   request: RequestClient,
-  userIdentifiers: any,
+  addOperationPayload: AddOperationPayload,
   resourceName: string,
-  features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  features?: Features,
+  statsContext?: StatsContext
 ) => {
   const url = `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/${resourceName}:addOperations`
-
-  const json = {
-    operations: userIdentifiers,
-    enable_warnings: true
-  }
 
   try {
     const response = await request(url, {
       method: 'post',
-      headers: {
-        'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-      },
-      json
+      headers: { 'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}` },
+      json: addOperationPayload
     })
-
-    return response.data
+    return { success: true, data: response.data }
   } catch (error) {
     statsContext?.statsClient?.incr('error.addOperations', 1, statsContext?.tags)
-    handleGoogleAdsError(error)
+    return { success: false, error }
   }
 }
 
+const processOperations = async (
+  request: RequestClient,
+  userIdentifiers: any,
+  resourceName: string,
+  validPayloadIndicesBitmap: number[],
+  failedPayloadIndices: Set<number>,
+  multiStatusResponse: MultiStatusResponse,
+  features?: Features | undefined,
+  statsContext?: StatsContext | undefined
+) => {
+  const operationPayload = { operations: userIdentifiers, enablePartialFailure: true }
+  const { success, data, error } = await addOperations(request, operationPayload, resourceName, features, statsContext)
+  if (!success) {
+    handleGoogleAdsAPIErrorResponse(
+      error as GoogleAdsError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      operationPayload,
+      failedPayloadIndices
+    )
+  }
+  const partialFailureError = (data as any)?.partialFailureError
+
+  if (partialFailureError) {
+    handlePartialFailureResponse(
+      partialFailureError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      userIdentifiers,
+      failedPayloadIndices
+    )
+  }
+}
+
+export const handleUpdate = async (
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  audienceSettings: CreateAudienceInput['audienceSettings'],
+  payloads: UserListPayload[],
+  hookListId: string,
+  hookListType: string,
+  syncMode?: string,
+  features?: Features | undefined,
+  statsContext?: StatsContext
+) => {
+  const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
+  const id_type = hookListType ?? audienceSettings.external_id_type
+  // Format the user data for Google Ads API
+  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(
+    payloads,
+    id_type,
+    syncMode,
+    features,
+    statsContext
+  )
+  const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
+  // Create an offline user data job
+  const offlineUserJobResponse = await createOfflineUserJob(
+    request,
+    offlineUserJobPayload,
+    settings,
+    features,
+    statsContext
+  )
+  if (!offlineUserJobResponse.success) {
+    return handleGoogleAdsError(offlineUserJobResponse.error)
+  }
+  const resourceName = offlineUserJobResponse.data
+  // Add operations to the offline user data job
+  if (adduserIdentifiers.length > 0) {
+    const addOperationPayload = { operations: adduserIdentifiers, enable_warnings: true }
+    const addResponse = await addOperations(request, addOperationPayload, resourceName, features, statsContext)
+    if (!addResponse.success) {
+      return handleGoogleAdsError(addResponse.error)
+    }
+  }
+
+  if (removeUserIdentifiers.length > 0) {
+    const removeOperationPayload = { operations: removeUserIdentifiers, enable_warnings: true }
+    const removeResponse = await addOperations(request, removeOperationPayload, resourceName, features, statsContext)
+    if (!removeResponse.success) {
+      return handleGoogleAdsError(removeResponse.error)
+    }
+  }
+
+  // Run the offline user data job
+  const executedJob = await runOfflineUserJob(request, resourceName, features, statsContext)
+  if (!executedJob.success) {
+    return handleGoogleAdsError(executedJob.error)
+  }
+
+  statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
+
+  return executedJob.data
+}
+
+/* Enforcing this here since Customer ID is required for the Google Ads API
+  but not for the Enhanced Conversions API. */
+export const verifyCustomerId = (customerId: string | undefined) => {
+  if (!customerId) {
+    throw new PayloadValidationError('Customer ID is required.')
+  }
+  return customerId.replace(/-/g, '')
+}
+
+const handleGoogleAdsAPIErrorResponse = (
+  error: any,
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  payload: JSONLikeObject,
+  failedPayloadIndices?: Set<number>
+) => {
+  const errorData = error?.response?.data?.error
+  const parsedError = parseGoogleAdsError(errorData)
+  validPayloadIndicesBitmap.forEach((index) => {
+    multiStatusResponse.setErrorResponseAtIndex(index, {
+      ...parsedError,
+      body: error,
+      sent: payload
+    })
+    failedPayloadIndices?.add(index)
+  })
+}
+
+const parseGoogleAdsError = (error: any) => {
+  // Google throws 400 error for CONCURRENT_MODIFICATION error which is a retryable error
+  // We mark  this error to a 429 so that Centrifuge can retry the request.
+
+  const hasConcurrentModificationError = error?.details?.some((detail: any) => {
+    return detail?.errors?.some((e: any) => e?.errorCode?.databaseError === 'CONCURRENT_MODIFICATION')
+  })
+
+  return hasConcurrentModificationError
+    ? {
+        errormessage:
+          "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
+        errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
+        status: 429
+      }
+    : {
+        errormessage: error?.message,
+        status: error?.code
+      }
+}
+
+const updateMultiStatusResponseWithSuccess = (
+  executedJob: JSONLikeObject,
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  sentBody: JSONLikeObject | string,
+  failedPayloadIndices: Set<number>
+) => {
+  validPayloadIndicesBitmap.forEach((index) => {
+    if (!failedPayloadIndices.has(index)) {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: sentBody,
+        body: executedJob.data as JSONLikeObject
+      })
+    }
+  })
+}
+
+export const handlePartialFailureResponse = (
+  partialFailureError: any,
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  userIdentifiers: any[],
+  failedPayloadIndices: Set<number>
+) => {
+  partialFailureError?.details?.forEach((detail: any) => {
+    detail.errors?.forEach((error: any) => {
+      const failedIndex = error.location?.fieldPathElements?.find(
+        (field: any) => field.fieldName === 'operations'
+      )?.index
+
+      if (failedIndex >= 0) {
+        const originalIndex = validPayloadIndicesBitmap[failedIndex]
+        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+          status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
+          errormessage: error.message,
+          sent: userIdentifiers?.[failedIndex],
+          body: error
+        })
+        failedPayloadIndices.add(originalIndex)
+      }
+    })
+  })
+}
 const runOfflineUserJob = async (
   request: RequestClient,
   resourceName: string,
@@ -608,15 +859,144 @@ const runOfflineUserJob = async (
         'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
       }
     })
-
-    return response.data
+    return { success: true, data: response.data }
   } catch (error) {
     statsContext?.statsClient?.incr('error.runJob', 1, statsContext?.tags)
-    handleGoogleAdsError(error)
+    return { success: false, error }
   }
 }
 
-export const handleUpdate = async (
+export const createIdentifierExtractors = (features?: Features) => ({
+  MOBILE_ADVERTISING_ID: (payload: UserListPayload) => {
+    return payload.mobile_advertising_id?.trim() ? { mobileId: payload.mobile_advertising_id.trim() } : null
+  },
+
+  CRM_ID: (payload: UserListPayload) => {
+    return payload.crm_id?.trim() ? { thirdPartyUserId: payload.crm_id.trim() } : null
+  },
+
+  CONTACT_INFO: (payload: UserListPayload) => {
+    const identifiers = []
+
+    if (payload.email) {
+      identifiers.push({
+        hashedEmail: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
+      })
+    }
+
+    if (payload.phone) {
+      identifiers.push({
+        hashedPhoneNumber: processHashing(payload.phone, 'sha256', 'hex', (value) =>
+          formatPhone(value, payload.phone_country_code, features)
+        )
+      })
+    }
+
+    if (payload.first_name || payload.last_name || payload.country_code || payload.postal_code) {
+      identifiers.push({
+        addressInfo: {
+          hashedFirstName: payload.first_name ? processHashing(payload.first_name, 'sha256', 'hex') : undefined,
+          hashedLastName: payload.last_name ? processHashing(payload.last_name, 'sha256', 'hex') : undefined,
+          countryCode: payload.country_code || '',
+          postalCode: payload.postal_code || ''
+        }
+      })
+    }
+
+    return identifiers.length > 0 ? identifiers : null
+  }
+})
+
+const extractBatchUserIdentifiers = (
+  payloads: UserListPayload[],
+  idType: string,
+  multiStatusResponse: MultiStatusResponse,
+  syncMode?: string,
+  features?: Features
+) => {
+  const removeUserIdentifiers: any[] = []
+  const addUserIdentifiers: any[] = []
+  const validPayloadIndicesBitmap: number[] = []
+
+  //Identify the user identifiers based on the idType
+  const extractors = createIdentifierExtractors(features)
+
+  payloads.forEach((payload, index) => {
+    let userIdentifiers
+    try {
+      userIdentifiers = extractors[idType as keyof typeof extractors]?.(payload)
+    } catch (error) {
+      if (error instanceof PayloadValidationError) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: error.message
+        })
+      }
+      return
+    }
+    if (!userIdentifiers) {
+      multiStatusResponse?.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: `Missing or Invalid data for ${idType}.`
+      })
+      return
+    }
+    const operationType = determineOperationType(payload, syncMode)
+    if (!operationType) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Could not determine Operation Type.'
+      })
+      return
+    }
+
+    validPayloadIndicesBitmap.push(index)
+    if (operationType === 'add') {
+      addUserIdentifiers.push({ create: { userIdentifiers } })
+    } else {
+      removeUserIdentifiers.push({ remove: { userIdentifiers } })
+    }
+  })
+
+  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap }
+}
+
+// Helper function to determine operation type
+const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
+  if (
+    payload.event_name === 'Audience Entered' ||
+    syncMode === 'add' ||
+    (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
+  ) {
+    return 'add'
+  } else if (
+    payload.event_name === 'Audience Exited' ||
+    syncMode === 'delete' ||
+    (syncMode === 'mirror' && payload.event_name === 'deleted')
+  ) {
+    return 'remove'
+  }
+
+  return null
+}
+
+const createOfflineUserJobPayload = (audienceId: string, payload: UserListPayload, customerId?: string) => ({
+  job: {
+    type: 'CUSTOMER_MATCH_USER_LIST',
+    customerMatchUserListMetadata: {
+      userList: `customers/${customerId}/userLists/${audienceId}`,
+      consent: {
+        adUserData: payload?.ad_user_data_consent_state,
+        adPersonalization: payload?.ad_personalization_consent_state
+      }
+    }
+  }
+})
+
+export const processBatchPayload = async (
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   audienceSettings: CreateAudienceInput['audienceSettings'],
@@ -627,35 +1007,138 @@ export const handleUpdate = async (
   features?: Features | undefined,
   statsContext?: StatsContext
 ) => {
+  const externalAudienceId = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
+  const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
-  // Format the user data for Google Ads API
-  const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(payloads, id_type, syncMode)
-
-  // Create an offline user data job
-  const resourceName = await createOfflineUserJob(request, payloads[0], settings, hookListId, features, statsContext)
-
-  // Add operations to the offline user data job
-  if (adduserIdentifiers.length > 0) {
-    await addOperations(request, adduserIdentifiers, resourceName, features, statsContext)
+  // Extract user identifiers and validPayloadIndicesBitmap from payloads
+  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
+    payloads,
+    id_type,
+    multiStatusResponse,
+    syncMode,
+    features
+  )
+  // Create offline user data job payload
+  const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
+  // Step1 :- Create an Offline user data job
+  const {
+    success,
+    data: resourceName,
+    error
+  } = await createOfflineUserJob(request, offlineUserJobPayload, settings, features, statsContext)
+  if (!success) {
+    handleGoogleAdsAPIErrorResponse(
+      error as GoogleAdsError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      offlineUserJobPayload
+    )
+    return multiStatusResponse
+  }
+  const failedPayloadIndices: Set<number> = new Set()
+  // Step 2:- Add operations to the Offline user data job
+  if (addUserIdentifiers.length > 0) {
+    await processOperations(
+      request,
+      addUserIdentifiers,
+      resourceName,
+      validPayloadIndicesBitmap,
+      failedPayloadIndices,
+      multiStatusResponse,
+      features,
+      statsContext
+    )
   }
 
   if (removeUserIdentifiers.length > 0) {
-    await addOperations(request, removeUserIdentifiers, resourceName, features, statsContext)
+    await processOperations(
+      request,
+      removeUserIdentifiers,
+      resourceName,
+      validPayloadIndicesBitmap,
+      failedPayloadIndices,
+      multiStatusResponse,
+      features,
+      statsContext
+    )
+  }
+  if (failedPayloadIndices.size === validPayloadIndicesBitmap.length) {
+    return multiStatusResponse // Return multi-status response if all operations failed
   }
 
-  // Run the offline user data job
-  const executedJob = await runOfflineUserJob(request, resourceName, features, statsContext)
-
+  //Step 3:- Run the offline user data job
+  const executedJob: any = await runOfflineUserJob(request, resourceName, features, statsContext)
   statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
 
-  return executedJob
+  const sentBody = `/${resourceName}:run`
+  if (!executedJob.success) {
+    handleJobExecutionError(executedJob, validPayloadIndicesBitmap, multiStatusResponse, sentBody, failedPayloadIndices)
+  } else {
+    updateMultiStatusResponseWithSuccess(
+      executedJob,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      sentBody,
+      failedPayloadIndices
+    )
+  }
+  return multiStatusResponse
 }
 
-/* Enforcing this here since Customer ID is required for the Google Ads API
-  but not for the Enhanced Conversions API. */
-export const verifyCustomerId = (customerId: string | undefined) => {
-  if (!customerId) {
-    throw new PayloadValidationError('Customer ID is required.')
-  }
-  return customerId.replace(/-/g, '')
+export const handleJobExecutionError = (
+  executedJob: any,
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  sentBody: string,
+  failedPayloadIndices: Set<number>
+) => {
+  const executedJobError = executedJob.error?.response?.data?.error
+  const parsedError = parseGoogleAdsError(executedJobError)
+
+  validPayloadIndicesBitmap.forEach((index) => {
+    if (!failedPayloadIndices.has(index)) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        ...parsedError,
+        sent: sentBody,
+        body: executedJob.error
+      })
+    }
+  })
+}
+
+export function getSessionAttributesKeyValuePairs(payload: ClickConversionPayload | ClickConversionPayload2) {
+  const {
+    session_attributes_key_value_pairs: {
+      gad_source,
+      gad_campaignid,
+      landing_page_url,
+      session_start_time_usec,
+      landing_page_referrer,
+      landing_page_user_agent
+    } = {}
+  } = payload
+
+  const sessionStartTimeUsec =
+    typeof session_start_time_usec === 'string' ? timestampToEpochMicroseconds(session_start_time_usec) : undefined
+
+  const entries: [KeyValueItem['sessionAttributeKey'], string | undefined][] = [
+    ['gad_source', gad_source],
+    ['gad_campaignid', gad_campaignid],
+    ['landing_page_url', landing_page_url],
+    ['session_start_time_usec', sessionStartTimeUsec],
+    ['landing_page_referrer', landing_page_referrer],
+    ['landing_page_user_agent', landing_page_user_agent]
+  ]
+
+  const keyValuePairList: KeyValuePairList = entries
+    .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => ({
+      sessionAttributeKey: key,
+      sessionAttributeValue: value
+    }))
+
+  return keyValuePairList.length > 0 ? { sessionAttributesKeyValuePairs: { keyValuePairs: keyValuePairList } } : {}
 }

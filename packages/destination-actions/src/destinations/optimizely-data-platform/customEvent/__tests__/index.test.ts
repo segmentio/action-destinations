@@ -199,7 +199,7 @@ describe('OptimizelyDataPlatform.trackEvent', () => {
 
       expect(response[0].status).toBe(201)
       expect(response[0].options.body).toMatchInlineSnapshot(
-        `"[{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"type\\":\\"purchase\\",\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\",\\"order_id\\":\\"1234\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"12345\\",\\"qty\\":2},{\\"product_id\\":\\"67890\\",\\"qty\\":5}]},{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"type\\":\\"purchase\\",\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\",\\"order_id\\":\\"5678\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"67890\\",\\"qty\\":20},{\\"product_id\\":\\"098765\\",\\"qty\\":15}]}]"`
+        `"[{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"fs_user_id\\":\\"user1234\\",\\"web_user_id\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"type\\":\\"purchase\\",\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\",\\"order_id\\":\\"1234\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"12345\\",\\"qty\\":2},{\\"product_id\\":\\"67890\\",\\"qty\\":5}]},{\\"user_identifiers\\":{\\"anonymousId\\":\\"anonId1234\\",\\"userId\\":\\"user1234\\",\\"fs_user_id\\":\\"user1234\\",\\"web_user_id\\":\\"user1234\\"},\\"action\\":\\"purchase\\",\\"type\\":\\"purchase\\",\\"timestamp\\":\\"2024-03-01T18:11:27.649Z\\",\\"order_id\\":\\"5678\\",\\"total\\":\\"20\\",\\"products\\":[{\\"product_id\\":\\"67890\\",\\"qty\\":20},{\\"product_id\\":\\"098765\\",\\"qty\\":15}]}]"`
       )
     })
 

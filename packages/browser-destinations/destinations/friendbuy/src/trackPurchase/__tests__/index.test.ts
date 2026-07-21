@@ -10,14 +10,14 @@ beforeEach(async () => {
 })
 
 describe('Friendbuy.trackPurchase', () => {
-  const subscriptions = [
+  const subscriptions: JSONValue = [
     {
       partnerAction: 'trackPurchase',
       name: trackPurchaseObject.title,
       enabled: true,
       subscribe: trackPurchaseDefaultSubscription,
       mapping: Object.fromEntries(
-        Object.entries(browserTrackPurchaseFields).map(([name, value]) => [name, value.default])
+        Object.entries(browserTrackPurchaseFields).map(([name, value]) => [name, value.default as any])
       )
     }
   ]
@@ -62,7 +62,7 @@ describe('Friendbuy.trackPurchase', () => {
     // console.log(window.friendbuyAPI)
     jest.spyOn(window.friendbuyAPI as any, 'push')
 
-    const expectedProducts = products.map((p) => {
+    const expectedProducts = products.map((p: Record<string, unknown>) => {
       p = { sku: 'unknown', name: 'unknown', quantity: 1, ...p }
       if (p.image_url) {
         p.imageUrl = p.image_url
@@ -70,7 +70,7 @@ describe('Friendbuy.trackPurchase', () => {
       }
       return p
     })
-    const amount = expectedProducts.reduce((acc, p) => acc + p.price * p.quantity, 0)
+    const amount = expectedProducts.reduce((acc, p) => acc + (p.price as number) * (p.quantity as number), 0)
 
     {
       // all fields
@@ -89,7 +89,7 @@ describe('Friendbuy.trackPurchase', () => {
           attributionId,
           referralCode,
           giftCardCodes,
-          products: products as JSONValue,
+          products: products as unknown as JSONValue,
           email,
           name,
           friendbuyAttributes
@@ -97,7 +97,7 @@ describe('Friendbuy.trackPurchase', () => {
       })
       // console.log('context1', JSON.stringify(context1, null, 2))
 
-      trackPurchase.track?.(context1)
+      await trackPurchase.track?.(context1)
 
       // console.log('trackPurchase request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(1, [
@@ -117,8 +117,8 @@ describe('Friendbuy.trackPurchase', () => {
         },
         true
       ])
-      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[1].quantity).toBe(1)
-      expect(window.friendbuyAPI.push.mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url)
+      expect((window.friendbuyAPI?.push as any).mock.calls[0][0][2].products[1].quantity).toBe(1)
+      expect((window.friendbuyAPI?.push as any).mock.calls[0][0][2].products[2].imageUrl).toBe(products[2].image_url)
     }
 
     {
@@ -133,7 +133,7 @@ describe('Friendbuy.trackPurchase', () => {
         }
       })
 
-      trackPurchase.track?.(context2)
+      await trackPurchase.track?.(context2)
 
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(2, [
         'track',
@@ -163,7 +163,7 @@ describe('Friendbuy.trackPurchase', () => {
         }
       })
 
-      trackPurchase.track?.(context3)
+      await trackPurchase.track?.(context3)
 
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(3, [
         'track',
@@ -192,7 +192,7 @@ describe('Friendbuy.trackPurchase', () => {
         }
       })
 
-      trackPurchase.track?.(context4)
+      await trackPurchase.track?.(context4)
 
       expect(window.friendbuyAPI?.push).toHaveBeenNthCalledWith(4, [
         'track',

@@ -8,6 +8,8 @@ import deleteObject from './deleteObject'
 import deletePerson from './deletePerson'
 import mergePeople from './mergePeople'
 import reportDeliveryEvent from './reportDeliveryEvent'
+import reportContentEvent from './reportContentEvent'
+import { CUSTOMERIO_CUSTOMERS_API_VERSION } from './versioning-info'
 import suppressPerson from './suppressPerson'
 import unsuppressPerson from './unsuppressPerson'
 import trackEvent from './trackEvent'
@@ -72,7 +74,8 @@ const destination: DestinationDefinition<Settings> = {
     mergePeople,
     suppressPerson,
     unsuppressPerson,
-    reportDeliveryEvent
+    reportDeliveryEvent,
+    reportContentEvent
   },
 
   presets: [
@@ -85,21 +88,59 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Create or Update Device',
-      subscribe: 'event = "Application Installed" or event = "Application Opened"',
+      subscribe: `
+        event = "Application Installed"
+        or event = "Application Opened"
+        or event = "Device Created or Updated"
+      `,
       partnerAction: 'createUpdateDevice',
       mapping: defaultValues(createUpdateDevice.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Delete Device',
+      subscribe: 'event = "Application Uninstalled" or event = "Device Deleted"',
+      partnerAction: 'deleteDevice',
+      mapping: defaultValues(deleteDevice.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Delete Relationship',
+      subscribe: 'event = "Relationship Deleted"',
+      partnerAction: 'deleteRelationship',
+      mapping: defaultValues(deleteRelationship.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Delete Person',
+      subscribe: 'event = "User Deleted"',
+      partnerAction: 'deletePerson',
+      mapping: defaultValues(deletePerson.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Delete Object',
+      subscribe: 'event = "Object Deleted"',
+      partnerAction: 'deleteObject',
+      mapping: defaultValues(deleteObject.fields),
       type: 'automatic'
     },
     {
       name: 'Track Event',
       subscribe: `
         type = "track"
+        and event != "Application Installed"
+        and event != "Application Opened"
+        and event != "Application Uninstalled"
+        and event != "Device Created or Updated"
+        and event != "Device Deleted"
         and event != "Relationship Deleted"
         and event != "User Deleted"
         and event != "User Suppressed"
         and event != "User Unsuppressed"
         and event != "Object Deleted"
         and event != "Report Delivery Event"
+        and event != "Report Content Event"
       `,
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
@@ -127,10 +168,38 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     {
+      name: 'Merge People',
+      subscribe: 'type = "alias"',
+      partnerAction: 'mergePeople',
+      mapping: defaultValues(mergePeople.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Suppress Person',
+      subscribe: 'event = "User Suppressed"',
+      partnerAction: 'suppressPerson',
+      mapping: defaultValues(suppressPerson.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Unsuppress Person',
+      subscribe: 'event = "User Unsuppressed"',
+      partnerAction: 'unsuppressPerson',
+      mapping: defaultValues(unsuppressPerson.fields),
+      type: 'automatic'
+    },
+    {
       name: 'Report Delivery Event',
       subscribe: 'event = "Report Delivery Event"',
       partnerAction: 'reportDeliveryEvent',
       mapping: defaultValues(reportDeliveryEvent.fields),
+      type: 'automatic'
+    },
+    {
+      name: 'Report Content Event',
+      subscribe: 'event = "Report Content Event"',
+      partnerAction: 'reportContentEvent',
+      mapping: defaultValues(reportContentEvent.fields),
       type: 'automatic'
     },
     {
@@ -210,7 +279,7 @@ const destination: DestinationDefinition<Settings> = {
   onDelete(request, { settings, payload }) {
     const { userId } = payload
 
-    const url = `${trackApiEndpoint(settings)}/api/v1/customers/${userId}`
+    const url = `${trackApiEndpoint(settings)}/api/${CUSTOMERIO_CUSTOMERS_API_VERSION}/customers/${userId}`
 
     return request(url, {
       method: 'DELETE'

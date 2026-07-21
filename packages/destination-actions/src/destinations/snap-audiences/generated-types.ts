@@ -18,7 +18,7 @@ export interface AudienceSettings {
    */
   description?: string
   /**
-   * # of days to retain audience members. (Default retention is lifetime represented as 9999)
+   * Number of days to retain audience members. (Default retention is lifetime represented as 9999)
    */
   retention_in_days?: number
 }

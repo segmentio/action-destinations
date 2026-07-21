@@ -7,9 +7,10 @@ import {
   JSONLikeObject,
   HTTPError,
   MultiStatusResponse,
-  ErrorCodes
+  ErrorCodes,
+  StatsContext
 } from '@segment/actions-core'
-import { API_URL, REVISION_DATE } from './config'
+import { API_URL, REVISION_DATE, MAX_EXTERNAL_ID_LENGTH } from './config'
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -23,10 +24,10 @@ import {
   SubscribeEventData,
   UnsubscribeProfile,
   UnsubscribeEventData,
-  GroupedProfiles,
   AdditionalAttributes,
   KlaviyoProfile,
-  KlaviyoAPIErrorResponse
+  KlaviyoAPIErrorResponse,
+  validateProfilePayloadResult
 } from './types'
 import { Payload } from './upsertProfile/generated-types'
 import { Payload as RemoveProfilePayload } from './removeProfile/generated-types'
@@ -38,6 +39,18 @@ import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
+
+const EXTERNAL_ID_LENGTH_ERROR: ActionDestinationErrorResponseType = {
+  status: 400,
+  errortype: 'PAYLOAD_VALIDATION_FAILED',
+  errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
+}
+
+export function validateExternalId(externalId: string | undefined): void {
+  if (externalId && externalId.length > MAX_EXTERNAL_ID_LENGTH) {
+    throw new PayloadValidationError(EXTERNAL_ID_LENGTH_ERROR.errormessage)
+  }
+}
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -98,6 +111,7 @@ export async function createProfile(
   phone_number: string | undefined,
   additionalAttributes: AdditionalAttributes
 ) {
+  validateExternalId(external_id)
   try {
     const profileData: ProfileData = {
       data: {
@@ -141,7 +155,7 @@ export const createImportJobPayload = (profiles: Payload[], listId?: string): { 
     attributes: {
       profiles: {
         data: profiles.map(
-          ({ list_id, enable_batching, batch_size, override_list_id, country_code, ...attributes }) => ({
+          ({ list_id, enable_batching, batch_size, override_list_id, country_code, batch_keys, ...attributes }) => ({
             type: 'profile',
             attributes
           })
@@ -177,9 +191,6 @@ export const constructBulkProfileImportPayload = (
 export const sendImportJobRequest = async (request: RequestClient, importJobPayload: { data: ImportJobPayload }) => {
   return await request(`${API_URL}/profile-bulk-import-jobs/`, {
     method: 'POST',
-    headers: {
-      revision: '2023-10-15.pre'
-    },
     json: importJobPayload
   })
 }
@@ -225,7 +236,8 @@ export async function getProfiles(
 export function formatSubscribeProfile(
   email: string | undefined,
   phone_number: string | undefined,
-  consented_at: string | number | undefined
+  consented_at: string | number | undefined,
+  historical_import: boolean | undefined = false
 ) {
   const profileToSubscribe: SubscribeProfile = {
     type: 'profile',
@@ -241,7 +253,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.email.marketing.consented_at = consented_at
     }
   }
@@ -252,7 +264,7 @@ export function formatSubscribeProfile(
         consent: 'SUBSCRIBED'
       }
     }
-    if (consented_at) {
+    if (historical_import && consented_at) {
       profileToSubscribe.attributes.subscriptions.sms.marketing.consented_at = consented_at
     }
   }
@@ -263,7 +275,8 @@ export function formatSubscribeProfile(
 export function formatSubscribeRequestBody(
   profiles: SubscribeProfile | SubscribeProfile[],
   list_id: string | undefined,
-  custom_source: string | undefined
+  custom_source: string | undefined,
+  historical_import: boolean | undefined = false
 ) {
   if (!Array.isArray(profiles)) {
     profiles = [profiles]
@@ -274,6 +287,7 @@ export function formatSubscribeRequestBody(
     data: {
       type: 'profile-subscription-bulk-create-job',
       attributes: {
+        historical_import: historical_import ?? false,
         profiles: {
           data: profiles
         }
@@ -332,19 +346,34 @@ export function formatUnsubscribeRequestBody(
 }
 
 export function formatUnsubscribeProfile(email: string | undefined, phone_number: string | undefined) {
-  const profileToSubscribe: UnsubscribeProfile = {
+  const profileToUnSubscribe: UnsubscribeProfile = {
     type: 'profile',
-    attributes: {}
+    attributes: {
+      subscriptions: {}
+    }
   }
 
   if (email) {
-    profileToSubscribe.attributes.email = email
+    profileToUnSubscribe.attributes.email = email
+    profileToUnSubscribe.attributes.subscriptions.email = {
+      marketing: {
+        consent: 'UNSUBSCRIBED'
+      }
+    }
   }
 
   if (phone_number) {
-    profileToSubscribe.attributes.phone_number = phone_number
+    profileToUnSubscribe.attributes.phone_number = phone_number
+    profileToUnSubscribe.attributes.subscriptions.sms = {
+      marketing: {
+        consent: 'UNSUBSCRIBED'
+      },
+      transactional: {
+        consent: 'UNSUBSCRIBED'
+      }
+    }
   }
-  return profileToSubscribe
+  return profileToUnSubscribe
 }
 
 export async function getList(request: RequestClient, settings: Settings, listId: string) {
@@ -409,31 +438,6 @@ export async function createList(request: RequestClient, settings: Settings, lis
   }
 }
 
-export function groupByListId(profiles: Payload[]) {
-  const grouped: GroupedProfiles = {}
-
-  for (const profile of profiles) {
-    const listId: string = profile.override_list_id || (profile.list_id as string)
-    if (!grouped[listId]) {
-      grouped[listId] = []
-    }
-    grouped[listId].push(profile)
-  }
-
-  return grouped
-}
-
-export async function processProfilesByGroup(request: RequestClient, groupedProfiles: GroupedProfiles) {
-  const importResponses = await Promise.all(
-    Object.keys(groupedProfiles).map(async (listId) => {
-      const profiles = groupedProfiles[listId]
-      const importJobPayload = createImportJobPayload(profiles, listId)
-      return await sendImportJobRequest(request, importJobPayload)
-    })
-  )
-  return importResponses
-}
-
 export function validateAndConvertPhoneNumber(phone?: string, countryCode?: string): string | undefined | null {
   if (!phone) return
 
@@ -489,7 +493,7 @@ export function processPhoneNumber(initialPhoneNumber?: string, country_code?: s
  * @param {number[]} validPayloadIndicesBitmap - An array of indices indicating which payloads were valid.
  *
  */
-async function updateMultiStatusWithKlaviyoErrors(
+export async function updateMultiStatusWithKlaviyoErrors(
   payloads: JSONLikeObject[],
   err: any,
   multiStatusResponse: MultiStatusResponse,
@@ -507,7 +511,11 @@ async function updateMultiStatusWithKlaviyoErrors(
   })
 }
 
-export async function removeBulkProfilesFromList(request: RequestClient, payloads: RemoveProfilePayload[]) {
+export async function removeBulkProfilesFromList(
+  request: RequestClient,
+  payloads: RemoveProfilePayload[],
+  statsContext?: StatsContext
+) {
   const multiStatusResponse = new MultiStatusResponse()
 
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
@@ -522,6 +530,13 @@ export async function removeBulkProfilesFromList(request: RequestClient, payload
   const emails = extractField(filteredPayloads, 'email')
   const externalIds = extractField(filteredPayloads, 'external_id')
   const phoneNumbers = extractField(filteredPayloads, 'phone_number')
+
+  if (statsContext) {
+    const { tags, statsClient } = statsContext
+    const set = new Set()
+    filteredPayloads.forEach((x) => set.add(x.list_id))
+    statsClient?.histogram('actions-klaviyo.remove_profile_from_list.unique_list_id', set.size, tags)
+  }
 
   const listId = filteredPayloads[0]?.list_id as string
 
@@ -584,6 +599,11 @@ function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload
     return response
   }
 
+  if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = EXTERNAL_ID_LENGTH_ERROR
+    return response
+  }
+
   if (phone_number) {
     const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
     if (!validPhoneNumber) {
@@ -614,6 +634,11 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     return response
   }
 
+  if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = EXTERNAL_ID_LENGTH_ERROR
+    return response
+  }
+
   if (phone_number) {
     const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
     if (!validPhoneNumber) {
@@ -628,7 +653,7 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
     delete payload.country_code
   }
 
-  const { list_id, enable_batching, batch_size, country_code, ...attributes } = payload
+  const { list_id, enable_batching, batch_size, country_code, batch_keys, ...attributes } = payload
 
   response.validPayload = { type: 'profile', attributes: attributes as JSONLikeObject }
   return response
@@ -654,7 +679,11 @@ function validateAndPrepareBatchedProfileImportPayloads(
   return { filteredPayloads, validPayloadIndicesBitmap }
 }
 
-export async function sendBatchedProfileImportJobRequest(request: RequestClient, payloads: AddProfileToListPayload[]) {
+export async function sendBatchedProfileImportJobRequest(
+  request: RequestClient,
+  payloads: AddProfileToListPayload[],
+  statsContext?: StatsContext
+) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareBatchedProfileImportPayloads(
     payloads,
@@ -663,6 +692,13 @@ export async function sendBatchedProfileImportJobRequest(request: RequestClient,
 
   if (!filteredPayloads.length) {
     return multiStatusResponse
+  }
+
+  if (statsContext) {
+    const { tags, statsClient } = statsContext
+    const set = new Set()
+    filteredPayloads.forEach((x) => set.add(x.list_id))
+    statsClient?.histogram('actions-klaviyo.add_profile_to_list.unique_list_id', set.size, tags)
   }
   const importJobPayload = constructBulkProfileImportPayload(
     filteredPayloads as unknown as KlaviyoProfile[],
@@ -707,10 +743,7 @@ export async function sendBatchedTrackEvent(request: RequestClient, payloads: Tr
   try {
     const response = await request(`${API_URL}/event-bulk-create-jobs/`, {
       method: 'POST',
-      json: payloadToSend,
-      headers: {
-        revision: '2024-10-15'
-      }
+      json: payloadToSend
     })
     updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (err) {
@@ -746,20 +779,22 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       return
     }
 
+    if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, EXTERNAL_ID_LENGTH_ERROR)
+      return
+    }
+
     if (phone_number) {
-      // Validate and convert the phone number if present
       const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
-      // If the phone number is not valid, skip this payload
       if (!validPhoneNumber) {
         multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Phone number could not be converted to E.164 format.'
         })
-        return // Skip this payload
+        return
       }
 
-      // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
     }
@@ -886,4 +921,49 @@ export function updateMultiStatusWithSuccessData(
       body: JSON.stringify(response?.data) || 'success'
     })
   })
+}
+
+/**
+ * Validates the given profile payload for required fields and formats.
+ *
+ * Ensures that at least one of `email`, `phone_number`, or `external_id` is present.
+ * If `phone_number` is provided, it validates and converts it to E.164 format using the `country_code`.
+ * Returns an object containing the validated payload or an error response if validation fails.
+ *
+ * @param payload - The profile payload to validate.
+ * @returns An object containing the validated payload or an error response if validation fails.
+ */
+export function validateProfilePayload(payload: Payload): validateProfilePayloadResult {
+  const response: validateProfilePayloadResult = {}
+
+  if (!payload.email && !payload.phone_number && !payload.external_id) {
+    response.error = {
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'One of External ID, Phone Number or Email is required.'
+    }
+    return response
+  }
+
+  if (payload.external_id && payload.external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = EXTERNAL_ID_LENGTH_ERROR
+    return response
+  }
+
+  if (payload.phone_number) {
+    const validPhoneNumber = validateAndConvertPhoneNumber(payload.phone_number, payload.country_code as string)
+    if (!validPhoneNumber) {
+      response.error = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Phone number could not be converted to E.164 format.'
+      }
+      return response
+    }
+    payload.phone_number = validPhoneNumber
+    delete payload.country_code
+  }
+
+  response.payload = payload
+  return response
 }

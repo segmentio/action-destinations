@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, DecoratedResponse, IntegrationError } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, DecoratedResponse } from '@segment/actions-core'
 import Definition from '../index'
 
 const testDestination = createTestIntegration(Definition)
@@ -48,9 +48,7 @@ describe('Intercom (actions)', () => {
       nock(`${endpoint}`).post(`/contacts/search`).reply(200, { total_count: 0, data: [] })
 
       if (testDestination.onDelete) {
-        await expect(testDestination.onDelete(event, {})).rejects.toThrowError(
-          new IntegrationError('No unique contact found', 'Contact not found', 404)
-        )
+        await expect(testDestination.onDelete(event, {})).resolves.not.toThrow()
       }
     })
   })

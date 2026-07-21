@@ -38,11 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       default: {
-        '@if': {
-          exists: { '@path': '$.integrations.Braze Cloud Mode (Actions).braze_id' },
-          then: { '@path': '$.integrations.Braze Cloud Mode (Actions).braze_id' },
-          else: { '@path': '$.traits.braze_id' }
-        }
+        '@path': '$.properties.braze_id'
       }
     },
     country: {
@@ -267,6 +263,31 @@ const action: ActionDefinition<Settings, Payload> = {
         statuses_count: {
           label: 'Number of Statuses',
           type: 'integer'
+        }
+      }
+    },
+    subscription_groups: {
+      label: 'Subscription Groups',
+      description: 'Array of objects used to manage a user\'s subscription status for specific subscription groups.',
+      type: 'object',
+      multiple: true,
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        subscription_group_id: {
+          label: 'Subscription Group ID',
+          description: 'The identifier for the subscription group',
+          type: 'string',
+          required: true
+        },
+        subscription_state: {
+          label: 'Subscription State',
+          description: 'The user\'s subscription status: "subscribed" or "unsubscribed"',
+          type: 'string',
+          required: true,
+          choices: [
+            { label: 'Subscribed', value: 'subscribed' },
+            { label: 'Unsubscribed', value: 'unsubscribed' }
+          ]
         }
       }
     },

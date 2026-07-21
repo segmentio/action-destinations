@@ -2,6 +2,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ActionDefinition } from '@segment/actions-core'
 import { sendBatch, sendSingle } from '../utils'
+import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Person',
@@ -77,6 +78,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.traits.relationshipAttributes'
       }
     },
+    timestamp: {
+      label: 'Timestamp',
+      description:
+        'A timestamp of when the person was identified. Default is current date and time. Used for ordering updates to the person.',
+      type: 'string',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
     convert_timestamp: {
       label: 'Convert Timestamps',
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
@@ -95,7 +105,8 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits.objectTypeId' }
         }
       }
-    }
+    },
+    ...eventProperties
   },
 
   performBatch: (request, { payload: payloads, settings }) => {

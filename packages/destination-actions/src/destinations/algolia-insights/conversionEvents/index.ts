@@ -14,7 +14,7 @@ const notUndef = (thing: unknown) => typeof thing !== 'undefined'
 export const conversionEvents: ActionDefinition<Settings, Payload> = {
   title: 'Conversion Events',
   description:
-    'In ecommerce, conversions are purchase events often but not always involving multiple products. Outside of a conversion can be any positive signal associated with an index record. Query ID is optional and indicates that the view events is the result of a search query.',
+    'In ecommerce, conversions are purchase or add-to-cart events often but not always involving multiple products. Outside of ecommerce, a conversion can be any positive signal associated with an index record. Query ID is optional and indicates that the event is the result of a search query.',
   fields: {
     eventSubtype: {
       label: 'Event Subtype',
@@ -90,15 +90,22 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
     userToken: {
       type: 'string',
       required: true,
-      description: 'The ID associated with the user.',
+      description:
+        'The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token',
       label: 'User Token',
       default: {
         '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
+          exists: { '@path': '$.anonymousId' },
+          then: { '@path': '$.anonymousId' },
+          else: { '@path': '$.userId' }
         }
       }
+    },
+    authenticatedUserToken: {
+      type: 'string',
+      description: 'The authenticated ID associated with the user.',
+      label: 'Authenticated User Token',
+      default: { '@path': '$.userId' }
     },
     timestamp: {
       type: 'string',
@@ -176,6 +183,7 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
       value: data.payload.value,
       currency: data.payload.currency,
       userToken: data.payload.userToken,
+      authenticatedUserToken: data.payload.authenticatedUserToken,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }
@@ -188,8 +196,8 @@ export const conversionEvents: ActionDefinition<Settings, Payload> = {
 }
 
 /** used in the quick setup */
-export const conversionPresets: Preset = {
-  name: 'Send conversion events to Algolia',
+export const purchasePreset: Preset = {
+  name: 'Send purchase events to Algolia',
   subscribe: conversionEvents.defaultSubscription as string,
   partnerAction: 'conversionEvents',
   mapping: defaultValues(conversionEvents.fields),

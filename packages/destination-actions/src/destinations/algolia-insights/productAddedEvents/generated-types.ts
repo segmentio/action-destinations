@@ -18,6 +18,10 @@ export interface Payload {
    */
   userToken: string
   /**
+   * The authenticated ID associated with the user.
+   */
+  authenticatedUserToken?: string
+  /**
    * The timestamp of the event.
    */
   timestamp?: string

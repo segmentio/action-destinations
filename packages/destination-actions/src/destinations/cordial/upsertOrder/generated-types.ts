@@ -32,6 +32,19 @@ export interface Payload {
    */
   totalAmount: number
   /**
+   * Discount application data, allowed fields: type (only 'fixed' as of now), amount (float discount amount, e.g. 10.45)
+   */
+  discountApplication?: {
+    /**
+     * Type of discount applied to the order (e.g. fixed)
+     */
+    type?: string
+    /**
+     * Amount of the discount applied to the order
+     */
+    amount?: number
+  }
+  /**
    * Additional order properties (e.g. affiliation/tax/revenue)
    */
   properties?: {

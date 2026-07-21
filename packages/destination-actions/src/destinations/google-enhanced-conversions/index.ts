@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadCallConversion from './uploadCallConversion'
@@ -44,9 +44,15 @@ const destination: AudienceDestinationDefinition<Settings> = {
         description:
           'ID of your Google Ads Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you are using a mapping that sends data to the Google Ads API.**',
         type: 'string'
+      },
+      loginCustomerId: {
+        label: 'Login Customer ID',
+        description:
+          'ID of your Google Ads Manager Account. This should be 10-digits and in XXX-XXX-XXXX format. **Required if you want your Manager Account to handle data for its connected accounts.**',
+        type: 'string'
       }
     },
-    testAuthentication: async (_request) => {
+    testAuthentication: async (_request, { settings }) => {
       /* NOTE: Commenting this out until we surface the OAuth login flow in the Actions configuration wizard
       const res = await request<UserInfoResponse>('https://www.googleapis.com/oauth2/v3/userinfo', {
         method: 'GET'
@@ -54,6 +60,19 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       return { name: res.data.name || res.data.email }
       */
+
+      // Validate loginCustomerId format if provided
+      if (settings.loginCustomerId) {
+        const cleanedId = settings.loginCustomerId.replace(/-/g, '')
+        if (!/^\d{10}$/.test(cleanedId)) {
+          throw new IntegrationError(
+            'Login Customer ID must be 10 digits in XXX-XXX-XXXX format',
+            'INVALID_LOGIN_CUSTOMER_ID',
+            400
+          )
+        }
+      }
+
       return true
     },
     refreshAccessToken: async (request, { auth }) => {
@@ -70,10 +89,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
       return { accessToken: res.data.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, settings }) {
+    const loginCustomerId = settings?.loginCustomerId?.trim().replace(/-/g, '')
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        authorization: `Bearer ${auth?.accessToken}`,
+        ...(loginCustomerId && { 'login-customer-id': loginCustomerId })
       }
     }
   },
@@ -129,13 +150,30 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
-      const userListId = await createGoogleAudience(
-        request,
-        createAudienceInput,
-        auth,
-        createAudienceInput.features,
-        createAudienceInput.statsContext
-      )
+
+      let userListId
+      try {
+        userListId = await createGoogleAudience(
+          request,
+          createAudienceInput,
+          auth,
+          createAudienceInput.features,
+          createAudienceInput.statsContext
+        )
+      } catch (err) {
+        let status = err.status || err.code
+        if (!status && err.response && err.response.status) {
+          status = Number(err.response.status)
+        }
+        // NOTE:
+        // We are embedding the entire error message here.
+        // This is not ideal as we should properly parse it and assemble the respective error message.
+        // For now, this and its counterpart in EAMS will parse the error and show it to the user but
+        // ultimately destinations should own this.
+        const message = err.response?.content || err.message
+
+        throw new IntegrationError(message, 'CREATE_AUDIENCE_FAILED', status || 400)
+      }
 
       return {
         externalId: userListId
@@ -174,7 +212,93 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadClickConversion2,
     uploadCallConversion2,
     userList
-  }
+  },
+  presets: [
+    {
+      name: 'Session Attributes Encoded Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'sessionAttributesEncoded',
+      mapping: {},
+      type: 'automatic'
+    },
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'postConversion',
+      mapping: defaultValues(postConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadClickConversion',
+      mapping: defaultValues(uploadClickConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadCallConversion',
+      mapping: defaultValues(uploadCallConversion.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadConversionAdjustment',
+      mapping: defaultValues(uploadConversionAdjustment.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadConversionAdjustment2',
+      mapping: defaultValues(uploadConversionAdjustment2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadClickConversion2',
+      mapping: defaultValues(uploadClickConversion2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'uploadCallConversion2',
+      mapping: defaultValues(uploadCallConversion2.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination

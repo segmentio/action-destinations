@@ -14,6 +14,12 @@ export interface Payload {
    */
   userId: string
   /**
+   * Optional properties that will be updated on the event's contact.
+   */
+  contactProperties?: {
+    [k: string]: unknown
+  }
+  /**
    * Event-specific properties that can be included in emails triggered by this event.
    */
   eventProperties?: {

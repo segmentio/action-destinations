@@ -10,35 +10,35 @@ export interface Payload {
    */
   externalUserId: string
   /**
-   * User email address. Vaule will be hashed before sending to Amazon.
+   * User email address.
    */
   email?: string
   /**
-   * User first name. Value will be hashed before sending to Amazon.
+   * User first name.
    */
   firstName?: string
   /**
-   * User Last name. Value will be hashed before sending to Amazon.
+   * User Last name.
    */
   lastName?: string
   /**
-   * Phone Number. Value will be hashed before sending to Amazon.
+   * Phone Number.
    */
   phone?: string
   /**
-   * POstal Code. Value will be hashed before sending to Amazon.
+   * Postal Code.
    */
   postal?: string
   /**
-   * State Code. Value will be hashed before sending to Amazon.
+   * State Code.
    */
   state?: string
   /**
-   * City name. Value will be hashed before sending to Amazon.
+   * City name.
    */
   city?: string
   /**
-   * Address Code. Value will be hashed before sending to Amazon.
+   * Address Code.
    */
   address?: string
   /**
@@ -46,11 +46,36 @@ export interface Payload {
    */
   audienceId: string
   /**
+   * Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.
+   */
+  consent?: {
+    /**
+     * Captures the user's geographic information (IP address) for consent checking.
+     */
+    ipAddress?: string
+    /**
+     * Amazon Consent Format: Captures whether the user has consented to cookie based tracking.
+     */
+    amznAdStorage?: string
+    /**
+     * Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.
+     */
+    amznUserData?: string
+    /**
+     * An encoded Transparency and Consent Framework (TCF) string describing user consent choices.
+     */
+    tcf?: string
+    /**
+     * An encoded Global Privacy Platform (GPP) string describing user privacy preferences.
+     */
+    gpp?: string
+  }
+  /**
    * When enabled,segment will send data in batching
    */
   enable_batching: boolean
   /**
-   * Maximum number of events to include in each batch. Actual batch sizes may be lower.
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower. Minimum value is 1500 and maximum is 10000.
    */
   batch_size?: number
 }

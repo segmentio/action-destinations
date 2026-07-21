@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Attentive's subscribeUser destination action: all fields 1`] = `
+Object {
+  "externalEventId": "*Cc5M#wXxFe",
+  "occurredAt": "*Cc5M#wXxFe",
+  "signUpSourceId": "test-signup-source-id",
+  "singleOptIn": true,
+  "subscriptionType": "MARKETING",
+  "user": Object {
+    "externalIdentifiers": Object {
+      "customIdentifiers": Object {
+        "userId": "testuserid",
+      },
+    },
+  },
+}
+`;
+
+exports[`Testing snapshot for Attentive's subscribeUser destination action: required fields 1`] = `
+Object {
+  "locale": Object {
+    "country": "US",
+    "language": "en",
+  },
+  "subscriptionType": "MARKETING",
+  "user": Object {
+    "externalIdentifiers": Object {
+      "customIdentifiers": Object {
+        "userId": "testuserid",
+      },
+    },
+  },
+}
+`;

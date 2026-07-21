@@ -16,26 +16,26 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Send email to recipient(s) using a Dynamic Template in Sendgrid',
   fields,
   dynamicFields: {
-    template_id: async (request) => {
-      return await dynamicTemplateId(request)
+    template_id: async (request, { settings }) => {
+      return await dynamicTemplateId(request, settings)
     },
-    ip_pool_name: async (request) => {
-      return await dynamicIpPoolNames(request)
+    ip_pool_name: async (request, { settings }) => {
+      return await dynamicIpPoolNames(request, settings)
     },
     dynamic_template_data: {
-      __keys__: async (request, { payload }) => {
-        return await dynamicTemplateData(request, payload)
+      __keys__: async (request, { payload, settings }) => {
+        return await dynamicTemplateData(request, payload, settings)
       }
     },
-    domain: async (request) => {
-      return await dynamicDomain(request)
+    domain: async (request, { settings }) => {
+      return await dynamicDomain(request, settings)
     },
-    group_id: async (request) => {
-      return await dynamicGroupId(request)
+    group_id: async (request, { settings }) => {
+      return await dynamicGroupId(request, settings)
     }
   },
-  perform: async (request, { payload }) => {
-    return await send(request, payload)
+  perform: async (request, { payload, settings }) => {
+    return await send(request, payload, settings)
   }
 }
 

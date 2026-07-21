@@ -1,5 +1,9 @@
 import { PredefinedContentTypes } from './types'
 
+export const MIN_SCHEDULE_TIME_MS = 15 * 60 * 1000 // 15 minutes
+
+export const MAX_SCHEDULE_TIME_MS = 35 * 24 * 60 * 60 * 1000 // 35 days
+
 export const CONTENT_SID_TOKEN = '{accountSid}'
 
 export const ACCOUNT_SID_TOKEN = '{accountSid}'
@@ -34,7 +38,8 @@ export const CHANNELS = {
   SMS: 'SMS',
   MMS: 'MMS',
   WHATSAPP: 'Whatsapp',
-  MESSENGER: 'Messenger'
+  MESSENGER: 'Messenger',
+  RCS: 'RCS'
 } as const
 
 export const PREDEFINED_CONTENT_TYPES: PredefinedContentTypes = {
@@ -42,13 +47,13 @@ export const PREDEFINED_CONTENT_TYPES: PredefinedContentTypes = {
     friendly_name: 'Text',
     name: 'twilio/text',
     supports_media: false,
-    supported_channels: [CHANNELS.SMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER]
+    supported_channels: [CHANNELS.SMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   },
   MEDIA: {
     friendly_name: 'Media',
     name: 'twilio/media',
     supports_media: true,
-    supported_channels: [CHANNELS.MMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER]
+    supported_channels: [CHANNELS.MMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   },
   QUICK_REPLY: {
     friendly_name: 'Quick Reply',
@@ -72,7 +77,7 @@ export const PREDEFINED_CONTENT_TYPES: PredefinedContentTypes = {
     friendly_name: 'Card',
     name: 'twilio/card',
     supports_media: true,
-    supported_channels: [CHANNELS.WHATSAPP, CHANNELS.MESSENGER]
+    supported_channels: [CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   },
   WHATSAPP_CARD: {
     friendly_name: 'WhatsApp Card',
@@ -91,6 +96,12 @@ export const PREDEFINED_CONTENT_TYPES: PredefinedContentTypes = {
     name: 'twilio/catalog',
     supports_media: false,
     supported_channels: [CHANNELS.WHATSAPP]
+  },
+  CAROUSEL: {
+    friendly_name: 'Carousel',
+    name: 'twilio/catalog',
+    supports_media: false,
+    supported_channels: [CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   }
 }
 
@@ -99,7 +110,7 @@ export const INLINE_CONTENT_TYPES = {
     friendly_name: 'Inline',
     name: undefined,
     supports_media: true,
-    supported_channels: [CHANNELS.SMS, CHANNELS.MMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER]
+    supported_channels: [CHANNELS.SMS, CHANNELS.MMS, CHANNELS.WHATSAPP, CHANNELS.MESSENGER, CHANNELS.RCS]
   }
 }
 
@@ -108,10 +119,10 @@ export const ALL_CONTENT_TYPES = {
   ...INLINE_CONTENT_TYPES
 }
 
-export const CONTENT_TYPE_FRIENDLY_NAMES_SUPPORTING_MEDIA = Object.values(ALL_CONTENT_TYPES).filter((t) => t.supports_media).map((t) => t.friendly_name)
-
 export const SENDER_TYPE = {
   PHONE_NUMBER: 'Phone number',
-  MESSENGER_SENDER_ID: 'Messenger Sender ID',
+  FACEBOOK_PAGE_ID: 'Facebook Page ID',
   MESSAGING_SERVICE: 'Messaging Service'
 }
+
+export const FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES = 'twilio-messaging-stringify-content-variables'

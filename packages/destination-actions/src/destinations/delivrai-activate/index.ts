@@ -1,4 +1,4 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import updateSegment from './updateSegment'
 
@@ -6,7 +6,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Delivr AI Audiences',
   slug: 'actions-delivrai-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Delivr AI Audience Segmentation.',
+  description: 'Sync users to Delivr AI Audience Segmentation.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -37,6 +37,40 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     updateSegment
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'updateSegment',
+      mapping: {
+        ...defaultValues(updateSegment.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'updateSegment',
+      mapping: {
+        ...defaultValues(updateSegment.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 export default destination

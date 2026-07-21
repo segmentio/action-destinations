@@ -25,7 +25,7 @@ describe('Wisepops.setCustomProperties', () => {
           id: {
             '@path': '$.userId'
           },
-          idProperty: 'userId',
+          idProperty: 'userId'
         }
       }
     ]
@@ -33,7 +33,7 @@ describe('Wisepops.setCustomProperties', () => {
     const [setCustomProperties] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
-    })
+    } as any)
 
     expect(setCustomProperties).toBeDefined()
 
@@ -44,15 +44,18 @@ describe('Wisepops.setCustomProperties', () => {
       const context = new Context({
         type: 'identify',
         traits: {
-          firstName: 'John',
+          firstName: 'John'
         }
-      });
+      })
 
-      setCustomProperties.identify?.(context)
+      await setCustomProperties.identify?.(context)
 
-      expect(window.wisepops.q.push).toHaveBeenCalledWith(['properties', {
-        firstName: 'John',
-      }])
+      expect(window.wisepops.q.push).toHaveBeenCalledWith([
+        'properties',
+        {
+          firstName: 'John'
+        }
+      ])
     }
 
     {
@@ -67,19 +70,22 @@ describe('Wisepops.setCustomProperties', () => {
             country: 'France'
           }
         }
-      });
+      })
 
-      setCustomProperties.identify?.(context)
+      await setCustomProperties.identify?.(context)
 
-      expect(window.wisepops.q.push).toHaveBeenCalledWith(['properties', {
-        userId: '42',
-        email: 'test@example.com',
-        firstName: 'John',
-        address: {
-          city: 'Paris',
-          country: 'France'
+      expect(window.wisepops.q.push).toHaveBeenCalledWith([
+        'properties',
+        {
+          userId: '42',
+          email: 'test@example.com',
+          firstName: 'John',
+          address: {
+            city: 'Paris',
+            country: 'France'
+          }
         }
-      }])
+      ])
     }
   })
 
@@ -98,7 +104,7 @@ describe('Wisepops.setCustomProperties', () => {
           id: {
             '@path': '$.userId'
           },
-          idProperty: 'userId',
+          idProperty: 'userId'
         }
       }
     ]
@@ -106,7 +112,7 @@ describe('Wisepops.setCustomProperties', () => {
     const [setCustomProperties] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
-    })
+    } as any)
 
     expect(setCustomProperties).toBeDefined()
 
@@ -117,17 +123,20 @@ describe('Wisepops.setCustomProperties', () => {
       const context = new Context({
         type: 'identify',
         traits: {
-          firstName: 'John',
+          firstName: 'John'
         }
-      });
+      })
 
-      setCustomProperties.identify?.(context)
+      await setCustomProperties.identify?.(context)
 
-      expect(window.wisepops.q.push).toHaveBeenCalledWith(['properties', {
-        user: {
-          firstName: 'John',
+      expect(window.wisepops.q.push).toHaveBeenCalledWith([
+        'properties',
+        {
+          user: {
+            firstName: 'John'
+          }
         }
-      }])
+      ])
     }
 
     {
@@ -142,22 +151,24 @@ describe('Wisepops.setCustomProperties', () => {
             country: 'France'
           }
         }
-      });
+      })
 
-      setCustomProperties.identify?.(context)
+      await setCustomProperties.identify?.(context)
 
-      expect(window.wisepops.q.push).toHaveBeenCalledWith(['properties', {
-        user: {
-          userId: '42',
-          email: 'test@example.com',
-          firstName: 'John',
-          address: {
-            city: 'Paris',
-            country: 'France'
+      expect(window.wisepops.q.push).toHaveBeenCalledWith([
+        'properties',
+        {
+          user: {
+            userId: '42',
+            email: 'test@example.com',
+            firstName: 'John',
+            address: {
+              city: 'Paris',
+              country: 'France'
+            }
           }
         }
-      }])
+      ])
     }
-
   })
 })

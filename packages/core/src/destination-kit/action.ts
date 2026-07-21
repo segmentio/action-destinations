@@ -16,7 +16,8 @@ import type {
   DynamicFieldContext,
   ActionDestinationSuccessResponseType,
   ActionDestinationErrorResponseType,
-  ResultMultiStatusNode
+  ResultMultiStatusNode,
+  AudienceMembership
 } from './types'
 import { syncModeTypes } from './types'
 import { HTTPError, NormalizedOptions } from '../request-client'
@@ -25,9 +26,11 @@ import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
 import { ErrorCodes, getErrorCodeFromHttpStatus, IntegrationError, MultiStatusErrorReporter } from '../errors'
 import { removeEmptyValues } from '../remove-empty-values'
+import { resolveAudienceMembership } from '../audience-membership'
 import {
   Logger,
   StatsContext,
+  Personas,
   TransactionContext,
   StateContext,
   EngageDestinationCache,
@@ -39,10 +42,31 @@ type MaybePromise<T> = T | Promise<T>
 type RequestClient = ReturnType<typeof createRequestClient>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type RequestFn<Settings, Payload, Return = any, AudienceSettings = any, ActionHookInputs = any> = (
+export type RequestFn<
+  Settings,
+  Payload,
+  Return = any,
+  AudienceSettings = any,
+  ActionHookInputs = any,
+  AudienceMembershipType = AudienceMembership | AudienceMembership[]
+> = (
   request: RequestClient,
-  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs>
+  data: ExecuteInput<Settings, Payload, AudienceSettings, ActionHookInputs, any, AudienceMembershipType>
 ) => MaybePromise<Return>
+
+interface ReservedInputFields {
+  batch_keys?: {
+    label: string
+    description: string
+    type: 'string'
+    unsafe_hidden?: true
+    multiple?: true
+    required?: false
+    default?: string[]
+  }
+}
+
+type ActionFields = Omit<Record<string, InputField>, keyof ReservedInputFields> & ReservedInputFields
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseActionDefinition {
@@ -67,18 +91,11 @@ export interface BaseActionDefinition {
   /**
    * The fields used to perform the action. These fields should match what the partner API expects.
    */
-  fields: Record<string, InputField>
+  fields: ActionFields
 }
 
 type HookValueTypes = string | boolean | number | Array<string | boolean | number>
 type GenericActionHookValues = Record<string, HookValueTypes>
-
-type GenericActionHookBundle = {
-  [K in ActionHookType]?: {
-    inputs?: GenericActionHookValues
-    outputs?: GenericActionHookValues
-  }
-}
 
 // Utility type to check if T is an array
 type IsArray<T> = T extends (infer U)[] ? U : never
@@ -94,7 +111,9 @@ export interface ActionDefinition<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   AudienceSettings = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  GeneratedActionHookBundle extends GenericActionHookBundle = any
+  GeneratedActionHookInputs = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookOutputs = any
 > extends BaseActionDefinition {
   /**
    * A way to "register" dynamic fields.
@@ -104,7 +123,7 @@ export interface ActionDefinition<
     [K in keyof Payload]?: IsArray<Payload[K]> extends never
       ? Payload[K] extends object | undefined
         ? {
-            [ObjectProperty in keyof Payload[K] | '__keys__' | '__values__']?: RequestFn<
+            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
               Settings,
               Payload,
               DynamicFieldResponse,
@@ -114,7 +133,7 @@ export interface ActionDefinition<
         : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
       : IsArray<Payload[K]> extends object
       ? {
-          [ObjectProperty in keyof IsArray<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
+          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
             Settings,
             Payload,
             DynamicFieldResponse,
@@ -125,10 +144,10 @@ export interface ActionDefinition<
   }
 
   /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload, any, AudienceSettings>
+  perform: RequestFn<Settings, Payload, any, AudienceSettings, any, AudienceMembership>
 
   /** The operation to perform when this action is triggered for a batch of events */
-  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings>
+  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -139,8 +158,8 @@ export interface ActionDefinition<
       Settings,
       Payload,
       AudienceSettings,
-      NonNullable<GeneratedActionHookBundle[K]>['outputs'],
-      NonNullable<GeneratedActionHookBundle[K]>['inputs']
+      NonNullable<GeneratedActionHookInputs>,
+      NonNullable<GeneratedActionHookOutputs>
     >
   }
 
@@ -170,8 +189,8 @@ export interface ActionHookDefinition<
   Settings,
   Payload,
   AudienceSettings,
-  GeneratedActionHookOutputs,
-  GeneratedActionHookTypesInputs
+  GeneratedActionHookTypesInputs,
+  GeneratedActionHookOutputs
 > {
   /** The display title for this hook. */
   label: string
@@ -219,11 +238,13 @@ interface ExecuteBundle<T = unknown, Data = unknown, AudienceSettings = any, Act
   /** For internal Segment/Twilio use only. */
   features?: Features | undefined
   statsContext?: StatsContext | undefined
+  personasContext?: Personas | undefined
   logger?: Logger | undefined
   engageDestinationCache?: EngageDestinationCache
   transactionContext?: TransactionContext
   stateContext?: StateContext
   subscriptionMetadata?: SubscriptionMetadata
+  signal?: AbortSignal
 }
 
 type FillMultiStatusResponseInput = {
@@ -237,13 +258,6 @@ type FillMultiStatusResponseInput = {
 
 const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
-}
-
-const INTERNAL_HIDDEN_FIELDS = ['__segment_internal_sync_mode', '__segment_internal_matching_key']
-const removeInternalHiddenFields = (mapping: JSONObject): JSONObject => {
-  return Object.keys(mapping).reduce((acc, key) => {
-    return INTERNAL_HIDDEN_FIELDS.includes(key) ? acc : { ...acc, [key]: mapping[key] }
-  }, {})
 }
 
 /**
@@ -314,11 +328,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
 
-    // Remove internal hidden fields
-    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
-
     // Resolve/transform the mapping with the input data
-    let payload = transform(mapping, bundle.data) as Payload
+    let payload = transform(bundle.mapping, bundle.data, bundle.statsContext) as Payload
     results.push({ output: 'Mappings resolved' })
 
     // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
@@ -327,6 +338,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     // Validate the resolved payload against the schema
     if (this.schema) {
       const schemaKey = `${this.destinationName}:${this.definition.title}`
+      // AJV schema validator removes non mandatory fields post validation
+      // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+      // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
       validateSchema(payload, this.schema, {
         schemaKey,
         statsContext: bundle.statsContext,
@@ -346,9 +360,10 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       }
     }
 
-    const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-
+    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+    const audienceMembership = resolveAudienceMembership(bundle.data, syncMode)
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -356,18 +371,21 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       rawMapping: bundle.mapping,
       settings: bundle.settings,
       payload,
+      ...(typeof audienceMembership === 'boolean' ? { audienceMembership } : {}),
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
+      personasContext: bundle.personasContext,
       logger: bundle.logger,
       engageDestinationCache: bundle.engageDestinationCache,
       transactionContext: bundle.transactionContext,
       stateContext: bundle.stateContext,
       audienceSettings: bundle.audienceSettings,
       hookOutputs,
-      syncMode: isSyncMode(syncMode) ? syncMode : undefined,
+      syncMode,
       matchingKey: matchingKey ? String(matchingKey) : undefined,
-      subscriptionMetadata: bundle.subscriptionMetadata
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      signal: bundle?.signal
     }
     // Construct the request client and perform the action
     const output = await this.performRequest(this.definition.perform, dataBundle)
@@ -381,10 +399,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    // Remove internal hidden fields
-    const mapping: JSONObject = removeInternalHiddenFields(bundle.mapping)
+    const mapping: JSONObject = bundle.mapping
 
-    let payloads = transformBatch(mapping, bundle.data) as Payload[]
+    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
     const batchPayloadLength = payloads.length
 
     const multiStatusResponse: ResultMultiStatusNode[] = []
@@ -405,10 +422,12 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         const filteredPayload: Payload[] = []
 
         for (let i = 0; i < payloads.length; i++) {
-          // Remove empty values (`null`, `undefined`, `''`) when not explicitly accepted
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
           // Validate payload schema
+          const payload = removeEmptyValues(payloads[i], schema) as Payload
           try {
+            // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
+            // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+            // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
             validateSchema(payload, schema, validationOptions)
           } catch (e) {
             // Validation failed with an exception, record the filtered out event
@@ -451,8 +470,12 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
 
     if (this.definition.performBatch) {
-      const syncMode = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+      const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+      const audienceMembership = bundle.data
+        .map((d) => resolveAudienceMembership(d, syncMode))
+        .filter((_, i) => !invalidPayloadIndices.has(i))
 
       const data = {
         rawData: bundle.data,
@@ -460,17 +483,20 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         settings: bundle.settings,
         audienceSettings: bundle.audienceSettings,
         payload: payloads,
+        audienceMembership,
         auth: bundle.auth,
         features: bundle.features,
         statsContext: bundle.statsContext,
+        personasContext: bundle.personasContext,
         logger: bundle.logger,
         engageDestinationCache: bundle.engageDestinationCache,
         transactionContext: bundle.transactionContext,
         stateContext: bundle.stateContext,
         subscriptionMetadata: bundle.subscriptionMetadata,
         hookOutputs,
-        syncMode: isSyncMode(syncMode) ? syncMode : undefined,
-        matchingKey: matchingKey ? String(matchingKey) : undefined
+        syncMode,
+        matchingKey: matchingKey ? String(matchingKey) : undefined,
+        signal: bundle?.signal
       }
 
       const requestClient = this.createRequestClient(data)
@@ -677,9 +703,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
    * the given request function
    * and given data bundle
    */
-  private async performRequest<T extends Payload | Payload[]>(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings>,
-    data: ExecuteInput<Settings, T, AudienceSettings>
+  private async performRequest<T extends Payload | Payload[], M extends AudienceMembership | AudienceMembership[]>(
+    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
+    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
   ): Promise<unknown> {
     const requestClient = this.createRequestClient(data)
     const response = await requestFn(requestClient, data)
@@ -692,7 +718,8 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const options = this.extendRequest?.(data) ?? {}
     return createRequestClient(options, {
       afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext
+      statsContext: data.statsContext,
+      signal: data?.signal
     })
   }
 

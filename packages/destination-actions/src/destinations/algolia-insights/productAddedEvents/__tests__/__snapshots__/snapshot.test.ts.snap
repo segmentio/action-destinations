@@ -4,7 +4,9 @@ exports[`Testing snapshot for AlgoliaInsights's productAddedEvents destination a
 Object {
   "events": Array [
     Object {
+      "authenticatedUserToken": "D9W&9sjJ$g9LNBPqU",
       "eventName": "D9W&9sjJ$g9LNBPqU",
+      "eventSubtype": "addToCart",
       "eventType": "click",
       "index": "D9W&9sjJ$g9LNBPqU",
       "objectIDs": Array [
@@ -24,6 +26,7 @@ Object {
   "events": Array [
     Object {
       "eventName": "Add to cart",
+      "eventSubtype": "addToCart",
       "eventType": "conversion",
       "index": "D9W&9sjJ$g9LNBPqU",
       "objectIDs": Array [

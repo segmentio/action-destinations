@@ -18,13 +18,13 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       api_key: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description: 'Found on your general settings page.',
         required: true
       },
       server_token: {
-        type: 'string',
+        type: 'password',
         label: 'Server Token',
         description: 'Found on your general settings page.',
         required: true

@@ -6,7 +6,7 @@ export interface Payload {
    */
   email?: string
   /**
-   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID and Email required.
+   * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Email or Phone Number is required. Must not exceed 255 characters.
    */
   external_id?: string
   /**
@@ -29,4 +29,8 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

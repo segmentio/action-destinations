@@ -1,5 +1,4 @@
-import { createHash } from 'crypto'
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, IntegrationError, ErrorCodes, Features } from '@segment/actions-core'
 import { Payload as UploadPayload } from './conversionUpload/generated-types'
 import { Payload as Adjustayload } from './conversionAdjustmentUpload/generated-types'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
@@ -15,15 +14,27 @@ import {
   Conversion,
   CartData,
   ConsentType,
-  EncryptionInfo
+  EncryptionInfo,
+  SuccessMaybeErrorResponse
 } from './types'
+import { processHashing } from '../../lib/hashing-utils'
+import { GOOGLE_CM360_API_VERSION, GOOGLE_CM360_CANARY_API_VERSION } from './versioning-info'
+
+export const API_VERSION = GOOGLE_CM360_API_VERSION
+export const CANARY_API_VERSION = GOOGLE_CM360_CANARY_API_VERSION
+export const FLAGON_NAME = 'cm360-canary-api-version'
+
+export function getApiVersion(features?: Features): string {
+  return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+}
 
 export async function send(
   request: RequestClient,
   settings: Settings,
   payloads: UploadPayload[] | Adjustayload[],
   isAdjustment: boolean,
-  auth?: AuthTokens
+  auth?: AuthTokens,
+  features?: Features
 ) {
   const json = getJSON(payloads, settings)
 
@@ -31,8 +42,10 @@ export async function send(
     maybeThrow(`No valid payloads found in batch of size ${payloads.length}`, true)
   }
 
-  const response = await request(
-    `https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${settings.profileId}/conversions/batch` +
+  const version = getApiVersion(features)
+
+  const response = await request<SuccessMaybeErrorResponse>(
+    `https://dfareporting.googleapis.com/dfareporting/${version}/userprofiles/${settings.profileId}/conversions/batch` +
       (isAdjustment ? 'update' : 'insert'),
     {
       method: 'POST',
@@ -44,6 +57,17 @@ export async function send(
       json
     }
   )
+
+  const isSuccess = response.status >= 200 && response.status < 300
+  const hasFailures = response?.data?.hasFailures === true
+
+  if (isSuccess && hasFailures) {
+    const firstError = response?.data?.status?.[0]?.errors?.[0]
+    const message = firstError?.message ?? '200 response contained unknown error'
+    const code = firstError?.code ?? ErrorCodes.UNKNOWN_ERROR
+    throw new IntegrationError(message, code, 400)
+  }
+
   return response
 }
 
@@ -145,7 +169,7 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
       ordinal,
       quantity,
       timestampMicros: (() => {
-        return String(BigInt(new Date(timestamp).getTime()))
+        return String(BigInt(new Date(timestamp).getTime()) * 1000n)
       })(),
       treatmentForUnderage: treatmentForUnderage ?? undefined,
       userIdentifiers: (() => {
@@ -153,16 +177,20 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
           userDetails ?? {}
         const identifiers: UserIdentifier[] = []
         if (email) {
-          identifiers.push({ hashedEmail: maybeHash(email) as string })
+          identifiers.push({
+            hashedEmail: processHashing(email, 'sha256', 'hex')
+          })
         }
         if (phone) {
-          identifiers.push({ hashedPhoneNumber: maybeHash(phone) as string })
+          identifiers.push({
+            hashedPhoneNumber: processHashing(phone, 'sha256', 'hex')
+          })
         }
         if (firstName || lastName || streetAddress || city || state || postalCode || countryCode) {
           const addressInfo: AddressInfo = {
-            hashedFirstName: maybeHash(firstName),
-            hashedLastName: maybeHash(lastName),
-            hashedStreetAddress: maybeHash(streetAddress),
+            hashedFirstName: firstName ? processHashing(firstName, 'sha256', 'hex') : undefined,
+            hashedLastName: lastName ? processHashing(lastName, 'sha256', 'hex') : undefined,
+            hashedStreetAddress: streetAddress ? processHashing(streetAddress, 'sha256', 'hex') : undefined,
             city: city ?? undefined,
             state: state ?? undefined,
             postalCode: postalCode ?? undefined,
@@ -185,7 +213,9 @@ export function getJSON(payloads: UploadPayload[] | Adjustayload[], settings: Se
       encryptedUserIdCandidates:
         encryptedUserIdCandidates
           ?.split(',')
-          .map(maybeHash)
+          .map((value) => {
+            return processHashing(value, 'sha256', 'hex')
+          })
           .filter((str): str is string => str !== undefined) ?? []
     } as Conversion
 
@@ -206,22 +236,6 @@ function maybeThrow(message: string, shouldThrow: boolean) {
   if (shouldThrow) {
     throw new PayloadValidationError(message)
   }
-}
-
-export function maybeHash(value: string | undefined): string | undefined {
-  if (value === undefined) {
-    return undefined
-  }
-
-  const isHashed = new RegExp(/[0-9abcdef]{64}/gi).test(value)
-
-  if (isHashed) {
-    return value
-  }
-
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
 }
 
 export function getCustomVarTypeChoices(): Array<{ value: string; label: string }> {

@@ -3,6 +3,19 @@ import Definition from '../index'
 import nock from 'nock'
 const destination = createTestIntegration(Definition)
 
+// Mock AWS SDK before any imports to avoid initialization issues
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn()
+  })),
+  PutObjectCommand: jest.fn()
+}))
+
+jest.mock('@aws-sdk/client-sts', () => ({
+  STSClient: jest.fn(),
+  AssumeRoleCommand: jest.fn()
+}))
+
 describe('S3 Destination', () => {
   beforeEach(() => {
     nock.cleanAll()

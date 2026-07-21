@@ -48,7 +48,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_time: {
       label: 'Event Timestamp',
       description:
-        'Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.',
+        'The event timestamp needs to be provided in UTC format. Segment will automatically convert it into epoch format before sending it to the destination.',
       type: 'string',
       required: true,
       default: {
@@ -200,9 +200,12 @@ function createPinterestPayload(payload: Payload) {
       user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: {
         currency: payload?.custom_data?.currency,
-        value: String(payload?.custom_data?.value),
+        value: typeof payload?.custom_data?.value === 'number' ? String(payload.custom_data.value) : undefined,
         content_ids: payload.custom_data?.content_ids,
-        contents: payload.custom_data?.contents,
+        contents: payload.custom_data?.contents?.map((item) => ({
+          ...item,
+          item_price: typeof item.item_price === 'number' ? String(item.item_price) : undefined
+        })),
         num_items: payload.custom_data?.num_items,
         order_id: payload.custom_data?.order_id,
         search_string: payload.custom_data?.search_string,

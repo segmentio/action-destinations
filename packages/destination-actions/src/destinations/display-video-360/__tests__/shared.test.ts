@@ -8,7 +8,13 @@ import {
 } from '../shared'
 import { AudienceSettings } from '../generated-types'
 import { UpdateHandlerPayload } from '../types'
-import { UpdateUsersDataResponse, ErrorCode, ErrorInfo } from '../proto/protofile'
+import {
+  UpdateUsersDataResponseSchema,
+  UpdateUsersDataRequestSchema,
+  ErrorCode,
+  ErrorInfoSchema
+} from '../proto/protofile'
+import * as protobuf from '@bufbuild/protobuf'
 import { StatsContext, Response } from '@segment/actions-core'
 import createRequestClient from '../../../../../core/src/create-request-client'
 
@@ -19,6 +25,9 @@ const oneMockPayload: UpdateHandlerPayload = {
   partner_provided_id: 'my-anon-id-42',
   enable_batching: true
 }
+
+const normalizeJson = (jsonString: string) =>
+  JSON.stringify(JSON.parse(jsonString), Object.keys(JSON.parse(jsonString)).sort())
 
 const mockRequestClient = createRequestClient()
 
@@ -67,7 +76,7 @@ const getRandomError = () => {
 
 // Mock only the error code. The contents of the response are not important.
 const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[]) => {
-  const responseHandler = new UpdateUsersDataResponse()
+  const responseHandler = protobuf.create(UpdateUsersDataResponseSchema, {})
   responseHandler.status = errorCode
 
   if (errorCode === ErrorCode.PARTIAL_SUCCESS) {
@@ -75,16 +84,17 @@ const createMockResponse = (errorCode: ErrorCode, payload: UpdateHandlerPayload[
     // we are not currently testing their content therefore, it doesn't matter.
 
     responseHandler.errors = payload.map((p) => {
-      const errorInfo = new ErrorInfo()
-      errorInfo.errorCode = getRandomError()
-      errorInfo.userListId = BigInt(p.external_audience_id.split('/').pop() || '-1')
-      errorInfo.userIdType = 0
-      errorInfo.userId = p.google_gid || p.mobile_advertising_id || p.partner_provided_id || ''
+      const errorInfo = protobuf.create(ErrorInfoSchema, {
+        errorCode: getRandomError(),
+        userListId: BigInt(p.external_audience_id.split('/').pop() || '-1'),
+        userIdType: 0,
+        userId: p.google_gid || p.mobile_advertising_id || p.partner_provided_id || ''
+      })
       return errorInfo
     })
   }
 
-  const b = Buffer.from(responseHandler.toBinary())
+  const b = Buffer.from(protobuf.toBinary(UpdateUsersDataResponseSchema, responseHandler))
   const arrayBuffer = b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength)
 
   return new Response(arrayBuffer, { status: errorCode === ErrorCode.NO_ERROR ? 200 : 400 })
@@ -202,8 +212,19 @@ describe('shared', () => {
       const r = createUpdateRequest(manyMockPayloads, 'add')
       expect(r.ops.length).toEqual(5)
       expect(r.processConsent).toEqual(true)
-      expect(r.toJsonString()).toMatchInlineSnapshot(
-        `"{\\"ops\\":[{\\"userId\\":\\"CAESEHIV8HXNp0pFdHgi2rElMfk\\",\\"userIdType\\":\\"GOOGLE_USER_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5\\",\\"userIdType\\":\\"IDFA\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"my-anon-id-42\\",\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"my-anon-id-43\\",\\"userIdType\\":\\"PARTNER_PROVIDED_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false},{\\"userId\\":\\"XNp0pFdHgi2rElMfk\\",\\"userIdType\\":\\"GOOGLE_USER_ID\\",\\"userListId\\":\\"456\\",\\"delete\\":false}],\\"processConsent\\":true}"`
+      expect(normalizeJson(protobuf.toJsonString(UpdateUsersDataRequestSchema, r))).toEqual(
+        normalizeJson(
+          JSON.stringify({
+            ops: [
+              { userId: 'CAESEHIV8HXNp0pFdHgi2rElMfk', userIdType: 'GOOGLE_USER_ID', userListId: '456', delete: false },
+              { userId: '3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5', userIdType: 'IDFA', userListId: '456', delete: false },
+              { userId: 'my-anon-id-42', userIdType: 'PARTNER_PROVIDED_ID', userListId: '456', delete: false },
+              { userId: 'my-anon-id-43', userIdType: 'PARTNER_PROVIDED_ID', userListId: '456', delete: false },
+              { userId: 'XNp0pFdHgi2rElMfk', userIdType: 'GOOGLE_USER_ID', userListId: '456', delete: false }
+            ],
+            processConsent: true
+          })
+        )
       )
     })
 
@@ -230,25 +251,33 @@ describe('shared', () => {
     // The response will contain a list of errors. Its content is unknown.
     // The endpoint will return a 400 status code.
     it('should gracefully fail', async () => {
-      nock('https://cm.g.doubleclick.net').post('/upload?nid=segment').reply(400)
-
-      UpdateUsersDataResponse.prototype.fromBinary = jest.fn(() => {
-        const responseHandler = new UpdateUsersDataResponse()
-        responseHandler.status = ErrorCode.PARTIAL_SUCCESS
-        responseHandler.errors = [
-          {
+      jest.spyOn(protobuf, 'fromBinary').mockImplementation(() => ({
+        status: ErrorCode.PARTIAL_SUCCESS,
+        errors: [
+          protobuf.create(ErrorInfoSchema, {
             errorCode: ErrorCode.BAD_DATA,
             userListId: BigInt(456),
             userIdType: 0,
             userId: 'CAESEHIV8HXNp0pFdHgi2rElMfk'
-          } as ErrorInfo
-        ]
-        return responseHandler
-      })
+          })
+        ],
+        $typeName: 'UpdateUsersDataResponse'
+      }))
 
-      const r = createUpdateRequest(manyMockPayloads, 'add')
-      await sendUpdateRequest(mockRequestClient, r, 'addToAudience', mockStatsContext)
-      expect(mockStatsClient.incr).toHaveBeenCalledWith('addToAudience.error.PARTIAL_SUCCESS', 1, mockStatsContext.tags)
+      try {
+        nock('https://cm.g.doubleclick.net').post('/upload?nid=segment').reply(400)
+
+        const r = createUpdateRequest(manyMockPayloads, 'add')
+        await sendUpdateRequest(mockRequestClient, r, 'addToAudience', mockStatsContext)
+
+        expect(mockStatsClient.incr).toHaveBeenCalledWith(
+          'addToAudience.error.PARTIAL_SUCCESS',
+          1,
+          mockStatsContext.tags
+        )
+      } finally {
+        jest.restoreAllMocks()
+      }
     })
 
     it('should abruptly fail', async () => {

@@ -14,6 +14,7 @@ export function transformPayload(payload: Payload) {
 
   const result = {
     ...commonFields,
+    custom_event_name: payload.customEventName,
     data: {
       ...commonFields.data,
       ...transformCustomer(payload),

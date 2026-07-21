@@ -88,6 +88,20 @@ export class PayloadValidationError extends IntegrationError {
 }
 
 /**
+ * Error to indicate the payload has invalid audience membership.
+ * Should include a user-friendly message.
+ * These errors will not be retried and the user has to fix the payload.
+ */
+export class InvalidAudienceMembershipError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP, 400)
+  }
+}
+
+/**
  * Error to indicate HTTP API call to destination failed.
  * Should include a user-friendly message and status code.
  * Errors will be retried based on status code.
@@ -182,7 +196,8 @@ export enum HttpErrorCodes {
   BANDWIDTH_LIMIT_EXCEEDED = 'BANDWIDTH_LIMIT_EXCEEDED',
   NOT_EXTENDED = 'NOT_EXTENDED',
   NETWORK_AUTHENTICATION_REQUIRED = 'NETWORK_AUTHENTICATION_REQUIRED',
-  SITE_IS_OVERLOADED = 'SITE_IS_OVERLOADED'
+  SITE_IS_OVERLOADED = 'SITE_IS_OVERLOADED',
+  CANCELLED = 'CANCELLED'
 }
 
 export enum CustomErrorCodes {
@@ -200,7 +215,14 @@ export enum CustomErrorCodes {
   OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED',
   // Destination has spent more than the alloted time and needs to self-terminate
   SELF_TIMEOUT = 'SELF_TIMEOUT',
-
+  // When createAudience function fails to create an audience
+  CREATE_AUDIENCE_FAILED = 'CREATE_AUDIENCE_FAILED',
+  // When getAudience function fails to retrieve an audience
+  GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
+  // When the RETL onMappingSave hook fails
+  RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
+  // When Audience Membership cannot be resolved correctly
+  INVALID_AUDIENCE_MEMBERSHIP = 'INVALID_AUDIENCE_MEMBERSHIP',
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
@@ -258,6 +280,7 @@ const HTTP_ERROR_CODE_MAP: Record<number, HttpErrorCodes> = {
   429: HttpErrorCodes.TOO_MANY_REQUESTS,
   431: HttpErrorCodes.REQUEST_HEADER_FIELDS_TOO_LARGE,
   451: HttpErrorCodes.UNAVAILABLE_FOR_LEGAL_REASONS,
+  499: HttpErrorCodes.CANCELLED,
   500: HttpErrorCodes.INTERNAL_SERVER_ERROR,
   501: HttpErrorCodes.NOT_IMPLEMENTED,
   502: HttpErrorCodes.BAD_GATEWAY,

@@ -23,7 +23,22 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: {
+          ...event.properties,
+          standard_traits: {
+            birth_date: "1990-03-24",
+            first_name: "John",
+            last_name: "Doe",
+            phone: "1234567890",
+            address: "10 pleasant st.",
+            city: "Pleasantville",
+            state: "CA",
+            zip: "12345",
+            country: "USA",
+            postal_code: "12345",
+            timezone: "PST"
+          }
+        },
         settings: settingsData,
         auth: undefined
       })
@@ -57,7 +72,22 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
-        mapping: event.properties,
+        mapping: {
+          ...event.properties,
+          standard_traits: {
+            birth_date: "1990-03-24",
+            first_name: "John",
+            last_name: "Doe",
+            phone: "1234567890",
+            address: "10 pleasant st.",
+            city: "Pleasantville",
+            state: "CA",
+            zip: "12345",
+            country: "USA",
+            postal_code: "12345",
+            timezone: "PST"
+          }
+        },
         settings: settingsData,
         auth: undefined
       })

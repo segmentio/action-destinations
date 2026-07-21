@@ -52,7 +52,7 @@ function getRevenueProperties(payload: EventRevenue): EventRevenue {
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Log Purchase',
-  description: 'Send an event to Amplitude.',
+  description: 'Send purchase/revenue events to Amplitude. Sends one main event with the original event type and total revenue, plus additional "Product Purchased" events for each product in the order.',
   defaultSubscription: 'type = "track"',
   fields: {
     trackRevenuePerProduct: {
@@ -160,6 +160,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
       default: true
     },
+    includeRawUserAgent: {
+      label: 'Include Raw User Agent',
+      type: 'boolean',
+      description:
+        'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',
+      default: false
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
@@ -221,11 +228,13 @@ const action: ActionDefinition<Settings, Payload> = {
       session_id,
       userAgent,
       userAgentParsing,
+      includeRawUserAgent,
       userAgentData,
       utm_properties,
       referrer,
       min_id_length,
       library,
+      library2,
       ...rest
     } = omit(payload, revenueKeys)
     const properties = rest as AmplitudeEvent
@@ -263,11 +272,12 @@ const action: ActionDefinition<Settings, Payload> = {
       {
         // Conditionally parse user agent using amplitude's library
         ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
+        ...(includeRawUserAgent && { user_agent: userAgent }),
         // Make sure any top-level properties take precedence over user-agent properties
         ...removeUndefined(properties),
         // Conditionally track revenue with main event
         ...(products.length && trackRevenuePerProduct ? {} : getRevenueProperties(payload)),
-        library: 'segment'
+         library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       }
     ]
 
@@ -279,7 +289,7 @@ const action: ActionDefinition<Settings, Payload> = {
         event_properties: product,
         event_type: 'Product Purchased',
         insert_id: properties.insert_id ? `${properties.insert_id}-${events.length + 1}` : undefined,
-        library: 'segment'
+        library: library2?.behavior === 'use_mapping' ? library2.mapping : 'segment'
       })
     }
 

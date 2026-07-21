@@ -23,4 +23,100 @@ export interface Payload {
   additionalAttribution?: {
     [k: string]: unknown
   }
+  /**
+   * Marketplace provided ID for a vendor.
+   */
+  externalVendorId?: string
+  /**
+   * Entity is meant for reporting organic events, not sponsored or promoted products. It refers to the object involved in the organic interaction. If resolvedBidId has any value, entity will be disregarded.
+   */
+  entity?: {
+    /**
+     * The marketplace's ID of the entity associated with the interaction.
+     */
+    id: string
+    /**
+     * The type of entity associated with the interaction.
+     */
+    type: string
+  }
+  /**
+   * Placement information for the impression.
+   */
+  placement?: {
+    /**
+     * URL path of the page triggering the event. For web apps, this can be obtained in JS using window.location.pathname.
+     */
+    path: string
+    /**
+     * Index of the item within a list (e.g., search results, similar products).
+     */
+    position?: number
+    /**
+     * For paginated pages, this indicates which page number triggered the event.
+     */
+    page?: number
+    /**
+     * For paginated pages, this indicates how many items are in each result page.
+     */
+    pageSize?: number
+    /**
+     * The ID of the product associated to the page in which this event occurred. This ID must match the ID provided through the catalog service.
+     */
+    productId?: string
+    /**
+     * An array of IDs of the categories associated to the page in which this event occurred. These IDs must match the IDs provided through the catalog service.
+     */
+    categoryIds?: string[]
+    /**
+     * The search string provided by the user. This must match the searchQuery field provided in the auction request.
+     */
+    searchQuery?: string
+  }
+  /**
+   * Page information for the impression.
+   */
+  page?: {
+    /**
+     * Type of page.
+     */
+    type: string
+    /**
+     * Identifies the page.
+     */
+    pageId: string
+    /**
+     * Detail of the page, depending on the type.
+     */
+    value?: string
+  }
+  /**
+   * Information regarding an organic or non-sponsored event.
+   */
+  object?: {
+    /**
+     * The type of object that is being reported on the interaction.
+     */
+    type: string
+    /**
+     * When type is banner, signals the ID of the asset of the banner.
+     */
+    assetId?: string
+    /**
+     * When type is listing, signals the specific interaction flavor with the listing.
+     */
+    clickType?: string
+  }
+  /**
+   * Marketplace provided ID for a campaign.
+   */
+  externalCampaignId?: string
+  /**
+   * The device the user is on.
+   */
+  deviceType?: string
+  /**
+   * The channel where the event occurred.
+   */
+  channel?: string
 }

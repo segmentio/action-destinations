@@ -201,6 +201,10 @@ export interface Payload {
    */
   value: number
   /**
+   * The numeric net revenue value associated with the purchase event.
+   */
+  net_revenue?: number
+  /**
    * The content IDs associated with the event, such as product SKUs.
    */
   content_ids?: string[]

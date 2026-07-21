@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Taguchi Destination Snapshots syncAudience action should match snapshot with all fields 1`] = `undefined`;
+
+exports[`Taguchi Destination Snapshots syncAudience action should match snapshot with required fields 1`] = `undefined`;
+
+exports[`Taguchi Destination Snapshots syncEvent action should match snapshot with all fields 1`] = `undefined`;
+
+exports[`Taguchi Destination Snapshots syncEvent action should match snapshot with required fields 1`] = `undefined`;

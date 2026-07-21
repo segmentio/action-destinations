@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 import track from './track'
 
 import identifyUser from './identifyUser'
+import { DAWN_API_ENDPOINT } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Dawn AI',
@@ -16,12 +17,12 @@ const destination: DestinationDefinition<Settings> = {
       writeKey: {
         label: 'Dawn Write Key',
         description: 'Get your key at app.dawnai.com',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request(`https://api.dawnai.com/validate-auth`, {
+      return request(`${DAWN_API_ENDPOINT}/auth`, {
         method: 'post',
         headers: {
           'Content-Type': 'application/json',

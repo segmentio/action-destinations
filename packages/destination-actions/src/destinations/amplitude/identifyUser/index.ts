@@ -185,6 +185,13 @@ const action: ActionDefinition<Settings, Payload> = {
         'Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field',
       default: true
     },
+    includeRawUserAgent: {
+      label: 'Include Raw User Agent',
+      type: 'boolean',
+      description:
+        'Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field',
+      default: false
+    },
     utm_properties: {
       label: 'UTM Properties',
       type: 'object',
@@ -247,8 +254,17 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    const { utm_properties, referrer, userAgent, userAgentParsing, userAgentData, min_id_length, library, ...rest } =
-      payload
+    const {
+      utm_properties,
+      referrer,
+      userAgent,
+      userAgentParsing,
+      includeRawUserAgent,
+      userAgentData,
+      min_id_length,
+      library,
+      ...rest
+    } = payload
 
     let options
     const properties = rest as AmplitudeEvent
@@ -276,6 +292,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const identification = JSON.stringify({
       // Conditionally parse user agent using amplitude's library
       ...(userAgentParsing && parseUserAgentProperties(userAgent, userAgentData)),
+      ...(includeRawUserAgent && { user_agent: userAgent }),
       // Make sure any top-level properties take precedence over user-agent properties
       ...removeUndefined(properties),
       library: 'segment'

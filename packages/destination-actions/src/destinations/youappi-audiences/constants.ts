@@ -1,0 +1,1 @@
+export const URL = 'https://audiences.youappi.com/segment/AudienceMembership'

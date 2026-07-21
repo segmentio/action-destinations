@@ -60,32 +60,37 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         label: 'Email',
         description: "The user's email address. If unhashed, Segment will hash before sending to Campaign Manager 360.",
         type: 'string',
-        required: false
+        required: false,
+        category: 'hashedPII'
       },
       phone: {
         label: 'Phone',
         description: "The user's phone number. If unhashed, Segment will hash before sending to Campaign Manager 360.",
         type: 'string',
-        required: false
+        required: false,
+        category: 'hashedPII'
       },
       firstName: {
         label: 'First Name',
         description: 'First name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.',
         type: 'string',
-        required: false
+        required: false,
+        category: 'hashedPII'
       },
       lastName: {
         label: 'Last Name',
         description: 'Last name of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.',
         type: 'string',
-        required: false
+        required: false,
+        category: 'hashedPII'
       },
       streetAddress: {
         label: 'Street Address',
         description:
           'The street address of the user. If unhashed, Segment will hash before sending to Campaign Manager 360.',
         type: 'string',
-        required: false
+        required: false,
+        category: 'hashedPII'
       },
       city: {
         label: 'City',
@@ -313,5 +318,13 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         }
       ]
     }
+  },
+  batch_size: {
+    label: 'Batch Size',
+    description: 'Max number of events to upload in each batch request.',
+    type: 'number',
+    required: false,
+    unsafe_hidden: true,
+    default: 2000
   }
 }

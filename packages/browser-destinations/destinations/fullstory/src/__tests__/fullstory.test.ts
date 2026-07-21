@@ -3,12 +3,11 @@ import fullstory from '..'
 import trackEvent from '../trackEvent'
 import identifyUser from '../identifyUser'
 import viewedPage from '../viewedPage'
-import { Subscription } from '@segment/browser-destination-runtime/types'
-import { defaultValues } from '@segment/actions-core/*'
+import { defaultValues, JSONArray } from '@segment/actions-core'
 
 const FakeOrgId = 'asdf-qwer'
 
-const example: Subscription[] = [
+const example: JSONArray = [
   {
     partnerAction: 'trackEvent',
     name: 'Track Event',
@@ -33,18 +32,23 @@ const example: Subscription[] = [
 ]
 
 beforeEach(() => {
+  jest.restoreAllMocks()
   delete window._fs_initialized
-  if (window._fs_namespace) {
+  delete window._fs_script
+  delete window._fs_org
+  delete window._fs_namespace
+  if (typeof window._fs_namespace === 'number') {
     delete window[window._fs_namespace]
-    delete window._fs_namespace
   }
+  // @ts-ignore
+  delete window.FS
 })
 
 describe('#track', () => {
   it('sends record events to fullstory on "event"', async () => {
     const [event] = await fullstory({
       orgId: FakeOrgId,
-      subscriptions: example
+      subscriptions: example 
     })
 
     await event.load(Context.system(), {} as Analytics)

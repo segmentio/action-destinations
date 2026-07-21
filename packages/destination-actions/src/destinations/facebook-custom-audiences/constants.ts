@@ -1,52 +1,11 @@
-export const US_STATE_CODES = new Map<string, string>([
-  ['arizona', 'az'],
-  ['alabama', 'al'],
-  ['alaska', 'ak'],
-  ['arkansas', 'ar'],
-  ['california', 'ca'],
-  ['colorado', 'co'],
-  ['connecticut', 'ct'],
-  ['delaware', 'de'],
-  ['florida', 'fl'],
-  ['georgia', 'ga'],
-  ['hawaii', 'hi'],
-  ['idaho', 'id'],
-  ['illinois', 'il'],
-  ['indiana', 'in'],
-  ['iowa', 'ia'],
-  ['kansas', 'ks'],
-  ['kentucky', 'ky'],
-  ['louisiana', 'la'],
-  ['maine', 'me'],
-  ['maryland', 'md'],
-  ['massachusetts', 'ma'],
-  ['michigan', 'mi'],
-  ['minnesota', 'mn'],
-  ['mississippi', 'ms'],
-  ['missouri', 'mo'],
-  ['montana', 'mt'],
-  ['nebraska', 'ne'],
-  ['nevada', 'nv'],
-  ['newhampshire', 'nh'],
-  ['newjersey', 'nj'],
-  ['newmexico', 'nm'],
-  ['newyork', 'ny'],
-  ['northcarolina', 'nc'],
-  ['northdakota', 'nd'],
-  ['ohio', 'oh'],
-  ['oklahoma', 'ok'],
-  ['oregon', 'or'],
-  ['pennsylvania', 'pa'],
-  ['rhodeisland', 'ri'],
-  ['southcarolina', 'sc'],
-  ['southdakota', 'sd'],
-  ['tennessee', 'tn'],
-  ['texas', 'tx'],
-  ['utah', 'ut'],
-  ['vermont', 'vt'],
-  ['virginia', 'va'],
-  ['washington', 'wa'],
-  ['westvirginia', 'wv'],
-  ['wisconsin', 'wi'],
-  ['wyoming', 'wy']
-])
+import { FACEBOOK_CUSTOM_AUDIENCES_API_VERSION, FACEBOOK_CUSTOM_AUDIENCES_CANARY_API_VERSION } from './versioning-info'
+
+export const API_VERSION = FACEBOOK_CUSTOM_AUDIENCES_API_VERSION
+
+export const CANARY_API_VERSION = FACEBOOK_CUSTOM_AUDIENCES_CANARY_API_VERSION
+
+export const FACEBOOK_CUSTOM_AUDIENCE_FLAGON = 'facebook-custom-audience-actions-canary-version'
+
+export const FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON = 'facebook-custom-audience-actions-journeys-support'
+
+export const BASE_URL = 'https://graph.facebook.com'

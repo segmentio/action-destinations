@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { DynamicFieldResponse } from '@segment/actions-core'
-import { BASE_URL } from '../../constants'
+import { BASE_URL, FLAGON_NAME, LINKEDIN_API_VERSION, LINKEDIN_CANARY_API_VERSION } from '../../constants'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
@@ -16,6 +16,7 @@ const event = createTestEvent({
     traits: {
       email: 'testing@testing.com',
       upperCaseEmail: 'WHYAREYOUYELLING@EMAIL.com',
+      preHashedEmail: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777',
       first_name: 'mike',
       last_name: 'smith',
       title: 'software engineer',
@@ -152,6 +153,192 @@ describe('LinkedinConversions.streamConversion', () => {
             companyName: { '@path': '$.context.traits.companyName' },
             countryCode: { '@path': '$.context.traits.countryCode' }
           },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with externalIds field as an array', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '100'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          },
+          externalIds: ['external_id_12345']
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          externalIds: ['external_id_12345'],
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with externalIds field as a string', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '100'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          },
+          externalIds: ['external_id_12345']
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          externalIds: 'external_id_12345',
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event when externalIds array contains more than 1 item', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        conversionValue: {
+          currencyCode: 'USD',
+          amount: '100'
+        },
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ],
+          userInfo: {
+            firstName: 'mike',
+            lastName: 'smith',
+            title: 'software engineer',
+            companyName: 'microsoft',
+            countryCode: 'US'
+          },
+          externalIds: ['external_id_12345']
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          conversionValue: {
+            currencyCode: 'USD',
+            amount: { '@path': '$.context.traits.value' }
+          },
+          userInfo: {
+            firstName: { '@path': '$.context.traits.first_name' },
+            lastName: { '@path': '$.context.traits.last_name' },
+            title: { '@path': '$.context.traits.title' },
+            companyName: { '@path': '$.context.traits.companyName' },
+            countryCode: { '@path': '$.context.traits.countryCode' }
+          },
+          externalIds: ['external_id_12345', 'external_id_67890'], // second item will be dropped
           onMappingSave: {
             inputs: {},
             outputs: {
@@ -424,6 +611,44 @@ describe('LinkedinConversions.streamConversion', () => {
       })
     ).rejects.toThrowError("User Info is missing the required field 'lastName'.")
   })
+
+  it('should detect hashed email if feature flag for smart hashing is passed', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.preHashedEmail' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
 })
 
 describe('LinkedinConversions.dynamicField', () => {
@@ -484,6 +709,80 @@ describe('LinkedinConversions.dynamicField', () => {
   })
 })
 
+describe('LinkedinConversions.apiVersion feature flag', () => {
+  it('should use stable API version (202505) by default', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .matchHeader('LinkedIn-Version', LINKEDIN_API_VERSION)
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: { '@path': '$.timestamp' },
+          onMappingSave: {
+            inputs: {},
+            outputs: { id: payload.conversionId }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+        // no features = stable version
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should use canary API version (202603) when feature flag is enabled', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .matchHeader('LinkedIn-Version', LINKEDIN_CANARY_API_VERSION)
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: { '@path': '$.timestamp' },
+          onMappingSave: {
+            inputs: {},
+            outputs: { id: payload.conversionId }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        },
+        features: { [FLAGON_NAME]: true }
+      })
+    ).resolves.not.toThrowError()
+  })
+})
+
 describe('LinkedinConversions.timestamp', () => {
   it('should convert a human readable date to a unix timestamp', async () => {
     event.timestamp = currentTimestamp.toString()
@@ -537,5 +836,312 @@ describe('LinkedinConversions.timestamp', () => {
         }
       })
     ).resolves.not.toThrowError()
+  })
+})
+
+describe('LinkedinConversions.onMappingSave - Conversion Rule Creation', () => {
+  it('should successfully create a new conversion rule with all required fields', async () => {
+    const mockConversionRuleResponse = {
+      id: '123456',
+      name: 'Test Conversion Rule',
+      type: 'PURCHASE',
+      attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+      postClickAttributionWindowSize: 30,
+      viewThroughAttributionWindowSize: 7
+    }
+
+    nock(`${BASE_URL}/conversions`)
+      .post('', {
+        name: 'Test Conversion Rule',
+        account: 'urn:li:sponsoredAccount:12345',
+        conversionMethod: 'CONVERSIONS_API',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7,
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        type: 'PURCHASE'
+      })
+      .reply(201, mockConversionRuleResponse)
+
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
+
+    // Test that action can use the created conversion rule
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: '123456',
+              name: 'Test Conversion Rule',
+              conversionType: 'PURCHASE',
+              attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+              post_click_attribution_window_size: 30,
+              view_through_attribution_window_size: 7
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+
+    // Verify the conversion rule creation API was not called
+    // (since we're providing existing outputs, the /conversions stub is unused)
+    nock.cleanAll()
+  })
+
+  it('should successfully stream events when existing conversion rule outputs are provided', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: 'existing123',
+              name: 'Existing Conversion Rule',
+              conversionType: 'LEAD',
+              attribution_type: 'LAST_TOUCH_BY_CONVERSION',
+              post_click_attribution_window_size: 7,
+              view_through_attribution_window_size: 1
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should verify conversion rule creation API request format', async () => {
+    const mockConversionRuleResponse = {
+      id: '789456',
+      name: 'Default Windows Rule',
+      type: 'SIGN_UP',
+      attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+      postClickAttributionWindowSize: 30,
+      viewThroughAttributionWindowSize: 7
+    }
+
+    const creationRequest = nock(`${BASE_URL}/conversions`)
+      .post('', {
+        name: 'Default Windows Rule',
+        account: 'urn:li:sponsoredAccount:12345',
+        conversionMethod: 'CONVERSIONS_API',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7,
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        type: 'SIGN_UP'
+      })
+      .reply(201, mockConversionRuleResponse)
+
+    nock(`${BASE_URL}/conversionEvents`).post(/.*/).reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: '789456',
+              name: 'Default Windows Rule',
+              conversionType: 'SIGN_UP',
+              attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+              post_click_attribution_window_size: 30,
+              view_through_attribution_window_size: 7
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+
+    // Verify the conversion rule creation API was not called in this test
+    // (since we're providing existing outputs)
+    expect(creationRequest.isDone()).toBe(false)
+  })
+})
+
+describe('LinkedinConversions.onMappingSave - performHook', () => {
+  it('should return error when creating a new rule without required fields', async () => {
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: {
+        message: 'Missing required fields for creating a new conversion rule: Name, Conversion Type, Attribution Type',
+        code: 'MISSING_REQUIRED_FIELD'
+      }
+    })
+  })
+
+  it('should return error when only some required fields are missing', async () => {
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345',
+        name: 'My Rule'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: {
+        message: 'Missing required fields for creating a new conversion rule: Conversion Type, Attribution Type',
+        code: 'MISSING_REQUIRED_FIELD'
+      }
+    })
+  })
+
+  it('should skip validation when conversionRuleId is provided', async () => {
+    nock(`${BASE_URL}/conversions/existingRule123`)
+      .get('')
+      .query({ account: 'urn:li:sponsoredAccount:12345' })
+      .reply(200, {
+        name: 'Existing Rule',
+        type: 'PURCHASE',
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7
+      })
+
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345',
+        conversionRuleId: 'existingRule123'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result.savedData).toMatchObject({
+      id: 'existingRule123',
+      name: 'Existing Rule',
+      conversionType: 'PURCHASE',
+      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN'
+    })
+  })
+
+  it('should skip validation when existing hook outputs are present', async () => {
+    nock(`${BASE_URL}/conversions/prevRule456`).post('').query({ account: 'urn:li:sponsoredAccount:12345' }).reply(200)
+
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345'
+      },
+      hookOutputs: {
+        onMappingSave: {
+          outputs: {
+            id: 'prevRule456',
+            name: 'Previous Rule',
+            conversionType: 'LEAD',
+            attribution_type: 'LAST_TOUCH_BY_CONVERSION',
+            post_click_attribution_window_size: 30,
+            view_through_attribution_window_size: 7
+          }
+        }
+      },
+      payload: {}
+    })
+
+    expect(result.savedData).toMatchObject({
+      id: 'prevRule456',
+      name: 'Previous Rule'
+    })
+  })
+
+  it('should successfully create a new conversion rule when all required fields are provided', async () => {
+    nock(`${BASE_URL}/conversions`)
+      .post('', {
+        name: 'New Rule',
+        account: 'urn:li:sponsoredAccount:12345',
+        conversionMethod: 'CONVERSIONS_API',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7,
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        type: 'PURCHASE'
+      })
+      .reply(201, {
+        id: 'newRule789',
+        name: 'New Rule',
+        type: 'PURCHASE',
+        attributionType: 'LAST_TOUCH_BY_CAMPAIGN',
+        postClickAttributionWindowSize: 30,
+        viewThroughAttributionWindowSize: 7
+      })
+
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: 'urn:li:sponsoredAccount:12345',
+        name: 'New Rule',
+        conversionType: 'PURCHASE',
+        attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+        post_click_attribution_window_size: 30,
+        view_through_attribution_window_size: 7
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result.savedData).toMatchObject({
+      id: 'newRule789',
+      name: 'New Rule',
+      conversionType: 'PURCHASE',
+      attribution_type: 'LAST_TOUCH_BY_CAMPAIGN',
+      post_click_attribution_window_size: 30,
+      view_through_attribution_window_size: 7
+    })
+    expect(result.successMessage).toContain('newRule789')
+  })
+
+  it('should return error when adAccountId is not provided', async () => {
+    const result = await testDestination.actions.streamConversion.executeHook('onMappingSave', {
+      settings,
+      hookInputs: {
+        adAccountId: '',
+        name: 'New Rule',
+        conversionType: 'PURCHASE',
+        attribution_type: 'LAST_TOUCH_BY_CAMPAIGN'
+      },
+      hookOutputs: {},
+      payload: {}
+    })
+
+    expect(result).toMatchObject({
+      error: {
+        message: 'Failed to create conversion rule: No Ad Account selected.',
+        code: 'CONVERSION_RULE_CREATION_FAILURE'
+      }
+    })
   })
 })

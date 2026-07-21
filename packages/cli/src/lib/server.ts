@@ -259,7 +259,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
     '/refreshAccessToken',
     asyncHandler(async (req: express.Request, res: express.Response) => {
       try {
-        const settings = {}
+        const settings = req.body.settings || {}
         const data = await destination.refreshAccessToken(settings, req.body)
         res.status(200).json({ ok: true, data })
       } catch (e) {
@@ -311,6 +311,7 @@ function setupRoutes(def: DestinationDefinition | null): void {
           }
 
           const debug = await getExchanges(destination.responses)
+          destination.responses.splice(0, destination.responses.length)  
           return res.status(200).json(debug)
         } catch (err) {
           const output = marshalError(err as ResponseError)
@@ -334,8 +335,10 @@ function setupRoutes(def: DestinationDefinition | null): void {
                 payload: req.body.payload || {},
                 page: req.body.page || 1,
                 auth: req.body.auth || {},
-                audienceSettings: req.body.audienceSettings || {}
+                audienceSettings: req.body.audienceSettings || {},
+                dynamicFieldContext: req.body.dynamicFieldContext || {}
               }
+
               const action = destination.actions[actionSlug]
               const result = await action.executeDynamicField(field, data)
 
@@ -404,8 +407,10 @@ function setupRoutes(def: DestinationDefinition | null): void {
                   page: req.body.page || 1,
                   auth: req.body.auth || {},
                   audienceSettings: req.body.audienceSettings || {},
-                  hookInputs: req.body.hookInputs || {}
+                  hookInputs: req.body.hookInputs || {},
+                  dynamicFieldContext: req.body.dynamicFieldContext || {}
                 }
+
                 const action = destination.actions[actionSlug]
                 const dynamicFn = dynamicInputs[fieldKey] as RequestFn<any, any, any, any>
                 const result = await action.executeDynamicField(fieldKey, data, dynamicFn)

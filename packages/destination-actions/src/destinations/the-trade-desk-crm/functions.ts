@@ -1,10 +1,12 @@
 import { RequestClient, ModifiedResponse, PayloadValidationError } from '@segment/actions-core'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 import { Settings } from './generated-types'
 import { Payload } from './syncAudience/generated-types'
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
-import { IntegrationError } from '@segment/actions-core'
-
+import { ExecuteInput, IntegrationError } from '@segment/actions-core'
 import { sendEventToAWS } from './awsClient'
+import { THE_TRADE_DESK_CRM_API_VERSION } from './versioning-info'
 
 export interface DROP_ENDPOINT_API_RESPONSE {
   ReferenceId: string
@@ -39,11 +41,27 @@ interface ProcessPayloadInput {
   settings: Settings
   payloads: Payload[]
   features?: Record<string, boolean>
+  rawData?: RawData[]
 }
 
+export type RawData = {
+  context?: {
+    personas?: {
+      computation_key?: string
+      computation_class?: string
+      computation_id?: string
+    }
+  }
+}
+
+export type ExecuteInputRaw<Settings, Payload, RawData, AudienceSettings = unknown> = ExecuteInput<
+  Settings,
+  Payload,
+  AudienceSettings
+> & { rawData?: RawData }
+
 // Define constants
-const API_VERSION = 'v3'
-const BASE_URL = `https://api.thetradedesk.com/${API_VERSION}`
+const BASE_URL = `https://api.thetradedesk.com/${THE_TRADE_DESK_CRM_API_VERSION}`
 const TTD_MIN_RECORD_COUNT = 1500
 
 export const TTD_LEGACY_FLOW_FLAG_NAME = 'actions-the-trade-desk-crm-legacy-flow'
@@ -53,7 +71,7 @@ const sha256HashedRegex = /^[a-f0-9]{64}$/i
 const base64HashedRegex = /^[A-Za-z0-9+/]*={1,2}$/i
 const validEmailRegex = /^\S+@\S+\.\S+$/i
 
-export async function processPayload(input: ProcessPayloadInput) {
+export async function processPayload(input: ProcessPayloadInput, subscriptionMetadata?: SubscriptionMetadata) {
   let crmID
   if (!input.payloads[0].external_id) {
     throw new PayloadValidationError(`No external_id found in payload.`)
@@ -62,7 +80,7 @@ export async function processPayload(input: ProcessPayloadInput) {
   }
 
   // Get user emails from the payloads
-  const usersFormatted = extractUsers(input.payloads)
+  const [usersFormatted, rowCount] = extractUsers(input.payloads)
 
   // Overwrite to Legacy Flow if feature flag is enabled
   if (input.features && input.features[TTD_LEGACY_FLOW_FLAG_NAME]) {
@@ -87,22 +105,30 @@ export async function processPayload(input: ProcessPayloadInput) {
     // -----------
 
     // Send request to AWS to be processed
-    return sendEventToAWS(input.request, {
-      TDDAuthToken: input.settings.auth_token,
+    return sendEventToAWS({
+      TTDAuthToken: input.settings.auth_token,
       AdvertiserId: input.settings.advertiser_id,
       CrmDataId: crmID,
       UsersFormatted: usersFormatted,
+      RowCount: rowCount,
       DropOptions: {
         PiiType: input.payloads[0].pii_type,
         MergeMode: 'Replace',
         RetentionEnabled: true
+      },
+      segmentInternal: {
+        audienceId: input.rawData?.[0].context?.personas?.computation_id,
+        destinationConfigId: subscriptionMetadata?.destinationConfigId,
+        subscriptionId: subscriptionMetadata?.actionConfigId
       }
     })
   }
 }
 
-function extractUsers(payloads: Payload[]): string {
+function extractUsers(payloads: Payload[]): [string, number] {
   let users = ''
+  let rowCount = 0
+
   payloads.forEach((payload: Payload) => {
     if (!payload.email || !validateEmail(payload.email, payload.pii_type)) {
       return
@@ -116,8 +142,11 @@ function extractUsers(payloads: Payload[]): string {
       const hashedEmail = hash(payload.email)
       users += `${hashedEmail}\n`
     }
+
+    // In both mutually exclusive cases above, we increment the row count by 1
+    rowCount += 1
   })
-  return users
+  return [users, rowCount]
 }
 
 function validateEmail(email: string, pii_type: string): boolean {

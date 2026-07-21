@@ -16,7 +16,7 @@ export interface Payload {
   /**
    * User's email address for including/excluding from custom audience
    */
-  email: string
+  email?: string
   /**
    * User's phone number for including/excluding from custom audience
    */

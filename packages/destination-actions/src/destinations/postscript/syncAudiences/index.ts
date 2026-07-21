@@ -39,7 +39,10 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.computation_class'
       },
       required: true,
-      choices: [{ value: 'audience', label: 'audience' },{ label: 'journey_step', value: 'journey_step' }]
+      choices: [
+        { value: 'audience', label: 'audience' },
+        { label: 'journey_step', value: 'journey_step' }
+      ]
     },
     email: {
       label: 'Email address',
@@ -126,6 +129,9 @@ const action: ActionDefinition<Settings, Payload> = {
       const audiences: string[] = subscriber?.properties?.[AUDIENCE_PROPERTY] || []
       const exist = audiences.includes(payload.segment_audience_key)
 
+      // If audienceAction is true, we are adding to the audience
+      // If audienceAction is false, we are removing from the audience
+      // We only want to update the audience list if we are adding or removing from the audience
       if (audienceAction == true && !exist) {
         audiences.push(payload.segment_audience_key)
         makeUpdate = true
@@ -145,6 +151,19 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         })
       }
+
+      // Send event to Postscript for Segment Audience Entered/Exited
+      await request(`${PS_BASE_URL}/api/v2/events`, {
+        method: 'post',
+        json: {
+          type: audienceAction ? 'Segment_Audience_Entered' : 'Segment_Audience_Exited',
+          subscriber_id: subscriber.id,
+          properties: {
+            'Segment Audience ID': payload.segment_audience_id,
+            'Segment Audience Key': payload.segment_audience_key
+          }
+        }
+      })
     }
   }
 }

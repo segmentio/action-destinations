@@ -85,7 +85,7 @@ const destination: DestinationDefinition<Settings> = {
       apiSecret: {
         label: 'Secret Key',
         description: 'Mixpanel project secret.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       apiRegion: {

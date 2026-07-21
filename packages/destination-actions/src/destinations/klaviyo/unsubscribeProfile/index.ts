@@ -6,7 +6,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import { formatUnsubscribeProfile, formatUnsubscribeRequestBody } from '../functions'
 import { UnsubscribeProfile } from '../types'
 import { API_URL } from '../config'
-import { country_code } from '../properties'
+import { country_code, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Unsubscribe Profile',
@@ -51,6 +51,21 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       label: 'Batch Data to Klaviyo',
       description: 'When enabled, the action will use the Klaviyo batch API.'
+    },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    },
+    batch_size: {
+      ...batch_size,
+      default: 100,
+      minimum: 50,
+      maximum: 100
     }
   },
   dynamicFields: {
@@ -71,13 +86,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return await request(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
       method: 'POST',
-      headers: {
-        revision: '2024-02-15'
-      },
       json: unSubData
     })
   },
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, statsContext }) => {
     // remove payloads that have niether email or phone_number
     const filteredPayload = payload.filter((profile) => {
       // Validate and convert the phone number using the provided country code
@@ -93,6 +105,15 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       return profile.email || profile.phone_number
     })
+
+    if (statsContext) {
+      const { statsClient, tags } = statsContext
+      const set = new Set()
+      filteredPayload.forEach((profile) => {
+        set.add(profile.list_id)
+      })
+      statsClient?.histogram('actions-klaviyo.unsubscribe_profile.unique_list_id', set.size, tags)
+    }
 
     // if there are no payloads with phone or email throw error
     if (payload.length === 0) {
@@ -128,9 +149,6 @@ const action: ActionDefinition<Settings, Payload> = {
 
         const response = request<Response>(`${API_URL}/profile-subscription-bulk-delete-jobs`, {
           method: 'POST',
-          headers: {
-            revision: '2024-02-15'
-          },
           json: unSubData
         })
 

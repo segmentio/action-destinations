@@ -3,14 +3,15 @@ import type { Settings } from './generated-types'
 
 import { productClickedEvents, productClickPresets } from './productClickedEvents'
 
-import { conversionEvents, conversionPresets } from './conversionEvents'
+import { conversionEvents, purchasePreset } from './conversionEvents'
 
 import { productViewedEvents, productViewedPresets } from './productViewedEvents'
 import { AlgoliaApiPermissions, algoliaApiPermissionsUrl } from './algolia-insight-api'
 
-import { productAddedEvents, productAddedPresets } from './productAddedEvents'
+import { addToCartPreset, productAddedEvents } from './productAddedEvents'
 
 import { productListFilteredEvents, productListFilteredPresets } from './productListFilteredEvents'
+import { productListViewedEvents, productListViewedPresets } from './productListViewedEvents'
 
 export const ALGOLIA_INSIGHTS_USER_AGENT = 'algolia-segment-action-destination: 0.1'
 
@@ -31,7 +32,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'apiKey',
         description: 'An API key which has write permissions to the Algolia Insights API',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
@@ -64,17 +65,19 @@ const destination: DestinationDefinition<Settings> = {
       type: 'automatic'
     },
     productClickPresets,
-    conversionPresets,
+    purchasePreset,
+    addToCartPreset,
     productViewedPresets,
-    productAddedPresets,
-    productListFilteredPresets
+    productListFilteredPresets,
+    productListViewedPresets
   ],
   actions: {
     productClickedEvents,
     conversionEvents,
     productViewedEvents,
     productAddedEvents,
-    productListFilteredEvents
+    productListFilteredEvents,
+    productListViewedEvents
   }
 }
 

@@ -1,4 +1,4 @@
-import { IntegrationError, AudienceDestinationDefinition, RequestClient } from '@segment/actions-core'
+import { IntegrationError, AudienceDestinationDefinition, RequestClient, defaultValues } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 
 import syncAudience from './syncAudience'
@@ -8,13 +8,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Iterable Lists',
   slug: 'actions-iterable-lists',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Iterable Lists',
+  description: 'Sync users to Iterable Lists',
 
   authentication: {
     scheme: 'custom',
     fields: {
       apiKey: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
@@ -87,7 +87,37 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 async function getAudience(

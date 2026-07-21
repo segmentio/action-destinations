@@ -1,18 +1,61 @@
-import { InvalidAuthenticationError } from '@segment/actions-core'
+import { InvalidAuthenticationError, Features } from '@segment/actions-core'
 import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
-import { createHash } from 'crypto'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
-import { AudienceRecord, HashedPIIObject } from './types'
-import { CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID } from './utils'
+import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
+import { processHashing } from '../../lib/hashing-utils'
+import { AMAZON_AMC_API_VERSION } from './versioning-info'
+
+function hasStringValue(value: MaybeString): boolean {
+  return typeof value === 'string' && value.trim().length > 0
+}
+
+function getUserConsent(payloadConsent: Payload['consent'], countryCode: string, features?: Features): UserConsent {
+  const { ipAddress, amznAdStorage, amznUserData, tcf, gpp } = payloadConsent || {}
+  const enableErrors = features?.[FLAG_CONSENT_ENABLE_ERRORS]
+
+  if(!COUNTRY_CODES.includes(countryCode)){
+    if (enableErrors) {
+      throw new PayloadValidationError(`Invalid country code: ${countryCode}. Country code must be a valid ISO 3166-1 alpha-2 code.`)
+    }
+  }
+
+  const amzn: NonNullable<UserConsent['consent']>['amzn'] | undefined = hasStringValue(amznAdStorage as MaybeString) && hasStringValue(amznUserData as MaybeString) ? { amznAdStorage: amznAdStorage === 'GRANTED' ? 'GRANTED' : 'DENIED', amznUserData: amznUserData === 'GRANTED' ? 'GRANTED' : 'DENIED' } : undefined
+
+  if(UK_EEA_COUNTRY_CODES.includes(countryCode) && !amzn && !hasStringValue(tcf as MaybeString) && !hasStringValue(gpp as MaybeString)){
+    if (enableErrors) {
+      throw new PayloadValidationError(`Consent required when sending data with UK and EEA country code ${countryCode}. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.`)
+    }
+  }
+
+  const geo: UserConsent['geo'] = {
+    ...(hasStringValue(ipAddress as MaybeString) && { ipAddress }),
+    countryCode
+  }
+
+  const consent: UserConsent['consent'] = {
+    ...(amzn && { amzn }),
+    ...(hasStringValue(tcf as MaybeString) && { tcf }),
+    ...(hasStringValue(gpp as MaybeString) && { gpp })
+  }
+
+  const consentData: UserConsent = {
+    geo,
+    ...(Object.keys(consent).length > 0 && { consent })
+  }
+  
+  return consentData
+}
 
 export async function processPayload(
   request: RequestClient,
   settings: Settings,
   payload: Payload[],
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  features?: Features
 ) {
-  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings)
+  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
@@ -20,8 +63,9 @@ export async function processPayload(
     method: 'POST',
     body: payloadString,
     headers: {
-      'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
+      'Content-Type': `application/vnd.amcaudiences.${AMAZON_AMC_API_VERSION}+json`
+    },
+    timeout: 15000
   })
 
   const result = response.data
@@ -44,7 +88,11 @@ export async function processPayload(
  * @throws {PayloadValidationError} - Throws an error if any externalUserId does not
  *    match the expected pattern.
  */
-export function createPayloadToUploadRecords(payloads: Payload[], audienceSettings: AudienceSettings) {
+export function createPayloadToUploadRecords(
+  payloads: Payload[],
+  audienceSettings: AudienceSettings, 
+  features?: Features
+) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
   payloads.forEach((payload: Payload) => {
@@ -52,12 +100,14 @@ export function createPayloadToUploadRecords(payloads: Payload[], audienceSettin
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
     }
+    const userConsent = features?.[FLAG_CONSENT_REQUIRED] ? getUserConsent(payload.consent, audienceSettings.countryCode, features) : undefined
     const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
       action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
-      hashedPII: [hashedPII]
+      hashedPII: [hashedPII],
+      ...(userConsent ? { userConsent } : {})
     }
     records.push(payloadRecord)
   })
@@ -77,7 +127,8 @@ export function createPayloadToUploadRecords(payloads: Payload[], audienceSettin
 function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  features?: Features
 ) {
   const validPayloadIndicesBitmap: number[] = []
   const filteredPayloads: AudienceRecord[] = []
@@ -92,12 +143,28 @@ function validateAndPreparePayload(
       return
     }
 
+    let userConsent: UserConsent | undefined
+
+    try {
+      userConsent = features?.[FLAG_CONSENT_REQUIRED] ? getUserConsent(payload.consent, audienceSettings.countryCode, features) : undefined
+    }
+    catch (error) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
+        status: error.status || 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: error.message,
+        body: payload as object as JSONLikeObject
+      })
+      return
+    }
+
     const hashedPII = hashedPayload(payload)
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
       action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
-      hashedPII: [hashedPII]
+      hashedPII: [hashedPII],
+      ...(userConsent ? { userConsent } : {})
     }
     filteredPayloads.push(payloadRecord)
     validPayloadIndicesBitmap.push(originalBatchIndex)
@@ -123,13 +190,15 @@ export async function processBatchPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  audienceSettings: AudienceSettings
+  audienceSettings: AudienceSettings,
+  features?: Features
 ) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayload(
     payloads,
     multiStatusResponse,
-    audienceSettings
+    audienceSettings, 
+    features
   )
 
   if (!filteredPayloads.length) {
@@ -140,14 +209,14 @@ export async function processBatchPayload(
     /"audienceId":"(\d+)"/,
     '"audienceId":$1'
   )
-
   const response = await request<RecordsResponseType>(`${settings.region}/amc/audiences/records`, {
     method: 'POST',
     body: payloadString,
     throwHttpErrors: false,
     headers: {
       'Content-Type': 'application/vnd.amcaudiences.v1+json'
-    }
+    },
+    timeout: 15000
   })
   if (!response.ok && response.status == 401) {
     throw new InvalidAuthenticationError(response.statusText)
@@ -195,9 +264,7 @@ export function updateMultiStatusResponses(
 function normalize(value: string, allowedChars: RegExp, trim = true): string {
   let normalized = value.toLowerCase().replace(allowedChars, '')
   if (trim) normalized = normalized.trim()
-  const hash = createHash('sha256')
-  hash.update(normalized)
-  return hash.digest('hex')
+  return normalized
 }
 
 // Define allowed character patterns
@@ -233,28 +300,28 @@ function hashedPayload(payload: Payload): HashedPIIObject {
   const hashedPII: HashedPIIObject = {}
 
   if (payload.firstName) {
-    hashedPII.firstname = normalizeStandard(payload.firstName)
+    hashedPII.firstname = processHashing(payload.firstName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.lastName) {
-    hashedPII.lastname = normalizeStandard(payload.lastName)
+    hashedPII.lastname = processHashing(payload.lastName, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.address) {
-    hashedPII.address = normalizeStandard(payload.address)
+    hashedPII.address = processHashing(payload.address, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.postal) {
-    hashedPII.postal = normalizeStandard(payload.postal)
+    hashedPII.postal = processHashing(payload.postal, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.phone) {
-    hashedPII.phone = normalizePhone(payload.phone)
+    hashedPII.phone = processHashing(payload.phone, 'sha256', 'hex', normalizePhone)
   }
   if (payload.city) {
-    hashedPII.city = normalizeStandard(payload.city)
+    hashedPII.city = processHashing(payload.city, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.state) {
-    hashedPII.state = normalizeStandard(payload.state)
+    hashedPII.state = processHashing(payload.state, 'sha256', 'hex', normalizeStandard)
   }
   if (payload.email) {
-    hashedPII.email = normalizeEmail(payload.email)
+    hashedPII.email = processHashing(payload.email, 'sha256', 'hex', normalizeEmail)
   }
 
   return hashedPII

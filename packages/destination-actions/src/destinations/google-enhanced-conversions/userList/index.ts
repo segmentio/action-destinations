@@ -1,13 +1,20 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { createGoogleAudience, getGoogleAudience, getListIds, handleUpdate, verifyCustomerId } from '../functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  getListIds,
+  handleUpdate,
+  processBatchPayload,
+  verifyCustomerId
+} from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
-  description: 'Sync a Segment Engage Audience into a Google Customer Match User List.',
+  description: 'Sync users into a Google Customer Match User List.',
   defaultSubscription: 'event = "Audience Entered" or event = "Audience Exited"',
   syncMode: {
     description: 'Define how the records will be synced to Google',
@@ -22,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     first_name: {
       label: 'First Name',
-      description: "The user's first name. If not hashed, Segment will normalize and hash this value.",
+      description: "The user's first name.",
       type: 'string',
       default: {
         '@if': {
@@ -30,11 +37,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.firstName' },
           else: { '@path': '$.properties.firstName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     last_name: {
       label: 'Last Name',
-      description: "The user's last name. If not hashed, Segment will normalize and hash this value.",
+      description: "The user's last name.",
       type: 'string',
       default: {
         '@if': {
@@ -42,11 +50,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.lastName' },
           else: { '@path': '$.properties.lastName' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     email: {
       label: 'Email',
-      description: "The user's email address. If not hashed, Segment will normalize and hash this value.",
+      description: "The user's email address.",
       type: 'string',
       default: {
         '@if': {
@@ -54,12 +63,12 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone: {
       label: 'Phone',
-      description:
-        "The user's phone number. If not hashed, Segment will convert the phone number to the E.164 format and hash this value.",
+      description: "The user's phone number.",
       type: 'string',
       default: {
         '@if': {
@@ -67,7 +76,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.phone' },
           else: { '@path': '$.properties.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     phone_country_code: {
       label: 'Phone Number Country Code',
@@ -100,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -113,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -164,7 +174,6 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          required: false,
           dynamic: async (request, { settings, auth, features, statsContext }) => {
             return await getListIds(request, settings, auth, features, statsContext)
           }
@@ -172,14 +181,12 @@ const action: ActionDefinition<Settings, Payload> = {
         list_name: {
           type: 'string',
           label: 'List Name',
-          description: 'The name of the Google list that you would like to create.',
-          required: false
+          description: 'The name of the Google list that you would like to create.'
         },
         external_id_type: {
           type: 'string',
           label: 'External ID Type',
           description: 'Customer match upload key types.',
-          required: true,
           default: 'CONTACT_INFO',
           choices: [
             { label: 'CONTACT INFO', value: 'CONTACT_INFO' },
@@ -243,7 +250,7 @@ const action: ActionDefinition<Settings, Payload> = {
               savedData: {
                 id: hookInputs.list_id,
                 name: response.results[0].userList.name,
-                external_id_type: hookInputs.external_id_type
+                external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
               }
             }
           } catch (e) {
@@ -263,7 +270,7 @@ const action: ActionDefinition<Settings, Payload> = {
             audienceName: hookInputs.list_name,
             settings: settings,
             audienceSettings: {
-              external_id_type: hookInputs.external_id_type,
+              external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO',
               app_id: hookInputs.app_id
             }
           }
@@ -280,7 +287,7 @@ const action: ActionDefinition<Settings, Payload> = {
             savedData: {
               id: listId,
               name: hookInputs.list_name,
-              external_id_type: hookInputs.external_id_type
+              external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
             }
           }
         } catch (e) {
@@ -316,8 +323,7 @@ const action: ActionDefinition<Settings, Payload> = {
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
-    return await handleUpdate(
+    return await processBatchPayload(
       request,
       settings,
       audienceSettings,

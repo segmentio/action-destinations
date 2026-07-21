@@ -1,5 +1,5 @@
 import { ActionDefinition } from '@segment/actions-core'
-import type { Settings } from '../generated-types'
+import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processBatchPayload, processPayload } from '../function'
 
@@ -26,7 +26,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email: {
       label: 'Email',
-      description: 'User email address. Vaule will be hashed before sending to Amazon.',
+      description: 'User email address.',
       type: 'string',
       required: false,
       default: {
@@ -35,56 +35,64 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.properties.email' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     firstName: {
       label: 'First name',
-      description: 'User first name. Value will be hashed before sending to Amazon.',
+      description: 'User first name.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.first_name' }
+      default: { '@path': '$.properties.first_name' },
+      category: 'hashedPII'
     },
     lastName: {
       label: 'Last name',
-      description: 'User Last name. Value will be hashed before sending to Amazon.',
+      description: 'User Last name.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.last_name' }
+      default: { '@path': '$.properties.last_name' },
+      category: 'hashedPII'
     },
     phone: {
       label: 'Phone',
-      description: 'Phone Number. Value will be hashed before sending to Amazon.',
+      description: 'Phone Number.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.phone' }
+      default: { '@path': '$.properties.phone' },
+      category: 'hashedPII'
     },
     postal: {
       label: 'Postal',
-      description: 'POstal Code. Value will be hashed before sending to Amazon.',
+      description: 'Postal Code.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.postal' }
+      default: { '@path': '$.properties.postal' },
+      category: 'hashedPII'
     },
     state: {
       label: 'State',
-      description: 'State Code. Value will be hashed before sending to Amazon.',
+      description: 'State Code.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.state' }
+      default: { '@path': '$.properties.state' },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
-      description: 'City name. Value will be hashed before sending to Amazon.',
+      description: 'City name.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.city' }
+      default: { '@path': '$.properties.city' },
+      category: 'hashedPII'
     },
     address: {
       label: 'Address',
-      description: 'Address Code. Value will be hashed before sending to Amazon.',
+      description: 'Address Code.',
       type: 'string',
       required: false,
-      default: { '@path': '$.properties.address' }
+      default: { '@path': '$.properties.address' },
+      category: 'hashedPII'
     },
     audienceId: {
       label: 'Audience ID',
@@ -97,6 +105,62 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.context.personas.external_audience_id'
       }
     },
+    consent: {
+      label: 'Consent',
+      description:
+        'Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.',
+      type: 'object',
+      required: false,
+      additionalProperties: false,
+      properties: {
+        ipAddress: {
+          label: 'Geographic Consent: IP Address',
+          description: "Captures the user's geographic information (IP address) for consent checking.",
+          type: 'string',
+          required: false
+        },
+        amznAdStorage: {
+          label: 'Ad Storage Consent',
+          description: 'Amazon Consent Format: Captures whether the user has consented to cookie based tracking.',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'Granted', value: 'GRANTED' },
+            { label: 'Denied', value: 'DENIED' }
+          ]
+        },
+        amznUserData: {
+          label: 'User Data Consent',
+          description:
+            'Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.',
+          type: 'string',
+          required: false,
+          choices: [
+            { label: 'Granted', value: 'GRANTED' },
+            { label: 'Denied', value: 'DENIED' }
+          ]
+        },
+        tcf: {
+          label: 'TCF String',
+          description: 'An encoded Transparency and Consent Framework (TCF) string describing user consent choices.',
+          type: 'string',
+          required: false
+        },
+        gpp: {
+          label: 'GPP String',
+          description: 'An encoded Global Privacy Platform (GPP) string describing user privacy preferences.',
+          type: 'string',
+          required: false
+        }
+      },
+      default: {
+        ipAddress: { '@path': '$.properties.ip' },
+        amznAdStorage: { '@path': '$.properties.amznAdStorage' },
+        amznUserData: { '@path': '$.properties.amznUserData' },
+        tcf: { '@path': '$.properties.tcf' },
+        gpp: { '@path': '$.properties.gpp' }
+      }
+    },
     enable_batching: {
       label: 'Enable Batching',
       description: 'When enabled,segment will send data in batching',
@@ -106,18 +170,20 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      description:
+        'Maximum number of events to include in each batch. Actual batch sizes may be lower. Minimum value is 1500 and maximum is 10000.',
       type: 'number',
-      unsafe_hidden: true,
       required: false,
-      default: 10000
+      default: 10000,
+      maximum: 10000,
+      minimum: 1500
     }
   },
-  perform: (request, { settings, payload, audienceSettings }) => {
-    return processPayload(request, settings, [payload], audienceSettings)
+  perform: (request, { settings, payload, audienceSettings, features }) => {
+    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings, features)
   },
-  performBatch: async (request, { settings, payload: payloads, audienceSettings }) => {
-    return await processBatchPayload(request, settings, payloads, audienceSettings)
+  performBatch: async (request, { settings, payload: payloads, audienceSettings, features }) => {
+    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings, features)
   }
 }
 

@@ -99,7 +99,8 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'A comma separated list of the alphanumeric encrypted user IDs. Any user ID with exposure prior to the conversion timestamp will be used in the inserted conversion. If no such user ID is found then the conversion will be rejected with INVALID_ARGUMENT error. When set, `encryptionInfo` should also be specified.',
           type: 'string',
-          required: false
+          required: false,
+          category: 'hashedPII'
         }
       },
       default: {
@@ -126,11 +127,11 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     ...commonFields
   },
-  perform: async (request, { settings, payload, auth }) => {
-    return await send(request, settings, [payload], false, auth)
+  perform: async (request, { settings, payload, auth, features }) => {
+    return await send(request, settings, [payload], false, auth, features)
   },
-  performBatch: async (request, { settings, payload, auth }) => {
-    return await send(request, settings, payload, false, auth)
+  performBatch: async (request, { settings, payload, auth, features }) => {
+    return await send(request, settings, payload, false, auth, features)
   }
 }
 

@@ -177,6 +177,77 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
           })
         ).rejects.toThrow(PayloadValidationError)
       })
+
+      it('should incr stats by unique url, headers and method count', async () => {
+        const testEvent1 = {
+          properties: {
+            url: 'https://example.build',
+            method: 'POST',
+            headers: {
+              'sample-header': 'value1'
+            }
+          }
+        }
+        const testEvent2 = {
+          properties: {
+            url: 'https://example.build',
+            method: 'PUT',
+            headers: {
+              'sample-header': 'value1'
+            }
+          }
+        }
+        const events = [createTestEvent(testEvent1), createTestEvent(testEvent2)]
+
+        nock(testEvent1.properties.url).post('/').reply(200, { success: true })
+
+        const statsClient = {
+          incr: jest.fn(),
+          observe: jest.fn(),
+          _name: jest.fn(),
+          _tags: jest.fn(),
+          set: jest.fn,
+          histogram: jest.fn()
+        }
+        const statsContext = {
+          statsClient,
+          tags: ['test:tag']
+        }
+
+        const responses = await testDestination.testBatchAction('send', {
+          events,
+          mapping: {
+            url: {
+              '@path': '$.properties.url'
+            },
+            method: {
+              '@path': '$.properties.method'
+            },
+            headers: {
+              'sample-header': {
+                '@path': '$.properties.sample-header'
+              }
+            }
+          },
+          useDefaultMappings: true,
+          statsContext
+        })
+
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(200)
+        expect(statsClient.histogram).toHaveBeenCalledWith(
+          'webhook.configurable_batch_keys.unique_keys',
+          2,
+          statsContext.tags
+        )
+      })
+    })
+
+    it('should have batch keys default to url, method, headers', () => {
+      const action = testDestination.definition.actions.send
+      expect(action.fields.batch_keys).toBeDefined()
+      expect(action.fields.batch_keys?.default).toBeDefined()
+      expect(action.fields.batch_keys?.default).toEqual(['url', 'method', 'headers'])
     })
   })
 }

@@ -91,7 +91,7 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
     },
     user_hash: {
       description:
-        'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/articles/183-enable-identity-verification-for-web-and-mobile) for more information on how to set this field.',
+        'The user hash used for identity verification. See [Intercom docs](https://www.intercom.com/help/en/collections/12295815-messenger-security) for more information on how to set this field.',
       label: 'User Hash',
       type: 'string',
       required: false,
@@ -100,6 +100,20 @@ const action: BrowserActionDefinition<Settings, Intercom, Payload> = {
           exists: { '@path': '$.integrations.Intercom.user_hash' },
           then: { '@path': '$.integrations.Intercom.user_hash' },
           else: { '@path': '$.integrations.Intercom.userHash' }
+        }
+      }
+    },
+    intercom_user_jwt: {
+      description:
+        'The intercom user JWT is used to secure your messenger for your users. See [Intercom docs](https://www.intercom.com/help/en/collections/12295815-messenger-security) for more information on how to set this field.',
+      label: 'Intercom User JWT',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.integrations.Intercom.intercom_user_jwt' },
+          then: { '@path': '$.integrations.Intercom.intercom_user_jwt' },
+          else: { '@path': '$.integrations.Intercom.intercomUserJwt' }
         }
       }
     },

@@ -1,6 +1,6 @@
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
-export { transform } from './mapping-kit'
+export { transform, Features } from './mapping-kit'
 export {
   ArrayPathDirective,
   CaseDirective,
@@ -29,7 +29,7 @@ export {
 } from './mapping-kit/value-keys'
 export { createTestEvent } from './create-test-event'
 export { createTestIntegration } from './create-test-integration'
-export { default as createInstance } from './request-client'
+export { default as createInstance, RequestTimeoutError } from './request-client'
 export { default as createRequestClient } from './create-request-client'
 export { defaultValues } from './defaults'
 export {
@@ -37,6 +37,7 @@ export {
   InvalidAuthenticationError,
   RetryableError,
   PayloadValidationError,
+  InvalidAudienceMembershipError,
   SelfTimeoutError,
   APIError,
   ErrorCodes,
@@ -48,7 +49,6 @@ export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
 export { removeUndefined } from './remove-undefined'
-export { sha256SmartHash, SmartHashing, sha1Hash } from './hashing-utils'
 export { time, duration } from './time'
 
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
@@ -65,6 +65,7 @@ export type {
   BaseDefinition,
   DestinationDefinition,
   AudienceDestinationDefinition,
+  WarehouseDestinationDefinition,
   ExecuteInput,
   Subscription,
   SubscriptionStats,
@@ -80,17 +81,20 @@ export type {
   MinimalInputField,
   StateContext,
   StatsContext,
+  Logger,
   Preset,
   Result
 } from './destination-kit'
 
 export type {
+  AudienceMembership,
   DynamicFieldResponse,
   DynamicFieldError,
   DynamicFieldItem,
   InputField,
   GlobalSetting,
-  RequestExtension
+  RequestExtension,
+  SyncModeDefinition
 } from './destination-kit/types'
 
 export type { JSONPrimitive, JSONValue, JSONObject, JSONArray, JSONLike, JSONLikeObject } from './json-object'
@@ -104,3 +108,7 @@ export {
   ActionDestinationErrorResponse,
   MultiStatusResponse
 } from './destination-kit/action'
+
+export { validateSchema } from './schema-validation'
+export { resolveAudienceMembership } from './audience-membership'
+export { FLAGS } from './flags'

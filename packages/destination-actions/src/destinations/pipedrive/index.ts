@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Token',
         description:
           'Pipedrive API token. This is found in Pipedrive in Settings > Personal preferences > API > Your personal API token.',
-        type: 'string',
+        type: 'password',
         // minLength: 20,
         required: true
       },

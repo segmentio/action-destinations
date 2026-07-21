@@ -24,7 +24,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'Created under Developer Settings in the Talon.One Campaign Manager.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       deployment: {

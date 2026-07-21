@@ -371,6 +371,10 @@ directive('@excludeWhenNull', (v, stack) => {
   validateDirectiveOrRaw(v, stack)
 })
 
+directive('@liquid', (v, stack) => {
+  validateString(v, stack)
+})
+
 function indefiniteArticle(s: string): string {
   switch (s.charAt(0)) {
     case 'a':

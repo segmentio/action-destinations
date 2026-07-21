@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-qualified destination: updateCompany action - all fields 1`] = `
+Object {
+  "domain": "kUFu[",
+  "fields": Object {
+    "custom_bool_1": true,
+    "custom_bool_2": false,
+    "custom_field_1": "value1",
+    "custom_field_2": "value2",
+    "custom_number_1": 123,
+    "custom_number_2": 456.78,
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-qualified destination: updateCompany action - required fields 1`] = `
+Object {
+  "domain": "kUFu[",
+  "fields": Object {},
+}
+`;
+
+exports[`Testing snapshot for actions-qualified destination: upsertLead action - all fields 1`] = `
+Object {
+  "email": "upiwoec@vejduvgu.kw",
+  "fields": Object {
+    "company": "PO)[A67[hvd(dH!is",
+    "custom_bool_1": true,
+    "custom_bool_2": false,
+    "custom_field_1": "value1",
+    "custom_field_2": "value2",
+    "custom_number_1": 123,
+    "custom_number_2": 456.78,
+    "name": "PO)[A67[hvd(dH!is",
+    "phone": "PO)[A67[hvd(dH!is",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-qualified destination: upsertLead action - required fields 1`] = `
+Object {
+  "email": "upiwoec@vejduvgu.kw",
+  "fields": Object {},
+}
+`;

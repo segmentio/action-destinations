@@ -1,6 +1,7 @@
 import type { Settings } from './generated-types'
 import type { Payload as IdentifyPayload } from './identifyUser/generated-types'
 import type { Payload as TrackPayload } from './trackEvent/generated-types'
+import type { Payload as GroupPayload } from './identifyCompany/generated-types'
 
 import { RequestOptions } from '@segment/actions-core'
 
@@ -40,6 +41,20 @@ export const getIdentifyRequestParams = (settings: Settings, payload: IdentifyPa
       json: {
         user_id: userId,
         // Transform createdAt to Userpilot reserved property
+        metadata: traits
+      }
+    }
+  }
+}
+export const getCompanyIdentifyRequestParams = (settings: Settings, payload: GroupPayload): RequestParams => {
+  const { traits, groupId } = payload
+
+  return {
+    url: `${validateEndpoint(settings.endpoint)}v1/companies/identify`,
+    options: {
+      method: 'POST',
+      json: {
+        company_id: groupId,
         metadata: traits
       }
     }

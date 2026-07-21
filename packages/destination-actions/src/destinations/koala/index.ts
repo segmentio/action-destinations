@@ -36,7 +36,7 @@ const destination: DestinationDefinition<Settings> = {
       public_key: {
         label: 'Public Key',
         description: 'Your public key',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

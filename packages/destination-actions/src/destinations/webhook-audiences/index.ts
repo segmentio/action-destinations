@@ -2,7 +2,7 @@ import type { ActionDefinition, AudienceDestinationDefinition } from '@segment/a
 import type { Settings, AudienceSettings } from './generated-types'
 
 import send from '../webhook/send'
-import { IntegrationError } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import { createHmac } from 'crypto'
 import { Payload } from './send.types'
 const externalIdKey = 'externalId'
@@ -16,7 +16,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     scheme: 'custom',
     fields: {
       sharedSecret: {
-        type: 'string',
+        type: 'password',
         label: 'Shared Secret',
         description:
           'If set, Segment will sign requests with an HMAC in the "X-Signature" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.'
@@ -36,8 +36,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     extras: {
       type: 'string',
-      label: `Extra json fields to pass on to every request.  Note: "${externalIdKey}" and "${audienceNameKey}" are reserved.`,
-      description: `Extra json fields to pass on to every request. Note: "${externalIdKey}" and "${audienceNameKey}" are reserved.`
+      label: `Extra JSON fields to pass on to every request (as a JSON string)`,
+      description: `Extra JSON fields to pass on to every request. This must be a valid JSON string (e.g., "{\\"hello\\": \\"world\\", \\"foo\\": \\"bar\\"}"). The JSON will be parsed and merged into each request payload. Note: "${externalIdKey}" and "${audienceNameKey}" are reserved keys and cannot be used.`
     }
   },
   audienceConfig: {
@@ -67,10 +67,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         jsonOutput = await response.json()
 
         if (!jsonOutput[externalIdKey]) {
-          throw new IntegrationError(`Missing ${externalIdKey} in response`, 'INVALID_RESPONSE', 400)
+          throw new IntegrationError(
+            `Missing ${externalIdKey} in response (status: ${response.status})`,
+            'INVALID_RESPONSE',
+            400
+          )
         }
-      } catch {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        throw new IntegrationError(
+          `Invalid response from get audience request (status: ${response.status}): ${errorMessage}`,
+          'INVALID_RESPONSE',
+          400
+        )
       }
 
       return {
@@ -98,9 +107,25 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         }
       })
 
-      const jsonOutput = await response.json()
-      if (!jsonOutput[externalIdKey]) {
-        throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
+      let jsonOutput
+
+      try {
+        jsonOutput = await response.json()
+
+        if (!jsonOutput[externalIdKey]) {
+          throw new IntegrationError(
+            `Missing ${externalIdKey} in response (status: ${response.status})`,
+            'INVALID_RESPONSE',
+            400
+          )
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        throw new IntegrationError(
+          `Invalid response from create audience request (status: ${response.status}): ${errorMessage}`,
+          'INVALID_RESPONSE',
+          400
+        )
       }
 
       return {
@@ -139,8 +164,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           settings
         })
       },
-      performBatch: (request, { payload, settings, audienceSettings }) => {
+      performBatch: (request, { payload, settings, audienceSettings, statsContext }) => {
         const extras = parseExtraSettingsJson(audienceSettings?.extras)
+
+        if (statsContext) {
+          const { statsClient, tags } = statsContext
+          const set = new Set()
+          for (const p of payload) {
+            set.add(`${p.url} ${p.method} ${JSON.stringify(p.headers)}`)
+          }
+          statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
+        }
 
         // Call the same performBatch function from the regular webhook destination
         // and add in our extraSettings
@@ -159,7 +193,37 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         })
       }
     } as ActionDefinition<Settings, Payload>
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'send',
+      mapping: defaultValues(send.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 const parseExtraSettingsJson = (extraSettingsJson?: string): object => {

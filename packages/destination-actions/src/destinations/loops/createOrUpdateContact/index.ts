@@ -102,7 +102,7 @@ const action: ActionDefinition<Settings, Payload> = {
     // mailingLists may be in traits (customAttributes)
     if (!mailingLists || Object.keys(mailingLists).length === 0) {
       if (customAttributes && typeof customAttributes === 'object' && 'mailingLists' in customAttributes) {
-        mailingListsToUse = customAttributes.mailingLists as { [k: string]: unknown } | undefined
+        mailingListsToUse = customAttributes.mailingLists as { [k: string]: boolean } | undefined
       }
     }
 
@@ -133,17 +133,17 @@ export default action
 // remove any key value pairs where the value is not a true or false string
 function filterMailingLists(obj: { [key: string]: unknown }): { [key: string]: boolean } {
   const result: { [key: string]: boolean } = {}
-for (const key in obj) {
-    const value = obj[key];
-    
+  for (const key in obj) {
+    const value = obj[key]
+
     if (typeof value === 'string') {
       if (value === 'true') {
-        result[key] = true;
+        result[key] = true
       } else if (value === 'false') {
-        result[key] = false;
+        result[key] = false
       }
     } else if (typeof value === 'boolean') {
-      result[key] = value;
+      result[key] = value
     }
   }
   return result

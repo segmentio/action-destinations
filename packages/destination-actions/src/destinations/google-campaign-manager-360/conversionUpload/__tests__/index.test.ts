@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { SegmentEvent } from '@segment/actions-core/*'
+import { API_VERSION, CANARY_API_VERSION, FLAGON_NAME } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 const timestamp = new Date('Thu Jun 10 2024 11:08:04 GMT-0700 (Pacific Daylight Time)').toISOString()
@@ -41,7 +42,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -144,7 +147,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -222,7 +227,9 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -260,6 +267,110 @@ describe('Cm360.conversionUpload', () => {
           }
         })
 
+        expect(responses.length).toBe(1)
+        expect(responses[0].status).toBe(201)
+      })
+
+      it('sends an event and handles hashing with partial data correctly', async () => {
+        const event = createTestEvent({
+          timestamp,
+          event: 'Test Event',
+          context: {
+            traits: {
+              email: 'daffy@warnerbros.com'
+            }
+          },
+          properties: {
+            ordinal: '1',
+            quantity: '1',
+            value: '123',
+            gclid: '54321',
+            limitAdTracking: true,
+            childDirectedTreatment: true,
+            nonPersonalizedAd: true,
+            treatmentForUnderage: true
+          }
+        })
+
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
+          .post('')
+          .reply(201, { results: [{}] })
+
+        const responses = await testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+
+        expect(responses[0].options.body).toBe(
+          `{"conversions":[{"childDirectedTreatment":true,"floodlightActivityId":"23456","floodlightConfigurationId":"34567","gclid":"54321","kind":"dfareporting#conversion","limitAdTracking":true,"nonPersonalizedAd":true,"ordinal":"1","quantity":"1","timestampMicros":"1718042884000000","treatmentForUnderage":true,"userIdentifiers":[{"hashedEmail":"8e46bd4eaabb5d6324e327751b599f190dbaacd90066e66c94a046640bed60d0"}],"value":123,"customVariables":[],"encryptedUserIdCandidates":[]}],"kind":"dfareporting#conversionsBatchInsertRequest"}`
+        )
         expect(responses.length).toBe(1)
         expect(responses[0].status).toBe(201)
       })
@@ -318,7 +429,9 @@ describe('Cm360.conversionUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -440,7 +553,9 @@ describe('Cm360.conversionUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -535,7 +650,9 @@ describe('Cm360.conversionUpload', () => {
           }
         ]
 
-        nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+        nock(
+          `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+        )
           .post('')
           .reply(201, { results: [{}] })
 
@@ -872,7 +989,9 @@ describe('Cm360.conversionUpload', () => {
         }
       })
 
-      nock(`https://dfareporting.googleapis.com/dfareporting/v4/userprofiles/${profileId}/conversions/batchinsert`)
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
         .post('')
         .reply(201, { results: [{}] })
 
@@ -948,6 +1067,355 @@ describe('Cm360.conversionUpload', () => {
           }
         })
       ).rejects.toThrowError()
+    })
+
+    it('throws an error when a 20X response with errors returned', async () => {
+      const event = createTestEvent({
+        timestamp: '2023-01-01T00:00:00.000Z', // old timestamp to force a 200 response with errors
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '1',
+          value: '123',
+          gclid: '54321',
+          limitAdTracking: true,
+          childDirectedTreatment: true,
+          nonPersonalizedAd: true,
+          treatmentForUnderage: true
+        }
+      })
+
+      const resp20XWithErrors = {
+        hasFailures: true,
+        status: [
+          {
+            conversion: {
+              floodlightConfigurationId: '7327628',
+              floodlightActivityId: '11095382',
+              timestampMicros: '1752650157000',
+              value: 1,
+              quantity: '1',
+              ordinal: '123455',
+              matchId: 'b5725c01-3f29-43c4-a0d7-afdff53578bb',
+              kind: 'dfareporting#conversion'
+            },
+            errors: [
+              {
+                code: 'INVALID_ARGUMENT',
+                message: 'Conversions over 28 days old may not be updated.',
+                kind: 'dfareporting#conversionError'
+              }
+            ],
+            kind: 'dfareporting#conversionStatus'
+          }
+        ],
+        kind: 'dfareporting#conversionsBatchUpdateResponse'
+      }
+
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, resp20XWithErrors)
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError('Conversions over 28 days old may not be updated.')
+    })
+
+    it('throws an error when a 401 response is returned', async () => {
+      const tsNow = new Date().toISOString()
+
+      const event = createTestEvent({
+        timestamp: tsNow,
+        event: 'Test Event',
+        context: {
+          traits: {
+            email: 'daffy@warnerbros.com',
+            phone: '1234567890',
+            firstName: 'Daffy',
+            lastName: 'Duck',
+            streetAddress: '123 Daffy St',
+            city: 'Burbank',
+            state: 'CA',
+            postalCode: '98765',
+            countryCode: 'US'
+          }
+        },
+        properties: {
+          ordinal: '1',
+          quantity: '1',
+          value: '123',
+          gclid: '54321',
+          limitAdTracking: true,
+          childDirectedTreatment: true,
+          nonPersonalizedAd: true,
+          treatmentForUnderage: true
+        }
+      })
+
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(401)
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            },
+            userDetails: {
+              email: {
+                '@path': '$.context.traits.email'
+              },
+              phone: {
+                '@path': '$.context.traits.phone'
+              },
+              firstName: {
+                '@path': '$.context.traits.firstName'
+              },
+              lastName: {
+                '@path': '$.context.traits.lastName'
+              },
+              streetAddress: {
+                '@path': '$.context.traits.streetAddress'
+              },
+              city: {
+                '@path': '$.context.traits.city'
+              },
+              state: {
+                '@path': '$.context.traits.state'
+              },
+              postalCode: {
+                '@path': '$.context.traits.postalCode'
+              },
+              countryCode: {
+                '@path': '$.context.traits.countryCode'
+              }
+            },
+            limitAdTracking: {
+              '@path': '$.properties.limitAdTracking'
+            },
+            childDirectedTreatment: {
+              '@path': '$.properties.childDirectedTreatment'
+            },
+            nonPersonalizedAd: {
+              '@path': '$.properties.nonPersonalizedAd'
+            },
+            treatmentForUnderage: {
+              '@path': '$.properties.treatmentForUnderage'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).rejects.toThrowError('Unauthorized')
+    })
+  })
+
+  describe('API Version Feature Flag', () => {
+    it('should use v4 API by default (stable version)', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          }
+        })
+      ).resolves.not.toThrowError()
+    })
+
+    it('should use v5 API when canary feature flag is enabled', async () => {
+      const event = createTestEvent({
+        timestamp,
+        event: 'Test Event',
+        properties: {
+          gclid: 'test-gclid',
+          value: 100,
+          quantity: 1,
+          ordinal: '1'
+        }
+      })
+
+      // Should call v5 endpoint when feature flag is enabled
+      nock(
+        `https://dfareporting.googleapis.com/dfareporting/${CANARY_API_VERSION}/userprofiles/${profileId}/conversions/batchinsert`
+      )
+        .post('')
+        .reply(201, { results: [{}] })
+
+      await expect(
+        testDestination.testAction('conversionUpload', {
+          event,
+          mapping: {
+            requiredId: {
+              gclid: {
+                '@path': '$.properties.gclid'
+              }
+            },
+            timestamp: {
+              '@path': '$.timestamp'
+            },
+            value: {
+              '@path': '$.properties.value'
+            },
+            quantity: {
+              '@path': '$.properties.quantity'
+            },
+            ordinal: {
+              '@path': '$.properties.ordinal'
+            }
+          },
+          useDefaultMappings: true,
+          settings: {
+            profileId,
+            defaultFloodlightActivityId: floodlightActivityId,
+            defaultFloodlightConfigurationId: floodlightConfigurationId
+          },
+          features: { [FLAGON_NAME]: true }
+        })
+      ).resolves.not.toThrowError()
     })
   })
 })

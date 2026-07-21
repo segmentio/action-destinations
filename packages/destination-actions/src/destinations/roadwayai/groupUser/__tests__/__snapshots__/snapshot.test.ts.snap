@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Roadwayai's groupUser destination action: all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "(SIYt)Ep[x9o",
+    "context": Object {
+      "testType": "(SIYt)Ep[x9o",
+    },
+    "enable_batching": true,
+    "group_id": "(SIYt)Ep[x9o",
+    "group_name": "(SIYt)Ep[x9o",
+    "timestamp": "(SIYt)Ep[x9o",
+    "traits": Object {
+      "testType": "(SIYt)Ep[x9o",
+    },
+    "user_id": "(SIYt)Ep[x9o",
+  },
+]
+`;
+
+exports[`Testing snapshot for Roadwayai's groupUser destination action: required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "(SIYt)Ep[x9o",
+    "group_id": "(SIYt)Ep[x9o",
+    "timestamp": "(SIYt)Ep[x9o",
+    "user_id": "(SIYt)Ep[x9o",
+  },
+]
+`;

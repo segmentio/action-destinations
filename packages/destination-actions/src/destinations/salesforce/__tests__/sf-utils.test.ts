@@ -298,6 +298,65 @@ describe('Salesforce Utils', () => {
     })
   })
 
+  describe('Logging capabilities', () => {
+    it('should function correctly when logging is enabled', async () => {
+      const createPayloads: GenericPayload[] = [
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890',
+          description: 'Krusty Krab'
+        },
+        {
+          operation: 'create',
+          enable_batching: true,
+          name: 'Squidward Tentacles',
+          phone: '1234567891',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const csvStats = { shouldLog: true, numberOfColumns: 0, numberOfValuesInCSV: 0, numberOfNullsInCSV: 0 }
+
+      const csv = buildCSVData(createPayloads, '', 'insert', csvStats)
+      const expected = `Name,Phone,Description\n"SpongeBob Squarepants","1234567890","Krusty Krab"\n"Squidward Tentacles","1234567891","Krusty Krab"\n`
+
+      expect(csv).toEqual(expected)
+    })
+
+    it('should correctly count the number of values and number of nulls in the CSV', async () => {
+      const incompleteUpdatePayloads: GenericPayload[] = [
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '00',
+          name: 'SpongeBob Squarepants',
+          phone: '1234567890'
+        },
+        {
+          operation: 'update',
+          enable_batching: true,
+          bulkUpdateRecordId: '01',
+          name: 'Squidward Tentacles',
+          description: 'Krusty Krab'
+        }
+      ]
+
+      const csvStats = { shouldLog: true, numberOfColumns: 0, numberOfValuesInCSV: 0, numberOfNullsInCSV: 0 }
+
+      const csv = buildCSVData(incompleteUpdatePayloads, 'Id', 'Update', csvStats)
+      const expected = `Name,Description,Phone,Id\n"SpongeBob Squarepants",#N/A,"1234567890","00"\n"Squidward Tentacles","Krusty Krab",#N/A,"01"\n`
+
+      expect(csv).toEqual(expected)
+
+      expect(csvStats.numberOfColumns).toEqual(4)
+
+      expect(csvStats.numberOfValuesInCSV).toEqual(4)
+      expect(csvStats.numberOfNullsInCSV).toEqual(2)
+    })
+  })
+
   describe('Instance URL', () => {
     const badInstanceUrls = [
       'https://www.google.com',

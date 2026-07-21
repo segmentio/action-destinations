@@ -6,7 +6,8 @@ import {
   EngageDestinationCache,
   ActionHookType,
   SubscriptionMetadata,
-  RequestFn
+  RequestFn,
+  Personas
 } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
@@ -36,6 +37,8 @@ export interface DynamicFieldContext {
   selectedArrayIndex?: number
   /** The key within a dynamic object for which we are requesting values */
   selectedKey?: string
+  /** The RichInput dropdown search query the user has entered */
+  query?: string
 }
 
 export interface ExecuteInput<
@@ -45,7 +48,8 @@ export interface ExecuteInput<
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
   ActionHookInputs = any,
   /* eslint-disable-next-line @typescript-eslint/no-explicit-any -- Expected any. */
-  ActionHookOutputs = any
+  ActionHookOutputs = any,
+  AudienceMembershipType = AudienceMembership | AudienceMembership[]
 > {
   /** The subscription mapping definition */
   readonly mapping?: JSONObject
@@ -55,6 +59,8 @@ export interface ExecuteInput<
   readonly audienceSettings?: AudienceSettings
   /** The transformed input data, based on `mapping` + `event` (or `events` if batched) */
   payload: Payload
+  /** Whether the user is being added to (true) or removed from (false) an audience. Undefined for non-audience events. For batch actions, this is an array matching the payload array. */
+  audienceMembership?: AudienceMembershipType
   /** Inputs into an actions hook performHook method */
   hookInputs?: ActionHookInputs
   /** Stored outputs from an invokation of an actions hook */
@@ -71,17 +77,21 @@ export interface ExecuteInput<
   readonly auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`,`stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   * `features`, `statsContext`, `logger`, `transactionContext`, `stateContext`, and `personasContext` are for internal Twilio/Segment use only.
    */
   readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly personasContext?: Personas
   readonly logger?: Logger
   /** Engage internal use only. DO NOT USE. */
   readonly engageDestinationCache?: EngageDestinationCache
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
 }
+
+export type AudienceMembership = boolean | undefined
 
 export interface DynamicFieldResponse {
   choices: DynamicFieldItem[]
@@ -130,7 +140,7 @@ export interface GlobalSetting
 export type FieldTypeName = 'string' | 'text' | 'number' | 'integer' | 'datetime' | 'boolean' | 'password' | 'object'
 
 /** The supported field categories */
-type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync'
+type FieldCategory = 'identifier' | 'data' | 'internal' | 'config' | 'sync' | 'hashedPII'
 
 /** supported input methods when picking values */
 type FieldInputMethods = 'literal' | 'variable' | 'function' | 'enrichment' | 'freeform'
@@ -255,9 +265,15 @@ export interface InputField extends InputFieldJSONSchema {
    */
   disabledInputMethods?: FieldInputMethods[]
 
-  /** Minimum value for a field of type 'number' */
+  /**
+   * Minimum value for a field of type 'number'
+   * When applied to a string field the minimum length of the string
+   * */
   minimum?: number
-  /** Maximum value for a field of type 'number' */
+  /**
+   * Maximum value for a field of type 'number'
+   * When applied to a string field the maximum length of the string
+   */
   maximum?: number
 }
 

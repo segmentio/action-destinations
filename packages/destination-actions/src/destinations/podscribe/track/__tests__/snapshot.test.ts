@@ -46,7 +46,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     const event = createTestEvent({
-      properties: eventData
+      properties: { ...eventData, properties: { ...eventData.properties, testKey: 'testValue' } }
     })
 
     const responses = await testDestination.testAction(actionSlug, {

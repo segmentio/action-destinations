@@ -25,7 +25,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'The API key for the app in Mantle. Get this from the API Keys section for your app in Mantle.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },

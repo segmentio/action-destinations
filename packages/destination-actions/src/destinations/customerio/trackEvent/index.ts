@@ -2,18 +2,25 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { sendBatch, sendSingle } from '../utils'
 import type { Payload } from './generated-types'
+import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Event',
   description: 'Track an event for a known or anonymous person.',
   defaultSubscription: `
     type = "track"
+    and event != "Application Installed"
+    and event != "Application Opened"
+    and event != "Application Uninstalled"
+    and event != "Device Created or Updated"
+    and event != "Device Deleted"
     and event != "Relationship Deleted"
     and event != "User Deleted"
     and event != "User Suppressed"
     and event != "User Unsuppressed"
-    and event != "Group Deleted"
+    and event != "Object Deleted"
     and event != "Report Delivery Event"
+    and event != "Report Content Event"
   `,
   fields: {
     id: {
@@ -73,7 +80,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Convert dates to Unix timestamps (seconds since Epoch).',
       type: 'boolean',
       default: true
-    }
+    },
+    ...eventProperties
   },
 
   performBatch: (request, { payload: payloads, settings }) => {

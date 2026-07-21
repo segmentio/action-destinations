@@ -7,9 +7,37 @@ Object {
       "additionalAttribution": Object {
         "testType": "YPhGI%A",
       },
+      "channel": "YPhGI%A",
+      "entity": Object {
+        "id": "YPhGI%A",
+        "type": "YPhGI%A",
+      },
+      "externalCampaignId": "YPhGI%A",
+      "externalVendorId": "YPhGI%A",
       "id": "YPhGI%A",
+      "object": Object {
+        "assetId": "YPhGI%A",
+        "clickType": "YPhGI%A",
+        "type": "YPhGI%A",
+      },
       "occurredAt": "2021-02-01T00:00:00.000Z",
       "opaqueUserId": "YPhGI%A",
+      "page": Object {
+        "pageId": "YPhGI%A",
+        "type": "YPhGI%A",
+        "value": "YPhGI%A",
+      },
+      "placement": Object {
+        "categoryIds": Array [
+          "YPhGI%A",
+        ],
+        "page": -6262931738066944,
+        "pageSize": -6262931738066944,
+        "path": "YPhGI%A",
+        "position": -6262931738066944,
+        "productId": "YPhGI%A",
+        "searchQuery": "YPhGI%A",
+      },
       "resolvedBidId": "YPhGI%A",
     },
   ],

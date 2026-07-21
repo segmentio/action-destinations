@@ -1,8 +1,10 @@
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 import type { ModifiedResponse } from '@segment/actions-core'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { AudienceSettings, Settings } from '../generated-types'
+import { TABOOLA_API_VERSION } from '../versioning-info'
 
 interface ClusterItem {
   user_id: string
@@ -16,6 +18,7 @@ interface TaboolaPayload {
   operation: 'ADD' | 'REMOVE'
   audience_id: number
   identities: Cluster[]
+  integration_source?: string
 }
 
 interface RefreshTokenResponse {
@@ -87,7 +90,7 @@ export class TaboolaClient {
         if (identities.length > 0) {
           taboolaRequests.push(
             this.request(
-              `https://backstage.taboola.com/backstage/api/1.0/${
+              `https://backstage.taboola.com/backstage/api/${TABOOLA_API_VERSION}/${
                 this.audienceSettings?.account_id as string
               }/audience_onboarding`,
               {
@@ -95,7 +98,8 @@ export class TaboolaClient {
                 json: {
                   operation: action as 'ADD' | 'REMOVE',
                   audience_id: Number(external_audience_id),
-                  identities
+                  identities,
+                  integration_source: 'segment.com'
                 } as TaboolaPayload
               }
             )

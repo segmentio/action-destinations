@@ -15,7 +15,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'API Key',
         description:
           'Voyage API key. You can create a new API key or find your existing API key in the Advanced section of your [Settings page](https://app.voyagetext.com/dashboard/settings/advanced).',
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

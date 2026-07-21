@@ -5,7 +5,8 @@ import { sendTrackPurchase, sendBatchedTrackPurchase } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Purchase',
-  description: 'Record purchases in Braze',
+  description:
+    'Records purchases in Braze. Consider using the **"Order Placed (beta)"** mapping instead, which uses Braze\'s newer, preferred method that maps to Braze\'s [Ecommerce Recommended Order Placed event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events/?tab=ecommerce.order_placed).',
   defaultSubscription: 'event = "Order Completed"',
   fields: {
     external_id: {

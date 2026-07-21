@@ -1,12 +1,13 @@
 import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import { uploadSFTP, validateSFTP, Client as ClientSFTP } from './sftp'
-import { generateFile } from '../operations'
+import { generateFile, enrichStatsContextWithMetadata } from '../operations'
 import { sendEventToAWS } from '../awsClient'
 import { LIVERAMP_MIN_RECORD_COUNT, LIVERAMP_LEGACY_FLOW_FLAG_NAME } from '../properties'
 
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { RawData, ExecuteInputRaw, ProcessDataInput } from '../operations'
+import { SubscriptionMetadata } from '@segment/actions-core/destination-kit'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Audience Entered (SFTP)',
@@ -62,7 +63,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     filename: {
       label: 'Filename',
-      description: `Name of the CSV file to upload for LiveRamp ingestion.`,
+      description: `Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.`,
       type: 'string',
       required: true,
       default: { '@template': '{{properties.audience_key}}_PII.csv' }
@@ -84,25 +85,41 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 50000
     }
   },
-  perform: async (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload, RawData>) => {
-    return processData({
-      request,
-      payloads: [payload],
-      features,
-      rawData: rawData ? [rawData] : []
-    })
+  perform: async (
+    request,
+    { payload, features, rawData, subscriptionMetadata, statsContext }: ExecuteInputRaw<Settings, Payload, RawData>
+  ) => {
+    return processData(
+      {
+        request,
+        payloads: [payload],
+        features,
+        rawData: rawData ? [rawData] : [],
+        statsContext
+      },
+      subscriptionMetadata
+    )
   },
-  performBatch: (request, { payload, features, rawData }: ExecuteInputRaw<Settings, Payload[], RawData[]>) => {
-    return processData({
-      request,
-      payloads: payload,
-      features,
-      rawData
-    })
+  performBatch: (
+    request,
+    { payload, features, rawData, subscriptionMetadata, statsContext }: ExecuteInputRaw<Settings, Payload[], RawData[]>
+  ) => {
+    return processData(
+      {
+        request,
+        payloads: payload,
+        features,
+        rawData,
+        statsContext
+      },
+      subscriptionMetadata
+    )
   }
 }
 
-async function processData(input: ProcessDataInput<Payload>) {
+async function processData(input: ProcessDataInput<Payload>, subscriptionMetadata?: SubscriptionMetadata) {
+  enrichStatsContextWithMetadata(input.statsContext, subscriptionMetadata)
+
   if (input.payloads.length < LIVERAMP_MIN_RECORD_COUNT) {
     throw new PayloadValidationError(
       `received payload count below LiveRamp's ingestion limits. expected: >=${LIVERAMP_MIN_RECORD_COUNT} actual: ${input.payloads.length}`
@@ -123,11 +140,15 @@ async function processData(input: ProcessDataInput<Payload>) {
     //------------
     // AWS FLOW
     // -----------
-    return sendEventToAWS(input.request, {
+    return sendEventToAWS({
       audienceComputeId: input.rawData?.[0].context?.personas?.computation_id,
       uploadType: 'sftp',
       filename,
       fileContents,
+      rowCount: input.payloads.length,
+      destinationInstanceID: subscriptionMetadata?.destinationConfigId,
+      subscriptionId: subscriptionMetadata?.actionConfigId,
+      gzipCompressFile: true, // Enabled for all by default
       sftpInfo: {
         sftpUsername: input.payloads[0].sftp_username,
         sftpPassword: input.payloads[0].sftp_password,

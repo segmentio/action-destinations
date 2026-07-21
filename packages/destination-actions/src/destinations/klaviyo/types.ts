@@ -1,5 +1,6 @@
 import { HTTPError } from '@segment/actions-core'
 import { Payload } from './upsertProfile/generated-types'
+import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kit/types'
 export class KlaviyoAPIError extends HTTPError {
   response: Response & {
     data: {
@@ -165,6 +166,7 @@ export interface SubscribeEventData {
   data: {
     type: string
     attributes: {
+      historical_import: boolean
       custom_source?: string | number
       profiles: {
         data: SubscribeProfile[]
@@ -186,6 +188,21 @@ export interface UnsubscribeProfile {
   attributes: {
     email?: string
     phone_number?: string
+    subscriptions: {
+      email?: {
+        marketing: {
+          consent: 'UNSUBSCRIBED'
+        }
+      }
+      sms?: {
+        marketing?: {
+          consent: 'UNSUBSCRIBED'
+        }
+        transactional?: {
+          consent: 'UNSUBSCRIBED'
+        }
+      }
+    }
   }
 }
 
@@ -206,10 +223,6 @@ export interface UnsubscribeEventData {
       }
     }
   }
-}
-
-export interface GroupedProfiles {
-  [listId: string]: Payload[]
 }
 
 export interface AdditionalAttributes {
@@ -236,4 +249,9 @@ export interface KlaviyoAPIErrorResponse {
 export interface KlaviyoProfile {
   type: string
   attributes: ProfileAttributes
+}
+
+export interface validateProfilePayloadResult {
+  payload?: Payload
+  error?: ActionDestinationErrorResponseType
 }

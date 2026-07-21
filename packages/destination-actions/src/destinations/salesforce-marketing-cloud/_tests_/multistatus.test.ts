@@ -200,6 +200,130 @@ describe('Multistatus', () => {
         errorreporter: 'DESTINATION'
       })
     })
+
+    it('should mark "Unable to save rows for data extension ID" error status as it is if additional error is present', async () => {
+      const errorResponse = {
+        status: 400,
+        message: 'Invalid keys for ID: HS1',
+        additionalErrors: [
+          {
+            errorcode: 10006,
+            message: 'Unable to save rows for data extension ID'
+          }
+        ]
+      }
+
+      nock(requestUrl).post('').reply(400, errorResponse)
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            id: '1234567890',
+            keys: {
+              id: 'HS1' // Valid key
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            id: '1234567890',
+            keys: {
+              id: 'HS2' // Invalid key
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('dataExtension', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+    })
+
+    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400 and message and code availble without additional error', async () => {
+      const errorResponse = {
+        status: 400,
+        message: 'Unable to save rows for data extension ID',
+        errorcode: 10006
+      }
+
+      nock(requestUrl).post('').reply(400, errorResponse)
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            id: '1234567890',
+            keys: {
+              id: 'HS1' // Valid key
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            id: '1234567890',
+            keys: {
+              id: 'HS2' // Invalid key
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('dataExtension', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 500,
+        errortype: 'INTERNAL_SERVER_ERROR',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 500,
+        errortype: 'INTERNAL_SERVER_ERROR',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+    })
+
     it('should handle multistatus errors and set correct status code', async () => {
       const errorResponse = {
         status: 429,
@@ -467,6 +591,133 @@ describe('Multistatus', () => {
       })
     })
 
+    it('should mark "Unable to save rows for data extension ID" error as retryable even if SFMC returns 400 and message and code availble without additional errors', async () => {
+      const errorResponse = {
+        status: 400,
+        message: 'Unable to save rows for data extension ID',
+        errorcode: 10006
+      }
+
+      nock(requestUrl).post('').reply(400, errorResponse)
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            id: '1234567890',
+            keys: {
+              contactKey: 'harry-1',
+              id: 'HS1'
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            id: '1234567890',
+            keys: {
+              contactKey: 'harry-2',
+              id: 'HS2'
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('contactDataExtension', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 500,
+        errortype: 'INTERNAL_SERVER_ERROR',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 500,
+        errortype: 'INTERNAL_SERVER_ERROR',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+    })
+
+    it('should mark "Unable to save rows for data extension ID" error status as it is if additional error is present', async () => {
+      const errorResponse = {
+        status: 400,
+        message: 'Invalid keys for ID: HS1',
+        additionalErrors: [
+          {
+            errorcode: 10006,
+            message: 'Unable to save rows for data extension ID'
+          }
+        ]
+      }
+
+      nock(requestUrl).post('').reply(400, errorResponse)
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-1',
+          properties: {
+            id: '1234567890',
+            keys: {
+              contactKey: 'harry-1',
+              id: 'HS1'
+            },
+            values: {
+              name: 'Harry Styles'
+            }
+          }
+        }),
+        createTestEvent({
+          type: 'track',
+          userId: 'harry-2',
+          properties: {
+            id: '1234567890',
+            keys: {
+              contactKey: 'harry-2',
+              id: 'HS2'
+            },
+            values: {
+              name: 'Harry Potter'
+            }
+          }
+        })
+      ]
+
+      const response = await testDestination.executeBatch('contactDataExtension', {
+        events,
+        settings,
+        mapping
+      })
+
+      expect(response[0]).toMatchObject({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+
+      expect(response[1]).toMatchObject({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage: 'Unable to save rows for data extension ID',
+        errorreporter: 'DESTINATION'
+      })
+    })
+
     it('should handle multistatus errors and set correct status code', async () => {
       const errorResponse = {
         status: 429,
@@ -548,6 +799,56 @@ describe('Multistatus', () => {
           }
         }
       })
+    })
+  })
+
+  it('should handle non-http error responses gracefully', async () => {
+    const errorResponse = {
+      message: 'Network Error',
+      code: 'ECONNREFUSED'
+    }
+
+    nock(requestUrl).post('').replyWithError(errorResponse)
+
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        type: 'track',
+        userId: 'harry-1',
+        properties: {
+          id: '1234567890',
+          keys: {
+            contactKey: 'harry-1',
+            id: 'HS1'
+          },
+          values: {
+            name: 'Harry Styles'
+          }
+        }
+      })
+    ]
+
+    const response = await testDestination.executeBatch('dataExtension', {
+      events,
+      settings,
+      mapping,
+      statsContext: {
+        statsClient: {
+          incr: jest.fn(),
+          histogram: jest.fn(),
+          set: jest.fn(),
+          _tags: jest.fn(),
+          observe: jest.fn(),
+          _name: jest.fn()
+        },
+        tags: []
+      }
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 500,
+      errortype: 'INTERNAL_SERVER_ERROR',
+      errormessage:
+        'request to https://test123.rest.marketingcloudapis.com/hub/v1/dataevents/1234567890/rowset failed, reason: Network Error'
     })
   })
 })

@@ -23,7 +23,7 @@ describe('Wisepops.trackGoal', () => {
         },
         goalRevenue: {
           '@path': '$.properties.revenue'
-        },
+        }
       }
     }
   ]
@@ -32,7 +32,7 @@ describe('Wisepops.trackGoal', () => {
     const [trackGoal] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
-    })
+    } as any)
     expect(trackGoal).toBeDefined()
 
     await trackGoal.load(Context.system(), {} as Analytics)
@@ -46,7 +46,7 @@ describe('Wisepops.trackGoal', () => {
         revenue: 15
       }
     })
-    trackGoal.track?.(context)
+    await trackGoal.track?.(context)
 
     expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'Order Completed', 15])
   })
@@ -55,7 +55,7 @@ describe('Wisepops.trackGoal', () => {
     const [trackGoal] = await wisepopsDestination({
       websiteId: '1234567890',
       subscriptions
-    })
+    } as any)
     expect(trackGoal).toBeDefined()
 
     await trackGoal.load(Context.system(), {} as Analytics)
@@ -69,8 +69,8 @@ describe('Wisepops.trackGoal', () => {
         revenue: 15
       }
     })
-    trackGoal.track?.(context)
+    await trackGoal.track?.(context)
 
-    expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'yhqnj9RTF3Fk6TnTmRW6vhxiugipbUKc', {revenue: 15}])
+    expect(window.wisepops.q.push).toHaveBeenCalledWith(['goal', 'yhqnj9RTF3Fk6TnTmRW6vhxiugipbUKc', { revenue: 15 }])
   })
 })

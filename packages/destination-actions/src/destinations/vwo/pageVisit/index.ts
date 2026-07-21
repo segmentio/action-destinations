@@ -1,7 +1,7 @@
 import { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {formatPayload, hosts} from '../utility'
+import { formatPayload, hosts, sanitiseEventName } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page Visit',
@@ -64,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   defaultSubscription: 'type = "page"',
   perform: (request, { settings, payload }) => {
-    const eventName = 'vwo_pageView'
+    const eventName = sanitiseEventName('pageView')
     const { headers, structuredPayload } = formatPayload(
       eventName,
       payload,
@@ -74,7 +74,7 @@ const action: ActionDefinition<Settings, Payload> = {
       settings.vwoAccountId
     )
     structuredPayload.d.event.props['url'] = payload.url
-    const region = settings.region || "US"
+    const region = settings.region || 'US'
     const host = hosts[region]
     const endpoint = `${host}/events/t?en=${eventName}&a=${settings.vwoAccountId}`
     return request(endpoint, {

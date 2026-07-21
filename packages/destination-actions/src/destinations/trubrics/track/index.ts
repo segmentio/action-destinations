@@ -1,6 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { Settings } from '../generated-types'
+import { sendRequest } from './utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -14,31 +15,10 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Name',
       default: { '@path': '$.event' }
     },
-    properties: {
-      type: 'object',
-      required: false,
-      description: 'Properties to send with the event',
-      label: 'Event properties',
-      default: { '@path': '$.properties' }
-    },
-    traits: {
-      type: 'object',
-      required: false,
-      description: 'user properties to send with the event',
-      label: 'User properties',
-      default: { '@path': '$.context.traits' }
-    },
-    context: {
-      type: 'object',
-      required: false,
-      description: 'Context properties to send with the event',
-      label: 'Context properties',
-      default: { '@path': '$.context' }
-    },
     timestamp: {
       type: 'string',
       format: 'date-time',
-      required: true,
+      required: false,
       description: 'The timestamp of the event',
       label: 'Timestamp',
       default: { '@path': '$.timestamp' }
@@ -50,6 +30,77 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'User ID',
       default: { '@path': '$.userId' }
     },
+    llm_properties: {
+      label: 'LLM Event Properties',
+      description: 'The properties associated with an LLM event',
+      type: 'object',
+      additionalProperties: false,
+      required: false,
+      defaultObjectUI: 'keyvalue:only',
+      properties: {
+        assistant_id: {
+          type: 'string',
+          required: false,
+          description: 'The LLM assistant ID (often the model name)',
+          label: 'LLM Assistant ID'
+        },
+        prompt: {
+          type: 'string',
+          required: false,
+          description: 'A user prompt to an LLM',
+          label: 'LLM User Prompt'
+        },
+        generation: {
+          type: 'string',
+          required: false,
+          description: 'An LLM assistant response',
+          label: 'LLM Assistant Generation'
+        },
+        thread_id: {
+          type: 'string',
+          required: false,
+          description: 'The thread/conversation ID of the LLM conversation.',
+          label: 'LLM Thread ID'
+        },
+        latency: {
+          type: 'number',
+          required: false,
+          description: 'The latency in seconds between the LLM prompt and generation',
+          label: 'LLM Latency'
+        }
+      },
+      default: {
+        assistant_id: {
+          '@path': '$.properties.$trubrics_assistant_id'
+        },
+        prompt: {
+          '@path': '$.properties.$trubrics_prompt'
+        },
+        generation: {
+          '@path': '$.properties.$trubrics_generation'
+        },
+        thread_id: {
+          '@path': '$.properties.$trubrics_thread_id'
+        },
+        latency: {
+          '@path': '$.properties.$trubrics_latency'
+        }
+      }
+    },
+    properties: {
+      type: 'object',
+      required: false,
+      description: 'Properties to send with the event',
+      label: 'Event properties',
+      default: { '@path': '$.properties' }
+    },
+    context: {
+      type: 'object',
+      required: false,
+      description: 'Context properties to send with the event',
+      label: 'Context properties',
+      default: { '@path': '$.context' }
+    },
     anonymous_id: {
       type: 'string',
       required: false,
@@ -58,29 +109,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: { '@path': '$.anonymousId' }
     }
   },
-  perform: (request, { settings, payload }) => {
-    const trubrics_properties = ['assistant_id', 'thread_id', 'text']
-
-    const modifiedProperties = Object.entries(payload.properties || {}).reduce((acc, [key, value]) => {
-      if (trubrics_properties.includes(key)) {
-        acc[`$${key}`] = value
-      } else {
-        acc[key] = value
-      }
-      return acc
-    }, {} as Record<string, unknown>)
-
-    return request(`https://${settings.url}/publish_event?project_api_key=${settings.apiKey}`, {
-      method: 'post',
-      json: {
-        event: payload.event,
-        properties: { ...modifiedProperties, ...payload.context },
-        traits: payload.traits,
-        timestamp: payload.timestamp,
-        user_id: payload.user_id || payload.anonymous_id // Trubrics currently requires user_id
-      }
-    })
-  }
+  perform: async (request, { settings, payload }) => await sendRequest(request, settings, [payload]),
+  performBatch: async (request, { settings, payload }) => await sendRequest(request, settings, payload)
 }
 
 export default action

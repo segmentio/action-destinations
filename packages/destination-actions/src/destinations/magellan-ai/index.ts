@@ -29,7 +29,7 @@ const destination: DestinationDefinition<Settings> = {
       apiToken: {
         label: 'API token',
         description: 'Required in order to pass GDPR deletion requests to Magellan AI',
-        type: 'string',
+        type: 'password',
         required: false
       }
     }

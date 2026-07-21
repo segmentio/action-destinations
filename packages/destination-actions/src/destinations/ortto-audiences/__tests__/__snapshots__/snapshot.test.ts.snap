@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-ortto-audiences destination: syncAudience action - all fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "rOxF$I97!M",
+    "audience": Object {
+      "id": "rOxF$I97!M",
+      "mode": "remove",
+    },
+    "ip": "81.60.139.81",
+    "location": Object {
+      "city": "rOxF$I97!M",
+      "country": "rOxF$I97!M",
+      "post_code": "rOxF$I97!M",
+      "state": "rOxF$I97!M",
+    },
+    "message_id": "rOxF$I97!M",
+    "traits": Object {
+      "testType": "rOxF$I97!M",
+    },
+    "user_id": "rOxF$I97!M",
+  },
+]
+`;
+
+exports[`Testing snapshot for actions-ortto-audiences destination: syncAudience action - required fields 1`] = `
+Array [
+  Object {
+    "anonymous_id": "rOxF$I97!M",
+    "audience": Object {
+      "id": "rOxF$I97!M",
+      "mode": "remove",
+    },
+    "message_id": "rOxF$I97!M",
+    "traits": Object {
+      "testType": "rOxF$I97!M",
+    },
+    "user_id": "rOxF$I97!M",
+  },
+]
+`;

@@ -25,4 +25,8 @@ export interface Payload {
   data?: {
     [k: string]: unknown
   }
+  /**
+   * The mapping keys to batch events together by.
+   */
+  batch_keys?: string[]
 }

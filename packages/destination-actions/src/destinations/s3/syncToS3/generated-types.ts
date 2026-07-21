@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * Column write to the S3 CSV file.
+   * Column to write to the S3 CSV file.
    */
   columns: {
     /**
@@ -113,4 +113,8 @@ export interface Payload {
    * File extension for the uploaded file.
    */
   file_extension: string
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
 }

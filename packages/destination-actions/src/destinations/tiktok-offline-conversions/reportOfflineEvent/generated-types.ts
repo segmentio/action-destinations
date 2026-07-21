@@ -14,11 +14,11 @@ export interface Payload {
    */
   timestamp?: string
   /**
-   * A single phone number or array of phone numbers in E.164 standard format. Segment will hash this value before sending to TikTok. At least one phone number value is required if both Email and External ID fields are empty.
+   * A single phone number or array of phone numbers in E.164 standard format. At least one phone number value is required if both Email and External ID fields are empty.
    */
   phone_numbers?: string[]
   /**
-   * A single email address or an array of email addresses. Segment will hash this value before sending to TikTok. At least one email value is required if both Phone Number and External ID fields are empty.
+   * A single email address or an array of email addresses. At least one email value is required if both Phone Number and External ID fields are empty.
    */
   email_addresses?: string[]
   /**
@@ -30,7 +30,7 @@ export interface Payload {
    */
   shop_id?: string
   /**
-   * Uniquely identifies the user who triggered the conversion event. Segment will hash this value before sending to TikTok. TikTok Offline Conversions Destination supports both string and string[] types for sending external ID(s). At least one external ID value is required if both Email and Phone Number fields are empty.
+   * Uniquely identifies the user who triggered the conversion event. TikTok Offline Conversions Destination supports both string and string[] types for sending external ID(s). At least one external ID value is required if both Email and Phone Number fields are empty.
    */
   external_ids?: string[]
   /**

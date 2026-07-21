@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { TopsortAPIClient } from '../client'
+import { NormalizeDeviceType } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Purchase',
@@ -61,6 +62,12 @@ const action: ActionDefinition<Settings, Payload> = {
           description: 'Count of products purchased.',
           type: 'integer',
           required: false
+        },
+        vendorId: {
+          label: 'Vendor ID',
+          description: 'The vendor ID of the product being purchased.',
+          type: 'string',
+          required: false
         }
       },
       default: {
@@ -69,14 +76,51 @@ const action: ActionDefinition<Settings, Payload> = {
           {
             productId: { '@path': '$.product_id' },
             unitPrice: { '@path': '$.price' },
-            quantity: { '@path': '$.quantity' }
+            quantity: { '@path': '$.quantity' },
+            vendorId: {
+              '@if': {
+                exists: { '@path': '$.vendorId' },
+                then: { '@path': '$.vendorId' },
+                else: { '@path': '$.brand' }
+              }
+            }
           }
         ]
+      }
+    },
+    deviceType: {
+      label: 'Device Type',
+      description: 'The device the user is on.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.device.type'
+      }
+    },
+    channel: {
+      label: 'Channel',
+      description: 'The channel where the event occurred.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.properties.channel'
       }
     }
   },
   perform: (request, { payload, settings }) => {
     const client = new TopsortAPIClient(request, settings)
+
+    if (settings.skipZeroPricePurchases) {
+      const filteredItems = payload.items.filter((item) => item.unitPrice != null && item.unitPrice > 0)
+
+      if (filteredItems.length === 0) {
+        return
+      }
+
+      payload.items = filteredItems
+    }
+
+    payload.deviceType = NormalizeDeviceType(payload.deviceType)
     return client.sendEvent({
       purchases: [payload]
     })

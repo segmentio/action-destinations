@@ -1,14 +1,18 @@
-import { IntegrationError, RequestClient, StatsContext, HTTPError } from '@segment/actions-core'
+import { IntegrationError, RequestClient, StatsContext, HTTPError, AudienceMembership, PayloadValidationError } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
+import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
 
 import {
   UserIdType,
   UpdateUsersDataRequest,
-  UserDataOperation,
+  UpdateUsersDataRequestSchema,
+  UserDataOperationSchema,
   UpdateUsersDataResponse,
-  ErrorCode
+  ErrorCode,
+  UpdateUsersDataResponseSchema
 } from './proto/protofile'
+import { Payload as SyncPayload } from './syncAudience/generated-types'
 
 import { ListOperation, UpdateHandlerPayload, UserOperation } from './types'
 import type { AudienceSettings } from './generated-types'
@@ -122,12 +126,11 @@ export const bulkUploaderResponseHandler = async (
     throw new IntegrationError(`Something went wrong unpacking the protobuf response`, 'INVALID_REQUEST_DATA', 400)
   }
 
-  const responseHandler = new UpdateUsersDataResponse()
   const buffer = await response.arrayBuffer()
   const protobufResponse = Buffer.from(buffer)
 
-  const r = responseHandler.fromBinary(protobufResponse)
-  const errorCode = r.status as ErrorCode
+  const r = fromBinary(UpdateUsersDataResponseSchema, protobufResponse)
+  const errorCode = r.status
   const errorCodeString = ErrorCode[errorCode] || 'UNKNOWN_ERROR'
 
   if (errorCodeString === 'NO_ERROR' || response.status === 200) {
@@ -150,7 +153,7 @@ export const createUpdateRequest = (
   payload: UpdateHandlerPayload[],
   operation: 'add' | 'remove'
 ): UpdateUsersDataRequest => {
-  const updateRequest = new UpdateUsersDataRequest()
+  const updateRequest = create(UpdateUsersDataRequestSchema, {})
 
   payload.forEach((p) => {
     const rawOps = assembleRawOps(p, operation)
@@ -159,7 +162,7 @@ export const createUpdateRequest = (
     // That means that if google_gid, mobile_advertising_id, and anonymous_id are all present, we will create 3 operations.
     // This emulates the legacy behavior of the DV360 destination.
     rawOps.forEach((rawOp) => {
-      const op = new UserDataOperation({
+      const op = create(UserDataOperationSchema, {
         userId: rawOp.UserId,
         userIdType: rawOp.UserIdType,
         userListId: BigInt(rawOp.UserListId),
@@ -186,7 +189,7 @@ export const sendUpdateRequest = async (
   statsName: string,
   statsContext: StatsContext | undefined
 ) => {
-  const binaryOperation = updateRequest.toBinary()
+  const binaryOperation = toBinary(UpdateUsersDataRequestSchema, updateRequest)
 
   try {
     const response = await request(USER_UPLOAD_ENDPOINT, {
@@ -198,11 +201,7 @@ export const sendUpdateRequest = async (
     await bulkUploaderResponseHandler(response, statsName, statsContext)
   } catch (error) {
     if ((error as HTTPError).response?.status === 500) {
-      throw new IntegrationError(
-        (error as unknown as any).response?.message ?? (error as HTTPError).message,
-        'INTERNAL_SERVER_ERROR',
-        500
-      )
+      throw new IntegrationError(error.response?.message ?? (error as HTTPError).message, 'INTERNAL_SERVER_ERROR', 500)
     }
 
     await bulkUploaderResponseHandler((error as HTTPError).response, statsName, statsContext)
@@ -228,5 +227,58 @@ export const handleUpdate = async (
 
   return {
     status: 200
+  }
+}
+
+
+export const syncAudience = async (
+  request: RequestClient,
+  payload: SyncPayload[],
+  statsContext: StatsContext | undefined,
+  audienceMemberships: AudienceMembership[] | undefined
+) => {
+  validateMembership(payload, audienceMemberships)
+
+  const addPayloads: SyncPayload[] = []
+  const removePayloads: SyncPayload[] = []
+
+  payload.forEach((p, index) => {
+    if (audienceMemberships?.[index] === true) {
+      addPayloads.push(p)
+    } else if (audienceMemberships?.[index] === false) {
+      removePayloads.push(p)
+    }
+  })
+
+  const addRequest = addPayloads.length > 0 ? createUpdateRequest(addPayloads, 'add') : undefined
+
+  if (addRequest && addRequest.ops.length > 0) {
+    await sendUpdateRequest(request, addRequest, 'syncAudience.add', statsContext)
+  }
+
+  const deleteRequest = removePayloads.length > 0 ? createUpdateRequest(removePayloads, 'remove') : undefined
+
+  if (deleteRequest && deleteRequest.ops.length > 0) {
+    await sendUpdateRequest(request, deleteRequest, 'syncAudience.remove', statsContext)
+  }
+
+  if ((!addRequest || addRequest.ops.length === 0) && (!deleteRequest || deleteRequest.ops.length === 0)) {
+    statsContext?.statsClient.incr('syncAudience.discard', 1, statsContext?.tags)
+  }
+
+  return {
+    status: 200
+  }
+}
+
+export const validateMembership = (payloads: SyncPayload[], audienceMemberships: AudienceMembership[] | undefined) => {
+  if (!Array.isArray(audienceMemberships)) {
+    throw new PayloadValidationError('Audience Memberships must be an array')
+  }
+  if (audienceMemberships.length !== payloads.length) {
+    throw new PayloadValidationError('Audience Memberships length must match payloads length')
+  }
+  if (audienceMemberships.some((membership) => typeof membership !== 'boolean')) {
+    throw new PayloadValidationError('Audience Membership must be a boolean')
   }
 }

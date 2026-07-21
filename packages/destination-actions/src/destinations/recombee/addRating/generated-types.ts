@@ -22,6 +22,12 @@ export interface Payload {
    */
   recommId?: string
   /**
+   * Internal additional data to be stored with the rating.
+   */
+  internalAdditionalData?: {
+    [k: string]: unknown
+  }
+  /**
    * Additional data to be stored with the rating. *Keep this field empty unless instructed by the Recombee Support team.*
    */
   additionalData?: {

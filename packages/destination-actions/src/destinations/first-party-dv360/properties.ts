@@ -26,7 +26,8 @@ export const emails: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.emails'
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const phoneNumbers: InputField = {
@@ -35,7 +36,8 @@ export const phoneNumbers: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.phoneNumbers'
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const zipCodes: InputField = {
@@ -53,7 +55,8 @@ export const firstName: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.firstName'
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const lastName: InputField = {
@@ -62,7 +65,8 @@ export const lastName: InputField = {
   type: 'string',
   default: {
     '@path': '$.context.traits.lastName'
-  }
+  },
+  category: 'hashedPII'
 }
 
 export const countryCode: InputField = {
@@ -82,6 +86,7 @@ export const mobileDeviceIds: InputField = {
     '@path': '$.context.traits.mobileDeviceIds'
   }
 }
+
 export const enable_batching: InputField = {
   label: 'Enable Batching',
   description: 'Enable batching of requests.',

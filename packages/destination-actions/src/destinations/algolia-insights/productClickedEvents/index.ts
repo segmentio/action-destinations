@@ -41,7 +41,7 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
     },
     position: {
       label: 'Position',
-      description: 'Position of the click in the list of Algolia search results.',
+      description: 'Position of the click in the list of Algolia search results. Positions should start from 1, not 0.',
       type: 'integer',
       required: false,
       default: {
@@ -51,15 +51,22 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
     userToken: {
       type: 'string',
       required: true,
-      description: 'The ID associated with the user.',
+      description:
+        'The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token',
       label: 'User Token',
       default: {
         '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
+          exists: { '@path': '$.anonymousId' },
+          then: { '@path': '$.anonymousId' },
+          else: { '@path': '$.userId' }
         }
       }
+    },
+    authenticatedUserToken: {
+      type: 'string',
+      description: 'The authenticated ID associated with the user.',
+      label: 'Authenticated User Token',
+      default: { '@path': '$.userId' }
     },
     timestamp: {
       type: 'string',
@@ -108,7 +115,8 @@ export const productClickedEvents: ActionDefinition<Settings, Payload> = {
       queryID: data.payload.queryID,
       objectIDs: [data.payload.objectID],
       userToken: data.payload.userToken,
-      positions: data.payload.position ? [data.payload.position] : undefined,
+      authenticatedUserToken: data.payload.authenticatedUserToken,
+      positions: data.payload.position != null ? [data.payload.position] : undefined,
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined
     }
     const insightPayload = { events: [insightEvent] }

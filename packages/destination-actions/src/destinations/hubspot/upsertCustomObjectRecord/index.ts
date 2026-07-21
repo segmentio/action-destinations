@@ -21,6 +21,7 @@ import {
 import { ModifiedResponse } from '@segment/actions-core'
 import { HTTPError } from '@segment/actions-core'
 import { Hubspot } from '../api'
+import { HUBSPOT_CRM_API_VERSION, HUBSPOT_CRM_ASSOCIATIONS_API_VERSION } from '../versioning-info'
 
 interface ObjectSchema {
   labels: { singular: string; plural: string }
@@ -65,7 +66,9 @@ const action: ActionDefinition<Settings, Payload> = {
         'The CRM object schema to use for creating a record. This can be a standard object (i.e. tickets, deals) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).',
       type: 'string',
       required: true,
-      dynamic: true
+      dynamic: true,
+      allowNull: false,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     properties: {
       label: 'Properties',
@@ -88,7 +91,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The CRM object schema to use for associating a record. This can be a standard object (i.e. tickets, deals, contacts, companies) or ***fullyQualifiedName*** of a custom object. Schema for the Custom Objects must be predefined in HubSpot. More information on Custom Objects and *fullyQualifiedName* in [HubSpot documentation](https://developers.hubspot.com/docs/api/crm/crm-custom-objects#retrieve-existing-custom-objects).',
       type: 'string',
-      dynamic: true
+      dynamic: true,
+      disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
     },
     associationLabel: {
       label: 'Association Label',
@@ -198,10 +202,13 @@ async function getCustomObjects(
   try {
     // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
     //
-    const response = await request<GetSchemasResponse>(`${HUBSPOT_BASE_URL}/crm/v3/schemas?archived=false`, {
-      method: 'GET',
-      skipResponseCloning: true
-    })
+    const response = await request<GetSchemasResponse>(
+      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas?archived=false`,
+      {
+        method: 'GET',
+        skipResponseCloning: true
+      }
+    )
     const choices = response.data.results
       .filter((res) => res.fullyQualifiedName != objectType)
       .map((schema) => ({
@@ -227,7 +234,7 @@ async function getAssociationLabel(request: RequestClient, payload: Payload) {
     // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
     //
     const response = await request<GetAssociationLabelResponse>(
-      `${HUBSPOT_BASE_URL}/crm/v4/associations/${payload.objectType}/${payload.toObjectType}/labels`,
+      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/associations/${payload.objectType}/${payload.toObjectType}/labels`,
       {
         method: 'GET',
         skipResponseCloning: true

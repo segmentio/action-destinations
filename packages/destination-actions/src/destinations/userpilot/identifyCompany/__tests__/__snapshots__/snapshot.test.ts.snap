@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Userpilot's identifyCompany destination action: all fields 1`] = `
+Object {
+  "company_id": "%F6H5r8FNR",
+  "metadata": Object {
+    "created_at": "2021-02-01T00:00:00.000Z",
+    "testType": "%F6H5r8FNR",
+  },
+}
+`;
+
+exports[`Testing snapshot for Userpilot's identifyCompany destination action: required fields 1`] = `
+Object {
+  "company_id": "%F6H5r8FNR",
+  "metadata": Object {},
+}
+`;

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Qualified's upsertLead destination action: all fields 1`] = `
+Object {
+  "email": "wufuodo@coobjoz.cy",
+  "fields": Object {
+    "company": "b^ZE5KVU!OFhk4oxln",
+    "custom_bool_1": true,
+    "custom_bool_2": false,
+    "custom_field_1": "value1",
+    "custom_field_2": "value2",
+    "custom_number_1": 123,
+    "custom_number_2": 456.78,
+    "name": "b^ZE5KVU!OFhk4oxln",
+    "phone": "b^ZE5KVU!OFhk4oxln",
+  },
+}
+`;
+
+exports[`Testing snapshot for Qualified's upsertLead destination action: required fields 1`] = `
+Object {
+  "email": "wufuodo@coobjoz.cy",
+  "fields": Object {},
+}
+`;

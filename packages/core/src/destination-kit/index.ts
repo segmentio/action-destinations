@@ -1,5 +1,5 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
-import { EventEmitterSlug } from '@segment/action-emitters'
+import { EventEmitterSlug } from './event-emitter-types'
 import type { JSONSchema4 } from 'json-schema'
 import {
   Action,
@@ -71,8 +71,9 @@ export interface BaseDefinition {
    * The mode of the destination
    * 'cloud' mode is made up of actions that run server-side, but can also have device-mode enrichment actions
    * 'device' mode is made up of actions that run in the browser
+   * 'warehouse' is for segment internal use only
    */
-  mode: 'cloud' | 'device'
+  mode: 'cloud' | 'device' | 'warehouse'
 
   /** A human-friendly description of the destination  */
   description?: string
@@ -181,6 +182,17 @@ export interface DestinationDefinition<Settings = unknown> extends BaseDefinitio
 
   /** Optional authentication configuration */
   authentication?: AuthenticationScheme<Settings>
+
+  onDelete?: Deletion<Settings>
+}
+
+export interface WarehouseDestinationDefinition<Settings = unknown> extends BaseDefinition {
+  mode: 'warehouse'
+
+  /** Actions */
+  actions: Record<string, ActionDefinition<Settings>>
+
+  settings: Record<string, GlobalSetting>
 
   onDelete?: Deletion<Settings>
 }
@@ -310,6 +322,7 @@ interface EventInput<Settings> {
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
 }
 
 interface BatchEventInput<Settings> {
@@ -327,6 +340,7 @@ interface BatchEventInput<Settings> {
   readonly transactionContext?: TransactionContext
   readonly stateContext?: StateContext
   readonly subscriptionMetadata?: SubscriptionMetadata
+  readonly signal?: AbortSignal
 }
 
 export interface DecoratedResponse extends ModifiedResponse {
@@ -347,6 +361,7 @@ interface OnEventOptions {
   /** Handler to perform synchronization. If set, the refresh access token method will be synchronized across
    * all events across multiple instances of the destination using the same account for a given source*/
   synchronizeRefreshAccessToken?: () => Promise<void>
+  signal?: AbortSignal
 }
 
 /** Transaction variables and setTransaction method are passed from mono service for few Segment built integrations.
@@ -608,7 +623,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       logger,
       engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      signal
     }: EventInput<Settings>
   ): Promise<Result[]> {
     const action = this.actions[actionSlug]
@@ -629,11 +645,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       auth,
       features,
       statsContext,
+      personasContext: event.context?.personas as Personas | undefined,
       logger,
       engageDestinationCache,
       transactionContext,
       stateContext,
-      subscriptionMetadata
+      subscriptionMetadata,
+      signal
     })
   }
 
@@ -650,7 +668,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       logger,
       engageDestinationCache,
       transactionContext,
-      stateContext
+      stateContext,
+      signal
     }: BatchEventInput<Settings>
   ) {
     const action = this.actions[actionSlug]
@@ -672,11 +691,14 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       auth,
       features,
       statsContext,
+      // All events in a batch share the same personas context because batching is keyed on audience/computation.
+      personasContext: events[0]?.context?.personas as Personas | undefined,
       logger,
       engageDestinationCache,
       transactionContext,
       stateContext,
-      subscriptionMetadata
+      subscriptionMetadata,
+      signal
     })
   }
 
@@ -706,6 +728,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
   ): Promise<Result[]> {
     const isBatch = Array.isArray(events)
 
+    if (options?.statsContext?.tags !== undefined) {
+      options.statsContext.tags = [...options.statsContext.tags, `partnerAction:${subscription.partnerAction}`]
+    }
+
     const subscriptionStartedAt = time()
     const actionSlug = subscription.partnerAction
     const input = {
@@ -724,7 +750,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       /** Engage internal use only. DO NOT USE. */
       engageDestinationCache: options?.engageDestinationCache,
       transactionContext: options?.transactionContext,
-      stateContext: options?.stateContext
+      stateContext: options?.stateContext,
+      signal: options?.signal
     }
 
     let results: Result[] | null = null
@@ -742,13 +769,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           // Add datadog stats for events that are discarded by Actions
           options?.statsContext?.statsClient?.incr(
             'action.multistatus_discard',
-            (events as SegmentEvent[]).length,
+            events.length,
             options.statsContext?.tags
           )
 
           return [
             {
-              multistatus: Array((events as SegmentEvent[]).length).fill(response)
+              multistatus: Array(events.length).fill(response)
             }
           ]
         }
@@ -770,13 +797,13 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           // Add datadog stats for events that are discarded by Actions
           options?.statsContext?.statsClient?.incr(
             'action.multistatus_discard',
-            (events as SegmentEvent[]).length,
+            events.length,
             options.statsContext?.tags
           )
 
           return [
             {
-              multistatus: Array((events as SegmentEvent[]).length).fill(response)
+              multistatus: Array(events.length).fill(response)
             }
           ]
         }
@@ -784,7 +811,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
         return [{ output: response.errormessage }]
       }
 
-      const allEvents = (isBatch ? events : [events]) as SegmentEvent[]
+      const allEvents = isBatch ? events : [events]
 
       // Filter invalid events and record discards
       const subscribedEvents: SegmentEvent[] = []
@@ -938,10 +965,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const shouldRetry = async (response: any, attemptCount: number) => {
       const results = response as Result[]
-      /* 
+      /*
         Here, we iterate over results array. Each result in the array is a response from a single subscription.
-        However, we always execute one subscription at a time despite receiving an array of subscriptions as input. 
-        So, results array will always have a single result. 
+        However, we always execute one subscription at a time despite receiving an array of subscriptions as input.
+        So, results array will always have a single result.
         TODO: Get rid of onSubscriptions method to reflect execution model in the code accurately.
       */
       for (const result of results) {

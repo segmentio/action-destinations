@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description:
           "To obtain the API Key, go to the Iterable app and naviate to Integrations > API Keys. Create a new API Key with the 'Server-Side' type.",
@@ -93,10 +93,7 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Associated Entity Added',
       partnerAction: 'trackEvent',
       mapping: {
-        ...defaultValues(trackEvent.fields),
-        dataFields: {
-          '@path': '$.properties'
-        }
+        ...defaultValues(trackEvent.fields)
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_entity_added_track'
@@ -156,6 +153,18 @@ const destination: DestinationDefinition<Settings> = {
         ...defaultValues(trackEvent.fields),
         dataFields: {
           '@path': '$.properties'
+        }
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'updateUser',
+      mapping: {
+        ...defaultValues(updateUser.fields),
+        dataFields: {
+          '@path': '$.traits'
         }
       },
       type: 'specificEvent',

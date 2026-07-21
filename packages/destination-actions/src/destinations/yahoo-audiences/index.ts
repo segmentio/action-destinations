@@ -1,23 +1,24 @@
-import type { AudienceDestinationDefinition, ModifiedResponse } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { generate_jwt } from './utils-rt'
 import updateSegment from './updateSegment'
-import { gen_customer_taxonomy_payload, gen_segment_subtaxonomy_payload, update_taxonomy } from './utils-tax'
+import {
+  gen_customer_taxonomy_payload,
+  gen_segment_subtaxonomy_payload,
+  update_taxonomy,
+  get_taxonomy_access_token
+} from './utils-tax'
 type PersonasSettings = {
   computation_id: string
   computation_key: string
   parent_id: string
-}
-interface RefreshTokenResponse {
-  access_token: string
 }
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Yahoo Audiences',
   slug: 'actions-yahoo-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Yahoo Ads',
+  description: 'Sync users to Yahoo Ads',
   authentication: {
     scheme: 'oauth2',
     fields: {
@@ -80,21 +81,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         rt_client_secret = auth.clientSecret
       }
 
-      const jwt = generate_jwt(rt_client_key, rt_client_secret)
-      const res: ModifiedResponse<RefreshTokenResponse> = await request<RefreshTokenResponse>(
-        'https://id.b2b.yahooinc.com/identity/oauth2/access_token',
-        {
-          method: 'POST',
-          body: new URLSearchParams({
-            client_assertion: jwt,
-            client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
-            grant_type: 'client_credentials',
-            scope: 'audience',
-            realm: 'dataxonline'
-          })
-        }
-      )
-      const rt_access_token = res.data.access_token
+      // Use shared token fetching utility (handles prefixing, JWT generation, and token request)
+      const rt_access_token = await get_taxonomy_access_token(request, rt_client_key, rt_client_secret)
       return { accessToken: rt_access_token }
     }
   },
@@ -168,6 +156,36 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
   actions: {
     updateSegment
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'updateSegment',
+      mapping: defaultValues(updateSegment.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 export default destination

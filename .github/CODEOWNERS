@@ -6,28 +6,28 @@
 
 # Actions common lib folder
 
-actions-shared/ @segmentio/strategic-connections-team
+/packages/actions-shared/ @segmentio/strategic-connections-team
 
 # AJV utils
 
-ajv-human-errors/ @segmentio/strategic-connections-team
+/packages/ajv-human-errors/ @segmentio/strategic-connections-team
 
 # Browser destinations
 
-browser-destinations/ @segmentio/libraries-web-team @segmentio/strategic-connections-team
+/packages/browser-destinations/ @segmentio/libraries-web-team @segmentio/strategic-connections-team
 
 # CLI binary
 
-cli/ @segmentio/strategic-connections-team
+/packages/cli/ @segmentio/strategic-connections-team
 
 # Core actions runtime
 
-core/ @segmentio/strategic-connections-team
+/packages/core/ @segmentio/strategic-connections-team
 
 # Destination definitions and their actions
 
-destination-actions/ @segmentio/strategic-connections-team
+/packages/destination-actions/ @segmentio/strategic-connections-team
 
 # Utilities for event payload validation against an action's subscription AST.
 
-destination-subscriptions/ @segmentio/strategic-connections-team
+/packages/destination-subscriptions/ @segmentio/strategic-connections-team

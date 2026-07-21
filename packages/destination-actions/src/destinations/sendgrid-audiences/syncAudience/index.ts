@@ -7,23 +7,23 @@ import { dynamicCustomFields } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
-  description: 'Sync a Segment Engage Audience to a Sendgrid List',
+  description: 'Sync users to a Sendgrid List',
   defaultSubscription: 'type = "identify" or type = "track"',
   fields,
   dynamicFields: {
     custom_text_fields: {
       __keys__: async (request, { payload }) => {
-        return await dynamicCustomFields(request, payload, "Text")
+        return await dynamicCustomFields(request, payload, 'Text')
       }
     },
     custom_number_fields: {
       __keys__: async (request, { payload }) => {
-        return await dynamicCustomFields(request, payload, "Number")
+        return await dynamicCustomFields(request, payload, 'Number')
       }
     },
     custom_date_fields: {
       __keys__: async (request, { payload }) => {
-        return await dynamicCustomFields(request, payload, "Date")
+        return await dynamicCustomFields(request, payload, 'Date')
       }
     }
   },

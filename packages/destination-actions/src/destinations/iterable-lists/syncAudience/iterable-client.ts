@@ -1,7 +1,7 @@
-import { RequestClient, PayloadValidationError } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError, ModifiedResponse } from '@segment/actions-core'
 
 import { Settings, AudienceSettings } from '../generated-types'
-import { Unsubscriber, Subscriber } from '../types'
+import { Unsubscriber, Subscriber, IterableSubscribePayload, IterableUnsubscribePayload } from '../types'
 import { Payload } from './generated-types'
 
 import { CONSTANTS } from '../constants'
@@ -61,39 +61,41 @@ export class IterableListsClient {
       }
     })
 
-    const subcribeRequests = []
-    const unSubcribeRequests = []
+    const subscribeRequests: Promise<ModifiedResponse>[] = []
+    const unsubscribeRequests: Promise<ModifiedResponse>[] = []
 
     subscribersGroup.forEach((subscribers, listId) => {
-      subcribeRequests.push(
+      const json: IterableSubscribePayload = {
+        listId: Number(listId),
+        subscribers,
+        updateExistingUsersOnly: this.updateExistingUsersOnly
+      }
+      subscribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/subscribe`, {
           method: 'post',
           skipResponseCloning: true,
-          json: {
-            listId: Number(listId),
-            subscribers,
-            updateExistingUsersOnly: this.updateExistingUsersOnly
-          }
+          json
         })
       )
     })
 
     unsubscribersGroup.forEach((subscribers, listId) => {
-      unSubcribeRequests.push(
+      const json: IterableUnsubscribePayload = {
+        listId: Number(listId),
+        subscribers,
+        campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
+        channelUnsubscribe: this.globalUnsubscribe
+      }
+      unsubscribeRequests.push(
         this.request(`${CONSTANTS.API_BASE_URL}/lists/unsubscribe`, {
           method: 'post',
           skipResponseCloning: true,
-          json: {
-            listId: Number(listId),
-            subscribers,
-            campaignId: typeof this.campaignId === 'number' ? this.campaignId : undefined,
-            channelUnsubscribe: this.updateExistingUsersOnly
-          }
+          json
         })
       )
     })
 
-    return await Promise.all([...unsubscribersGroup, ...subscribersGroup])
+    return await Promise.all([...subscribeRequests, ...unsubscribeRequests])
   }
 
   static validate(payload: Payload) {

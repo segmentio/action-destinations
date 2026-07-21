@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for Dub's trackLead destination action: all fields 1`] = `
+Object {
+  "clickId": "tKeH&kQ)Z",
+  "customerAvatar": "tKeH&kQ)Z",
+  "customerEmail": "pa@fizlaj.gm",
+  "customerName": "tKeH&kQ)Z",
+  "eventName": "tKeH&kQ)Z",
+  "eventQuantity": -34005722081525.76,
+  "externalId": "tKeH&kQ)Z",
+  "metadata": Object {
+    "testType": "tKeH&kQ)Z",
+  },
+}
+`;
+
+exports[`Testing snapshot for Dub's trackLead destination action: required fields 1`] = `
+Object {
+  "clickId": "tKeH&kQ)Z",
+  "eventName": "tKeH&kQ)Z",
+  "externalId": "tKeH&kQ)Z",
+}
+`;

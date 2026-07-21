@@ -26,7 +26,7 @@ Object {
   "customer": Object {
     "city": "5aa34886f7f3741de8460690b636f4c8b7c2044df88e2e8adbb4f7e6f8534931",
     "click_id": "test_click_id",
-    "client_ip_address": "5feaf188de296cd3b17f7c66fd3a2aec9b694815f2b1180631f7b52f57029777",
+    "client_ip_address": "111.111.111.111",
     "country": "9b202ecbc6d45c6d8901d989a918878397a3eb9d00e8f48022fc051b19d21a1d",
     "date_of_birth": "c5cc05628d64ef65fa81b1fb6ed9cb4bd5dd8bf94d95a4fb9c1540b5adac00ed",
     "email": "f660ab912ec121d1b1e928a0bb4bc61b15f5ad44d5efdc4e1c92a25e99b8e44a",
@@ -40,9 +40,8 @@ Object {
   },
   "delivery_optimization": false,
   "event_id": "@SQ$NFo^ou^GY",
-  "event_name": "custom_conversion_7",
+  "event_name": "custom_conversion_8",
   "event_time": "@SQ$NFo^ou^GY",
-  "event_timezone": "@SQ$NFo^ou^GY",
   "partner_id": "segment",
   "test_event": "false",
 }
@@ -51,6 +50,7 @@ Object {
 exports[`Testing snapshot for actions-nextdoor-capi destination: sendConversion action - required fields 1`] = `
 Object {
   "action_source": "chat",
+  "action_source_url": "@SQ$NFo^ou^GY",
   "app": Object {},
   "client_id": "@SQ$NFo^ou^GY",
   "custom": Object {},
@@ -59,7 +59,7 @@ Object {
   },
   "delivery_optimization": false,
   "event_id": "@SQ$NFo^ou^GY",
-  "event_name": "custom_conversion_7",
+  "event_name": "custom_conversion_8",
   "event_time": "@SQ$NFo^ou^GY",
   "partner_id": "segment",
   "test_event": "false",

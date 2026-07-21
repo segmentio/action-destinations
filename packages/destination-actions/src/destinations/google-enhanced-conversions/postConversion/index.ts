@@ -12,6 +12,7 @@ import {
   formatRegion,
   cleanData
 } from './formatter'
+import { GOOGLE_ENHANCED_CONVERSIONS_EVENTS_API_VERSION } from '../versioning-info'
 
 interface GoogleError {
   status: string
@@ -158,7 +159,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.address.street' },
           else: { '@path': '$.traits.address.street' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     city: {
       label: 'City',
@@ -211,7 +213,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: async (request, { payload, settings }) => {
-    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API 
+    /* Enforcing this here since Conversion ID is required for the Enhanced Conversions API
     but not for the Google Ads API. */
     if (!settings.conversionTrackingId) {
       throw new PayloadValidationError(
@@ -252,7 +254,7 @@ const action: ActionDefinition<Settings, Payload> = {
     })
 
     try {
-      return await request('https://www.google.com/ads/event/api/v1', {
+      return await request(`https://www.google.com/ads/event/api/${GOOGLE_ENHANCED_CONVERSIONS_EVENTS_API_VERSION}`, {
         method: 'post',
         searchParams: {
           conversion_tracking_id: settings.conversionTrackingId

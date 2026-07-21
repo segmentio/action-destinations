@@ -1,7 +1,8 @@
-import type { AudienceDestinationDefinition } from '@segment/actions-core'
+import { defaultValues, AudienceDestinationDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { CreateAudienceReq, CreateAudienceResp } from './types'
+import { REDDIT_AUDIENCES_AUTH_API_VERSION } from './versioning-info'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Reddit Audiences',
@@ -20,7 +21,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     refreshAccessToken: async (request, { auth }) => {
       const authToken = Buffer.from(`${auth.clientId}:${auth.clientSecret}`).toString('base64')
 
-      const res = await request('https://www.reddit.com/api/v1/access_token', {
+      const res = await request(`https://www.reddit.com/api/${REDDIT_AUDIENCES_AUTH_API_VERSION}/access_token`, {
         method: 'POST',
         headers: {
           Authorization: `Basic ${authToken}`,
@@ -82,9 +83,40 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
+
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination

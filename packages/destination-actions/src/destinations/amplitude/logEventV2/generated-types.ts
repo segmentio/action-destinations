@@ -148,9 +148,22 @@ export interface Payload {
    */
   insert_id?: string
   /**
-   * The name of the library that generated the event.
+   * HIDDEN: The name of the library that generated the event.
    */
   library?: string
+  /**
+   * Specifies the "library" value to send to Amplitude. Select "Use Mapping" to set the value from the "Library Mapping" field. "Legacy Behaviour" sets the value to "segment".
+   */
+  library2?: {
+    /**
+     * Configure how to set the library value.
+     */
+    behavior?: string
+    /**
+     * The library value to send to Amplitude. Only used when the "Behavior" field is set to "Use Mapping".
+     */
+    mapping?: string
+  }
   /**
    * The list of products purchased.
    */
@@ -222,6 +235,10 @@ export interface Payload {
    * Enabling this setting will set the Device manufacturer, Device Model and OS Name properties based on the user agent string provided in the userAgent field.
    */
   userAgentParsing?: boolean
+  /**
+   * Enabling this setting will send user_agent based on the raw user agent string provided in the userAgent field
+   */
+  includeRawUserAgent?: boolean
   /**
    * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */

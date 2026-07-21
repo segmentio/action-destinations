@@ -55,7 +55,8 @@ describe('AlgoliaInsights.conversionEvents', () => {
     expect(algoliaEvent.eventType).toBe('conversion')
     expect(algoliaEvent.eventSubtype).toBe('purchase')
     expect(algoliaEvent.index).toBe(event.properties?.search_index)
-    expect(algoliaEvent.userToken).toBe(event.userId)
+    expect(algoliaEvent.userToken).toBe(event.anonymousId)
+    expect(algoliaEvent.authenticatedUserToken).toBe(event.userId)
     expect(algoliaEvent.objectIDs).toContain('9876')
     expect(algoliaEvent.objectIDs).toContain('5432')
   })
@@ -276,5 +277,74 @@ describe('AlgoliaInsights.conversionEvents', () => {
       expect(algoliaEvent.objectIDs).toEqual(['9876', '5432'])
       expect(algoliaEvent.objectData).toBeUndefined()
     })
+  })
+
+  it('should pass anonymousId as user token if present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [
+          {
+            product_id: '9876'
+          },
+          {
+            product_id: '5432'
+          }
+        ]
+      },
+      anonymousId: 'anon-user-1234'
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.userToken).toBe(event.anonymousId)
+  })
+
+  it('should pass userId as user token if anonymousId not present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [
+          {
+            product_id: '9876'
+          },
+          {
+            product_id: '5432'
+          }
+        ]
+      },
+      anonymousId: undefined,
+      userId: 'authed-user-1234'
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.userToken).toBe(event.userId)
+  })
+
+  it('should pass userId and anonymousId if present', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      event: 'Order Completed',
+      properties: {
+        query_id: '1234',
+        search_index: 'fashion_1',
+        products: [
+          {
+            product_id: '9876'
+          },
+          {
+            product_id: '5432'
+          }
+        ]
+      },
+      anonymousId: 'anon-user-1234',
+      userId: 'authed-user-1234'
+    })
+    const algoliaEvent = await testAlgoliaDestination(event)
+    expect(algoliaEvent.userToken).toBe(event.anonymousId)
+    expect(algoliaEvent.authenticatedUserToken).toBe(event.userId)
   })
 })

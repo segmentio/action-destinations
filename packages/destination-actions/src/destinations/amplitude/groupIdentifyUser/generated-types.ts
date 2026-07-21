@@ -2,11 +2,11 @@
 
 export interface Payload {
   /**
-   * A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. Required unless device ID is present.
+   * A UUID (unique user ID) specified by you. **Note:** If you send a request with a user ID that is not in the Amplitude system yet, then the user tied to that ID will not be marked new until their first event. If either user ID or device ID is present, an associate user to group call will be made.
    */
   user_id?: string | null
   /**
-   * A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. Required unless user ID is present.
+   * A device specific identifier, such as the Identifier for Vendor (IDFV) on iOS. If either user ID or device ID is present, an associate user to group call will be made.
    */
   device_id?: string
   /**
@@ -32,7 +32,7 @@ export interface Payload {
    */
   group_value: string
   /**
-   * Amplitude has a default minimum id lenght of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
+   * Amplitude has a default minimum id length of 5 characters for user_id and device_id fields. This field allows the minimum to be overridden to allow shorter id lengths.
    */
   min_id_length?: number | null
 }

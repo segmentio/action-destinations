@@ -17,7 +17,7 @@ const destination: DestinationDefinition<Settings> = {
     scheme: 'custom',
     fields: {
       apiKey: {
-        type: 'string',
+        type: 'password',
         label: 'API Key',
         description: 'Your Toplyne API Key',
         required: true

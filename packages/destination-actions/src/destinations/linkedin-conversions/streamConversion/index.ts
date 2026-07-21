@@ -3,10 +3,10 @@ import { ErrorCodes, IntegrationError, PayloadValidationError, InvalidAuthentica
 import type { Settings } from '../generated-types'
 import { LinkedInConversions } from '../api'
 import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
-import type { Payload, HookBundle } from './generated-types'
+import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
 
-const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
+const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   defaultSubscription: 'type = "track"',
@@ -140,13 +140,30 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
       performHook: async (request, { hookInputs, hookOutputs }) => {
         const linkedIn = new LinkedInConversions(request)
 
-        let hookReturn: ActionHookResponse<HookBundle['onMappingSave']['outputs']>
+        // Validate required fields when creating a new conversion rule
+        if (!hookInputs?.conversionRuleId && !hookOutputs?.onMappingSave?.outputs) {
+          const missingFields: string[] = []
+          if (!hookInputs?.name) missingFields.push('Name')
+          if (!hookInputs?.conversionType) missingFields.push('Conversion Type')
+          if (!hookInputs?.attribution_type) missingFields.push('Attribution Type')
+
+          if (missingFields.length > 0) {
+            return {
+              error: {
+                message: `Missing required fields for creating a new conversion rule: ${missingFields.join(', ')}`,
+                code: 'MISSING_REQUIRED_FIELD'
+              }
+            }
+          }
+        }
+
+        let hookReturn: ActionHookResponse<OnMappingSaveOutputs>
         if (hookOutputs?.onMappingSave?.outputs) {
           linkedIn.setConversionRuleId(hookOutputs.onMappingSave.outputs.id)
 
           hookReturn = await linkedIn.updateConversionRule(
             hookInputs,
-            hookOutputs.onMappingSave.outputs as HookBundle['onMappingSave']['outputs']
+            hookOutputs.onMappingSave.outputs as OnMappingSaveOutputs
           )
         } else {
           hookReturn = await linkedIn.createConversionRule(hookInputs)
@@ -223,7 +240,8 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
         'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
       type: 'string',
       required: false,
-      default: { '@path': '$.traits.email' }
+      default: { '@path': '$.traits.email' },
+      category: 'hashedPII'
     },
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
@@ -280,6 +298,14 @@ const action: ActionDefinition<Settings, Payload, undefined, HookBundle> = {
           required: false
         }
       }
+    },
+    externalIds: {
+      label: 'External ID',
+      description:
+        "An identifier your organization uses for the user. See [LinkedIn's documentation](https://learn.microsoft.com/en-us/linkedin/marketing/conversions/custom-matching-identifiers?view=li-lms-2025-08) for more details.",
+      type: 'string',
+      multiple: true,
+      required: false
     },
     enable_batching: {
       label: 'Enable Batching',

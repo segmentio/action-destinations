@@ -10,7 +10,7 @@ export interface Settings {
    */
   brokers: string
   /**
-   * Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For AWS IAM populated the 'AWS Access Key ID' and 'AWS Secret Key' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields
+   * Select the Authentication Mechanism to use. For SCRAM or PLAIN populate the 'Username' and 'Password' fields. For 'Client Certificate' populated the 'SSL Client Key' and 'SSL Client Certificate' fields
    */
   mechanism: string
   /**
@@ -36,7 +36,7 @@ export interface Settings {
   /**
    * Indicates if SSL should be enabled.
    */
-  ssl_enabled: boolean
+  ssl_enabled?: boolean
   /**
    * The Certificate Authority for your Kafka instance. Exclude the first and last lines from the file. i.e `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`.
    */
@@ -52,5 +52,5 @@ export interface Settings {
   /**
    * Whether to reject unauthorized CAs or not. This can be useful when testing, but is unadvised in Production.
    */
-  ssl_reject_unauthorized_ca: boolean
+  ssl_reject_unauthorized_ca?: boolean
 }

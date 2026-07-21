@@ -20,7 +20,7 @@ const destination: DestinationDefinition<Settings> = {
       apiKey: {
         label: 'API Key',
         description: 'API key for your Drip account. You can find this in your Drip account settings.',
-        type: 'string',
+        type: 'password',
         required: true
       }
     },
@@ -50,7 +50,8 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Basic ${settings.apiKey}`
+        Authorization: `Basic ${settings.apiKey}`,
+        'User-Agent': 'Segment (Actions)'
       }
     }
   },

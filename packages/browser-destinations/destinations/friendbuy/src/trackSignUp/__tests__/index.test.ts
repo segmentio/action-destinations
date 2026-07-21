@@ -39,7 +39,7 @@ describe('Friendbuy.trackSignUp', () => {
     const [trackSignUp] = await friendbuyDestination({
       merchantId,
       subscriptions
-    })
+    } as any)
     // console.log('trackSignUp', JSON.stringify(trackSignUp, null, 2), trackSignUp)
     expect(trackSignUp).toBeDefined()
 
@@ -67,7 +67,7 @@ describe('Friendbuy.trackSignUp', () => {
     })
     // console.log('context', JSON.stringify(context, null, 2))
 
-    trackSignUp.track?.(context)
+    await trackSignUp.track?.(context)
 
     // console.log('trackSignUp request', JSON.stringify(window.friendbuyAPI.push.mock.calls[0], null, 2))
     expect(window.friendbuyAPI?.push).toHaveBeenCalledWith([

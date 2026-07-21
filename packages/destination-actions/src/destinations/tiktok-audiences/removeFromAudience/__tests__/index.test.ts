@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL, TIKTOK_API_VERSION } from '../../constants'
+import { BASE_URL } from '../../constants'
+import { TIKTOK_AUDIENCES_API_VERSION } from '../../versioning-info'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -66,7 +67,7 @@ const updateUsersRequestBody = {
 
 describe('TiktokAudiences.removeFromAudience', () => {
   it('should succeed if audience id is valid', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
+    nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('removeFromAudience', {
@@ -108,7 +109,7 @@ describe('TiktokAudiences.removeFromAudience', () => {
       }
     })
 
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`)
+    nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/segment/mapping/`)
       .post(/.*/, {
         id_schema: ['EMAIL_SHA256', 'IDFA_SHA256'],
         advertiser_ids: [ADVERTISER_ID],
@@ -145,7 +146,7 @@ describe('TiktokAudiences.removeFromAudience', () => {
   })
 
   it('should fail if all the send fields are false', async () => {
-    nock(`${BASE_URL}${TIKTOK_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
+    nock(`${BASE_URL}${TIKTOK_AUDIENCES_API_VERSION}/segment/mapping/`).post(/.*/, updateUsersRequestBody).reply(200)
 
     await expect(
       testDestination.testAction('removeFromAudience', {

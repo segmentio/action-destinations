@@ -1,4 +1,9 @@
-import { validate } from '../functions/validation-functions'
+import {
+  mergeAndDeduplicateById,
+  validate,
+  ensureValidTimestamps,
+  deDuplicateAssociations
+} from '../functions/validation-functions'
 import { Payload } from '../generated-types'
 
 const payload: Payload = {
@@ -69,7 +74,7 @@ const expectedValidatedPayload: Payload[] = [
       date_prop: '2024-01-08',
       datetime_prop: '2024-01-08T13:52:50.212Z',
       num_prop: 123.45,
-      numberish_string_prop: 123.45,
+      numberish_string_prop: '123.45',
       obj_prop: '{"key1":"value1","key2":"value2"}',
       str_prop: 'Hello String!'
     },
@@ -80,16 +85,228 @@ const expectedValidatedPayload: Payload[] = [
       date_sprop: '2024-01-08',
       datetime_sprop: '2024-01-08T13:52:50.212Z',
       num_sprop: 123.45,
-      numberish_string_sprop: 123.45,
+      numberish_string_sprop: '123.45',
       obj_sprop: '{"key1":"value1","key2":"value2"}',
       str_sprop: 'Hello String!'
     }
   }
 ]
 
+const basePayload = (overrides: Partial<Payload> = {}) => ({
+  object_details: {
+    id_field_name: 'email',
+    id_field_value: 'user@example.com',
+    object_type: 'contact',
+    ...((overrides.object_details as object) || {})
+  },
+  association_sync_mode: 'upsert',
+  enable_batching: true,
+  batch_size: 100,
+  properties: { foo: 'bar' },
+  sensitive_properties: { secret: '123' },
+  timestamp: '2024-01-01T00:00:00.000Z',
+  ...overrides
+})
+
 describe('Hubspot.upsertObject', () => {
   it('validate function should ensure no leading or trailing spaces in properties sent to Hubspot', async () => {
     const validatedPayload = validate([payload])
     expect(validatedPayload).toEqual(expectedValidatedPayload)
+  })
+})
+
+describe('mergeAndDeduplicateById', () => {
+  it('returns empty array for empty input', () => {
+    expect(mergeAndDeduplicateById([])).toEqual([])
+  })
+
+  it('deduplicates payloads by id_field_value', () => {
+    const payloads: Payload[] = [
+      basePayload({ properties: { a: 1 }, timestamp: '2024-01-01T00:00:00.000Z' }),
+      basePayload({ properties: { b: 2 }, timestamp: '2024-01-02T00:00:00.000Z' })
+    ]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result).toHaveLength(1)
+    expect(result[0].properties).toEqual({ a: 1, b: 2 })
+    expect(result[0]).not.toHaveProperty('timestamp')
+  })
+
+  it('merges properties preferring latest timestamp', () => {
+    const payloads: Payload[] = [
+      basePayload({ properties: { foo: 'old', bar: 'keep' }, timestamp: '2024-01-01T00:00:00.000Z' }),
+      basePayload({ properties: { foo: 'new' }, timestamp: '2024-01-03T00:00:00.000Z' })
+    ]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result[0].properties).toEqual({ foo: 'new', bar: 'keep' })
+  })
+
+  it('merges sensitive_properties preferring latest timestamp', () => {
+    const payloads: Payload[] = [
+      basePayload({ sensitive_properties: { secret: 'old', keep: 'yes' }, timestamp: '2024-01-01T00:00:00.000Z' }),
+      basePayload({ sensitive_properties: { secret: 'new' }, timestamp: '2024-01-03T00:00:00.000Z' })
+    ]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result[0].sensitive_properties).toEqual({ secret: 'new', keep: 'yes' })
+  })
+
+  it('merges associations', () => {
+    const assoc1 = {
+      id_field_name: 'email',
+      id_field_value: 'user@example.com',
+      object_type: 'contact' as string,
+      association_label: 'primary'
+    }
+    const assoc2 = {
+      id_field_name: 'email',
+      id_field_value: 'user@example.com',
+      object_type: 'contact' as string,
+      association_label: 'secondary'
+    }
+    const payloads: Payload[] = [
+      basePayload({ associations: [assoc1], timestamp: '2024-01-01T00:00:00.000Z' }),
+      basePayload({ associations: [assoc2], timestamp: '2024-01-02T00:00:00.000Z' })
+    ]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result[0].associations).toHaveLength(2)
+    expect(result[0].associations).toEqual(expect.arrayContaining([assoc1, assoc2]))
+  })
+
+  it('handles multiple ids and returns merged payloads for each', () => {
+    const payloads: Payload[] = [
+      basePayload({
+        object_details: { id_field_name: 'email', id_field_value: 'a@example.com', object_type: 'contact' },
+        properties: { foo: 1 }
+      }),
+      basePayload({
+        object_details: { id_field_name: 'email', id_field_value: 'b@example.com', object_type: 'contact' },
+        properties: { bar: 2 }
+      })
+    ]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result).toHaveLength(2)
+    expect(result.map((r) => r.object_details.id_field_value).sort()).toEqual(['a@example.com', 'b@example.com'])
+  })
+
+  it('skips payloads without id_field_value', () => {
+    const payloads: Payload[] = [
+      basePayload({ object_details: { id_field_name: 'email', id_field_value: '', object_type: 'contact' } }),
+      basePayload({ object_details: { id_field_name: 'email', id_field_value: null as any, object_type: 'contact' } }),
+      basePayload({
+        object_details: { id_field_name: 'email', id_field_value: 'valid@example.com', object_type: 'contact' }
+      })
+    ]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result).toHaveLength(1)
+    expect(result[0].object_details.id_field_value).toBe('valid@example.com')
+  })
+
+  it('removes timestamp from final output', () => {
+    const payloads: Payload[] = [basePayload({ timestamp: '2024-01-01T00:00:00.000Z' })]
+    const result = mergeAndDeduplicateById(payloads)
+    expect(result[0]).not.toHaveProperty('timestamp')
+  })
+})
+
+describe('ensureValidTimestamps', () => {
+  it('should keep valid ISO string timestamps unchanged', () => {
+    const now = new Date().toISOString()
+    const payloads = [basePayload({ timestamp: now })]
+    const result = ensureValidTimestamps(payloads)
+    expect(result[0].timestamp).toBe(now)
+  })
+
+  it('should use valid timestamp from rawData if available', () => {
+    const validRawTimestamp = new Date('2023-01-01T00:00:00.000Z').toISOString()
+    const payloads: Payload[] = [basePayload({ timestamp: 'invalid-date' })]
+    const rawData: Payload[] = [basePayload({ timestamp: validRawTimestamp })]
+    const result = ensureValidTimestamps(payloads, rawData)
+    expect(result[0].timestamp).toBe(validRawTimestamp)
+    const ts = Date.parse(result[0].timestamp as string)
+    expect(ts).not.toBeNaN()
+  })
+
+  it('should fallback to current ISO string if rawData timestamp is invalid', () => {
+    const payloads: Payload[] = [basePayload({ timestamp: 'invalid-date' })]
+    const rawData: Payload[] = [basePayload({ timestamp: 'also-invalid' })]
+    const result = ensureValidTimestamps(payloads, rawData)
+    const ts = Date.parse(result[0].timestamp as string)
+    expect(ts).not.toBeNaN()
+  })
+})
+
+describe('deDuplicateAssociations', () => {
+  const createAssociationPayload = (id: string) => ({
+    object_details: {
+      object_type: 'contact',
+      id_field_name: 'email',
+      id_field_value: id,
+      from_record_id: 'from-123'
+    },
+    association_details: {
+      association_label: 'HUBSPOT_DEFINED:primary'
+    }
+  })
+
+  it('returns empty array when association groups is empty', () => {
+    expect(deDuplicateAssociations([])).toEqual([])
+  })
+
+  it('returns the same array when associations are unique within groups', () => {
+    const associationGroup1 = [createAssociationPayload('a@example.com'), createAssociationPayload('b@example.com')]
+    const associationGroup2 = [createAssociationPayload('c@example.com'), createAssociationPayload('d@example.com')]
+
+    const result = deDuplicateAssociations([associationGroup1, associationGroup2])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toHaveLength(2)
+    expect(result[1]).toHaveLength(2)
+  })
+
+  it('removes duplicate associations within each group', () => {
+    const assocPayload = createAssociationPayload('a@example.com')
+    const duplicateGroup = [assocPayload, { ...assocPayload }, { ...assocPayload }]
+
+    const result = deDuplicateAssociations([duplicateGroup])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toHaveLength(1)
+    expect(result[0][0]).toEqual(assocPayload)
+  })
+
+  it('keeps the last occurrence of a duplicate association within a group', () => {
+    const assoc1 = createAssociationPayload('a@example.com')
+    const assoc2 = {
+      ...createAssociationPayload('a@example.com'),
+      object_details: {
+        ...createAssociationPayload('a@example.com').object_details,
+        extra: 'last'
+      }
+    }
+
+    const associationGroup = [assoc1, assoc2]
+
+    const result = deDuplicateAssociations([associationGroup])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toHaveLength(1)
+    expect(result[0][0]).toEqual(assoc2)
+  })
+
+  it('handles multiple groups with different duplicates', () => {
+    const group1 = [
+      createAssociationPayload('a@example.com'),
+      createAssociationPayload('a@example.com') // duplicate
+    ]
+
+    const group2 = [
+      createAssociationPayload('b@example.com'),
+      createAssociationPayload('c@example.com'),
+      createAssociationPayload('c@example.com') // duplicate
+    ]
+
+    const result = deDuplicateAssociations([group1, group2])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toHaveLength(1) // deduped to 1
+    expect(result[0][0].object_details).toBe(group1[1].object_details)
+    expect(result[1]).toHaveLength(2) // deduped to 2
+    expect(result[1][0].object_details).toBe(group2[0].object_details)
+    expect(result[1][1].object_details).toBe(group2[2].object_details)
   })
 })

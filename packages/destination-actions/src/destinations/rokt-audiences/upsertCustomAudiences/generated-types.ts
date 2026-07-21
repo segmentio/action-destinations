@@ -10,9 +10,13 @@ export interface Payload {
    */
   segment_computation_action: string
   /**
-   * User's email address for including/excluding from custom audience
+   * User's email address to be included/excluded from the custom audience.  One of either email_sha256 or email must be specified.
    */
-  email: string
+  email?: string
+  /**
+   * User's SHA256-hashed email address to be included/excluded from the custom audience. One of either email_sha256 or email must be specified.
+   */
+  email_sha256?: string
   /**
    * Object which will be computed differently for track and identify events
    */

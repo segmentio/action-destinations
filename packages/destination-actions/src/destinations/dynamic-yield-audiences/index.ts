@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getCreateAudienceURL, hashAndEncodeToInt, getDataCenter, getSectionId } from './helpers'
@@ -18,10 +18,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     identifier_type: {
       type: 'string',
-      label: 'Identifier Type',
+      label: 'Segment Identifier Type (required)',
       required: true,
       description:
-        'The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
+        'The Segment identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.'
+    },
+    dy_identifier_type: {
+      type: 'string',
+      label: 'Dynamic Yield Identifier Type (optional)',
+      required: false,
+      description:
+        'The name of the identifier in Dynamic Yield by Mastercard. If you leave this empty, Segment will assume that the name of the identifier in Dynamic Yield by Mastercard matches the value specified in the "Segment Identifier Type" field.'
     }
   },
   authentication: {
@@ -80,11 +87,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
 
     async createAudience(request, createAudienceInput) {
-      const {
-        settings,
-        audienceSettings: { audience_name } = {},
-        personas
-      } = createAudienceInput
+      const { settings, audienceSettings: { audience_name } = {}, personas } = createAudienceInput
 
       if (!audience_name) {
         throw new IntegrationError('Missing Audience Name', 'MISSING_REQUIRED_FIELD', 400)
@@ -140,7 +143,41 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: {
+        ...defaultValues(syncAudience.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination

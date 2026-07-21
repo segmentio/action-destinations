@@ -10,7 +10,8 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { createHash } from 'crypto'
+import { processHashing } from '../../lib/hashing-utils'
+import { REDDIT_CONVERSIONS_API_VERSION } from './versioning-info'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
@@ -21,11 +22,14 @@ type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['sc
 
 export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
   const data = createRedditPayload(payload, settings)
-  return request(`https://ads-api.reddit.com/api/v2.0/conversions/events/${settings.ad_account_id}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${settings.conversion_token}` },
-    json: JSON.parse(JSON.stringify(data))
-  })
+  return request(
+    `https://ads-api.reddit.com/api/${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`,
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${settings.conversion_token}` },
+      json: JSON.parse(JSON.stringify(data))
+    }
+  )
 }
 
 function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
@@ -107,14 +111,15 @@ function getMetadata(
     item_count: cleanNum(metadata?.item_count),
     value_decimal: cleanNum(metadata?.value_decimal),
     products: getProducts(products),
-    conversion_id: hash(clean(conversion_id))
+    conversion_id: smartHash(conversion_id, (value) => value.trim())
   }
 }
 
 function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  return device_type === 'ios' ? { idfa: hash(advertising_id) } : { aaid: hash(advertising_id) }
+  const hashedAdId = smartHash(advertising_id)
+  return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
 function getDataProcessingOptions(
@@ -145,32 +150,48 @@ function getUser(
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hashEmail(clean(user.email)),
-    external_id: hash(clean(user.external_id)),
-    ip_address: hash(clean(user.ip_address)),
+    email: smartHash(user.email, canonicalizeEmail),
+    external_id: smartHash(user.external_id, (value) => value.trim()),
+    ip_address: smartHash(user.ip_address, (value) => value.trim()),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
-    screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width)
+    screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
+    phone_number: smartHash(user.phone_number, cleanPhoneNumber)
   }
 }
 
 function canonicalizeEmail(value: string): string {
+  value = value.trim()
   const localPartAndDomain = value.split('@')
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-function hashEmail(email: string | undefined): string | undefined {
-  if (email === undefined) return
-  const canonicalEmail = canonicalizeEmail(email)
-  return hash(canonicalEmail)
-}
-
-const hash = (value: string | undefined): string | undefined => {
+const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
   if (value === undefined) return
-  const hash = createHash('sha256')
-  hash.update(value)
-  return hash.digest('hex')
+  return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }
 
+function cleanPhoneNumber(phoneNumber: string): string {
+  if (!phoneNumber) return ''
+  phoneNumber = phoneNumber.trim()
+  const prefix = '+'
+  if (phoneNumber.startsWith('+')) {
+    phoneNumber = phoneNumber.slice(1)
+  }
+  // Remove any potential extensions from the number
+  const extensions = ['ext', 'x', 'anexo', '#', 'poste', 'int']
+  const lower = phoneNumber.toLowerCase()
+  for (const keyword of extensions) {
+    const index = lower.indexOf(keyword)
+    if (index !== -1) {
+      phoneNumber = phoneNumber.slice(0, index)
+      break
+    }
+  }
+  // Add the prefix and remove all non-numeric characters
+  const digitsOnly = phoneNumber.replace(/\D/g, '')
+
+  return prefix + digitsOnly
+}

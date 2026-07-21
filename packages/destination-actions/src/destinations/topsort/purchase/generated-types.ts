@@ -29,5 +29,17 @@ export interface Payload {
      * Count of products purchased.
      */
     quantity?: number
+    /**
+     * The vendor ID of the product being purchased.
+     */
+    vendorId?: string
   }[]
+  /**
+   * The device the user is on.
+   */
+  deviceType?: string
+  /**
+   * The channel where the event occurred.
+   */
+  channel?: string
 }

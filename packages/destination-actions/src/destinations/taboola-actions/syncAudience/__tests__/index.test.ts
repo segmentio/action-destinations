@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
 import Destination from '../../index'
+// eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
 
 const testDestination = createTestIntegration(Destination)
@@ -56,7 +57,8 @@ describe('Taboola.syncAudience', () => {
             }
           ]
         }
-      ]
+      ],
+      integration_source: 'segment.com'
     }
 
     nock('https://backstage.taboola.com')
@@ -242,7 +244,8 @@ describe('Taboola.syncAudience', () => {
             }
           ]
         }
-      ]
+      ],
+      integration_source: 'segment.com'
     }
 
     nock('https://backstage.taboola.com')

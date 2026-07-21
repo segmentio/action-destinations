@@ -1,4 +1,9 @@
-import { AudienceDestinationDefinition, InvalidAuthenticationError, IntegrationError } from '@segment/actions-core'
+import {
+  AudienceDestinationDefinition,
+  InvalidAuthenticationError,
+  IntegrationError,
+  defaultValues
+} from '@segment/actions-core'
 import type { RefreshTokenResponse, AmazonTestAuthenticationError } from './types'
 import type { Settings, AudienceSettings } from './generated-types'
 import {
@@ -9,6 +14,7 @@ import {
   REGEX_AUDIENCEID,
   TTL_MAX_VALUE
 } from './utils'
+import { AMAZON_AMC_AUTH_API_VERSION } from './versioning-info'
 
 import syncAudiencesToDSP from './syncAudiencesToDSP'
 
@@ -39,11 +45,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       try {
-        await request<RefreshTokenResponse>(`${settings.region}/v2/profiles`, {
+        await request<RefreshTokenResponse>(`${settings.region}/${AMAZON_AMC_AUTH_API_VERSION}/profiles`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 15000
         })
       } catch (e: any) {
         const error = e as AmazonTestAuthenticationError
@@ -203,7 +210,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         body: payloadString,
         headers: {
           'Content-Type': 'application/vnd.amcaudiences.v1+json'
-        }
+        },
+        timeout: 15000
       })
 
       const res = await response.text()
@@ -223,7 +231,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing audienceId value', 'MISSING_REQUIRED_FIELD', 400)
       }
       const response = await request(`${endpoint}/amc/audiences/metadata/${audience_id}`, {
-        method: 'GET'
+        method: 'GET',
+        timeout: 15000
       })
       const res = await response.text()
       // Regular expression to find a audienceId number and replace the audienceId with quoted string
@@ -235,7 +244,41 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudiencesToDSP
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: defaultValues(syncAudiencesToDSP.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: defaultValues(syncAudiencesToDSP.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: {
+        ...defaultValues(syncAudiencesToDSP.fields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export default destination

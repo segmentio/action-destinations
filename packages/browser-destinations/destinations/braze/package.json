@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-braze",
-  "version": "1.81.0",
+  "version": "1.118.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/braze"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -33,10 +38,10 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@braze/web-sdk": "npm:@braze/web-sdk@^4.1.0",
+    "@braze/web-sdk": "npm:@braze/web-sdk@^5",
     "@braze/web-sdk-v3": "npm:@braze/web-sdk@^3.5.1",
-    "@segment/actions-core": "^3.144.0",
-    "@segment/browser-destination-runtime": "^1.73.0"
+    "@segment/actions-core": "^3.173.0",
+    "@segment/browser-destination-runtime": "^1.102.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

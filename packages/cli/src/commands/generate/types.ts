@@ -142,8 +142,7 @@ export default class GenerateTypes extends Command {
 
       if (action.hooks) {
         const hooks: ActionHookDefinition<any, any, any, any, any> = action.hooks
-        let hookBundle = ''
-        const hookFields: Record<string, any> = {}
+
         for (const [hookName, hook] of Object.entries(hooks)) {
           if (!hookTypeStrings.includes(hookName as ActionHookType)) {
             throw new Error(`Hook name ${hookName} is not a valid ActionHookType`)
@@ -155,30 +154,16 @@ export default class GenerateTypes extends Command {
             continue
           }
 
-          const hookSchema = {
-            type: 'object',
-            required: true,
-            properties: {
-              inputs: {
-                label: `${hookName} hook inputs`,
-                type: 'object',
-                properties: inputs
-              },
-              outputs: {
-                label: `${hookName} hook outputs`,
-                type: 'object',
-                properties: outputs
-              }
-            }
+          if (inputs) {
+            const inputTypes = await generateTypes(inputs, `${hookName}Inputs`)
+            types += inputTypes
           }
-          hookFields[hookName] = hookSchema
+
+          if (outputs) {
+            const outputTypes = await generateTypes(outputs, `${hookName}Outputs`)
+            types += outputTypes
+          }
         }
-        hookBundle = await generateTypes(
-          hookFields,
-          'HookBundle',
-          `// Generated bundle for hooks. DO NOT MODIFY IT BY HAND.`
-        )
-        types += hookBundle
       }
 
       if (fs.pathExistsSync(path.join(parentDir, `${slug}`))) {

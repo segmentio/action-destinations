@@ -1,26 +1,30 @@
 import { enquoteIdentifier, generateFile, normalize } from '../operations'
 import type { Payload } from '../audienceEnteredSftp/generated-types'
-import { sha256SmartHash, sha1Hash } from '@segment/actions-core/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 
 describe('Test operations', () => {
   describe('hash', () => {
     it('produces consistent SHA-256 hash for a given input', () => {
       const input = 'test input'
-      expect(sha256SmartHash(input)).toBe('9dfe6f15d1ab73af898739394fd22fd72a03db01834582f24bb2e1c66c7aaeae')
+      expect(processHashing(input, 'sha256', 'hex')).toBe(
+        '9dfe6f15d1ab73af898739394fd22fd72a03db01834582f24bb2e1c66c7aaeae'
+      )
     })
   })
 
   describe('hashPhoneNumber', () => {
     it('produces consistent SHA-1 hash for a given phone number', () => {
       const phoneNumber = '123-456-7890'
-      expect(sha1Hash(phoneNumber)).toBe('d94cf047843c27e4ebf4495804dfb264a2181d45')
+      expect(processHashing(phoneNumber, 'sha1', 'hex')).toBe('d94cf047843c27e4ebf4495804dfb264a2181d45')
     })
   })
 
   describe('hashEmail', () => {
     it('produces consistent SHA-256 hash for a given email address', () => {
       const email = 'user@example.com'
-      expect(sha256SmartHash(email)).toBe('b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514')
+      expect(processHashing(email, 'sha256', 'hex')).toBe(
+        'b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514'
+      )
     })
   })
 
@@ -104,11 +108,11 @@ describe('Test operations', () => {
         }
       ]
       const normalizedName = normalize('name', 'John Doe')
-      const hashedName = sha256SmartHash(normalizedName)
+      const hashedName = processHashing(normalizedName, 'sha256', 'hex')
       const result = generateFile(payloads)
-      const expected = `audience_key,name,email\n${enquoteIdentifier('1002')},${enquoteIdentifier(
-        hashedName
-      )},${enquoteIdentifier('john@example.com')}`
+      const expected = `audience_key,email,name\n${enquoteIdentifier('1002')},${enquoteIdentifier(
+        'john@example.com'
+      )},${enquoteIdentifier(hashedName)}`
       expect(result.fileContents.toString()).toBe(expected)
     })
 
@@ -131,14 +135,14 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedAlice = sha256SmartHash(normalize('name', 'Alice'))
-      const hashedBob = sha256SmartHash(normalize('name', 'Bob'))
+      const hashedAlice = processHashing('Alice', 'sha256', 'hex', (value: string) => normalize('name', value))
+      const hashedBob = processHashing('Bob', 'sha256', 'hex', (value: string) => normalize('name', value))
       const result = generateFile(payloads)
-      const expected = `audience_key,name,email\n${enquoteIdentifier('1003')},${enquoteIdentifier(
-        hashedAlice
-      )},${enquoteIdentifier('alice@example.com')}\n${enquoteIdentifier('1004')},${enquoteIdentifier(
-        hashedBob
-      )},${enquoteIdentifier('bob@example.com')}`
+      const expected = `audience_key,email,name\n${enquoteIdentifier('1003')},${enquoteIdentifier(
+        'alice@example.com'
+      )},${enquoteIdentifier(hashedAlice)}\n${enquoteIdentifier('1004')},${enquoteIdentifier(
+        'bob@example.com'
+      )},${enquoteIdentifier(hashedBob)}`
       expect(result.fileContents.toString()).toBe(expected)
     })
 
@@ -153,7 +157,7 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedEve = sha256SmartHash(normalize('name', 'Eve'))
+      const hashedEve = processHashing('Eve', 'sha256', 'hex', (value: string) => normalize('name', value))
       const result = generateFile(payloads)
       const expected = `audience_key,name\n${enquoteIdentifier('1005')},${enquoteIdentifier(hashedEve)}`
       expect(result.fileContents.toString()).toBe(expected)
@@ -170,11 +174,11 @@ describe('Test operations', () => {
           enable_batching: true
         }
       ]
-      const hashedNote = sha256SmartHash('Hello, "John"\nNew line')
+      const hashedNote = processHashing('Hello, "John"\nNew line', 'sha256', 'hex')
       const result = generateFile(payloads)
-      const expected = `audience_key,note,email\n${enquoteIdentifier('1006')},${enquoteIdentifier(
-        hashedNote
-      )},${enquoteIdentifier('test@example.com')}`
+      const expected = `audience_key,email,note\n${enquoteIdentifier('1006')},${enquoteIdentifier(
+        'test@example.com'
+      )},${enquoteIdentifier(hashedNote)}`
       expect(result.fileContents.toString()).toBe(expected)
     })
 
@@ -341,9 +345,9 @@ describe('Test operations', () => {
         }
       ]
       const result = generateFile(payloads)
-      const expected = `audience_key,name,email\n${enquoteIdentifier('1011')},"",${enquoteIdentifier(
+      const expected = `audience_key,email,name\n${enquoteIdentifier('1011')},${enquoteIdentifier(
         'test@example.com'
-      )}`
+      )},""`
       expect(result.fileContents.toString()).toBe(expected)
     })
 
@@ -410,7 +414,9 @@ describe('Test operations', () => {
         }
       ]
 
-      const hashedUnhashedEmail = sha256SmartHash(normalize('email', 'unhashed@example.com'))
+      const hashedUnhashedEmail = processHashing('unhashed@example.com', 'sha256', 'hex', (value: string) =>
+        normalize('email', value)
+      )
 
       const result = generateFile(payloads)
       const expected = `audience_key,email\n${enquoteIdentifier('1016')},${enquoteIdentifier(hashedUnhashedEmail)}`
@@ -448,11 +454,11 @@ describe('Test operations', () => {
       const result = generateFile(payloads)
 
       const expected = [
-        `audience_key,first_name,email,liveramp_test`,
-        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp 01')},${enquoteIdentifier(
-          'liveramp-test-01@gmailx.com'
+        `audience_key,email,first_name,liveramp_test`,
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp-test-01@gmailx.com')},${enquoteIdentifier(
+          'liveramp 01'
         )},${enquoteIdentifier('true')}`,
-        `${enquoteIdentifier('test_audience')},,${enquoteIdentifier('liveramp-test-02@gmailx.com')},${enquoteIdentifier(
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp-test-02@gmailx.com')},,${enquoteIdentifier(
           'true'
         )}`
       ].join('\n')
@@ -486,14 +492,16 @@ describe('Test operations', () => {
         }
       ]
 
-      const hashedUniqueValue = sha256SmartHash(normalize('unique_value', '424242'))
+      const hashedUniqueValue = processHashing('424242', 'sha256', 'hex', (value: string) =>
+        normalize('unique_value', value)
+      )
       const result = generateFile(payloads)
 
-      // Expected headers are audience_key, first_name, email, liveramp_test, unique_value
+      // Expected headers are audience_key, email, first_name, liveramp_test, unique_value (alphabetically sorted)
       const expected = [
-        `audience_key,first_name,email,liveramp_test,unique_value`,
-        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp 01')},${enquoteIdentifier(
-          'liveramp-test-01@gmailx.com'
+        `audience_key,email,first_name,liveramp_test,unique_value`,
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp-test-01@gmailx.com')},${enquoteIdentifier(
+          'liveramp 01'
         )},${enquoteIdentifier('true')},`,
         `${enquoteIdentifier('test_audience')},,,${enquoteIdentifier('true')},${enquoteIdentifier(hashedUniqueValue)}` // Row with unique_value
       ].join('\n')
@@ -569,18 +577,20 @@ describe('Test operations', () => {
 
       const result = generateFile(payloads)
 
-      const hashedCountry = sha256SmartHash(normalize('country', 'US'))
-      const hashedUniqueValue = sha256SmartHash(normalize('unique_value', 'only_in_third'))
+      const hashedCountry = processHashing('US', 'sha256', 'hex', (value: string) => normalize('country', value))
+      const hashedUniqueValue = processHashing('only_in_third', 'sha256', 'hex', (value: string) =>
+        normalize('unique_value', value)
+      )
 
       const expected = [
-        `audience_key,first_name,email,liveramp_test,country,unique_value`,
-        `${enquoteIdentifier('test_audience')},${enquoteIdentifier('liveramp 01')},${enquoteIdentifier(
-          'liveramp-test-01@gmailx.com'
-        )},${enquoteIdentifier('true')},,`,
-        `${enquoteIdentifier('test_audience')},,${enquoteIdentifier('liveramp-test-02@gmailx.com')},${enquoteIdentifier(
-          'true'
-        )},${enquoteIdentifier(hashedCountry)},`,
-        `${enquoteIdentifier('test_audience')},,,${enquoteIdentifier('true')},,${enquoteIdentifier(hashedUniqueValue)}`,
+        `audience_key,country,email,first_name,liveramp_test,unique_value`,
+        `${enquoteIdentifier('test_audience')},,${enquoteIdentifier('liveramp-test-01@gmailx.com')},${enquoteIdentifier(
+          'liveramp 01'
+        )},${enquoteIdentifier('true')},`,
+        `${enquoteIdentifier('test_audience')},${enquoteIdentifier(hashedCountry)},${enquoteIdentifier(
+          'liveramp-test-02@gmailx.com'
+        )},,${enquoteIdentifier('true')},`,
+        `${enquoteIdentifier('test_audience')},,,,${enquoteIdentifier('true')},${enquoteIdentifier(hashedUniqueValue)}`,
         `${enquoteIdentifier('test_audience')},,,,,`
       ].join('\n')
       expect(result.fileContents.toString()).toBe(expected)
@@ -683,15 +693,185 @@ describe('Test operations', () => {
       const result = generateFile(payloads)
 
       const expected = [
-        'audience_key,FIRSTNAME,LASTNAME,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,SHOPPERSCORE,LOVESDOGS,UNDER25,FAVORITECOLOR',
-        '"35938495","Jane","Doe","100 Main St","Apt. A","Anytown","CA","123454545","54","1","1","Green"',
-        '"103578302","John","Dough","123 Any St",,"Anytown","CA","123456565","87","1",,"Blue"',
-        '"902833740","Sam","Sample","555 New Rd","Fl 17","Mysteryville","OK","957352436","36",,"1","Red"',
-        '"328697301","Sarah","Sampel","987 Imaginary Ln",,"Buffetown","MI","436237235","99",,,"Blue"',
-        '"993802274","Dolly","Data","456 Center Ave",,"Newtown","NE","586452778","12","1",,"Yellow"'
+        'audience_key,ADDRESS1,ADDRESS2,CITY,FAVORITECOLOR,FIRSTNAME,LASTNAME,LOVESDOGS,SHOPPERSCORE,STATE,UNDER25,ZIP',
+        '"35938495","100 Main St","Apt. A","Anytown","Green","Jane","Doe","1","54","CA","1","123454545"',
+        '"103578302","123 Any St",,"Anytown","Blue","John","Dough","1","87","CA",,"123456565"',
+        '"902833740","555 New Rd","Fl 17","Mysteryville","Red","Sam","Sample",,"36","OK","1","957352436"',
+        '"328697301","987 Imaginary Ln",,"Buffetown","Blue","Sarah","Sampel",,"99","MI",,"436237235"',
+        '"993802274","456 Center Ave",,"Newtown","Yellow","Dolly","Data","1","12","NE",,"586452778"'
       ].join('\n')
 
       expect(result.fileContents.toString()).toBe(expected)
+    })
+
+    it('maintains consistent field order regardless of payload order', () => {
+      // First batch: payload1 has fields A, B, C and payload2 has fields D, E, F
+      const batch1: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            field_a: 'value_a',
+            field_b: 'value_b',
+            field_c: 'value_c'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user2',
+          identifier_data: {
+            field_d: 'value_d',
+            field_e: 'value_e',
+            field_f: 'value_f'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      // Second batch: same payloads but in REVERSE order
+      const batch2: Payload[] = [
+        {
+          audience_key: 'user2',
+          identifier_data: {
+            field_d: 'value_d',
+            field_e: 'value_e',
+            field_f: 'value_f'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            field_a: 'value_a',
+            field_b: 'value_b',
+            field_c: 'value_c'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result1 = generateFile(batch1)
+      const result2 = generateFile(batch2)
+
+      // Fields should now be alphabetically sorted: audience_key,field_a,field_b,field_c,field_d,field_e,field_f
+      const expected = [
+        'audience_key,field_a,field_b,field_c,field_d,field_e,field_f',
+        '"user1","value_a","value_b","value_c",,,',
+        '"user2",,,,"value_d","value_e","value_f"'
+      ].join('\n')
+
+      const expected2 = [
+        'audience_key,field_a,field_b,field_c,field_d,field_e,field_f',
+        '"user2",,,,"value_d","value_e","value_f"',
+        '"user1","value_a","value_b","value_c",,,'
+      ].join('\n')
+
+      expect(result1.fileContents.toString()).toBe(expected)
+      expect(result2.fileContents.toString()).toBe(expected2)
+
+      // Field order should now be consistent (same headers)
+      const headers1 = result1.fileContents.toString().split('\n')[0]
+      const headers2 = result2.fileContents.toString().split('\n')[0]
+      expect(headers1).toBe(headers2)
+    })
+
+    it('maintains consistent field order with overlapping and unique fields', () => {
+      // Scenario: Multiple payloads with some shared fields and some unique fields
+      // Fields should be alphabetically sorted regardless of payload order
+
+      const batch1: Payload[] = [
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            email: 'user1@example.com',
+            first_name: 'John',
+            age: '30'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user2',
+          identifier_data: {
+            email: 'user2@example.com',
+            last_name: 'Doe',
+            city: 'NYC'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user3',
+          identifier_data: {
+            email: 'user3@example.com',
+            phone: '555-1234',
+            country: 'USA'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      // Same data but user3 comes first
+      const batch2: Payload[] = [
+        {
+          audience_key: 'user3',
+          identifier_data: {
+            email: 'user3@example.com',
+            phone: '555-1234',
+            country: 'USA'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user1',
+          identifier_data: {
+            email: 'user1@example.com',
+            first_name: 'John',
+            age: '30'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        },
+        {
+          audience_key: 'user2',
+          identifier_data: {
+            email: 'user2@example.com',
+            last_name: 'Doe',
+            city: 'NYC'
+          },
+          delimiter: ',',
+          filename: 'output.csv',
+          enable_batching: true
+        }
+      ]
+
+      const result1 = generateFile(batch1)
+      const result2 = generateFile(batch2)
+
+      // Both should have alphabetically sorted fields: audience_key,age,city,country,email,first_name,last_name,phone
+      const headers1 = result1.fileContents.toString().split('\n')[0]
+      const headers2 = result2.fileContents.toString().split('\n')[0]
+
+      // Field order should now be consistent
+      expect(headers1).toBe(headers2)
+
+      // Verify the specific alphabetically sorted field order
+      expect(headers1).toBe('audience_key,age,city,country,email,first_name,last_name,phone')
+      expect(headers2).toBe('audience_key,age,city,country,email,first_name,last_name,phone')
     })
   })
 })

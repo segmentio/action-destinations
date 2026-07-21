@@ -18,7 +18,7 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'Your service user Access Key Id. You can generate the service user and its Access Key Id in your m3ter console under "Settings" -> "Access" -> "Service Users" -> "Create Service User".' +
           ' Step by step guide can be found in [m3ter Docs](https://www.m3ter.com/docs/guides/authenticating-with-the-platform/service-authentication#generating-an-api-key-and-secret-for-a-service-user)',
-        type: 'string',
+        type: 'password',
         required: true
       },
       api_secret: {

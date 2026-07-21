@@ -1,5 +1,6 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { TIKTOK_OFFLINE_CONVERSIONS_API_VERSION } from './versioning-info'
 import trackPaymentOfflineConversion from './trackPaymentOfflineConversion'
 import trackNonPaymentOfflineConversion from './trackNonPaymentOfflineConversion'
 import reportOfflineEvent from './reportOfflineEvent'
@@ -61,7 +62,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Access Token',
         description:
           'Your TikTok Access Token. Please see TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101130925058) for information on how to generate an access token via the TikTok Ads Manager or API.',
-        type: 'string',
+        type: 'password',
         required: true
       },
       eventSetID: {
@@ -73,15 +74,18 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
-      return request('https://business-api.tiktok.com/open_api/v1.3/offline/track/', {
-        method: 'post',
-        json: {
-          event_set_id: settings.eventSetID,
-          event: 'Test Event',
-          timestamp: '',
-          context: {}
+      return request(
+        `https://business-api.tiktok.com/open_api/${TIKTOK_OFFLINE_CONVERSIONS_API_VERSION}/offline/track/`,
+        {
+          method: 'post',
+          json: {
+            event_set_id: settings.eventSetID,
+            event: 'Test Event',
+            timestamp: '',
+            context: {}
+          }
         }
-      })
+      )
     }
   },
   extendRequest({ settings }) {

@@ -18,7 +18,11 @@ export interface AudienceSettings {
    */
   audience_name: string
   /**
-   * The type of Identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.
+   * The Segment identifier to send to Dynamic Yield by Mastercard. E.g. `email`, `anonymousId`, `userId` or any other custom identifier. Make sure to configure the identifier in the `Customized Setup` below so that it is sent to Dynamic Yield by Mastercard.
    */
   identifier_type: string
+  /**
+   * The name of the identifier in Dynamic Yield by Mastercard. If you leave this empty, Segment will assume that the name of the identifier in Dynamic Yield by Mastercard matches the value specified in the "Segment Identifier Type" field.
+   */
+  dy_identifier_type?: string
 }

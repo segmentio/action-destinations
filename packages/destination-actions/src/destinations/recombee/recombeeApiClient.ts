@@ -10,56 +10,38 @@ enum DatabaseRegion {
   CUSTOM = 'custom'
 }
 
-type AddBookmarkParams = {
+type InternalAdditionalData = {
+  internalAdditionalData?: Record<string, unknown>
+}
+
+type AddInteractionParams = {
   userId: string
   itemId: string
   timestamp?: string | number
   recommId?: string
-  additionalData?: unknown
+  additionalData?: Record<string, unknown>
   cascadeCreate?: boolean
 }
 
-type AddCartAdditionParams = {
-  userId: string
-  itemId: string
-  timestamp?: string | number
+type AddBookmarkParams = AddInteractionParams
+
+type AddCartAdditionParams = AddInteractionParams & {
   amount?: number
   price?: number
-  recommId?: string
-  additionalData?: unknown
-  cascadeCreate?: boolean
 }
 
-type AddDetailViewParams = {
-  userId: string
-  itemId: string
-  timestamp?: string | number
+type AddDetailViewParams = AddInteractionParams & {
   duration?: number
-  recommId?: string
-  additionalData?: unknown
-  cascadeCreate?: boolean
 }
 
-type AddPurchaseParams = {
-  userId: string
-  itemId: string
-  timestamp?: string | number
+type AddPurchaseParams = AddInteractionParams & {
   amount?: number
   price?: number
   profit?: number
-  recommId?: string
-  additionalData?: unknown
-  cascadeCreate?: boolean
 }
 
-type AddRatingParams = {
-  userId: string
-  itemId: string
+type AddRatingParams = AddInteractionParams & {
   rating: number
-  timestamp?: string | number
-  recommId?: string
-  additionalData?: unknown
-  cascadeCreate?: boolean
 }
 
 type DeleteParams = {
@@ -68,15 +50,9 @@ type DeleteParams = {
   timestamp?: string // since type in Segment is string, it will always be converted
 }
 
-type SetViewPortionParams = {
-  userId: string
-  itemId: string
+type SetViewPortionParams = AddInteractionParams & {
   portion: number
   sessionId?: string
-  timestamp?: string | number
-  recommId?: string
-  additionalData?: unknown
-  cascadeCreate?: boolean
 }
 
 type BatchParams = {
@@ -97,6 +73,18 @@ type BatchParams = {
 
 type HttpMethod = 'POST' | 'PUT' | 'DELETE'
 
+function createAddInteractionData<T extends AddInteractionParams & InternalAdditionalData>(payload: T) {
+  const { additionalData, internalAdditionalData, ...rest } = payload
+  return {
+    cascadeCreate: true,
+    additionalData: {
+      ...(additionalData || {}),
+      ...(internalAdditionalData || {})
+    },
+    ...rest
+  }
+}
+
 abstract class Request<Params extends object> {
   constructor(public params: Params, public method: HttpMethod, public path: string) {}
 }
@@ -108,38 +96,38 @@ export class Batch extends Request<BatchParams> {
 }
 
 export class AddBookmark extends Request<AddBookmarkParams> {
-  constructor(params: AddBookmarkParams) {
-    super({ cascadeCreate: true, ...params }, 'POST', '/bookmarks/')
+  constructor(params: AddBookmarkParams & InternalAdditionalData) {
+    super(createAddInteractionData(params), 'POST', '/bookmarks/')
   }
 }
 
 export class AddCartAddition extends Request<AddCartAdditionParams> {
-  constructor(params: AddCartAdditionParams) {
-    super({ cascadeCreate: true, ...params }, 'POST', '/cartadditions/')
+  constructor(params: AddCartAdditionParams & InternalAdditionalData) {
+    super(createAddInteractionData(params), 'POST', '/cartadditions/')
   }
 }
 
 export class AddDetailView extends Request<AddDetailViewParams> {
-  constructor(params: AddDetailViewParams) {
-    super({ cascadeCreate: true, ...params }, 'POST', '/detailviews/')
+  constructor(params: AddDetailViewParams & InternalAdditionalData) {
+    super(createAddInteractionData(params), 'POST', '/detailviews/')
   }
 }
 
 export class AddPurchase extends Request<AddPurchaseParams> {
-  constructor(params: AddPurchaseParams) {
-    super({ cascadeCreate: true, ...params }, 'POST', '/purchases/')
+  constructor(params: AddPurchaseParams & InternalAdditionalData) {
+    super(createAddInteractionData(params), 'POST', '/purchases/')
   }
 }
 
 export class AddRating extends Request<AddRatingParams> {
-  constructor(params: AddRatingParams) {
-    super({ cascadeCreate: true, ...params }, 'POST', '/ratings/')
+  constructor(params: AddRatingParams & InternalAdditionalData) {
+    super(createAddInteractionData(params), 'POST', '/ratings/')
   }
 }
 
 export class SetViewPortion extends Request<SetViewPortionParams> {
-  constructor(params: SetViewPortionParams) {
-    super({ cascadeCreate: true, ...params }, 'POST', '/viewportions/')
+  constructor(params: SetViewPortionParams & InternalAdditionalData) {
+    super(createAddInteractionData(params), 'POST', '/viewportions/')
   }
 }
 

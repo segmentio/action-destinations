@@ -25,6 +25,22 @@ describe('Remove Profile', () => {
     )
   })
 
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      properties: {}
+    })
+
+    const mapping = {
+      list_id: listId,
+      external_id: 'a'.repeat(256)
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
+      'Length of external_id must be no more than 255 characters.'
+    )
+  })
+
   it('should throw an error for invalid phone number format', async () => {
     const event = createTestEvent({
       type: 'track',
@@ -234,5 +250,33 @@ describe('Remove Profile', () => {
     }
 
     await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).resolves.not.toThrowError()
+  })
+
+  it('should throw payload validation error when no profile is mapped with provided identifier', async () => {
+    const phone_number = '+15005435907'
+    nock(`${API_URL}/profiles`).get(`/?filter=any(phone_number,["${phone_number}"])`).reply(200, {
+      data: []
+    })
+
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      context: {
+        personas: {
+          external_audience_id: listId
+        }
+      },
+      properties: {
+        phone_number: '+15005435907'
+      }
+    })
+    const mapping = {
+      list_id: listId,
+      phone_number: '+15005435907'
+    }
+
+    await expect(testDestination.testAction('removeProfile', { event, mapping, settings })).rejects.toThrowError(
+      'No profiles found for the provided identifiers.'
+    )
   })
 })

@@ -50,6 +50,44 @@ describe('Upsert Profile', () => {
     )
   })
 
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const longExternalId = 'a'.repeat(256)
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        email: 'test@example.com'
+      }
+    })
+
+    const mapping = {
+      external_id: longExternalId,
+      email: { '@path': '$.traits.email' }
+    }
+
+    await expect(testDestination.testAction('upsertProfile', { event, settings, mapping })).rejects.toThrowError(
+      'Length of external_id must be no more than 255 characters.'
+    )
+  })
+
+  it('should not throw error if external_id is exactly 255 characters', async () => {
+    const exactExternalId = 'a'.repeat(255)
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        email: 'test@example.com'
+      }
+    })
+
+    const mapping = {
+      external_id: exactExternalId,
+      email: { '@path': '$.traits.email' }
+    }
+
+    nock(`${API_URL}`).post('/profiles/').reply(200, {})
+
+    await expect(testDestination.testAction('upsertProfile', { event, settings, mapping })).resolves.not.toThrowError()
+  })
+
   it('should throw an error for invalid phone number format in perform', async () => {
     const event = createTestEvent({
       type: 'identify',
@@ -598,36 +636,6 @@ describe('Upsert Profile Batch', () => {
       withoutList: true
     })
     expect(response).toHaveLength(1)
-  })
-
-  it('should handle errors when sending profiles to Klaviyo', async () => {
-    const events = [createTestEvent({ traits: { email: 'error@example.com' } })]
-
-    nock(API_URL).post('/profile-bulk-import-jobs/').reply(500, { error: 'Server error' })
-
-    await expect(
-      testDestination.testBatchAction('upsertProfile', {
-        settings,
-        events,
-        useDefaultMappings: true
-      })
-    ).rejects.toThrow()
-  })
-
-  it('should group profiles by list_id correctly', () => {
-    const profiles = [
-      { email: 'profile1@example.com', list_id: 'listA', override_list_id: 'overridelistA' },
-      { email: 'profile2@example.com', list_id: 'listB' },
-      { email: 'profile3@example.com', list_id: 'listA' },
-      { email: 'profile4@example.com', override_list_id: 'overridelistA' }
-    ]
-
-    const grouped = Functions.groupByListId(profiles)
-
-    expect(Object.keys(grouped)).toEqual(['overridelistA', 'listB', 'listA'])
-    expect(grouped['listA']).toHaveLength(1)
-    expect(grouped['listB']).toHaveLength(1)
-    expect(grouped['overridelistA']).toHaveLength(2)
   })
 })
 

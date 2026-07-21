@@ -18,7 +18,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * Extra json fields to pass on to every request. Note: "externalId" and "audienceName" are reserved.
+   * Extra JSON fields to pass on to every request. This must be a valid JSON string (e.g., "{\"hello\": \"world\", \"foo\": \"bar\"}"). The JSON will be parsed and merged into each request payload. Note: "externalId" and "audienceName" are reserved keys and cannot be used.
    */
   extras?: string
 }

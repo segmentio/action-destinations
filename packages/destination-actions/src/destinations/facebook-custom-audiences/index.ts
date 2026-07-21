@@ -1,22 +1,24 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { adAccountId } from './fbca-properties'
+import { adAccountId, audienceDescription } from './fields'
 import sync from './sync'
-
-export const FACEBOOK_API_VERSION = 'v17.0'
-const EXTERNAL_ID_KEY = 'id'
+import { createAudience, getAudience } from './functions'
+import { presets } from './presets'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Facebook Custom Audiences (Actions)',
   slug: 'actions-facebook-custom-audiences',
   mode: 'cloud',
   description: 'The Facebook Custom Audiences destination.',
-
   authentication: {
     scheme: 'oauth2',
     fields: {
-      retlAdAccountId: adAccountId
+      retlAdAccountId: 
+      {
+        ...adAccountId,
+        description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This is required to set up the connection, but can be overriden using the Engage Audience setting named "Advertiser Account ID".' 
+      }
     }
   },
   extendRequest({ auth }) {
@@ -27,79 +29,54 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
-    engageAdAccountId: adAccountId,
-    audienceDescription: {
-      type: 'string',
-      label: 'Description',
-      description: 'A brief description about your audience.',
-      required: true
-    }
+    engageAdAccountId: {
+        ...adAccountId,
+        description: 'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named "Advertiser Account ID".',
+        required: false
+      },
+    audienceDescription
   },
   audienceConfig: {
     mode: {
       type: 'synced',
       full_audience_sync: false
     },
-    async createAudience(request, createAudienceInput) {
-      const audienceName = createAudienceInput.audienceName
-      const adAccountId = createAudienceInput.audienceSettings?.engageAdAccountId
-      const audienceDescription = createAudienceInput.audienceSettings?.audienceDescription
+    async createAudience(request, createAudienceInput ) {
+      const { 
+        audienceName,
+        audienceSettings: { 
+          engageAdAccountId, 
+          audienceDescription 
+        } = {},
+        settings: { retlAdAccountId } = {}, 
+        features,
+        statsContext
+      } = createAudienceInput
 
-      if (!audienceName) {
-        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+      const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
+      const { data: { externalId: id } = {}, error } = await createAudience(request, audienceName, addAccountId, audienceDescription, features, statsContext)
+      if (error) {
+        throw new IntegrationError(error.message, ErrorCodes.CREATE_AUDIENCE_FAILED, 400)
       }
-
-      if (!adAccountId) {
-        throw new IntegrationError('Missing ad account ID value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      const createAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/act_${adAccountId}/customaudiences`
-      const payload = {
-        name: audienceName,
-        description: audienceDescription || '',
-        subtype: 'CUSTOM',
-        customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
-      }
-
-      const response = await request(createAudienceUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams(payload)
-      })
-
-      const r = await response.json()
-      if (!r[EXTERNAL_ID_KEY]) {
-        throw new IntegrationError('Invalid response from create audience request', 'INVALID_RESPONSE', 400)
-      }
-
-      return {
-        externalId: r[EXTERNAL_ID_KEY]
-      }
+      return { externalId: id as string }
     },
     async getAudience(request, getAudienceInput) {
-      const getAudienceUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/${getAudienceInput.externalId}`
-
-      const response = await request(getAudienceUrl, { method: 'GET' })
-
-      const r = await response.json()
-      if (!r[EXTERNAL_ID_KEY]) {
-        throw new IntegrationError('Invalid response from get audience request', 'INVALID_RESPONSE', 400)
+      const { 
+        externalId,
+        features, 
+        statsContext 
+      } = getAudienceInput
+      const { data: { externalId: id } = {}, error } = await getAudience(request, externalId, features, statsContext)
+      if (error) {
+        throw new IntegrationError(error.message, ErrorCodes.GET_AUDIENCE_FAILED, 400)
       }
-
-      if (getAudienceInput.externalId !== r[EXTERNAL_ID_KEY]) {
-        throw new IntegrationError("Couldn't find audience", 'INVALID_RESPONSE', 400)
-      }
-
-      return {
-        externalId: r[EXTERNAL_ID_KEY]
-      }
+      return { externalId: id as string }
     }
   },
   actions: {
     sync
-  }
+  },
+  presets
 }
 
 export default destination

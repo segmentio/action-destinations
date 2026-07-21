@@ -106,6 +106,10 @@ const unobfuscatedOutput = {
     fallback: {
       vm: require.resolve('vm-browserify'),
       crypto: false
+    },
+    alias: {
+      // Disables the liquid template engine in the browser
+      liquidjs: path.resolve(__dirname, 'liquid.stub.js'),
     }
   },
   devServer: {

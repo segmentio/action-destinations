@@ -11,8 +11,7 @@ import { buildCSVData, validateInstanceURL } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Logger } from '@segment/actions-core/destination-kit'
-
-export const API_VERSION = 'v53.0'
+import { SALESFORCE_API_VERSION } from './versioning-info'
 
 /**
  * This error is triggered if the bulkHandler is ever triggered when the enable_batching setting is false.
@@ -164,7 +163,7 @@ export default class Salesforce {
   createRecord = async (payload: GenericPayload, sobject: string) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects/${sobject}`, {
       method: 'post',
       json: json
     })
@@ -225,17 +224,21 @@ export default class Salesforce {
     return await this.baseDelete(recordId, sobject)
   }
 
-  bulkHandler = async (payloads: GenericPayload[], sobject: string, statsContext?: StatsContext, logger?: Logger) => {
+  bulkHandler = async (
+    payloads: GenericPayload[],
+    sobject: string,
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
+  ) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
     }
 
     if (payloads[0].operation === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject, statsContext, logger)
+      return await this.bulkUpsert(payloads, sobject, logging)
     } else if (payloads[0].operation === 'update') {
-      return await this.bulkUpdate(payloads, sobject, statsContext, logger)
+      return await this.bulkUpdate(payloads, sobject, logging)
     } else if (payloads[0].operation === 'create') {
-      return await this.bulkInsert(payloads, sobject, statsContext, logger)
+      return await this.bulkInsert(payloads, sobject, logging)
     }
 
     if (payloads[0].operation === 'delete') {
@@ -251,8 +254,7 @@ export default class Salesforce {
     payloads: GenericPayload[],
     sobject: string,
     syncMode: string | undefined,
-    statsContext?: StatsContext,
-    logger?: Logger
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ) => {
     if (!payloads[0].enable_batching) {
       throwBulkMismatchError()
@@ -271,20 +273,20 @@ export default class Salesforce {
     }
 
     if (syncMode === 'upsert') {
-      return await this.bulkUpsert(payloads, sobject, statsContext, logger)
+      return await this.bulkUpsert(payloads, sobject, logging)
     } else if (syncMode === 'update') {
-      return await this.bulkUpdate(payloads, sobject, statsContext, logger)
+      return await this.bulkUpdate(payloads, sobject, logging)
     } else if (syncMode === 'add') {
       // Sync Mode does not have a "create" operation. We call it "add".
       // "add" will be transformed into "create" in the bulkInsert function.
-      return await this.bulkInsert(payloads, sobject, statsContext, logger)
+      return await this.bulkInsert(payloads, sobject, logging)
     }
   }
 
   customObjectName = async (): Promise<DynamicFieldResponse> => {
     try {
       const result = await this.request<SObjectsResponseData>(
-        `${this.instanceUrl}services/data/${API_VERSION}/sobjects`,
+        `${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects`,
         {
           method: 'get',
           skipResponseCloning: true
@@ -318,18 +320,16 @@ export default class Salesforce {
   private bulkInsert = async (
     payloads: GenericPayload[],
     sobject: string,
-    statsContext?: StatsContext,
-    logger?: Logger
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ) => {
     // The idField is purposely passed as an empty string since the field is not required.
-    return this.handleBulkJob(payloads, sobject, '', 'insert', statsContext, logger)
+    return this.handleBulkJob(payloads, sobject, '', 'insert', logging)
   }
 
   private bulkUpsert = async (
     payloads: GenericPayload[],
     sobject: string,
-    statsContext?: StatsContext,
-    logger?: Logger
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ) => {
     if (
       !payloads[0].bulkUpsertExternalId ||
@@ -343,14 +343,13 @@ export default class Salesforce {
       )
     }
     const externalIdFieldName = payloads[0].bulkUpsertExternalId.externalIdName
-    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', statsContext, logger)
+    return this.handleBulkJob(payloads, sobject, externalIdFieldName, 'upsert', logging)
   }
 
   private bulkUpdate = async (
     payloads: GenericPayload[],
     sobject: string,
-    statsContext?: StatsContext,
-    logger?: Logger
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ) => {
     if (!payloads[0].bulkUpdateRecordId) {
       throw new IntegrationError(
@@ -360,7 +359,7 @@ export default class Salesforce {
       )
     }
 
-    return this.handleBulkJob(payloads, sobject, 'Id', 'update', statsContext, logger)
+    return this.handleBulkJob(payloads, sobject, 'Id', 'update', logging)
   }
 
   private async handleBulkJob(
@@ -368,52 +367,75 @@ export default class Salesforce {
     sobject: string,
     idField: string,
     operation: string,
-    statsContext?: StatsContext,
-    logger?: Logger
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
   ): Promise<ModifiedResponse<unknown>> {
     // construct the CSV data to catch errors before creating a bulk job
-    const csv = buildCSVData(payloads, idField, operation)
-    const jobId = await this.createBulkJob(sobject, idField, operation)
+    const csvStats = {
+      shouldLog: logging?.shouldLog === true,
+      numberOfColumns: 0,
+      numberOfValuesInCSV: 0,
+      numberOfNullsInCSV: 0
+    }
+
+    const csv = buildCSVData(payloads, idField, operation, csvStats)
+    const jobId = await this.createBulkJob(sobject, idField, operation, logging)
+
+    if (logging?.shouldLog === true) {
+      const statsClient = logging?.stats?.statsClient
+      const tags = logging?.stats?.tags
+      tags?.push('jobId:' + jobId)
+
+      statsClient?.incr('bulkCSV.payloadSize', payloads.length, tags)
+      statsClient?.incr('bulkCSV.numberOfColumns', csvStats.numberOfColumns, tags)
+      statsClient?.incr('bulkCSV.numberOfValuesInCSV', csvStats.numberOfValuesInCSV, tags)
+      statsClient?.incr('bulkCSV.numberOfNullsInCSV', csvStats.numberOfNullsInCSV ?? 0, tags)
+    }
+
     try {
-      await this.uploadBulkCSV(jobId, csv)
+      await this.uploadBulkCSV(jobId, csv, logging)
     } catch (err) {
       // always close the "bulk job" otherwise it will get
       // stuck in "pending".
       //
       // run in background to ensure this service has time to respond
       // with useful information before the connection closes.
-      this.closeBulkJob(jobId).catch((_) => {
+      this.closeBulkJob(jobId, logging).catch((_) => {
         // ignore close error to avoid masking the root error
         const message = err.response?.data[0]?.message || 'Failed to parse message'
         const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
 
-        const statsClient = statsContext?.statsClient
-        const tags = statsContext?.tags
+        const statsClient = logging?.stats?.statsClient
+        const tags = logging?.stats?.tags
         tags?.push('jobId:' + jobId)
         statsClient?.incr('bulkJobError.caughUploadError', 1, tags)
-        logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+        logging?.logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
       })
       throw err
     }
 
     try {
-      return await this.closeBulkJob(jobId)
+      return await this.closeBulkJob(jobId, logging)
     } catch (err) {
       const message = err.response?.data[0]?.message || 'Failed to parse message'
       const code = err.response?.data[0]?.errorCode || 'Failed to parse code'
 
-      const statsClient = statsContext?.statsClient
-      const tags = statsContext?.tags
+      const statsClient = logging?.stats?.statsClient
+      const tags = logging?.stats?.tags
 
       tags?.push('jobId:' + jobId)
       statsClient?.incr('bulkJobError', 1, tags)
-      logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
+      logging?.logger?.error(`Failed to close bulk job: ${jobId}. Message: ${message}. Code: ${code}`)
 
       throw err
     }
   }
 
-  private createBulkJob = async (sobject: string, externalIdFieldName: string, operation: string) => {
+  private createBulkJob = async (
+    sobject: string,
+    externalIdFieldName: string,
+    operation: string,
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
+  ) => {
     const jsonData: { object: string; contentType: 'CSV'; operation: string; externalIdFieldName?: string } = {
       object: sobject,
       contentType: 'CSV',
@@ -425,7 +447,7 @@ export default class Salesforce {
     }
 
     const res = await this.request<CreateJobResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest`,
+      `${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest`,
       {
         method: 'post',
         json: jsonData
@@ -436,11 +458,34 @@ export default class Salesforce {
       throw new IntegrationError('Failed to create bulk job', 'Failed to create bulk job', 500)
     }
 
+    if (logging?.shouldLog) {
+      logging.logger?.error(`Created bulk job: ${res.data.id} with data: ${JSON.stringify(jsonData)}`)
+
+      const statsClient = logging.stats?.statsClient
+      const tags = logging.stats?.tags
+
+      tags?.push('jobId:' + res.data.id)
+      statsClient?.incr('bulkJob.createBulkJob', 1, tags)
+    }
+
     return res.data.id
   }
 
-  private uploadBulkCSV = async (jobId: string, csv: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}/batches`, {
+  private uploadBulkCSV = async (
+    jobId: string,
+    csv: string,
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
+  ) => {
+    if (logging?.shouldLog) {
+      logging.logger?.error(`Uploading CSV to job: ${jobId}\nCSV: ${csv}`)
+
+      const statsClient = logging.stats?.statsClient
+      const tags = logging.stats?.tags
+      tags?.push('jobId:' + jobId)
+      statsClient?.incr('bulkJob.uploadCSV', 1, tags)
+    }
+
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/${jobId}/batches`, {
       method: 'put',
       headers: {
         'Content-Type': 'text/csv',
@@ -450,8 +495,20 @@ export default class Salesforce {
     })
   }
 
-  private closeBulkJob = async (jobId: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/jobs/ingest/${jobId}`, {
+  private closeBulkJob = async (
+    jobId: string,
+    logging?: { shouldLog: boolean; logger?: Logger; stats?: StatsContext }
+  ) => {
+    if (logging?.shouldLog) {
+      logging.logger?.error(`Closing job: ${jobId}`)
+
+      const statsClient = logging.stats?.statsClient
+      const tags = logging.stats?.tags
+      tags?.push('jobId:' + jobId)
+      statsClient?.incr('bulkJob.closeBulkJob', 1, tags)
+    }
+
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/jobs/ingest/${jobId}`, {
       method: 'PATCH',
       json: {
         state: 'UploadComplete'
@@ -462,14 +519,14 @@ export default class Salesforce {
   private baseUpdate = async (recordId: string, sobject: string, payload: GenericPayload) => {
     const json = this.buildJSONData(payload, sobject)
 
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'patch',
       json: json
     })
   }
 
   private baseDelete = async (recordId: string, sobject: string) => {
-    return this.request(`${this.instanceUrl}services/data/${API_VERSION}/sobjects/${sobject}/${recordId}`, {
+    return this.request(`${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/sobjects/${sobject}/${recordId}`, {
       method: 'delete'
     })
   }
@@ -496,7 +553,7 @@ export default class Salesforce {
   private removeInvalidChars = (value: string) => value.replace(/[^a-zA-Z0-9_]/g, '')
 
   // Pre-formats trait values based on datatypes for correct SOQL syntax
-  private typecast = (value: any) => {
+  private typecast = (value: unknown) => {
     switch (typeof value) {
       case 'boolean':
         return value
@@ -540,7 +597,7 @@ export default class Salesforce {
     const SOQLQuery = encodeURIComponent(this.buildQuery(traits, sobject, soqlOperator))
 
     const res = await this.request<LookupResponseData>(
-      `${this.instanceUrl}services/data/${API_VERSION}/query/?q=${SOQLQuery}`,
+      `${this.instanceUrl}services/data/${SALESFORCE_API_VERSION}/query/?q=${SOQLQuery}`,
       { method: 'GET' }
     )
 

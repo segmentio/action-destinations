@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, RequestClient, IntegrationError, defaultValues } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { GET_LIST_URL, CREATE_LIST_URL } from './constants'
@@ -8,7 +8,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'SendGrid Lists (Actions)',
   slug: 'actions-sendgrid-audiences',
   mode: 'cloud',
-  description: 'Sync Segment Engage Audiences to Sengrid Lists.',
+  description: 'Sync users to Sengrid Lists.',
   authentication: {
     scheme: 'custom',
     fields: {
@@ -79,9 +79,40 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     }
   },
+
   actions: {
     syncAudience
-  }
+  },
+  presets: [
+    {
+      name: 'Entities Audience Membership Changed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Associated Entity Added',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_added_track'
+    },
+    {
+      name: 'Associated Entity Removed',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_entity_removed_track'
+    },
+    {
+      name: 'Journeys Step Entered',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
+    }
+  ]
 }
 
 export async function getAudienceIdByName(request: RequestClient, name: string): Promise<string | undefined> {

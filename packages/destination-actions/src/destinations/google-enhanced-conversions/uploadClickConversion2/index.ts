@@ -16,17 +16,18 @@ import {
 } from '../types'
 import {
   formatCustomVariables,
-  hash,
   getCustomVariables,
   handleGoogleErrors,
   convertTimestamp,
   getApiVersion,
-  commonHashedEmailValidation,
+  commonEmailValidation,
   getConversionActionDynamicData,
-  isHashedInformation,
-  memoizedGetCustomVariables
+  memoizedGetCustomVariables,
+  formatPhone,
+  getSessionAttributesKeyValuePairs
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
+import { processHashing } from '../../../lib/hashing-utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Click Conversion V2',
@@ -62,6 +63,90 @@ const action: ActionDefinition<Settings, Payload> = {
         'The click identifier for clicks associated with web conversions and originating from iOS devices starting with iOS14.',
       type: 'string'
     },
+    user_ip_address: {
+      label: 'User IP Address',
+      description: 'The IP address of the user who initiated the conversion.',
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
+    session_attributes_encoded: {
+      label: 'Session Attributes (Encoded)',
+      description:
+        "A base64url-encoded JSON string containing session attributes collected from the user's browser. Provides additional attribution context if gclid, gbraid, or user identifiers are missing. ",
+      type: 'string',
+      default: {
+        '@path': '$.integrations.Google Ads Conversions.session_attributes_encoded'
+      }
+    },
+    session_attributes_key_value_pairs: {
+      label: 'Session Attributes (Key Value Pairs)',
+      description:
+        "An alternative to the 'Session Attributes (Encoded)' field which can be used for Offline Conversions. If both 'Session Attributes (Encoded)' and 'Session Attributes (Key Value Pairs)' are provided, the encoded field takes precedence.",
+      type: 'object',
+      additionalProperties: false,
+      defaultObjectUI: 'keyvalue',
+      properties: {
+        gad_source: {
+          label: 'GAD Source',
+          description:
+            "An aggregate parameter served in the URL to identify the source of traffic originating from ads. See [Google's docs](https://support.google.com/google-ads/answer/16193746?sjid=2692215861659291994)",
+          type: 'string'
+        },
+        gad_campaignid: {
+          label: 'GAD Campaign ID',
+          description:
+            "The ID of the specific ad campaign that drove the ad click. See [Google's docs](https://support.google.com/google-ads/answer/16193746?sjid=2692215861659291994)",
+          type: 'string'
+        },
+        landing_page_url: {
+          label: 'Landing Page URL',
+          description:
+            'The full URL of the landing page on your website. This indicates the specific page the user first arrived on.',
+          type: 'string'
+        },
+        session_start_time_usec: {
+          label: 'Session Start Time',
+          description:
+            'The timestamp of when the user\'s session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example "2025-11-18T08:52:17.023Z".',
+          type: 'string',
+          format: 'date-time'
+        },
+        landing_page_referrer: {
+          label: 'Landing Page Referrer',
+          description:
+            "The URL of the webpage that linked the user to your website. This helps understand the traffic sources leading to your site. See [Google's docs](https://support.google.com/google-ads/answer/2382957?sjid=658827203196258052)",
+          type: 'string'
+        },
+        landing_page_user_agent: {
+          label: 'Landing Page User Agent',
+          description:
+            "A string that identifies the user's browser and operating system. This information can be useful for understanding the technical environment of your users.",
+          type: 'string'
+        }
+      },
+      default: {
+        gad_source: {
+          '@path': '$.properties.gad_source'
+        },
+        gad_campaignid: {
+          '@path': '$.properties.gad_campaignid'
+        },
+        landing_page_url: {
+          '@path': '$.context.page.url'
+        },
+        session_start_time_usec: {
+          '@path': '$.properties.session_start_time_usec'
+        },
+        landing_page_referrer: {
+          '@path': '$.context.page.referrer'
+        },
+        landing_page_user_agent: {
+          '@path': '$.context.userAgent'
+        }
+      }
+    },
     conversion_timestamp: {
       label: 'Conversion Timestamp',
       description:
@@ -74,8 +159,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     email_address: {
       label: 'Email Address',
-      description:
-        'Email address of the individual who triggered the conversion event. Segment will hash this value before sending to Google.',
+      description: 'Email address of the individual who triggered the conversion event',
       type: 'string',
       default: {
         '@if': {
@@ -83,12 +167,18 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.email' },
           else: { '@path': '$.context.traits.email' }
         }
-      }
+      },
+      category: 'hashedPII'
+    },
+    phone_country_code: {
+      label: 'Phone Number Country Code',
+      description: `The numeric country code to associate with the phone number. If not provided Segment will default to '+1'. If the country code does not start with '+' Segment will add it.`,
+      type: 'string'
     },
     phone_number: {
       label: 'Phone Number',
       description:
-        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000. Segment will hash this value before sending to Google.',
+        'Phone number of the individual who triggered the conversion event, in E.164 standard format, e.g. +14150000000',
       type: 'string',
       default: {
         '@if': {
@@ -96,7 +186,8 @@ const action: ActionDefinition<Settings, Payload> = {
           then: { '@path': '$.properties.phone' },
           else: { '@path': '$.context.traits.phone' }
         }
-      }
+      },
+      category: 'hashedPII'
     },
     order_id: {
       label: 'Order ID',
@@ -209,7 +300,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -221,7 +312,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v17/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -233,7 +324,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Data to Google Enhanced Conversions',
       description:
         'If true, Segment will batch events before sending to Google’s APIs. Google accepts batches of up to 2000 events.',
-      unsafe_hidden: true,
+      unsafe_hidden: false,
       default: false
     },
     batch_size: {
@@ -275,12 +366,17 @@ const action: ActionDefinition<Settings, Payload> = {
         })
       }
 
+      const { session_attributes_encoded, user_ip_address } = payload
+
       const request_object: ClickConversionRequestObjectInterface = {
         conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
         conversionDateTime: convertTimestamp(payload.conversion_timestamp),
         gclid: payload.gclid,
         gbraid: payload.gbraid,
         wbraid: payload.wbraid,
+        ...(user_ip_address ? { userIpAddress: user_ip_address } : {}),
+        ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
+        ...(!session_attributes_encoded ? getSessionAttributesKeyValuePairs(payload) : {}),
         orderId: payload.order_id,
         conversionValue: payload.value,
         currencyCode: payload.currency,
@@ -321,7 +417,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.email_address) {
-        const validatedEmail: string = commonHashedEmailValidation(payload.email_address)
+        const validatedEmail: string = processHashing(payload.email_address, 'sha256', 'hex', commonEmailValidation)
 
         request_object.userIdentifiers.push({
           hashedEmail: validatedEmail
@@ -329,11 +425,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       if (payload.phone_number) {
-        // remove '+' from phone number if received in payload duplicacy and add '+'
-        const phoneNumber = '+' + payload.phone_number.split('+').join('')
-
         request_object.userIdentifiers.push({
-          hashedPhoneNumber: isHashedInformation(payload.phone_number) ? payload.phone_number : hash(phoneNumber)
+          hashedPhoneNumber: processHashing(payload.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payload.phone_country_code)
+          )
         } as UserIdentifierInterface)
       }
 
@@ -388,12 +483,17 @@ const action: ActionDefinition<Settings, Payload> = {
           })
         }
 
+        const { session_attributes_encoded, user_ip_address } = payloadItem
+
         const request_object: ClickConversionRequestObjectInterface = {
-          conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+          conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
           conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
           gclid: payloadItem.gclid,
           gbraid: payloadItem.gbraid,
           wbraid: payloadItem.wbraid,
+          ...(user_ip_address ? { userIpAddress: user_ip_address } : {}),
+          ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
+          ...(!session_attributes_encoded ? getSessionAttributesKeyValuePairs(payloadItem) : {}),
           orderId: payloadItem.order_id,
           conversionValue: payloadItem.value,
           currencyCode: payloadItem.currency,
@@ -434,7 +534,12 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payloadItem.email_address) {
-          const validatedEmail: string = commonHashedEmailValidation(payloadItem.email_address)
+          const validatedEmail: string = processHashing(
+            payloadItem.email_address,
+            'sha256',
+            'hex',
+            commonEmailValidation
+          )
 
           request_object.userIdentifiers.push({
             hashedEmail: validatedEmail
@@ -442,13 +547,10 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         if (payloadItem.phone_number) {
-          // remove '+' from phone number if received in payload duplicacy and add '+'
-          const phoneNumber = '+' + payloadItem.phone_number.split('+').join('')
-
           request_object.userIdentifiers.push({
-            hashedPhoneNumber: isHashedInformation(payloadItem.phone_number)
-              ? payloadItem.phone_number
-              : hash(phoneNumber)
+            hashedPhoneNumber: processHashing(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+              formatPhone(value, payloadItem.phone_country_code)
+            )
           } as UserIdentifierInterface)
         }
 
@@ -457,9 +559,10 @@ const action: ActionDefinition<Settings, Payload> = {
     )
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadClickConversions`,
+      `https://googleads.googleapis.com/${getApiVersion(
+        features,
+        statsContext
+      )}/customers/${customerId}:uploadClickConversions`,
       {
         method: 'post',
         headers: {

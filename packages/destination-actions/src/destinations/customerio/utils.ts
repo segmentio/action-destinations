@@ -1,6 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
   return (fullFormats.email as RegExp).test(value)
@@ -15,7 +16,7 @@ const isIsoDate = (value: string): boolean => {
   const isoformat =
     '^\\d{4}-\\d{2}-\\d{2}' + // Match YYYY-MM-DD
     '((T\\d{2}:\\d{2}(:\\d{2})?)' + // Match THH:mm:ss
-    '(\\.\\d{1,6})?' + // Match .sssss
+    '(\\.\\d{1,9})?' + // Match .sssssss
     '(Z|(\\+|-)\\d{2}:?\\d{2})?)?$' // Time zone (Z or ±hh:mm or ±hhmm)
 
   const matcher = new RegExp(isoformat)
@@ -38,10 +39,11 @@ export enum AccountRegion {
 
 export const convertValidTimestamp = <Value = unknown>(value: Value): Value | number => {
   // Timestamps may be on a `string` field, so check if the string is only
-  // numbers. If it is, ignore it since it's probably already a unix timestamp.
+  // digits (optionally with a fractional part). If it is, ignore it since
+  // it's probably already a unix timestamp (integer or decimal).
   // DayJS doesn't parse unix timestamps correctly outside of the `.unix()`
   // initializer.
-  if (typeof value !== 'string' || /^\d+$/.test(value)) {
+  if (typeof value !== 'string' || /^\d+(\.\d+)?$/.test(value)) {
     return value
   }
 
@@ -122,6 +124,14 @@ export const buildPayload = <Payload extends BasePayload>({ action, type, payloa
   const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
   let rest = data
 
+  // Remove batching configuration fields that shouldn't be sent to Customer.io
+  if ('enable_batching' in rest) {
+    delete rest.enable_batching
+  }
+  if ('batch_size' in rest) {
+    delete rest.batch_size
+  }
+
   if ('convert_timestamp' in payload && convert_timestamp !== false) {
     rest = convertAttributeTimestamps(rest)
   }
@@ -195,7 +205,7 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
 
-  return request(`${trackApiEndpoint(settings)}/api/v2/batch`, {
+  return request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
     method: 'post',
     json: {
       batch
@@ -205,9 +215,10 @@ export const sendBatch = <Payload extends BasePayload>(request: Function, option
 
 export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
   const json = buildPayload(options)
-
-  return request(`${trackApiEndpoint(options.settings)}/api/v2/entity`, {
+  return request(`${trackApiEndpoint(options.settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/entity`, {
     method: 'post',
     json
   })
 }
+
+export { isIsoDate }

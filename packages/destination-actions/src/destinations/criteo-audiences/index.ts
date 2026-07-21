@@ -22,7 +22,7 @@ const destination: DestinationDefinition<Settings> = {
       client_secret: {
         label: 'API Client Secret',
         description: 'Your Criteo API client secret',
-        type: 'string',
+        type: 'password',
         required: true
       },
       advertiser_id: {
@@ -30,6 +30,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Criteo Advertiser ID',
         type: 'string',
         required: true
+      },
+      enable_batching: {
+        type: 'boolean',
+        label: 'Enable Batching',
+        description: 'Important: This setting should remain enabled!',
+        required: false,
+        default: true
       }
     },
     testAuthentication: async (request, { settings }) => {

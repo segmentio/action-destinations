@@ -7,11 +7,11 @@ import type { Payload } from './generated-types'
 export const productViewedEvents: ActionDefinition<Settings, Payload> = {
   title: 'Product Viewed Events',
   description:
-    'Product view events act as a positive signal for associated record objects — the associated Product ID.  Query ID is optional and indicates that the view events is the result of a search query.',
+    'Product view events act as a positive signal for associated record objects — the associated Product ID. Query ID is optional and indicates that the view event is the result of a search query.',
   fields: {
     objectID: {
       label: 'Product ID',
-      description: 'Product ID of the clicked item.',
+      description: 'Product ID of the viewed item.',
       type: 'string',
       required: true,
       default: {
@@ -43,15 +43,22 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
     userToken: {
       type: 'string',
       required: true,
-      description: 'The ID associated with the user.',
+      description:
+        'The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token',
       label: 'User Token',
       default: {
         '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
+          exists: { '@path': '$.anonymousId' },
+          then: { '@path': '$.anonymousId' },
+          else: { '@path': '$.userId' }
         }
       }
+    },
+    authenticatedUserToken: {
+      type: 'string',
+      description: 'The authenticated ID associated with the user.',
+      label: 'Authenticated User Token',
+      default: { '@path': '$.userId' }
     },
     timestamp: {
       type: 'string',
@@ -100,7 +107,8 @@ export const productViewedEvents: ActionDefinition<Settings, Payload> = {
       queryID: data.payload.queryID,
       objectIDs: [data.payload.objectID],
       timestamp: data.payload.timestamp ? new Date(data.payload.timestamp).valueOf() : undefined,
-      userToken: data.payload.userToken
+      userToken: data.payload.userToken,
+      authenticatedUserToken: data.payload.authenticatedUserToken
     }
     const insightPayload = { events: [insightEvent] }
 
