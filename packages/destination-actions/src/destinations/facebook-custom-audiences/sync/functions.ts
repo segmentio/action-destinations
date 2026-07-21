@@ -27,7 +27,7 @@ export async function send(
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const errorMessage = validate(payloads)
+  const errorMessage = validate(audienceId)
 
   if (errorMessage) {
     return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.BAD_REQUEST)
