@@ -363,7 +363,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
     const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-    const audienceMembership = resolveAudienceMembership(bundle.data, syncMode)
+    const audienceMembership = resolveAudienceMembership(bundle.data, syncMode, bundle.features)
 
     // Construct the data bundle to send to an action
     const dataBundle = {
@@ -474,7 +474,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
       const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
       const audienceMembership = bundle.data
-        .map((d) => resolveAudienceMembership(d, syncMode))
+        .map((d) => resolveAudienceMembership(d, syncMode, bundle.features))
         .filter((_, i) => !invalidPayloadIndices.has(i))
 
       const data = {
