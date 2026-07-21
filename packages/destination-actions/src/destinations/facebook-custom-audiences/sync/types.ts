@@ -1,15 +1,6 @@
 import { SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
 
-export type RawData = {
-  context?: {
-    personas?: {
-      computation_class?: string
-    }
-  }
-  properties?: Record<string, unknown>
-}
-
 export type PayloadMap = Map<number, Payload> 
 
 export interface GetAllAudienceResponse {

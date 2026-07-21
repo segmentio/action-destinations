@@ -63,24 +63,9 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
       it('should delete a batch of users successfully', async () => {
         // --- Segment Events ---
         const events = [
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-1',
-            properties: { email: 'user1@example.com' }
-          }),
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-2',
-            properties: { email: 'user2@example.com' }
-          }),
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-3',
-            properties: { email: 'user3@example.com' }
-          })
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-1', properties: { email: 'user1@example.com' } }),
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-2', properties: { email: 'user2@example.com' } }),
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-3', properties: { email: 'user3@example.com' } })
         ]
 
         // --- Mapping ---
@@ -169,24 +154,9 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
       it('should return error responses for all users when Facebook API returns an error', async () => {
         // --- Segment Events ---
         const events = [
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-1',
-            properties: { email: 'user1@example.com' }
-          }),
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-2',
-            properties: { email: 'user2@example.com' }
-          }),
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-3',
-            properties: { email: 'user3@example.com' }
-          })
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-1', properties: { email: 'user1@example.com' } }),
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-2', properties: { email: 'user2@example.com' } }),
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-3', properties: { email: 'user3@example.com' } })
         ]
 
         // --- Mapping ---
@@ -220,7 +190,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         // --- Facebook Error Response ---
         const facebookErrorResponse = {
           error: {
-            message: 'fbmessage: "Invalid parameter". message: "Bad Request". code: "100"',
+            message: "fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"",
             type: 'OAuthException',
             code: 100,
             fbtrace_id: 'AbcDeFgHiJk'
@@ -245,8 +215,7 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         const expectedError = {
           status: 400,
           errortype: 'OAuthException',
-          errormessage:
-            'fbmessage: "fbmessage: "Invalid parameter". message: "Bad Request". code: "100"". message: "Bad Request". code: "100"',
+          errormessage: "fbmessage: \"fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"\". message: \"Bad Request\". code: \"100\"",
           errorreporter: 'DESTINATION'
         }
 
@@ -284,18 +253,8 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
       it('should return validation error when audience ID is missing', async () => {
         // --- Segment Events ---
         const events = [
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-1',
-            properties: { email: 'user1@example.com' }
-          }),
-          createTestEvent({
-            type: 'track',
-            event: 'deleted',
-            userId: 'user-2',
-            properties: { email: 'user2@example.com' }
-          })
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-1', properties: { email: 'user1@example.com' } }),
+          createTestEvent({ type: 'track', event: 'deleted', userId: 'user-2', properties: { email: 'user2@example.com' } })
         ]
 
         // --- Mapping (no audience ID - hook outputs are empty) ---
@@ -324,14 +283,14 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
 
         expect(responses[0]).toMatchObject({
           status: 400,
-          errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+          errortype: 'BAD_REQUEST',
           errormessage: 'Missing audience ID.',
           body: { externalId: 'user-1', email: 'user1@example.com', enable_batching: true, batch_size: 10000 }
         })
 
         expect(responses[1]).toMatchObject({
           status: 400,
-          errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+          errortype: 'BAD_REQUEST',
           errormessage: 'Missing audience ID.',
           body: { externalId: 'user-2', email: 'user2@example.com', enable_batching: true, batch_size: 10000 }
         })
@@ -357,12 +316,9 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         }
 
         // --- Facebook Response ---
-        nock(`${BASE_URL}/${API_VERSION}`).delete(`/${ENGAGE_AUDIENCE_ID}/users`, expectedFacebookBody).reply(200, {
-          audience_id: ENGAGE_AUDIENCE_ID,
-          num_received: 2,
-          num_invalid_entries: 0,
-          invalid_entry_samples: {}
-        })
+        nock(`${BASE_URL}/${API_VERSION}`)
+          .delete(`/${ENGAGE_AUDIENCE_ID}/users`, expectedFacebookBody)
+          .reply(200, { audience_id: ENGAGE_AUDIENCE_ID, num_received: 2, num_invalid_entries: 0, invalid_entry_samples: {} })
 
         // --- Execute ---
         const responses = await testDestination.executeBatch('sync', {
@@ -420,19 +376,13 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
         }
 
         // --- Facebook Responses ---
-        nock(`${BASE_URL}/${API_VERSION}`).post(`/${ENGAGE_AUDIENCE_ID}/users`, expectedAddBody).reply(200, {
-          audience_id: ENGAGE_AUDIENCE_ID,
-          num_received: 2,
-          num_invalid_entries: 0,
-          invalid_entry_samples: {}
-        })
+        nock(`${BASE_URL}/${API_VERSION}`)
+          .post(`/${ENGAGE_AUDIENCE_ID}/users`, expectedAddBody)
+          .reply(200, { audience_id: ENGAGE_AUDIENCE_ID, num_received: 2, num_invalid_entries: 0, invalid_entry_samples: {} })
 
-        nock(`${BASE_URL}/${API_VERSION}`).delete(`/${ENGAGE_AUDIENCE_ID}/users`, expectedDeleteBody).reply(200, {
-          audience_id: ENGAGE_AUDIENCE_ID,
-          num_received: 2,
-          num_invalid_entries: 0,
-          invalid_entry_samples: {}
-        })
+        nock(`${BASE_URL}/${API_VERSION}`)
+          .delete(`/${ENGAGE_AUDIENCE_ID}/users`, expectedDeleteBody)
+          .reply(200, { audience_id: ENGAGE_AUDIENCE_ID, num_received: 2, num_invalid_entries: 0, invalid_entry_samples: {} })
 
         // --- Execute ---
         const responses = await testDestination.executeBatch('sync', {
@@ -487,7 +437,9 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
           }
         }
 
-        nock(`${BASE_URL}/${API_VERSION}`).delete(`/${ENGAGE_AUDIENCE_ID}/users`).reply(400, facebookErrorResponse)
+        nock(`${BASE_URL}/${API_VERSION}`)
+          .delete(`/${ENGAGE_AUDIENCE_ID}/users`)
+          .reply(400, facebookErrorResponse)
 
         // --- Execute ---
         const responses = await testDestination.executeBatch('sync', {
@@ -561,14 +513,14 @@ describe('FacebookCustomAudiences.sync - syncMode: delete', () => {
 
         expect(responses[0]).toMatchObject({
           status: 400,
-          errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+          errortype: 'BAD_REQUEST',
           errormessage: 'Missing audience ID.',
           body: { externalId: 'rm-1', email: 'remove1@test.com' }
         })
 
         expect(responses[1]).toMatchObject({
           status: 400,
-          errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+          errortype: 'BAD_REQUEST',
           errormessage: 'Missing audience ID.',
           body: { externalId: 'rm-2', email: 'remove2@test.com' }
         })

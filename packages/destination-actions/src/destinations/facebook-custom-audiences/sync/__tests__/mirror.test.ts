@@ -348,8 +348,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedDeleteError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage:
-          'error_user_title: "Update Restricted Fields and Rule". error_user_msg: "This custom audience has integrity restrictions.". fbmessage: "Invalid parameter". message: "Bad Request". code: "100"'
+        errormessage: "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
       }
 
       expect(responses[2]).toMatchObject({
@@ -453,7 +452,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedAddError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: 'fbmessage: "Failed to update the custom audience". message: "Bad Request". code: "2650"',
+        errormessage: "fbmessage: \"Failed to update the custom audience\". message: \"Bad Request\". code: \"2650\"",
         errorreporter: 'DESTINATION'
       }
 
@@ -712,8 +711,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedDeleteError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage:
-          'error_user_title: "Update Restricted Fields and Rule". error_user_msg: "This custom audience has integrity restrictions.". fbmessage: "Invalid parameter". message: "Bad Request". code: "100"'
+        errormessage: "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
       }
 
       expect(responses[2]).toMatchObject({
@@ -801,7 +799,7 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
       const expectedAddError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: 'fbmessage: "Failed to update the custom audience". message: "Bad Request". code: "2650"',
+        errormessage: "fbmessage: \"Failed to update the custom audience\". message: \"Bad Request\". code: \"2650\"",
         errorreporter: 'DESTINATION'
       }
 
@@ -941,13 +939,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Missing audience ID.'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Missing audience ID.'
       })
     })
