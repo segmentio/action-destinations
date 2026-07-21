@@ -1,10 +1,15 @@
 import { createTestIntegration } from '../create-test-integration'
 import { createTestEvent } from '../create-test-event'
-import { engageAudienceMembership, retlAudienceMembership, legacyJourneysAudienceMembership } from '../audience-membership'
+import {
+  engageAudienceMembership,
+  retlAudienceMembership,
+  legacyJourneysAudienceMembership
+} from '../audience-membership'
 import { FLAGS } from '../flags'
 import { DestinationDefinition } from '../destination-kit'
 import { ExecuteInput } from '../destination-kit/types'
 import { JSONObject } from '../json-object'
+import { SegmentEvent } from '../segment-event'
 
 describe('engageAudienceMembership', () => {
   describe('identify events', () => {
@@ -524,7 +529,7 @@ describe('audienceMembership on ExecuteInput in performBatch()', () => {
     const captureRef: BatchCaptureRef = {}
     const testDestination = createTestIntegration(makeBatchDestination(captureRef))
 
-    const events = [
+    const events: SegmentEvent[] = [
       {
         type: 'identify',
         userId: 'user-1',
@@ -575,7 +580,7 @@ describe('audienceMembership on ExecuteInput in performBatch()', () => {
   })
 
   describe('Legacy Journeys payloads (feature flagged)', () => {
-    const legacyJourneyEvents = [
+    const legacyJourneyEvents: Partial<SegmentEvent>[] = [
       {
         type: 'track',
         userId: 'user-1',
