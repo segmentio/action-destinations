@@ -1,8 +1,13 @@
+import { InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 export const BaseAlgoliaInsightsURL = 'https://insights.algolia.io'
 export const AlgoliaBehaviourURL = BaseAlgoliaInsightsURL + '/1/events'
-export const algoliaApiPermissionsUrl = (settings: Settings) =>
-  `https://${settings.appId}.algolia.net/1/keys/${settings.apiKey}`
+export const algoliaApiPermissionsUrl = (settings: Settings) => {
+  if (!/^[A-Z0-9]+$/i.test(settings.appId)) {
+    throw new InvalidAuthenticationError('Invalid Algolia Application ID format.')
+  }
+  return `https://${settings.appId}.algolia.net/1/keys/${settings.apiKey}`
+}
 
 export type AlgoliaEventType = 'view' | 'click' | 'conversion'
 
