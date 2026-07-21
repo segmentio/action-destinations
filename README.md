@@ -23,6 +23,7 @@ For more detailed instruction, see the following READMEs:
 
 ## Table of Contents:
 
+- [Generate a Destination with Claude Code](#generate-a-destination-with-claude-code)
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
 - [Example Destination](#example-destination)
@@ -35,6 +36,32 @@ For more detailed instruction, see the following READMEs:
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
+
+## Generate a Destination with Claude Code
+
+If you use [Claude Code](https://claude.com/claude-code), this repo ships skills that scaffold a full destination for you — from API docs to working code and tests.
+
+The simplest way is the one-command pipeline. Just run:
+
+```
+/orchestrate <Destination Name>
+```
+
+Then provide your **API source** (a docs URL, an OpenAPI spec, or a PRD) when prompted. It walks through every step — analyzing the API, mapping actions to endpoints, writing the code, and generating tests — pausing for your review along the way.
+
+Prefer to run one step at a time? These skills also work on their own:
+
+| Command                 | What it does                                    |
+| ----------------------- | ----------------------------------------------- |
+| `/refined-actions`      | Turn a PRD or API docs into a list of actions   |
+| `/endpoint-mapping`     | Map those actions to API endpoints and fields   |
+| `/spec-generator`       | Produce a full destination spec document        |
+| `/generate-destination` | Generate the destination code, types, and tests |
+| `/test-destination-e2e` | Generate a Jest e2e test suite that runs against a local serve server |
+
+📖 See [`.claude/skills/README.md`](./.claude/skills/README.md) and [`.claude/skills/QUICK_START.md`](./.claude/skills/QUICK_START.md) for details.
+
+> These skills accelerate the boilerplate — always review the generated code and follow the [Contributing Guide](./CONTRIBUTING.md) before opening a PR.
 
 ## Get started
 
