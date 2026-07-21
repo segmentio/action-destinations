@@ -81,8 +81,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -225,8 +224,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -313,8 +311,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -323,7 +320,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
       const expectedError = {
         status: 400,
         errortype: 'UNKNOWN_ERROR',
-        errormessage: "fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\"",
+        errormessage: 'fbmessage: "Invalid parameter". message: "Bad Request". code: "100"',
         errorreporter: 'DESTINATION'
       }
 
@@ -383,8 +380,7 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
         events,
         settings,
         auth,
-        mapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping
       })
 
       // --- Expected Segment MultiStatus Response ---
@@ -392,16 +388,121 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-1', email: 'user1@example.com', enable_batching: true, batch_size: 10000 }
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-2', email: 'user2@example.com', enable_batching: true, batch_size: 10000 }
+      })
+    })
+
+    it('should succeed for valid events when one event is filtered by schema validation', async () => {
+      // Event at index 1 has no userId, so externalId resolves to undefined and is stripped by
+      // removeEmptyValues. externalId is required — that payload is filtered out by the schema
+      // validator before performBatch is called. The audienceMembership array must also exclude
+      // the filtered event so its length matches the surviving payloads array.
+      const events = [
+        createTestEvent({
+          type: 'track',
+          event: 'Test Audience Entered Event Name',
+          userId: 'user-1',
+          properties: { email: 'user1@example.com', test_audience: true },
+          context: { personas: { computation_class: 'audience', computation_key: 'test_audience' } }
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Test Audience Entered Event Name',
+          userId: undefined as unknown as string,
+          properties: { email: 'user2@example.com', test_audience: true },
+          context: { personas: { computation_class: 'audience', computation_key: 'test_audience' } }
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Test Audience Entered Event Name',
+          userId: 'user-3',
+          properties: { email: 'user3@example.com', test_audience: true },
+          context: { personas: { computation_class: 'audience', computation_key: 'test_audience' } }
+        }),
+        createTestEvent({
+          type: 'track',
+          event: 'Test Audience Exited Event Name',
+          userId: 'user-4',
+          properties: { email: 'user4@example.com', test_audience: false },
+          context: { personas: { computation_class: 'audience', computation_key: 'test_audience' } }
+        })
+      ]
+
+      const mapping = {
+        __segment_internal_sync_mode: 'upsert',
+        externalId: { '@path': '$.userId' },
+        email: { '@path': '$.properties.email' },
+        retlOnMappingSave: {
+          inputs: {},
+          outputs: {
+            audienceName: 'test-audience',
+            audienceId: AUDIENCE_ID
+          }
+        },
+        enable_batching: true,
+        batch_size: 10000
+      }
+
+      const facebookAddResponse = {
+        audience_id: AUDIENCE_ID,
+        session_id: '123456789',
+        num_received: 2,
+        num_invalid_entries: 0,
+        invalid_entry_samples: {}
+      }
+
+      const facebookDeleteResponse = {
+        audience_id: AUDIENCE_ID,
+        session_id: '987654321',
+        num_received: 1,
+        num_invalid_entries: 0,
+        invalid_entry_samples: {}
+      }
+
+      nock(`${BASE_URL}/${API_VERSION}`).post(`/${AUDIENCE_ID}/users`).reply(200, facebookAddResponse)
+      nock(`${BASE_URL}/${API_VERSION}`).delete(`/${AUDIENCE_ID}/users`).reply(200, facebookDeleteResponse)
+
+      const responses = await testDestination.executeBatch('sync', {
+        events,
+        settings,
+        auth,
+        mapping
+      })
+
+      expect(responses.length).toBe(4)
+
+      // Index 0 — valid event, added successfully
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user-1', email: 'user1@example.com' }
+      })
+
+      // Index 1 — missing externalId, filtered at schema validation
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED'
+      })
+
+      // Index 2 — valid event, added successfully
+      expect(responses[2]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user-3', email: 'user3@example.com' }
+      })
+
+      // Index 3 — valid event, removed from audience successfully
+      expect(responses[3]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user-4', email: 'user4@example.com' },
+        sent: { audienceId: AUDIENCE_ID, method: 'DELETE' }
       })
     })
   })

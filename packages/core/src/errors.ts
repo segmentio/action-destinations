@@ -88,6 +88,20 @@ export class PayloadValidationError extends IntegrationError {
 }
 
 /**
+ * Error to indicate the payload has invalid audience membership.
+ * Should include a user-friendly message.
+ * These errors will not be retried and the user has to fix the payload.
+ */
+export class InvalidAudienceMembershipError extends IntegrationError {
+  /**
+   * @param message - a human-friendly message to display to users
+   */
+  constructor(message: string) {
+    super(message, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP, 400)
+  }
+}
+
+/**
  * Error to indicate HTTP API call to destination failed.
  * Should include a user-friendly message and status code.
  * Errors will be retried based on status code.
@@ -207,6 +221,8 @@ export enum CustomErrorCodes {
   GET_AUDIENCE_FAILED = 'GET_AUDIENCE_FAILED',
   // When the RETL onMappingSave hook fails
   RETL_ON_MAPPING_SAVE_FAILED = 'RETL_ON_MAPPING_SAVE_FAILED',
+  // When Audience Membership cannot be resolved correctly
+  INVALID_AUDIENCE_MEMBERSHIP = 'INVALID_AUDIENCE_MEMBERSHIP',
   // Fallback error code if no other error code matches
   UNKNOWN_ERROR = 'UNKNOWN_ERROR'
 }
