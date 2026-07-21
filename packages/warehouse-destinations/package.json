@@ -1,6 +1,6 @@
 {
   "name": "@segment/warehouse-destinations",
-  "version": "1.25.0",
+  "version": "1.27.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -30,7 +30,7 @@
   "engineStrict": true,
   "license": "MIT",
   "dependencies": {
-    "@segment/actions-core": "^3.170.0",
+    "@segment/actions-core": "^3.172.0",
     "globby": "^14.1.0"
   }
 }
