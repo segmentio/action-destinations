@@ -71,7 +71,7 @@ function cleanPropObj(
     ) {
       // If the value can be cast to a boolean
       cleanObj[cleanKey] = value.toLowerCase().trim() === 'true'
-    } else if (!isNaN(Number(value))) {
+    } else if (!isNaN(Number(value)) && !(typeof value === 'string' && value.trim().startsWith('+'))) {
       if (typeof value === 'string' && value.trim() === '') {
         // Empty strings stay as strings here. If compareSchemas determines
         // that HubSpot already has this field typed as a number,

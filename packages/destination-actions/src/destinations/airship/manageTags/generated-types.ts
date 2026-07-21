@@ -2,9 +2,17 @@
 
 export interface Payload {
   /**
-   * The identifier assigned in Airship as the Named User
+   * The identifier assigned in Airship as the Named User. Provide either this or Channel ID.
    */
-  named_user_id: string
+  named_user_id?: string
+  /**
+   * Airship Channel ID. Provide either this or Named User ID.
+   */
+  channel_id?: string
+  /**
+   * The Airship audience key for the channel type (e.g. android_channel, ios_channel, amazon_channel). If omitted, the generic channel key is used and Airship will resolve the type, which may introduce a slight delay.
+   */
+  channel_type?: string
   /**
    * Tag name to add or remove. Values for each tag should be boolean only. A true value creates a tag, a false value removes a tag. Non-boolean values will be ignored.
    */

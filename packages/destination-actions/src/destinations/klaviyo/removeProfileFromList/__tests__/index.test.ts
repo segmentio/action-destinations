@@ -1,8 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { AggregateAjvError } from '@segment/ajv-human-errors'
 import Definition from '../../index'
 import { API_URL } from '../../config'
-import { AggregateAjvError } from '@segment/ajv-human-errors'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -23,6 +23,22 @@ describe('Remove List from Profile', () => {
     await expect(testDestination.testAction('removeProfileFromList', { event, settings })).rejects.toThrowError(
       AggregateAjvError
     )
+  })
+
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      properties: {}
+    })
+
+    const mapping = {
+      list_id: listId,
+      external_id: 'a'.repeat(256)
+    }
+
+    await expect(
+      testDestination.testAction('removeProfileFromList', { event, mapping, settings })
+    ).rejects.toThrowError(AggregateAjvError)
   })
 
   it('should throw an error for invalid phone number format', async () => {
