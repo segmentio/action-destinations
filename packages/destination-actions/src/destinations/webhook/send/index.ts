@@ -88,6 +88,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
     }
+    // noop commit to trigger a new build
     try {
       return request(url, {
         method: method as RequestMethod,
