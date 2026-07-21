@@ -224,7 +224,7 @@ function getAudienceJSON(payload: Payload): AudienceJSON | undefined {
         event_type: "custom_event",
         data: {
             custom_event_type: "other",
-            source_message_id,
+            source_message_id: `aud_${source_message_id}`,
             timestamp_unixtime_ms: new Date(timestamp_unixtime_ms).getTime(), 
             event_name: "audiencemembershipupdate",
             custom_attributes: {
