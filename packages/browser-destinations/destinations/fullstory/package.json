@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fullstory",
-  "version": "1.102.0",
+  "version": "1.105.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -21,8 +21,8 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@fullstory/browser": "^2.0.3",
-    "@segment/actions-core": "^3.170.0",
-    "@segment/browser-destination-runtime": "^1.99.0"
+    "@segment/actions-core": "^3.173.0",
+    "@segment/browser-destination-runtime": "^1.102.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
