@@ -1,6 +1,13 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
-import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes, Features } from '@segment/actions-core'
+import {
+  RequestClient,
+  InvalidAudienceMembershipError,
+  IntegrationError,
+  MultiStatusResponse,
+  ErrorCodes,
+  Features
+} from '@segment/actions-core'
 import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -9,15 +16,13 @@ import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../constants
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
-/* 
+/*
  * Temporary function to handle audience membership when preset journeys_step_entered_track is in use.
- * All users will be added to the audience (no removals). 
- * This function will be removed once the Journeys team have migrated customers off of the  
- * journeys_step_entered_track preset. 
- */ 
-export function getJourneysMemberships(
-  rawDatas: RawData[] | undefined
-): boolean[] | undefined {
+ * All users will be added to the audience (no removals).
+ * This function will be removed once the Journeys team have migrated customers off of the
+ * journeys_step_entered_track preset.
+ */
+export function getJourneysMemberships(rawDatas: RawData[] | undefined): boolean[] | undefined {
   if (!rawDatas || (Array.isArray(rawDatas) && rawDatas.length === 0)) {
     return undefined
   }
@@ -27,7 +32,9 @@ export function getJourneysMemberships(
   const noneJourney = isJourneyStep.every((v) => !v)
 
   if (!allJourney && !noneJourney) {
-    throw new PayloadValidationError('Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.')
+    throw new InvalidAudienceMembershipError(
+      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
+    )
   }
 
   if (noneJourney) {
@@ -48,12 +55,12 @@ export async function send(
   rawData?: RawData[]
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
-  
+
   if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
     const journeyMemberships = getJourneysMemberships(rawData)
     if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
       if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
-        // The above check is to ensure that the future JourneysVs preset will be able to add + remove users from the audience. 
+        // The above check is to ensure that the future JourneysVs preset will be able to add + remove users from the audience.
         audienceMemberships = journeyMemberships
       }
     }
@@ -63,7 +70,7 @@ export async function send(
   const errorMessage = validate(payloads, audienceId, audienceMemberships)
 
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()
@@ -71,14 +78,20 @@ export async function send(
 
   payloads.forEach((payload, index) => {
     const audienceMembership = audienceMemberships?.[index]
-    if(audienceMembership === false){
+    if (audienceMembership === false) {
       deleteMap.set(index, payload)
-    } 
-    else if (audienceMembership === true){
+    } else if (audienceMembership === true) {
       addMap.set(index, payload)
-    } 
-    else if (audienceMembership === undefined){
-      setErrorResponse(msResponse, payload, 400, index, isBatch, "Audience membership details missing", ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    } else if (audienceMembership === undefined) {
+      setErrorResponse(
+        msResponse,
+        payload,
+        400,
+        index,
+        isBatch,
+        'Audience membership details missing',
+        ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP
+      )
     }
   })
 
@@ -99,7 +112,16 @@ export async function send(
   }
 }
 
-export async function sendRequest(request: RequestClient, audienceId: string, map: PayloadMap, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean, features?: Features, statsContext?: StatsContext): Promise<void> {
+export async function sendRequest(
+  request: RequestClient,
+  audienceId: string,
+  map: PayloadMap,
+  msResponse: MultiStatusResponse,
+  method: 'POST' | 'DELETE',
+  isBatch: boolean,
+  features?: Features,
+  statsContext?: StatsContext
+): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
   const json = getJSON(payloads)
@@ -121,8 +143,7 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
         }
       })
     }
-  } 
-  catch (error) {
+  } catch (error) {
     const { message, code, status } = parseFacebookError(error as FacebookResponseError)
 
     for (let i = 0; i < indices.length; i++) {
@@ -136,10 +157,19 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
   }
 }
 
-export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes | string, sent?: JSONLikeObject){
+export function setErrorResponse(
+  msResponse: MultiStatusResponse,
+  payload: Payload,
+  status: number,
+  index: number,
+  isBatch: boolean,
+  errormessage: string,
+  errortype: keyof typeof ErrorCodes | string,
+  sent?: JSONLikeObject
+) {
   if (!isBatch) {
-    if(errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
-      throw new PayloadValidationError(errormessage)
+    if (errortype === ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP) {
+      throw new InvalidAudienceMembershipError(errormessage)
     }
     throw new IntegrationError(errormessage, errortype, status)
   }
@@ -150,16 +180,25 @@ export function setErrorResponse(msResponse: MultiStatusResponse, payload: Paylo
     body: payload as unknown as JSONLikeObject,
     ...(sent ? { sent } : {})
   })
-} 
+}
 
-export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes): MultiStatusResponse {
+export function returnErrorResponse(
+  msResponse: MultiStatusResponse,
+  payloads: Payload[],
+  isBatch: boolean,
+  errormessage: string,
+  errortype: keyof typeof ErrorCodes
+): MultiStatusResponse {
   payloads.forEach((payload, i) => {
     setErrorResponse(msResponse, payload, 400, i, isBatch, errormessage, errortype)
   })
   return msResponse
 }
 
-export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string {
+export function getAudienceId(
+  payload: Payload,
+  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }
+): string {
   const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
   const { external_audience_id: payloadAudienceId } = payload
   return (hookAudienceId ?? payloadAudienceId) as string
@@ -189,13 +228,16 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(payloads: Payload[], audienceId: unknown, audienceMemberships?: AudienceMembership[]): string | undefined {
-  
-  if(!Array.isArray(audienceMemberships)){
+export function validate(
+  payloads: Payload[],
+  audienceId: unknown,
+  audienceMemberships?: AudienceMembership[]
+): string | undefined {
+  if (!Array.isArray(audienceMemberships)) {
     return 'Audience membership details for batch missing.'
   }
 
-  if(Array.isArray(audienceMemberships) && audienceMemberships.length !== payloads.length){
+  if (Array.isArray(audienceMemberships) && audienceMemberships.length !== payloads.length) {
     return 'Audience membership details count does not match batch payload count.'
   }
 
