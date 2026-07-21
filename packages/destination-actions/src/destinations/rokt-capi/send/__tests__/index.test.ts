@@ -645,6 +645,41 @@ describe('RoktCapi.send', () => {
           expect(body.ip).toBeUndefined()
           return true
         })
+        .reply(200, { success: true })
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          hashingConfiguration: {
+            hashEmail: true,
+            hashFirstName: true,
+            hashLastName: true,
+            hashMobile: true,
+            hashBillingZipcode: true
+          },
+          user_identities: {
+            email: '   ',
+            customerid: 'user-ws'
+          },
+          user_attributes: {
+            firstname: '',
+            lastname: '   ',
+            mobile: ' ',
+            billingzipcode: ''
+          },
+          device_info: {
+            http_header_user_agent: '  ',
+            ios_advertising_id: ''
+          },
+          ip: '   '
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
     it('should use distinct source_message_ids when a conversion and an audience event are sent together', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
@@ -712,28 +747,6 @@ describe('RoktCapi.send', () => {
         event,
         useDefaultMappings: true,
         mapping: {
-          hashingConfiguration: {
-            hashEmail: true,
-            hashFirstName: true,
-            hashLastName: true,
-            hashMobile: true,
-            hashBillingZipcode: true
-          },
-          user_identities: {
-            email: '   ',
-            customerid: 'user-ws'
-          },
-          user_attributes: {
-            firstname: '',
-            lastname: '   ',
-            mobile: ' ',
-            billingzipcode: ''
-          },
-          device_info: {
-            http_header_user_agent: '  ',
-            ios_advertising_id: ''
-          },
-          ip: '   '
           eventDetails: {
             conversiontype: 'Order Completed',
             source_message_id: 'msg-combined',
