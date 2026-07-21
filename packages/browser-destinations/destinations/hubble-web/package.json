@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-hubble-web",
-  "version": "1.84.1-staging-37058ed7a.0",
+  "version": "1.84.1-staging-bc2518a2e.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -20,8 +20,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "3.168.1-staging-37058ed7a.0",
-    "@segment/browser-destination-runtime": "1.97.1-staging-37058ed7a.0"
+    "@segment/actions-core": "3.168.1-staging-bc2518a2e.0",
+    "@segment/browser-destination-runtime": "1.97.1-staging-bc2518a2e.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
