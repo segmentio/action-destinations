@@ -22,6 +22,8 @@ Object {
   "extraMetadata": Object {
     "testType": "PdayLkf!",
   },
+  "first_name": "PdayLkf!",
+  "last_name": "PdayLkf!",
   "recording_url": "https://example.com/audio.wav",
 }
 `;

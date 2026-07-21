@@ -9,10 +9,14 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const UNIX_SECONDS_PATTERN = /^\d{10}$/
 
 function titleCase(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+  return value.charAt(0).toUpperCase() + value.slice(1)
 }
 
 function splitNameFromEmail(email?: string): { first_name?: string; last_name?: string } {
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return {}
+  }
+
   const localPart = email?.split('@')[0]?.split('+')[0]
   const nameParts = localPart?.split(/[^a-zA-Z0-9]+/).filter(Boolean) ?? []
 
@@ -26,6 +30,14 @@ function splitNameFromEmail(email?: string): { first_name?: string; last_name?: 
   }
 }
 
+function shouldDeriveFirstName(value?: string): boolean {
+  return value === undefined || value === null || value.trim() === ''
+}
+
+function shouldDeriveLastName(value?: string): boolean {
+  return value === undefined || value === null || (value !== '' && value.trim() === '')
+}
+
 function withEmailSplitNames(payload: Payload): Payload {
   if (!payload.assign_first_last_name_by_splitting_email) {
     return payload
@@ -35,15 +47,17 @@ function withEmailSplitNames(payload: Payload): Payload {
 
   return {
     ...payload,
-    agent_first_name: payload.agent_first_name || primaryAgentName.first_name,
-    agent_last_name: payload.agent_last_name || primaryAgentName.last_name,
+    agent_first_name: shouldDeriveFirstName(payload.agent_first_name)
+      ? primaryAgentName.first_name
+      : payload.agent_first_name,
+    agent_last_name: shouldDeriveLastName(payload.agent_last_name) ? primaryAgentName.last_name : payload.agent_last_name,
     agentLegs: payload.agentLegs?.map((agentLeg) => {
       const splitName = splitNameFromEmail(agentLeg.agent_email)
 
       return {
         ...agentLeg,
-        first_name: agentLeg.first_name || splitName.first_name,
-        last_name: agentLeg.last_name || splitName.last_name
+        first_name: shouldDeriveFirstName(agentLeg.first_name) ? splitName.first_name : agentLeg.first_name,
+        last_name: shouldDeriveLastName(agentLeg.last_name) ? splitName.last_name : agentLeg.last_name
       }
     })
   }
@@ -80,7 +94,11 @@ function validateSegmentPayload(payload: Payload): void {
       )
     }
 
-    if (agentLeg.last_name === undefined || agentLeg.last_name === null) {
+    if (
+      agentLeg.last_name === undefined ||
+      agentLeg.last_name === null ||
+      (agentLeg.last_name !== '' && agentLeg.last_name.trim() === '')
+    ) {
       throw new PayloadValidationError(
         'agentLegs.last_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split. Single-token email local-parts derive an empty last_name.'
       )
@@ -133,7 +151,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customer_first_name: {
       label: 'Customer First Name',
-      description: 'The first name for the customer.',
+      description: 'The first name for the customer. Use this field for new mappings.',
       type: 'string',
       default: {
         '@path': '$.properties.customer_first_name'
@@ -141,10 +159,28 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     customer_last_name: {
       label: 'Customer Last Name',
-      description: 'The last name for the customer.',
+      description: 'The last name for the customer. Use this field for new mappings.',
       type: 'string',
       default: {
         '@path': '$.properties.customer_last_name'
+      }
+    },
+    first_name: {
+      label: 'Customer First Name (Legacy)',
+      description:
+        'Deprecated legacy first name field currently used for customer names. For new mappings, use Customer First Name.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.first_name'
+      }
+    },
+    last_name: {
+      label: 'Customer Last Name (Legacy)',
+      description:
+        'Deprecated legacy last name field currently used for customer names. For new mappings, use Customer Last Name.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.last_name'
       }
     },
     agent_first_name: {
