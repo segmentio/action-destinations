@@ -21,7 +21,8 @@ const payload: Payload = {
       key1: 'value1',
       key2: 'value2'
     },
-    custom_prop_arr: ['value1', 'value2']
+    custom_prop_arr: ['value1', 'value2'],
+    custom_prop_phone: '+61400000000'
   }
 }
 
@@ -42,7 +43,8 @@ const expectedValidatedPayload: Payload = {
     custom_prop_datetime: '2024-01-08T13:52:50.212Z',
     custom_prop_date: '2024-01-08',
     custom_prop_obj: '{"key1":"value1","key2":"value2"}',
-    custom_prop_arr: '["value1","value2"]'
+    custom_prop_arr: '["value1","value2"]',
+    custom_prop_phone: '+61400000000'
   }
 }
 
@@ -102,11 +104,7 @@ describe('Hubspot.customEvent', () => {
 
       validate(payloadWithEmptyString, statsContext, logger, subscriptionMetadata)
 
-      expect(statsClient.incr).toHaveBeenCalledWith(
-        'hubspot.custom_event.empty_string_to_number',
-        1,
-        statsContext.tags
-      )
+      expect(statsClient.incr).toHaveBeenCalledWith('hubspot.custom_event.empty_string_to_number', 1, statsContext.tags)
       expect(logger.warn).toHaveBeenCalledWith(
         'hubspot.custom_event.empty_string_to_number destinationConfigId: dest-123 sourceId: src-456'
       )

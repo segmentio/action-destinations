@@ -1,6 +1,11 @@
 {
   "name": "@segment/analytics-browser-actions-google-analytics-4",
-  "version": "1.109.0",
+  "version": "1.113.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/google-analytics-4-web"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -15,8 +20,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/actions-core": "^3.168.0",
-    "@segment/browser-destination-runtime": "^1.97.0"
+    "@segment/actions-core": "^3.172.0",
+    "@segment/browser-destination-runtime": "^1.101.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
