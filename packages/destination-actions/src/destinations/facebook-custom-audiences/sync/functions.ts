@@ -11,38 +11,10 @@ import {
 import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
-import { PayloadMap, AudienceJSON, FacebookDataRow, RawData } from './types'
-import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../constants'
+import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
+import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
-
-/*
- * Temporary function to handle audience membership when preset journeys_step_entered_track is in use.
- * All users will be added to the audience (no removals).
- * This function will be removed once the Journeys team have migrated customers off of the
- * journeys_step_entered_track preset.
- */
-export function getJourneysMemberships(rawDatas: RawData[] | undefined): boolean[] | undefined {
-  if (!rawDatas || (Array.isArray(rawDatas) && rawDatas.length === 0)) {
-    return undefined
-  }
-
-  const isJourneyStep = rawDatas.map((raw) => raw?.context?.personas?.computation_class === 'journey_step')
-  const allJourney = isJourneyStep.every(Boolean)
-  const noneJourney = isJourneyStep.every((v) => !v)
-
-  if (!allJourney && !noneJourney) {
-    throw new InvalidAudienceMembershipError(
-      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
-    )
-  }
-
-  if (noneJourney) {
-    return undefined
-  }
-
-  return new Array(rawDatas.length).fill(true)
-}
 
 export async function send(
   request: RequestClient,
@@ -51,26 +23,14 @@ export async function send(
   audienceMemberships?: AudienceMembership[],
   hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
   features?: Features,
-  statsContext?: StatsContext,
-  rawData?: RawData[]
+  statsContext?: StatsContext
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
-
-  if (features && features[FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON]) {
-    const journeyMemberships = getJourneysMemberships(rawData)
-    if (Array.isArray(journeyMemberships) && journeyMemberships.length > 0) {
-      if (!audienceMemberships?.every((m) => typeof m === 'boolean')) {
-        // The above check is to ensure that the future JourneysVs preset will be able to add + remove users from the audience.
-        audienceMemberships = journeyMemberships
-      }
-    }
-  }
-
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const errorMessage = validate(payloads, audienceId, audienceMemberships)
+  const errorMessage = validate(payloads)
 
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP)
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.BAD_REQUEST)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()
@@ -229,18 +189,8 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
 }
 
 export function validate(
-  payloads: Payload[],
-  audienceId: unknown,
-  audienceMemberships?: AudienceMembership[]
+  audienceId: unknown
 ): string | undefined {
-  if (!Array.isArray(audienceMemberships)) {
-    return 'Audience membership details for batch missing.'
-  }
-
-  if (Array.isArray(audienceMemberships) && audienceMemberships.length !== payloads.length) {
-    return 'Audience membership details count does not match batch payload count.'
-  }
-
   if (!audienceId || typeof audienceId !== 'string') {
     return 'Missing audience ID.'
   }
