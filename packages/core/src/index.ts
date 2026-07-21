@@ -61,6 +61,7 @@ export { default as fetch, Request, Response, Headers } from './fetch'
 export type {
   BaseActionDefinition,
   ActionDefinition,
+  AsyncActionDefinition,
   ActionHookResponse,
   BaseDefinition,
   DestinationDefinition,
@@ -83,7 +84,9 @@ export type {
   StatsContext,
   Logger,
   Preset,
-  Result
+  Result,
+  PollPayload,
+  PollResponse
 } from './destination-kit'
 
 export type {
@@ -106,6 +109,7 @@ export type { RequestClient } from './create-request-client'
 export {
   ActionDestinationSuccessResponse,
   ActionDestinationErrorResponse,
+  AsyncBatchResponse,
   MultiStatusResponse
 } from './destination-kit/action'
 
