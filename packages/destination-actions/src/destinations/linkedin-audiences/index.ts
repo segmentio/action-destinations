@@ -5,7 +5,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
-import { LINKEDIN_API_VERSION } from './constants'
+import { getApiVersion } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
@@ -138,7 +138,7 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res?.data?.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, features }) {
     // Repeat calls to the same LinkedIn API endpoint were failing due to a `socket hang up`.
     // This seems to fix it: https://stackoverflow.com/questions/62500011/reuse-tcp-connection-with-node-fetch-in-node-js
     const agent = new https.Agent({ keepAlive: true })
@@ -146,7 +146,7 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'LinkedIn-Version': LINKEDIN_API_VERSION
+        'LinkedIn-Version': getApiVersion(features)
       },
       agent
     }
