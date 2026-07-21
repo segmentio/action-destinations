@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-core",
   "description": "Core runtime for Destinations Actions.",
-  "version": "3.168.1-staging-1034fc790.0",
+  "version": "3.168.1-staging-298502e4f.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
