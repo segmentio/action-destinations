@@ -1055,7 +1055,11 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
     const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-    const audienceMembership = bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
+    // Filter audienceMembership by the same invalid indices used to compact `payloads` above,
+    // so audienceMembership[i] stays aligned with payload[i] in performBatch.
+    const audienceMembership = bundle.data
+      .map((d) => resolveAudienceMembership(d, syncMode))
+      .filter((_, i) => !invalidPayloadIndices.has(i))
 
     const data = {
       rawData: bundle.data,
@@ -1098,7 +1102,11 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
       return { jobId: undefined, status: errorStatus, multiStatusResponse }
     }
 
-    const { jobId, status, multiStatusResponse: batchMultiStatus } = performBatchResponse
+    const { jobId, multiStatusResponse: batchMultiStatus } = performBatchResponse
+    // performBatch resolved without throwing, so the batch submission itself succeeded.
+    // Default the top-level status to 200 when an integration omits it, rather than leaking
+    // `status: undefined` to callers; per-item outcomes are carried in the multiStatusResponse.
+    const status = performBatchResponse.status ?? 200
 
     // Process the multi-status response from performBatch
     let resultsReadIndex = 0

@@ -2560,7 +2560,7 @@ describe('destination kit', () => {
         const destinationTest = new Destination(destinationWithAsyncAction)
         const pollPayload: PollPayload = {
           jobId: 'test-job-123',
-          attempt: 1
+          uploadCount: 1
         }
 
         await expect(
@@ -2574,12 +2574,8 @@ describe('destination kit', () => {
       test('should execute poll and return status IN_PROGRESS', async () => {
         const pollResponse: PollResponse = {
           jobId: 'test-job-123',
-          status: 'IN_PROGRESS',
-          stats: {
-            totalEventsCount: 100,
-            successfulEventsCount: 50,
-            failedEventsCount: 0
-          }
+          status: 200,
+          jobStatus: 'IN_PROGRESS'
         }
 
         mockPerformPoll.mockResolvedValue(pollResponse)
@@ -2587,7 +2583,7 @@ describe('destination kit', () => {
         const destinationTest = new Destination(destinationWithAsyncAction)
         const pollPayload: PollPayload = {
           jobId: 'test-job-123',
-          attempt: 1
+          uploadCount: 100
         }
 
         const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
@@ -2596,26 +2592,21 @@ describe('destination kit', () => {
         })
 
         expect(result.jobId).toBe('test-job-123')
-        expect(result.status).toBe('IN_PROGRESS')
-        expect(result.stats.totalEventsCount).toBe(100)
-        expect(result.stats.successfulEventsCount).toBe(50)
+        expect(result.jobStatus).toBe('IN_PROGRESS')
+        expect(result.status).toBe(200)
         expect(mockPerformPoll).toHaveBeenCalledTimes(1)
       })
 
-      test('should execute poll and return status COMPLETED with granular results', async () => {
-        const granularResults = new MultiStatusResponse()
-        granularResults.pushSuccessResponse({ status: 200, body: {}, sent: {} })
-        granularResults.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+      test('should execute poll and return status SUCCEEDED with a multi-status response', async () => {
+        const multiStatusResponse = new MultiStatusResponse()
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
 
         const pollResponse: PollResponse = {
           jobId: 'test-job-456',
-          status: 'COMPLETED',
-          stats: {
-            totalEventsCount: 2,
-            successfulEventsCount: 2,
-            failedEventsCount: 0
-          },
-          granularResults
+          status: 200,
+          jobStatus: 'SUCCEEDED',
+          multiStatusResponse
         }
 
         mockPerformPoll.mockResolvedValue(pollResponse)
@@ -2623,7 +2614,7 @@ describe('destination kit', () => {
         const destinationTest = new Destination(destinationWithAsyncAction)
         const pollPayload: PollPayload = {
           jobId: 'test-job-456',
-          attempt: 3
+          uploadCount: 2
         }
 
         const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
@@ -2632,27 +2623,21 @@ describe('destination kit', () => {
         })
 
         expect(result.jobId).toBe('test-job-456')
-        expect(result.status).toBe('COMPLETED')
-        expect(result.stats.totalEventsCount).toBe(2)
-        expect(result.stats.successfulEventsCount).toBe(2)
-        expect(result.stats.failedEventsCount).toBe(0)
-        expect(result.granularResults).toBeDefined()
+        expect(result.jobStatus).toBe('SUCCEEDED')
+        expect(result.status).toBe(200)
+        expect(result.multiStatusResponse).toBeDefined()
+        expect(result.multiStatusResponse?.length()).toBe(2)
       })
 
       test('should execute poll and return status FAILED', async () => {
+        const multiStatusResponse = new MultiStatusResponse()
+        multiStatusResponse.pushErrorResponse({ status: 500, errormessage: 'Destination API returned an error' })
+
         const pollResponse: PollResponse = {
           jobId: 'test-job-789',
-          status: 'FAILED',
-          stats: {
-            totalEventsCount: 10,
-            successfulEventsCount: 0,
-            failedEventsCount: 10
-          },
-          batchResults: {
-            status: 500,
-            errortype: 'UNKNOWN_ERROR',
-            errormessage: 'Destination API returned an error'
-          }
+          status: 500,
+          jobStatus: 'FAILED',
+          multiStatusResponse
         }
 
         mockPerformPoll.mockResolvedValue(pollResponse)
@@ -2660,7 +2645,7 @@ describe('destination kit', () => {
         const destinationTest = new Destination(destinationWithAsyncAction)
         const pollPayload: PollPayload = {
           jobId: 'test-job-789',
-          attempt: 5
+          uploadCount: 10
         }
 
         const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
@@ -2669,22 +2654,46 @@ describe('destination kit', () => {
         })
 
         expect(result.jobId).toBe('test-job-789')
-        expect(result.status).toBe('FAILED')
-        expect(result.stats.failedEventsCount).toBe(10)
-        expect(result.batchResults).toBeDefined()
-        expect(result.batchResults?.status).toBe(500)
-        expect(result.batchResults?.errormessage).toBe('Destination API returned an error')
+        expect(result.jobStatus).toBe('FAILED')
+        expect(result.status).toBe(500)
+        expect(result.multiStatusResponse).toBeDefined()
+        const errResponse = result.multiStatusResponse?.getResponseAtIndex(0)
+        expect(errResponse?.value().status).toBe(500)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toBe(
+          'Destination API returned an error'
+        )
+      })
+
+      test('should execute poll and return status RETRYABLE_ERROR', async () => {
+        const pollResponse: PollResponse = {
+          jobId: 'test-job-retry',
+          status: 500,
+          jobStatus: 'RETRYABLE_ERROR'
+        }
+
+        mockPerformPoll.mockResolvedValue(pollResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-retry',
+          uploadCount: 10
+        }
+
+        const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
+          pollPayload,
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-retry')
+        expect(result.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(result.status).toBe(500)
       })
 
       test('should pass auth data extracted from settings to poll', async () => {
         const pollResponse: PollResponse = {
           jobId: 'test-job-auth',
-          status: 'COMPLETED',
-          stats: {
-            totalEventsCount: 1,
-            successfulEventsCount: 1,
-            failedEventsCount: 0
-          }
+          status: 200,
+          jobStatus: 'SUCCEEDED'
         }
 
         mockPerformPoll.mockResolvedValue(pollResponse)
@@ -2692,7 +2701,7 @@ describe('destination kit', () => {
         const destinationTest = new Destination(destinationWithAsyncAction)
         const pollPayload: PollPayload = {
           jobId: 'test-job-auth',
-          attempt: 1
+          uploadCount: 1
         }
 
         await destinationTest.executeAsyncPoll('asyncTrackEvent', {

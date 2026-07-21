@@ -611,6 +611,28 @@ describe('Async Batching', () => {
     })
   })
 
+  test('defaults status to 200 when performBatch omits it', async () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: { user_id: 'user_123' } })
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: { user_id: 'user_456' } })
+
+    // Integration returns a response without a top-level status (untyped boundary)
+    mockPerformBatch.mockResolvedValue({
+      jobId: 'async-job-no-status',
+      multiStatusResponse
+    } as unknown as AsyncBatchResponse)
+
+    const destination = new Destination(asyncBatchDestination)
+    const result = await destination.executeAsyncBatch('asyncTestAction', {
+      events,
+      mapping: { user_id: { '@path': '$.userId' } },
+      settings: {}
+    })
+
+    expect(result.jobId).toBe('async-job-no-status')
+    expect(result.status).toBe(200)
+  })
+
   test('transforms all the payloads based on the mapping', async () => {
     const multiStatusResponse = new MultiStatusResponse()
     multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
@@ -679,6 +701,75 @@ describe('Async Batching', () => {
     expect(errResponse2 instanceof ActionDestinationErrorResponse && errResponse2.value().errortype).toBe(
       ErrorCodes.PAYLOAD_VALIDATION_FAILED
     )
+  })
+
+  test('keeps audienceMembership aligned with the payload after invalid events are filtered', async () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+
+    mockPerformBatch.mockResolvedValue({
+      jobId: 'audience-align-job',
+      status: 200,
+      multiStatusResponse
+    } as AsyncBatchResponse)
+
+    const personas = { computation_class: 'audience', computation_key: 'in_audience' }
+
+    // Valid, membership = true
+    const addedEvent = createTestEvent({
+      userId: 'user_added',
+      type: 'track',
+      event: 'Audience Entered',
+      context: { personas },
+      properties: { in_audience: true }
+    })
+    // Invalid (missing required user_id) — filtered out before performBatch.
+    // Sits between the two valid events, so a misaligned membership array would be detectable.
+    const invalidEvent = createTestEvent({
+      userId: undefined,
+      type: 'track',
+      event: 'Audience Entered',
+      context: { personas },
+      properties: { in_audience: true }
+    })
+    // Valid, membership = false
+    const removedEvent = createTestEvent({
+      userId: 'user_removed',
+      type: 'track',
+      event: 'Audience Exited',
+      context: { personas },
+      properties: { in_audience: false }
+    })
+
+    const destination = new Destination(asyncBatchDestination)
+    await destination.executeAsyncBatch('asyncTestAction', {
+      events: [addedEvent, invalidEvent, removedEvent],
+      mapping: { user_id: { '@path': '$.userId' } },
+      settings: {}
+    })
+
+    expect(mockPerformBatch).toHaveBeenCalledTimes(1)
+    const data = mockPerformBatch.mock.calls[0][1]
+    // The invalid event is dropped, so payload and audienceMembership both have length 2 and stay aligned:
+    // audienceMembership[0] -> user_added (true), audienceMembership[1] -> user_removed (false).
+    expect(data.payload).toEqual([{ user_id: 'user_added' }, { user_id: 'user_removed' }])
+    expect(data.audienceMembership).toEqual([true, false])
+  })
+
+  test('does not throw and returns an empty multi-status response for an empty batch', async () => {
+    const destination = new Destination(asyncBatchDestination)
+
+    const result = await destination.executeAsyncBatch('asyncTestAction', {
+      events: [],
+      mapping: { user_id: { '@path': '$.userId' } },
+      settings: {}
+    })
+
+    expect(mockPerformBatch).not.toHaveBeenCalled()
+    expect(result.jobId).toBeUndefined()
+    expect(result.status).toBe(200)
+    expect(result.multiStatusResponse.length()).toBe(0)
   })
 
   test('does not invoke performBatch if there are no valid events', async () => {
@@ -933,104 +1024,116 @@ describe('Async Poll', () => {
   test('poll returns IN_PROGRESS status', async () => {
     const pollResponse: PollResponse = {
       jobId: 'poll-job-123',
-      status: 'IN_PROGRESS',
-      stats: {
-        successCount: 50,
-        failureCount: 0
-      }
+      status: 200,
+      jobStatus: 'IN_PROGRESS'
     }
 
     mockPerformPoll.mockResolvedValue(pollResponse)
 
     const destination = new Destination(asyncPollDestination)
-    const pollPayload: PollPayload = { jobId: 'poll-job-123', attempt: 1 }
+    const pollPayload: PollPayload = { jobId: 'poll-job-123', uploadCount: 50 }
 
     const result = await destination.executeAsyncPoll('asyncPollAction', {
       pollPayload,
       settings: {}
     })
 
-    expect(result.status).toBe('IN_PROGRESS')
+    expect(result.jobStatus).toBe('IN_PROGRESS')
+    expect(result.status).toBe(200)
     expect(result.jobId).toBe('poll-job-123')
-    expect(result.stats.successCount).toBe(50)
   })
 
-  test('poll returns COMPLETED status with granular results', async () => {
-    const granularResults = new MultiStatusResponse()
-    granularResults.pushSuccessResponse({ status: 200, body: {}, sent: {} })
-    granularResults.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+  test('poll returns SUCCEEDED status with multi-status response', async () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
 
     const pollResponse: PollResponse = {
       jobId: 'poll-job-456',
-      status: 'COMPLETED',
-      stats: {
-        successCount: 2,
-        failureCount: 0
-      },
-      granularResults
+      status: 200,
+      jobStatus: 'SUCCEEDED',
+      multiStatusResponse
     }
 
     mockPerformPoll.mockResolvedValue(pollResponse)
 
     const destination = new Destination(asyncPollDestination)
-    const pollPayload: PollPayload = { jobId: 'poll-job-456', attempt: 5 }
+    const pollPayload: PollPayload = { jobId: 'poll-job-456', uploadCount: 2 }
 
     const result = await destination.executeAsyncPoll('asyncPollAction', {
       pollPayload,
       settings: {}
     })
 
-    expect(result.status).toBe('COMPLETED')
+    expect(result.jobStatus).toBe('SUCCEEDED')
     expect(result.jobId).toBe('poll-job-456')
-    expect(result.stats.successCount).toBe(2)
-    expect(result.granularResults).toBeDefined()
+    expect(result.multiStatusResponse).toBeDefined()
+    expect(result.multiStatusResponse?.length()).toBe(2)
   })
 
-  test('poll returns FAILED status with batch error', async () => {
+  test('poll returns FAILED status with a batch-level error', async () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    multiStatusResponse.pushErrorResponse({ status: 500, errormessage: 'External API failure' })
+
     const pollResponse: PollResponse = {
       jobId: 'poll-job-789',
-      status: 'FAILED',
-      stats: {
-        successCount: 0,
-        failureCount: 10
-      },
-      batchResults: {
-        status: 500,
-        errortype: 'UNKNOWN_ERROR',
-        errormessage: 'External API failure'
-      }
+      status: 500,
+      jobStatus: 'FAILED',
+      multiStatusResponse
     }
 
     mockPerformPoll.mockResolvedValue(pollResponse)
 
     const destination = new Destination(asyncPollDestination)
-    const pollPayload: PollPayload = { jobId: 'poll-job-789', attempt: 3 }
+    const pollPayload: PollPayload = { jobId: 'poll-job-789', uploadCount: 10 }
 
     const result = await destination.executeAsyncPoll('asyncPollAction', {
       pollPayload,
       settings: {}
     })
 
-    expect(result.status).toBe('FAILED')
-    expect(result.stats.failureCount).toBe(10)
-    expect(result.batchResults?.status).toBe(500)
-    expect(result.batchResults?.errormessage).toBe('External API failure')
+    expect(result.jobStatus).toBe('FAILED')
+    expect(result.status).toBe(500)
+    const errResponse = result.multiStatusResponse?.getResponseAtIndex(0)
+    expect(errResponse?.value().status).toBe(500)
+    expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toBe(
+      'External API failure'
+    )
   })
 
-  test('poll passes attempt number correctly', async () => {
+  test('poll returns RETRYABLE_ERROR status on a transient failure', async () => {
     const pollResponse: PollResponse = {
-      jobId: 'poll-job-attempt',
-      status: 'IN_PROGRESS',
-      stats: {
-        successCount: 5,
-        failureCount: 0
-      }
+      jobId: 'poll-job-retry',
+      status: 429,
+      jobStatus: 'RETRYABLE_ERROR'
     }
 
     mockPerformPoll.mockResolvedValue(pollResponse)
 
     const destination = new Destination(asyncPollDestination)
-    const pollPayload: PollPayload = { jobId: 'poll-job-attempt', attempt: 7 }
+    const pollPayload: PollPayload = { jobId: 'poll-job-retry', uploadCount: 10 }
+
+    const result = await destination.executeAsyncPoll('asyncPollAction', {
+      pollPayload,
+      settings: {}
+    })
+
+    expect(result.jobStatus).toBe('RETRYABLE_ERROR')
+    expect(result.status).toBe(429)
+    expect(result.jobId).toBe('poll-job-retry')
+  })
+
+  test('poll passes the poll payload through to performPoll', async () => {
+    const pollResponse: PollResponse = {
+      jobId: 'poll-job-upload',
+      status: 200,
+      jobStatus: 'IN_PROGRESS'
+    }
+
+    mockPerformPoll.mockResolvedValue(pollResponse)
+
+    const destination = new Destination(asyncPollDestination)
+    const pollPayload: PollPayload = { jobId: 'poll-job-upload', uploadCount: 7 }
 
     await destination.executeAsyncPoll('asyncPollAction', {
       pollPayload,
@@ -1040,14 +1143,14 @@ describe('Async Poll', () => {
     expect(mockPerformPoll).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
-        payload: { jobId: 'poll-job-attempt', attempt: 7 }
+        payload: { jobId: 'poll-job-upload', uploadCount: 7 }
       })
     )
   })
 
   test('poll throws error for non-existent action', async () => {
     const destination = new Destination(asyncPollDestination)
-    const pollPayload: PollPayload = { jobId: 'poll-job-error', attempt: 1 }
+    const pollPayload: PollPayload = { jobId: 'poll-job-error', uploadCount: 1 }
 
     await expect(
       destination.executeAsyncPoll('nonExistentAction', {

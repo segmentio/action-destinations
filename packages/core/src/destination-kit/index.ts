@@ -782,8 +782,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     let audienceSettings = {} as AudienceSettings
-    // All events should be batched on the same audience
-    if (events[0].context?.personas) {
+    // All events should be batched on the same audience.
+    // Guard against an empty batch: reading events[0] on an empty array would throw.
+    // Downstream executeBatch returns a 200 with an empty MultiStatusResponse when there are no payloads.
+    if (events.length > 0 && events[0].context?.personas) {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
