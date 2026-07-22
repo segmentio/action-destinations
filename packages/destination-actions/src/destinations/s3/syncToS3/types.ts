@@ -1,3 +1,14 @@
+import type { EncryptionMethod } from '../../../lib/hashing-utils'
+
+export type HashAlgorithm = Extract<EncryptionMethod, 'sha256'>
+
+export type Normalization = 'none' | 'lowercase' | 'trim' | 'lowercase_trim'
+
+export interface ColumnTransform {
+  algorithm?: HashAlgorithm
+  normalize: Normalization
+}
+
 export interface Credentials {
   accessKeyId: string
   secretAccessKey: string
@@ -15,6 +26,6 @@ export interface RawMapping {
 }
 
 export interface ColumnHeader {
-  cleanName: string 
+  cleanName: string
   originalName: string
 }
