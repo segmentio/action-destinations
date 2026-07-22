@@ -45,7 +45,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      return request(`https://integrations.survicate.com/endpoint/segment/check`, {
+      return request(`https://hv.survicate.com/integrations/partners/segment/check`, {
         method: 'get',
         headers: {
           Authorization: `Bearer ${settings.apiKey}`,
