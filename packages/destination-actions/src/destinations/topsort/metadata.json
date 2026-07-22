@@ -121,9 +121,9 @@
         },
         "resolvedBidId": {
           "label": "Resolved Bid ID",
-          "description": "Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.",
+          "description": "Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters. Required for onsite sponsored events; omit for offsite or organic events, which are attributed via entity, externalCampaignId/externalVendorId and channel instead.",
           "type": "string",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -774,6 +774,32 @@
           "dynamic": false,
           "default": {
             "@path": "$.properties.channel"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dspMetadata": {
+          "label": "DSP Metadata",
+          "description": "Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { \"gclid\": \"...\" } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Values must be strings (the API expects a map of string to string); non-string values are JSON-stringified before sending. Typically only set for offsite events.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.dspMetadata"
           },
           "choices": null,
           "placeholder": null,
@@ -1111,9 +1137,9 @@
         },
         "resolvedBidId": {
           "label": "Resolved Bid ID",
-          "description": "Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters.",
+          "description": "Identifier of an instance of a resolved auction for a determined product. The length should not exceed 128 characters. Required for onsite sponsored events; omit for offsite or organic events, which are attributed via entity, externalCampaignId/externalVendorId and channel instead.",
           "type": "string",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -1764,6 +1790,32 @@
           "dynamic": false,
           "default": {
             "@path": "$.properties.channel"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dspMetadata": {
+          "label": "DSP Metadata",
+          "description": "Metadata used to forward click identifiers to the DSP for offsite conversions (e.g. { \"gclid\": \"...\" } for Google, or the equivalent click identifier for Meta). The accepted keys depend on the advertising platform. Values must be strings (the API expects a map of string to string); non-string values are JSON-stringified before sending. Typically only set for offsite events.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.dspMetadata"
           },
           "choices": null,
           "placeholder": null,
@@ -2421,6 +2473,9 @@
         },
         "channel": {
           "@path": "$.properties.channel"
+        },
+        "dspMetadata": {
+          "@path": "$.properties.dspMetadata"
         }
       },
       "eventSlug": null
@@ -2516,6 +2571,9 @@
         },
         "channel": {
           "@path": "$.properties.channel"
+        },
+        "dspMetadata": {
+          "@path": "$.properties.dspMetadata"
         }
       },
       "eventSlug": null
@@ -2701,6 +2759,9 @@
         },
         "channel": {
           "@path": "$.properties.channel"
+        },
+        "dspMetadata": {
+          "@path": "$.properties.dspMetadata"
         }
       },
       "eventSlug": null
@@ -2796,6 +2857,9 @@
         },
         "channel": {
           "@path": "$.properties.channel"
+        },
+        "dspMetadata": {
+          "@path": "$.properties.dspMetadata"
         }
       },
       "eventSlug": null
