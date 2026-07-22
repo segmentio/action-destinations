@@ -258,7 +258,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         required: true,
         choices: ['none', ...SUPPORTED_HASH_ALGORITHMS].map((value) => ({ label: value, value })),
         default: 'none',
-        disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
+        disabledInputMethods: ['enrichment', 'function', 'variable']
       },
       normalize: {
         label: 'Normalize',
@@ -268,7 +268,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
         required: true,
         choices: SUPPORTED_NORMALIZATIONS.map((value) => ({ label: value, value })),
         default: 'none',
-        disabledInputMethods: ['enrichment', 'function', 'variable', 'literal']
+        disabledInputMethods: ['enrichment', 'function', 'variable']
       }
     }
   },
