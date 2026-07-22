@@ -47,7 +47,7 @@ describe('Survicate Cloud Mode - identifyUser', () => {
       }
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/identify', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/identify', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('identifyUser', {
       event,
@@ -75,7 +75,7 @@ describe('Survicate Cloud Mode - identifyUser', () => {
       }
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/identify', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/identify', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('identifyUser', {
       event,
@@ -103,7 +103,7 @@ describe('Survicate Cloud Mode - identifyUser', () => {
       }
     }
 
-    nock('https://integrations.survicate.com').post('/endpoint/segment/identify', expectedJson).reply(200, {})
+    nock('https://hv.survicate.com').post('/integrations/partners/segment/identify', expectedJson).reply(200, {})
 
     const response = await testDestination.testAction('identifyUser', {
       event,

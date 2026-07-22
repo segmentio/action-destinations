@@ -1,6 +1,11 @@
 {
   "name": "@segment/warehouse-destinations",
-  "version": "1.23.0",
+  "version": "1.29.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/warehouse-destinations"
+  },
   "description": "Definitions for warehouse destinations. Only used for definitions - should not be imported for anything other than types.",
   "publishConfig": {
     "access": "public",
@@ -25,7 +30,7 @@
   "engineStrict": true,
   "license": "MIT",
   "dependencies": {
-    "@segment/actions-core": "^3.168.0",
+    "@segment/actions-core": "^3.174.0",
     "globby": "^14.1.0"
   }
 }
