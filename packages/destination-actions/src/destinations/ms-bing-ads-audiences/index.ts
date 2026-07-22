@@ -160,7 +160,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
       }
 
       // A 200 with no AudienceId and no PartialError is an ambiguous failure — classify as 500
-      // (retryable) since we have no signal that it's caller-actionable.
       const audienceId = response?.data?.AudienceIds?.[0]
       if (!audienceId) {
         throw new IntegrationError('Failed to create audience: No AudienceId returned', 'NO_AUDIENCE_ID', 500)
