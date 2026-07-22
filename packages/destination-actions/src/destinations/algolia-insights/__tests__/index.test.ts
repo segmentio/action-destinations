@@ -48,6 +48,46 @@ describe('Algolia Insights', () => {
       expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
     })
 
+    it('should accept a valid 10-character alphanumeric appId', async () => {
+      const settings = {
+        appId: 'ABCDE12345',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).not.toThrow()
+    })
+
+    it('should reject an appId shorter than 10 characters', async () => {
+      const settings = {
+        appId: 'ABCD1234',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+    })
+
+    it('should reject an appId longer than 10 characters', async () => {
+      const settings = {
+        appId: 'ABCDE123456',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+    })
+
+    it('should reject an appId with special characters', async () => {
+      const settings = {
+        appId: 'ABCD!@#$%^',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+    })
+
+    it('should accept a valid 10-character lowercase alphanumeric appId', async () => {
+      const settings = {
+        appId: 'abcde12345',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).not.toThrow()
+    })
+
     it('should reject invalid acl', async () => {
       const settings = {
         appId: 'ABCDE12345',

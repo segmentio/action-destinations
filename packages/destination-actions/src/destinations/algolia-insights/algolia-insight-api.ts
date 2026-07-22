@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 export const BaseAlgoliaInsightsURL = 'https://insights.algolia.io'
 export const AlgoliaBehaviourURL = BaseAlgoliaInsightsURL + '/1/events'
 export const algoliaApiPermissionsUrl = (settings: Settings) => {
-  if (!/^[A-Z0-9]+$/i.test(settings.appId)) {
+  if (!/^[A-Z0-9]{10}$/i.test(settings.appId)) {
     throw new InvalidAuthenticationError('Invalid Algolia Application ID format.')
   }
   return `https://${settings.appId}.algolia.net/1/keys/${settings.apiKey}`
