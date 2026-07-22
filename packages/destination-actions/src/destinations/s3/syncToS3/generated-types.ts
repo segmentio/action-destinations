@@ -122,11 +122,11 @@ export interface Payload {
      */
     column_name: string
     /**
-     * The hashing algorithm to apply. Select None to normalize the value without hashing it.
+     * The hashing algorithm to apply. Select 'none' to normalize the value without hashing it.
      */
     hash_algorithm: string
     /**
-     * How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select None to leave the value unchanged.
+     * How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select 'none' to leave the value unchanged.
      */
     normalize: string
   }[]
