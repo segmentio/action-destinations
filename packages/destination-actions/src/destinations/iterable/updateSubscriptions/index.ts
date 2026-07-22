@@ -7,7 +7,7 @@ import { getSubscriptionGroupId } from './dynamic-fields'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Subscriptions',
   description:
-    'Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists.',
+    'Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists. This integration is only supported on Iterable projects with opt-in Message Type Subscriptions and the Subscriptions API enabled.',
   defaultSubscription: 'type = "track" and event = "Subscriptions Updated"',
   fields: {
     identifier: {
