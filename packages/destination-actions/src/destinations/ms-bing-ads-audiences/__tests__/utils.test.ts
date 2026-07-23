@@ -5,13 +5,16 @@ import {
   sendDataToMicrosoftBingAds,
   handleHttpError,
   handleMultistatusResponse,
-  categorizePayloadByAction
+  categorizePayloadByAction,
+  readResponseBody,
+  formatBingErrorBody,
+  MAX_ERROR_BODY_LENGTH
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import { Payload } from '../syncAudiences/generated-types'
 import { SyncAudiencePayload } from '../types'
-import { ModifiedResponse } from '@segment/actions-core/*'
 
 const createMockMsResponse = (): MultiStatusResponse & { getResponses: () => any[] } => {
   const responses: any[] = []
@@ -617,5 +620,84 @@ describe('handleMultistatusResponse', () => {
         errormessage: 'InvalidInput: The input is invalid'
       })
     )
+  })
+})
+
+describe('readResponseBody', () => {
+  const asResponse = (obj: any): ModifiedResponse => obj as ModifiedResponse
+
+  it('returns an empty string when there is no response', async () => {
+    expect(await readResponseBody(undefined)).toBe('')
+  })
+
+  it('returns string content directly', async () => {
+    const res = asResponse({ content: 'An internal error has occurred.' })
+    expect(await readResponseBody(res)).toBe('An internal error has occurred.')
+  })
+
+  it('stringifies object content', async () => {
+    const res = asResponse({ content: { Errors: [{ ErrorCode: 'InternalError' }] } })
+    expect(await readResponseBody(res)).toBe('{"Errors":[{"ErrorCode":"InternalError"}]}')
+  })
+
+  it('decodes Buffer content as utf8', async () => {
+    const res = asResponse({ content: Buffer.from('buffered body') })
+    expect(await readResponseBody(res)).toBe('buffered body')
+  })
+
+  it('falls back to text() when content is absent', async () => {
+    const res = asResponse({ text: () => Promise.resolve('from stream') })
+    expect(await readResponseBody(res)).toBe('from stream')
+  })
+
+  it('returns an empty string when text() throws (never throws itself)', async () => {
+    const res = asResponse({
+      text: () => Promise.reject(new Error('body already used'))
+    })
+    expect(await readResponseBody(res)).toBe('')
+  })
+
+  it('truncates content longer than the cap and appends a marker', async () => {
+    const longBody = 'x'.repeat(MAX_ERROR_BODY_LENGTH + 1000)
+    const result = await readResponseBody(asResponse({ content: longBody }))
+    expect(result.endsWith('...(truncated)')).toBe(true)
+    expect(result.length).toBe(MAX_ERROR_BODY_LENGTH + '...(truncated)'.length)
+  })
+})
+
+describe('formatBingErrorBody', () => {
+  it('returns a placeholder for an empty body', () => {
+    expect(formatBingErrorBody('')).toBe('no response body')
+  })
+
+  it('extracts ErrorCode, Message and TrackingId from the AdApiFaultDetail shape', () => {
+    const body = JSON.stringify({
+      Errors: [{ Code: 0, Message: 'An internal error has occurred.', ErrorCode: 'InternalError' }],
+      TrackingId: 'abc-123',
+      Type: 'AdApiFaultDetail'
+    })
+    expect(formatBingErrorBody(body)).toBe('InternalError: An internal error has occurred.; TrackingId: abc-123')
+  })
+
+  it('joins multiple errors and still includes the TrackingId', () => {
+    const body = JSON.stringify({
+      Errors: [
+        { ErrorCode: 'InvalidAccount', Message: 'Account not found.' },
+        { ErrorCode: 'InvalidCustomer', Message: 'Customer not found.' }
+      ],
+      TrackingId: 'xyz-789'
+    })
+    expect(formatBingErrorBody(body)).toBe(
+      'InvalidAccount: Account not found.; InvalidCustomer: Customer not found.; TrackingId: xyz-789'
+    )
+  })
+
+  it('returns a safe placeholder (never the raw body) when it is not the known JSON shape', () => {
+    // A non-JSON body (e.g. an HTML proxy page) could reflect request headers, so we must not echo it.
+    expect(formatBingErrorBody('<html>502 Bad Gateway</html>')).toBe('unrecognized error response')
+  })
+
+  it('returns a safe placeholder when JSON has no Errors and no TrackingId', () => {
+    expect(formatBingErrorBody('{"foo":"bar"}')).toBe('unrecognized error response')
   })
 })

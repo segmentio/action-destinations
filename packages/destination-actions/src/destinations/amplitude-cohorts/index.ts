@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
+import { AudienceDestinationDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getEndpointByRegion, createAudience, getAudience } from './functions'
@@ -106,6 +106,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.',
       type: 'string',
       required: false
+    },
+    user_id: {
+      label: 'User ID',
+      description:
+        'A valid User ID that exists in your Amplitude project. Amplitude requires a temporary seed user to create the cohort; this user will be added during creation and immediately removed. If no value is provided, Segment will attempt to discover a valid User ID automatically. Only provide this field manually if that automatic lookup fails or no users are found.',
+      type: 'string',
+      required: false
     }
   },
   audienceConfig: {
@@ -117,12 +124,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const {
         audienceName,
         settings,
-        audienceSettings: { owner_email, audience_name, id_type } = {}
+        audienceSettings,
+        statsContext
       } = createAudienceInput
 
+      const { owner_email, audience_name, id_type, user_id } = (audienceSettings || {}) as AudienceSettings
       const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
 
-      const externalId = await createAudience(request, settings, name, id_type as IDType, owner_email)
+      const externalId = await createAudience(
+        request,
+        settings,
+        name,
+        id_type as IDType,
+        owner_email,
+        user_id,
+        statsContext
+      )
       return { externalId }
     },
     async getAudience(request, createAudienceInput) {
@@ -135,36 +152,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  },
-  presets: [
-    {
-      name: 'Entities Audience Membership Changed',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_audience_membership_changed_identify'
-    },
-    {
-      name: 'Associated Entity Added',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_entity_added_track'
-    },
-    {
-      name: 'Associated Entity Removed',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_entity_removed_track'
-    },
-    {
-      name: 'Journeys Step Entered',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'journeys_step_entered_track'
-    }
-  ]
+  }
 }
 export default destination
