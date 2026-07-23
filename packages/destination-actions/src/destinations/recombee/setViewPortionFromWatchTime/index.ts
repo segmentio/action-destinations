@@ -2,46 +2,16 @@ import { PayloadValidationError, ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SetViewPortion, RecombeeApiClient, Batch } from '../recombeeApiClient'
-import { interactionFields } from '../commonFields'
+import { interactionFields, userIdField, itemIdField, interactionTimestampField } from '../commonFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Set View Portion from Watch Time',
   description:
     'Sets the viewed portion of a given item (e.g. a video or article) by the given user. **Use this action when you have the watch time of the item (e.g. in seconds) instead of the portion watched.**',
   fields: {
-    userId: {
-      label: 'User ID',
-      description: 'The ID of the user who viewed a portion of the item.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
-    itemId: {
-      label: 'Item ID',
-      description: 'The viewed item.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.product_id' },
-          then: { '@path': '$.properties.product_id' },
-          else: { '@path': '$.properties.asset_id' }
-        }
-      }
-    },
-    timestamp: {
-      label: 'Timestamp',
-      description: 'The UTC timestamp of when the view portion occurred.',
-      type: 'string',
-      required: false,
-      default: { '@path': '$.timestamp' }
-    },
+    userId: userIdField('The ID of the user who viewed a portion of the item.'),
+    itemId: itemIdField('The ID of the item that was viewed.'),
+    timestamp: interactionTimestampField('view portion'),
     portion: {
       label: 'Portion',
       description: 'The portion of the item that the user viewed.',

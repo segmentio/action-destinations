@@ -2,26 +2,14 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AddCartAddition, Batch, RecombeeApiClient } from '../recombeeApiClient'
-import { interactionFields } from '../commonFields'
+import { interactionFields, userIdField, interactionTimestampField } from '../commonFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Cart Addition',
   description: 'Adds a cart addition of the given item made by the given user.',
   defaultSubscription: 'type = "track" and event = "Product Added"',
   fields: {
-    userId: {
-      label: 'User ID',
-      description: 'The ID of the user who added the item to the cart.',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
+    userId: userIdField('The ID of the user who added the item to the cart.'),
     item: {
       label: 'Item',
       description: 'The item that was added to the cart.',
@@ -61,13 +49,7 @@ const action: ActionDefinition<Settings, Payload> = {
         price: { '@path': '$.properties.price' }
       }
     },
-    timestamp: {
-      label: 'Timestamp',
-      description: 'The UTC timestamp of when the cart addition occurred.',
-      type: 'string',
-      required: false,
-      default: { '@path': '$.timestamp' }
-    },
+    timestamp: interactionTimestampField('cart addition'),
     ...interactionFields('cart addition')
   },
   perform: async (request, data) => {
@@ -80,8 +62,13 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-function payloadToCartAddition({ item, ...rest }: Payload): AddCartAddition {
-  return new AddCartAddition({ ...item, ...rest })
+function payloadToCartAddition({ item: { amount, price, ...itemRest }, ...rest }: Payload): AddCartAddition {
+  return new AddCartAddition({
+    ...itemRest,
+    amount,
+    price: amount !== undefined && price !== undefined ? amount * price : price,
+    ...rest
+  })
 }
 
 export default action
