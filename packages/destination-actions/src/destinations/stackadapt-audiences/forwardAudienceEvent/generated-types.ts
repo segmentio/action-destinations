@@ -47,11 +47,32 @@ export interface Payload {
     birth_date?: string
   }
   /**
+   * Select how to configure custom user properties.
+   */
+  custom_properties_mode?: string
+  /**
    * Custom properties for the user.
    */
   custom_traits?: {
     [k: string]: unknown
   }
+  /**
+   * Custom properties for the user. Each property requires a name, type, and value.
+   */
+  custom_user_properties?: {
+    /**
+     * The name of the custom user property.
+     */
+    name: string
+    /**
+     * The data type of the custom user property.
+     */
+    type: string
+    /**
+     * The value of the custom user property.
+     */
+    value?: string
+  }[]
   /**
    * The ID of the user in Segment
    */
@@ -75,7 +96,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Segment computation class used to determine if input event is from an Engage Audience'.
+   * Segment computation class used to determine if input event is from an Engage Audience.
    */
   segment_computation_class: string
   /**
