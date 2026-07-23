@@ -10,10 +10,42 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for Emarsys's triggerEvent destination action: all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for Emarsys's triggerEvent destination action: required fields 1`] = `
 Object {
   "data": null,
   "external_id": "FoVKp[FQnT",
   "key_id": "FoVKp[FQnT",
+}
+`;
+
+exports[`Testing snapshot for Emarsys's triggerEvent destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
 }
 `;
