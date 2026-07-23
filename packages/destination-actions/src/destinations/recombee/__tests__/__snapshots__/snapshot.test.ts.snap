@@ -134,35 +134,13 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - all fields 1`] = `
-Object {
-  "itemId": "Sy@zJ0^",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "userId": "Sy@zJ0^",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - all fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - required fields 1`] = `
-Object {
-  "itemId": "Sy@zJ0^",
-  "userId": "Sy@zJ0^",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - required fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - all fields 1`] = `
-Object {
-  "itemId": "BGNilpbMGk^JyT",
-  "timestamp": "2021-02-01T00:00:00.000Z",
-  "userId": "BGNilpbMGk^JyT",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - all fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - required fields 1`] = `
-Object {
-  "itemId": "BGNilpbMGk^JyT",
-  "userId": "BGNilpbMGk^JyT",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - required fields 1`] = `Object {}`;
 
 exports[`Testing snapshot for actions-recombee destination: mergeUsers action - all fields 1`] = `Object {}`;
 
