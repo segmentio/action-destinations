@@ -939,13 +939,13 @@ describe('FacebookCustomAudiences.sync - syncMode: mirror', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Missing audience ID.'
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Missing audience ID.'
       })
     })
