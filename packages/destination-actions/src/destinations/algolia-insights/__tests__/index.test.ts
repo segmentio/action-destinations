@@ -40,7 +40,7 @@ describe('Algolia Insights', () => {
       await expect(testDestination.testAuthentication(settings)).rejects.toThrow()
     })
 
-    it('should reject a malicious appId containing path injection characters', async () => {
+    it('should reject a malicious appId containing path injection characters', () => {
       const settings = {
         appId: 'evil.attacker.com/path?x=',
         apiKey: 'algolia-api-key'
