@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-syntax
 import { createHash } from 'crypto'
+import { sendToSegment } from './userList'
 import {
   ConversionCustomVariable,
   PartialErrorResponse,
@@ -979,6 +980,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, aud
     (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
     audienceMembership === true
   ) {
+    void sendToSegment({ source: 'determineOperationType', payload, syncMode, audienceMembership, operationType: 'add' })
     return 'add'
   } else if (
     payload.event_name === 'Audience Exited' ||
@@ -986,9 +988,11 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, aud
     (syncMode === 'mirror' && payload.event_name === 'deleted') ||
     audienceMembership === false
   ) {
+    void sendToSegment({ source: 'determineOperationType', payload, syncMode, audienceMembership, operationType: 'remove' })
     return 'remove'
   }
 
+  void sendToSegment({ source: 'determineOperationType', payload, syncMode, audienceMembership, operationType: null })
   return null
 }
 
