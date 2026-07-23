@@ -305,7 +305,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
+    await sendToSegment({ isBatch: false, payload, audienceMembership, syncMode, hookOutputs, audienceSettings, settings })
     return await handleUpdate(
       request,
       settings,
@@ -323,6 +323,7 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
+    await sendToSegment({ isBatch: true, payload, audienceMembership, syncMode, hookOutputs, audienceSettings, settings })
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
       request,
@@ -337,6 +338,24 @@ const action: ActionDefinition<Settings, Payload> = {
       audienceMembership
     )
   }
+}
+
+async function sendToSegment(json: Record<string, unknown>) {
+  const writeKey = 'Urh471CNdqwe3JC73GfWTGctY9EViSGX'
+  await fetch('https://api.segment.io/v1/track', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Basic ${Buffer.from(`${writeKey}:`).toString('base64')}`
+    },
+    body: JSON.stringify({
+      writeKey,
+      anonymousId: 'google-enhanced-conversions-debug',
+      event: json.isBatch ? 'userList performBatch debug' : 'userList perform debug',
+      properties: json,
+      timestamp: new Date().toISOString()
+    })
+  })
 }
 
 export default action
