@@ -32,7 +32,6 @@ describe('addPurchase', () => {
         products: [
           {
             product_id: 'item-1',
-            quantity: 1,
             price: 100
           },
           {
@@ -59,9 +58,8 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-1',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
-            amount: 1,
             price: 100
           }
         },
@@ -71,10 +69,10 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-2',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             amount: 2,
-            price: 200
+            price: 400
           }
         }
       ]
@@ -141,7 +139,7 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-1',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             amount: 1,
             price: 100,
@@ -158,11 +156,11 @@ describe('addPurchase', () => {
           params: {
             userId: 'user-id',
             itemId: 'item-2',
-            timestamp: '2021-09-01T00:00:00.000Z',
+            timestamp: 1630454400,
             cascadeCreate: true,
             amount: 2,
-            price: 200,
-            profit: 40,
+            price: 400,
+            profit: 80,
             recommId,
             additionalData: {
               region: 'region'
