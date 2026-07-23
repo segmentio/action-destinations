@@ -323,7 +323,7 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
-    await sendToSegment({ isBatch: true, payload, audienceMembership, syncMode, hookOutputs, audienceSettings, settings })
+    await sendToSegment({ isBatch: true, payload, audienceMembership, syncMode, hookOutputs, audienceSettings, settings, features: features })
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
       request,
