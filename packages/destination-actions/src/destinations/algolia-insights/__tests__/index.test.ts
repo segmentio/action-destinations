@@ -9,7 +9,7 @@ describe('Algolia Insights', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
       const settings = {
-        appId: 'algolia-application-id',
+        appId: 'ABCDE12345',
         apiKey: 'algolia-api-key'
       }
       const authenticateUrl = algoliaApiPermissionsUrl(settings)
@@ -24,7 +24,7 @@ describe('Algolia Insights', () => {
 
     it('should reject invalid credentials', async () => {
       const settings = {
-        appId: 'algolia-application-id',
+        appId: 'ABCDE12345',
         apiKey: 'algolia-api-key'
       }
       const authenticateUrl = algoliaApiPermissionsUrl(settings)
@@ -40,9 +40,49 @@ describe('Algolia Insights', () => {
       await expect(testDestination.testAuthentication(settings)).rejects.toThrow()
     })
 
+    it('should reject a malicious appId containing path injection characters', async () => {
+      const settings = {
+        appId: 'evil.attacker.com/path?x=',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
+    })
+
+    it('should accept a valid 10-character alphanumeric appId', async () => {
+      const settings = {
+        appId: 'ABCDE12345',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).not.toThrow()
+    })
+
+    it('should reject an appId shorter than 10 characters', async () => {
+      const settings = {
+        appId: 'ABCD1234',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
+    })
+
+    it('should reject an appId longer than 10 characters', async () => {
+      const settings = {
+        appId: 'ABCDE123456',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
+    })
+
+    it('should reject an appId with special characters', async () => {
+      const settings = {
+        appId: 'ABCD!@#$%^',
+        apiKey: 'algolia-api-key'
+      }
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
+    })
+
     it('should reject invalid acl', async () => {
       const settings = {
-        appId: 'algolia-application-id',
+        appId: 'ABCDE12345',
         apiKey: 'algolia-api-key'
       }
       const authenticateUrl = algoliaApiPermissionsUrl(settings)
