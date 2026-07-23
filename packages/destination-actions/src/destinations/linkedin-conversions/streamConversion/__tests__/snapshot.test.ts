@@ -7,17 +7,28 @@ const testDestination = createTestIntegration(destination)
 const actionSlug = 'streamConversion'
 const destinationSlug = 'LinkedinConversions'
 const seedName = `${destinationSlug}#${actionSlug}`
+
+const FIXED_NOW = 1714900000000
+const VALID_TIMESTAMP = (FIXED_NOW - 1000 * 60 * 60 * 24).toString()
+
 const action = destination.actions[actionSlug]
 const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+  beforeAll(() => {
+    jest.spyOn(Date, 'now').mockReturnValue(FIXED_NOW)
+  })
+
+  afterAll(() => {
+    jest.restoreAllMocks()
+  })
   it('required fields', async () => {
     nock(/.*/).persist().get(/.*/).reply(200)
     nock(/.*/).persist().post(/.*/).reply(200)
     nock(/.*/).persist().put(/.*/).reply(200)
 
     eventData.email = 'nick@twilio.com'
-    eventData.timestamp = 'NaN'
+    eventData.timestamp = VALID_TIMESTAMP
 
     const event = createTestEvent({
       properties: eventData
@@ -61,7 +72,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     nock(/.*/).persist().put(/.*/).reply(200)
 
     eventData.email = 'nick@twilio.com'
-    eventData.timestamp = 'NaN'
+    eventData.timestamp = VALID_TIMESTAMP
     eventData.first_name = 'mike'
     eventData.last_name = 'smith'
     eventData.title = 'software engineer'
