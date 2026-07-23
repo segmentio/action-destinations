@@ -18,13 +18,33 @@ export interface Payload {
    */
   recording_url: string
   /**
-   * The first name for the primary handling agent.
+   * The first name for the customer. Use this field for new mappings.
+   */
+  customer_first_name?: string
+  /**
+   * The last name for the customer. Use this field for new mappings.
+   */
+  customer_last_name?: string
+  /**
+   * Deprecated legacy first name field currently used for customer names. For new mappings, use Customer First Name.
    */
   first_name?: string
   /**
-   * The last name for the primary handling agent.
+   * Deprecated legacy last name field currently used for customer names. For new mappings, use Customer Last Name.
    */
   last_name?: string
+  /**
+   * The first name for the primary handling agent.
+   */
+  agent_first_name?: string
+  /**
+   * The last name for the primary handling agent.
+   */
+  agent_last_name?: string
+  /**
+   * When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part. Single-token local-parts derive the first name and set last name to an empty string.
+   */
+  assign_first_last_name_by_splitting_email?: boolean
   /**
    * Optional channel metadata for multi-channel audio-aware integrations. Use this when you can provide precise channel-based conference bridge data.
    */
@@ -55,7 +75,7 @@ export interface Payload {
     last_name?: string
   }[]
   /**
-   * Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.
+   * Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data. Each leg must include first and last name, or enable Assign First / Last Name By Splitting Email and provide a splittable agent email.
    */
   agentLegs?: {
     /**
@@ -71,13 +91,13 @@ export interface Payload {
      */
     ended_at?: string
     /**
-     * The first name of the agent for this call leg.
+     * The first name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email.
      */
-    first_name: string
+    first_name?: string
     /**
-     * The last name of the agent for this call leg.
+     * The last name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email; single-token email local-parts derive an empty last name.
      */
-    last_name: string
+    last_name?: string
   }[]
   /**
    * Additional call metadata to forward to Voiceops unchanged.

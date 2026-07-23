@@ -3,6 +3,9 @@
 exports[`Testing snapshot for actions-voiceops destination: sendCallCompleted action - all fields 1`] = `
 Object {
   "agent_email": "bah@curoj.cw",
+  "agent_first_name": "PdayLkf!",
+  "agent_last_name": "PdayLkf!",
+  "assign_first_last_name_by_splitting_email": true,
   "call_id": "PdayLkf!",
   "call_started_at": Any<String>,
   "channels": Array [
@@ -14,6 +17,8 @@ Object {
       "type": "CONTACT",
     },
   ],
+  "customer_first_name": "PdayLkf!",
+  "customer_last_name": "PdayLkf!",
   "extraMetadata": Object {
     "testType": "PdayLkf!",
   },

@@ -64,6 +64,137 @@ describe('Voiceops.sendCallCompleted', () => {
     expect(responses[0].options.json).not.toHaveProperty('agentLegs')
   })
 
+  it('forwards customer and agent names unchanged', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      customer_first_name: 'Casey',
+      customer_last_name: 'Customer',
+      first_name: 'Legacy',
+      last_name: 'Customer',
+      agent_first_name: 'Ava',
+      agent_last_name: 'Agent'
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      customer_first_name: 'Casey',
+      customer_last_name: 'Customer',
+      first_name: 'Legacy',
+      last_name: 'Customer',
+      agent_first_name: 'Ava',
+      agent_last_name: 'Agent'
+    })
+  })
+
+  it('derives missing agent names from email without overwriting legacy customer names when enabled', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      agent_email: 'ava-agent@voiceops.com',
+      first_name: 'Legacy',
+      last_name: 'Customer',
+      assign_first_last_name_by_splitting_email: true,
+      agentLegs: [
+        {
+          agent_email: 'first-agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      first_name: 'Legacy',
+      last_name: 'Customer',
+      agent_first_name: 'Ava',
+      agent_last_name: 'Agent',
+      assign_first_last_name_by_splitting_email: true,
+      agentLegs: [
+        {
+          agent_email: 'first-agent@voiceops.com',
+          first_name: 'First',
+          last_name: 'Agent'
+        }
+      ]
+    })
+  })
+
+  it('derives an empty last name from single-token email local-parts when enabled', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      agent_email: 'ava@voiceops.com',
+      assign_first_last_name_by_splitting_email: true,
+      agentLegs: [
+        {
+          agent_email: 'ava@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      agent_first_name: 'Ava',
+      agent_last_name: '',
+      agentLegs: [
+        {
+          agent_email: 'ava@voiceops.com',
+          first_name: 'Ava',
+          last_name: ''
+        }
+      ]
+    })
+  })
+
+  it('preserves derived token casing after the first character', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      agent_email: 'ava-McDonald@voiceops.com',
+      assign_first_last_name_by_splitting_email: true,
+      agentLegs: [
+        {
+          agent_email: 'ava-McDonald@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z'
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      agent_first_name: 'Ava',
+      agent_last_name: 'McDonald',
+      agentLegs: [
+        {
+          first_name: 'Ava',
+          last_name: 'McDonald'
+        }
+      ]
+    })
+  })
+
   it('forwards channels with a supported type unchanged', async () => {
     nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
@@ -203,7 +334,7 @@ describe('Voiceops.sendCallCompleted', () => {
     ).rejects.toThrow()
   })
 
-  it('still succeeds when first_name and last_name are omitted', async () => {
+  it('still succeeds when legacy customer first_name and last_name are omitted', async () => {
     nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
 
     const event = createCallCompletedEvent({ first_name: undefined, last_name: undefined })
@@ -221,6 +352,22 @@ describe('Voiceops.sendCallCompleted', () => {
     })
     expect(responses[0].options.json).not.toHaveProperty('first_name')
     expect(responses[0].options.json).not.toHaveProperty('last_name')
+  })
+
+  it('still succeeds when agent_first_name and agent_last_name are omitted', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({ agent_first_name: undefined, agent_last_name: undefined })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].status).toBe(200)
+    expect(responses[0].options.json).not.toHaveProperty('agent_first_name')
+    expect(responses[0].options.json).not.toHaveProperty('agent_last_name')
   })
 
   it('still succeeds when neither channels nor agentLegs are provided', async () => {
@@ -353,7 +500,9 @@ describe('Voiceops.sendCallCompleted', () => {
         settings: SETTINGS,
         useDefaultMappings: true
       })
-    ).rejects.toThrow()
+    ).rejects.toThrow(
+      'agentLegs.first_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split.'
+    )
   })
 
   it('fails when an agent leg is missing last_name', async () => {
@@ -373,7 +522,63 @@ describe('Voiceops.sendCallCompleted', () => {
         settings: SETTINGS,
         useDefaultMappings: true
       })
-    ).rejects.toThrow()
+    ).rejects.toThrow(
+      'agentLegs.last_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split. Single-token email local-parts derive an empty last_name.'
+    )
+  })
+
+  it('fails when an agent leg last_name is whitespace-only', async () => {
+    const event = createCallCompletedEvent({
+      agentLegs: [
+        {
+          agent_email: 'agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z',
+          first_name: 'Ava',
+          last_name: '   '
+        }
+      ]
+    })
+
+    await expect(
+      testDestination.testAction('sendCallCompleted', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true
+      })
+    ).rejects.toThrow(
+      'agentLegs.last_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split. Single-token email local-parts derive an empty last_name.'
+    )
+  })
+
+  it('derives an agent leg last_name when the mapped value is whitespace-only', async () => {
+    nock(DEFAULT_VOICEOPS_BASE_URL).post('/frontline-api/integrations/v1/segment/calls').reply(200, {})
+
+    const event = createCallCompletedEvent({
+      assign_first_last_name_by_splitting_email: true,
+      agentLegs: [
+        {
+          agent_email: 'first-agent@voiceops.com',
+          started_at: '2025-12-08T13:32:47.000Z',
+          first_name: 'First',
+          last_name: '   '
+        }
+      ]
+    })
+
+    const responses = await testDestination.testAction('sendCallCompleted', {
+      event,
+      settings: SETTINGS,
+      useDefaultMappings: true
+    })
+
+    expect(responses[0].options.json).toMatchObject({
+      agentLegs: [
+        {
+          first_name: 'First',
+          last_name: 'Agent'
+        }
+      ]
+    })
   })
 
   it('fails when a HANDLING_AGENT channel identifier is not an email address', async () => {

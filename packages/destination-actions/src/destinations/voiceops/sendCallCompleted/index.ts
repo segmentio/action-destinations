@@ -8,6 +8,61 @@ const HANDLING_AGENT_TYPE = 'HANDLING_AGENT'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const UNIX_SECONDS_PATTERN = /^\d{10}$/
 
+function titleCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1)
+}
+
+function splitNameFromEmail(email?: string): { first_name?: string; last_name?: string } {
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return {}
+  }
+
+  const localPart = email?.split('@')[0]?.split('+')[0]
+  const nameParts = localPart?.split(/[^a-zA-Z0-9]+/).filter(Boolean) ?? []
+
+  if (nameParts.length === 0) {
+    return {}
+  }
+
+  return {
+    first_name: titleCase(nameParts[0]),
+    last_name: nameParts.length > 1 ? nameParts.slice(1).map(titleCase).join(' ') : ''
+  }
+}
+
+function shouldDeriveFirstName(value?: string): boolean {
+  return value === undefined || value === null || value.trim() === ''
+}
+
+function shouldDeriveLastName(value?: string): boolean {
+  return value === undefined || value === null || (value !== '' && value.trim() === '')
+}
+
+function withEmailSplitNames(payload: Payload): Payload {
+  if (!payload.assign_first_last_name_by_splitting_email) {
+    return payload
+  }
+
+  const primaryAgentName = splitNameFromEmail(payload.agent_email)
+
+  return {
+    ...payload,
+    agent_first_name: shouldDeriveFirstName(payload.agent_first_name)
+      ? primaryAgentName.first_name
+      : payload.agent_first_name,
+    agent_last_name: shouldDeriveLastName(payload.agent_last_name) ? primaryAgentName.last_name : payload.agent_last_name,
+    agentLegs: payload.agentLegs?.map((agentLeg) => {
+      const splitName = splitNameFromEmail(agentLeg.agent_email)
+
+      return {
+        ...agentLeg,
+        first_name: shouldDeriveFirstName(agentLeg.first_name) ? splitName.first_name : agentLeg.first_name,
+        last_name: shouldDeriveLastName(agentLeg.last_name) ? splitName.last_name : agentLeg.last_name
+      }
+    })
+  }
+}
+
 function validateSegmentPayload(payload: Payload): void {
   if (!UNIX_SECONDS_PATTERN.test(payload.call_started_at)) {
     throw new PayloadValidationError('call_started_at must be a 10-digit Unix timestamp in seconds.')
@@ -34,11 +89,19 @@ function validateSegmentPayload(payload: Payload): void {
 
   for (const agentLeg of payload.agentLegs ?? []) {
     if (!agentLeg.first_name?.trim()) {
-      throw new PayloadValidationError('agentLegs.first_name is required for every agent leg entry.')
+      throw new PayloadValidationError(
+        'agentLegs.first_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split.'
+      )
     }
 
-    if (!agentLeg.last_name?.trim()) {
-      throw new PayloadValidationError('agentLegs.last_name is required for every agent leg entry.')
+    if (
+      agentLeg.last_name === undefined ||
+      agentLeg.last_name === null ||
+      (agentLeg.last_name !== '' && agentLeg.last_name.trim() === '')
+    ) {
+      throw new PayloadValidationError(
+        'agentLegs.last_name is required for every agent leg entry. Provide first_name and last_name, or enable assign_first_last_name_by_splitting_email and provide an agent_email that can be split. Single-token email local-parts derive an empty last_name.'
+      )
     }
   }
 }
@@ -86,20 +149,63 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties.recording_url'
       }
     },
+    customer_first_name: {
+      label: 'Customer First Name',
+      description: 'The first name for the customer. Use this field for new mappings.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.customer_first_name'
+      }
+    },
+    customer_last_name: {
+      label: 'Customer Last Name',
+      description: 'The last name for the customer. Use this field for new mappings.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.customer_last_name'
+      }
+    },
     first_name: {
-      label: 'First Name',
-      description: 'The first name for the primary handling agent.',
+      label: 'Customer First Name (Legacy)',
+      description:
+        'Deprecated legacy first name field currently used for customer names. For new mappings, use Customer First Name.',
       type: 'string',
       default: {
         '@path': '$.properties.first_name'
       }
     },
     last_name: {
-      label: 'Last Name',
-      description: 'The last name for the primary handling agent.',
+      label: 'Customer Last Name (Legacy)',
+      description:
+        'Deprecated legacy last name field currently used for customer names. For new mappings, use Customer Last Name.',
       type: 'string',
       default: {
         '@path': '$.properties.last_name'
+      }
+    },
+    agent_first_name: {
+      label: 'Agent First Name',
+      description: 'The first name for the primary handling agent.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.agent_first_name'
+      }
+    },
+    agent_last_name: {
+      label: 'Agent Last Name',
+      description: 'The last name for the primary handling agent.',
+      type: 'string',
+      default: {
+        '@path': '$.properties.agent_last_name'
+      }
+    },
+    assign_first_last_name_by_splitting_email: {
+      label: 'Assign First / Last Name By Splitting Email',
+      description:
+        'When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part. Single-token local-parts derive the first name and set last name to an empty string.',
+      type: 'boolean',
+      default: {
+        '@path': '$.properties.assign_first_last_name_by_splitting_email'
       }
     },
     channels: {
@@ -183,7 +289,7 @@ const action: ActionDefinition<Settings, Payload> = {
     agentLegs: {
       label: 'Agent Legs',
       description:
-        'Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.',
+        'Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data. Each leg must include first and last name, or enable Assign First / Last Name By Splitting Email and provide a splittable agent email.',
       type: 'object',
       multiple: true,
       defaultObjectUI: 'arrayeditor',
@@ -212,15 +318,15 @@ const action: ActionDefinition<Settings, Payload> = {
         },
         first_name: {
           label: 'First Name',
-          description: 'The first name of the agent for this call leg.',
-          type: 'string',
-          required: true
+          description:
+            'The first name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email.',
+          type: 'string'
         },
         last_name: {
           label: 'Last Name',
-          description: 'The last name of the agent for this call leg.',
-          type: 'string',
-          required: true
+          description:
+            'The last name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email; single-token email local-parts derive an empty last name.',
+          type: 'string'
         }
       },
       default: {
@@ -257,11 +363,12 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, data) => {
-    validateSegmentPayload(data.payload)
+    const payload = withEmailSplitNames(data.payload)
+    validateSegmentPayload(payload)
 
     return request(getVoiceopsCallsEndpoint(data.settings.baseUrl), {
       method: 'post',
-      json: data.payload
+      json: payload
     })
   }
 }
