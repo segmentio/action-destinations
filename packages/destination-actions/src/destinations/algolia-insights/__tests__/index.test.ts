@@ -45,7 +45,7 @@ describe('Algolia Insights', () => {
         appId: 'evil.attacker.com/path?x=',
         apiKey: 'algolia-api-key'
       }
-      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
     it('should accept a valid 10-character alphanumeric appId', async () => {
@@ -61,7 +61,7 @@ describe('Algolia Insights', () => {
         appId: 'ABCD1234',
         apiKey: 'algolia-api-key'
       }
-      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
     it('should reject an appId longer than 10 characters', async () => {
@@ -69,7 +69,7 @@ describe('Algolia Insights', () => {
         appId: 'ABCDE123456',
         apiKey: 'algolia-api-key'
       }
-      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
     it('should reject an appId with special characters', async () => {
@@ -77,7 +77,7 @@ describe('Algolia Insights', () => {
         appId: 'ABCD!@#$%^',
         apiKey: 'algolia-api-key'
       }
-      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Invalid Algolia Application ID format.')
+      expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
     it('should accept a valid 10-character lowercase alphanumeric appId', async () => {
