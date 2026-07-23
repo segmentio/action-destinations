@@ -1,4 +1,4 @@
-import { InvalidAuthenticationError, RequestClient } from '@segment/actions-core'
+import { InvalidAuthenticationError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 
@@ -47,7 +47,7 @@ type AddRatingParams = AddInteractionParams & {
 type DeleteParams = {
   userId: string
   itemId: string
-  timestamp?: string // since type in Segment is string, it will always be converted
+  timestamp?: string | number
 }
 
 type SetViewPortionParams = AddInteractionParams & {
@@ -74,8 +74,9 @@ type BatchParams = {
 type HttpMethod = 'POST' | 'PUT' | 'DELETE'
 
 function createAddInteractionData<T extends AddInteractionParams & InternalAdditionalData>(payload: T) {
-  const { additionalData, internalAdditionalData, ...rest } = payload
+  const { timestamp, additionalData, internalAdditionalData, ...rest } = payload
   return {
+    timestamp: timestamp !== undefined ? datetimeToEpochSeconds(timestamp) : undefined,
     cascadeCreate: true,
     additionalData: {
       ...(additionalData || {}),
@@ -83,6 +84,38 @@ function createAddInteractionData<T extends AddInteractionParams & InternalAddit
     },
     ...rest
   }
+}
+
+function datetimeToEpochSeconds(datetime: string | number): number {
+  const numValue = datetime === "" ? NaN : Number(datetime)
+
+  if (!isNaN(numValue)) {
+    if (numValue < 0) {
+      throw new PayloadValidationError('Timestamp cannot be negative.')
+    }
+
+    // 10,000,000,000 is the year 2286 in seconds, anything larger is likely in milliseconds
+    if (numValue >= 10000000000) {
+      return numValue / 1000
+    } else {
+      return numValue
+    }
+  }
+
+  const parsedDate = stringToDateInGMT(String(datetime))
+  if (!isNaN(parsedDate.getTime())) {
+    return parsedDate.getTime() / 1000
+  }
+
+  throw new PayloadValidationError(`Invalid timestamp provided: ${datetime}`)
+}
+
+function stringToDateInGMT(dateString: string) {
+  // Check if the string ends with Z, or an offset like +05:00 or -0800
+  const hasTimezone = /(Z|[+-]\d{2}(:?\d{2})?)$/i.test(dateString)
+
+  // If no timezone is found, append 'Z' to force GMT interpretation
+  return new Date(hasTimezone ? dateString : dateString + 'Z')
 }
 
 abstract class Request<Params extends object> {
@@ -131,26 +164,28 @@ export class SetViewPortion extends Request<SetViewPortionParams> {
   }
 }
 
-function getDeleteUrl(interactionType: string, params: DeleteParams) {
-  const url = `/${interactionType}/?userId=${params.userId}&itemId=${params.itemId}`
-  if (params.timestamp !== undefined) {
-    if (isNaN(Number(params.timestamp))) {
-      return url + `&timestamp=${new Date(params.timestamp).getTime()}`
-    }
-    return url + `&timestamp=${params.timestamp}`
+function getDeleteUrl(interactionType: string, params: DeleteParams): string {
+  const query = new URLSearchParams({
+    userId: params.userId,
+    itemId: params.itemId
+  })
+
+  if (params.timestamp !== undefined && params.timestamp !== null) {
+    query.append('timestamp', String(datetimeToEpochSeconds(params.timestamp)))
   }
-  return url
+
+  return `/${interactionType}/?${query.toString()}`
 }
 
-export class DeleteBookmark extends Request<DeleteParams> {
+export class DeleteBookmark extends Request<{}> {
   constructor(params: DeleteParams) {
-    super(params, 'DELETE', getDeleteUrl('bookmarks', params))
+    super({}, 'DELETE', getDeleteUrl('bookmarks', params))
   }
 }
 
-export class DeleteCartAddition extends Request<DeleteParams> {
+export class DeleteCartAddition extends Request<{}> {
   constructor(params: DeleteParams) {
-    super(params, 'DELETE', getDeleteUrl('cartadditions', params))
+    super({}, 'DELETE', getDeleteUrl('cartadditions', params))
   }
 }
 
