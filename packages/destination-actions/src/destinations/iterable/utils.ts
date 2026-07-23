@@ -99,7 +99,10 @@ export const apiEndpoints = {
   bulkTrackEvent: '/api/events/trackBulk',
   updateCart: '/api/commerce/updateCart',
   trackPurchase: '/api/commerce/trackPurchase',
-  getWebhooks: '/api/webhooks'
+  getWebhooks: '/api/webhooks',
+  getChannels: '/api/channels',
+  getMessageTypes: '/api/messageTypes',
+  getLists: '/api/lists'
 }
 
 /**
@@ -110,6 +113,10 @@ export const apiEndpoints = {
  * @param dataCenterLocation The data center location for data residency.
  * @returns The regional API endpoint.
  */
+export function getRegionalBaseUrl(dataCenterLocation: DataCenterLocation = 'united_states'): string {
+  return regionBaseUrls[dataCenterLocation] || regionBaseUrls['united_states']
+}
+
 export function getRegionalEndpoint(
   action: keyof typeof apiEndpoints,
   dataCenterLocation: DataCenterLocation = 'united_states'
