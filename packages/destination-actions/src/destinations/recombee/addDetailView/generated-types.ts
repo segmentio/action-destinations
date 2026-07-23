@@ -6,13 +6,13 @@ export interface Payload {
    */
   userId: string
   /**
-   * The viewed item.
+   * The ID of the item that was viewed.
    */
   itemId: string
   /**
-   * The UTC timestamp of when the view occurred.
+   * The UTC timestamp of when the view occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The duration of the view in seconds.
    */
