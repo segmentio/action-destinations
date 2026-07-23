@@ -42,14 +42,7 @@ describe('CustomerIO', () => {
         expect(multistatus.getAllResponses().map((r) => r.value())).toEqual([
           {
             status: 200,
-            body: {
-              anonymous_id: undefined,
-              attributes: undefined,
-              cio_relationships: [{ identifiers: { id: 'user-1' } }],
-              object_id: 'grp-1',
-              object_type_id: '1',
-              person_id: 'user-1'
-            },
+            body: 'success',
             sent: {
               type: 'object',
               action: 'identify',
@@ -60,14 +53,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: {
-              anonymous_id: 'anon-1',
-              attributes: undefined,
-              cio_relationships: [{ identifiers: { anonymous_id: 'anon-1' } }],
-              object_id: 'grp-2',
-              object_type_id: '1',
-              person_id: undefined
-            },
+            body: 'success',
             sent: {
               type: 'object',
               action: 'identify_anonymous',
@@ -78,14 +64,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: {
-              anonymous_id: undefined,
-              attributes: undefined,
-              cio_relationships: [{ identifiers: { id: 'user-2' } }],
-              object_id: 'grp-3',
-              object_type_id: '1',
-              person_id: 'user-2'
-            },
+            body: 'success',
             sent: {
               type: 'object',
               action: 'identify',
@@ -136,14 +115,7 @@ describe('CustomerIO', () => {
             status: 400,
             errormessage: 'Object ID invalid',
             errortype: 'BAD_REQUEST',
-            body: {
-              anonymous_id: undefined,
-              attributes: undefined,
-              cio_relationships: [{ identifiers: { id: 'user-1' } }],
-              object_id: 'grp-1',
-              object_type_id: '1',
-              person_id: 'user-1'
-            },
+            body: { batch_index: 0, reason: 'invalid', message: 'Object ID invalid' },
             sent: {
               type: 'object',
               action: 'identify',
@@ -154,14 +126,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: {
-              anonymous_id: 'anon-1',
-              attributes: undefined,
-              cio_relationships: [{ identifiers: { anonymous_id: 'anon-1' } }],
-              object_id: 'grp-2',
-              object_type_id: '1',
-              person_id: undefined
-            },
+            body: 'success',
             sent: {
               type: 'object',
               action: 'identify_anonymous',
@@ -172,14 +137,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: {
-              anonymous_id: undefined,
-              attributes: undefined,
-              cio_relationships: [{ identifiers: { id: 'user-2' } }],
-              object_id: 'grp-3',
-              object_type_id: '1',
-              person_id: 'user-2'
-            },
+            body: 'success',
             sent: {
               type: 'object',
               action: 'identify',
