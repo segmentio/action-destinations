@@ -657,17 +657,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.personas.computation_key"
-              },
-              "then": {
-                "@path": "$.context.personas.computation_key"
-              },
-              "else": {
-                "@path": "$.properties.audience_key"
-              }
-            }
+            "@path": "$.context.personas.computation_key"
           },
           "choices": null,
           "placeholder": null,
@@ -768,34 +758,6 @@
         },
         "timestamp": {
           "@path": "$.timestamp"
-        }
-      },
-      "eventSlug": null
-    },
-    {
-      "name": "Sync Audience",
-      "type": "automatic",
-      "partnerAction": "syncAudience",
-      "subscribe": "type = \"track\" or type = \"identify\"",
-      "mapping": {
-        "userId": {
-          "@path": "$.userId"
-        },
-        "anonymousId": {
-          "@path": "$.anonymousId"
-        },
-        "audienceId": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.personas.computation_key"
-            },
-            "then": {
-              "@path": "$.context.personas.computation_key"
-            },
-            "else": {
-              "@path": "$.properties.audience_key"
-            }
-          }
         }
       },
       "eventSlug": null
