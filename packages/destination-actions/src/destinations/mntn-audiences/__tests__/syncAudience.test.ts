@@ -13,8 +13,8 @@
  */
 
 import nock from 'nock'
-import { createHash } from 'crypto'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { processHashing } from '../../../lib/hashing-utils'
 import Destination from '../index'
 import { MNTN_API_VERSION } from '../versioning-info'
 
@@ -36,7 +36,7 @@ const TEST_SETTINGS = {
 }
 
 function sha256(value: string): string {
-  return createHash('sha256').update(value).digest('hex')
+  return processHashing(value, 'sha256', 'hex')
 }
 
 // Pull the action directly for testing performBatch without the test harness
