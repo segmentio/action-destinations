@@ -41,7 +41,7 @@ describe('addRating', () => {
     expect(await response[0].request.json()).toMatchObject({
       userId: 'user-id',
       itemId: 'product-id',
-      timestamp: '2021-09-01T00:00:00.000Z',
+      timestamp: 1630454400,
       rating: 0.5,
       cascadeCreate: true
     })
@@ -87,7 +87,7 @@ describe('addRating', () => {
     expect(await response[0].request.json()).toMatchObject({
       userId: 'user-id',
       itemId: 'product-id',
-      timestamp: '2021-09-01T00:00:00.000Z',
+      timestamp: 1630454400,
       rating: 0.5,
       cascadeCreate: true,
       recommId,

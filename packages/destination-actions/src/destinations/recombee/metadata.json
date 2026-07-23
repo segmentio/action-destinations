@@ -127,7 +127,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The bookmarked item.",
+          "description": "The ID of the item that was bookmarked.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -163,14 +163,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the bookmark event occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the bookmark occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -446,14 +456,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the cart addition occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the cart addition occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -612,7 +632,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The viewed item.",
+          "description": "The ID of the item that was viewed.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -648,14 +668,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the view occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the view occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -987,14 +1017,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the purchase occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the purchase occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -1153,7 +1193,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The rated item.",
+          "description": "The ID of the item that was rated.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -1189,14 +1229,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the rating occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the rating occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -1381,7 +1431,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The item that was bookmarked.",
+          "description": "The ID of the item that was bookmarked.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -1417,13 +1467,15 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the bookmark occurred. If the timestamp is omitted, then all the bookmarks with the given `userId` and `itemId` are deleted.",
-          "type": "string",
+          "description": "The UTC timestamp of the bookmark to delete, in Unix seconds, Unix milliseconds, or ISO-8601 format. Must match the timestamp used in the bookmark to be deleted. If omitted, all bookmarks for the given `userId` and `itemId` are deleted.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": null,
+          "default": {
+            "@path": "$.properties.timestamp"
+          },
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1490,7 +1542,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The item that was added to the cart.",
+          "description": "The ID of the item that was added to the cart.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -1526,13 +1578,15 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the cart addition occurred. If the timestamp is omitted, then all the cart additions with the given `userId` and `itemId` are deleted.",
-          "type": "string",
+          "description": "The UTC timestamp of the cart addition to delete, in Unix seconds, Unix milliseconds, or ISO-8601 format. Must match the timestamp used in the cart addition to be deleted. If omitted, all cart additions for the given `userId` and `itemId` are deleted.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": null,
+          "default": {
+            "@path": "$.properties.timestamp"
+          },
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -1664,7 +1718,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The viewed item.",
+          "description": "The ID of the item that was viewed.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -1700,14 +1754,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the view portion occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the view portion occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -1918,7 +1982,7 @@
         },
         "itemId": {
           "label": "Item ID",
-          "description": "The viewed item.",
+          "description": "The ID of the item that was viewed.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -1954,14 +2018,24 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "The UTC timestamp of when the view portion occurred.",
-          "type": "string",
+          "description": "The UTC timestamp of when the view portion occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.",
+          "type": "datetime",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.timestamp"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.timestamp"
+              },
+              "then": {
+                "@path": "$.properties.timestamp"
+              },
+              "else": {
+                "@path": "$.timestamp"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -2202,7 +2276,17 @@
           "@path": "$.name"
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
@@ -2261,7 +2345,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
@@ -2328,7 +2422,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
@@ -2385,6 +2489,9 @@
               "@path": "$.properties.sku"
             }
           }
+        },
+        "timestamp": {
+          "@path": "$.properties.timestamp"
         }
       },
       "eventSlug": null
@@ -2438,7 +2545,17 @@
           ]
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
@@ -2497,7 +2614,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
@@ -2554,6 +2681,9 @@
               "@path": "$.properties.sku"
             }
           }
+        },
+        "timestamp": {
+          "@path": "$.properties.timestamp"
         }
       },
       "eventSlug": null
@@ -2591,7 +2721,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
@@ -2650,7 +2790,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "portion": 0,
         "sessionId": {
@@ -2713,7 +2863,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "portion": {
           "totalLength": {
@@ -2773,7 +2933,17 @@
           "@path": "$.properties.content_asset_id"
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "portion": {
           "totalLength": {
@@ -2843,7 +3013,17 @@
           }
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "portion": 1,
         "sessionId": {
@@ -2896,7 +3076,17 @@
           "@path": "$.name"
         },
         "timestamp": {
-          "@path": "$.timestamp"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.timestamp"
+            },
+            "then": {
+              "@path": "$.properties.timestamp"
+            },
+            "else": {
+              "@path": "$.timestamp"
+            }
+          }
         },
         "recommId": {
           "@path": "$.properties.recomm_id"
