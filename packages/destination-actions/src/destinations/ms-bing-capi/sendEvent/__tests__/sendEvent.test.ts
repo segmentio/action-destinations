@@ -392,6 +392,108 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
     expect(scope.isDone()).toBe(true)
   })
 
+  test('batch: warning-only detail (isWarning:true) at an index is treated as SUCCESS, not failure', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    // Microsoft returns HTTP 200 and, because continueOnValidationError:true, reports
+    // non-fatal issues as warnings while still accepting the event.
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`)
+      .reply(200, {
+        eventsReceived: 2,
+        error: {
+          details: [
+            {
+              errorCode: 'Empty',
+              errorMessage: "'price' must not be empty.",
+              index: 0,
+              isWarning: true,
+              propertyName: 'data[0].customData.items[0].price'
+            }
+          ]
+        }
+      })
+    const responses: any = await testDestination.executeBatch('sendEvent', {
+      events,
+      settings,
+      mapping: {
+        enable_batching: true,
+        data: { eventType: 'custom' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(responses.length).toBe(2)
+    // Warning-only event was accepted by Microsoft -> must be a success, not a 400.
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(200)
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('batch: real error (isWarning:false) is still marked 400 while warning at another index stays 200', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`)
+      .reply(200, {
+        eventsReceived: 1,
+        error: {
+          details: [
+            {
+              errorCode: 'Empty',
+              errorMessage: "'price' must not be empty.",
+              index: 0,
+              isWarning: true,
+              propertyName: 'data[0].customData.items[0].price'
+            },
+            {
+              errorCode: 'Invalid',
+              errorMessage: 'Second failed',
+              index: 1,
+              isWarning: false,
+              propertyName: 'data[1].eventName'
+            }
+          ]
+        }
+      })
+    const responses: any = await testDestination.executeBatch('sendEvent', {
+      events,
+      settings,
+      mapping: {
+        enable_batching: true,
+        data: { eventType: 'custom' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(responses.length).toBe(2)
+    // index 0 had only a warning -> success; index 1 had a real error -> failure.
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(400)
+    expect(responses[1].errormessage).toContain('Second failed')
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('batch: error detail without isWarning field defaults to a real failure (400)', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`)
+      .reply(200, { error: { details: [{ index: 1, errorMessage: 'Second failed' }] } })
+    const responses: any = await testDestination.executeBatch('sendEvent', {
+      events,
+      settings,
+      mapping: {
+        enable_batching: true,
+        data: { eventType: 'custom' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(200)
+    expect(responses[1].status).toBe(400)
+    expect(responses[1].errormessage).toContain('Second failed')
+    expect(scope.isDone()).toBe(true)
+  })
+
   test('phone digits normalized before hashing', async () => {
     const rawPhone = '+1 (555) 123-4567 ext.89'
     const event = buildTrackEvent({ context: { traits: { phone: rawPhone, email: 'norm@example.com' } } })
