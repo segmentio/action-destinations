@@ -577,6 +577,8 @@ const extractUserIdentifiers = (
       (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
       audienceMembership === true
     ) {
+      // TEMP journeys rollout instrumentation - remove after rollout
+      statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [...(statsContext?.tags ?? []), 'destination:google-enhanced-conversions', 'operation:add'])
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (
       payload.event_name === 'Audience Exited' ||
@@ -584,7 +586,12 @@ const extractUserIdentifiers = (
       (syncMode === 'mirror' && payload.event_name === 'deleted') ||
       audienceMembership === false
     ) {
+      // TEMP journeys rollout instrumentation - remove after rollout
+      statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [...(statsContext?.tags ?? []), 'destination:google-enhanced-conversions', 'operation:remove'])
       removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
+    } else {
+      // TEMP journeys rollout instrumentation - remove after rollout
+      statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [...(statsContext?.tags ?? []), 'destination:google-enhanced-conversions', 'operation:none'])
     }
   }
   return [addUserIdentifiers, removeUserIdentifiers]
@@ -920,7 +927,8 @@ const extractBatchUserIdentifiers = (
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
   features?: Features,
-  audienceMemberships?: AudienceMembership[]
+  audienceMemberships?: AudienceMembership[],
+  statsContext?: StatsContext
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
@@ -951,7 +959,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index])
+    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index], statsContext)
     if (!operationType) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -973,7 +981,19 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership,
+  statsContext?: StatsContext
+) => {
+  // TEMP journeys rollout instrumentation - remove after rollout
+  const instrument = (operation: string) =>
+    statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [
+      ...(statsContext?.tags ?? []),
+      'destination:google-enhanced-conversions',
+      `operation:${operation}`
+    ])
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
@@ -981,6 +1001,7 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, aud
     audienceMembership === true
   ) {
     void sendToSegment({ source: 'determineOperationType', payload, syncMode, audienceMembership, operationType: 'add' })
+    instrument('add')
     return 'add'
   } else if (
     payload.event_name === 'Audience Exited' ||
@@ -989,10 +1010,12 @@ const determineOperationType = (payload: UserListPayload, syncMode?: string, aud
     audienceMembership === false
   ) {
     void sendToSegment({ source: 'determineOperationType', payload, syncMode, audienceMembership, operationType: 'remove' })
+    instrument('remove')
     return 'remove'
   }
 
   void sendToSegment({ source: 'determineOperationType', payload, syncMode, audienceMembership, operationType: null })
+  instrument('none')
   return null
 }
 
@@ -1034,7 +1057,8 @@ export const processBatchPayload = async (
     multiStatusResponse,
     syncMode,
     features,
-    audienceMemberships
+    audienceMemberships,
+    statsContext
   )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
