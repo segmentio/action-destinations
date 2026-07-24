@@ -48,7 +48,7 @@ describe('Algolia Insights', () => {
       expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
-    it('should accept a valid 10-character alphanumeric appId', async () => {
+    it('should accept a valid 10-character alphanumeric appId', () => {
       const settings = {
         appId: 'ABCDE12345',
         apiKey: 'algolia-api-key'
@@ -56,7 +56,7 @@ describe('Algolia Insights', () => {
       expect(() => algoliaApiPermissionsUrl(settings)).not.toThrow()
     })
 
-    it('should reject an appId shorter than 10 characters', async () => {
+    it('should reject an appId shorter than 10 characters', () => {
       const settings = {
         appId: 'ABCD1234',
         apiKey: 'algolia-api-key'
@@ -64,7 +64,7 @@ describe('Algolia Insights', () => {
       expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
-    it('should reject an appId longer than 10 characters', async () => {
+    it('should reject an appId longer than 10 characters', () => {
       const settings = {
         appId: 'ABCDE123456',
         apiKey: 'algolia-api-key'
@@ -72,7 +72,7 @@ describe('Algolia Insights', () => {
       expect(() => algoliaApiPermissionsUrl(settings)).toThrow('Provide Valid Alphanumeric Application ID.')
     })
 
-    it('should reject an appId with special characters', async () => {
+    it('should reject an appId with special characters', () => {
       const settings = {
         appId: 'ABCD!@#$%^',
         apiKey: 'algolia-api-key'
