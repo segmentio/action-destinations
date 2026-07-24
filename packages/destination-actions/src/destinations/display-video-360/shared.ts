@@ -1,3 +1,4 @@
+import { sendToSegment } from './syncAudience/index'
 import { IntegrationError, RequestClient, StatsContext, HTTPError, AudienceMembership, PayloadValidationError } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
@@ -244,8 +245,10 @@ export const syncAudience = async (
 
   payload.forEach((p, index) => {
     if (audienceMemberships?.[index] === true) {
+      void sendToSegment({ isBatch: false, payload:p, audienceMembership:true })
       addPayloads.push(p)
     } else if (audienceMemberships?.[index] === false) {
+      void sendToSegment({ isBatch: false, payload:p, audienceMembership:false })
       removePayloads.push(p)
     }
   })
