@@ -190,4 +190,46 @@ describe('Mixpanel Web initialization', () => {
 
     expect(mockMixpanelInstance.register).not.toHaveBeenCalled()
   })
+
+  test('does not register a super property when sourceName is only whitespace', async () => {
+    const mockMixpanelInstance: Mixpanel = {
+      init: jest.fn(),
+      track: jest.fn(),
+      track_pageview: jest.fn(),
+      identify: jest.fn(),
+      register: jest.fn(),
+      alias: jest.fn(),
+      get_group: jest.fn(),
+      set_group: jest.fn(),
+      people: {
+        set: jest.fn(),
+        set_once: jest.fn(),
+        increment: jest.fn()
+      }
+    }
+
+    const mockSnippetMixpanel: Partial<Mixpanel> = {
+      init: jest.fn().mockImplementation((_token, config, _name) => {
+        setTimeout(() => {
+          if (config?.loaded) {
+            config.loaded(mockMixpanelInstance)
+          }
+        }, 10)
+      })
+    }
+
+    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
+      ;(window as any).mixpanel = mockSnippetMixpanel
+    })
+
+    const [event] = await MixpanelDestination({
+      ...baseSettings,
+      sourceName: '   ',
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    expect(mockMixpanelInstance.register).not.toHaveBeenCalled()
+  })
 })

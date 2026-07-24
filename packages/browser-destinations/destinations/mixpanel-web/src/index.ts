@@ -90,9 +90,10 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
 
     return new Promise<Mixpanel>((resolve) => {
       config.loaded = (mp) => {
-        if (sourceName) {
+        const trimmedSourceName = sourceName?.trim()
+        if (trimmedSourceName && typeof mp?.register === 'function') {
           // Registered as a super property so it is attached to every event
-          mp.register({ segment_source_name: sourceName })
+          mp.register({ segment_source_name: trimmedSourceName })
         }
         resolve(mp)
       }
