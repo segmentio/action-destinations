@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-bucket",
-  "version": "1.83.0",
+  "version": "1.85.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -21,8 +21,8 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@bucketco/tracking-sdk": "^2.0.0",
-    "@segment/actions-core": "^3.172.0",
-    "@segment/browser-destination-runtime": "^1.101.0"
+    "@segment/actions-core": "^3.174.0",
+    "@segment/browser-destination-runtime": "^1.103.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
