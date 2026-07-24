@@ -42,17 +42,25 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   fields,
   perform: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
-    return await send(
-      request, [payload], false, [audienceMembership],
+    return send(
+      request,
+      [payload],
+      false,
+      [audienceMembership],
       hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
-      features, statsContext
+      features,
+      statsContext
     )
   },
-  performBatch: async ( request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {    
-    return await send(
-      request, payload, true, audienceMembership,
+  performBatch: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
+    return send(
+      request,
+      payload,
+      true,
+      audienceMembership,
       hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
-      features, statsContext
+      features,
+      statsContext
     )
   }
 }
