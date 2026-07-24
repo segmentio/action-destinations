@@ -112,3 +112,42 @@ export {
 export { validateSchema } from './schema-validation'
 export { resolveAudienceMembership } from './audience-membership'
 export { FLAGS } from './flags'
+
+export {
+  createE2EEvent,
+  createE2EEngageAudienceEvent,
+  createE2EJourneysV1AudienceEvent,
+  createE2EJourneysV2AudienceEvent,
+  createE2ERetlAudienceEvent
+} from './e2e-helpers'
+export type {
+  E2EFixture,
+  E2EBaseFixture,
+  E2ESingleFixture,
+  E2EBatchFixture,
+  E2EBatchWithMultistatusFixture,
+  E2EExecutionMode,
+  E2EExpectation,
+  E2ESuccessExpectation,
+  E2EFailureExpectation,
+  E2EErrorExpectation,
+  E2EDestinationConfig,
+  E2EAudienceDestinationConfig,
+  E2EAudienceConfig,
+  E2ETeardownContext,
+  E2ETeardownAudienceContext,
+  E2ESettingsSecretValue,
+  E2EDynamicValue,
+  E2EEngageAudienceEventOptions,
+  E2EEngageAudienceEvent,
+  E2EEngageAudienceTrackEvent,
+  E2EEngageAudienceIdentifyEvent,
+  E2EJourneysV1AudienceEventOptions,
+  E2EJourneysV1AudienceTrackEvent,
+  E2EJourneysV2AudienceEventOptions,
+  E2EJourneysV2AudienceTrackEvent,
+  E2ERetlAudienceEventOptions,
+  E2ERetlAudienceTrackEvent,
+  E2EHttpSuccessCode,
+  E2EHttpFailureCode
+} from './e2e-types'
