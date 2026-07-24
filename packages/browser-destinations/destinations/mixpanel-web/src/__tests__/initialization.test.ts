@@ -51,6 +51,7 @@ describe('Mixpanel Web initialization', () => {
       track: jest.fn(),
       track_pageview: jest.fn(),
       identify: jest.fn(),
+      register: jest.fn(),
       alias: jest.fn(),
       get_group: jest.fn(),
       set_group: jest.fn(),
@@ -98,5 +99,95 @@ describe('Mixpanel Web initialization', () => {
     const resolvedInstance = await initializeSpy.mock.results[0].value
     expect(resolvedInstance).toBe(mockMixpanelInstance)
     expect(resolvedInstance).not.toBe(mockSnippetMixpanel)
+  })
+
+  test('registers segment_source_name as a super property when sourceName is set', async () => {
+    const mockMixpanelInstance: Mixpanel = {
+      init: jest.fn(),
+      track: jest.fn(),
+      track_pageview: jest.fn(),
+      identify: jest.fn(),
+      register: jest.fn(),
+      alias: jest.fn(),
+      get_group: jest.fn(),
+      set_group: jest.fn(),
+      people: {
+        set: jest.fn(),
+        set_once: jest.fn(),
+        increment: jest.fn()
+      }
+    }
+
+    const mockSnippetMixpanel: Partial<Mixpanel> = {
+      init: jest.fn().mockImplementation((_token, config, _name) => {
+        setTimeout(() => {
+          if (config?.loaded) {
+            config.loaded(mockMixpanelInstance)
+          }
+        }, 10)
+      })
+    }
+
+    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
+      ;(window as any).mixpanel = mockSnippetMixpanel
+    })
+
+    const [event] = await MixpanelDestination({
+      ...baseSettings,
+      sourceName: 'My Website Source',
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    expect(mockMixpanelInstance.register).toHaveBeenCalledWith({
+      segment_source_name: 'My Website Source'
+    })
+
+    // sourceName is a Segment side setting and is not a valid Mixpanel config option,
+    // so it must not be forwarded to mixpanel.init
+    const [, config] = (mockSnippetMixpanel.init as jest.Mock).mock.calls[0]
+    expect(config).not.toHaveProperty('sourceName')
+  })
+
+  test('does not register a super property when sourceName is not set', async () => {
+    const mockMixpanelInstance: Mixpanel = {
+      init: jest.fn(),
+      track: jest.fn(),
+      track_pageview: jest.fn(),
+      identify: jest.fn(),
+      register: jest.fn(),
+      alias: jest.fn(),
+      get_group: jest.fn(),
+      set_group: jest.fn(),
+      people: {
+        set: jest.fn(),
+        set_once: jest.fn(),
+        increment: jest.fn()
+      }
+    }
+
+    const mockSnippetMixpanel: Partial<Mixpanel> = {
+      init: jest.fn().mockImplementation((_token, config, _name) => {
+        setTimeout(() => {
+          if (config?.loaded) {
+            config.loaded(mockMixpanelInstance)
+          }
+        }, 10)
+      })
+    }
+
+    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
+      ;(window as any).mixpanel = mockSnippetMixpanel
+    })
+
+    const [event] = await MixpanelDestination({
+      ...baseSettings,
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    expect(mockMixpanelInstance.register).not.toHaveBeenCalled()
   })
 })
