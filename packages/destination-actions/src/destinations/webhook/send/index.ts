@@ -5,6 +5,17 @@ import { isRestrictedUrl } from '../ssrf-utils'
 
 type RequestMethod = 'POST' | 'PUT' | 'PATCH'
 
+const BLACKHOLE_HOSTS = ['blackhole-webhook.segment.com', 'blackhole-webhook.segment.build']
+
+function isBlackholeUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url)
+    return BLACKHOLE_HOSTS.includes(hostname)
+  } catch {
+    return false
+  }
+}
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send',
   description: 'Send an HTTP request.',
@@ -58,9 +69,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { payload }) => {
+    if (isBlackholeUrl(payload.url)) {
+      console.log(`[webhook] Skipping request to blackhole URL: ${payload.url}`)
+      return
+    }
     if (isRestrictedUrl(payload.url)) {
       throw new PayloadValidationError('URL is not allowed: requests to private/internal networks are blocked.')
     }
+    console.log(`[webhook] Sending request to: ${payload.url} (${payload.method})`)
     try {
       return request(payload.url, {
         method: payload.method as RequestMethod,
@@ -76,6 +92,10 @@ const action: ActionDefinition<Settings, Payload> = {
     // Expect these to be the same across the payloads
     const { url, method, headers } = payload[0]
 
+    if (isBlackholeUrl(url)) {
+      console.log(`[webhook] Skipping batch request to blackhole URL: ${url} (${payload.length} events)`)
+      return
+    }
     if (isRestrictedUrl(url)) {
       throw new PayloadValidationError('URL is not allowed: requests to private/internal networks are blocked.')
     }
@@ -88,6 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
       statsClient?.histogram('webhook.configurable_batch_keys.unique_keys', set.size, tags)
     }
+    console.log(`[webhook] Sending batch request to: ${url} (${method}) with ${payload.length} events`)
     try {
       return request(url, {
         method: method as RequestMethod,

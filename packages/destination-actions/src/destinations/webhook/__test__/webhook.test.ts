@@ -249,6 +249,66 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
       expect(action.fields.batch_keys?.default).toBeDefined()
       expect(action.fields.batch_keys?.default).toEqual(['url', 'method', 'headers'])
     })
+
+    it('should skip requests to blackhole-webhook.segment.com', async () => {
+      const url = 'https://blackhole-webhook.segment.com/endpoint'
+      const event = createTestEvent()
+
+      // Ensure nock is NOT called for blackhole URL
+      const scope = nock('https://blackhole-webhook.segment.com').post('/endpoint').reply(200)
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        mapping: {
+          url
+        },
+        useDefaultMappings: true
+      })
+
+      // When skipping a blackhole URL, we expect no response (early return)
+      expect(responses.length).toBe(0)
+      expect(scope.isDone()).toBe(false) // Verify the request was not made
+    })
+
+    it('should skip requests to blackhole-webhook.segment.build', async () => {
+      const url = 'https://blackhole-webhook.segment.build/endpoint'
+      const event = createTestEvent()
+
+      // Ensure nock is NOT called for blackhole URL
+      const scope = nock('https://blackhole-webhook.segment.build').post('/endpoint').reply(200)
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        mapping: {
+          url
+        },
+        useDefaultMappings: true
+      })
+
+      // When skipping a blackhole URL, we expect no response (early return)
+      expect(responses.length).toBe(0)
+      expect(scope.isDone()).toBe(false) // Verify the request was not made
+    })
+
+    it('should skip batch requests to blackhole-webhook.segment.com', async () => {
+      const url = 'https://blackhole-webhook.segment.com/endpoint'
+      const events = [createTestEvent(), createTestEvent()]
+
+      // Ensure nock is NOT called for blackhole URL
+      const scope = nock('https://blackhole-webhook.segment.com').post('/endpoint').reply(200)
+
+      const responses = await testDestination.testBatchAction('send', {
+        events,
+        mapping: {
+          url,
+          data: { '@path': '$.' }
+        }
+      })
+
+      // When skipping a blackhole URL, we expect no response (early return)
+      expect(responses.length).toBe(0)
+      expect(scope.isDone()).toBe(false) // Verify the request was not made
+    })
   })
 }
 
