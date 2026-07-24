@@ -39,13 +39,23 @@ export async function send(
 
   payloads.forEach((payload, index) => {
     const audienceMembership = audienceMemberships?.[index]
+    // TEMP journeys rollout instrumentation - remove after rollout
+    const instrument = (operation: string) =>
+      statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [
+        ...(statsContext?.tags ?? []),
+        'destination:facebook-custom-audiences',
+        `operation:${operation}`
+      ])
     if (audienceMembership === false) {
       void sendToSegment({ source: 'send', payload, audienceMembership })
+      instrument('remove')
       deleteMap.set(index, payload)
     } else if (audienceMembership === true) {
       void sendToSegment({ source: 'send', payload, audienceMembership })
+      instrument('add')
       addMap.set(index, payload)
     } else if (audienceMembership === undefined) {
+      instrument('none')
       setErrorResponse(
         msResponse,
         payload,
