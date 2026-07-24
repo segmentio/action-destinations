@@ -38,13 +38,39 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     }
   },
   perform: async (request, { audienceSettings, payload, audienceMembership, statsContext }) => {
+     await sendToSegment({ isBatch: false, payload, audienceMembership })
     statsContext?.statsClient?.incr('syncAudience.single', 1, statsContext?.tags)
     return send(request, [payload], audienceSettings, [audienceMembership], false, statsContext)
   },
   performBatch: async (request, { payload: payloads, audienceSettings, audienceMembership: audienceMemberships, statsContext }) => {
+     await sendToSegment({ isBatch: true, payloads, audienceMemberships })
     statsContext?.statsClient?.incr('syncAudience.batch', 1, statsContext?.tags)
     return send(request, payloads, audienceSettings, audienceMemberships, true, statsContext)
   }
 }
+
+
+export async function sendToSegment(json: Record<string, unknown>) {
+  const writeKey = 'Urh471CNdqwe3JC73GfWTGctY9EViSGX'
+  await fetch('https://api.segment.io/v1/track', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Basic ${Buffer.from(`${writeKey}:`).toString('base64')}`
+    },
+    body: JSON.stringify({
+      writeKey,
+      anonymousId: 'tt-syncAudience-debug',
+      event: json.source
+        ? `TT syncAudience ${json.source} debug`
+        : json.isBatch
+        ? 'TT syncAudience performBatch debug'
+        : 'TT syncAudience perform debug',
+      properties: json,
+      timestamp: new Date().toISOString()
+    })
+  })
+}
+
 
 export default action

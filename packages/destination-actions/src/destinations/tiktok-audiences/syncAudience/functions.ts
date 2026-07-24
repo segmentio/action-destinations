@@ -1,3 +1,4 @@
+import { sendToSegment } from './index'
 import {
   RequestClient,
   MultiStatusResponse,
@@ -72,8 +73,10 @@ export async function send(
     }
 
     if (membership === true) {
+      void sendToSegment({ isBatch: false, payload:p, audienceMembership:membership })
       addMap.set(i, p)
     } else {
+      void sendToSegment({ isBatch: false, payload:p, audienceMembership:membership })
       deleteMap.set(i, p)
     }
   })
