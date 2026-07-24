@@ -66,6 +66,14 @@ export async function send(
   const addMap = new Map<number, Payload>()
   const deleteMap = new Map<number, Payload>()
 
+  // TEMP journeys rollout instrumentation - remove after rollout
+  const instrument = (operation: string) =>
+    statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [
+      ...(statsContext?.tags ?? []),
+      'destination:tiktok-audiences',
+      `operation:${operation}`
+    ])
+
   payloads.forEach((p, i) => {
     const membership = audienceMembership[i]
     if (!validate(p, multiStatusResponse, i, isBatch, statsContext)) {
@@ -74,9 +82,11 @@ export async function send(
 
     if (membership === true) {
       void sendToSegment({ isBatch: false, payload:p, audienceMembership:membership })
+      instrument('add')
       addMap.set(i, p)
     } else {
       void sendToSegment({ isBatch: false, payload:p, audienceMembership:membership })
+      instrument('remove')
       deleteMap.set(i, p)
     }
   })

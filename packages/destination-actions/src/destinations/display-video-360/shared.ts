@@ -243,12 +243,22 @@ export const syncAudience = async (
   const addPayloads: SyncPayload[] = []
   const removePayloads: SyncPayload[] = []
 
+  // TEMP journeys rollout instrumentation - remove after rollout
+  const instrument = (operation: string) =>
+    statsContext?.statsClient?.incr('journeys_audience_sync.operation', 1, [
+      ...(statsContext?.tags ?? []),
+      'destination:display-video-360',
+      `operation:${operation}`
+    ])
+
   payload.forEach((p, index) => {
     if (audienceMemberships?.[index] === true) {
       void sendToSegment({ isBatch: false, payload:p, audienceMembership:true })
+      instrument('add')
       addPayloads.push(p)
     } else if (audienceMemberships?.[index] === false) {
       void sendToSegment({ isBatch: false, payload:p, audienceMembership:false })
+      instrument('remove')
       removePayloads.push(p)
     }
   })
