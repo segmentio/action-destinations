@@ -43,19 +43,26 @@ const mapping = {
 
 // JourneysV2 / Engage / RETL event: carries the membership boolean at
 // properties[computation_key]. `true` => add, `false` => remove.
-function makeEvent(userId: string, email: string, membership: boolean) {
+// computation_class may be 'journey_step' (JourneysV2) or 'audience' (Engage/RETL);
+// both resolve membership identically via properties[computation_key].
+function makeEvent(
+  userId: string,
+  email: string,
+  membership: boolean,
+  computationClass: 'journey_step' | 'audience' = 'audience'
+) {
   return createTestEvent({
     type: 'track',
     event: 'This Is A Test Event',
     userId,
     properties: {
       [COMPUTATION_KEY]: membership,
-      email 
+      email
     },
     context: {
       personas: {
         audience_settings: { external_id_type: 'CRM_ID' },
-        computation_class: 'journey_step',
+        computation_class: computationClass,
         computation_id: 'p_0_destina__Google_ads__rhwsm',
         computation_key: COMPUTATION_KEY,
         external_audience_id: AUDIENCE_ID
@@ -93,12 +100,87 @@ describe('FacebookCustomAudiences.sync - audience membership resolution', () => 
   })
 
   describe('JourneysV2 / Engage / RETL format (membership boolean present)', () => {
-    it('adds users when properties[computation_key] is true and removes them when false', async () => {
+    it('JourneysV2: adds users when properties[computation_key] is true and removes them when false', async () => {
       const events = [
-        makeEvent('user1', 'user1@example.com', true),
-        makeEvent('user2', 'user2@example.com', true),
-        makeEvent('user3', 'user3@example.com', false),
-        makeEvent('user4', 'user4@example.com', false)
+        makeEvent('user1', 'user1@example.com', true, 'journey_step'),
+        makeEvent('user2', 'user2@example.com', true, 'journey_step'),
+        makeEvent('user3', 'user3@example.com', false, 'journey_step'),
+        makeEvent('user4', 'user4@example.com', false, 'journey_step')
+      ]
+
+      // Adds (membership === true) are sent as a POST.
+      const expectedAddBody = {
+        payload: {
+          schema: SCHEMA_PROPERTIES,
+          data: [
+            ['user1', hashEmail('user1@example.com'), ...EMPTY_TAIL],
+            ['user2', hashEmail('user2@example.com'), ...EMPTY_TAIL]
+          ]
+        }
+      }
+
+      // Removes (membership === false) are sent as a DELETE.
+      const expectedDeleteBody = {
+        payload: {
+          schema: SCHEMA_PROPERTIES,
+          data: [
+            ['user3', hashEmail('user3@example.com'), ...EMPTY_TAIL],
+            ['user4', hashEmail('user4@example.com'), ...EMPTY_TAIL]
+          ]
+        }
+      }
+
+      const addScope = nock(`${BASE_URL}/${API_VERSION}`)
+        .post(`/${AUDIENCE_ID}/users`, expectedAddBody)
+        .reply(200, { num_received: 2, num_invalid_entries: 0 })
+
+      const deleteScope = nock(`${BASE_URL}/${API_VERSION}`)
+        .delete(`/${AUDIENCE_ID}/users`, expectedDeleteBody)
+        .reply(200, { num_received: 2, num_invalid_entries: 0 })
+
+      const responses = await testDestination.executeBatch('sync', {
+        events,
+        settings,
+        auth,
+        mapping
+      })
+
+      expect(responses.length).toBe(4)
+
+      // Adds (indexes 0, 1) => POST
+      expect(responses[0]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user1', external_audience_id: AUDIENCE_ID },
+        sent: { method: 'POST', audienceId: AUDIENCE_ID }
+      })
+      expect(responses[1]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user2', external_audience_id: AUDIENCE_ID },
+        sent: { method: 'POST', audienceId: AUDIENCE_ID }
+      })
+
+      // Removes (indexes 2, 3) => DELETE
+      expect(responses[2]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user3', external_audience_id: AUDIENCE_ID },
+        sent: { method: 'DELETE', audienceId: AUDIENCE_ID }
+      })
+      expect(responses[3]).toMatchObject({
+        status: 200,
+        body: { externalId: 'user4', external_audience_id: AUDIENCE_ID },
+        sent: { method: 'DELETE', audienceId: AUDIENCE_ID }
+      })
+
+      expect(addScope.isDone()).toBe(true)
+      expect(deleteScope.isDone()).toBe(true)
+    })
+
+    it('Engage/RETL: adds users when properties[computation_key] is true and removes them when false', async () => {
+      const events = [
+        makeEvent('user1', 'user1@example.com', true, 'audience'),
+        makeEvent('user2', 'user2@example.com', true, 'audience'),
+        makeEvent('user3', 'user3@example.com', false, 'audience'),
+        makeEvent('user4', 'user4@example.com', false, 'audience')
       ]
 
       // Adds (membership === true) are sent as a POST.
@@ -170,7 +252,7 @@ describe('FacebookCustomAudiences.sync - audience membership resolution', () => 
   })
 
   describe('Legacy Journeys format (no membership boolean)', () => {
-    it('always adds users when the membership boolean is absent', async () => {
+    it('Legacy Journeys: always adds users when the membership boolean is absent', async () => {
       const events = [
         makeLegacyEvent('legacy-user1', 'legacy1@example.com'),
         makeLegacyEvent('legacy-user2', 'legacy2@example.com')
