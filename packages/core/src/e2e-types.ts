@@ -113,23 +113,38 @@ export interface E2EAudienceEventBase {
   userId?: string
   anonymousId?: string
   email?: string
-  audienceFields?: Record<string, unknown>
+  audienceFields?: Record<string, JSONValue>
   includeContextTraits?: boolean
 }
 
-export interface E2EEngageAudienceEventOptions<ComputationKey extends string = string> {
-  type: 'track' | 'identify'
+interface E2EEngageAudienceEventOptionsBase<ComputationKey extends string = string> {
   action: 'add' | 'remove'
   computationKey: ComputationKey
   computationId: string
   externalAudienceId?: string
-  eventName?: string
   userId?: string
   anonymousId?: string
   email?: string
-  audienceFields?: Record<string, unknown>
-  enrichedTraits?: Record<string, unknown>
+  audienceFields?: Record<string, JSONValue>
+  enrichedTraits?: Record<string, JSONValue>
 }
+
+export interface E2EEngageAudienceTrackEventOptions<ComputationKey extends string = string>
+  extends E2EEngageAudienceEventOptionsBase<ComputationKey> {
+  type: 'track'
+  eventName?: string
+}
+
+export interface E2EEngageAudienceIdentifyEventOptions<ComputationKey extends string = string>
+  extends E2EEngageAudienceEventOptionsBase<ComputationKey> {
+  type: 'identify'
+  /** identify events do not carry an event name. */
+  eventName?: never
+}
+
+export type E2EEngageAudienceEventOptions<ComputationKey extends string = string> =
+  | E2EEngageAudienceTrackEventOptions<ComputationKey>
+  | E2EEngageAudienceIdentifyEventOptions<ComputationKey>
 
 export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string = string> {
   computationKey: ComputationKey
@@ -138,8 +153,8 @@ export interface E2EJourneysV1AudienceEventOptions<ComputationKey extends string
   userId?: string
   anonymousId?: string
   email?: string
-  audienceFields?: Record<string, unknown>
-  enrichedTraits?: Record<string, unknown>
+  audienceFields?: Record<string, JSONValue>
+  enrichedTraits?: Record<string, JSONValue>
 }
 
 export interface E2EJourneysV2AudienceEventOptions<ComputationKey extends string = string> {
@@ -154,8 +169,8 @@ export interface E2EJourneysV2AudienceEventOptions<ComputationKey extends string
   userId?: string
   anonymousId?: string
   email?: string
-  audienceFields?: Record<string, unknown>
-  enrichedTraits?: Record<string, unknown>
+  audienceFields?: Record<string, JSONValue>
+  enrichedTraits?: Record<string, JSONValue>
 }
 
 export interface E2ERetlAudienceEventOptions<ComputationKey extends string = string> {
@@ -166,8 +181,8 @@ export interface E2ERetlAudienceEventOptions<ComputationKey extends string = str
   userId?: string
   anonymousId?: string
   email?: string
-  audienceFields?: Record<string, unknown>
-  enrichedTraits?: Record<string, unknown>
+  audienceFields?: Record<string, JSONValue>
+  enrichedTraits?: Record<string, JSONValue>
 }
 
 export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
@@ -183,14 +198,14 @@ export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = strin
       external_audience_id?: string
     }
     traits?: { email?: string }
-    audienceFields?: Record<string, unknown>
+    audienceFields?: Record<string, JSONValue>
   }
   properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }
 
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {
   type: 'track'
-  event: "Audience Entered"
+  event: 'Audience Entered'
   messageId: string
   timestamp: string
   context: {
@@ -201,7 +216,7 @@ export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string =
       external_audience_id?: string
     }
     traits?: { email?: string }
-    audienceFields?: Record<string, unknown>
+    audienceFields?: Record<string, JSONValue>
   }
   properties: { [k: string]: JSONValue }
 }
@@ -219,7 +234,7 @@ export interface E2EJourneysV2AudienceTrackEvent<ComputationKey extends string =
       external_audience_id?: string
     }
     traits?: { email?: string }
-    audienceFields?: Record<string, unknown>
+    audienceFields?: Record<string, JSONValue>
   }
   properties: {
     journey_context: { [k: string]: JSONValue }
@@ -240,7 +255,7 @@ export interface E2EEngageAudienceTrackEvent<ComputationKey extends string = str
       external_audience_id?: string
     }
     traits?: { email?: string }
-    audienceFields?: Record<string, unknown>
+    audienceFields?: Record<string, JSONValue>
   }
   properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }
@@ -256,7 +271,7 @@ export interface E2EEngageAudienceIdentifyEvent<ComputationKey extends string = 
       computation_id: string
       external_audience_id?: string
     }
-    audienceFields?: Record<string, unknown>
+    audienceFields?: Record<string, JSONValue>
   }
   traits: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
 }

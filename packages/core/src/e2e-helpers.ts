@@ -1,5 +1,4 @@
 import type { SegmentEvent } from './segment-event'
-import type { JSONValue } from './json-object'
 import type {
   E2EAudienceEventBase,
   E2EEngageAudienceEventOptions,
@@ -12,14 +11,24 @@ import type {
   E2ERetlAudienceTrackEvent
 } from './e2e-types'
 
+type E2EEventOverrides = Partial<Omit<SegmentEvent, 'type' | 'event' | 'name' | 'messageId' | 'timestamp'>>
+
 /*
- * Regular Segment Connections event
+ * Regular Segment Connections event.
+ *
+ * Overloads enforce the name rules at the type level:
+ * - track: name required (becomes the event name)
+ * - page/screen: name optional
+ * - identify/group/alias: no name accepted
  */
+export function createE2EEvent(type: 'track', name: string, overrides?: E2EEventOverrides): SegmentEvent
+export function createE2EEvent(type: 'page' | 'screen', name?: string, overrides?: E2EEventOverrides): SegmentEvent
 export function createE2EEvent(
-  type: SegmentEvent['type'],
-  name?: string,
-  overrides?: Partial<Omit<SegmentEvent, 'type' | 'event' | 'name' | 'messageId' | 'timestamp'>>
-): SegmentEvent {
+  type: 'identify' | 'group' | 'alias',
+  name?: undefined,
+  overrides?: E2EEventOverrides
+): SegmentEvent
+export function createE2EEvent(type: SegmentEvent['type'], name?: string, overrides?: E2EEventOverrides): SegmentEvent {
   if (type === 'track') {
     return {
       type,
@@ -90,36 +99,31 @@ function buildAudienceEventBase(options: E2EAudienceEventBase) {
 export function createE2EEngageAudienceEvent<ComputationKey extends string>(
   options: E2EEngageAudienceEventOptions<ComputationKey>
 ): E2EEngageAudienceEvent<ComputationKey> {
-  const { type, action, computationKey, eventName, email, enrichedTraits } = options
-
-  if (type === 'identify' && eventName) {
-    throw new Error('createE2EEngageAudienceEvent: "eventName" is not supported for identify events.')
-  }
-
+  const { action, computationKey, email, enrichedTraits } = options
   const membership = action === 'add'
-  const base = buildAudienceEventBase({ ...options, includeContextTraits: type === 'track' })
+  const base = buildAudienceEventBase({ ...options, includeContextTraits: options.type === 'track' })
 
-  const event = {
-    ...base,
-    ...(type === 'track' && {
+  if (options.type === 'track') {
+    return {
+      ...base,
       type: 'track',
-      event: eventName ?? 'Test Engage Audience Membership Event',
+      event: options.eventName ?? 'Test Engage Audience Membership Event',
       properties: {
         [computationKey]: membership,
-        ...(enrichedTraits as { [k: string]: JSONValue })
+        ...enrichedTraits
       }
-    }),
-    ...(type === 'identify' && {
-      type: 'identify',
-      traits: {
-        [computationKey]: membership,
-        ...(enrichedTraits as { [k: string]: JSONValue }),
-        ...(email && { email })
-      }
-    })
+    } as E2EEngageAudienceEvent<ComputationKey>
   }
 
-  return event as E2EEngageAudienceEvent<ComputationKey>
+  return {
+    ...base,
+    type: 'identify',
+    traits: {
+      [computationKey]: membership,
+      ...enrichedTraits,
+      ...(email && { email })
+    }
+  } as E2EEngageAudienceEvent<ComputationKey>
 }
 
 /*
@@ -149,7 +153,7 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
     type: 'track',
     event: 'Audience Entered',
     properties: {
-      ...(enrichedTraits as { [k: string]: JSONValue })
+      ...enrichedTraits
     },
     context: {
       personas: {
@@ -209,7 +213,7 @@ export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
         journey_id: journeyId ?? 'jver_e2e_journey',
         journey_name: journeyName ?? 'e2e journey'
       },
-      ...(enrichedTraits as { [k: string]: JSONValue })
+      ...enrichedTraits
     },
     context: {
       personas: {
@@ -244,7 +248,7 @@ export function createE2ERetlAudienceEvent<ComputationKey extends string>(
     event: eventName,
     properties: {
       [computationKey]: membership,
-      ...(enrichedTraits as { [k: string]: JSONValue })
+      ...enrichedTraits
     }
   }
 
