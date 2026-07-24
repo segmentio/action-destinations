@@ -42,6 +42,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   fields,
   perform: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
+    await sendToSegment({ isBatch: false, payload, audienceMembership, hookOutputs, features: features })
     return await send(
       request, [payload], false, [audienceMembership],
       hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
@@ -49,6 +50,7 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
   performBatch: async ( request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {    
+    await sendToSegment({ isBatch: true, payload, audienceMembership, hookOutputs, features: features })
     return await send(
       request, payload, true, audienceMembership,
       hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
@@ -56,5 +58,29 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   }
 }
+
+
+export async function sendToSegment(json: Record<string, unknown>) {
+  const writeKey = 'Urh471CNdqwe3JC73GfWTGctY9EViSGX'
+  await fetch('https://api.segment.io/v1/track', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: `Basic ${Buffer.from(`${writeKey}:`).toString('base64')}`
+    },
+    body: JSON.stringify({
+      writeKey,
+      anonymousId: 'fb-custom-functions-debug',
+      event: json.source
+        ? `FB sync ${json.source} debug`
+        : json.isBatch
+        ? 'FB sync performBatch debug'
+        : 'FB sync perform debug',
+      properties: json,
+      timestamp: new Date().toISOString()
+    })
+  })
+}
+
 
 export default action

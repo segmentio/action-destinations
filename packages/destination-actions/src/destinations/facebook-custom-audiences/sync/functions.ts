@@ -1,4 +1,5 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
+import { sendToSegment } from '../sync/index'
 import { Payload } from './generated-types'
 import {
   RequestClient,
@@ -39,8 +40,10 @@ export async function send(
   payloads.forEach((payload, index) => {
     const audienceMembership = audienceMemberships?.[index]
     if (audienceMembership === false) {
+      void sendToSegment({ source: 'send', payload, audienceMembership })
       deleteMap.set(index, payload)
     } else if (audienceMembership === true) {
+      void sendToSegment({ source: 'send', payload, audienceMembership })
       addMap.set(index, payload)
     } else if (audienceMembership === undefined) {
       setErrorResponse(

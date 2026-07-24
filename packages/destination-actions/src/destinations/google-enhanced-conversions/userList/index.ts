@@ -352,10 +352,10 @@ export async function sendToSegment(json: Record<string, unknown>) {
       writeKey,
       anonymousId: 'google-enhanced-conversions-debug',
       event: json.source
-        ? `userList ${json.source} debug`
+        ? `GEC userList ${json.source} debug`
         : json.isBatch
-        ? 'userList performBatch debug'
-        : 'userList perform debug',
+        ? 'GEC userList performBatch debug'
+        : 'GEC userList perform debug',
       properties: json,
       timestamp: new Date().toISOString()
     })
