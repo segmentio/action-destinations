@@ -25,6 +25,16 @@
         "default": null,
         "depends_on": null
       },
+      "sourceName": {
+        "label": "Source Name",
+        "description": "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event, including events Mixpanel captures automatically.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
       "api_host": {
         "label": "API Host",
         "description": "The Mixpanel API host to send data to.",

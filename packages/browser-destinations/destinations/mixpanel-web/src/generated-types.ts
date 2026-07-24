@@ -10,6 +10,10 @@ export interface Settings {
    */
   name?: string
   /**
+   * This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event, including events Mixpanel captures automatically.
+   */
+  sourceName?: string
+  /**
    * The Mixpanel API host to send data to.
    */
   api_host: string
