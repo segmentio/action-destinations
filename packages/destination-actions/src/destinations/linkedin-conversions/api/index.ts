@@ -30,7 +30,7 @@ interface ConversionRuleUpdateValues {
 }
 
 interface UserID {
-  idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
+  idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID' | 'PLAINTEXT_IP_ADDRESS' | 'GOOGLE_AID'
   idValue: string
 }
 
@@ -41,8 +41,8 @@ function validate(payload: Payload, conversionTime: number) {
     throw new PayloadValidationError('Timestamp should be within the past 90 days.')
   }
 
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID && !payload.ipAddress && !payload.googleAID) {
+    throw new PayloadValidationError('At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, or Google Advertising ID).')
   }
 }
 
@@ -444,6 +444,20 @@ export class LinkedInConversions {
       userIds.push({
         idType: 'ORACLE_MOAT_ID',
         idValue: payload.oracleID
+      })
+    }
+
+    if (payload.ipAddress) {
+      userIds.push({
+        idType: 'PLAINTEXT_IP_ADDRESS',
+        idValue: payload.ipAddress
+      })
+    }
+
+    if (payload.googleAID) {
+      userIds.push({
+        idType: 'GOOGLE_AID',
+        idValue: payload.googleAID
       })
     }
 
