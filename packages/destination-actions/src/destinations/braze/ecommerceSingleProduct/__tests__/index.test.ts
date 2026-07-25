@@ -157,6 +157,76 @@ describe('Braze.ecommerce', () => {
     })  
   })
 
+    it('should send Product Viewed event with catalog_type correctly', async () => {
+
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      deepCopy.properties = {
+        ...deepCopy.properties,
+        type: ['price_drop', 'back_in_stock']
+      }
+      const e = createTestEvent(deepCopy)
+
+      const mapping2 = {
+        ...mapping,
+        catalog_type: { '@path': '$.properties.type' }
+      }
+
+      const json = {
+        events: [
+            {
+              external_id: "userId1",
+              braze_id: "braze_id_1",
+              email: "email@email.com",
+              phone: "+14155551234",
+              user_alias: {
+                alias_name: "alias_name_1",
+                alias_label: "alias_label_1"
+              },
+              app_id: "test_app_id",
+              name: "ecommerce.product_viewed",
+              time: "2024-06-10T12:00:00.000Z",
+              properties: {
+                currency: "USD",
+                source: "test_source",
+                metadata: {
+                  custom_field_1: "custom_value_1",
+                  custom_field_2: 100,
+                  custom_field_3: true,
+                  custom_field_4: ["a", "b", "c"],
+                  custom_field_5: {
+                    nested_key: "nested_value"
+                  },
+                  checkout_url: "https://example.com/checkout",
+                  order_status_url: "https://example.com/order/status"
+                },
+                product_id: "prod_1",
+                product_name: "Product 1",
+                variant_id: "Size M",
+                image_url: "https://example.com/prod1.jpg",
+                product_url: "https://example.com/prod1",
+                price: 25,
+                type: ["price_drop", "back_in_stock"]
+              },
+              _update_existing_only: true
+            }
+          ]
+      }
+
+      nock(settings.endpoint)
+        .post('/users/track', json)
+        .reply(200)
+
+      const response = await testDestination.testAction('ecommerceSingleProduct', {
+        event: e,
+        settings,
+        useDefaultMappings: true,
+        mapping: mapping2
+      })
+
+      expect(response.length).toBe(1)
+    })
+  })
+
   describe('batch events', () => {
     it('should send batched single product ecommerce events correctly', async () => {
 
