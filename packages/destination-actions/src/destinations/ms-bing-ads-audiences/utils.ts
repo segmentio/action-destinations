@@ -226,7 +226,7 @@ export const handleHttpError = async (
 // Inspects an HTTP error for a refreshable Bing auth failure (codes 105/109), regardless of the
 // HTTP status Bing returned. Returns the refreshable flag plus the parsed error message so the
 // single-event path can re-throw an InvalidAuthenticationError that carries the Bing ErrorCode/
-// TrackingId (not just the bare HTTP statusText).
+// Message (not just the bare HTTP statusText).
 export const inspectAuthError = (error: HTTPError): { refreshable: boolean; errormessage: string } => {
   const fault = extractBingFault(error?.response)
   const { refreshable, errormessage } = parseBingFault(fault, error?.response?.status, error.message)
