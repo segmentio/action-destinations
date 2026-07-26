@@ -47,10 +47,17 @@ export async function getSchemaFromHubspot(
               )
             }
 
-            if (['object', 'string', 'boolean'].includes(prop.type) && maybeMatch.type === 'number') {
+            if (['object', 'boolean'].includes(prop.type) && maybeMatch.type === 'number') {
               throw new PayloadValidationError(
                 `Hubspot.CustomEvent.getSchemaFromHubspot: Expected type ${prop.type} for property ${propName} - Hubspot returned type ${maybeMatch.type}`
               )
+            }
+
+            if (prop.type === 'string' && maybeMatch.type === 'number') {
+              props[propName] = {
+                type: 'number'
+              }
+              continue
             }
 
             if (prop.type === 'number' && maybeMatch.type === 'string') {
