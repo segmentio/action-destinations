@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestIntegration, createTestEvent } from '@segment/actions-core'
+import { createTestIntegration, createTestEvent, InvalidAuthenticationError } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
 import * as utils from '../../utils'
@@ -523,6 +523,128 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
       const warned = (logger.warn as jest.Mock).mock.calls.map((c) => c[0]).join('\n')
       expect(warned).toContain('[ms-bing-ads-audiences][DELIVERY_ERROR]')
       expect(warned).toContain('trackingId=track-e2e')
+    })
+
+    // executeBatch (unlike testBatchAction, which returns the raw HTTP responses) returns the
+    // multistatus array, so response[0].status IS the per-item status the framework's OAuth retry
+    // reads. executeBatch does not apply defaultMappings, so provide a full explicit mapping.
+    const explicitMapping = {
+      ...baseMapping,
+      email: { '@path': '$.context.traits.email' },
+      traits_or_props: { '@path': '$.properties' }
+    }
+    const batchEvent = () =>
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'one@segment.com' } }
+      })
+
+    // Batch path: the framework's OAuth retry keys on a per-item status of 401 in the multistatus
+    // array. This is the exact field the original bug got wrong (recorded undefined), so assert the
+    // recorded per-item status is 401.
+    it('batch: records a per-item status of 401 for an expired-token (109) fault', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(401, {
+          Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'Authentication token expired.' }],
+          TrackingId: 'track-109-batch',
+          Type: 'AdApiFaultDetail'
+        })
+
+      const response = await testDestination.executeBatch('syncAudiences', {
+        events: [batchEvent()],
+        mapping: explicitMapping,
+        settings
+      })
+
+      expect(response[0]).toMatchObject({ status: 401 })
+    })
+
+    // Batch path: a no-access (106) fault must NOT be normalized to 401 — a refresh can't grant
+    // access, so recording 401 would cause a pointless refresh loop. The real 403 must survive.
+    it('batch: keeps the real per-item status (403) for a no-access (106) fault, does NOT force 401', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(403, {
+          Errors: [{ Code: 106, ErrorCode: 'UserIsNotAuthorized', Message: 'no access' }],
+          Type: 'AdApiFaultDetail'
+        })
+
+      const response = await testDestination.executeBatch('syncAudiences', {
+        events: [batchEvent()],
+        mapping: explicitMapping,
+        settings
+      })
+
+      expect(response[0]).toMatchObject({ status: 403 })
+    })
+
+    // Single-event (perform) path: a refreshable auth fault is re-thrown as InvalidAuthenticationError
+    // (status 401) so the framework refreshes the token and retries. This is the headline behavior and
+    // has no other coverage — every other error-path test uses the batch multistatus path.
+    it('perform: re-throws a refreshable 401 (109) as InvalidAuthenticationError', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(401, {
+          Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'Authentication token expired.' }],
+          Type: 'AdApiFaultDetail'
+        })
+
+      const event = createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'demo@segment.com' } }
+      })
+
+      await expect(
+        testDestination.testAction('syncAudiences', { event, mapping: baseMapping, useDefaultMappings: true, settings })
+      ).rejects.toBeInstanceOf(InvalidAuthenticationError)
+    })
+
+    // Single-event path: the same must hold when a refreshable code (105) arrives on a NON-401 HTTP
+    // status — this is the defensive normalization that lets refresh fire regardless of Bing's status.
+    it('perform: normalizes a refreshable code (105) on HTTP 500 to InvalidAuthenticationError', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(500, {
+          Errors: [{ Code: 105, ErrorCode: 'AuthenticationTokenInvalid', Message: 'bad token' }],
+          Type: 'AdApiFaultDetail'
+        })
+
+      const event = createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'demo@segment.com' } }
+      })
+
+      await expect(
+        testDestination.testAction('syncAudiences', { event, mapping: baseMapping, useDefaultMappings: true, settings })
+      ).rejects.toBeInstanceOf(InvalidAuthenticationError)
+    })
+
+    // Single-event path: a NON-refreshable fault (106 no-access) must surface as its real error, NOT
+    // masquerade as an auth problem — otherwise it would trigger a refresh loop that can never succeed.
+    it('perform: does NOT convert a non-refreshable (106) fault into InvalidAuthenticationError', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(403, {
+          Errors: [{ Code: 106, ErrorCode: 'UserIsNotAuthorized', Message: 'no access' }],
+          Type: 'AdApiFaultDetail'
+        })
+
+      const event = createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'demo@segment.com' } }
+      })
+
+      const error = await testDestination
+        .testAction('syncAudiences', { event, mapping: baseMapping, useDefaultMappings: true, settings })
+        .catch((e) => e)
+
+      expect(error).toBeDefined()
+      expect(error).not.toBeInstanceOf(InvalidAuthenticationError)
     })
   })
 })
