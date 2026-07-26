@@ -174,10 +174,12 @@ const syncUser = async (
 
     if (!isBatch) {
       // Single-event path: the framework refreshes the OAuth token only when the thrown error's
-      // status is 401. Bing can return an expired/invalid token (codes 105/109) as a non-401 status,
-      // so re-throw as InvalidAuthenticationError (status 401) to trigger a refresh + retry. Only do
-      // this for genuinely refreshable auth codes — a bare/non-auth 401 (e.g. 106 no-access) must
-      // surface as its real error, not masquerade as a token problem.
+      // status is 401. An expired token (code 109) does come back as HTTP 401, so re-throwing the raw
+      // HTTPError would already refresh — but we re-throw as InvalidAuthenticationError so the message
+      // carries Bing's ErrorCode/Message, and so a refreshable auth code that ever arrives on a
+      // non-401 status (105/109) still triggers a refresh + retry. Only for genuinely refreshable
+      // codes — a bare/non-auth 401 (e.g. 106 no-access) must surface as its real error, not
+      // masquerade as a token problem.
       if (error instanceof HTTPError) {
         const { refreshable, errormessage } = inspectAuthError(error)
         if (refreshable) {

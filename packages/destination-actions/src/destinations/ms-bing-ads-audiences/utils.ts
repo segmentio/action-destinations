@@ -165,11 +165,18 @@ export const handleMultistatusResponse = (
 const REFRESHABLE_AUTH_ERROR_CODES = new Set([105, 109])
 
 /**
- * Normalizes a Bing fault into the status + message we record per item. Bing has no top-level
- * `status` in the body — the real status is on the HTTP response — and it sometimes returns auth
- * failures as HTTP 500, so we inspect the fault's error code and force 401 for refreshable auth
- * errors regardless of the HTTP status. Handles both AdApiFaultDetail (`Errors`) and ApiFaultDetail
- * (`OperationErrors`).
+ * Normalizes a Bing fault into the status + message we record per item. This is what fixes the
+ * original bug: Bing's fault body has NO top-level `status` field (verified against a real expired-
+ * token response: `{"Errors":[{"Code":109,...}],"TrackingId":...,"Type":"AdApiFaultDetail"}`), so the
+ * old code's `errorResponse.status` was always `undefined`. The framework only refreshes when a
+ * multistatus entry has `status === 401`, so an expired-token 401 was recorded as `undefined` and the
+ * refresh never fired. We now record the REAL HTTP status (`error.response.status`) instead.
+ *
+ * We additionally force 401 for refreshable auth codes (105/109) even if the HTTP status isn't 401.
+ * In practice the REST API returns 401 for an expired token, so this is a defensive hedge for Bing's
+ * SOAP-era contract (errors as HTTP 500 — see the docs link on REFRESHABLE_AUTH_ERROR_CODES) in case
+ * an auth fault ever arrives on a non-401 status. Handles both AdApiFaultDetail (`Errors`) and
+ * ApiFaultDetail (`OperationErrors`).
  */
 export const parseBingFault = (
   fault: BingFaultResponse | undefined,
