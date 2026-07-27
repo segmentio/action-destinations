@@ -18,6 +18,22 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for actions-marketo-private destination: sendForm action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for actions-marketo-private destination: sendForm action - required fields 1`] = `
 Object {
   "formId": "ojgz9UfSl@Q9BXikZk",
@@ -32,5 +48,21 @@ Object {
       },
     },
   ],
+}
+`;
+
+exports[`Testing snapshot for actions-marketo-private destination: sendForm action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer undefined",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
 }
 `;
