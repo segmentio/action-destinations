@@ -1,6 +1,6 @@
 {
   "slug": "actions-vibe-conversions",
-  "name": "Vibe Tracking Event",
+  "name": "Vibe Conversions",
   "mode": "cloud",
   "description": "Send conversion events to Vibe.",
   "authentication": {

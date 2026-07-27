@@ -7,7 +7,7 @@ import trackConversion from './trackConversion'
 const baseMapping = defaultValues(trackConversion.fields)
 
 const destination: DestinationDefinition<Settings> = {
-  name: 'Vibe Tracking Event',
+  name: 'Vibe Conversions',
   slug: 'actions-vibe-conversions',
   mode: 'cloud',
   description: 'Send conversion events to Vibe.',
