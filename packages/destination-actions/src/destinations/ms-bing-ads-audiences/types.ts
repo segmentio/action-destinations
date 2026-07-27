@@ -68,7 +68,8 @@ export interface BingError {
 }
 
 // Whole-request fault body returned by Bing (as opposed to per-item PartialErrors). Every fault
-// derives from ApplicationFault, so TrackingId is always present at the top level.
+// derives from ApplicationFault, so TrackingId is expected at the top level — but it's typed
+// optional (like the other fields) so parsing stays defensive if a body ever omits it.
 export interface BingFaultResponse {
   Errors?: BingError[]
   OperationErrors?: BingError[]
