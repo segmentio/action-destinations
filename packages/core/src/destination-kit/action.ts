@@ -135,6 +135,9 @@ export type AsyncBatchResponse = {
 export type PollPayload = {
   // Job ID returned from the performBatch response that identifies the batch request being polled
   jobId: string
+
+  // Number of records/files uploaded during the performBatch operation being polled
+  uploadCount: number
 }
 
 // The response from a poll operation of an AsyncActionDefinition.
