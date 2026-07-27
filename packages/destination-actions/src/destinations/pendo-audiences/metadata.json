@@ -44,7 +44,7 @@
             "value": "AU"
           }
         ],
-        "default": "DEFAULT",
+        "default": "US",
         "depends_on": null
       }
     }
@@ -57,7 +57,7 @@
     "audienceFields": {
       "audienceName": {
         "label": "Pendo Segment Name",
-        "description": "A name for the Pendo Segment. Leave blank to use the Segment audience name.",
+        "description": "The name for the Pendo Segment. Leave blank to use the Segment audience name.",
         "type": "string",
         "required": false,
         "multiple": false,
@@ -183,70 +183,5 @@
       }
     }
   },
-  "presets": [
-    {
-      "name": "Entities Audience Membership Changed",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "warehouse_audience_membership_changed_identify"
-    },
-    {
-      "name": "Associated Entity Added",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "warehouse_entity_added_track"
-    },
-    {
-      "name": "Associated Entity Removed",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "warehouse_entity_removed_track"
-    },
-    {
-      "name": "Journeys Step Entered",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "journeys_step_entered_track"
-    }
-  ]
+  "presets": []
 }
