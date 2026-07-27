@@ -213,10 +213,13 @@ export const handleHttpError = async (
   // Parse the fault from the UNTRUNCATED body so status normalization (e.g. auth 105/109 -> 401,
   // which drives token refresh) is never lost to truncation. The request client's after-response
   // hook already parses JSON bodies into `response.data`, so prefer that; otherwise parse the raw
-  // (untruncated) text. `readResponseBody` is used only for the human-readable, length-capped body.
+  // (untruncated) text.
   const fault = extractBingFault(error?.response)
   const { status, errormessage } = parseBingFault(fault, error?.response?.status, error.message)
-  const loggableBody = formatBingErrorBody(await readResponseBody(error?.response))
+  // Summarize the loggable body from the already-parsed fault when we have it — re-reading via
+  // readResponseBody would truncate a large fault mid-JSON and lose the TrackingId/ErrorCode. Only
+  // fall back to the raw (capped) body when the response wasn't the known fault shape.
+  const loggableBody = fault ? formatBingFault(fault) : formatBingErrorBody(await readResponseBody(error?.response))
 
   listItemsMap.forEach((indices) => {
     indices.forEach((index) => {
@@ -316,21 +319,39 @@ export const formatBingErrorBody = (rawBody: string): string => {
     return 'no response body'
   }
   try {
-    const parsed = JSON.parse(rawBody) as BingFaultResponse
-    const errors = parsed?.Errors ?? parsed?.OperationErrors ?? []
-    const parts = errors.map(
-      (e) => `${e?.ErrorCode ?? 'UnknownError'}: ${e?.Message ?? 'No error message provided'}`
-    )
-    if (parsed?.TrackingId) {
-      parts.push(`TrackingId: ${parsed.TrackingId}`)
-    }
-    // If the JSON parsed but carried no recognizable error fields, don't echo it back verbatim — it
-    // could contain echoed identifiers (PII). Surface only that it was unrecognized.
-    return parts.length ? parts.join('; ') : 'unrecognized response body'
+    return formatBingFault(JSON.parse(rawBody) as BingFaultResponse)
   } catch {
     // Not the known JSON shape (HTML page, truncated body, etc.). Do NOT echo the raw text — Bing
     // error bodies can echo back the offending identifier (hashed email / CRM id). Surface nothing
     // beyond the fact that it was unparseable.
     return 'unparseable response body'
   }
+}
+
+// Per-error Message cap. Bing's own messages are short (~60 chars), but a proxy or an echoed value
+// can be huge; capping each Message individually keeps the high-value ErrorCode + TrackingId from
+// being truncated off the end when one message is oversized.
+const MAX_FAULT_MESSAGE_LENGTH = 512
+
+/**
+ * Summarizes an already-parsed Bing fault into the same ErrorCode/Message/TrackingId string as
+ * formatBingErrorBody. Preferred over re-reading the raw body when the fault is already in hand (see
+ * handleHttpError): a large fault body that readResponseBody would truncate mid-JSON — and thus
+ * render unparseable — still yields a useful summary here. Each Message is capped individually so the
+ * short, high-value ErrorCode and TrackingId always survive, then the whole summary is capped too.
+ */
+export const formatBingFault = (fault: BingFaultResponse | undefined): string => {
+  const errors = fault?.Errors ?? fault?.OperationErrors ?? []
+  const parts = errors.map((e) => {
+    const message = e?.Message ?? 'No error message provided'
+    const capped = message.length > MAX_FAULT_MESSAGE_LENGTH ? `${message.slice(0, MAX_FAULT_MESSAGE_LENGTH)}…` : message
+    return `${e?.ErrorCode ?? 'UnknownError'}: ${capped}`
+  })
+  if (fault?.TrackingId) {
+    parts.push(`TrackingId: ${fault.TrackingId}`)
+  }
+  // No recognizable error fields — don't echo arbitrary parsed fields, which could carry an echoed
+  // identifier (PII). Surface only that it was unrecognized.
+  const summary = parts.length ? parts.join('; ') : 'unrecognized response body'
+  return summary.length > MAX_ERROR_BODY_LENGTH ? `${summary.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : summary
 }

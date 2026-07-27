@@ -203,6 +203,30 @@ describe('handleHttpError', () => {
     // status 500 from HTTP, but code 109 forces 401 so the framework refreshes the token.
     expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(0, expect.objectContaining({ status: 401 }))
   })
+
+  it('summarizes the loggable body from the parsed fault, keeping TrackingId even when the body exceeds the cap', async () => {
+    const msResponse = createMockMsResponse()
+    const listItemsMap = new Map<string, number[]>([['abc', [0]]])
+    const payload = [{ audience_id: 'a1' }] as unknown as Payload[]
+    // A >2048 char body: re-reading + truncating it mid-JSON would render it unparseable and drop
+    // the TrackingId. Formatting from the already-parsed fault preserves ErrorCode + TrackingId.
+    const fault = {
+      Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'x'.repeat(5000) }],
+      TrackingId: 'track-big'
+    }
+    const error: Partial<HTTPError> = {
+      // @ts-ignore - `data` is what the request client populates (untruncated).
+      response: { status: 500, data: fault, content: JSON.stringify(fault) }
+    }
+    await handleHttpError(msResponse, error as HTTPError, listItemsMap, payload)
+    const recorded = (msResponse.setErrorResponseAtIndex as jest.Mock).mock.calls[0][1]
+    expect(recorded.body).toContain('AuthenticationTokenExpired')
+    // The high-value TrackingId survives because the oversized Message is capped per-error first.
+    expect(recorded.body).toContain('TrackingId: track-big')
+    expect(recorded.body).not.toBe('unparseable response body')
+    // The oversized Message itself is capped, keeping the whole summary within the length limit.
+    expect(recorded.body.length).toBeLessThanOrEqual(MAX_ERROR_BODY_LENGTH)
+  })
 })
 
 describe('parseBingFault', () => {
