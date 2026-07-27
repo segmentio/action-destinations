@@ -1,11 +1,6 @@
 // This is a github action script and can be run only from github actions. To run this script locally, you need to mock the github object and context object.
 module.exports = async ({ github, context, core }) => {
     const { labelsToAdd } = process.env
-    const defaultReviewer = 'copilot'
-
-    function withDefaultReviewer(reviewers) {
-        return Array.from(new Set([...reviewers, defaultReviewer]))
-    }
 
     // Check if there are already reviewers assigned to the PR
     try {
@@ -30,20 +25,20 @@ module.exports = async ({ github, context, core }) => {
 
     // Check if team:external label is being added
     if (labelsToAdd && labelsToAdd.split(',').includes('team:external')) {
-        core.setOutput('reviewers', withDefaultReviewer(['joe-ayoub-segment']).join(','))
+        core.setOutput('reviewers', 'joe-ayoub-segment')
         core.setOutput('team', 'external')
         core.setOutput('skip', 'false')
-        core.info('Assigned joe-ayoub-segment and copilot for external contributor PR')
+        core.info('Assigned joe-ayoub-segment for external contributor PR')
         return
     }
 
     // Check if team:external label already exists on the PR
     const existingLabels = context.payload.pull_request.labels.map((label) => label.name)
     if (existingLabels.includes('team:external')) {
-        core.setOutput('reviewers', withDefaultReviewer(['joe-ayoub-segment']).join(','))
+        core.setOutput('reviewers', 'joe-ayoub-segment')
         core.setOutput('team', 'external')
         core.setOutput('skip', 'false')
-        core.info('Assigned joe-ayoub-segment and copilot for external contributor PR (existing label)')
+        core.info('Assigned joe-ayoub-segment for external contributor PR (existing label)')
         return
     }
 
@@ -87,10 +82,10 @@ module.exports = async ({ github, context, core }) => {
     const teamToAssign = await getTeamFromGitHub()
 
     if (!teamToAssign) {
-        core.setOutput('reviewers', withDefaultReviewer(['joe-ayoub-segment']).join(','))
+        core.setOutput('reviewers', 'joe-ayoub-segment')
         core.setOutput('team', 'other')
         core.setOutput('skip', 'false')
-        core.info('No team assigned, defaulting to joe-ayoub-segment and copilot')
+        core.info('No team assigned, defaulting to joe-ayoub-segment')
         return
     }
 
@@ -112,10 +107,10 @@ module.exports = async ({ github, context, core }) => {
 
         if (!isAuthorInTeam) {
             // PR targeting strategic-connections-team from non-team member -> assign to joe-ayoub-segment
-            core.setOutput('reviewers', withDefaultReviewer(['joe-ayoub-segment']).join(','))
+            core.setOutput('reviewers', 'joe-ayoub-segment')
             core.setOutput('team', 'other')
             core.setOutput('skip', 'false')
-            core.info(`PR targeting ${teamToAssign} from non-team member, assigned to joe-ayoub-segment and copilot`)
+            core.info(`PR targeting ${teamToAssign} from non-team member, assigned to joe-ayoub-segment`)
             return
         }
         // If author is in team, continue to team assignment logic below
@@ -157,13 +152,12 @@ module.exports = async ({ github, context, core }) => {
         }
 
         const reviewerLogins = selectedMembers.map(member => member.login)
-        const reviewersWithDefault = withDefaultReviewer(reviewerLogins)
-        core.setOutput('reviewers', reviewersWithDefault.join(','))
+        core.setOutput('reviewers', reviewerLogins.join(','))
         core.setOutput('team', teamToAssign)
         core.setOutput('skip', 'false')
 
         const authorInfo = eligibleMembers.length !== team.data.length ? ` (excluded PR author: ${prAuthor})` : ''
-        core.info(`Selected ${reviewersWithDefault.join(', ')} (consecutive from index ${startIndex}) from ${membersToSelectFrom.length} available members in ${teamToAssign}${authorInfo}`)
+        core.info(`Selected ${reviewerLogins.join(', ')} (consecutive from index ${startIndex}) from ${membersToSelectFrom.length} available members in ${teamToAssign}${authorInfo}`)
 
     } catch (error) {
         core.setOutput('skip', 'true')

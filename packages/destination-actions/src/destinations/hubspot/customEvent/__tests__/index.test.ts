@@ -1099,6 +1099,309 @@ describe('Hubspot.customEvent', () => {
       expect(responses[1].status).toBe(200)
     })
 
+    it('should send 0 when empty string is sent and HubSpot schema has field as number', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event Empty Num',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          previously_numeric_field: '',
+          normal_string: 'hello'
+        }
+      } as Partial<SegmentEvent>)
+
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_empty_num/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_empty_num',
+          fullyQualifiedName: 'pe23132826_custom_event_empty_num',
+          properties: [
+            {
+              name: 'previously_numeric_field',
+              type: 'number',
+              archived: false
+            },
+            {
+              name: 'normal_string',
+              type: 'string',
+              archived: false
+            }
+          ]
+        })
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_empty_num',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            previously_numeric_field: 0,
+            normal_string: 'hello'
+          }
+        })
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+    })
+
+    it('should send empty string when HubSpot schema has field as string', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event Empty Str',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          string_field: '',
+          another_string: 'world'
+        }
+      } as Partial<SegmentEvent>)
+
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_empty_str/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_empty_str',
+          fullyQualifiedName: 'pe23132826_custom_event_empty_str',
+          properties: [
+            {
+              name: 'string_field',
+              type: 'string',
+              archived: false
+            },
+            {
+              name: 'another_string',
+              type: 'string',
+              archived: false
+            }
+          ]
+        })
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_empty_str',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            string_field: '',
+            another_string: 'world'
+          }
+        })
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(2)
+      expect(responses[1].status).toBe(200)
+    })
+
+    it('should throw PayloadValidationError when non-numeric string is sent to a HubSpot number field', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event Non Numeric',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          numeric_field: 'hello'
+        }
+      } as Partial<SegmentEvent>)
+
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_non_numeric/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_non_numeric',
+          fullyQualifiedName: 'pe23132826_custom_event_non_numeric',
+          properties: [
+            {
+              name: 'numeric_field',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      await expect(
+        testDestination.testAction('customEvent', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          mapping: upsertMapping,
+          subscriptionMetadata
+        })
+      ).rejects.toThrow('Property "numeric_field" is typed as number in HubSpot but received a non-numeric string.')
+    })
+
+    it('should create new field as string type when empty string is sent and field does not exist in HubSpot', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event New Empty',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          brand_new_field: ''
+        }
+      } as Partial<SegmentEvent>)
+
+      // Event does not exist in HubSpot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_new_empty/?includeProperties=true')
+        .reply(404, {})
+
+      // Creates event schema — the empty string field should be created as string type
+      nock('https://api.hubapi.com')
+        .post('/events/v3/event-definitions', {
+          label: 'custom_event_new_empty',
+          name: 'custom_event_new_empty',
+          description: 'custom_event_new_empty - (created by Segment)',
+          primaryObject: 'contact',
+          propertyDefinitions: [
+            {
+              name: 'brand_new_field',
+              label: 'brand_new_field',
+              type: 'string',
+              description: 'brand_new_field - (created by Segment)'
+            }
+          ]
+        })
+        .reply(201, {
+          fullyQualifiedName: 'pe23132826_custom_event_new_empty'
+        })
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_new_empty',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            brand_new_field: ''
+          }
+        })
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses.length).toBe(3)
+      expect(responses[2].status).toBe(200)
+    })
+
+    it('should handle empty string coercion from cache when HubSpot schema has field as number', async () => {
+      const event1 = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event Cache Num',
+        messageId: 'aaa-bbb-ccc',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          cached_numeric_field: ''
+        }
+      } as Partial<SegmentEvent>)
+
+      // First request: fetches schema from HubSpot
+      nock('https://api.hubapi.com')
+        .get('/events/v3/event-definitions/custom_event_cache_num/?includeProperties=true')
+        .reply(200, {
+          name: 'custom_event_cache_num',
+          fullyQualifiedName: 'pe23132826_custom_event_cache_num',
+          properties: [
+            {
+              name: 'cached_numeric_field',
+              type: 'number',
+              archived: false
+            }
+          ]
+        })
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_cache_num',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            cached_numeric_field: 0
+          }
+        })
+        .reply(200, {})
+
+      const responses1 = await testDestination.testAction('customEvent', {
+        event: event1,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses1.length).toBe(2)
+      expect(responses1[1].status).toBe(200)
+
+      // Second request: should use cache, no HubSpot fetch
+      const event2 = createTestEvent({
+        timestamp: timestamp,
+        event: 'Custom Event Cache Num',
+        messageId: 'ddd-eee-fff',
+        type: 'track',
+        userId: 'user_id_2',
+        properties: {
+          cached_numeric_field: ''
+        }
+      } as Partial<SegmentEvent>)
+
+      nock('https://api.hubapi.com')
+        .post('/events/v3/send', {
+          eventName: 'pe23132826_custom_event_cache_num',
+          objectId: undefined,
+          email: 'bibitybobity@example.com',
+          utk: undefined,
+          occurredAt: timestamp,
+          properties: {
+            cached_numeric_field: 0
+          }
+        })
+        .reply(200, {})
+
+      const responses2 = await testDestination.testAction('customEvent', {
+        event: event2,
+        settings,
+        useDefaultMappings: true,
+        mapping: upsertMapping,
+        subscriptionMetadata
+      })
+
+      expect(responses2.length).toBe(1)
+      expect(responses2[0].status).toBe(200)
+    })
+
     it('should convert numeric strings on subsequent cache hits after PropertiesMissing case', async () => {
       const event1 = createTestEvent({
         timestamp: timestamp,
