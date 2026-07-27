@@ -130,7 +130,8 @@ describe('sendMobilePush action', () => {
 
     it('should send notification for custom hostname', async () => {
       const externalId = defaultExternalId
-      const notifyReqUrl = `https://my-api.com/v1/Services/${pushServiceSid}/Notifications`
+      const customHostname = 'push.custom.twilio.com'
+      const notifyReqUrl = `https://${customHostname}/v1/Services/${pushServiceSid}/Notifications`
       const notifyReqBody = getDefaultExpectedNotifyApiReq(externalId)
 
       nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
@@ -138,12 +139,21 @@ describe('sendMobilePush action', () => {
 
       const responses = await testAction({
         settingsOverrides: {
-          twilioHostname: 'my-api.com'
+          twilioHostname: customHostname
         }
       })
       expect(responses[1].url).toStrictEqual(notifyReqUrl)
       expect(responses[1].status).toEqual(201)
       expect(responses[1].data).toMatchObject(externalId)
+    })
+
+    it('should reject a non-Twilio custom hostname without sending credentials', async () => {
+      nock(`https://content.twilio.com`).get(`/v1/Content/${contentSid}`).reply(200, defaultTemplate)
+
+      // No nock interceptor for the notify request: it must never be made, so credentials are never forwarded.
+      await expect(testAction({ settingsOverrides: { twilioHostname: 'my-api.com' } })).rejects.toThrow(
+        /Invalid Twilio hostname/
+      )
     })
   })
 

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { TwilioMessageSender } from '../utils'
+import { TwilioMessageSender, validateTwilioHostname } from '../utils'
 import { ExtId, track } from '@segment/actions-shared'
 import type { Payload as PushPayload } from './generated-types'
 import { ContentTemplateTypes } from '../utils/types'
@@ -31,7 +31,9 @@ export class PushSender extends TwilioMessageSender<PushPayload> {
   private DEFAULT_HOSTNAME = 'push.ashburn.us1.twilio.com'
 
   get twilioHostname() {
-    return this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME
+    return validateTwilioHostname(
+      this.settings.twilioHostname?.length ? this.settings.twilioHostname : this.DEFAULT_HOSTNAME
+    )
   }
   get twilioToken() {
     //TODO cache this (lazy load)
