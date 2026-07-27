@@ -125,6 +125,9 @@ export type AsyncBatchResponse = {
   jobId?: string
 
   // HTTP status code returned by the partner API during performBatch
+  // Required: implementations must always report the partner's status code.
+  // The framework defaults it to 200 if an implementation omits it at runtime,
+  // so callers of executeBatch always receive a number here.
   status: number
 
   // performBatch must always return a multi-status response
@@ -1055,7 +1058,11 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
     const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-    const audienceMembership = bundle.data.map((d) => resolveAudienceMembership(d, syncMode))
+    // Filter audienceMembership by the same invalid indices used to compact `payloads` above,
+    // so audienceMembership[i] stays aligned with payload[i] in performBatch.
+    const audienceMembership = bundle.data
+      .map((d) => resolveAudienceMembership(d, syncMode))
+      .filter((_, i) => !invalidPayloadIndices.has(i))
 
     const data = {
       rawData: bundle.data,
@@ -1098,7 +1105,13 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
       return { jobId: undefined, status: errorStatus, multiStatusResponse }
     }
 
-    const { jobId, status, multiStatusResponse: batchMultiStatus } = performBatchResponse
+    const { jobId, multiStatusResponse: batchMultiStatus } = performBatchResponse
+    // `status` is required by AsyncBatchResponse, but that is a compile-time guarantee only:
+    // performBatch is implemented outside core, so a cast or untyped code path can still
+    // resolve without it. performBatch resolved without throwing, so the batch submission
+    // itself succeeded - default to 200 rather than leaking `status: undefined` to callers.
+    // Per-item outcomes are carried in the multiStatusResponse.
+    const status = performBatchResponse.status ?? 200
 
     // Process the multi-status response from performBatch
     let resultsReadIndex = 0

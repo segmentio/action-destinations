@@ -362,6 +362,11 @@ interface BatchEventInput<Settings> {
 interface PollInput<Settings> {
   readonly pollPayload: PollPayload
   readonly settings: Settings
+  /**
+   * Authentication-related data based on the destination's authentication.fields definition and authentication scheme.
+   * When omitted, it is derived from `settings`.
+   */
+  readonly auth?: AuthTokens
   /** `features` and `stats` are for internal Segment/Twilio use only. */
   readonly features?: Features
   readonly statsContext?: StatsContext
@@ -782,8 +787,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     }
 
     let audienceSettings = {} as AudienceSettings
-    // All events should be batched on the same audience
-    if (events[0].context?.personas) {
+    // All events should be batched on the same audience.
+    // Guard against an empty batch: reading events[0] on an empty array would throw.
+    // Downstream executeBatch returns a 200 with an empty MultiStatusResponse when there are no payloads.
+    if (events.length > 0 && events[0].context?.personas) {
       audienceSettings = events[0].context?.personas?.audience_settings as AudienceSettings
     }
 
@@ -792,7 +799,10 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       data: events as unknown as InputData[],
       settings,
       audienceSettings,
-      auth,
+      // Prefer caller-supplied auth; fall back to deriving it from settings so that
+      // callers which keep tokens in settings (and refresh by mutating them) still
+      // reach performBatch with credentials.
+      auth: auth ?? getAuthData(settings as unknown as JSONObject),
       features,
       statsContext,
       logger,
@@ -809,6 +819,7 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     {
       pollPayload,
       settings,
+      auth,
       features,
       statsContext,
       logger,
@@ -827,7 +838,8 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
       )
     }
 
-    const authData = getAuthData(settings as unknown as JSONObject)
+    // Prefer caller-supplied auth; fall back to deriving it from settings, mirroring executeAsyncBatch.
+    const authData = auth ?? getAuthData(settings as unknown as JSONObject)
 
     return asyncAction.executePoll({
       data: pollPayload,
