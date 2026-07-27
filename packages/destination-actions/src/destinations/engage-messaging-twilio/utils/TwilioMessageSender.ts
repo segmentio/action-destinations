@@ -8,6 +8,24 @@ import { track, MessageSendPerformer, MessagePayloadBase } from '@segment/action
 
 const Liquid = new LiquidJs()
 
+// Only hostnames within Twilio's domain may receive requests, which carry the
+// account's Basic-auth API key. The `twilioHostname` setting is customer-editable,
+// so without this allowlist an arbitrary host could be used to exfiltrate the
+// credentials (SECOPS-25241). Disallowing '@', '/' and ':' also blocks userinfo
+// and path tricks such as "api.twilio.com@attacker.com".
+const TWILIO_HOSTNAME_REGEX = /^([a-z0-9-]+\.)+twilio\.com$/
+
+export function validateTwilioHostname(hostname: string): string {
+  // Hostnames are case-insensitive, so normalize before matching to avoid
+  // rejecting valid hosts like "Api.Twilio.Com".
+  if (!TWILIO_HOSTNAME_REGEX.test(hostname.toLowerCase())) {
+    throw new PayloadValidationError(
+      `Invalid Twilio hostname: "${hostname}". Hostname must be within the twilio.com domain.`
+    )
+  }
+  return hostname
+}
+
 export interface TwilioPayloadBase extends MessagePayloadBase {
   contentSid?: string
 }

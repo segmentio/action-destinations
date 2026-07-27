@@ -391,7 +391,7 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         })
       })
 
-      const twilioHostname = 'api.nottwilio.com'
+      const twilioHostname = 'api.custom.twilio.com'
 
       const twilioRequest = nock(`https://${twilioHostname}/2010-04-01/Accounts/a`)
         .post('/Messages.json', expectedTwilioRequest.toString())
@@ -407,6 +407,20 @@ describe.each(['stage', 'production'])('%s environment', (environment) => {
         `https://${twilioHostname}/2010-04-01/Accounts/a/Messages.json`
       ])
       expect(twilioRequest.isDone()).toEqual(true)
+    })
+
+    it('should reject a non-Twilio custom hostname without sending credentials', async () => {
+      const twilioHostname = 'api.nottwilio.com'
+
+      // No nock interceptor: the request must never be made, so credentials are never forwarded.
+      await expect(
+        testAction({
+          settingsOverrides: { twilioHostname },
+          mappingOverrides: {
+            externalIds: [{ type: 'phone', id: '+1 (505) 555-4555', subscriptionStatus: true, channelType: 'sms' }]
+          }
+        })
+      ).rejects.toThrow(/Invalid Twilio hostname/)
     })
 
     it('should send SMS with custom metadata', async () => {
