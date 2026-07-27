@@ -4,7 +4,7 @@ import destination from '../index'
 import nock from 'nock'
 
 const testDestination = createTestIntegration(destination)
-const destinationSlug = 'quora-actions'
+const destinationSlug = 'actions-quora'
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
