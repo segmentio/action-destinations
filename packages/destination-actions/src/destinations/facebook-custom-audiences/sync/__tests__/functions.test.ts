@@ -144,6 +144,22 @@ describe('getData', () => {
     expect(row[2]).toBe('')
   })
 
+  it('passes an already-hashed phone through unchanged', () => {
+    const prehashed = sha256('+15551234567')
+    const payload = { ...basePayload, phone: prehashed }
+    const [row] = getData([payload])
+    expect(row[2]).toBe(prehashed)
+  })
+
+  it('passes an already-hashed phone with no digits through unchanged', () => {
+    // Pathological but valid sha256/hex value (only a-f). normalizePhone() would
+    // reduce it to '', so it must be detected as pre-hashed BEFORE normalizing.
+    const prehashed = 'abcdef'.repeat(11).slice(0, 64)
+    const payload = { ...basePayload, phone: prehashed }
+    const [row] = getData([payload])
+    expect(row[2]).toBe(prehashed)
+  })
+
   it('returns one row per payload', () => {
     const payloads = [
       { ...basePayload, externalId: 'ext-001' },

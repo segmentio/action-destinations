@@ -10,9 +10,9 @@ import {
 } from '@segment/actions-core'
 import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { processHashing } from '../../../lib/hashing-utils'
-import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
-import { BASE_URL } from '../constants'
+import { processHashing, isAlreadyHashed } from '../../../lib/hashing-utils'
+import { PayloadMap, AudienceJSON, FacebookDataRow, RawData } from './types'
+import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
@@ -215,7 +215,7 @@ export function getData(payloads: Payload[]): FacebookDataRow[] {
     const row: FacebookDataRow = [
       externalId ?? '',
       email ? processHashing(email.trim().toLowerCase(), 'sha256', 'hex') : '',
-      phone ? (normalizePhone(phone) ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : '') : '',
+      hashPhone(phone),
       year ? processHashing(year.trim(), 'sha256', 'hex') ?? '' : '',
       month ? processHashing(normalizeMonth(month), 'sha256', 'hex') ?? '' : '',
       day ? processHashing(day.trim(), 'sha256', 'hex') ?? '' : '',
@@ -240,6 +240,20 @@ export function normalizePhone(value: string): string {
   const removedNonNumveric = value.replace(/\D/g, '')
 
   return removedNonNumveric.replace(/^0+/, '')
+}
+
+/**
+ * Hashes a phone number for Facebook Custom Audiences.
+ * - Pre-hashed values (valid sha256/hex) are passed through unchanged.
+ * - Otherwise the value is normalized; if normalization leaves an empty string
+ *   (e.g. '+0000000000'), it is treated as missing and returns '' rather than
+ *   letting SmartHashing.hash() throw 'Cannot hash an empty string'.
+ */
+export function hashPhone(phone?: string): string {
+  if (!phone) return ''
+  if (isAlreadyHashed(phone, 'sha256', 'hex')) return phone
+  const normalized = normalizePhone(phone)
+  return normalized ? processHashing(normalized, 'sha256', 'hex') : ''
 }
 
 export function normalizeGender(value: string): string {
