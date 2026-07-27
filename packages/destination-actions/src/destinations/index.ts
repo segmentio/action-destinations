@@ -237,6 +237,10 @@ register('69a6caedee3c3617ae42dde8', './pendo-audiences')
 register('69a6cb5fda60c0bec5994df4', './avo-v2')
 register('69b9249b38dabe2f2f1f528a', './youappi-audiences')
 register('69e75a7148bfabf0961fbe4d', './voiceops')
+register('6a61fc37635b74c28a39ccf3', './wingify')
+register('6a67497a6423a7a0d95cd427', './quora')
+register('6a61fbcd4a3fcb83e9b57434', './mntn-audiences')
+register('6a6748e14c5666d0bc0d3a66', './vibe-conversions')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

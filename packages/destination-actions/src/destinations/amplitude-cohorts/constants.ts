@@ -10,10 +10,13 @@ export const ID_TYPES = {
     BY_AMP_ID: 'BY_AMP_ID'
 }
 
+
 export const OPERATIONS = {
     ADD: 'ADD',
     REMOVE: 'REMOVE'
 }
+
+export const REMOVAL_AWAIT_THRESHOLD_MS = 3000
 
 export const endpoints = {
   usersearch: {

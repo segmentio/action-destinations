@@ -125,7 +125,7 @@
         },
         "id": {
           "label": "Data Extension ID",
-          "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.",
+          "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.\n\nSee more information on how to find your Data Extension ID [here](https://help.salesforce.com/s/articleView?id=000385238&type=1).",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -282,7 +282,7 @@
         },
         "id": {
           "label": "Data Extension ID",
-          "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.",
+          "description": "The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.\n\nSee more information on how to find your Data Extension ID [here](https://help.salesforce.com/s/articleView?id=000385238&type=1).",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -3219,7 +3219,7 @@
     },
     "asyncDataExtension": {
       "title": "Send Event asynchronously to Data Extension",
-      "description": "Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.\n  \n    Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future",
+      "description": "Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud. Note that Segment cannot provide real-time delivery confirmation or error tracking for events sent through this action- That will come in near future",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
