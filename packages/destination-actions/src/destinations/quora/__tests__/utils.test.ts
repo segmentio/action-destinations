@@ -7,7 +7,7 @@ import {
   handleBatchResponse,
   assertSingleEventSucceeded
 } from '../trackConversion/utils'
-import type { QuoraBatchResponse, QuoraSingleResponse, QuoraConversionItem } from '../types'
+import type { QuoraBatchResponse, QuoraSingleResponse, QuoraConversionItem } from '../trackConversion/types'
 import type { Payload } from '../trackConversion/generated-types'
 
 const basePayload = (overrides: Partial<Payload> = {}): Payload => ({

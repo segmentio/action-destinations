@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Testing snapshot for actions-quora destination: trackConversion action - all fields 1`] = `
+exports[`Testing snapshot for quora-actions destination: trackConversion action - all fields 1`] = `
 Object {
   "account_id": 527745581653587,
   "conversion": Object {
@@ -30,7 +30,7 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-quora destination: trackConversion action - required fields 1`] = `
+exports[`Testing snapshot for quora-actions destination: trackConversion action - required fields 1`] = `
 Object {
   "account_id": 527745581653587,
   "conversion": Object {
