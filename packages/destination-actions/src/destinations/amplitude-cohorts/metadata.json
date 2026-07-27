@@ -111,6 +111,16 @@
         "choices": null,
         "default": null,
         "depends_on": null
+      },
+      "user_id": {
+        "label": "User ID",
+        "description": "A valid User ID that exists in your Amplitude project. Amplitude requires a temporary seed user to create the cohort; this user will be added during creation and immediately removed. If no value is provided, Segment will attempt to discover a valid User ID automatically. Only provide this field manually if that automatic lookup fails or no users are found.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
       }
     },
     "supportsAudienceFunctions": true
@@ -230,66 +240,5 @@
       }
     }
   },
-  "presets": [
-    {
-      "name": "Entities Audience Membership Changed",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "user_id": {
-          "@path": "$.userId"
-        },
-        "segment_external_audience_id": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "batch_size": 100
-      },
-      "eventSlug": "warehouse_audience_membership_changed_identify"
-    },
-    {
-      "name": "Associated Entity Added",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "user_id": {
-          "@path": "$.userId"
-        },
-        "segment_external_audience_id": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "batch_size": 100
-      },
-      "eventSlug": "warehouse_entity_added_track"
-    },
-    {
-      "name": "Associated Entity Removed",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "user_id": {
-          "@path": "$.userId"
-        },
-        "segment_external_audience_id": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "batch_size": 100
-      },
-      "eventSlug": "warehouse_entity_removed_track"
-    },
-    {
-      "name": "Journeys Step Entered",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "user_id": {
-          "@path": "$.userId"
-        },
-        "segment_external_audience_id": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "batch_size": 100
-      },
-      "eventSlug": "journeys_step_entered_track"
-    }
-  ]
+  "presets": []
 }

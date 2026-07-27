@@ -57,6 +57,7 @@ Prefer to run one step at a time? These skills also work on their own:
 | `/endpoint-mapping`     | Map those actions to API endpoints and fields   |
 | `/spec-generator`       | Produce a full destination spec document        |
 | `/generate-destination` | Generate the destination code, types, and tests |
+| `/test-destination-e2e` | Generate a Jest e2e test suite that runs against a local serve server |
 
 📖 See [`.claude/skills/README.md`](./.claude/skills/README.md) and [`.claude/skills/QUICK_START.md`](./.claude/skills/QUICK_START.md) for details.
 

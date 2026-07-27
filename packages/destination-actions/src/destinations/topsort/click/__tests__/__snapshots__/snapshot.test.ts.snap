@@ -8,6 +8,9 @@ Object {
         "testType": "YPhGI%A",
       },
       "channel": "YPhGI%A",
+      "dsp_metadata": Object {
+        "testType": "YPhGI%A",
+      },
       "entity": Object {
         "id": "YPhGI%A",
         "type": "YPhGI%A",
