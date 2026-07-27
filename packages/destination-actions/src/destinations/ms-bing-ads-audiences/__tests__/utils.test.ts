@@ -318,6 +318,16 @@ describe('formatBingErrorBody', () => {
   it('returns a placeholder when JSON has no recognizable error fields', () => {
     expect(formatBingErrorBody('{"foo":"bar"}')).toBe('unrecognized response body')
   })
+
+  it('reads OperationErrors even when Errors is an empty array (ApiFaultDetail)', () => {
+    // `Errors: []` is present-but-empty; a `??` fallback would skip OperationErrors and lose the error.
+    const body = JSON.stringify({
+      Errors: [],
+      OperationErrors: [{ ErrorCode: 'UserIsNotAuthorized', Message: 'no access' }],
+      TrackingId: 'op-1'
+    })
+    expect(formatBingErrorBody(body)).toBe('UserIsNotAuthorized: no access; TrackingId: op-1')
+  })
 })
 
 describe('handleMultistatusResponse', () => {

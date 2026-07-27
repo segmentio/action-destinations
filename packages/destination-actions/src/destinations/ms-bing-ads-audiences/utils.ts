@@ -341,7 +341,9 @@ const MAX_FAULT_MESSAGE_LENGTH = 512
  * short, high-value ErrorCode and TrackingId always survive, then the whole summary is capped too.
  */
 export const formatBingFault = (fault: BingFaultResponse | undefined): string => {
-  const errors = fault?.Errors ?? fault?.OperationErrors ?? []
+  // Combine both envelopes (same as parseBingFault): `??` alone would drop OperationErrors when
+  // Errors is an empty array (`[]`) rather than null/undefined.
+  const errors = [...(fault?.Errors ?? []), ...(fault?.OperationErrors ?? [])]
   const parts = errors.map((e) => {
     const message = e?.Message ?? 'No error message provided'
     const capped = message.length > MAX_FAULT_MESSAGE_LENGTH ? `${message.slice(0, MAX_FAULT_MESSAGE_LENGTH)}…` : message
