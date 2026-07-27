@@ -185,3 +185,81 @@ export const handleHttpError = async (
     })
   })
 }
+
+// Cap the response body we fold into the error message. Bing (or an intermediary proxy) can
+// return large HTML error pages, and the message ends up in logs / downstream payloads.
+export const MAX_ERROR_BODY_LENGTH = 2048
+
+/**
+ * Safely reads the body of an error response from the Bing Ads API for logging.
+ *
+ * Bing can return an empty or non-JSON body on failures, so this never throws. It prefers the
+ * already-parsed `content` that the request client populates (which is robust whether or not the
+ * response stream was cloned) and only falls back to re-reading the stream via `text()`. The
+ * result is truncated to a sane length, and falls back to an empty string if the body can't be read.
+ */
+export const readResponseBody = async (response?: ModifiedResponse): Promise<string> => {
+  if (!response) {
+    return ''
+  }
+  const truncate = (text: string): string =>
+    text.length > MAX_ERROR_BODY_LENGTH ? `${text.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : text
+
+  // `content` is the body the request client already read. Reading it avoids re-consuming the
+  // response stream (which throws if it was not cloned — see skipResponseCloning). It is usually a
+  // string, but handle Buffer / parsed-object shapes too so we don't silently lose Bing's payload.
+  const content = response.content as unknown
+  if (typeof content === 'string') {
+    return truncate(content)
+  }
+  if (content != null) {
+    try {
+      return truncate(Buffer.isBuffer(content) ? content.toString('utf8') : JSON.stringify(content))
+    } catch {
+      // fall through to reading the stream
+    }
+  }
+  try {
+    return truncate((await response.text()) ?? '')
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Extracts the debugging-relevant, non-sensitive fields from a Bing Ads error body.
+ *
+ * Bing failures use the AdApiFaultDetail shape:
+ *   { Errors: [{ ErrorCode, Message, Code }], TrackingId, Type }
+ * We surface only ErrorCode, Message and TrackingId. The TrackingId is the reference Microsoft
+ * support needs to investigate a failure, and none of these fields carry request credentials or
+ * PII.
+ *
+ * We deliberately never return the raw body. If the body isn't the known JSON shape (e.g. an HTML
+ * proxy/gateway error page), it could reflect request headers such as the Authorization or
+ * DeveloperToken, so we surface a safe placeholder instead — the HTTP status is still included by
+ * the caller, which is enough to know it was an unrecognized upstream error.
+ */
+export const formatBingErrorBody = (rawBody: string): string => {
+  if (!rawBody) {
+    return 'no response body'
+  }
+  const UNRECOGNIZED = 'unrecognized error response'
+  try {
+    const parsed = JSON.parse(rawBody) as {
+      Errors?: Array<{ ErrorCode?: string; Message?: string }>
+      TrackingId?: string
+    }
+    const parts = (parsed?.Errors ?? []).map(
+      (e) => `${e?.ErrorCode ?? 'UnknownError'}: ${e?.Message ?? 'No error message provided'}`
+    )
+    if (parsed?.TrackingId) {
+      parts.push(`TrackingId: ${parsed.TrackingId}`)
+    }
+    // Valid JSON but not the known fault shape (no Errors/TrackingId) — don't echo arbitrary fields.
+    return parts.length ? parts.join('; ') : UNRECOGNIZED
+  } catch {
+    // Not JSON at all (HTML page, truncated body, etc.) — never echo raw bytes that may be sensitive.
+    return UNRECOGNIZED
+  }
+}

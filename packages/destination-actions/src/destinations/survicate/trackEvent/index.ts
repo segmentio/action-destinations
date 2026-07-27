@@ -62,7 +62,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError("'User ID' or 'Anonymous ID' is required")
     }
 
-    return request(`https://integrations.survicate.com/endpoint/segment/track`, {
+    return request(`https://hv.survicate.com/integrations/partners/segment/track`, {
       method: 'post',
       json: {
         name,
