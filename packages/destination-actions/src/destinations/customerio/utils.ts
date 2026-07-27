@@ -208,13 +208,16 @@ export const sendBatch = async <Payload extends BasePayload>(request: Function, 
 
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
-  
-  const response: ModifiedResponse<CustomerIOBatchResponse> = await request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
-    method: 'post',
-    json: {
-      batch
+
+  const response: ModifiedResponse<CustomerIOBatchResponse> = await request(
+    `${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`,
+    {
+      method: 'post',
+      json: {
+        batch
+      }
     }
-  })
+  )
 
   return parseResponse(response, payloads, batch)
 }
@@ -237,7 +240,7 @@ export const parseResponse = <Payload extends BasePayload>(
   const errors = response.data?.errors ?? []
   const errorStatus = response.status >= 200 && response.status < 300 ? 400 : response.status
   for (const error of errors) {
-    if (error?.batch_index != null) {
+    if (error?.batch_index != null && error.batch_index >= 0 && error.batch_index < payloads.length) {
       multiStatusResponse.setErrorResponseAtIndex(error.batch_index, {
         status: errorStatus,
         errormessage: error.message || error.reason || 'Unknown error',

@@ -1,6 +1,5 @@
-
 export type CustomerIOBatchResponse = {
-    errors: TrackApiError[]
+  errors?: TrackApiError[]
 }
 
 export type TrackApiError = {
