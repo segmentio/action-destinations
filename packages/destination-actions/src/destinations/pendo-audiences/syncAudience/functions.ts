@@ -26,16 +26,8 @@ export async function send(
   const segmentId = payload[0]?.segmentAudienceId
 
   if (!segmentId) {
-    payload.forEach((p, index) => {
-      handleError(
-        'PayloadValidationError',
-        'Missing Pendo Segment ID',
-        isBatch,
-        msResponse,
-        index,
-        400,
-        p as unknown as JSONLikeObject
-      )
+    payload.forEach((_p, index) => {
+      handleError('PayloadValidationError', 'Missing Pendo Segment ID', isBatch, msResponse, index, 400)
     })
     return msResponse
   }
@@ -46,15 +38,7 @@ export async function send(
   payload.forEach((p, index) => {
     const { visitorId } = p
     if (!visitorId) {
-      handleError(
-        'PayloadValidationError',
-        'Visitor ID is required',
-        isBatch,
-        msResponse,
-        index,
-        400,
-        p as unknown as JSONLikeObject
-      )
+      handleError('PayloadValidationError', 'Visitor ID is required', isBatch, msResponse, index, 400)
       return
     }
     const membership = Array.isArray(audienceMemberships) ? audienceMemberships[index] : undefined
@@ -65,8 +49,7 @@ export async function send(
         isBatch,
         msResponse,
         index,
-        400,
-        p as unknown as JSONLikeObject
+        400
       )
       return
     }
@@ -115,12 +98,11 @@ export async function send(
       const map = item.operation === 'add' ? adds : removes
 
       map.forEach((visitorId, index) => {
-        const p = payload[index]
         if (isSuccess) {
           msResponse.setSuccessResponseAtIndex(index, {
             status: item.status,
-            sent: p as unknown as JSONLikeObject,
-            body: buildPendoRequest(item.operation, [visitorId])
+            sent: buildPendoRequest(item.operation, [visitorId]),
+            body: { success: item.status }
           })
         } else {
           handleError(
@@ -130,8 +112,8 @@ export async function send(
             msResponse,
             index,
             item.status,
-            p as unknown as JSONLikeObject,
-            buildPendoRequest(item.operation, [visitorId])
+            buildPendoRequest(item.operation, [visitorId]),
+            { status: item.status, message: item.message, operation: item.operation } as unknown as JSONLikeObject
           )
         }
       })
@@ -139,6 +121,7 @@ export async function send(
   } catch (error) {
     const status = (error?.response?.status as number) || 500
     const message = (error?.message as string) || 'An error occurred while syncing visitors to Pendo Segment.'
+    const responseBody = (error?.response?.data as JSONLikeObject) ?? { message }
 
     // Pendo returns 409 ("Operation in progress") when a write to the segment is already underway.
     // This is transient, so throw a RetryableError to let Segment retry the whole request later.
@@ -159,8 +142,8 @@ export async function send(
         msResponse,
         index,
         status,
-        payload[index] as unknown as JSONLikeObject,
-        buildPendoRequest(op, [visitorId as string])
+        buildPendoRequest(op, [visitorId as string]),
+        responseBody
       )
     })
   }

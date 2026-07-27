@@ -62,18 +62,18 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(3)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] },
+        body: { success: 200 }
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user3', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] },
+        body: { success: 200 }
       })
     })
   })
@@ -97,13 +97,13 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
+        body: { success: 200 }
       })
     })
   })
@@ -135,23 +135,23 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(4)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
+        body: { success: 200 }
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user3', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user3'] }] },
+        body: { success: 200 }
       })
       expect(responses[3]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user4', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user4'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user4'] }] },
+        body: { success: 200 }
       })
     })
   })
@@ -183,13 +183,13 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
+        body: { success: 200 }
       })
     })
 
@@ -224,14 +224,14 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 400,
-        errormessage: 'Unable to determine audience membership for this event',
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true }
+        errormessage: 'Unable to determine audience membership for this event'
       })
+      expect(responses[1]).not.toHaveProperty('sent')
       expect(responses[1]).not.toHaveProperty('body')
     })
   })
@@ -274,8 +274,8 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 400,
@@ -296,10 +296,9 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(1)
       expect(responses[0]).toMatchObject({
         status: 400,
-        errormessage: 'Visitor ID is required',
-        sent: { visitorId: '', segmentAudienceId: SEGMENT_ID, enable_batching: true }
+        errormessage: 'Visitor ID is required'
       })
-      // Validation error never reached Pendo, so no request body was sent to the destination
+      expect(responses[0]).not.toHaveProperty('sent')
       expect(responses[0]).not.toHaveProperty('body')
     })
 
@@ -313,15 +312,15 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 400,
-        errormessage: 'Missing Pendo Segment ID',
-        sent: { visitorId: 'user1', segmentAudienceId: '', enable_batching: true }
+        errormessage: 'Missing Pendo Segment ID'
       })
+      expect(responses[0]).not.toHaveProperty('sent')
       expect(responses[0]).not.toHaveProperty('body')
       expect(responses[1]).toMatchObject({
         status: 400,
-        errormessage: 'Missing Pendo Segment ID',
-        sent: { visitorId: 'user2', segmentAudienceId: '', enable_batching: true }
+        errormessage: 'Missing Pendo Segment ID'
       })
+      expect(responses[1]).not.toHaveProperty('sent')
       expect(responses[1]).not.toHaveProperty('body')
     })
 
@@ -376,14 +375,14 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses.length).toBe(2)
       expect(responses[0]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { success: 200 }
       })
       expect(responses[1]).toMatchObject({
         status: 400,
-        errormessage: 'Unable to determine audience membership for this event',
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true }
+        errormessage: 'Unable to determine audience membership for this event'
       })
+      expect(responses[1]).not.toHaveProperty('sent')
       expect(responses[1]).not.toHaveProperty('body')
     })
   })
@@ -402,14 +401,14 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 500,
         errormessage: 'Internal Server Error',
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { message: 'Internal Server Error' }
       })
       expect(responses[1]).toMatchObject({
         status: 500,
         errormessage: 'Internal Server Error',
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user2'] }] },
+        body: { message: 'Internal Server Error' }
       })
     })
 
@@ -426,14 +425,14 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 403,
         errormessage: 'Forbidden',
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { message: 'Forbidden' }
       })
       expect(responses[1]).toMatchObject({
         status: 403,
         errormessage: 'Forbidden',
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
+        body: { message: 'Forbidden' }
       })
     })
 
@@ -457,13 +456,13 @@ describe('Pendo Audiences - syncAudience', () => {
       expect(responses[0]).toMatchObject({
         status: 400,
         errormessage: 'Error adding visitor to segment',
-        sent: { visitorId: 'user1', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] }
+        sent: { patch: [{ op: 'add', path: '/visitors', value: ['user1'] }] },
+        body: { status: 400, message: 'Error adding visitor to segment', operation: 'add' }
       })
       expect(responses[1]).toMatchObject({
         status: 200,
-        sent: { visitorId: 'user2', segmentAudienceId: SEGMENT_ID, enable_batching: true },
-        body: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] }
+        sent: { patch: [{ op: 'remove', path: '/visitors', value: ['user2'] }] },
+        body: { success: 200 }
       })
     })
 
