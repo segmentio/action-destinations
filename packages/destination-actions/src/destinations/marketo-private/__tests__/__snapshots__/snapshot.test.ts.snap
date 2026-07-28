@@ -22,7 +22,7 @@ exports[`Testing snapshot for actions-marketo-private destination: sendForm acti
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "Bearer undefined",
+      "Bearer test-access-token",
     ],
     "content-type": Array [
       "application/json",
@@ -55,7 +55,7 @@ exports[`Testing snapshot for actions-marketo-private destination: sendForm acti
 Headers {
   Symbol(map): Object {
     "authorization": Array [
-      "Bearer undefined",
+      "Bearer test-access-token",
     ],
     "content-type": Array [
       "application/json",

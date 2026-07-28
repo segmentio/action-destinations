@@ -6,6 +6,10 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-marketo-private'
 
+// A resolved OAuth2 token, matching what the platform supplies in production once
+// refreshAccessToken has run. Ensures the Authorization header snapshot is realistic.
+const auth = { accessToken: 'test-access-token', refreshToken: 'test-refresh-token' }
+
 // Marketo returns HTTP 200 with this body shape; the token endpoint returns an access token.
 function mockMarketo() {
   nock(/.*/)
@@ -19,6 +23,10 @@ function mockMarketo() {
 }
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
@@ -35,7 +43,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         event: event,
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth
       })
 
       const request = responses[responses.length - 1].request
@@ -66,7 +74,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         event: event,
         mapping: event.properties,
         settings: settingsData,
-        auth: undefined
+        auth
       })
 
       const request = responses[responses.length - 1].request

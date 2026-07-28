@@ -8,6 +8,10 @@ const actionSlug = 'sendForm'
 const destinationSlug = 'MarketoPrivate'
 const seedName = `${destinationSlug}#${actionSlug}`
 
+// A resolved OAuth2 token, matching what the platform supplies in production once
+// refreshAccessToken has run. Ensures the Authorization header snapshot is realistic.
+const auth = { accessToken: 'test-access-token', refreshToken: 'test-refresh-token' }
+
 // Marketo returns HTTP 200 with this body shape; the token endpoint returns an access token.
 // Both must succeed for the action's response handling to pass.
 function mockMarketo() {
@@ -22,6 +26,10 @@ function mockMarketo() {
 }
 
 describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination action:`, () => {
+  afterEach(() => {
+    nock.cleanAll()
+  })
+
   it('required fields', async () => {
     const action = destination.actions[actionSlug]
     const [eventData, settingsData] = generateTestData(seedName, destination, action, true)
@@ -36,7 +44,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     // The submitForm request is the last one (after the token request).
@@ -67,7 +75,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       event: event,
       mapping: event.properties,
       settings: settingsData,
-      auth: undefined
+      auth
     })
 
     const request = responses[responses.length - 1].request

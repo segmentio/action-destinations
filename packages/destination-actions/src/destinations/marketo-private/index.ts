@@ -42,7 +42,9 @@ const destination: DestinationDefinition<Settings> = {
   extendRequest({ auth }) {
     return {
       headers: {
-        authorization: `Bearer ${auth?.accessToken}`
+        // Only attach the bearer token when one is present. Emitting `Bearer undefined`
+        // would send an invalid credential and mask auth-wiring issues.
+        ...(auth?.accessToken ? { authorization: `Bearer ${auth.accessToken}` } : {})
       }
     }
   },
