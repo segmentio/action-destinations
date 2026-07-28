@@ -159,6 +159,72 @@ export type PollResponse = {
   multiStatusResponse?: MultiStatusResponse
 }
 
+/**
+ * The shape of the `dynamicFields` block on an action definition.
+ *
+ * Shared verbatim by {@link ActionDefinition} and {@link AsyncActionDefinition} so that both
+ * remain structurally assignable to {@link CommonActionDefinition}, which is what lets
+ * `BaseAction` resolve dynamic field handlers for either kind of action.
+ */
+export type DynamicFieldsDefinition<Settings, Payload, AudienceSettings> = {
+  [K in keyof Payload]?: IsArray<Payload[K]> extends never
+    ? Payload[K] extends object | undefined
+      ? {
+          [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
+            Settings,
+            Payload,
+            DynamicFieldResponse,
+            AudienceSettings
+          >
+        }
+      : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+    : IsArray<Payload[K]> extends object
+    ? {
+        [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
+          Settings,
+          Payload,
+          DynamicFieldResponse,
+          AudienceSettings
+        >
+      }
+    : never
+}
+
+/**
+ * The shape of the `hooks` block on an action definition. Shared by {@link ActionDefinition}
+ * and {@link AsyncActionDefinition} for the same reason as {@link DynamicFieldsDefinition}.
+ */
+export type ActionHooksDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  GeneratedActionHookInputs,
+  GeneratedActionHookOutputs
+> = {
+  [K in ActionHookType]?: ActionHookDefinition<
+    Settings,
+    Payload,
+    AudienceSettings,
+    NonNullable<GeneratedActionHookInputs>,
+    NonNullable<GeneratedActionHookOutputs>
+  >
+}
+
+/**
+ * The subset of an action definition that `BaseAction` depends on, and the only part that is
+ * genuinely common to sync and async actions.
+ *
+ * Deliberately excludes `perform`, `performBatch` and `performPoll`: those are where the two
+ * kinds diverge irreconcilably (sync `performBatch` may return any legacy shape, async
+ * `performBatch` must return a structured `AsyncBatchResponse`, and `performPoll` takes a
+ * `PollPayload` that is unrelated to `Payload`). Each subclass declares its own.
+ */
+export type CommonActionDefinition<Settings, Payload, AudienceSettings> = BaseActionDefinition & {
+  dynamicFields?: DynamicFieldsDefinition<Settings, Payload, AudienceSettings>
+  hooks?: ActionHooksDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+  syncMode?: SyncModeDefinition
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ActionDefinition<
   Settings,
@@ -175,29 +241,7 @@ export interface ActionDefinition<
    * A way to "register" dynamic fields.
    * This is likely going to change as we productionalize the data model and definition object
    */
-  dynamicFields?: {
-    [K in keyof Payload]?: IsArray<Payload[K]> extends never
-      ? Payload[K] extends object | undefined
-        ? {
-            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
-              Settings,
-              Payload,
-              DynamicFieldResponse,
-              AudienceSettings
-            >
-          }
-        : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-      : IsArray<Payload[K]> extends object
-      ? {
-          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
-            Settings,
-            Payload,
-            DynamicFieldResponse,
-            AudienceSettings
-          >
-        }
-      : never
-  }
+  dynamicFields?: DynamicFieldsDefinition<Settings, Payload, AudienceSettings>
 
   /** The operation to perform when this action is triggered */
   perform: RequestFn<Settings, Payload, any, AudienceSettings, any, AudienceMembership>
@@ -209,15 +253,13 @@ export interface ActionDefinition<
    * destination using the provided inputs and return a response. The response may then optionally be stored
    * in the mapping for later use in the action.
    */
-  hooks?: {
-    [K in ActionHookType]?: ActionHookDefinition<
-      Settings,
-      Payload,
-      AudienceSettings,
-      NonNullable<GeneratedActionHookInputs>,
-      NonNullable<GeneratedActionHookOutputs>
-    >
-  }
+  hooks?: ActionHooksDefinition<
+    Settings,
+    Payload,
+    AudienceSettings,
+    GeneratedActionHookInputs,
+    GeneratedActionHookOutputs
+  >
 
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
@@ -238,29 +280,7 @@ export interface AsyncActionDefinition<
    * A way to "register" dynamic fields.
    * This is likely going to change as we productionalize the data model and definition object
    */
-  dynamicFields?: {
-    [K in keyof Payload]?: IsArray<Payload[K]> extends never
-      ? Payload[K] extends object | undefined
-        ? {
-            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
-              Settings,
-              Payload,
-              DynamicFieldResponse,
-              AudienceSettings
-            >
-          }
-        : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-      : IsArray<Payload[K]> extends object
-      ? {
-          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
-            Settings,
-            Payload,
-            DynamicFieldResponse,
-            AudienceSettings
-          >
-        }
-      : never
-  }
+  dynamicFields?: DynamicFieldsDefinition<Settings, Payload, AudienceSettings>
 
   /** Async Actions don't support the perform operation, even in case of single payload it should always be handled as a batch */
 
@@ -273,15 +293,13 @@ export interface AsyncActionDefinition<
    * destination using the provided inputs and return a response. The response may then optionally be stored
    * in the mapping for later use in the action.
    */
-  hooks?: {
-    [K in ActionHookType]?: ActionHookDefinition<
-      Settings,
-      Payload,
-      AudienceSettings,
-      NonNullable<GeneratedActionHookInputs>,
-      NonNullable<GeneratedActionHookOutputs>
-    >
-  }
+  hooks?: ActionHooksDefinition<
+    Settings,
+    Payload,
+    AudienceSettings,
+    GeneratedActionHookInputs,
+    GeneratedActionHookOutputs
+  >
 
   /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
   syncMode?: SyncModeDefinition
@@ -394,24 +412,52 @@ const isSyncMode = (value: unknown): value is SyncMode => {
   return syncModeTypes.find((validValue) => value === validValue) !== undefined
 }
 
+/** A payload that failed schema validation, recorded positionally against the original batch. */
+type BatchValidationError = {
+  /** Index into the original (pre-filter) batch. */
+  index: number
+  status: number
+  errortype: keyof typeof ErrorCodes
+  errormessage: string
+}
+
+type ValidatedBatchPayloads<Payload> = {
+  /** Payloads that passed validation, compacted (invalid entries removed). */
+  payloads: Payload[]
+  /** Length of the original batch, before invalid payloads were filtered out. */
+  batchPayloadLength: number
+  /** Indices into the original batch that failed validation. */
+  invalidPayloadIndices: Set<number>
+  /** One entry per invalid payload. Subclasses record these in their own result shape. */
+  validationErrors: BatchValidationError[]
+}
+
 /**
- * Action is the beginning step for all partner actions. Entrypoints always start with the
- * MapAndValidateInput step.
+ * Behavior shared by {@link Action} and {@link AsyncAction}: schema generation, request client
+ * construction, dynamic fields, hooks, and the batch-execution prologue (mapping, validation,
+ * hook outputs, audience membership).
+ *
+ * Everything that differs between the two — `perform`/`performBatch`/`performPoll` and the
+ * result shape and error contract of `executeBatch` — stays in the subclasses.
  */
-export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
-  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+export abstract class BaseAction<
+  Settings,
+  Payload extends JSONLikeObject,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  AudienceSettings = any
+> extends EventEmitter {
+  readonly definition: CommonActionDefinition<Settings, Payload, AudienceSettings>
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hookSchemas?: Record<string, JSONSchema4>
-  readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extendRequest: RequestExtension<Settings, any> | undefined
+  protected extendRequest: RequestExtension<Settings, any> | undefined
 
   constructor(
     destinationName: string,
-    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
+    definition: CommonActionDefinition<Settings, Payload, AudienceSettings>,
     // Payloads may be any type so we use `any` explicitly here.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
@@ -420,7 +466,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.definition = definition
     this.destinationName = destinationName
     this.extendRequest = extendRequest
-    this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
@@ -458,6 +503,296 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     }
   }
 
+  /**
+   * Resolve the mapping over a batch and validate each payload against the action's schema,
+   * dropping (but recording) the payloads that fail.
+   */
+  protected validateBatchPayloads(
+    bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>
+  ): ValidatedBatchPayloads<Payload> {
+    const mapping: JSONObject = bundle.mapping
+
+    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
+    const batchPayloadLength = payloads.length
+
+    const invalidPayloadIndices = new Set<number>()
+    const validationErrors: BatchValidationError[] = []
+
+    if (this.schema) {
+      const schema = this.schema
+      const validationOptions = {
+        schemaKey: `${this.destinationName}:${this.definition.title}`,
+        throwIfInvalid: true,
+        statsContext: bundle.statsContext,
+        exempt: ['dynamicAuthSettings']
+      }
+
+      // Filter out invalid payloads before sending them to the action
+      const filteredPayload: Payload[] = []
+
+      for (let i = 0; i < payloads.length; i++) {
+        // Validate payload schema
+        const payload = removeEmptyValues(payloads[i], schema) as Payload
+        try {
+          // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
+          // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
+          // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
+          validateSchema(payload, schema, validationOptions)
+        } catch (e) {
+          // Validation failed with an exception, record the filtered out event
+          validationErrors.push({
+            index: i,
+            status: 400,
+            errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+            errormessage: (e as Error).message
+          })
+
+          invalidPayloadIndices.add(i)
+
+          // Add datadog stats for events that are discarded by Actions
+          bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
+          continue
+        }
+
+        // Event is validated, pass it to the action
+        filteredPayload.push(payload)
+      }
+
+      // Update the payloads with the filtered out events
+      payloads = filteredPayload
+    }
+
+    return { payloads, batchPayloadLength, invalidPayloadIndices, validationErrors }
+  }
+
+  /** Collect any hook outputs that were persisted into the mapping when the mapping was saved. */
+  protected resolveHookOutputs(bundle: ExecuteBundle<Settings, InputData | InputData[] | undefined, AudienceSettings>) {
+    let hookOutputs = {}
+    if (this.definition.hooks) {
+      for (const hookType in this.definition.hooks) {
+        const hookOutputValues = bundle.mapping?.[hookType]
+
+        if (hookOutputValues) {
+          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
+        }
+      }
+    }
+
+    return hookOutputs
+  }
+
+  protected resolveSyncMode(bundle: ExecuteBundle<Settings, any, AudienceSettings>): SyncMode | undefined {
+    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
+    return isSyncMode(syncModeVal) ? syncModeVal : undefined
+  }
+
+  /** Build the `data` bundle handed to a `performBatch` implementation. */
+  protected buildBatchDataBundle(
+    bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>,
+    payloads: Payload[],
+    invalidPayloadIndices: Set<number>,
+    hookOutputs: Record<string, unknown>
+  ) {
+    const syncMode = this.resolveSyncMode(bundle)
+    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
+    // Filter audienceMembership by the same invalid indices used to compact `payloads`,
+    // so audienceMembership[i] stays aligned with payload[i] in performBatch.
+    const audienceMembership = bundle.data
+      .map((d) => resolveAudienceMembership(d, syncMode, bundle.features))
+      .filter((_, i) => !invalidPayloadIndices.has(i))
+
+    return {
+      rawData: bundle.data,
+      rawMapping: bundle.mapping,
+      settings: bundle.settings,
+      audienceSettings: bundle.audienceSettings,
+      payload: payloads,
+      audienceMembership,
+      auth: bundle.auth,
+      features: bundle.features,
+      statsContext: bundle.statsContext,
+      personasContext: bundle.personasContext,
+      logger: bundle.logger,
+      engageDestinationCache: bundle.engageDestinationCache,
+      transactionContext: bundle.transactionContext,
+      stateContext: bundle.stateContext,
+      subscriptionMetadata: bundle.subscriptionMetadata,
+      hookOutputs,
+      syncMode,
+      matchingKey: matchingKey ? String(matchingKey) : undefined,
+      signal: bundle?.signal
+    }
+  }
+
+  /*
+   * Extract the dynamic field context and handler path from a field string. Examples:
+   * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
+   * - "unstructuredObject.testProperty" => { dynamicHandlerPath: "unstructuredObject.__values__", dynamicFieldContext: { selectedKey: "testProperty" } }
+   * - "structuredArray.[0].first_name" => { dynamicHandlerPath: "structuredArray.first_name", dynamicFieldContext: { selectedArrayIndex: 0 } }
+   */
+  private extractFieldContextAndHandler(field: string): {
+    dynamicHandlerPath: string
+    dynamicFieldContext?: DynamicFieldContext
+  } {
+    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
+    const objectRegex = /(.*)\.(.*)/
+    let dynamicHandlerPath = field
+    let dynamicFieldContext: DynamicFieldContext | undefined
+
+    const match = arrayRegex.exec(field) || objectRegex.exec(field)
+    if (match) {
+      const [, parent, indexOrChild, child] = match
+      if (child) {
+        // It is an array, so we need to extract the index from parent.[index].child and call paret.child handler
+        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
+        dynamicHandlerPath = `${parent}.${child}`
+      } else {
+        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
+        const parentFetcher = this.definition.dynamicFields?.[parent as keyof Payload]
+        if (parentFetcher && !(indexOrChild in parentFetcher)) {
+          dynamicHandlerPath = `${parent}.__values__`
+          dynamicFieldContext = { selectedKey: indexOrChild }
+        }
+      }
+    }
+
+    return { dynamicHandlerPath, dynamicFieldContext }
+  }
+
+  async executeDynamicField(
+    field: string,
+    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
+    /**
+     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
+     */
+    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+  ): Promise<DynamicFieldResponse> {
+    if (dynamicFn && typeof dynamicFn === 'function') {
+      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
+    }
+
+    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
+
+    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+      this.definition.dynamicFields,
+      dynamicHandlerPath
+    )
+
+    if (typeof fn !== 'function') {
+      return Promise.resolve({
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
+      })
+    }
+
+    // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
+    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
+  }
+
+  async executeHook(
+    hookType: ActionHookType,
+    data: ExecuteInput<Settings, Payload, AudienceSettings>
+  ): Promise<ActionHookResponse<any>> {
+    if (!this.hasHookSupport) {
+      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
+    }
+    const hookFn = this.definition.hooks?.[hookType]?.performHook
+
+    if (!hookFn) {
+      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
+    }
+
+    if (this.hookSchemas?.[hookType]) {
+      const schema = this.hookSchemas[hookType]
+      validateSchema(data.hookInputs, schema, {
+        exempt: ['dynamicAuthSettings']
+      })
+    }
+
+    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
+  }
+
+  /**
+   * Perform a request using the definition's request client
+   * the given request function
+   * and given data bundle
+   */
+  protected async performRequest<
+    T extends Payload | Payload[] | PollPayload,
+    M extends AudienceMembership | AudienceMembership[]
+  >(
+    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
+    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
+  ): Promise<unknown> {
+    const requestClient = this.createRequestClient(data)
+    const response = await requestFn(requestClient, data)
+    return this.parseResponse(response)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
+    // TODO turn `extendRequest` into a beforeRequest hook
+    const options = this.extendRequest?.(data) ?? {}
+    return createRequestClient(options, {
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext,
+      signal: data?.signal
+    })
+  }
+
+  // Keep track of the request(s) associated with a response
+  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
+    // TODO figure out the types here...
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const modifiedResponse: any = response
+    modifiedResponse.request = request
+    modifiedResponse.options = options
+
+    this.emit('response', modifiedResponse)
+    return modifiedResponse
+  }
+
+  protected parseResponse(response: unknown): unknown {
+    /**
+     * Try to use the parsed response `.data` or `.content` string
+     * @see {@link ../middleware/after-response/prepare-response.ts}
+     */
+    if (response instanceof Response) {
+      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
+    }
+
+    // otherwise, we don't really know what this is, so return as-is
+    return response
+  }
+}
+
+/**
+ * Action is the beginning step for all partner actions. Entrypoints always start with the
+ * MapAndValidateInput step.
+ */
+export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends BaseAction<
+  Settings,
+  Payload,
+  AudienceSettings
+> {
+  declare readonly definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+  readonly hasBatchSupport: boolean
+
+  constructor(
+    destinationName: string,
+    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
+    // Payloads may be any type so we use `any` explicitly here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extendRequest?: RequestExtension<Settings, any>
+  ) {
+    super(destinationName, definition, extendRequest)
+    this.hasBatchSupport = typeof definition.performBatch === 'function'
+  }
+
   async execute(bundle: ExecuteBundle<Settings, InputData | undefined, AudienceSettings>): Promise<Result[]> {
     // TODO cleanup results... not sure it's even used
     const results: Result[] = []
@@ -483,19 +818,9 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       results.push({ output: 'Payload validated' })
     }
 
-    let hookOutputs = {}
-    if (this.definition.hooks) {
-      for (const hookType in this.definition.hooks) {
-        const hookOutputValues = bundle.mapping?.[hookType]
+    const hookOutputs = this.resolveHookOutputs(bundle)
 
-        if (hookOutputValues) {
-          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
-        }
-      }
-    }
-
-    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-    const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
+    const syncMode = this.resolveSyncMode(bundle)
     const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
     const audienceMembership = resolveAudienceMembership(bundle.data, syncMode, bundle.features)
 
@@ -533,105 +858,24 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
       throw new IntegrationError('This action does not support batched requests.', 'NotImplemented', 501)
     }
 
-    const mapping: JSONObject = bundle.mapping
-
-    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
-    const batchPayloadLength = payloads.length
+    const { payloads, batchPayloadLength, invalidPayloadIndices, validationErrors } = this.validateBatchPayloads(bundle)
 
     const multiStatusResponse: ResultMultiStatusNode[] = []
-    const invalidPayloadIndices = new Set<number>()
-
-    // Validate the resolved payloads against the schema
-    if (this.schema) {
-      const schema = this.schema
-      const validationOptions = {
-        schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: true,
-        statsContext: bundle.statsContext,
-        exempt: ['dynamicAuthSettings']
-      }
-
-      // Filter out invalid payloads before sending them to the action
-      {
-        const filteredPayload: Payload[] = []
-
-        for (let i = 0; i < payloads.length; i++) {
-          // Validate payload schema
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
-          try {
-            // AJV schema validator only removes fields that are not defined in the schema (Refer ajv docs)
-            // Refer https://ajv.js.org/guide/modifying-data.html#removing-additional-properties
-            // https://github.com/segmentio/action-destinations/blob/d245e420e56957e784c29b5c09d80f3e1e64e6c5/packages/core/src/schema-validation.ts#L21
-            validateSchema(payload, schema, validationOptions)
-          } catch (e) {
-            // Validation failed with an exception, record the filtered out event
-            multiStatusResponse[i] = {
-              status: 400,
-              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-              errormessage: (e as Error).message,
-              errorreporter: MultiStatusErrorReporter.INTEGRATIONS
-            }
-
-            invalidPayloadIndices.add(i)
-
-            // Add datadog stats for events that are discarded by Actions
-            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
-            continue
-          }
-
-          // Event is validated, pass it to the action
-          filteredPayload.push(payload)
-        }
-
-        // Update the payloads with the filtered out events
-        payloads = filteredPayload
+    for (const { index, ...error } of validationErrors) {
+      multiStatusResponse[index] = {
+        ...error,
+        errorreporter: MultiStatusErrorReporter.INTEGRATIONS
       }
     }
 
-    let hookOutputs = {}
-    if (this.definition.hooks) {
-      for (const hookType in this.definition.hooks) {
-        const hookOutputValues = bundle.mapping?.[hookType]
-
-        if (hookOutputValues) {
-          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
-        }
-      }
-    }
+    const hookOutputs = this.resolveHookOutputs(bundle)
 
     if (payloads.length === 0) {
       return multiStatusResponse
     }
 
     if (this.definition.performBatch) {
-      const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-      const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
-      const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-      const audienceMembership = bundle.data
-        .map((d) => resolveAudienceMembership(d, syncMode, bundle.features))
-        .filter((_, i) => !invalidPayloadIndices.has(i))
-
-      const data = {
-        rawData: bundle.data,
-        rawMapping: bundle.mapping,
-        settings: bundle.settings,
-        audienceSettings: bundle.audienceSettings,
-        payload: payloads,
-        audienceMembership,
-        auth: bundle.auth,
-        features: bundle.features,
-        statsContext: bundle.statsContext,
-        personasContext: bundle.personasContext,
-        logger: bundle.logger,
-        engageDestinationCache: bundle.engageDestinationCache,
-        transactionContext: bundle.transactionContext,
-        stateContext: bundle.stateContext,
-        subscriptionMetadata: bundle.subscriptionMetadata,
-        hookOutputs,
-        syncMode,
-        matchingKey: matchingKey ? String(matchingKey) : undefined,
-        signal: bundle?.signal
-      }
+      const data = this.buildBatchDataBundle(bundle, payloads, invalidPayloadIndices, hookOutputs)
 
       const requestClient = this.createRequestClient(data)
       const performBatchResponse = await this.definition.performBatch(requestClient, data)
@@ -740,149 +984,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return multiStatusResponse
   }
 
-  /*
-   * Extract the dynamic field context and handler path from a field string. Examples:
-   * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
-   * - "unstructuredObject.testProperty" => { dynamicHandlerPath: "unstructuredObject.__values__", dynamicFieldContext: { selectedKey: "testProperty" } }
-   * - "structuredArray.[0].first_name" => { dynamicHandlerPath: "structuredArray.first_name", dynamicFieldContext: { selectedArrayIndex: 0 } }
-   */
-  private extractFieldContextAndHandler(field: string): {
-    dynamicHandlerPath: string
-    dynamicFieldContext?: DynamicFieldContext
-  } {
-    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
-    const objectRegex = /(.*)\.(.*)/
-    let dynamicHandlerPath = field
-    let dynamicFieldContext: DynamicFieldContext | undefined
-
-    const match = arrayRegex.exec(field) || objectRegex.exec(field)
-    if (match) {
-      const [, parent, indexOrChild, child] = match
-      if (child) {
-        // It is an array, so we need to extract the index from parent.[index].child and call paret.child handler
-        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
-        dynamicHandlerPath = `${parent}.${child}`
-      } else {
-        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
-        const parentFetcher = this.definition.dynamicFields?.[parent]
-        if (parentFetcher && !(indexOrChild in parentFetcher)) {
-          dynamicHandlerPath = `${parent}.__values__`
-          dynamicFieldContext = { selectedKey: indexOrChild }
-        }
-      }
-    }
-
-    return { dynamicHandlerPath, dynamicFieldContext }
-  }
-
-  async executeDynamicField(
-    field: string,
-    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
-    /**
-     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
-     */
-    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-  ): Promise<DynamicFieldResponse> {
-    if (dynamicFn && typeof dynamicFn === 'function') {
-      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
-    }
-
-    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
-
-    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
-      this.definition.dynamicFields,
-      dynamicHandlerPath
-    )
-
-    if (typeof fn !== 'function') {
-      return Promise.resolve({
-        choices: [],
-        nextPage: '',
-        error: {
-          message: `No dynamic field named ${field} found.`,
-          code: '404'
-        }
-      })
-    }
-
-    // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
-    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
-  }
-
-  async executeHook(
-    hookType: ActionHookType,
-    data: ExecuteInput<Settings, Payload, AudienceSettings>
-  ): Promise<ActionHookResponse<any>> {
-    if (!this.hasHookSupport) {
-      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
-    }
-    const hookFn = this.definition.hooks?.[hookType]?.performHook
-
-    if (!hookFn) {
-      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
-    }
-
-    if (this.hookSchemas?.[hookType]) {
-      const schema = this.hookSchemas[hookType]
-      validateSchema(data.hookInputs, schema, {
-        exempt: ['dynamicAuthSettings']
-      })
-    }
-
-    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
-  }
-
-  /**
-   * Perform a request using the definition's request client
-   * the given request function
-   * and given data bundle
-   */
-  private async performRequest<T extends Payload | Payload[], M extends AudienceMembership | AudienceMembership[]>(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
-    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
-  ): Promise<unknown> {
-    const requestClient = this.createRequestClient(data)
-    const response = await requestFn(requestClient, data)
-    return this.parseResponse(response)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
-    // TODO turn `extendRequest` into a beforeRequest hook
-    const options = this.extendRequest?.(data) ?? {}
-    return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext,
-      signal: data?.signal
-    })
-  }
-
-  // Keep track of the request(s) associated with a response
-  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
-    // TODO figure out the types here...
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const modifiedResponse: any = response
-    modifiedResponse.request = request
-    modifiedResponse.options = options
-
-    this.emit('response', modifiedResponse)
-    return modifiedResponse
-  }
-
-  private parseResponse(response: unknown): unknown {
-    /**
-     * Try to use the parsed response `.data` or `.content` string
-     * @see {@link ../middleware/after-response/prepare-response.ts}
-     */
-
-    if (response instanceof Response) {
-      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
-    }
-
-    // otherwise, we don't really know what this is, so return as-is
-    return response
-  }
-
   private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {
     const { multiStatusResponse, batchPayloadLength, status, body, filteredPayloads } = input
 
@@ -932,159 +1033,28 @@ export class ActionDestinationErrorResponse {
  * It does not support single-event perform operations - all events must be processed as batches.
  * It includes support for polling to check the status of async batch operations.
  */
-export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
-  readonly definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
-  readonly destinationName: string
-  readonly schema?: JSONSchema4
-  readonly hookSchemas?: Record<string, JSONSchema4>
-  readonly hasHookSupport: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extendRequest: RequestExtension<Settings, any> | undefined
-
-  constructor(
-    destinationName: string,
-    definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    extendRequest?: RequestExtension<Settings, any>
-  ) {
-    super()
-    this.definition = definition
-    this.destinationName = destinationName
-    this.extendRequest = extendRequest
-    this.hasHookSupport = definition.hooks !== undefined
-    // Generate json schema based on the field definitions
-    if (Object.keys(definition.fields ?? {}).length) {
-      this.schema = fieldsToJsonSchema(definition.fields)
-    }
-    // Generate a json schema for each defined hook based on the field definitions
-    if (definition.hooks) {
-      for (const hookName in definition.hooks) {
-        const hook = definition.hooks[hookName as ActionHookType]
-        if (hook?.inputFields) {
-          if (!this.hookSchemas) {
-            this.hookSchemas = {}
-          }
-
-          const castedInputFields: Record<string, InputField> = {}
-          for (const key in hook.inputFields) {
-            const field = hook.inputFields[key]
-
-            if (field.dynamic) {
-              castedInputFields[key] = {
-                ...field,
-                dynamic: true
-              }
-            } else {
-              castedInputFields[key] = {
-                ...field,
-                dynamic: false
-              }
-            }
-          }
-
-          this.hookSchemas[hookName] = fieldsToJsonSchema(castedInputFields)
-        }
-      }
-    }
-  }
+export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends BaseAction<
+  Settings,
+  Payload,
+  AudienceSettings
+> {
+  declare readonly definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
 
   async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<AsyncBatchResponse> {
-    const mapping: JSONObject = bundle.mapping
-
-    let payloads = transformBatch(mapping, bundle.data, bundle.statsContext) as Payload[]
-    const batchPayloadLength = payloads.length
+    const { payloads, batchPayloadLength, invalidPayloadIndices, validationErrors } = this.validateBatchPayloads(bundle)
 
     const multiStatusResponse = new MultiStatusResponse()
-    const invalidPayloadIndices = new Set<number>()
-
-    // Validate the resolved payloads against the schema
-    if (this.schema) {
-      const schema = this.schema
-      const validationOptions = {
-        schemaKey: `${this.destinationName}:${this.definition.title}`,
-        throwIfInvalid: true,
-        statsContext: bundle.statsContext,
-        exempt: ['dynamicAuthSettings']
-      }
-
-      // Filter out invalid payloads before sending them to the action
-      {
-        const filteredPayload: Payload[] = []
-
-        for (let i = 0; i < payloads.length; i++) {
-          // Validate payload schema
-          const payload = removeEmptyValues(payloads[i], schema) as Payload
-          try {
-            validateSchema(payload, schema, validationOptions)
-          } catch (e) {
-            // Validation failed with an exception, record the filtered out event
-            multiStatusResponse.setErrorResponseAtIndex(i, {
-              status: 400,
-              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-              errormessage: (e as Error).message
-            })
-
-            invalidPayloadIndices.add(i)
-
-            // Add datadog stats for events that are discarded by Actions
-            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
-            continue
-          }
-
-          // Event is validated, pass it to the action
-          filteredPayload.push(payload)
-        }
-
-        // Update the payloads with the filtered out events
-        payloads = filteredPayload
-      }
+    for (const { index, ...error } of validationErrors) {
+      multiStatusResponse.setErrorResponseAtIndex(index, error)
     }
 
-    let hookOutputs = {}
-    if (this.definition.hooks) {
-      for (const hookType in this.definition.hooks) {
-        const hookOutputValues = bundle.mapping?.[hookType]
-
-        if (hookOutputValues) {
-          hookOutputs = { ...hookOutputs, [hookType]: hookOutputValues }
-        }
-      }
-    }
+    const hookOutputs = this.resolveHookOutputs(bundle)
 
     if (payloads.length === 0) {
       return { jobId: undefined, status: 200, multiStatusResponse }
     }
 
-    const syncModeVal = this.definition.syncMode ? bundle.mapping?.['__segment_internal_sync_mode'] : undefined
-    const syncMode = isSyncMode(syncModeVal) ? syncModeVal : undefined
-    const matchingKey = bundle.mapping?.['__segment_internal_matching_key']
-    // Filter audienceMembership by the same invalid indices used to compact `payloads` above,
-    // so audienceMembership[i] stays aligned with payload[i] in performBatch.
-    const audienceMembership = bundle.data
-      .map((d) => resolveAudienceMembership(d, syncMode))
-      .filter((_, i) => !invalidPayloadIndices.has(i))
-
-    const data = {
-      rawData: bundle.data,
-      rawMapping: bundle.mapping,
-      settings: bundle.settings,
-      audienceSettings: bundle.audienceSettings,
-      payload: payloads,
-      audienceMembership,
-      auth: bundle.auth,
-      features: bundle.features,
-      statsContext: bundle.statsContext,
-      logger: bundle.logger,
-      engageDestinationCache: bundle.engageDestinationCache,
-      transactionContext: bundle.transactionContext,
-      stateContext: bundle.stateContext,
-      subscriptionMetadata: bundle.subscriptionMetadata,
-      hookOutputs,
-      syncMode,
-      matchingKey: matchingKey ? String(matchingKey) : undefined,
-      signal: bundle?.signal
-    }
-
+    const data = this.buildBatchDataBundle(bundle, payloads, invalidPayloadIndices, hookOutputs)
     const requestClient = this.createRequestClient(data)
 
     // Call performBatch and catch any errors thrown from Integrations
@@ -1167,126 +1137,6 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
 
     const requestClient = this.createRequestClient(dataBundle)
     return this.definition.performPoll(requestClient, dataBundle)
-  }
-
-  private extractFieldContextAndHandler(field: string): {
-    dynamicHandlerPath: string
-    dynamicFieldContext?: DynamicFieldContext
-  } {
-    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
-    const objectRegex = /(.*)\.(.*)/
-    let dynamicHandlerPath = field
-    let dynamicFieldContext: DynamicFieldContext | undefined
-
-    const match = arrayRegex.exec(field) || objectRegex.exec(field)
-    if (match) {
-      const [, parent, indexOrChild, child] = match
-      if (child) {
-        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
-        dynamicHandlerPath = `${parent}.${child}`
-      } else {
-        const parentFetcher = this.definition.dynamicFields?.[parent]
-        if (parentFetcher && !(indexOrChild in parentFetcher)) {
-          dynamicHandlerPath = `${parent}.__values__`
-          dynamicFieldContext = { selectedKey: indexOrChild }
-        }
-      }
-    }
-
-    return { dynamicHandlerPath, dynamicFieldContext }
-  }
-
-  async executeDynamicField(
-    field: string,
-    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
-    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-  ): Promise<DynamicFieldResponse> {
-    if (dynamicFn && typeof dynamicFn === 'function') {
-      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
-    }
-
-    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
-
-    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
-      this.definition.dynamicFields,
-      dynamicHandlerPath
-    )
-
-    if (typeof fn !== 'function') {
-      return Promise.resolve({
-        choices: [],
-        nextPage: '',
-        error: {
-          message: `No dynamic field named ${field} found.`,
-          code: '404'
-        }
-      })
-    }
-
-    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
-  }
-
-  async executeHook(
-    hookType: ActionHookType,
-    data: ExecuteInput<Settings, Payload, AudienceSettings>
-  ): Promise<ActionHookResponse<any>> {
-    if (!this.hasHookSupport) {
-      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
-    }
-    const hookFn = this.definition.hooks?.[hookType]?.performHook
-
-    if (!hookFn) {
-      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
-    }
-
-    if (this.hookSchemas?.[hookType]) {
-      const schema = this.hookSchemas[hookType]
-      validateSchema(data.hookInputs, schema, {
-        exempt: ['dynamicAuthSettings']
-      })
-    }
-
-    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
-  }
-
-  private async performRequest<
-    T extends Payload | Payload[] | PollPayload,
-    M extends AudienceMembership | AudienceMembership[]
-  >(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
-    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
-  ): Promise<unknown> {
-    const requestClient = this.createRequestClient(data)
-    const response = await requestFn(requestClient, data)
-    return this.parseResponse(response)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
-    const options = this.extendRequest?.(data) ?? {}
-    return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext,
-      signal: data?.signal
-    })
-  }
-
-  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const modifiedResponse: any = response
-    modifiedResponse.request = request
-    modifiedResponse.options = options
-
-    this.emit('response', modifiedResponse)
-    return modifiedResponse
-  }
-
-  private parseResponse(response: unknown): unknown {
-    if (response instanceof Response) {
-      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
-    }
-
-    return response
   }
 
   private parseBatchError(
