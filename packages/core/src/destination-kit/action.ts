@@ -624,6 +624,90 @@ export abstract class BaseAction<
     }
   }
 
+  /**
+   * Walk every index of the original batch that was not filtered out by validation, handing the
+   * visitor the index and the payload that was actually sent for it.
+   *
+   * `sent` advances only across surviving payloads, which is what keeps it aligned with the
+   * original batch indices after invalid entries were compacted out.
+   */
+  protected forEachValidPayloadIndex(
+    input: {
+      batchPayloadLength: number
+      invalidPayloadIndices: Set<number>
+      filteredPayloads?: JSONLikeObject[]
+    },
+    visit: (index: number, sent: JSONLikeObject) => void
+  ): void {
+    let payloadReadIndex = 0
+    for (let i = 0; i < input.batchPayloadLength; i++) {
+      // Check if the index is already set to a failed response
+      if (input.invalidPayloadIndices.has(i)) {
+        continue
+      }
+
+      visit(i, input.filteredPayloads ? input.filteredPayloads[payloadReadIndex++] : {})
+    }
+  }
+
+  /**
+   * Redistribute a `MultiStatusResponse` returned by `performBatch` — which is indexed by
+   * surviving payload — back onto the original batch indices.
+   *
+   * The traversal, the missing-response fallback and the discard stats are identical for sync and
+   * async actions; only the destination of each result differs, so callers supply the sink. Sync
+   * actions additionally stamp `errorreporter` in their sink, which async actions do not.
+   */
+  protected drainMultiStatusResponse(
+    source: MultiStatusResponse,
+    input: {
+      batchPayloadLength: number
+      invalidPayloadIndices: Set<number>
+      statsContext?: StatsContext
+    },
+    sink: {
+      onError: (index: number, value: ActionDestinationErrorResponseType) => void
+      onSuccess: (index: number, value: ActionDestinationSuccessResponseType) => void
+    }
+  ): void {
+    const { statsContext } = input
+    let resultsReadIndex = 0
+
+    for (let i = 0; i < input.batchPayloadLength; i++) {
+      // Skip the index if we already have a response set
+      if (input.invalidPayloadIndices.has(i)) {
+        continue
+      }
+
+      const response = source.getResponseAtIndex(resultsReadIndex++)
+      // We assume the response to be a failed response if it is undefined
+      // This is likely due to incorrect implementation of the MultiStatusResponse
+      if (!response) {
+        sink.onError(i, {
+          status: 500,
+          errormessage: 'MultiStatusResponse is missing a response at the specified index',
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED
+        })
+
+        // Add datadog stats for events that are discarded by Actions
+        statsContext?.statsClient?.incr('action.multistatus_discard', 1, statsContext?.tags)
+        continue
+      }
+
+      // Check if response is a failed response
+      if (response instanceof ActionDestinationErrorResponse) {
+        sink.onError(i, response.value())
+
+        // Add datadog stats for events that are discarded by Destination
+        statsContext?.statsClient?.incr('destination.multistatus_discard', 1, statsContext?.tags)
+        continue
+      }
+
+      // We assume the response is a success response
+      sink.onSuccess(i, response.value())
+    }
+  }
+
   /*
    * Extract the dynamic field context and handler path from a field string. Examples:
    * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
@@ -920,52 +1004,26 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
       // PerformBatch returned a Spec V2 compliant MultiStatus Response
       if (performBatchResponse instanceof MultiStatusResponse) {
-        let resultsReadIndex = 0
-
-        for (let i = 0; i < batchPayloadLength; i++) {
-          // Skip the index if we already have a response set
-          if (invalidPayloadIndices.has(i)) {
-            continue
-          }
-
-          const response = performBatchResponse.getResponseAtIndex(resultsReadIndex++)
-          // We assume the response to be a failed response if it is undefined
-          // This is likely due to incorrect implementation of the MultiStatusResponse
-          if (!response) {
-            multiStatusResponse[i] = {
-              status: 500,
-              errormessage: 'MultiStatusResponse is missing a response at the specified index',
-              errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-              errorreporter: MultiStatusErrorReporter.INTEGRATIONS
+        this.drainMultiStatusResponse(
+          performBatchResponse,
+          { batchPayloadLength, invalidPayloadIndices, statsContext: bundle.statsContext },
+          {
+            onError: (i, value) => {
+              // Check if the error has a 'sent' or 'body' field set, we assume it to be an error from the API Call
+              // Else we assume it to be an error from the Integration validations
+              multiStatusResponse[i] = {
+                ...value,
+                errorreporter:
+                  value.sent || value.body
+                    ? MultiStatusErrorReporter.DESTINATION
+                    : MultiStatusErrorReporter.INTEGRATIONS
+              }
+            },
+            onSuccess: (i, value) => {
+              multiStatusResponse[i] = value
             }
-
-            // Add datadog stats for events that are discarded by Actions
-            bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
-            continue
           }
-
-          // Check if response is a failed response
-          if (response instanceof ActionDestinationErrorResponse) {
-            const responseValue = response.value()
-
-            // Check if the error has a 'sent' or 'body' field set, we assume it to be an error from the API Call
-            // Else we assume it to be an error from the Integration validations
-            multiStatusResponse[i] = {
-              ...responseValue,
-              errorreporter:
-                responseValue.sent || responseValue.body
-                  ? MultiStatusErrorReporter.DESTINATION
-                  : MultiStatusErrorReporter.INTEGRATIONS
-            }
-
-            // Add datadog stats for events that are discarded by Destination
-            bundle.statsContext?.statsClient?.incr('destination.multistatus_discard', 1, bundle.statsContext?.tags)
-            continue
-          }
-
-          // We assume the response is a success response
-          multiStatusResponse[i] = response.value()
-        }
+        )
 
         return multiStatusResponse
       }
@@ -985,21 +1043,11 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
   }
 
   private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {
-    const { multiStatusResponse, batchPayloadLength, status, body, filteredPayloads } = input
+    const { multiStatusResponse, status, body } = input
 
-    let payloadReadIndex = 0
-    for (let i = 0; i < batchPayloadLength; i++) {
-      // Check if the index is already set to a failed response
-      if (input.invalidPayloadIndices.has(i)) {
-        continue
-      }
-
-      multiStatusResponse[i] = {
-        status: status,
-        body: body,
-        sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
-      }
-    }
+    this.forEachValidPayloadIndex(input, (i, sent) => {
+      multiStatusResponse[i] = { status, body, sent }
+    })
   }
 }
 
@@ -1084,38 +1132,14 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     const status = performBatchResponse.status ?? 200
 
     // Process the multi-status response from performBatch
-    let resultsReadIndex = 0
-
-    for (let i = 0; i < batchPayloadLength; i++) {
-      // Skip the index if we already have a response set
-      if (invalidPayloadIndices.has(i)) {
-        continue
+    this.drainMultiStatusResponse(
+      batchMultiStatus,
+      { batchPayloadLength, invalidPayloadIndices, statsContext: bundle.statsContext },
+      {
+        onError: (i, value) => multiStatusResponse.setErrorResponseAtIndex(i, value),
+        onSuccess: (i, value) => multiStatusResponse.setSuccessResponseAtIndex(i, value)
       }
-
-      const response = batchMultiStatus.getResponseAtIndex(resultsReadIndex++)
-      // We assume the response to be a failed response if it is undefined
-      if (!response) {
-        multiStatusResponse.setErrorResponseAtIndex(i, {
-          status: 500,
-          errormessage: 'MultiStatusResponse is missing a response at the specified index',
-          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED
-        })
-
-        bundle.statsContext?.statsClient?.incr('action.multistatus_discard', 1, bundle.statsContext?.tags)
-        continue
-      }
-
-      // Check if response is a failed response
-      if (response instanceof ActionDestinationErrorResponse) {
-        multiStatusResponse.setErrorResponseAtIndex(i, response.value())
-
-        bundle.statsContext?.statsClient?.incr('destination.multistatus_discard', 1, bundle.statsContext?.tags)
-        continue
-      }
-
-      // We assume the response is a success response
-      multiStatusResponse.setSuccessResponseAtIndex(i, response.value())
-    }
+    )
 
     return { jobId, status, multiStatusResponse }
   }
@@ -1175,20 +1199,11 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     errormessage: string
     filteredPayloads?: JSONLikeObject[]
   }) {
-    const { multiStatusResponse, batchPayloadLength, status, errormessage, filteredPayloads } = input
+    const { multiStatusResponse, status, errormessage } = input
 
-    let payloadReadIndex = 0
-    for (let i = 0; i < batchPayloadLength; i++) {
-      if (input.invalidPayloadIndices.has(i)) {
-        continue
-      }
-
-      multiStatusResponse.setErrorResponseAtIndex(i, {
-        status,
-        errormessage,
-        sent: filteredPayloads ? filteredPayloads[payloadReadIndex++] : {}
-      })
-    }
+    this.forEachValidPayloadIndex(input, (i, sent) => {
+      multiStatusResponse.setErrorResponseAtIndex(i, { status, errormessage, sent })
+    })
   }
 }
 
