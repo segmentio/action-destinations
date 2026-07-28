@@ -157,7 +157,7 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": false
+          "additionalProperties": true
         },
         "visitorData": {
           "label": "Visitor Data",
@@ -181,7 +181,7 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": false
+          "additionalProperties": true
         },
         "cookie": {
           "label": "Cookie",

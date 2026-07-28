@@ -38,6 +38,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Lead Form Fields',
       description: 'The full set of lead form fields to submit to the Marketo form.',
       type: 'object',
+      additionalProperties: true,
       required: true
     },
     visitorData: {
@@ -45,6 +46,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The visitor data to send to Marketo. This is used to associate the lead with the correct visitor in Marketo.',
       type: 'object',
+      additionalProperties: true,
       required: true
     },
     cookie: {
