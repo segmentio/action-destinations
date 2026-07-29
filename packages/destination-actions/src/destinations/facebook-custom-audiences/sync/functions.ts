@@ -11,8 +11,8 @@ import {
 import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing, isAlreadyHashed } from '../../../lib/hashing-utils'
-import { PayloadMap, AudienceJSON, FacebookDataRow, RawData } from './types'
-import { BASE_URL, FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON, FLAGON_NAME_BATCH_DISCARD_FIX } from '../constants'
+import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
+import { BASE_URL, FLAGON_NAME_BATCH_DISCARD_FIX } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
