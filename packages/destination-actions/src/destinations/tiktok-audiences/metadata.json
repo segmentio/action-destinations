@@ -1701,6 +1701,58 @@
         }
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "send_email": true,
+        "send_phone": true,
+        "send_advertising_id": true,
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "phone": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "advertising_id": {
+          "@path": "$.context.device.advertisingId"
+        },
+        "enable_batching": true,
+        "external_audience_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "batch_keys": [
+          "send_email",
+          "send_phone",
+          "send_advertising_id"
+        ]
+      },
+      "eventSlug": "journey_step_all_events_track"
     }
   ]
 }
