@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, InvalidAuthenticationError } from '@segment/actions-core'
 
 export type SupportedMethods = 'get' | 'post'
 
@@ -125,7 +125,13 @@ export default class QualtricsApiClient {
   private request: RequestClient
 
   constructor(dc: string, apiToken: string, request: RequestClient) {
-    this.baseUrl = `https://${dc || 'iad1'}.qualtrics.com`
+    const datacenter = dc || 'iad1'
+    if (!/^[a-zA-Z0-9-]+$/.test(datacenter)) {
+      throw new InvalidAuthenticationError(
+        'Invalid datacenter ID. Datacenter must contain only alphanumeric characters and hyphens.'
+      )
+    }
+    this.baseUrl = `https://${datacenter}.qualtrics.com`
     this.apiToken = apiToken
     this.request = request
   }
