@@ -9583,7 +9583,8 @@
           "order_status_url": {
             "@path": "$.properties.order_status_url"
           }
-        }
+        },
+        "__segment_internal_sync_mode": "add"
       },
       "eventSlug": null
     },
@@ -9710,7 +9711,8 @@
           "checkout_url": {
             "@path": "$.properties.checkout_url"
           }
-        }
+        },
+        "__segment_internal_sync_mode": "add"
       },
       "eventSlug": null
     },
@@ -9837,7 +9839,8 @@
           "order_status_url": {
             "@path": "$.properties.order_status_url"
           }
-        }
+        },
+        "__segment_internal_sync_mode": "add"
       },
       "eventSlug": null
     },
@@ -9964,7 +9967,8 @@
           "order_status_url": {
             "@path": "$.properties.order_status_url"
           }
-        }
+        },
+        "__segment_internal_sync_mode": "add"
       },
       "eventSlug": null
     },
@@ -10078,7 +10082,8 @@
             "@path": "$.properties.price"
           }
         },
-        "name": "ecommerce.product_viewed"
+        "name": "ecommerce.product_viewed",
+        "__segment_internal_sync_mode": "add"
       },
       "eventSlug": null
     },
