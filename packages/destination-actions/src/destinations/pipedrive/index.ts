@@ -2,6 +2,7 @@ import createUpdateOrganization from './createUpdateOrganization'
 import createUpdatePerson from './createUpdatePerson'
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { validateDomain } from './utils'
 
 import createUpdateActivity from './createUpdateActivity'
 
@@ -59,6 +60,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, { settings }) => {
+      validateDomain(settings.domain)
       return request(`https://${settings.domain}.pipedrive.com/api/v1/users/me`)
     }
   },
