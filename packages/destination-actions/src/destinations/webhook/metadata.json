@@ -22,7 +22,7 @@
         "required": false,
         "multiple": false,
         "choices": null,
-        "default": null,
+        "default": "new default value",
         "depends_on": null
       }
     }
