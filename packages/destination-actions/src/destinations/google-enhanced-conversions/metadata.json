@@ -645,7 +645,17 @@
       "defaultSubscription": null,
       "hidden": false,
       "hasPerformBatch": true,
-      "syncMode": null,
+      "syncMode": {
+        "default": "add",
+        "label": "How to sync records",
+        "description": "Define how the records from your destination will be synced.",
+        "choices": [
+          {
+            "value": "add",
+            "label": "Insert Records"
+          }
+        ]
+      },
       "hooks": null,
       "dynamicFields": null,
       "fields": {

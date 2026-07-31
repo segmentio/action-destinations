@@ -31,6 +31,12 @@ import { processHashing } from '../../../lib/hashing-utils'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upload Click Conversion',
   description: 'Upload an offline click conversion to the Google Ads API.',
+  syncMode: {
+    description: 'Define how the records from your destination will be synced.',
+    label: 'How to sync records',
+    default: 'add',
+    choices: [{ label: 'Insert Records', value: 'add' }]
+  },
   fields: {
     conversion_action: {
       label: 'Conversion Action ID',
@@ -102,7 +108,7 @@ const action: ActionDefinition<Settings, Payload> = {
         session_start_time_usec: {
           label: 'Session Start Time',
           description:
-            "The timestamp of when the user's session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example \"2025-11-18T08:52:17.023Z\".",
+            'The timestamp of when the user\'s session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example "2025-11-18T08:52:17.023Z".',
           type: 'string',
           format: 'date-time'
         },
