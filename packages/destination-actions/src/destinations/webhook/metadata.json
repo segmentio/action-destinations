@@ -34,6 +34,16 @@
         "choices": null,
         "default": true,
         "depends_on": null
+      },
+      "enabled": {
+        "label": "Enabled",
+        "description": "Adding field named enabled for bug bash testing",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
       }
     }
   },

@@ -31,6 +31,12 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Updating field for bug bash testing',
         default: true,
         multiple: true
+      },
+      enabled: {
+        type: 'boolean',
+        label: 'Enabled',
+        description: 'Adding field named enabled for bug bash testing',
+        default: true
       }
     }
   },

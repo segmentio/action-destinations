@@ -13,4 +13,8 @@ export interface Settings {
    * Updating field for bug bash testing
    */
   booleanField?: boolean & boolean[]
+  /**
+   * Adding field named enabled for bug bash testing
+   */
+  enabled?: boolean
 }
