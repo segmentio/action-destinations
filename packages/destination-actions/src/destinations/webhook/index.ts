@@ -4,6 +4,8 @@ import { createHmac } from 'crypto'
 
 import send from './send'
 
+import bugBash from './bugBash'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook',
   slug: 'actions-webhook',
@@ -31,12 +33,6 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Updating field for bug bash testing',
         default: true,
         multiple: true
-      },
-      enabled: {
-        type: 'boolean',
-        label: 'Enabled',
-        description: 'Adding field named enabled for bug bash testing',
-        default: true
       }
     }
   },
@@ -49,7 +45,8 @@ const destination: DestinationDefinition<Settings> = {
     return {}
   },
   actions: {
-    send
+    send,
+    bugBash
   }
 }
 
