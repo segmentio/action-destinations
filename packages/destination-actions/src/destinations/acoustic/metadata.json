@@ -8,7 +8,7 @@
       "pod": {
         "label": "Pod",
         "description": "Pod Number for API Endpoint",
-        "type": "string",
+        "type": "password",
         "required": true,
         "multiple": false,
         "choices": null,
@@ -31,12 +31,12 @@
             "value": "EU"
           },
           {
-            "label": "AP",
-            "value": "AP"
-          },
-          {
             "label": "CA",
             "value": "CA"
+          },
+          {
+            "label": "Europa",
+            "value": "Europa"
           }
         ],
         "default": "US",

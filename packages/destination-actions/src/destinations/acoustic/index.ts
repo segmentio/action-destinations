@@ -58,7 +58,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Pod',
         description: 'Pod Number for API Endpoint',
         default: '2',
-        type: 'string',
+        type: 'password',
         required: true
       },
       region: {
@@ -67,8 +67,8 @@ const destination: DestinationDefinition<Settings> = {
         choices: [
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' },
-          { label: 'AP', value: 'AP' },
-          { label: 'CA', value: 'CA' }
+          { label: 'CA', value: 'CA' },
+          { label: 'Europa', value: 'Europa' }
         ],
         default: 'US',
         type: 'string',
