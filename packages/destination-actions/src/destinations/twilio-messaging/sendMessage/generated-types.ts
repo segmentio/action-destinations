@@ -65,4 +65,8 @@ export interface Payload {
   tags?: {
     [k: string]: unknown
   }
+  /**
+   * TEMPORARY bug-bash field (TC33/TC34) — required only when channel is Whatsapp.
+   */
+  testConditionalField?: string
 }

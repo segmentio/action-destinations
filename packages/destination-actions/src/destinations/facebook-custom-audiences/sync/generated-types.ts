@@ -60,7 +60,9 @@ export interface Payload {
   /**
    * The page ID of the user.
    */
-  pageId?: string
+  pageId?: {
+    id?: string
+  }
   /**
    * The Instagram account ID of the user.
    */
