@@ -5939,6 +5939,13 @@
       "partnerAction": "bugBash",
       "mapping": {},
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Orphaned Preset Reference",
+      "type": "specificEvent",
+      "partnerAction": "uploadClickConversoin2",
+      "mapping": {},
+      "eventSlug": "journeys_step_entered_track"
     }
   ]
 }

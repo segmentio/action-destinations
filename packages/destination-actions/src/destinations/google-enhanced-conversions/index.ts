@@ -313,6 +313,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(bugBash.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Orphaned Preset Reference',
+      partnerAction: 'uploadClickConversoin2',
+      mapping: {},
+      type: 'specificEvent',
+      eventSlug: 'journeys_step_entered_track'
     }
   ]
 }
