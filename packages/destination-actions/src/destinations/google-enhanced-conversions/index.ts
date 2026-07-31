@@ -1,7 +1,6 @@
 import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
-import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
@@ -206,7 +205,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
   actions: {
     postConversion,
     uploadClickConversion,
-    uploadCallConversion,
     uploadConversionAdjustment,
     uploadConversionAdjustment2,
     uploadClickConversion2,
@@ -260,13 +258,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
       name: 'Journeys Step Entered',
       partnerAction: 'uploadClickConversion',
       mapping: defaultValues(uploadClickConversion.fields),
-      type: 'specificEvent',
-      eventSlug: 'journeys_step_entered_track'
-    },
-    {
-      name: 'Journeys Step Entered',
-      partnerAction: 'uploadCallConversion',
-      mapping: defaultValues(uploadCallConversion.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
     },
