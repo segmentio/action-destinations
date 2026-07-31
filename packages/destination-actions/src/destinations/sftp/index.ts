@@ -89,8 +89,8 @@ const destination: DestinationDefinition<Settings> = {
           conditions: [
             {
               fieldKey: 'auth_type',
-              operator: 'is',
-              value: 'ssh_key'
+              operator: 'is_not',
+              value: 'password'
             }
           ]
         },
@@ -98,8 +98,8 @@ const destination: DestinationDefinition<Settings> = {
           conditions: [
             {
               fieldKey: 'auth_type',
-              operator: 'is',
-              value: 'ssh_key'
+              operator: 'is_not',
+              value: 'password'
             }
           ]
         }
