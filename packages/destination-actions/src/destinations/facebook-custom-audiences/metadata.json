@@ -808,7 +808,7 @@
           "choices": null,
           "placeholder": null,
           "properties": null,
-          "category": null,
+          "category": "hashedPII",
           "depends_on": null,
           "readOnly": null,
           "hidden": null,

@@ -20,9 +20,29 @@
         "description": "Updating field for bug bash testing",
         "type": "string",
         "required": false,
-        "multiple": false,
+        "multiple": true,
         "choices": null,
         "default": "new default value",
+        "depends_on": null
+      },
+      "booleanField": {
+        "label": "Boolean Field",
+        "description": "Updating field for bug bash testing",
+        "type": "boolean",
+        "required": false,
+        "multiple": true,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "enabled": {
+        "label": "Enabled",
+        "description": "Adding field named enabled for bug bash testing",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
         "depends_on": null
       }
     }

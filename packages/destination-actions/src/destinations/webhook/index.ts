@@ -22,7 +22,21 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         label: 'Optional Auth Field',
         description: 'Updating field for bug bash testing',
-        default: 'new default value'
+        default: 'new default value',
+        multiple: true
+      },
+      booleanField: {
+        type: 'boolean',
+        label: 'Boolean Field',
+        description: 'Updating field for bug bash testing',
+        default: true,
+        multiple: true
+      },
+      enabled: {
+        type: 'boolean',
+        label: 'Enabled',
+        description: 'Adding field named enabled for bug bash testing',
+        default: true
       }
     }
   },
