@@ -226,13 +226,13 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
-        "requiredField": {
-          "label": "Required Field",
-          "description": "Required field for bug bash testing",
+        "optionalField": {
+          "label": "Optional Field",
+          "description": "Optional field for bug bash testing",
           "type": "string",
           "required": true,
           "multiple": false,
-          "allowNull": false,
+          "allowNull": true,
           "dynamic": false,
           "default": null,
           "choices": null,

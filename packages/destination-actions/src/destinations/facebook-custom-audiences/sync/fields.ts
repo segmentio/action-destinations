@@ -184,9 +184,16 @@ export const fields: Record<string, InputField> = {
     category: 'hashedPII'
   },
   pageId: {
-    type: 'string',
+    type: 'object',
     label: 'Page ID',
     description: 'The page ID of the user.',
+    defaultObjectUI: 'keyvalue',
+    properties: {
+      id: {
+        type: 'string',
+        label: 'ID'
+      }
+    },
     category: 'hashedPII'
   },
   igAccountIds: {
