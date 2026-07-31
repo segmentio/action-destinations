@@ -58,7 +58,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Pod',
         description: 'Pod Number for API Endpoint',
         default: '2',
-        type: 'password',
+        type: 'string',
         required: true
       },
       region: {
@@ -67,8 +67,8 @@ const destination: DestinationDefinition<Settings> = {
         choices: [
           { label: 'US', value: 'US' },
           { label: 'EU', value: 'EU' },
-          { label: 'CA', value: 'CA' },
-          { label: 'Europa', value: 'Europa' }
+          { label: 'AP', value: 'AP' },
+          { label: 'CA', value: 'CA' }
         ],
         default: 'US',
         type: 'string',
@@ -115,15 +115,7 @@ const destination: DestinationDefinition<Settings> = {
           'A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
         default: 15,
         type: 'number',
-        required: true
-      },
-      Secret: {
-        label: 'OOOH I am a secret',
-        description:
-          'This field sould not add',
-        default: '',
-        type: 'string',
-        required: true
+        required: false
       }
     },
     refreshAccessToken: async (request, { settings }) => {

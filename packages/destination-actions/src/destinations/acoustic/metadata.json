@@ -8,7 +8,7 @@
       "pod": {
         "label": "Pod",
         "description": "Pod Number for API Endpoint",
-        "type": "password",
+        "type": "string",
         "required": true,
         "multiple": false,
         "choices": null,
@@ -31,12 +31,12 @@
             "value": "EU"
           },
           {
-            "label": "CA",
-            "value": "CA"
+            "label": "AP",
+            "value": "AP"
           },
           {
-            "label": "Europa",
-            "value": "Europa"
+            "label": "CA",
+            "value": "CA"
           }
         ],
         "default": "US",
@@ -96,20 +96,10 @@
         "label": "Properties Max",
         "description": "A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.",
         "type": "number",
-        "required": true,
+        "required": false,
         "multiple": false,
         "choices": null,
         "default": 15,
-        "depends_on": null
-      },
-      "Secret": {
-        "label": "OOOH I am a secret",
-        "description": "This field sould not add",
-        "type": "string",
-        "required": true,
-        "multiple": false,
-        "choices": null,
-        "default": "",
         "depends_on": null
       }
     }
