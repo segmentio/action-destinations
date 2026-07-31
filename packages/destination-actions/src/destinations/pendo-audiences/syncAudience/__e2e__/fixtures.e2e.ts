@@ -106,12 +106,13 @@ const fixtures: E2EFixture[] = [
     // add/remove operation rather than exact IDs. A freshly-created segment can briefly return
     // 409 ("operation in progress"); retries give it time to settle so the writes succeed.
     // Pendo returns 200 for a successful add and 202 for a successful remove.
+    // `sent` holds the exact PATCH request sent to Pendo; `body` holds Pendo's response summary.
     retries: 9,
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, body: { patch: [{ op: 'add', path: '/visitors' }] } },
-        { status: 202, body: { patch: [{ op: 'remove', path: '/visitors' }] } },
+        { status: 200, sent: { patch: [{ op: 'add', path: '/visitors' }] } },
+        { status: 202, sent: { patch: [{ op: 'remove', path: '/visitors' }] } },
         { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' },
         { status: 400, errormessage: 'Unable to determine audience membership for this event' }
       ]
@@ -159,14 +160,15 @@ const fixtures: E2EFixture[] = [
     ],
     // All four are adds to the same audience, so they collapse into a single add operation and
     // each row reports Pendo's add success code (200).
+    // `sent` holds the exact PATCH request sent to Pendo; `body` holds Pendo's response summary.
     retries: 9,
     expect: {
       status: 'success',
       jsonContains: [
-        { status: 200, body: { patch: [{ op: 'add', path: '/visitors' }] } },
-        { status: 200, body: { patch: [{ op: 'add', path: '/visitors' }] } },
-        { status: 200, body: { patch: [{ op: 'add', path: '/visitors' }] } },
-        { status: 200, body: { patch: [{ op: 'add', path: '/visitors' }] } }
+        { status: 200, sent: { patch: [{ op: 'add', path: '/visitors' }] } },
+        { status: 200, sent: { patch: [{ op: 'add', path: '/visitors' }] } },
+        { status: 200, sent: { patch: [{ op: 'add', path: '/visitors' }] } },
+        { status: 200, sent: { patch: [{ op: 'add', path: '/visitors' }] } }
       ]
     },
     verboseFailureHint: FAILURE_HINT

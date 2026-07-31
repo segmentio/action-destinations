@@ -12,8 +12,8 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   perform: (request, { payload, settings, audienceMembership }) => {
     return send(request, settings.region, [payload], false, [audienceMembership])
   },
-  performBatch: (request, { payload, settings, audienceMembership}) => {
-    return send(request, settings.region, payload, true, audienceMembership ?? [])
+  performBatch: (request, { payload, settings, audienceMembership }) => {
+    return send(request, settings.region, payload, true, Array.isArray(audienceMembership) ? audienceMembership : [])
   }
 }
 
