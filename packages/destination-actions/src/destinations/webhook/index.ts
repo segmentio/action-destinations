@@ -22,6 +22,11 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Required Auth Field',
         description: 'Required field for bug bash',
         required: true
+      },
+      optionalAuthField: {
+        type: 'string',
+        label: 'Optional Auth Field',
+        description: 'Optional field for bug bash'
       }
     }
   },
