@@ -293,15 +293,15 @@ const destination: AudienceDestinationDefinition<Settings> = {
     },
     {
       name: 'Journeys Step Entered',
-      partnerAction: 'uploadClickConversion2',
-      mapping: defaultValues(uploadClickConversion2.fields),
+      partnerAction: 'uploadCallConversion2',
+      mapping: defaultValues(uploadCallConversion2.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
     },
     {
       name: 'Journeys Step Entered',
-      partnerAction: 'uploadCallConversion2',
-      mapping: defaultValues(uploadCallConversion2.fields),
+      partnerAction: 'uploadClickConversion2',
+      mapping: defaultValues(uploadClickConversion2.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
     },

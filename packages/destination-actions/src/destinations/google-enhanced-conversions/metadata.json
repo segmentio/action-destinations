@@ -5854,6 +5854,25 @@
     {
       "name": "Journeys Step Entered",
       "type": "specificEvent",
+      "partnerAction": "uploadCallConversion2",
+      "mapping": {
+        "conversion_timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.total"
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "enable_batching": false,
+        "batch_size": 1500
+      },
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
       "partnerAction": "uploadClickConversion2",
       "mapping": {
         "user_ip_address": {
@@ -5945,25 +5964,6 @@
               }
             }
           ]
-        },
-        "enable_batching": false,
-        "batch_size": 1500
-      },
-      "eventSlug": "journeys_step_entered_track"
-    },
-    {
-      "name": "Journeys Step Entered",
-      "type": "specificEvent",
-      "partnerAction": "uploadCallConversion2",
-      "mapping": {
-        "conversion_timestamp": {
-          "@path": "$.timestamp"
-        },
-        "value": {
-          "@path": "$.properties.total"
-        },
-        "currency": {
-          "@path": "$.properties.currency"
         },
         "enable_batching": false,
         "batch_size": 1500
