@@ -42,7 +42,21 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Username',
         description: 'Username for establishing an SFTP connection',
         type: 'string',
-        required: true
+        required: {
+          conditions: [
+            {
+              fieldKey: 'auth_type',
+              operator: 'is',
+              value: 'password'
+            },
+            {
+              fieldKey: 'auth_type',
+              operator: 'is',
+              value: 'ssh_key'
+            }
+          ],
+          match: 'any'
+        }
       },
       sftp_password: {
         label: 'Password',

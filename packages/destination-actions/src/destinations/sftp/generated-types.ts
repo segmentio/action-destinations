@@ -16,7 +16,7 @@ export interface Settings {
   /**
    * Username for establishing an SFTP connection
    */
-  sftp_username: string
+  sftp_username?: string
   /**
    * Password for establishing an SFTP connection
    */
