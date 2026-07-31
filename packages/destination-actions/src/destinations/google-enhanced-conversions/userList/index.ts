@@ -181,7 +181,17 @@ const action: ActionDefinition<Settings, Payload> = {
         list_name: {
           type: 'string',
           label: 'List Name',
-          description: 'The name of the Google list that you would like to create.'
+          description: 'The name of the Google list that you would like to create.',
+          depends_on: {
+            match: 'all',
+            conditions: [
+              {
+                fieldKey: 'list_id',
+                operator: 'is',
+                value: undefined
+              }
+            ]
+          }
         },
         external_id_type: {
           type: 'string',
@@ -303,9 +313,20 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }) => {
+  perform: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
+  ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-    await sendToSegment({ isBatch: false, payload, audienceMembership, syncMode, hookOutputs, audienceSettings, settings })
+    await sendToSegment({
+      isBatch: false,
+      payload,
+      audienceMembership,
+      syncMode,
+      hookOutputs,
+      audienceSettings,
+      settings
+    })
     return await handleUpdate(
       request,
       settings,
@@ -323,7 +344,16 @@ const action: ActionDefinition<Settings, Payload> = {
     request,
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
-    await sendToSegment({ isBatch: true, payload, audienceMembership, syncMode, hookOutputs, audienceSettings, settings, features: features })
+    await sendToSegment({
+      isBatch: true,
+      payload,
+      audienceMembership,
+      syncMode,
+      hookOutputs,
+      audienceSettings,
+      settings,
+      features: features
+    })
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
       request,

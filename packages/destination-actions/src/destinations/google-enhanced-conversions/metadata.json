@@ -4618,7 +4618,15 @@
               "placeholder": null,
               "properties": null,
               "category": null,
-              "depends_on": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "list_id",
+                    "operator": "is"
+                  }
+                ]
+              },
               "readOnly": null,
               "hidden": null,
               "minimum": null,
