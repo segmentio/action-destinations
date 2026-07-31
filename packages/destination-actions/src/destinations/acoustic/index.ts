@@ -115,7 +115,7 @@ const destination: DestinationDefinition<Settings> = {
           'A safety against mapping too many attributes into the Event, Event will be ignored if number of Event Attributes exceeds this maximum. Note: Before increasing the default max number, consult the Acoustic Destination documentation.',
         default: 15,
         type: 'number',
-        required: false
+        required: true
       }
     },
     refreshAccessToken: async (request, { settings }) => {
