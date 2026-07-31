@@ -257,7 +257,16 @@ const destination: AudienceDestinationDefinition<Settings> = {
     {
       name: 'Journeys Step Entered',
       partnerAction: 'postConversion',
-      mapping: defaultValues(postConversion.fields),
+      mapping: {
+        ...defaultValues(postConversion.fields),
+        transaction_id: {
+          '@if': {
+            exists: { '@path': '$.properties.orderId' },
+            then: { '@path': '$.properties.orderId' },
+            else: { '@path': '$.properties.transactionId' }
+          }
+        }
+      },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
     },

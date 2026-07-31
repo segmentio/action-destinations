@@ -5326,7 +5326,17 @@
           }
         },
         "transaction_id": {
-          "@path": "$.properties.orderId"
+          "@if": {
+            "exists": {
+              "@path": "$.properties.orderId"
+            },
+            "then": {
+              "@path": "$.properties.orderId"
+            },
+            "else": {
+              "@path": "$.properties.transactionId"
+            }
+          }
         },
         "user_agent": {
           "@path": "$.context.userAgent"
