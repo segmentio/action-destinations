@@ -51,7 +51,8 @@
   },
   "audienceConfig": {
     "mode": {
-      "type": "realtime"
+      "type": "synced",
+      "full_audience_sync": false
     },
     "audienceFields": {
       "audienceName": {
