@@ -24,6 +24,16 @@
         "choices": null,
         "default": "new default value",
         "depends_on": null
+      },
+      "booleanField": {
+        "label": "Boolean Field",
+        "description": "Updating field for bug bash testing",
+        "type": "boolean",
+        "required": false,
+        "multiple": true,
+        "choices": null,
+        "default": true,
+        "depends_on": null
       }
     }
   },

@@ -9,4 +9,8 @@ export interface Settings {
    * Updating field for bug bash testing
    */
   optionalAuthField?: string & string[]
+  /**
+   * Updating field for bug bash testing
+   */
+  booleanField?: boolean & boolean[]
 }

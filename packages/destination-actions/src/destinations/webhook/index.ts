@@ -24,6 +24,13 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Updating field for bug bash testing',
         default: 'new default value',
         multiple: true
+      },
+      booleanField: {
+        type: 'boolean',
+        label: 'Boolean Field',
+        description: 'Updating field for bug bash testing',
+        default: true,
+        multiple: true
       }
     }
   },
