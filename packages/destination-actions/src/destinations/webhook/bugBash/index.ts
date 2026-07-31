@@ -5,7 +5,14 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Bug Bash',
   description: 'Updating action description bug bash testing.',
-  fields: {},
+  fields: {
+    requiredField: {
+      label: 'Required Field',
+      description: 'Required field for bug bash testing',
+      type: 'string',
+      required: true
+    }
+  },
   perform: () => {
     return
   }
