@@ -9,7 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
     optionalField: {
       label: 'Optional Field',
       description: 'Optional field for bug bash testing',
-      type: 'string'
+      type: 'string',
+      required: true
     }
   },
   perform: () => {
