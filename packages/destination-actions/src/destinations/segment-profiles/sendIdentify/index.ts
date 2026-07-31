@@ -17,7 +17,7 @@ import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Identify',
   description:
-    'Send an identify call to Segment’s tracking API. This is used to tie your users to their actions and record traits about them.',
+    'Send an identify call to Segment’s tracking API. This is used to tie your users to their actions and record traits about them. (bug bash: minor description tweak)',
   defaultSubscription: 'type = "identify"',
   fields: {
     engage_space,
