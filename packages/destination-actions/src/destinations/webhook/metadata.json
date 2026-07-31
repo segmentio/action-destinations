@@ -232,7 +232,7 @@
           "type": "string",
           "required": true,
           "multiple": false,
-          "allowNull": false,
+          "allowNull": true,
           "dynamic": false,
           "default": null,
           "choices": null,
