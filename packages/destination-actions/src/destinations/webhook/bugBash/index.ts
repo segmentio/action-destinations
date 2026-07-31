@@ -11,7 +11,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Optional field for bug bash testing',
       type: 'string',
       required: true,
-      allowNull: true
+      allowNull: true,
+      unsafe_hidden: true
     }
   },
   perform: () => {

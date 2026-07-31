@@ -49,7 +49,21 @@
         "label": "Username",
         "description": "Username for establishing an SFTP connection",
         "type": "string",
-        "required": true,
+        "required": {
+          "conditions": [
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "password"
+            },
+            {
+              "fieldKey": "auth_type",
+              "operator": "is",
+              "value": "ssh_key"
+            }
+          ],
+          "match": "any"
+        },
         "multiple": false,
         "choices": null,
         "default": null,
