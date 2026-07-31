@@ -101,6 +101,16 @@
         "choices": null,
         "default": 15,
         "depends_on": null
+      },
+      "Secret": {
+        "label": "OOOH I am a secret",
+        "description": "This field sould not add",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": "",
+        "depends_on": null
       }
     }
   },

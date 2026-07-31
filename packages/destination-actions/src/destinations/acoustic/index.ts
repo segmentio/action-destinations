@@ -116,6 +116,14 @@ const destination: DestinationDefinition<Settings> = {
         default: 15,
         type: 'number',
         required: true
+      },
+      Secret: {
+        label: 'OOOH I am a secret',
+        description:
+          'This field sould not add',
+        default: '',
+        type: 'string',
+        required: true
       }
     },
     refreshAccessToken: async (request, { settings }) => {
