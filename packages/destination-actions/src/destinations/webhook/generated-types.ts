@@ -6,7 +6,7 @@ export interface Settings {
    */
   sharedSecret?: string
   /**
-   * Optional field for bug bash
+   * Updating field for bug bash testing
    */
   optionalAuthField?: string
 }

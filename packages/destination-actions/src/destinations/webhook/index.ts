@@ -21,7 +21,7 @@ const destination: DestinationDefinition<Settings> = {
       optionalAuthField: {
         type: 'string',
         label: 'Optional Auth Field',
-        description: 'Optional field for bug bash'
+        description: 'Updating field for bug bash testing'
       }
     }
   },

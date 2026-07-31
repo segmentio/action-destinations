@@ -17,7 +17,7 @@
       },
       "optionalAuthField": {
         "label": "Optional Auth Field",
-        "description": "Optional field for bug bash",
+        "description": "Updating field for bug bash testing",
         "type": "string",
         "required": false,
         "multiple": false,
