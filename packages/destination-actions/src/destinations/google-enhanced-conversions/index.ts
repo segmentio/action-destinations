@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, defaultValues, IntegrationError } from '@segment/actions-core'
+import { AudienceDestinationDefinition, defaultValues, IntegrationError, Preset } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import postConversion from './postConversion'
 import uploadClickConversion from './uploadClickConversion'
@@ -320,6 +320,17 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: {},
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Missing Type Preset',
+      partnerAction: 'bugBash',
+      mapping: defaultValues(bugBash.fields)
+    } as unknown as Preset,
+    {
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_exited_track'
     }
   ]
 }
