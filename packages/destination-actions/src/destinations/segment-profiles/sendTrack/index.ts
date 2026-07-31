@@ -17,7 +17,8 @@ import { MissingUserOrAnonymousIdThrowableError } from '../errors'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Track',
-  description: 'Send a track call to Segment’s tracking API. This is used to record actions your users perform.',
+  description:
+    'Send a track call to Segment’s tracking API. This is used to record actions your users perform. (bug bash: minor description tweak)',
   fields: {
     engage_space,
     user_id,
