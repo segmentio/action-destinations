@@ -83,6 +83,13 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Test Preset',
+      partnerAction: 'testAction',
+      mapping: defaultValues(testAction.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_all_events_track'
     }
   ],
 

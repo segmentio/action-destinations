@@ -590,6 +590,31 @@
         }
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Test Preset",
+      "type": "specificEvent",
+      "partnerAction": "testAction",
+      "mapping": {
+        "event": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "user_id": {
+            "@path": "$.userId"
+          }
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "receivedAt": {
+          "@path": "$.receivedAt"
+        }
+      },
+      "eventSlug": "warehouse_all_events_track"
     }
   ]
 }
