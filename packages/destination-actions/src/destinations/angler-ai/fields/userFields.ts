@@ -95,6 +95,8 @@ export const userFields: Record<string, InputField> = {
       orders_count: {
         label: 'Orders Count',
         type: 'number',
+        minimum: 0,
+        maximum: 909090,
         description: 'The number of orders associated with this customer.'
       },
       phone: {
