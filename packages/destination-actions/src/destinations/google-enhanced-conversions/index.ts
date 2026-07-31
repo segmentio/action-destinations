@@ -295,6 +295,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'journey_step_all_events_track'
+    },
+    {
+      name: 'Order Completed Click Conversion',
+      subscribe: 'type = "track" AND event = "Order Completed"',
+      partnerAction: 'uploadClickConversion2',
+      mapping: defaultValues(uploadClickConversion2.fields),
+      type: 'automatic'
     }
   ]
 }

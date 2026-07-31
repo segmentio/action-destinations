@@ -5959,6 +5959,107 @@
         }
       },
       "eventSlug": "journey_step_all_events_track"
+    },
+    {
+      "name": "Order Completed Click Conversion",
+      "type": "automatic",
+      "partnerAction": "uploadClickConversion2",
+      "subscribe": "type = \"track\" AND event = \"Order Completed\"",
+      "mapping": {
+        "user_ip_address": {
+          "@path": "$.context.ip"
+        },
+        "session_attributes_encoded": {
+          "@path": "$.integrations.Google Ads Conversions.session_attributes_encoded"
+        },
+        "session_attributes_key_value_pairs": {
+          "gad_source": {
+            "@path": "$.properties.gad_source"
+          },
+          "gad_campaignid": {
+            "@path": "$.properties.gad_campaignid"
+          },
+          "landing_page_url": {
+            "@path": "$.context.page.url"
+          },
+          "session_start_time_usec": {
+            "@path": "$.properties.session_start_time_usec"
+          },
+          "landing_page_referrer": {
+            "@path": "$.context.page.referrer"
+          },
+          "landing_page_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "conversion_timestamp": {
+          "@path": "$.timestamp"
+        },
+        "email_address": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.phone"
+            },
+            "then": {
+              "@path": "$.properties.phone"
+            },
+            "else": {
+              "@path": "$.context.traits.phone"
+            }
+          }
+        },
+        "order_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.orderId"
+            },
+            "then": {
+              "@path": "$.properties.orderId"
+            },
+            "else": {
+              "@path": "$.properties.order_id"
+            }
+          }
+        },
+        "value": {
+          "@path": "$.properties.total"
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "price": {
+                "@path": "$.price"
+              }
+            }
+          ]
+        },
+        "enable_batching": false,
+        "batch_size": 1500
+      },
+      "eventSlug": null
     }
   ]
 }
