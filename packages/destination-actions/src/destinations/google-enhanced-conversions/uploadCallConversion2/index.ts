@@ -22,7 +22,7 @@ import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Call Conversion V2',
-  description: 'Send an offline call conversion to the Google Ads API.',
+  description: 'Send an offline call conversion to the Google Ads API. (bug bash: minor description tweak)',
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to sync records',

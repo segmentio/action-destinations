@@ -10,6 +10,7 @@ import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
 import uploadConversionAdjustment2 from './uploadConversionAdjustment2'
 import bugBash from './bugBash'
+import sampleAction from './sampleAction'
 
 export interface RefreshTokenResponse {
   access_token: string
@@ -30,6 +31,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
   name: 'Google Ads Conversions',
   slug: 'actions-google-enhanced-conversions',
   mode: 'cloud',
+  description: 'Send offline conversions and audience data to Google Ads.',
   authentication: {
     scheme: 'oauth2',
     fields: {
@@ -211,7 +213,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadClickConversion2,
     uploadCallConversion2,
     userList,
-    bugBash
+    bugBash,
+    sampleAction
   },
   presets: [
     {
@@ -331,6 +334,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_exited_track'
+    },
+    {
+      name: 'Sample Action All Events',
+      partnerAction: 'sampleAction',
+      mapping: defaultValues(sampleAction.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_all_events_track'
     }
   ]
 }
