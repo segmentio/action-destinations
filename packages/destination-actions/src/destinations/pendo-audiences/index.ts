@@ -53,19 +53,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'The name for the Pendo Segment. Leave blank to use the Segment audience name.',
       type: 'string',
       required: false
-    },
-    density: {
-      label: 'Audience density',
-      description:
-        'The density of the audience. Leave blank to use the default density.',
-      type: 'string',
-      required: false
     }
   },
   audienceConfig: {
     mode: {
-      type: 'synced',
-      full_audience_sync: false
+      type: 'realtime'
     },
     async createAudience(request, createAudienceInput) {
       const {

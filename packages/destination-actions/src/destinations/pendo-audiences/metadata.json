@@ -51,23 +51,12 @@
   },
   "audienceConfig": {
     "mode": {
-      "type": "synced",
-      "full_audience_sync": false
+      "type": "realtime"
     },
     "audienceFields": {
       "audienceName": {
         "label": "Pendo Segment Name",
         "description": "The name for the Pendo Segment. Leave blank to use the Segment audience name.",
-        "type": "string",
-        "required": false,
-        "multiple": false,
-        "choices": null,
-        "default": null,
-        "depends_on": null
-      },
-      "density": {
-        "label": "Audience density",
-        "description": "The density of the audience. Leave blank to use the default density.",
         "type": "string",
         "required": false,
         "multiple": false,
