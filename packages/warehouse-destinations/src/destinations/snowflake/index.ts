@@ -23,6 +23,12 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       description: 'The name of an existing Snowflake Schema to use.',
       type: 'string',
       required: false
+    },
+    testField: {
+      label: 'Test field',
+      description: 'Test field for testing actions destination bot',
+      type: 'string',
+      required: false
     }
   },
 

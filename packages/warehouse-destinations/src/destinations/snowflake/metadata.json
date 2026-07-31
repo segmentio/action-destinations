@@ -24,6 +24,16 @@
         "choices": null,
         "default": null,
         "depends_on": null
+      },
+      "testField": {
+        "label": "Test field",
+        "description": "Test field for testing actions destination bot",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
       }
     }
   },

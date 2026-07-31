@@ -9,4 +9,8 @@ export interface Settings {
    * The name of an existing Snowflake Schema to use.
    */
   schemaOverride?: string
+  /**
+   * Test field for testing actions destination bot
+   */
+  testField?: string
 }
