@@ -4,7 +4,7 @@ import type { Payload } from './generated-types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Bug Bash',
-  description: 'No-op action used for bug bash testing.',
+  description: 'Updating action description bug bash testing.',
   fields: {},
   perform: () => {
     return

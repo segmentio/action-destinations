@@ -217,7 +217,7 @@
     },
     "bugBash": {
       "title": "Bug Bash",
-      "description": "No-op action used for bug bash testing.",
+      "description": "Updating action description bug bash testing.",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
