@@ -14,6 +14,16 @@
         "choices": null,
         "default": null,
         "depends_on": null
+      },
+      "requiredAuthField": {
+        "label": "Required Auth Field",
+        "description": "Required Field for destinations bot bug bash",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
       }
     }
   },
