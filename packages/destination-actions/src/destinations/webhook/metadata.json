@@ -15,16 +15,6 @@
         "default": null,
         "depends_on": null
       },
-      "requiredAuthField": {
-        "label": "Required Auth Field",
-        "description": "Required field for bug bash",
-        "type": "string",
-        "required": true,
-        "multiple": false,
-        "choices": null,
-        "default": null,
-        "depends_on": null
-      },
       "optionalAuthField": {
         "label": "Optional Auth Field",
         "description": "Optional field for bug bash",

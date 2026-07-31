@@ -6,10 +6,6 @@ export interface Settings {
    */
   sharedSecret?: string
   /**
-   * Required field for bug bash
-   */
-  requiredAuthField: string
-  /**
    * Optional field for bug bash
    */
   optionalAuthField?: string

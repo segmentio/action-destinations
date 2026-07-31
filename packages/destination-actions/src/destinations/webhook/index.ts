@@ -17,12 +17,6 @@ const destination: DestinationDefinition<Settings> = {
         description:
           'If set, Segment will sign requests with an HMAC in the "X-Signature" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.'
       },
-      requiredAuthField: {
-        type: 'string',
-        label: 'Required Auth Field',
-        description: 'Required field for bug bash',
-        required: true
-      },
       optionalAuthField: {
         type: 'string',
         label: 'Optional Auth Field',
