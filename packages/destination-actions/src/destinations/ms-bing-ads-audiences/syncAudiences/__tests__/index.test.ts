@@ -264,6 +264,151 @@ describe('MS Bing Ads Audiences syncAudiences', () => {
     expect(payloadArg[0].email).toBe('add1@segment.com')
   })
 
+  describe('debug logging (actions-ms-bing-ads-audiences-debug-logging flag)', () => {
+    const DEBUG_FLAG = 'actions-ms-bing-ads-audiences-debug-logging'
+
+    const makeLogger = () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() } as any)
+
+    const addEvent = () =>
+      createTestEvent({
+        type: 'identify',
+        properties: { aud_key: true },
+        context: { traits: { email: 'demo@segment.com' } }
+      })
+
+    it('does not log when the flag is off', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, {})
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: false }
+      })
+
+      expect(logger.warn).not.toHaveBeenCalled()
+    })
+
+    it('logs the tracking id and metadata when on, without leaking hashed identifiers', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, { PartialErrors: [] }, { TrackingId: 'abc-123-track' })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.warn).toHaveBeenCalledTimes(1)
+      const logged = (logger.warn as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('[ms-bing-ads-audiences][DEBUG]')
+      expect(logged).toContain('trackingId=abc-123-track')
+      expect(logged).toContain('identifierType=Email')
+      expect(logged).toContain('itemCount=1')
+      // The hashed identifier must never be logged.
+      expect(logged).not.toContain('5a95f052958dac8ed1d66d74eb481b3ccdbbc953b583c5ff0325be6b091d6281')
+    })
+
+    it('falls back to a body-level tracking id when no header is present', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { TrackingId: 'body-track-789', PartialErrors: [] })
+      const logger = makeLogger()
+
+      await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.warn as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('trackingId=body-track-789')
+    })
+
+    it('redacts PartialError free-text fields that can echo identifiers', async () => {
+      nock(BASE_URL)
+        .post('/CustomerListUserData/Apply')
+        .reply(200, {
+          PartialErrors: [
+            {
+              ErrorCode: 'InvalidCustomerListItem',
+              Code: 4001,
+              Index: 0,
+              Type: 'BatchError',
+              Message: 'Invalid value crm_secret_12345',
+              Details: 'crm_secret_12345',
+              FieldPath: 'CustomerListItems[0]=crm_secret_12345'
+            }
+          ]
+        })
+      const logger = makeLogger()
+
+      await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      const logged = (logger.warn as jest.Mock).mock.calls[0][0] as string
+      expect(logged).toContain('InvalidCustomerListItem')
+      // The free-text fields (and any identifier they echo) must not be logged.
+      expect(logged).not.toContain('crm_secret_12345')
+      expect(logged).not.toContain('Message')
+      expect(logged).not.toContain('FieldPath')
+    })
+
+    it('does not let a throwing logger break the delivery', async () => {
+      // Debug logging runs after Bing has accepted the records; a throwing logger must not
+      // fail the delivery (which would trigger a duplicate re-send on retry).
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(200, { PartialErrors: [] })
+      const logger = makeLogger()
+      ;(logger.warn as jest.Mock).mockImplementation(() => {
+        throw new Error('logger down')
+      })
+
+      const response = await testDestination.testAction('syncAudiences', {
+        event: addEvent(),
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(response[0].status).toBe(200)
+    })
+
+    it('does not log on the error path (only success responses are logged)', async () => {
+      nock(BASE_URL).post('/CustomerListUserData/Apply').reply(500, { message: 'boom' })
+      const logger = makeLogger()
+
+      const response = await testDestination.testBatchAction('syncAudiences', {
+        events: [addEvent()],
+        mapping: baseMapping,
+        useDefaultMappings: true,
+        settings,
+        logger,
+        features: { [DEBUG_FLAG]: true }
+      })
+
+      expect(logger.warn).not.toHaveBeenCalled()
+      expect(utils.handleHttpError).toHaveBeenCalled()
+      expect(response[0].status).toBe(500)
+    })
+  })
+
   it('should throw non-HTTP errors in batch mode', async () => {
     // Create a custom error that is NOT an HTTPError
     const customError = new Error('Custom non-HTTP error')
