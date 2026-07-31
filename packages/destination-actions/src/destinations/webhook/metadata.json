@@ -241,7 +241,7 @@
           "category": null,
           "depends_on": null,
           "readOnly": null,
-          "hidden": null,
+          "hidden": true,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
