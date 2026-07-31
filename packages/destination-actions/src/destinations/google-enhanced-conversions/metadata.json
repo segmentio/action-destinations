@@ -2,6 +2,7 @@
   "slug": "actions-google-enhanced-conversions",
   "name": "Google Ads Conversions",
   "mode": "cloud",
+  "description": "Send offline conversions and audience data to Google Ads.",
   "authentication": {
     "scheme": "oauth2",
     "fields": {
@@ -3934,7 +3935,7 @@
     },
     "uploadCallConversion2": {
       "title": "Call Conversion V2",
-      "description": "Send an offline call conversion to the Google Ads API.",
+      "description": "Send an offline call conversion to the Google Ads API. (bug bash: minor description tweak)",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
@@ -4943,6 +4944,43 @@
         "optionalField": {
           "label": "Optional Field",
           "description": "Optional field for bug bash testing",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "sampleAction": {
+      "title": "Sample Action",
+      "description": "Sample no-op action added for bug bash testing (row 72 - unrelated change to an oauth2 destination).",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "sampleField": {
+          "label": "Sample Field",
+          "description": "Sample field for bug bash testing",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -6022,6 +6060,13 @@
         }
       },
       "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "name": "Sample Action All Events",
+      "type": "specificEvent",
+      "partnerAction": "sampleAction",
+      "mapping": {},
+      "eventSlug": "warehouse_all_events_track"
     }
   ]
 }
