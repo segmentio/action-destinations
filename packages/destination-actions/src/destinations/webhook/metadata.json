@@ -20,7 +20,7 @@
         "description": "Updating field for bug bash testing",
         "type": "string",
         "required": false,
-        "multiple": false,
+        "multiple": true,
         "choices": null,
         "default": "new default value",
         "depends_on": null

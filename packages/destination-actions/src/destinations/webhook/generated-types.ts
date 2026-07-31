@@ -8,5 +8,5 @@ export interface Settings {
   /**
    * Updating field for bug bash testing
    */
-  optionalAuthField?: string
+  optionalAuthField?: string & string[]
 }

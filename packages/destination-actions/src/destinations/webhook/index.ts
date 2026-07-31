@@ -22,7 +22,8 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         label: 'Optional Auth Field',
         description: 'Updating field for bug bash testing',
-        default: 'new default value'
+        default: 'new default value',
+        multiple: true
       }
     }
   },
