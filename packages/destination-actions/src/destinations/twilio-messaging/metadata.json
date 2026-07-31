@@ -545,6 +545,39 @@
           "displayMode": null,
           "format": null,
           "additionalProperties": false
+        },
+        "testConditionalField": {
+          "label": "Test Conditional Field",
+          "description": "TEMPORARY bug-bash field (TC33) — required only when channel is Messenger.",
+          "type": "string",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "channel",
+                "operator": "is",
+                "value": "Messenger"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     }
