@@ -241,6 +241,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       eventSlug: 'warehouse_entity_removed_track'
     },
     {
+      name: 'Linked Audience Profile Entered',
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_audience_entered_track'
+    },
+    {
       name: 'Journeys Step Entered',
       partnerAction: 'userList',
       mapping: defaultValues(userList.fields),
