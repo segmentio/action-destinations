@@ -4929,6 +4929,43 @@
         }
       }
     },
+    "bugBash": {
+      "title": "Bug Bash",
+      "description": "New action + preset added together bug bash testing.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "optionalField": {
+          "label": "Optional Field",
+          "description": "Optional field for bug bash testing",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
     "sessionAttributesEncoded": {
       "title": "Session Attributes Encoded Plugin",
       "description": "Enriches Segment payloads with Session Attributes Encoded values from the page URL.",
@@ -5895,6 +5932,13 @@
         "batch_size": 1500
       },
       "eventSlug": null
+    },
+    {
+      "name": "Bug Bash",
+      "type": "specificEvent",
+      "partnerAction": "bugBash",
+      "mapping": {},
+      "eventSlug": "journeys_step_entered_track"
     }
   ]
 }
