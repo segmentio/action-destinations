@@ -58,7 +58,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceConfig: {
     mode: {
       type: 'synced',
-      full_audience_sync: false
+      full_audience_sync: true
     },
     async createAudience(request, createAudienceInput) {
       const {
