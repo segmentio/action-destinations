@@ -50,7 +50,7 @@
   "audienceConfig": {
     "mode": {
       "type": "synced",
-      "full_audience_sync": true
+      "full_audience_sync": false
     },
     "audienceFields": {
       "region": {
