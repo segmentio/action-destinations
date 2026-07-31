@@ -89,6 +89,118 @@ const destination: DestinationDefinition<Settings> = {
       headers: { Authorization: `Bearer ${settings.conversion_token}` }
     }
   },
+
+  presets: [
+    {
+      name: 'Reddit Browser Plugin',
+      subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'redditPlugin',
+      mapping: {},
+      type: 'automatic'
+    },
+    {
+      name: 'Page Visit',
+      subscribe: 'type = "page"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'PageVisit',
+        event_metadata: {}
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'View Content',
+      subscribe: 'type = "track" and event = "Product Viewed"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'ViewContent',
+        event_metadata: {}
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Search',
+      subscribe: 'type = "track" and event = "Products Searched"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'Search',
+        event_metadata: {}
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Cart',
+      subscribe: 'type = "track" and event = "Product Added"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'AddToCart',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Wishlist',
+      subscribe: 'type = "track" and event = "Product Added to Wishlist"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'AddToWishlist',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Purchase',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'Purchase'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Lead',
+      subscribe: 'type = "track" and event = "Lead Generated"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'Lead',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value_decimal: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Sign Up',
+      subscribe: 'type = "track" and event = "Signed Up"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        tracking_type: 'SignUp',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value_decimal: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    }
+  ],
+
   actions: {
     standardEvent,
     customEvent
