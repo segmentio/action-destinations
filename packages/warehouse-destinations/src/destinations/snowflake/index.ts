@@ -5,6 +5,7 @@ import audienceDefaultFields from './sendCustomEvent/audience-default-fields'
 
 import sendCustomEvent from './sendCustomEvent'
 import journeysDefaultFields from './sendCustomEvent/journeys-default-fields'
+import testAction from './testAction'
 
 const destination: WarehouseDestinationDefinition<Settings> = {
   name: 'Snowflake',
@@ -86,7 +87,8 @@ const destination: WarehouseDestinationDefinition<Settings> = {
   ],
 
   actions: {
-    sendCustomEvent
+    sendCustomEvent,
+    testAction
   }
 }
 
