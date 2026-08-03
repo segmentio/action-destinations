@@ -2,25 +2,13 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { AddPurchase, Batch, RecombeeApiClient } from '../recombeeApiClient'
-import { interactionFields } from '../commonFields'
+import { interactionFields, userIdField, interactionTimestampField } from '../commonFields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Add Purchase',
   description: 'Adds a purchase of the given item(s) made by the given user.',
   fields: {
-    userId: {
-      label: 'User ID',
-      description: 'The ID of the user who purchased the item(s).',
-      type: 'string',
-      required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.userId' },
-          then: { '@path': '$.userId' },
-          else: { '@path': '$.anonymousId' }
-        }
-      }
-    },
+    userId: userIdField('The ID of the user who purchased the item(s).'),
     items: {
       label: 'Items',
       description: 'The items that were purchased.',
@@ -81,13 +69,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ]
       }
     },
-    timestamp: {
-      label: 'Timestamp',
-      description: 'The UTC timestamp of when the purchase occurred.',
-      type: 'string',
-      required: false,
-      default: { '@path': '$.timestamp' }
-    },
+    timestamp: interactionTimestampField('purchase'),
     ...interactionFields('purchase')
   },
   perform: async (request, data) => {
@@ -101,7 +83,15 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function payloadToPurchases({ items, ...rest }: Payload): AddPurchase[] {
-  return items.map((item) => new AddPurchase({ ...item, ...rest }))
+  return items.map(({ amount, price, profit, ...item }) => {
+    return new AddPurchase({
+      ...item,
+      amount,
+      price: amount !== undefined && price !== undefined ? amount * price : price,
+      profit: amount !== undefined && profit !== undefined ? amount * profit : profit,
+      ...rest
+    })
+  })
 }
 
 export default action

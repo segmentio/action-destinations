@@ -237,7 +237,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     email: {
       label: 'Email',
       description:
-        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false,
       default: { '@path': '$.traits.email' },
@@ -246,21 +246,21 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
       description:
-        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false
     },
     acxiomID: {
       label: 'Acxiom ID',
       description:
-        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false
     },
     oracleID: {
       label: 'Oracle ID',
       description:
-        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false
     },
@@ -355,12 +355,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     }
 
     linkedinApiClient.setConversionRuleId(conversionRuleId)
-
-    try {
-      return linkedinApiClient.batchConversionAdd(payloads)
-    } catch (error) {
-      throw handleRequestError(error)
-    }
+    return linkedinApiClient.batchConversionAdd(payloads)
   }
 }
 
@@ -389,6 +384,10 @@ function handleRequestError(error: unknown) {
 }
 
 function validate(payload: Payload, conversionTime: number) {
+  if (!Number.isFinite(conversionTime)) {
+    throw new PayloadValidationError('Timestamp is not a valid date.')
+  }
+
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
   if (conversionTime < ninetyDaysAgo) {
@@ -396,7 +395,7 @@ function validate(payload: Payload, conversionTime: number) {
   }
 
   if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+    throw new PayloadValidationError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
   }
 }
 
