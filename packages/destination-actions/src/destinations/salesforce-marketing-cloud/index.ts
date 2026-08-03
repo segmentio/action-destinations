@@ -11,6 +11,7 @@ import dataExtensionV2 from './dataExtensionV2'
 import asyncDataExtension from './asyncDataExtension'
 import contactDataExtensionV2 from './contactDataExtensionV2'
 import { SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION } from './versioning-info'
+import { validateSubdomain } from './sfmc-operations'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -54,6 +55,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     refreshAccessToken: async (request, { settings }) => {
+      validateSubdomain(settings.subdomain)
       const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
       const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
         method: 'POST',
