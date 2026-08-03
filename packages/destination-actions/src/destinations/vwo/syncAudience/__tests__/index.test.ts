@@ -16,7 +16,7 @@ describe('VWO.syncAudience', () => {
         audience_key: 'test_audience'
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/collect/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
@@ -53,7 +53,7 @@ describe('VWO.syncAudience', () => {
         audience_key: 'test_audience'
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/collect/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
@@ -89,7 +89,7 @@ describe('VWO.syncAudience', () => {
         audience_key: 'test_audience'
       }
     })
-    nock(BASE_ENDPOINT).post(`/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
+    nock(BASE_ENDPOINT).post(`/collect/events/t?en=vwo_integration&a=${VWO_ACCOUNT_ID}`).reply(200, {})
     const responses = await testDestination.testAction('syncAudience', {
       event,
       useDefaultMappings: true,
