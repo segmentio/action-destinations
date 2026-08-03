@@ -6,7 +6,7 @@ import {
   PollResponse,
   HTTPError
 } from '@segment/actions-core'
-import { asyncUpsertRowsV2 } from '../sfmc-operations'
+import { asyncUpsertRowsV2, validateSubdomain } from '../sfmc-operations'
 import { fields, dynamicFields, hooks } from './fields'
 
 import type { Settings } from '../generated-types'
@@ -139,6 +139,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
   },
 
   performPoll: async (request, { settings, payload }) => {
+    validateSubdomain(settings.subdomain)
     const response: PollResponse = {
       jobId: payload.jobId,
       status: 200,

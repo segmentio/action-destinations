@@ -4,6 +4,7 @@ import {
   JSONLikeObject,
   ModifiedResponse,
   IntegrationError,
+  PayloadValidationError,
   ActionHookResponse,
   DynamicFieldResponse,
   DynamicFieldError,
@@ -23,6 +24,24 @@ import {
   SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION,
   SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON
 } from './versioning-info'
+
+// A Salesforce Marketing Cloud subdomain is a single DNS label (a tenant-specific
+// string such as "mc563885gzs27c5t9-63k636ttgm"). It is interpolated directly into
+// the host portion of every request URL, so it must be restricted to characters that
+// are valid in a DNS label - letters, digits and hyphens. Allowing other characters
+// (e.g. "/", "@", ":", ".") would let a malicious subdomain rewrite the request host
+// and exfiltrate the OAuth client secret / access token to an attacker-controlled
+// server. See SECOPS-25213.
+const SUBDOMAIN_PATTERN = /^[a-zA-Z0-9-]+$/
+
+export function validateSubdomain(subdomain: unknown): string {
+  if (typeof subdomain !== 'string' || !SUBDOMAIN_PATTERN.test(subdomain)) {
+    throw new PayloadValidationError(
+      'Invalid Salesforce Marketing Cloud subdomain. The subdomain may only contain letters, numbers and hyphens, and must not include the ".rest.marketingcloudapis.com" part of your subdomain URL.'
+    )
+  }
+  return subdomain
+}
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
@@ -83,6 +102,7 @@ export async function asyncUpsertRowsV2(
       400
     )
   }
+  validateSubdomain(subdomain)
   // Use flattened rows for async API
   const rows = generateFlattenedRows(payloads)
   const response = await request<AsyncUpsertRowsV2Response>(
@@ -110,6 +130,7 @@ export function upsertRows(
       400
     )
   }
+  validateSubdomain(subdomain)
   const rows = generateRows(payloads)
   if (key) {
     return request(
@@ -144,6 +165,7 @@ export function upsertRowsV2(
     )
   }
 
+  validateSubdomain(subdomain)
   const rows = generateRows(payloads)
   return request(
     `https://${subdomain}.rest.marketingcloudapis.com/hub/${SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION}/dataevents/${dataExtensionId}/rowset`,
@@ -161,6 +183,7 @@ export async function executeUpsertWithMultiStatus(
   dataExtensionId?: string,
   statsContext?: StatsContext
 ): Promise<MultiStatusResponse> {
+  validateSubdomain(subdomain)
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
   const rows = generateRows(payloads)
@@ -308,6 +331,7 @@ const getAccessToken = async (
   request: RequestClient,
   settings: Settings
 ): Promise<{ accessToken: string; soapInstanceUrl: string }> => {
+  validateSubdomain(settings.subdomain)
   const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
   const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
     method: 'POST',
