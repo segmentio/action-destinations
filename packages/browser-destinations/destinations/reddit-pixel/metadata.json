@@ -4010,6 +4010,90 @@
         "tracking_type": "SignUp"
       },
       "eventSlug": null
+    },
+    {
+      "name": "Testing",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Testing\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@path": "$.properties.value"
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "Testing"
+      },
+      "eventSlug": null
     }
   ]
 }

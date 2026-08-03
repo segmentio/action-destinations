@@ -119,6 +119,20 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
         }
       },
       type: 'automatic'
+    },
+    {
+      name: 'Testing',
+      subscribe: 'type = "track" and event = "Testing"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        tracking_type: 'Testing',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value: { '@path': '$.properties.value' }
+        }
+      },
+      type: 'automatic'
     }
   ],
 
