@@ -17,7 +17,7 @@ const baseSettings: Settings = {
 // Subdomain values that an attacker could use to redirect requests to a host they
 // control, thereby exfiltrating the OAuth client secret / bearer token. See SECOPS-25213.
 const MALICIOUS_SUBDOMAINS = [
-  'mc123.attacker.com/', // path injection - host stays SFMC but path forwards elsewhere
+  'mc123.attacker.com/', // trailing slash makes the effective host mc123.attacker.com (attacker-controlled); the SFMC suffix becomes part of the path
   'attacker.com/', // resolves to https://attacker.com/.rest.marketingcloudapis.com/...
   'mc123.attacker.com', // dot lets the attacker prepend their own host
   'mc123@attacker.com', // userinfo trick - real host becomes attacker.com
