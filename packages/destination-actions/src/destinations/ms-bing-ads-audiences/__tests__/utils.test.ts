@@ -5,13 +5,18 @@ import {
   sendDataToMicrosoftBingAds,
   handleHttpError,
   handleMultistatusResponse,
-  categorizePayloadByAction
+  categorizePayloadByAction,
+  parseBingFault,
+  inspectAuthError,
+  readResponseBody,
+  formatBingErrorBody,
+  MAX_ERROR_BODY_LENGTH
 } from '../utils'
 import { BASE_URL } from '../constants'
 import { MultiStatusResponse, HTTPError, RequestClient, IntegrationError } from '@segment/actions-core'
+import type { ModifiedResponse } from '@segment/actions-core'
 import { Payload } from '../syncAudiences/generated-types'
 import { SyncAudiencePayload } from '../types'
-import { ModifiedResponse } from '@segment/actions-core/*'
 
 const createMockMsResponse = (): MultiStatusResponse & { getResponses: () => any[] } => {
   const responses: any[] = []
@@ -130,9 +135,13 @@ describe('handleHttpError', () => {
     ]
 
     const error: Partial<HTTPError> = {
-      // @ts-ignore
+      // @ts-ignore - status is read from the HTTP response; body carries Bing's AdApiFaultDetail.
       response: {
-        json: async () => ({ status: 500, message: 'Server exploded' })
+        status: 500,
+        content: JSON.stringify({
+          Errors: [{ Code: 0, ErrorCode: 'InternalError', Message: 'Server exploded' }],
+          TrackingId: 'track-500'
+        })
       }
     }
 
@@ -141,9 +150,183 @@ describe('handleHttpError', () => {
       0,
       expect.objectContaining({
         status: 500,
-        errormessage: 'Server exploded'
+        errormessage: 'InternalError (0): Server exploded'
       })
     )
+  })
+
+  it('normalizes an expired-token 401 (code 109) so the framework refreshes the token', async () => {
+    const msResponse = createMockMsResponse()
+    const listItemsMap = new Map<string, number[]>([['abc', [0]]])
+    const payload: Payload[] = [
+      {
+        audience_id: 'a1',
+        identifier_type: 'Email',
+        email: 'foo@bar.com',
+        enable_batching: true,
+        batch_size: 1000,
+        traits_or_props: {},
+        audience_key: 'a1',
+        computation_class: 'Default'
+      }
+    ]
+
+    const error: Partial<HTTPError> = {
+      // @ts-ignore
+      response: {
+        status: 401,
+        content: JSON.stringify({
+          Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }],
+          TrackingId: 'track-109'
+        })
+      }
+    }
+
+    await handleHttpError(msResponse, error as HTTPError, listItemsMap, payload)
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(0, expect.objectContaining({ status: 401 }))
+  })
+
+  it('normalizes to 401 even when a large body would truncate (parses response.data, not truncated text)', async () => {
+    const msResponse = createMockMsResponse()
+    const listItemsMap = new Map<string, number[]>([['abc', [0]]])
+    const payload = [{ audience_id: 'a1' }] as unknown as Payload[]
+    // A >2048 char body would break JSON.parse of the truncated string; parsing response.data avoids that.
+    const fault = {
+      Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'x'.repeat(5000) }],
+      TrackingId: 'track-big'
+    }
+    const error: Partial<HTTPError> = {
+      // @ts-ignore - `data` is what the request client populates (untruncated).
+      response: { status: 500, data: fault, content: JSON.stringify(fault) }
+    }
+    await handleHttpError(msResponse, error as HTTPError, listItemsMap, payload)
+    // status 500 from HTTP, but code 109 forces 401 so the framework refreshes the token.
+    expect(msResponse.setErrorResponseAtIndex).toHaveBeenCalledWith(0, expect.objectContaining({ status: 401 }))
+  })
+
+  it('summarizes the loggable body from the parsed fault, keeping TrackingId even when the body exceeds the cap', async () => {
+    const msResponse = createMockMsResponse()
+    const listItemsMap = new Map<string, number[]>([['abc', [0]]])
+    const payload = [{ audience_id: 'a1' }] as unknown as Payload[]
+    // A >2048 char body: re-reading + truncating it mid-JSON would render it unparseable and drop
+    // the TrackingId. Formatting from the already-parsed fault preserves ErrorCode + TrackingId.
+    const fault = {
+      Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'x'.repeat(5000) }],
+      TrackingId: 'track-big'
+    }
+    const error: Partial<HTTPError> = {
+      // @ts-ignore - `data` is what the request client populates (untruncated).
+      response: { status: 500, data: fault, content: JSON.stringify(fault) }
+    }
+    await handleHttpError(msResponse, error as HTTPError, listItemsMap, payload)
+    const recorded = (msResponse.setErrorResponseAtIndex as jest.Mock).mock.calls[0][1]
+    expect(recorded.body).toContain('AuthenticationTokenExpired')
+    // The high-value TrackingId survives because the oversized Message is capped per-error first.
+    expect(recorded.body).toContain('TrackingId: track-big')
+    expect(recorded.body).not.toBe('unparseable response body')
+    // The oversized Message itself is capped, keeping the whole summary within the length limit.
+    expect(recorded.body.length).toBeLessThanOrEqual(MAX_ERROR_BODY_LENGTH)
+  })
+})
+
+describe('parseBingFault', () => {
+  it('finds a refreshable auth code even when it is not the first error', () => {
+    const fault = {
+      Errors: [
+        { Code: 117, ErrorCode: 'CallRateExceeded', Message: 'slow down' },
+        { Code: 109, ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }
+      ]
+    }
+    expect(parseBingFault(fault, 500, 'err').status).toBe(401)
+  })
+
+  it('coerces a string Code from JSON', () => {
+    const fault = { Errors: [{ Code: '109' as unknown as number, ErrorCode: 'AuthenticationTokenExpired' }] }
+    expect(parseBingFault(fault, 500, 'err').status).toBe(401)
+  })
+
+  it('omits the code segment from the message when Code is missing', () => {
+    const fault = { Errors: [{ ErrorCode: 'SomeError', Message: 'boom' }] }
+    expect(parseBingFault(fault, 400, 'err').errormessage).toBe('SomeError: boom')
+  })
+})
+
+describe('inspectAuthError', () => {
+  it('is refreshable for an expired-token fault returned as HTTP 500', () => {
+    const error = {
+      response: { status: 500, data: { Errors: [{ Code: 109, ErrorCode: 'AuthenticationTokenExpired' }] } }
+    } as unknown as HTTPError
+    expect(inspectAuthError(error).refreshable).toBe(true)
+  })
+
+  it('is NOT refreshable for a non-auth error', () => {
+    const error = {
+      response: { status: 429, data: { Errors: [{ Code: 117, ErrorCode: 'CallRateExceeded' }] } }
+    } as unknown as HTTPError
+    expect(inspectAuthError(error).refreshable).toBe(false)
+  })
+
+  it('is NOT refreshable for a bare 401 with no auth code (e.g. 106 no-access) — must not masquerade as a token problem', () => {
+    const error = {
+      response: { status: 401, data: { Errors: [{ Code: 106, ErrorCode: 'UserIsNotAuthorized' }] } }
+    } as unknown as HTTPError
+    expect(inspectAuthError(error).refreshable).toBe(false)
+  })
+})
+
+describe('formatBingErrorBody', () => {
+  it('returns a placeholder for an empty body', () => {
+    expect(formatBingErrorBody('')).toBe('no response body')
+  })
+
+  it('does not echo raw text when the body is unparseable (PII safety)', () => {
+    expect(formatBingErrorBody('crm_secret_12345 not json')).toBe('unparseable response body')
+  })
+
+  it('summarizes ErrorCode/Message/TrackingId from a known fault', () => {
+    const body = JSON.stringify({ Errors: [{ ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }], TrackingId: 't1' })
+    expect(formatBingErrorBody(body)).toBe('AuthenticationTokenExpired: expired; TrackingId: t1')
+  })
+
+  it('extracts ErrorCode, Message and TrackingId from the AdApiFaultDetail shape', () => {
+    const body = JSON.stringify({
+      Errors: [{ Code: 0, Message: 'An internal error has occurred.', ErrorCode: 'InternalError' }],
+      TrackingId: 'abc-123',
+      Type: 'AdApiFaultDetail'
+    })
+    expect(formatBingErrorBody(body)).toBe('InternalError: An internal error has occurred.; TrackingId: abc-123')
+  })
+
+  it('joins multiple errors and still includes the TrackingId', () => {
+    const body = JSON.stringify({
+      Errors: [
+        { ErrorCode: 'InvalidAccount', Message: 'Account not found.' },
+        { ErrorCode: 'InvalidCustomer', Message: 'Customer not found.' }
+      ],
+      TrackingId: 'xyz-789'
+    })
+    expect(formatBingErrorBody(body)).toBe(
+      'InvalidAccount: Account not found.; InvalidCustomer: Customer not found.; TrackingId: xyz-789'
+    )
+  })
+
+  it('does not echo the raw body (PII safety) when it is not the known JSON shape', () => {
+    // A non-JSON body (e.g. an HTML proxy page) could reflect request headers, so we must not echo it.
+    expect(formatBingErrorBody('<html>502 Bad Gateway</html>')).toBe('unparseable response body')
+  })
+
+  it('returns a placeholder when JSON has no recognizable error fields', () => {
+    expect(formatBingErrorBody('{"foo":"bar"}')).toBe('unrecognized response body')
+  })
+
+  it('reads OperationErrors even when Errors is an empty array (ApiFaultDetail)', () => {
+    // `Errors: []` is present-but-empty; a `??` fallback would skip OperationErrors and lose the error.
+    const body = JSON.stringify({
+      Errors: [],
+      OperationErrors: [{ ErrorCode: 'UserIsNotAuthorized', Message: 'no access' }],
+      TrackingId: 'op-1'
+    })
+    expect(formatBingErrorBody(body)).toBe('UserIsNotAuthorized: no access; TrackingId: op-1')
   })
 })
 
@@ -617,5 +800,47 @@ describe('handleMultistatusResponse', () => {
         errormessage: 'InvalidInput: The input is invalid'
       })
     )
+  })
+})
+
+describe('readResponseBody', () => {
+  const asResponse = (obj: any): ModifiedResponse => obj as ModifiedResponse
+
+  it('returns an empty string when there is no response', async () => {
+    expect(await readResponseBody(undefined)).toBe('')
+  })
+
+  it('returns string content directly', async () => {
+    const res = asResponse({ content: 'An internal error has occurred.' })
+    expect(await readResponseBody(res)).toBe('An internal error has occurred.')
+  })
+
+  it('stringifies object content', async () => {
+    const res = asResponse({ content: { Errors: [{ ErrorCode: 'InternalError' }] } })
+    expect(await readResponseBody(res)).toBe('{"Errors":[{"ErrorCode":"InternalError"}]}')
+  })
+
+  it('decodes Buffer content as utf8', async () => {
+    const res = asResponse({ content: Buffer.from('buffered body') })
+    expect(await readResponseBody(res)).toBe('buffered body')
+  })
+
+  it('falls back to text() when content is absent', async () => {
+    const res = asResponse({ text: () => Promise.resolve('from stream') })
+    expect(await readResponseBody(res)).toBe('from stream')
+  })
+
+  it('returns an empty string when text() throws (never throws itself)', async () => {
+    const res = asResponse({
+      text: () => Promise.reject(new Error('body already used'))
+    })
+    expect(await readResponseBody(res)).toBe('')
+  })
+
+  it('truncates content longer than the cap and appends a marker', async () => {
+    const longBody = 'x'.repeat(MAX_ERROR_BODY_LENGTH + 1000)
+    const result = await readResponseBody(asResponse({ content: longBody }))
+    expect(result.endsWith('...(truncated)')).toBe(true)
+    expect(result.length).toBe(MAX_ERROR_BODY_LENGTH + '...(truncated)'.length)
   })
 })

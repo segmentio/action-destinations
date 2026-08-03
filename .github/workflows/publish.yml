@@ -1,5 +1,10 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+# Publishes @segment/* packages to public npm via keyless OIDC trusted publishing.
+# Handles BOTH release channels from one workflow file so a single npm trusted-publisher
+# registration per package (repo + publish.yml + `production` environment) covers everything:
+#   - push to main / hotfix/**  -> --dist-tag latest  (+ release tags + GitHub release)
+#   - push to staging           -> --dist-tag canary
+# Triggered only by a commit whose message starts with "Publish" (created by the
+# Version Packages workflow). See docs.npmjs.com/trusted-publishers.
 
 name: Publish Packages
 
@@ -8,6 +13,7 @@ on:
     branches:
       - main
       - hotfix/**
+      - staging
 
 jobs:
   build-and-publish:
@@ -15,25 +21,45 @@ jobs:
       HUSKY: 0
       NX_DISABLE_DB: true
     if: startsWith(github.event.head_commit.message, 'Publish') == true
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-large
 
     timeout-minutes: 15
+
+    # Must match the npm trusted-publisher registration (repo + publish.yml +
+    # environment). The 59 packages are registered with environment `production`,
+    # so the OIDC token MUST carry that environment claim or npm rejects the
+    # exchange. Also gives the `production` environment's protection rules
+    # (e.g. required reviewers) a chance to gate the release.
+    environment: production
+
+    # id-token: write lets Lerna 9 exchange a GitHub OIDC token for a short-lived,
+    # per-package npm token (keyless "trusted publishing"). contents: write is used
+    # by the release-tag/GitHub-release steps on the latest channel. Each package
+    # must be registered as a trusted publisher on npmjs.org for this repo +
+    # publish.yml + `production`, or its publish fails.
+    permissions:
+      contents: write
+      id-token: write
 
     strategy:
       matrix:
         node-version: [22.x]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
           fetch-tags: true
 
+      # NOTE: no `registry-url` here on purpose. setup-node's registry-url writes an
+      # .npmrc line `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`; with no
+      # token step that env var is unset and Lerna's config parser throws before
+      # publishing. For keyless OIDC, Lerna gets the registry from each package's
+      # publishConfig (default registry.npmjs.org) and mints its own per-package token.
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: ${{ matrix.node-version }}
-          registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
       - name: Setup git credentials
@@ -51,22 +77,40 @@ jobs:
         run: |
           git fetch --tags
 
-      - name: Set NPM Token
+      # Determine the release channel from the branch. staging => canary (no release
+      # tags); main/hotfix => latest (with release tags + GitHub release).
+      - name: Determine release channel
+        id: channel
         run: |
-          npm set '//registry.npmjs.org/:_authToken' ${{ secrets.NPM_PUBLISH_TOKEN }}
-          npm whoami
+          if [ "${{ github.ref }}" = "refs/heads/staging" ]; then
+            echo "dist_tag=canary" >> "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "dist_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Publish
+        # Keyless publish via npm OIDC trusted publishing — no long-lived token.
+        # Lerna 9 auto-detects GitHub Actions OIDC (id-token: write above),
+        # exchanges it per-package for a short-lived npm token, and enables
+        # provenance automatically (public repo + public package).
         run: |
-          yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
+          if [ "${{ steps.channel.outputs.dist_tag }}" = "canary" ]; then
+            yarn lerna publish from-package --yes --allowBranch=staging --loglevel=verbose --dist-tag canary
+          else
+            yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
+          fi
 
       - name: Generate Tags
+        if: steps.channel.outputs.is_release == 'true'
         id: get-release-tag
         run: ./scripts/generate-release-tags.sh
 
       - name: Create Github Release
+        if: steps.channel.outputs.is_release == 'true'
         id: create-github-release
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         env:
           RELEASE_TAG: ${{ steps.get-release-tag.outputs.release-tag }}
         with:

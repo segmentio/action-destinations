@@ -37,4 +37,8 @@ export interface AudienceSettings {
    * The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.
    */
   audience_name?: string
+  /**
+   * A valid User ID that exists in your Amplitude project. Amplitude requires a temporary seed user to create the cohort; this user will be added during creation and immediately removed. If no value is provided, Segment will attempt to discover a valid User ID automatically. Only provide this field manually if that automatic lookup fails or no users are found.
+   */
+  user_id?: string
 }

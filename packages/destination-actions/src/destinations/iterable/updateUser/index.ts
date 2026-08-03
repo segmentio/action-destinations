@@ -1,4 +1,4 @@
-import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+import { ActionDefinition, PayloadValidationError, DEFAULT_REQUEST_TIMEOUT, omit } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -21,17 +21,15 @@ interface UserUpdateRequestPayload {
 }
 
 interface BulkUserUpdateRequestPayload {
+  updateOnly?: boolean
   users: UserUpdateRequestPayload[]
 }
 
 const transformIterableUserPayload: (payload: Payload) => UserUpdateRequestPayload = (payload) => {
-  // Store the phoneNumber value before deleting from the top-level object
   const phoneNumber = payload.phoneNumber
-  delete payload.phoneNumber
-
   const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
   const userUpdateRequest: UserUpdateRequestPayload = {
-    ...payload,
+    ...omit(payload, ['updateOnly', 'enable_batching', 'batch_size', 'phoneNumber']),
     dataFields: {
       ...formattedDataFields,
       phoneNumber: phoneNumber
@@ -68,6 +66,23 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: true
     },
+    updateOnly: {
+      label: 'Update Only',
+      description: 'When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.',
+      type: 'boolean',
+      required: false, 
+      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment'],
+      depends_on: {
+        match: 'all',
+        conditions: [
+          {
+            fieldKey: 'enable_batching',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
+    },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
@@ -92,7 +107,9 @@ const action: ActionDefinition<Settings, Payload> = {
     })
   },
   performBatch: (request, { settings, payload }) => {
+    const { updateOnly } = payload[0]
     const bulkUpdateUserRequestPayload: BulkUserUpdateRequestPayload = {
+      ...( updateOnly ? { updateOnly } : {}),
       users: payload.map(transformIterableUserPayload)
     }
 

@@ -2,7 +2,13 @@ import { ActionDefinition, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 
-import { getProfiles, processPhoneNumber, removeBulkProfilesFromList, removeProfileFromList } from '../functions'
+import {
+  getProfiles,
+  processPhoneNumber,
+  validateExternalId,
+  removeBulkProfilesFromList,
+  removeProfileFromList
+} from '../functions'
 import { email, list_id, external_id, enable_batching, phone_number, country_code, batch_size } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -33,6 +39,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
+    validateExternalId(external_id)
     const profileIds = await getProfiles(
       request,
       email ? [email] : undefined,
