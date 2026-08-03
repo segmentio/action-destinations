@@ -25,11 +25,13 @@ import {
 
 // A Salesforce Marketing Cloud subdomain is a single DNS label (a tenant-specific
 // string such as "mc563885gzs27c5t9-63k636ttgm"). It is interpolated directly into
-// the host portion of every request URL, so it must be restricted to characters that
-// are valid in a DNS label - letters, digits and hyphens. Allowing other characters
-// (e.g. "/", "@", ":", ".") would let a malicious subdomain rewrite the request host
-// and exfiltrate the OAuth client secret / access token to an attacker-controlled
-// server. See SECOPS-25213.
+// the host portion of every request URL, so we restrict it to the characters valid
+// in a DNS label - letters, digits and hyphens. This intentionally does not enforce
+// full DNS-label structure (length, no leading/trailing hyphen); the goal is to block
+// host/path injection, not to reject unusual-but-working subdomains. Allowing other
+// characters (e.g. "/", "@", ":", ".") would let a malicious subdomain rewrite the
+// request host and exfiltrate the OAuth client secret / access token to an
+// attacker-controlled server. See SECOPS-25213.
 const SUBDOMAIN_PATTERN = /^[a-zA-Z0-9-]+$/
 
 export function validateSubdomain(subdomain: unknown): string {
