@@ -159,13 +159,14 @@ export type PollResponse = {
   multiStatusResponse?: MultiStatusResponse
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface ActionDefinition<
+/**
+ * A subset of {@link BaseActionDefinition} that's common to both {@link ActionDefinition} and {@link AsyncActionDefinition}.
+ */
+
+interface CloudActionDefinition<
   Settings,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Payload = any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  AudienceSettings = any,
+  Payload,
+  AudienceSettings,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookInputs = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,12 +199,6 @@ export interface ActionDefinition<
         }
       : never
   }
-
-  /** The operation to perform when this action is triggered */
-  perform: RequestFn<Settings, Payload, any, AudienceSettings, any, AudienceMembership>
-
-  /** The operation to perform when this action is triggered for a batch of events */
-  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
 
   /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
    * destination using the provided inputs and return a response. The response may then optionally be stored
@@ -223,6 +218,31 @@ export interface ActionDefinition<
   syncMode?: SyncModeDefinition
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export interface ActionDefinition<
+  Settings,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Payload = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  AudienceSettings = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookInputs = any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GeneratedActionHookOutputs = any
+> extends CloudActionDefinition<
+    Settings,
+    Payload,
+    AudienceSettings,
+    GeneratedActionHookInputs,
+    GeneratedActionHookOutputs
+  > {
+  /** The operation to perform when this action is triggered */
+  perform: RequestFn<Settings, Payload, any, AudienceSettings, any, AudienceMembership>
+
+  /** The operation to perform when this action is triggered for a batch of events */
+  performBatch?: RequestFn<Settings, Payload[], PerformBatchResponse, AudienceSettings, any, AudienceMembership[]>
+}
+
 export interface AsyncActionDefinition<
   Settings,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -233,58 +253,19 @@ export interface AsyncActionDefinition<
   GeneratedActionHookInputs = any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   GeneratedActionHookOutputs = any
-> extends BaseActionDefinition {
-  /**
-   * A way to "register" dynamic fields.
-   * This is likely going to change as we productionalize the data model and definition object
-   */
-  dynamicFields?: {
-    [K in keyof Payload]?: IsArray<Payload[K]> extends never
-      ? Payload[K] extends object | undefined
-        ? {
-            [ObjectProperty in keyof NonNullable<Payload[K]> | '__keys__' | '__values__']?: RequestFn<
-              Settings,
-              Payload,
-              DynamicFieldResponse,
-              AudienceSettings
-            >
-          }
-        : RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-      : IsArray<Payload[K]> extends object
-      ? {
-          [ObjectProperty in keyof NonNullable<IsArray<Payload[K]>> | '__keys__' | '__values__']?: RequestFn<
-            Settings,
-            Payload,
-            DynamicFieldResponse,
-            AudienceSettings
-          >
-        }
-      : never
-  }
-
+> extends CloudActionDefinition<
+    Settings,
+    Payload,
+    AudienceSettings,
+    GeneratedActionHookInputs,
+    GeneratedActionHookOutputs
+  > {
   /** Async Actions don't support the perform operation, even in case of single payload it should always be handled as a batch */
 
   /** The operation to perform when this action is triggered for a batch of events */
   performBatch: RequestFn<Settings, Payload[], AsyncBatchResponse, AudienceSettings, any, AudienceMembership[]>
 
   performPoll: RequestFn<Settings, PollPayload, PollResponse, AudienceSettings>
-
-  /** Hooks are triggered at some point in a mappings lifecycle. They may perform a request with the
-   * destination using the provided inputs and return a response. The response may then optionally be stored
-   * in the mapping for later use in the action.
-   */
-  hooks?: {
-    [K in ActionHookType]?: ActionHookDefinition<
-      Settings,
-      Payload,
-      AudienceSettings,
-      NonNullable<GeneratedActionHookInputs>,
-      NonNullable<GeneratedActionHookOutputs>
-    >
-  }
-
-  /** The sync mode setting definition. This enables subscription sync mode selection when subscribing to this action. */
-  syncMode?: SyncModeDefinition
 }
 
 export const hookTypeStrings = ['onMappingSave', 'retlOnMappingSave'] as const
@@ -395,15 +376,26 @@ const isSyncMode = (value: unknown): value is SyncMode => {
 }
 
 /**
- * Action is the beginning step for all partner actions. Entrypoints always start with the
- * MapAndValidateInput step.
+ * CloudAction holds the fields and behavior shared by {@link Action} and {@link AsyncAction}:
+ * schema/hook-schema generation from the definition's fields, dynamic field resolution, hook
+ * execution, and request client construction.
  */
-export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
-  readonly definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+abstract class CloudAction<
+  Settings,
+  Payload extends JSONLikeObject,
+  AudienceSettings = any,
+  Definition extends CloudActionDefinition<
+    Settings,
+    Payload,
+    AudienceSettings,
+    unknown,
+    unknown
+  > = CloudActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+> extends EventEmitter {
+  readonly definition: Definition
   readonly destinationName: string
   readonly schema?: JSONSchema4
   readonly hookSchemas?: Record<string, JSONSchema4>
-  readonly hasBatchSupport: boolean
   readonly hasHookSupport: boolean
   // Payloads may be any type so we use `any` explicitly here.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -411,7 +403,7 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
 
   constructor(
     destinationName: string,
-    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
+    definition: Definition,
     // Payloads may be any type so we use `any` explicitly here.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extendRequest?: RequestExtension<Settings, any>
@@ -420,7 +412,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     this.definition = definition
     this.destinationName = destinationName
     this.extendRequest = extendRequest
-    this.hasBatchSupport = typeof definition.performBatch === 'function'
     this.hasHookSupport = definition.hooks !== undefined
     // Generate json schema based on the field definitions
     if (Object.keys(definition.fields ?? {}).length) {
@@ -456,6 +447,176 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
         }
       }
     }
+  }
+
+  /*
+   * Extract the dynamic field context and handler path from a field string. Examples:
+   * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
+   * - "unstructuredObject.testProperty" => { dynamicHandlerPath: "unstructuredObject.__values__", dynamicFieldContext: { selectedKey: "testProperty" } }
+   * - "structuredArray.[0].first_name" => { dynamicHandlerPath: "structuredArray.first_name", dynamicFieldContext: { selectedArrayIndex: 0 } }
+   */
+  private extractFieldContextAndHandler(field: string): {
+    dynamicHandlerPath: string
+    dynamicFieldContext?: DynamicFieldContext
+  } {
+    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
+    const objectRegex = /(.*)\.(.*)/
+    let dynamicHandlerPath = field
+    let dynamicFieldContext: DynamicFieldContext | undefined
+
+    const match = arrayRegex.exec(field) || objectRegex.exec(field)
+    if (match) {
+      const [, parent, indexOrChild, child] = match
+      if (child) {
+        // It is an array, so we need to extract the index from parent.[index].child and call parent.child handler
+        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
+        dynamicHandlerPath = `${parent}.${child}`
+      } else {
+        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
+        const parentFetcher = this.definition.dynamicFields?.[parent]
+        if (parentFetcher && !(indexOrChild in parentFetcher)) {
+          dynamicHandlerPath = `${parent}.__values__`
+          dynamicFieldContext = { selectedKey: indexOrChild }
+        }
+      }
+    }
+
+    return { dynamicHandlerPath, dynamicFieldContext }
+  }
+
+  async executeDynamicField(
+    field: string,
+    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
+    /**
+     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
+     */
+    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
+  ): Promise<DynamicFieldResponse> {
+    if (dynamicFn && typeof dynamicFn === 'function') {
+      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
+    }
+
+    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
+
+    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
+      this.definition.dynamicFields,
+      dynamicHandlerPath
+    )
+
+    if (typeof fn !== 'function') {
+      return Promise.resolve({
+        choices: [],
+        nextPage: '',
+        error: {
+          message: `No dynamic field named ${field} found.`,
+          code: '404'
+        }
+      })
+    }
+
+    // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
+    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
+  }
+
+  async executeHook(
+    hookType: ActionHookType,
+    data: ExecuteInput<Settings, Payload, AudienceSettings>
+  ): Promise<ActionHookResponse<any>> {
+    if (!this.hasHookSupport) {
+      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
+    }
+    const hookFn = this.definition.hooks?.[hookType]?.performHook
+
+    if (!hookFn) {
+      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
+    }
+
+    if (this.hookSchemas?.[hookType]) {
+      const schema = this.hookSchemas[hookType]
+      validateSchema(data.hookInputs, schema, {
+        exempt: ['dynamicAuthSettings']
+      })
+    }
+
+    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
+  }
+
+  /**
+   * Perform a request using the definition's request client
+   * the given request function
+   * and given data bundle
+   */
+  protected async performRequest<
+    T extends Payload | Payload[] | PollPayload,
+    M extends AudienceMembership | AudienceMembership[]
+  >(
+    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
+    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
+  ): Promise<unknown> {
+    const requestClient = this.createRequestClient(data)
+    const response = await requestFn(requestClient, data)
+    return this.parseResponse(response)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
+    // TODO turn `extendRequest` into a beforeRequest hook
+    const options = this.extendRequest?.(data) ?? {}
+    return createRequestClient(options, {
+      afterResponse: [this.afterResponse.bind(this)],
+      statsContext: data.statsContext,
+      signal: data?.signal
+    })
+  }
+
+  // Keep track of the request(s) associated with a response
+  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
+    // TODO figure out the types here...
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const modifiedResponse: any = response
+    modifiedResponse.request = request
+    modifiedResponse.options = options
+
+    this.emit('response', modifiedResponse)
+    return modifiedResponse
+  }
+
+  private parseResponse(response: unknown): unknown {
+    /**
+     * Try to use the parsed response `.data` or `.content` string
+     * @see {@link ../middleware/after-response/prepare-response.ts}
+     */
+
+    if (response instanceof Response) {
+      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
+    }
+
+    // otherwise, we don't really know what this is, so return as-is
+    return response
+  }
+}
+
+/**
+ * Action is the beginning step for all partner actions. Entrypoints always start with the
+ * MapAndValidateInput step.
+ */
+export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends CloudAction<
+  Settings,
+  Payload,
+  AudienceSettings,
+  ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+> {
+  readonly hasBatchSupport: boolean
+
+  constructor(
+    destinationName: string,
+    definition: ActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
+    // Payloads may be any type so we use `any` explicitly here.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    extendRequest?: RequestExtension<Settings, any>
+  ) {
+    super(destinationName, definition, extendRequest)
+    this.hasBatchSupport = typeof definition.performBatch === 'function'
   }
 
   async execute(bundle: ExecuteBundle<Settings, InputData | undefined, AudienceSettings>): Promise<Result[]> {
@@ -740,149 +901,6 @@ export class Action<Settings, Payload extends JSONLikeObject, AudienceSettings =
     return multiStatusResponse
   }
 
-  /*
-   * Extract the dynamic field context and handler path from a field string. Examples:
-   * - "structured.first_name" => { dynamicHandlerPath: "structured.first_name" }
-   * - "unstructuredObject.testProperty" => { dynamicHandlerPath: "unstructuredObject.__values__", dynamicFieldContext: { selectedKey: "testProperty" } }
-   * - "structuredArray.[0].first_name" => { dynamicHandlerPath: "structuredArray.first_name", dynamicFieldContext: { selectedArrayIndex: 0 } }
-   */
-  private extractFieldContextAndHandler(field: string): {
-    dynamicHandlerPath: string
-    dynamicFieldContext?: DynamicFieldContext
-  } {
-    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
-    const objectRegex = /(.*)\.(.*)/
-    let dynamicHandlerPath = field
-    let dynamicFieldContext: DynamicFieldContext | undefined
-
-    const match = arrayRegex.exec(field) || objectRegex.exec(field)
-    if (match) {
-      const [, parent, indexOrChild, child] = match
-      if (child) {
-        // It is an array, so we need to extract the index from parent.[index].child and call paret.child handler
-        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
-        dynamicHandlerPath = `${parent}.${child}`
-      } else {
-        // It is an object, if there is a dedicated fetcher for child we use it otherwise we use parent.__values__
-        const parentFetcher = this.definition.dynamicFields?.[parent]
-        if (parentFetcher && !(indexOrChild in parentFetcher)) {
-          dynamicHandlerPath = `${parent}.__values__`
-          dynamicFieldContext = { selectedKey: indexOrChild }
-        }
-      }
-    }
-
-    return { dynamicHandlerPath, dynamicFieldContext }
-  }
-
-  async executeDynamicField(
-    field: string,
-    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
-    /**
-     * The dynamicFn argument is optional since it is only used by dynamic hook input fields. (For now)
-     */
-    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-  ): Promise<DynamicFieldResponse> {
-    if (dynamicFn && typeof dynamicFn === 'function') {
-      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
-    }
-
-    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
-
-    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
-      this.definition.dynamicFields,
-      dynamicHandlerPath
-    )
-
-    if (typeof fn !== 'function') {
-      return Promise.resolve({
-        choices: [],
-        nextPage: '',
-        error: {
-          message: `No dynamic field named ${field} found.`,
-          code: '404'
-        }
-      })
-    }
-
-    // fn will always be a dynamic field function, so we can safely cast it to DynamicFieldResponse
-    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
-  }
-
-  async executeHook(
-    hookType: ActionHookType,
-    data: ExecuteInput<Settings, Payload, AudienceSettings>
-  ): Promise<ActionHookResponse<any>> {
-    if (!this.hasHookSupport) {
-      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
-    }
-    const hookFn = this.definition.hooks?.[hookType]?.performHook
-
-    if (!hookFn) {
-      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
-    }
-
-    if (this.hookSchemas?.[hookType]) {
-      const schema = this.hookSchemas[hookType]
-      validateSchema(data.hookInputs, schema, {
-        exempt: ['dynamicAuthSettings']
-      })
-    }
-
-    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
-  }
-
-  /**
-   * Perform a request using the definition's request client
-   * the given request function
-   * and given data bundle
-   */
-  private async performRequest<T extends Payload | Payload[], M extends AudienceMembership | AudienceMembership[]>(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
-    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
-  ): Promise<unknown> {
-    const requestClient = this.createRequestClient(data)
-    const response = await requestFn(requestClient, data)
-    return this.parseResponse(response)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
-    // TODO turn `extendRequest` into a beforeRequest hook
-    const options = this.extendRequest?.(data) ?? {}
-    return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext,
-      signal: data?.signal
-    })
-  }
-
-  // Keep track of the request(s) associated with a response
-  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
-    // TODO figure out the types here...
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const modifiedResponse: any = response
-    modifiedResponse.request = request
-    modifiedResponse.options = options
-
-    this.emit('response', modifiedResponse)
-    return modifiedResponse
-  }
-
-  private parseResponse(response: unknown): unknown {
-    /**
-     * Try to use the parsed response `.data` or `.content` string
-     * @see {@link ../middleware/after-response/prepare-response.ts}
-     */
-
-    if (response instanceof Response) {
-      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
-    }
-
-    // otherwise, we don't really know what this is, so return as-is
-    return response
-  }
-
   private fillMultiStatusResponse(input: FillMultiStatusResponseInput) {
     const { multiStatusResponse, batchPayloadLength, status, body, filteredPayloads } = input
 
@@ -932,62 +950,12 @@ export class ActionDestinationErrorResponse {
  * It does not support single-event perform operations - all events must be processed as batches.
  * It includes support for polling to check the status of async batch operations.
  */
-export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends EventEmitter {
-  readonly definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
-  readonly destinationName: string
-  readonly schema?: JSONSchema4
-  readonly hookSchemas?: Record<string, JSONSchema4>
-  readonly hasHookSupport: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extendRequest: RequestExtension<Settings, any> | undefined
-
-  constructor(
-    destinationName: string,
-    definition: AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    extendRequest?: RequestExtension<Settings, any>
-  ) {
-    super()
-    this.definition = definition
-    this.destinationName = destinationName
-    this.extendRequest = extendRequest
-    this.hasHookSupport = definition.hooks !== undefined
-    // Generate json schema based on the field definitions
-    if (Object.keys(definition.fields ?? {}).length) {
-      this.schema = fieldsToJsonSchema(definition.fields)
-    }
-    // Generate a json schema for each defined hook based on the field definitions
-    if (definition.hooks) {
-      for (const hookName in definition.hooks) {
-        const hook = definition.hooks[hookName as ActionHookType]
-        if (hook?.inputFields) {
-          if (!this.hookSchemas) {
-            this.hookSchemas = {}
-          }
-
-          const castedInputFields: Record<string, InputField> = {}
-          for (const key in hook.inputFields) {
-            const field = hook.inputFields[key]
-
-            if (field.dynamic) {
-              castedInputFields[key] = {
-                ...field,
-                dynamic: true
-              }
-            } else {
-              castedInputFields[key] = {
-                ...field,
-                dynamic: false
-              }
-            }
-          }
-
-          this.hookSchemas[hookName] = fieldsToJsonSchema(castedInputFields)
-        }
-      }
-    }
-  }
-
+export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSettings = any> extends CloudAction<
+  Settings,
+  Payload,
+  AudienceSettings,
+  AsyncActionDefinition<Settings, Payload, AudienceSettings, unknown, unknown>
+> {
   async executeBatch(bundle: ExecuteBundle<Settings, InputData[], AudienceSettings>): Promise<AsyncBatchResponse> {
     const mapping: JSONObject = bundle.mapping
 
@@ -1061,7 +1029,7 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     // Filter audienceMembership by the same invalid indices used to compact `payloads` above,
     // so audienceMembership[i] stays aligned with payload[i] in performBatch.
     const audienceMembership = bundle.data
-      .map((d) => resolveAudienceMembership(d, syncMode))
+      .map((d) => resolveAudienceMembership(d, syncMode, bundle.features))
       .filter((_, i) => !invalidPayloadIndices.has(i))
 
     const data = {
@@ -1074,6 +1042,7 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
       auth: bundle.auth,
       features: bundle.features,
       statsContext: bundle.statsContext,
+      personasContext: bundle.personasContext,
       logger: bundle.logger,
       engageDestinationCache: bundle.engageDestinationCache,
       transactionContext: bundle.transactionContext,
@@ -1167,126 +1136,6 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
 
     const requestClient = this.createRequestClient(dataBundle)
     return this.definition.performPoll(requestClient, dataBundle)
-  }
-
-  private extractFieldContextAndHandler(field: string): {
-    dynamicHandlerPath: string
-    dynamicFieldContext?: DynamicFieldContext
-  } {
-    const arrayRegex = /(.*)\.\[(\d+)\]\.(.*)/
-    const objectRegex = /(.*)\.(.*)/
-    let dynamicHandlerPath = field
-    let dynamicFieldContext: DynamicFieldContext | undefined
-
-    const match = arrayRegex.exec(field) || objectRegex.exec(field)
-    if (match) {
-      const [, parent, indexOrChild, child] = match
-      if (child) {
-        dynamicFieldContext = { selectedArrayIndex: parseInt(indexOrChild, 10) }
-        dynamicHandlerPath = `${parent}.${child}`
-      } else {
-        const parentFetcher = this.definition.dynamicFields?.[parent]
-        if (parentFetcher && !(indexOrChild in parentFetcher)) {
-          dynamicHandlerPath = `${parent}.__values__`
-          dynamicFieldContext = { selectedKey: indexOrChild }
-        }
-      }
-    }
-
-    return { dynamicHandlerPath, dynamicFieldContext }
-  }
-
-  async executeDynamicField(
-    field: string,
-    data: ExecuteDynamicFieldInput<Settings, Payload, AudienceSettings>,
-    dynamicFn?: RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>
-  ): Promise<DynamicFieldResponse> {
-    if (dynamicFn && typeof dynamicFn === 'function') {
-      return (await this.performRequest(dynamicFn, { ...data })) as DynamicFieldResponse
-    }
-
-    const { dynamicHandlerPath, dynamicFieldContext } = this.extractFieldContextAndHandler(field)
-
-    const fn = get<RequestFn<Settings, Payload, DynamicFieldResponse, AudienceSettings>>(
-      this.definition.dynamicFields,
-      dynamicHandlerPath
-    )
-
-    if (typeof fn !== 'function') {
-      return Promise.resolve({
-        choices: [],
-        nextPage: '',
-        error: {
-          message: `No dynamic field named ${field} found.`,
-          code: '404'
-        }
-      })
-    }
-
-    return (await this.performRequest(fn, { ...data, dynamicFieldContext })) as DynamicFieldResponse
-  }
-
-  async executeHook(
-    hookType: ActionHookType,
-    data: ExecuteInput<Settings, Payload, AudienceSettings>
-  ): Promise<ActionHookResponse<any>> {
-    if (!this.hasHookSupport) {
-      throw new IntegrationError('This action does not support any hooks.', 'NotImplemented', 501)
-    }
-    const hookFn = this.definition.hooks?.[hookType]?.performHook
-
-    if (!hookFn) {
-      throw new IntegrationError(`Missing implementation for hook: ${hookType}.`, 'NotImplemented', 501)
-    }
-
-    if (this.hookSchemas?.[hookType]) {
-      const schema = this.hookSchemas[hookType]
-      validateSchema(data.hookInputs, schema, {
-        exempt: ['dynamicAuthSettings']
-      })
-    }
-
-    return (await this.performRequest(hookFn, data)) as ActionHookResponse<any>
-  }
-
-  private async performRequest<
-    T extends Payload | Payload[] | PollPayload,
-    M extends AudienceMembership | AudienceMembership[]
-  >(
-    requestFn: RequestFn<Settings, T, any, AudienceSettings, any, M>,
-    data: ExecuteInput<Settings, T, AudienceSettings, any, any, M>
-  ): Promise<unknown> {
-    const requestClient = this.createRequestClient(data)
-    const response = await requestFn(requestClient, data)
-    return this.parseResponse(response)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private createRequestClient(data: ExecuteInput<Settings, any>): RequestClient {
-    const options = this.extendRequest?.(data) ?? {}
-    return createRequestClient(options, {
-      afterResponse: [this.afterResponse.bind(this)],
-      statsContext: data.statsContext,
-      signal: data?.signal
-    })
-  }
-
-  private afterResponse(request: Request, options: NormalizedOptions, response: Response) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const modifiedResponse: any = response
-    modifiedResponse.request = request
-    modifiedResponse.options = options
-
-    this.emit('response', modifiedResponse)
-    return modifiedResponse
-  }
-
-  private parseResponse(response: unknown): unknown {
-    if (response instanceof Response) {
-      return (response as ModifiedResponse).data ?? (response as ModifiedResponse).content
-    }
-
-    return response
   }
 
   private parseBatchError(

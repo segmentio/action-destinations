@@ -757,6 +757,66 @@ describe('Async Batching', () => {
     expect(data.audienceMembership).toEqual([true, false])
   })
 
+  test('forwards features to audience membership resolution', async () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+
+    mockPerformBatch.mockResolvedValue({
+      jobId: 'features-job',
+      status: 200,
+      multiStatusResponse
+    } as AsyncBatchResponse)
+
+    // A journey_step event with no membership boolean only resolves to `true` when the
+    // legacy-journeys flag is passed through to resolveAudienceMembership.
+    const legacyJourneyEvent = createTestEvent({
+      userId: 'user_123',
+      type: 'track',
+      event: 'Journey Step Entered',
+      context: { personas: { computation_class: 'journey_step', computation_key: 'step_1' } },
+      properties: {}
+    })
+
+    const destination = new Destination(asyncBatchDestination)
+    await destination.executeAsyncBatch('asyncTestAction', {
+      events: [legacyJourneyEvent],
+      mapping: { user_id: { '@path': '$.userId' } },
+      settings: {},
+      features: { 'actions-legacy-journeys-audience-membership': true }
+    })
+
+    expect(mockPerformBatch.mock.calls[0][1].audienceMembership).toEqual([true])
+  })
+
+  test('passes personasContext to performBatch', async () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+
+    mockPerformBatch.mockResolvedValue({
+      jobId: 'personas-job',
+      status: 200,
+      multiStatusResponse
+    } as AsyncBatchResponse)
+
+    const personas = { computation_class: 'audience', computation_key: 'in_audience' }
+    const event = createTestEvent({
+      userId: 'user_123',
+      type: 'track',
+      event: 'Audience Entered',
+      context: { personas },
+      properties: { in_audience: true }
+    })
+
+    const destination = new Destination(asyncBatchDestination)
+    await destination.executeAsyncBatch('asyncTestAction', {
+      events: [event],
+      mapping: { user_id: { '@path': '$.userId' } },
+      settings: {}
+    })
+
+    expect(mockPerformBatch.mock.calls[0][1].personasContext).toEqual(personas)
+  })
+
   test('does not throw and returns an empty multi-status response for an empty batch', async () => {
     const destination = new Destination(asyncBatchDestination)
 
