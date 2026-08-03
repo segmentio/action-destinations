@@ -56,7 +56,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       description: 'Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.',
       label: 'Enable the European Data Center SDK.',
       type: 'boolean',
-      required: false
+      required: true
     },
     flushIdentifyImmediately: {
       description:
@@ -71,7 +71,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       label: 'Format Custom Behavioral Event Names',
       type: 'boolean',
       required: false,
-      default: true
+      default: false
     },
     loadFormsSDK: {
       description:

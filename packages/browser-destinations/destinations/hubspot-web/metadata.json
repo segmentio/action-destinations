@@ -19,7 +19,7 @@
         "label": "Enable the European Data Center SDK.",
         "description": "Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.",
         "type": "boolean",
-        "required": false,
+        "required": true,
         "multiple": false,
         "choices": null,
         "default": null,
@@ -42,7 +42,7 @@
         "required": false,
         "multiple": false,
         "choices": null,
-        "default": true,
+        "default": false,
         "depends_on": null
       },
       "loadFormsSDK": {
