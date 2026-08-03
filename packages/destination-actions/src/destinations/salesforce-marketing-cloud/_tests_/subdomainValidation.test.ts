@@ -50,6 +50,30 @@ describe('Salesforce Marketing Cloud - subdomain validation', () => {
     })
   })
 
+  describe('refreshAccessToken', () => {
+    it('does not forward the client secret to an attacker-controlled auth host', async () => {
+      const settings: Settings = { ...baseSettings, subdomain: 'sfmc-credential-capture.example/' }
+
+      // The token refresh POSTs client_id/client_secret. If the guard is removed, the
+      // request would land here (host becomes sfmc-credential-capture.example) instead
+      // of throwing. This is the path exercised by the SECOPS-25213 PoC.
+      const attackerScope = nock('https://sfmc-credential-capture.example').post(/.*/).reply(200, {
+        access_token: 'attacker-controlled-token'
+      })
+
+      await expect(
+        testDestination.refreshAccessToken(settings, {
+          refreshToken: 'refresh',
+          accessToken: 'access',
+          clientId: settings.client_id,
+          clientSecret: settings.client_secret
+        })
+      ).rejects.toThrow(PayloadValidationError)
+
+      expect(attackerScope.isDone()).toBe(false)
+    })
+  })
+
   describe('contact action', () => {
     it('does not forward the request to an attacker-controlled host', async () => {
       const settings: Settings = { ...baseSettings, subdomain: 'mc123.attacker.com/' }
