@@ -6,13 +6,13 @@ export interface Payload {
    */
   userId: string
   /**
-   * The bookmarked item.
+   * The ID of the item that was bookmarked.
    */
   itemId: string
   /**
-   * The UTC timestamp of when the bookmark event occurred.
+   * The UTC timestamp of when the bookmark occurred, in Unix seconds, Unix milliseconds, or ISO-8601 format. When recording interactions you plan to later delete by exact timestamp — whether via this destination or the Recombee API directly — avoid mapping the root `timestamp` here, as it may be corrected for clock skew. Use `properties.timestamp` instead.
    */
-  timestamp?: string
+  timestamp?: string | number
   /**
    * The ID of the clicked recommendation (if the bookmark is based on a recommendation request).
    */

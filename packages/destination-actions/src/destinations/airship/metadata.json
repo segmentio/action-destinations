@@ -62,14 +62,64 @@
       "fields": {
         "named_user_id": {
           "label": "Airship Named User ID",
-          "description": "The identifier assigned in Airship as the Named User",
+          "description": "The identifier assigned in Airship as the Named User. Provide either this or Channel ID.",
           "type": "string",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
             "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "channel_id": {
+          "label": "Channel ID",
+          "description": "Airship Channel ID. Provide either this or Named User ID.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "channel_type": {
+          "label": "Channel Type",
+          "description": "The device type for the Channel ID (e.g. ios, android, amazon, web). Defaults to the device type from the event. If omitted or unrecognized, the generic channel key is used and Airship resolves the type, which may introduce a slight delay.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
           },
           "choices": null,
           "placeholder": null,
@@ -203,14 +253,64 @@
       "fields": {
         "named_user_id": {
           "label": "Airship Named User ID",
-          "description": "The identifier assigned in Airship as the Named User",
+          "description": "The identifier assigned in Airship as the Named User. Provide either this or Channel ID.",
           "type": "string",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
             "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "channel_id": {
+          "label": "Channel ID",
+          "description": "Airship Channel ID. Provide either this or Named User ID.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "channel_type": {
+          "label": "Channel Type",
+          "description": "The device type for the Channel ID (e.g. ios, android, amazon, web). Defaults to the device type from the event. If omitted or unrecognized, the generic channel key is used and Airship resolves the type, which may introduce a slight delay.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
           },
           "choices": null,
           "placeholder": null,
@@ -915,14 +1015,64 @@
       "fields": {
         "named_user_id": {
           "label": "Airship Named User ID",
-          "description": "The identifier assigned in Airship as the Named User",
+          "description": "The identifier assigned in Airship as the Named User. Provide either this or Channel ID.",
           "type": "string",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
             "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "channel_id": {
+          "label": "Channel ID",
+          "description": "Airship Channel ID. Provide either this or Named User ID.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "channel_type": {
+          "label": "Channel Type",
+          "description": "The device type for the Channel ID (e.g. ios, android, amazon, web). Defaults to the device type from the event. If omitted or unrecognized, the generic channel key is used and Airship resolves the type, which may introduce a slight delay.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
           },
           "choices": null,
           "placeholder": null,
@@ -1533,6 +1683,9 @@
         "named_user_id": {
           "@path": "$.userId"
         },
+        "channel_type": {
+          "@path": "$.context.device.type"
+        },
         "name": {
           "@path": "$.event"
         },
@@ -1554,6 +1707,9 @@
       "mapping": {
         "named_user_id": {
           "@path": "$.userId"
+        },
+        "channel_type": {
+          "@path": "$.context.device.type"
         },
         "occurred": {
           "@path": "$.timestamp"
