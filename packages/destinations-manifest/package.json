@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.159.1-staging-9d42a6ca2.0",
+  "version": "1.159.1-staging-0cf4bb25b.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -37,7 +37,7 @@
     "@segment/analytics-browser-actions-google-campaign-manager": "1.89.1-staging-9d42a6ca2.0",
     "@segment/analytics-browser-actions-google-ec-plugins": "1.7.1-staging-9d42a6ca2.0",
     "@segment/analytics-browser-actions-heap": "1.98.1-staging-9d42a6ca2.0",
-    "@segment/analytics-browser-actions-hubspot": "1.98.1-staging-9d42a6ca2.0",
+    "@segment/analytics-browser-actions-hubspot": "1.98.1-staging-0cf4bb25b.0",
     "@segment/analytics-browser-actions-intercom": "1.109.1-staging-9d42a6ca2.0",
     "@segment/analytics-browser-actions-iterate": "1.99.1-staging-9d42a6ca2.0",
     "@segment/analytics-browser-actions-jimo": "1.89.1-staging-9d42a6ca2.0",

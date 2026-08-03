@@ -1,6 +1,6 @@
 {
   "name": "@segment/warehouse-destinations",
-  "version": "1.23.1-staging-9d42a6ca2.0",
+  "version": "1.23.1-staging-0cf4bb25b.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
