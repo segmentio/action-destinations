@@ -150,7 +150,7 @@ describe('Bing Ads Audiences', () => {
       const error = await testDestination.createAudience(createAudienceInput).catch((e) => e)
       expect(error).toBeInstanceOf(IntegrationError)
       expect(error.message).toBe(
-        'Failed to create audience. Microsoft Bing Ads returned HTTP 400: unrecognized error response'
+        'Failed to create audience. Microsoft Bing Ads returned HTTP 400: unparseable response body'
       )
       expect(error.code).toBe('CREATE_AUDIENCE_FAILED')
       expect(error.status).toBe(400)
