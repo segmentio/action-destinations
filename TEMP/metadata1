@@ -1,0 +1,993 @@
+{
+  "id": "674f23ece330374dc1ecc874",
+  "name": "Twilio Messaging",
+  "slug": "actions-twilio-messaging",
+  "type": "action_destination",
+  "contentId": "actions-twilio-messaging",
+  "createdAt": "2024-12-03T15:29:48.034Z",
+  "updatedAt": "2026-07-31T13:58:15.119Z",
+  "creationName": "Twilio Messaging",
+  "previousNames": [
+    "Twilio Messaging"
+  ],
+  "public": false,
+  "status": "PUBLIC",
+  "description": "Send SMS, MMS, Whatsapp and Messenger messages with Twilio",
+  "note": "",
+  "categories": [],
+  "website": "http://www.segment.com",
+  "level": 1,
+  "owners": [],
+  "contacts": [],
+  "direct": false,
+  "endpoint": "",
+  "logos": {
+    "default": "https://cdn-devcenter.segment.build/24fd97f0-77e0-4db0-b75d-ab7a39ec9873.svg",
+    "mark": "https://cdn-devcenter.segment.build/e01b9310-2544-4734-bea5-a70790784782.svg"
+  },
+  "methods": {
+    "track": true,
+    "pageview": true,
+    "identify": true,
+    "group": true,
+    "alias": true
+  },
+  "platforms": {
+    "browser": true,
+    "mobile": false,
+    "server": true,
+    "warehouse": false,
+    "cloudAppObject": false,
+    "linkedAudiences": true
+  },
+  "components": [],
+  "replaySupported": false,
+  "features": {
+    "replayPolicy": {
+      "identifyAcceptsTimestamps": false,
+      "identifyHasDedupeLogic": false,
+      "groupAcceptsTimestamps": false,
+      "groupHasDedupeLogic": false,
+      "aliasAcceptsTimestamps": false,
+      "aliasHasDedupeLogic": false,
+      "trackAcceptsTimestamps": false,
+      "trackHasDedupeLogic": false,
+      "pageviewAcceptsTimestamps": false,
+      "pageviewHasDedupeLogic": false,
+      "acceptsTimestamps": false,
+      "hasDedupeLogic": false,
+      "note": ""
+    },
+    "audiencesPolicy": {
+      "frequencyLimitSeconds": null,
+      "sendIdentify": true,
+      "sendTrack": false
+    }
+  },
+  "browserUnbundlingSupported": false,
+  "browserUnbundlingChangelog": "",
+  "unbundleByDefault": false,
+  "browserUnbundlingPublic": false,
+  "options": {
+    "accountSID": {
+      "type": "string",
+      "default": "",
+      "private": true,
+      "encrypt": false,
+      "hidden": false,
+      "scope": "event_destination",
+      "readOnly": false,
+      "dependsOn": null,
+      "dynamic": false,
+      "required": true,
+      "label": "Twilio Account SID",
+      "description": "Twilio Account SID",
+      "validators": [
+        [
+          "required",
+          "The accountSID property is required."
+        ]
+      ],
+      "tags": [
+        "authentication:test"
+      ]
+    },
+    "apiKeySID": {
+      "type": "string",
+      "default": "",
+      "private": true,
+      "encrypt": false,
+      "hidden": false,
+      "scope": "event_destination",
+      "readOnly": false,
+      "dependsOn": null,
+      "dynamic": false,
+      "required": true,
+      "label": "Twilio API Key SID",
+      "description": "Twilio API Key SID",
+      "validators": [
+        [
+          "required",
+          "The apiKeySID property is required."
+        ]
+      ],
+      "tags": [
+        "authentication:test"
+      ]
+    },
+    "apiKeySecret": {
+      "type": "password",
+      "default": "",
+      "private": true,
+      "encrypt": true,
+      "hidden": false,
+      "scope": "event_destination",
+      "readOnly": false,
+      "dependsOn": null,
+      "dynamic": false,
+      "required": true,
+      "label": "Twilio API Key Secret",
+      "description": "Twilio API Key Secret",
+      "validators": [
+        [
+          "required",
+          "The apiKeySecret property is required."
+        ]
+      ],
+      "tags": [
+        "authentication:test"
+      ]
+    }
+  },
+  "basicOptions": [
+    "accountSID",
+    "apiKeySID",
+    "apiKeySecret"
+  ],
+  "advancedOptions": [],
+  "developerCenterMetadata": {},
+  "partnerSettings": {},
+  "personasMaxRequestsPerSecond": null,
+  "multiInstanceSupportedVersion": "CLOUD_ONLY",
+  "supportedRegions": [
+    "us-west-2",
+    "eu-west-1"
+  ],
+  "regionEndpoints": null,
+  "partnerOwned": false,
+  "supportsAudiences": false,
+  "actions": {
+    "data": {
+      "actions": [
+        {
+          "id": "h12tQnPfT8BEYcerDxYWJq",
+          "metadataId": "674f23ece330374dc1ecc874",
+          "slug": "sendMessage",
+          "name": "Send message",
+          "description": "Send messages with Twilio's REST API.",
+          "platform": "cloud",
+          "hidden": false,
+          "defaultTrigger": null,
+          "createdAt": "2025-06-20T21:49:31.000Z",
+          "updatedAt": "2025-06-20T21:49:31.000Z",
+          "fields": [
+            {
+              "id": "tDhXmB5gq3ckWmoJAThaM8",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 0,
+              "fieldKey": "channel",
+              "label": "Channel",
+              "type": "string",
+              "description": "The channel to send the message on.",
+              "placeholder": "",
+              "required": true,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "channel": {
+                    "title": "Channel",
+                    "description": "The channel to send the message on.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [
+                  "channel"
+                ]
+              },
+              "dependsOn": null,
+              "displayMetadata": null
+            },
+            {
+              "id": "pQsVC6iNj5yy4fsvAE4TdY",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 1,
+              "fieldKey": "senderType",
+              "label": "Sender Type",
+              "type": "string",
+              "description": "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
+              "placeholder": "",
+              "required": true,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "senderType": {
+                    "title": "Sender Type",
+                    "description": "The Sender type to use for the message. Depending on the selected 'Channel' this can be a phone number, messaging service, or Messenger sender ID.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [
+                  "senderType"
+                ]
+              },
+              "dependsOn": null,
+              "displayMetadata": null
+            },
+            {
+              "id": "3q8UwMqGGv2i7f8hCUA7qb",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 2,
+              "fieldKey": "contentTemplateType",
+              "label": "Content Template Type",
+              "type": "string",
+              "description": "The Content Template type to use for the message. Selecting \"Inline\" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.",
+              "placeholder": "",
+              "required": true,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "contentTemplateType": {
+                    "title": "Content Template Type",
+                    "description": "The Content Template type to use for the message. Selecting \"Inline\" will allow you to define the message body directly. For all other options a Content Template must be pre-defined in Twilio.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [
+                  "contentTemplateType"
+                ]
+              },
+              "dependsOn": null,
+              "displayMetadata": null
+            },
+            {
+              "id": "uTdYBNxjek61MhiW8aN7qW",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 3,
+              "fieldKey": "toPhoneNumber",
+              "label": "To Phone Number",
+              "type": "string",
+              "description": "The number to send the message to (E.164 format).",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "toPhoneNumber": {
+                    "title": "To Phone Number",
+                    "description": "The number to send the message to (E.164 format).",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Messenger",
+                    "fieldKey": "channel",
+                    "operator": "is_not"
+                  }
+                ]
+              },
+              "displayMetadata": null
+            },
+            {
+              "id": "8JPDSCMqviNWrTK9HogG4S",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 4,
+              "fieldKey": "toMessengerUserId",
+              "label": "To Messenger User ID",
+              "type": "string",
+              "description": "A valid Facebook Messenger User Id to send the message to.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "toMessengerUserId": {
+                    "title": "To Messenger User ID",
+                    "description": "A valid Facebook Messenger User Id to send the message to.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [],
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "channel"
+                      ],
+                      "properties": {
+                        "channel": {
+                          "const": "Messenger"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "toMessengerUserId"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Messenger",
+                    "fieldKey": "channel",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "displayMetadata": {
+                "conditionallyRequired": {
+                  "match": "all",
+                  "conditions": [
+                    {
+                      "value": "Messenger",
+                      "fieldKey": "channel",
+                      "operator": "is"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "6L5LNkFwEU3r4QsWZK87jY",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 5,
+              "fieldKey": "fromPhoneNumber",
+              "label": "From Phone Number",
+              "type": "string",
+              "description": "The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "fromPhoneNumber": {
+                    "title": "From Phone Number",
+                    "description": "The Twilio phone number (E.164 format) or Short Code. If not in the dropdown, enter it directly. Please ensure the number supports the selected 'Channel' type.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Phone number",
+                    "fieldKey": "senderType",
+                    "operator": "is"
+                  },
+                  {
+                    "value": "Messenger",
+                    "fieldKey": "channels",
+                    "operator": "is_not"
+                  }
+                ]
+              },
+              "displayMetadata": null
+            },
+            {
+              "id": "sccaWtHzkQsYPYa6bZM7HS",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 6,
+              "fieldKey": "fromFacebookPageId",
+              "label": "From Facebook Page ID",
+              "type": "string",
+              "description": "The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "fromFacebookPageId": {
+                    "title": "From Facebook Page ID",
+                    "description": "The unique identifier for your Facebook Page, used to send messages via Messenger. You can find this in your Facebook Page settings.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [],
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "channel"
+                      ],
+                      "properties": {
+                        "channel": {
+                          "const": "Messenger"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "fromFacebookPageId"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Messenger",
+                    "fieldKey": "channel",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "displayMetadata": {
+                "conditionallyRequired": {
+                  "match": "all",
+                  "conditions": [
+                    {
+                      "value": "Messenger",
+                      "fieldKey": "channel",
+                      "operator": "is"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "dXFw9KmCfosXJneV3KTQ55",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 7,
+              "fieldKey": "messagingServiceSid",
+              "label": "Messaging Service SID",
+              "type": "string",
+              "description": "The SID of the messaging service to use. If not in the dropdown, enter it directly.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "messagingServiceSid": {
+                    "title": "Messaging Service SID",
+                    "description": "The SID of the messaging service to use. If not in the dropdown, enter it directly.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [],
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "channel"
+                      ],
+                      "properties": {
+                        "channel": {
+                          "const": "RCS"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "messagingServiceSid"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Messaging Service",
+                    "fieldKey": "senderType",
+                    "operator": "is"
+                  },
+                  {
+                    "value": "Messenger",
+                    "fieldKey": "channels",
+                    "operator": "is_not"
+                  }
+                ]
+              },
+              "displayMetadata": {
+                "conditionallyRequired": {
+                  "conditions": [
+                    {
+                      "value": "RCS",
+                      "fieldKey": "channel",
+                      "operator": "is"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "7UHMm1zRPynYPRQERuvqqH",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 8,
+              "fieldKey": "contentSid",
+              "label": "Content Template SID",
+              "type": "string",
+              "description": "The SID of the Content Template to use.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "contentSid": {
+                    "title": "Content Template SID",
+                    "description": "The SID of the Content Template to use.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Inline",
+                    "fieldKey": "contentTemplateType",
+                    "operator": "is_not"
+                  }
+                ]
+              },
+              "displayMetadata": null
+            },
+            {
+              "id": "9ZX22aoZKwLDUNZZ3DD8nm",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 9,
+              "fieldKey": "contentVariables",
+              "label": "Content Variables",
+              "type": "object",
+              "description": "Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": true,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "contentVariables": {
+                    "title": "Content Variables",
+                    "description": "Variables to be used in the Content Template. The Variables must be defined in the Content Template in Twilio.",
+                    "type": "object",
+                    "format": null
+                  }
+                },
+                "required": []
+              },
+              "defaultObjectUI": "keyvalue",
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Inline",
+                    "fieldKey": "contentTemplateType",
+                    "operator": "is_not"
+                  }
+                ]
+              },
+              "displayMetadata": {
+                "dynamicProperties": [
+                  "__keys__"
+                ]
+              }
+            },
+            {
+              "id": "qUMQNEv2yfhqM1Hr5xg7Zk",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 10,
+              "fieldKey": "inlineBody",
+              "label": "Inline Template",
+              "type": "text",
+              "description": "Define an inline message body to be sent. Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "inlineBody": {
+                    "title": "Inline Template",
+                    "description": "Define an inline message body to be sent. Variables values can be referenced using {{variable}} format. e.g. Hello {{first_name}}!.",
+                    "type": "string",
+                    "format": "text"
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Inline",
+                    "fieldKey": "contentTemplateType",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "displayMetadata": null
+            },
+            {
+              "id": "ruY2dZucXY6BXQPeqAgZdt",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 11,
+              "fieldKey": "inlineMediaUrls",
+              "label": "Inline Media URLs",
+              "type": "string",
+              "description": "The URLs of the media to sent with the inline message. The URLs must be publicaly accessible.",
+              "placeholder": "",
+              "required": false,
+              "multiple": true,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "inlineMediaUrls": {
+                    "title": "Inline Media URLs",
+                    "description": "The URLs of the media to sent with the inline message. The URLs must be publicaly accessible.",
+                    "type": "array",
+                    "format": null,
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Inline",
+                    "fieldKey": "contentTemplateType",
+                    "operator": "is"
+                  }
+                ]
+              },
+              "displayMetadata": null
+            },
+            {
+              "id": "4q5U4sUYeEXmtf1Pjr4smy",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 12,
+              "fieldKey": "validityPeriod",
+              "label": "Validity Period",
+              "type": "number",
+              "description": "The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "maximum": 14400,
+              "minimum": 1,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "validityPeriod": {
+                    "title": "Validity Period",
+                    "description": "The number of seconds between 1-14400 that the message is valid for. Default is 14400. If the message is not delivered within this time, it will not be delivered.",
+                    "type": "number",
+                    "format": null,
+                    "minimum": 1,
+                    "maximum": 14400
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": null,
+              "displayMetadata": null
+            },
+            {
+              "id": "pPbDqscDk14MC4SmAhyiJD",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 13,
+              "fieldKey": "sendAt",
+              "label": "Send At",
+              "type": "string",
+              "description": "The time that Twilio will send the message. Must be in ISO 8601 format. Messages can be scheduled up to 35 days in advance, and at least 15 minutes in advance.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "sendAt": {
+                    "title": "Send At",
+                    "description": "The time that Twilio will send the message. Must be in ISO 8601 format. Messages can be scheduled up to 35 days in advance, and at least 15 minutes in advance.",
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": []
+              },
+              "dependsOn": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "value": "Messaging Service",
+                    "fieldKey": "senderType",
+                    "operator": "is"
+                  },
+                  {
+                    "value": "",
+                    "fieldKey": "messagingServiceSid",
+                    "operator": "is_not"
+                  }
+                ]
+              },
+              "displayMetadata": null
+            },
+            {
+              "id": "7fNtDjvFNfRC1KmrQvJM9F",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 14,
+              "fieldKey": "tags",
+              "label": "Tags",
+              "type": "object",
+              "description": "Custom tags to be included in the message. Key:value pairs of strings are allowed.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "tags": {
+                    "title": "Tags",
+                    "description": "Custom tags to be included in the message. Key:value pairs of strings are allowed.",
+                    "type": "object",
+                    "format": null
+                  }
+                },
+                "required": []
+              },
+              "defaultObjectUI": "keyvalue",
+              "dependsOn": null,
+              "displayMetadata": null
+            },
+            {
+              "id": "drWkJsDcKCaodzzbGM5xZB",
+              "metadataActionId": "h12tQnPfT8BEYcerDxYWJq",
+              "sortOrder": 15,
+              "fieldKey": "testConditionalField",
+              "label": "Test Conditional Field",
+              "type": "string",
+              "description": "TEMPORARY bug-bash field (TC33) — required only when channel is Messenger.",
+              "placeholder": "",
+              "required": false,
+              "multiple": false,
+              "choices": null,
+              "dynamic": false,
+              "allowNull": false,
+              "createdAt": "2026-07-31T13:58:15.000Z",
+              "updatedAt": "2026-07-31T13:58:15.000Z",
+              "fieldSchema": {
+                "$schema": "http://json-schema.org/schema#",
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "testConditionalField": {
+                    "title": "Test Conditional Field",
+                    "description": "TEMPORARY bug-bash field (TC33) — required only when channel is Messenger.",
+                    "type": "string",
+                    "format": null
+                  }
+                },
+                "required": [],
+                "allOf": [
+                  {
+                    "if": {
+                      "required": [
+                        "channel"
+                      ],
+                      "properties": {
+                        "channel": {
+                          "const": "Messenger"
+                        }
+                      }
+                    },
+                    "then": {
+                      "required": [
+                        "testConditionalField"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": null,
+              "displayMetadata": {
+                "conditionallyRequired": {
+                  "match": "all",
+                  "conditions": [
+                    {
+                      "value": "Messenger",
+                      "fieldKey": "channel",
+                      "operator": "is"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "presets": {
+    "data": {
+      "presets": []
+    }
+  },
+  "authenticationScheme": "basic",
+  "support": {},
+  "isFeatured": false,
+  "content": {
+    "beta": false,
+    "logo": {
+      "id": "4lGseAz9waN30xyOBP8U0R",
+      "alt": "actions-twilio-messaging Asset from Developer Portal",
+      "src": "//images.ctfassets.net/h6ufgtwb6nv1/4lGseAz9waN30xyOBP8U0R/23c34671d71c66ece4b4e3bdb6308b64/actions-twilio-messaging_Asset_from_Developer_Portal"
+    },
+    "name": "Twilio Messaging",
+    "slug": "actions-twilio-messaging",
+    "docsUrl": "https://segment.com/docs/connections/destinations/catalog/actions-twilio-messaging/",
+    "website": "http://www.segment.com",
+    "features": "<ul><li><p>Enables businesses to send personalized SMS, MMS, RCS, WhatsApp, and Facebook Messenger messages directly through Twilio.</p></li><li><p>Helps improve customer engagement with real-time, multi-channel communication.</p></li><li><p>Common use cases include transactional alerts (order confirmations, delivery updates), marketing campaigns, customer support, personalized reminders.</p></li></ul><p></p>",
+    "contentId": "kBgrjTiWE2IpKihyOyjQK",
+    "categories": [
+      {
+        "id": "16UERaW9k2Zcv6TSyBO2Ry",
+        "name": "SMS & Push Notifications",
+        "slug": "sms-push-notifications"
+      },
+      {
+        "id": "30YfZuJRWNAFfS086GCkIs",
+        "name": "Email Marketing",
+        "slug": "email-marketing"
+      }
+    ],
+    "privateBeta": false,
+    "screenshots": [],
+    "withSegment": "<h2>Get more out of Twilio Messaging with Segment</h2><ul><li><p>Segment automatically routes your customer event data into Twilio without additional coding.</p></li><li><p>You can define triggers (e.g., “Order Placed” or “Cart Abandoned”) in Segment, and messages are sent through Twilio to the right channel.</p></li><li><p>Segment Engage customers can trigger messages as users enter or exist Audiences.</p></li></ul><p></p>",
+    "introduction": "Send SMS, MMS, RCS, Whatsapp and Facebook Messenger messages from Twilio",
+    "mainCategory": "sms-push-notifications",
+    "withoutSegment": "<h2>How Twilio Messaging Works</h2><ul><li><p>You connect directly to Twilio’s messaging APIs.</p></li><li><p>Developers must manually integrate and manage message formatting, routing, and delivery across channels.</p></li><li><p>Requires custom code to trigger messages and handle customer data.</p></li></ul><p></p>",
+    "integrationType": "destination",
+    "fastGrowingCompany": false
+  },
+  "installCount": 5
+}

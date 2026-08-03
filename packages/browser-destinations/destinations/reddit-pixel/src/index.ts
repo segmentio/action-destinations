@@ -23,17 +23,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
 
   presets: [
     {
-      name: 'Page Visit',
-      subscribe: 'type = "page"',
-      partnerAction: 'reportWebEvent',
-      mapping: {
-        ...defaultValues(reportWebEvent.fields),
-        tracking_type: 'PageVisit'
-      },
-      type: 'automatic'
-    },
-    {
-      name: 'View Content',
+      name: 'View Content 123',
       subscribe: 'type = "track" and event = "Product Viewed"',
       partnerAction: 'reportWebEvent',
       mapping: {
@@ -103,6 +93,16 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
           currency: { '@path': '$.properties.currency' },
           value: { '@path': '$.properties.value' }
         }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Page Visit 2323',
+      subscribe: 'type = "page"',
+      partnerAction: 'reportWebEvent',
+      mapping: {
+        ...defaultValues(reportWebEvent.fields),
+        tracking_type: 'PageVisit'
       },
       type: 'automatic'
     },
