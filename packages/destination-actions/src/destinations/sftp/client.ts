@@ -77,7 +77,10 @@ function createConnectionConfig(settings: Settings): sftpConnectionConfig {
   return {
     host: settings.sftp_host,
     port: settings.sftp_port || SFTP_DEFAULT_PORT,
-    username: settings.sftp_username,
+    // sftp_username is conditionally-required (for both auth types), so type generation
+    // renders it optional even though it is always present at runtime. Default to '' to
+    // satisfy the required `username: string` on sftpConnectionConfig.
+    username: settings.sftp_username ?? '',
     [credentialKey]: credentialValue
   }
 }
