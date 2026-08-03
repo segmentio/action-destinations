@@ -3282,7 +3282,104 @@
   },
   "presets": [
     {
-      "name": "View Content 123",
+      "name": "Page Visit",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "category": {
+                "@path": "$.category"
+              },
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "user": {
+          "advertising_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "device_type": {
+            "@path": "$.context.device.type"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "externalId": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "phoneNumber": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          }
+        },
+        "event_metadata": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "itemCount": {
+            "@path": "$.properties.quantity"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          }
+        },
+        "conversion_id": {
+          "@path": "$.messageId"
+        },
+        "tracking_type": "PageVisit"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "View Content",
       "type": "automatic",
       "partnerAction": "reportWebEvent",
       "subscribe": "type = \"track\" and event = \"Product Viewed\"",
@@ -3827,103 +3924,6 @@
           "@path": "$.messageId"
         },
         "tracking_type": "Lead"
-      },
-      "eventSlug": null
-    },
-    {
-      "name": "Page Visit 2323",
-      "type": "automatic",
-      "partnerAction": "reportWebEvent",
-      "subscribe": "type = \"page\"",
-      "mapping": {
-        "products": {
-          "@arrayPath": [
-            "$.properties.products",
-            {
-              "category": {
-                "@path": "$.category"
-              },
-              "id": {
-                "@path": "$.product_id"
-              },
-              "name": {
-                "@path": "$.name"
-              }
-            }
-          ]
-        },
-        "user": {
-          "advertising_id": {
-            "@path": "$.context.device.advertisingId"
-          },
-          "device_type": {
-            "@path": "$.context.device.type"
-          },
-          "email": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.traits.email"
-              },
-              "then": {
-                "@path": "$.context.traits.email"
-              },
-              "else": {
-                "@path": "$.properties.email"
-              }
-            }
-          },
-          "externalId": {
-            "@if": {
-              "exists": {
-                "@path": "$.userId"
-              },
-              "then": {
-                "@path": "$.userId"
-              },
-              "else": {
-                "@path": "$.anonymousId"
-              }
-            }
-          },
-          "phoneNumber": {
-            "@if": {
-              "exists": {
-                "@path": "$.properties.phone"
-              },
-              "then": {
-                "@path": "$.properties.phone"
-              },
-              "else": {
-                "@path": "$.context.traits.phone"
-              }
-            }
-          }
-        },
-        "event_metadata": {
-          "currency": {
-            "@path": "$.properties.currency"
-          },
-          "itemCount": {
-            "@path": "$.properties.quantity"
-          },
-          "value": {
-            "@if": {
-              "exists": {
-                "@path": "$.properties.revenue"
-              },
-              "then": {
-                "@path": "$.properties.revenue"
-              },
-              "else": {
-                "@path": "$.properties.total"
-              }
-            }
-          }
-        },
-        "conversion_id": {
-          "@path": "$.messageId"
-        },
-        "tracking_type": "PageVisit"
       },
       "eventSlug": null
     },
