@@ -395,9 +395,7 @@
           "multiple": true,
           "allowNull": false,
           "dynamic": false,
-          "default": {
-            "@liquid": "{{ properties.products | map: 'product_id' }}"
-          },
+          "default": null,
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -2379,9 +2377,6 @@
         "content_category": {
           "@path": "$.properties.category"
         },
-        "content_ids": {
-          "@liquid": "{{ properties.products | map: 'product_id' }}"
-        },
         "content_name": {
           "@path": "$.properties.name"
         },
@@ -2483,9 +2478,6 @@
         "content_category": {
           "@path": "$.properties.category"
         },
-        "content_ids": {
-          "@path": "$.properties.product_id"
-        },
         "content_name": {
           "@path": "$.properties.name"
         },
@@ -2565,6 +2557,9 @@
           "client_ip_address": {
             "@path": "$.context.traits.client_ip_address"
           }
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
         }
       },
       "eventSlug": null
@@ -2582,9 +2577,6 @@
         "content_category": {
           "@path": "$.properties.category"
         },
-        "content_ids": {
-          "@path": "$.properties.product_id"
-        },
         "content_name": {
           "@path": "$.properties.name"
         },
@@ -2664,6 +2656,9 @@
           "client_ip_address": {
             "@path": "$.context.traits.client_ip_address"
           }
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
         }
       },
       "eventSlug": null
@@ -2680,9 +2675,6 @@
         },
         "content_category": {
           "@path": "$.properties.category"
-        },
-        "content_ids": {
-          "@liquid": "{{ properties.products | map: 'product_id' }}"
         },
         "content_name": {
           "@path": "$.properties.name"
@@ -2785,9 +2777,6 @@
         "content_category": {
           "@path": "$.properties.category"
         },
-        "content_ids": {
-          "@liquid": "{{ properties.products | map: 'product_id' }}"
-        },
         "content_name": {
           "@path": "$.properties.name"
         },
@@ -2889,9 +2878,6 @@
         "content_category": {
           "@path": "$.category"
         },
-        "content_ids": {
-          "@liquid": "{{ properties.products | map: 'product_id' }}"
-        },
         "content_name": {
           "@path": "$.name"
         },
@@ -2992,9 +2978,6 @@
         },
         "content_category": {
           "@path": "$.properties.category"
-        },
-        "content_ids": {
-          "@liquid": "{{ properties.products | map: 'product_id' }}"
         },
         "content_name": {
           "@path": "$.properties.name"
@@ -3102,9 +3085,6 @@
         "content_category": {
           "@path": "$.properties.category"
         },
-        "content_ids": {
-          "@path": "$.properties.product_id"
-        },
         "content_name": {
           "@path": "$.properties.name"
         },
@@ -3184,6 +3164,9 @@
           "client_ip_address": {
             "@path": "$.context.traits.client_ip_address"
           }
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
         }
       },
       "eventSlug": null
@@ -3200,9 +3183,6 @@
         },
         "content_category": {
           "@path": "$.properties.category"
-        },
-        "content_ids": {
-          "@path": "$.properties.product_id"
         },
         "content_name": {
           "@path": "$.properties.name"
@@ -3283,6 +3263,9 @@
           "client_ip_address": {
             "@path": "$.context.traits.client_ip_address"
           }
+        },
+        "content_ids": {
+          "@path": "$.properties.product_id"
         }
       },
       "eventSlug": null
