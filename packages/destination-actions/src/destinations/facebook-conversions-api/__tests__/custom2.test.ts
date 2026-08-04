@@ -15,7 +15,6 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
-
 describe('FacebookConversionsApi', () => {
   describe('Custom2', () => {
     it('should throw an error for an invalid syncMode', async () => {
@@ -50,7 +49,7 @@ describe('FacebookConversionsApi', () => {
             }
           }
         })
-      ).rejects.toThrowError('a')
+      ).rejects.toThrowError("The root value is missing the required field 'user_data'.")
     })
     it('should fail if no event_name is passed', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
@@ -143,7 +142,9 @@ describe('FacebookConversionsApi', () => {
             }
           }
         })
-      ).rejects.toThrowError('a')
+      ).rejects.toThrowError(
+        'The root value is missing the required field \'user_data\'. Action Source must be one of: "email", "website", "app", "phone_call", "chat", "physical_store", "system_generated", or "other".'
+      )
     })
 
     it('should map a standard identify event to a custom event', async () => {
