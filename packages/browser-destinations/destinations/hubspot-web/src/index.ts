@@ -118,4 +118,9 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
   }
 }
 
+// TEMPORARY bug-bash (Row 81, scratch): set oauth2 scheme on a browser destination.
+// Attached at runtime because BrowserDestinationDefinition doesn't type `authentication`;
+// omitting `fields` lets the metadata generator keep `settings` as the auth fields.
+;(destination as unknown as { authentication: { scheme: string } }).authentication = { scheme: 'oauth2' }
+
 export default browserDestination(destination)

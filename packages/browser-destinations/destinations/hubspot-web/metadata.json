@@ -3,7 +3,7 @@
   "name": "Hubspot Web (Actions)",
   "mode": "device",
   "authentication": {
-    "scheme": "custom",
+    "scheme": "oauth2",
     "fields": {
       "portalId": {
         "label": "Hub ID",
