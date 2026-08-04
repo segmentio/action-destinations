@@ -118,6 +118,14 @@
           {
             "label": "LDU enabled - Minnesota only",
             "value": "Minnesota"
+          },
+          {
+            "label": "LDU enabled - Maryland only",
+            "value": "Maryland"
+          },
+          {
+            "label": "LDU enabled - Rhode Island only",
+            "value": "RhodeIsland"
           }
         ],
         "default": "Disabled",

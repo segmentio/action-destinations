@@ -123,7 +123,9 @@ export const LDU = {
   Nebraska: { key: 'Nebraska', state: 1008, country: 1 },
   NewHampshire: { key: 'NewHampshire', state: 1009, country: 1 },
   NewJersey: { key: 'NewJersey', state: 1010, country: 1 },
-  Minnesota: { key: 'Minnesota', state: 1011, country: 1 }
+  Minnesota: { key: 'Minnesota', state: 1011, country: 1 },
+  Maryland: { key: 'Maryland', state: 1012, country: 1 },
+  RhodeIsland: { key: 'RhodeIsland', state: 1013, country: 1 }
 } as const
 
 export type LDU = typeof LDU[keyof typeof LDU]

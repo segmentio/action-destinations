@@ -8,13 +8,16 @@ import { defaultValues } from '@segment/actions-core'
 
 declare global {
   interface Window {
-    fbq: FBClient,
+    fbq: FBClient
     _fbq: FBClient
     clientParamBuilder: FBClientParamBuilder | undefined
   }
 }
 
-export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient, clientParamBuilder: FBClientParamBuilder | undefined }> = {
+export const destination: BrowserDestinationDefinition<
+  Settings,
+  { fbq: FBClient; clientParamBuilder: FBClientParamBuilder | undefined }
+> = {
   name: 'Facebook Conversions Api Web',
   slug: 'actions-facebook-conversions-api-web',
   mode: 'device',
@@ -24,22 +27,25 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       description: 'The Pixel ID associated with your Facebook Pixel.',
       label: 'Pixel ID',
       type: 'string',
-      required: true  
+      required: true
     },
     disablePushState: {
-      description: "If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.",
+      description:
+        'If set to true, prevents Facebook Pixel from sending PageView events on history state changes. Set to true if you want to trigger PageView events manually via the pageView Action.',
       label: 'Disable Push State',
       type: 'boolean',
       default: false
     },
     disableAutoConfig: {
-      description: "Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.",
+      description:
+        'Control whether Facebook’s Meta Pixel automatically collects additional page and button data to optimize ads and measurement. When this toggle is on, Auto Config is disabled and only basic pixel tracking will occur. Turning it off enables Auto Config, allowing the Pixel to automatically send page metadata and button interactions to improve ad delivery and reporting.',
       label: 'Disable Auto Config',
       type: 'boolean',
       default: true
     },
     disableFirstPartyCookies: {
-      description: "Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.",
+      description:
+        'Control whether Facebook’s Meta Pixel uses first-party cookies. When this toggle is on, first-party cookies are disabled, enhancing user privacy. Turning it off enables the use of first-party cookies for more accurate tracking.',
       label: 'Disable First Party Cookies',
       type: 'boolean',
       default: false
@@ -56,8 +62,8 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       type: 'string',
       required: true,
       choices: [
-        { label: 'LDU disabled', value: LDU.Disabled.key},
-        { label: "LDU enabled - Use Meta Geolocation Logic", value: LDU.GeolocationLogic.key },
+        { label: 'LDU disabled', value: LDU.Disabled.key },
+        { label: 'LDU enabled - Use Meta Geolocation Logic', value: LDU.GeolocationLogic.key },
         { label: 'LDU enabled - California only', value: LDU.California.key },
         { label: 'LDU enabled - Colorado only', value: LDU.Colorado.key },
         { label: 'LDU enabled - Connecticut only', value: LDU.Connecticut.key },
@@ -69,12 +75,15 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
         { label: 'LDU enabled - Nebraska only', value: LDU.Nebraska.key },
         { label: 'LDU enabled - New Hampshire only', value: LDU.NewHampshire.key },
         { label: 'LDU enabled - New Jersey only', value: LDU.NewJersey.key },
-        { label: 'LDU enabled - Minnesota only', value: LDU.Minnesota.key }
+        { label: 'LDU enabled - Minnesota only', value: LDU.Minnesota.key },
+        { label: 'LDU enabled - Maryland only', value: LDU.Maryland.key },
+        { label: 'LDU enabled - Rhode Island only', value: LDU.RhodeIsland.key }
       ],
       default: LDU.Disabled.key
-    }, 
+    },
     formatUserDataWithParamBuilder: {
-      description: 'If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.',
+      description:
+        'If enabled, uses Facebook’s Parameter Builder library to help ensure that User Data values are properly formatted before being sent to Facebook.',
       label: 'Format User Data with Parameter Builder',
       type: 'boolean',
       default: true
@@ -84,7 +93,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
     const { formatUserDataWithParamBuilder } = settings
     initScript(settings, analytics)
     await deps.resolveWhen(() => typeof window.fbq === 'function', 100)
-    if(formatUserDataWithParamBuilder){
+    if (formatUserDataWithParamBuilder) {
       const script = `https://capi-automation.s3.us-east-2.amazonaws.com/public/client_js/capiParamBuilder/clientParamBuilder.bundle.js`
       await deps.loadScript(script)
       await deps.resolveWhen(() => typeof window.clientParamBuilder === 'object', 100)
@@ -99,8 +108,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       name: 'AddPaymentInfo',
       subscribe: 'event = "Payment Info Entered"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddPaymentInfo',
@@ -113,8 +121,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       name: 'AddToCart',
       subscribe: 'event = "Product Added"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToCart',
@@ -129,13 +136,12 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
         value: { '@path': '$.properties.price' }
       },
       type: 'automatic'
-    },    
+    },
     {
       name: 'AddToWishlist',
       subscribe: 'event = "Product Added To Wishlist"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'AddToWishlist',
@@ -155,8 +161,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       name: 'CompleteRegistration',
       subscribe: 'event = "Signed Up"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'CompleteRegistration',
@@ -164,13 +169,12 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
         }
       },
       type: 'automatic'
-    }, 
+    },
     {
       name: 'InitiateCheckout',
       subscribe: 'event = "Checkout Started"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'InitiateCheckout',
@@ -198,14 +202,13 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       name: 'Purchase',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Purchase',
           show_fields: false
         },
-        value: { '@path': '$.properties.revenue' }, 
+        value: { '@path': '$.properties.revenue' },
         custom_data: {
           order_id: { '@path': '$.properties.order_id' }
         }
@@ -216,8 +219,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       name: 'Search',
       subscribe: 'event = "Products Searched"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'Search',
@@ -236,8 +238,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
       name: 'ViewContent',
       subscribe: 'event = "Product Viewed"',
       partnerAction: 'send',
-      mapping: 
-      { 
+      mapping: {
         ...defaultValues(send.fields),
         event_config: {
           event_name: 'ViewContent',
@@ -247,7 +248,7 @@ export const destination: BrowserDestinationDefinition<Settings, { fbq: FBClient
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
           item_price: { '@path': '$.properties.price' }
-        }, 
+        },
         content_ids: { '@path': '$.properties.product_id' },
         value: { '@path': '$.properties.price' }
       },
