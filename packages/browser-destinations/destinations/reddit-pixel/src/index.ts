@@ -23,12 +23,12 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
 
   presets: [
     {
-      name: 'View Content 123',
+      name: 'View Content 123456',
       subscribe: 'type = "track" and event = "Product Viewed"',
       partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
-        tracking_type: 'ViewContent'
+        tracking_type: 'ViewContent1234'
       },
       type: 'automatic'
     },
@@ -97,12 +97,12 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
       type: 'automatic'
     },
     {
-      name: 'Page Visit 2323',
+      name: 'Page Visit 595959',
       subscribe: 'type = "page"',
       partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
-        tracking_type: 'PageVisit'
+        tracking_type: 'PageVisit123'
       },
       type: 'automatic'
     },

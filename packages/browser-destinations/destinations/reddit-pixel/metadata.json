@@ -3282,7 +3282,7 @@
   },
   "presets": [
     {
-      "name": "View Content 123",
+      "name": "View Content 123456",
       "type": "automatic",
       "partnerAction": "reportWebEvent",
       "subscribe": "type = \"track\" and event = \"Product Viewed\"",
@@ -3374,7 +3374,7 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
-        "tracking_type": "ViewContent"
+        "tracking_type": "ViewContent1234"
       },
       "eventSlug": null
     },
@@ -3831,7 +3831,7 @@
       "eventSlug": null
     },
     {
-      "name": "Page Visit 2323",
+      "name": "Page Visit 595959",
       "type": "automatic",
       "partnerAction": "reportWebEvent",
       "subscribe": "type = \"page\"",
@@ -3923,7 +3923,7 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
-        "tracking_type": "PageVisit"
+        "tracking_type": "PageVisit123"
       },
       "eventSlug": null
     },
