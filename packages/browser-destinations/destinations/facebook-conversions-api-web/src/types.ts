@@ -67,6 +67,7 @@ export type FBEvent = {
   delivery_category?: string
   num_items?: number
   search_string?: string
+  status?: boolean
   value?: number
   custom_data?: {
     [k: string]: unknown

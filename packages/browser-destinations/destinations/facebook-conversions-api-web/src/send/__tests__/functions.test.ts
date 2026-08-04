@@ -206,6 +206,33 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       )
     })
 
+    it('should send CompleteRegistration event with status', async () => {
+      const payload = {
+        event_config: {
+          event_name: 'CompleteRegistration',
+          show_fields: false
+        },
+        status: true,
+        currency: 'USD',
+        value: 0
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingle',
+        'test-pixel-123',
+        'CompleteRegistration',
+        {
+          partner_agent: 'segment',
+          status: true,
+          currency: 'USD',
+          value: 0
+        },
+        undefined
+      )
+    })
+
     it('should send PageView event', async () => {
       const payload = {
         event_config: {

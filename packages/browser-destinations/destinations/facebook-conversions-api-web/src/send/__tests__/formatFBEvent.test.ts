@@ -234,6 +234,44 @@ describe('formatFBEvent', () => {
     })
   })
 
+  it('should include status for a CompleteRegistration event', () => {
+    const payload: Partial<Payload> = {
+      event_config: {
+        event_name: 'CompleteRegistration',
+        show_fields: true
+      },
+      status: true,
+      currency: 'USD',
+      value: 0
+    }
+
+    const result = formatFBEvent(payload as Payload)
+
+    expect(result).toEqual({
+      partner_agent: 'segment',
+      status: true,
+      currency: 'USD',
+      value: 0
+    })
+  })
+
+  it('should include status when false (registration not completed)', () => {
+    const payload: Partial<Payload> = {
+      event_config: {
+        event_name: 'CompleteRegistration',
+        show_fields: true
+      },
+      status: false
+    }
+
+    const result = formatFBEvent(payload as Payload)
+
+    expect(result).toEqual({
+      partner_agent: 'segment',
+      status: false
+    })
+  })
+
   it('should format Subscribe event with predicted_ltv', () => {
     const payload: Partial<Payload> = {
       event_config: {
