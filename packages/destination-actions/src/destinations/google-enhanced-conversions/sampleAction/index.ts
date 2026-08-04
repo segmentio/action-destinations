@@ -11,6 +11,20 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'Sample field for bug bash testing',
       type: 'string',
       required: false
+    },
+    sampleEmail: {
+      label: 'Sample Email',
+      description: 'Sample identifier field for bug bash testing',
+      type: 'string',
+      required: false,
+      category: 'identifier'
+    },
+    sampleUserId: {
+      label: 'Sample User ID',
+      description: 'Sample identifier field for bug bash testing',
+      type: 'string',
+      required: false,
+      category: 'identifier'
     }
   },
   perform: () => {
