@@ -2,7 +2,7 @@ import { EVENT_NAMES, SUPPORTED_SYNC_MODES } from './constants'
 import { Payload } from './generated-types'
 import { Payload as SingleProductPayload } from '../ecommerceSingleProduct/generated-types'
 
-export type SupportedSyncMode = (typeof SUPPORTED_SYNC_MODES)[number]
+export type SupportedSyncMode = (typeof SUPPORTED_SYNC_MODES)[keyof typeof SUPPORTED_SYNC_MODES]
 
 export type PayloadWithIndex = (Payload | SingleProductPayload) & {
     index?: number
