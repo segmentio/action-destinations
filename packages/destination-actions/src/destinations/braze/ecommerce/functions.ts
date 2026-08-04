@@ -23,7 +23,7 @@ import type {
 } from './types'
 import { EVENT_NAMES, SUPPORTED_SYNC_MODES } from './constants'
 import dayjs from 'dayjs'
-
+// minor change comment to trigger package publish
 export async function send(
   request: RequestClient,
   payloads: (Payload | SingleProductPayload)[],
@@ -34,7 +34,9 @@ export async function send(
   const msResponse = new MultiStatusResponse()
 
   const isValidSyncMode = syncMode && (Object.values(SUPPORTED_SYNC_MODES) as SyncMode[]).includes(syncMode)
-  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode ? (syncMode as SupportedSyncMode) : SUPPORTED_SYNC_MODES.ADD
+  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode
+    ? (syncMode as SupportedSyncMode)
+    : SUPPORTED_SYNC_MODES.ADD
 
   const { endpoint } = settings
   const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, resolvedSyncMode, msResponse)
