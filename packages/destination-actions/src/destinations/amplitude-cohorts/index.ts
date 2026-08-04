@@ -2,7 +2,7 @@ import { AudienceDestinationDefinition, IntegrationError } from '@segment/action
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getEndpointByRegion, createAudience, getAudience } from './functions'
-import { ID_TYPES } from './constants'
+import { ID_TYPES, AUDIENCE_NAME_PREFIX } from './constants'
 import { IDType } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -57,6 +57,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           }
         ],
         default: 'north_america'
+      },
+      prefix_audience_names: {
+        label: 'Prefix Audience Names',
+        description:
+          'When enabled, all audience (cohort) names sent to Amplitude are prefixed with "[Segment] ". Turn this off to send audience names without the prefix.',
+        type: 'boolean',
+        required: false,
+        default: true
       }
     },
     testAuthentication: (request, { settings }) => {
@@ -128,7 +136,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceName, settings, audienceSettings, statsContext } = createAudienceInput
 
       const { owner_email, audience_name, id_type, user_id } = (audienceSettings || {}) as AudienceSettings
-      const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
+      const baseName = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
+      // `prefix_audience_names` defaults to true; the prefix is applied only when it is explicitly true.
+      const name = settings.prefix_audience_names === true ? `${AUDIENCE_NAME_PREFIX}${baseName}` : baseName
 
       const externalId = await createAudience(
         request,

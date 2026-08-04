@@ -253,6 +253,83 @@ describe('Amplitude Cohorts', () => {
 
       expect(result).toEqual({ externalId: audienceId })
     })
+
+    it('should NOT prefix the audience name when prefix_audience_names is false', async () => {
+      const audienceId = 'no_prefix_cohort'
+      const noPrefixSettings = { ...settings, prefix_audience_names: false }
+
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '1' })
+        .reply(200, { matches: [{ user_id: 'seed_user_1', amplitude_id: 12345 }] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
+
+      // Name must be sent verbatim, with no "[Segment] " prefix.
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/upload', {
+          name: 'Unprefixed Audience',
+          app_id: settings.app_id,
+          id_type: 'BY_USER_ID',
+          ids: ['seed_user_1'],
+          owner: 'owner@example.com',
+          published: true
+        })
+        .reply(200, { cohortId: audienceId })
+
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/membership')
+        .reply(200, { cohort_id: audienceId, memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }] })
+
+      const result = await testDestination.createAudience({
+        settings: noPrefixSettings,
+        audienceName: 'Unprefixed Audience',
+        audienceSettings: {
+          id_type: 'BY_USER_ID',
+          owner_email: 'owner@example.com'
+        }
+      })
+
+      expect(result).toEqual({ externalId: audienceId })
+    })
+
+    it('should prefix the audience name when prefix_audience_names is explicitly true', async () => {
+      const audienceId = 'prefix_cohort'
+      const prefixSettings = { ...settings, prefix_audience_names: true }
+
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '1' })
+        .reply(200, { matches: [{ user_id: 'seed_user_1', amplitude_id: 12345 }] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
+
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/upload', {
+          name: '[Segment] Prefixed Audience',
+          app_id: settings.app_id,
+          id_type: 'BY_USER_ID',
+          ids: ['seed_user_1'],
+          owner: 'owner@example.com',
+          published: true
+        })
+        .reply(200, { cohortId: audienceId })
+
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/membership')
+        .reply(200, { cohort_id: audienceId, memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }] })
+
+      const result = await testDestination.createAudience({
+        settings: prefixSettings,
+        audienceName: 'Prefixed Audience',
+        audienceSettings: {
+          id_type: 'BY_USER_ID',
+          owner_email: 'owner@example.com'
+        }
+      })
+
+      expect(result).toEqual({ externalId: audienceId })
+    })
   })
 
   describe('getAudience', () => {
