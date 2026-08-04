@@ -270,7 +270,7 @@ export const fields: Record<string, InputField> = {
   },
   testConditionalField: {
     label: 'Test Conditional Field',
-    description: 'TEMPORARY bug-bash field (TC33/TC34) — required only when channel is Whatsapp.',
+    description: 'TEMPORARY bug-bash field (TC33/TC34) — required only when channel is RCS.',
     type: 'string',
     required: {
       match: 'all',
@@ -278,7 +278,7 @@ export const fields: Record<string, InputField> = {
         {
           fieldKey: 'channel',
           operator: 'is',
-          value: CHANNELS.WHATSAPP
+          value: CHANNELS.RCS
         }
       ]
     }
