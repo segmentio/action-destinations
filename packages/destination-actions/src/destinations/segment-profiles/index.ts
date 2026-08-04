@@ -6,6 +6,8 @@ import sendIdentify from './sendIdentify'
 import sendSubscription from './sendSubscription'
 import sendTrack from './sendTrack'
 
+import send from './send'
+
 const destination: DestinationDefinition<Settings> = {
   name: 'Segment Profiles',
   slug: 'actions-segment-profiles',
@@ -14,7 +16,8 @@ const destination: DestinationDefinition<Settings> = {
     sendGroup,
     sendIdentify,
     sendSubscription,
-    sendTrack
+    sendTrack,
+    send
   }
 }
 

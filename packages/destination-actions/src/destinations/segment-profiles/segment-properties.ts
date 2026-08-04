@@ -76,6 +76,13 @@ export const consent: InputField = {
   unsafe_hidden: true
 }
 
+export const mdkhan_attribute: InputField = {
+  label: 'mdkhan attribute name',
+  description: 'Name of the action that a user has performed.',
+  type: 'string',
+  required: false
+}
+
 function isCategoryPreferences(obj: unknown): boolean {
   if (typeof obj !== 'object' || obj === null) {
     return false
