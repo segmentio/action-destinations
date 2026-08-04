@@ -798,4 +798,55 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       })
     })
   })
+
+  it('should include ctwa_clid in user_data', async () => {
+    nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
+
+    const event = createTestEvent({
+      event: 'Order Completed',
+      userId: 'abc123',
+      timestamp: '1631210000',
+      properties: {
+        action_source: 'email',
+        currency: 'USD',
+        value: 12.12,
+        email: 'test@example.com',
+        ctwa_clid: 'test_ctwa_click_id_12345'
+      }
+    })
+
+    const responses = await testDestination.testAction('purchase2', {
+      event,
+      settings,
+      mapping: {
+        __segment_internal_sync_mode: 'add',
+        currency: {
+          '@path': '$.properties.currency'
+        },
+        value: {
+          '@path': '$.properties.value'
+        },
+        user_data: {
+          email: {
+            '@path': '$.properties.email'
+          },
+          ctwa_clid: {
+            '@path': '$.properties.ctwa_clid'
+          }
+        },
+        action_source: {
+          '@path': '$.properties.action_source'
+        },
+        event_time: {
+          '@path': '$.timestamp'
+        }
+      }
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(201)
+    expect(responses[0].options.body).toMatchInlineSnapshot(
+      `"{\\"data\\":[{\\"event_name\\":\\"Purchase\\",\\"event_time\\":\\"1631210000\\",\\"action_source\\":\\"email\\",\\"user_data\\":{\\"em\\":\\"973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b\\",\\"ctwa_clid\\":\\"test_ctwa_click_id_12345\\"},\\"custom_data\\":{\\"currency\\":\\"USD\\",\\"value\\":12.12}}]}"`
+    )
+  })
 })

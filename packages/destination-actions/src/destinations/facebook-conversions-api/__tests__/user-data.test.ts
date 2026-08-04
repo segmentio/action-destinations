@@ -15,7 +15,8 @@ describe('FacebookConversionsApi', () => {
             state: 'CA ',
             zip: '12345 9876',
             country: 'U S ',
-            externalId: [' ABC12345 ', ' Xyz123 ']
+            externalId: [' ABC12345 ', ' Xyz123 '],
+            ctwa_clid: ' 12345 '
           }
         }
         normalize_user_data(test_payload)
@@ -29,6 +30,7 @@ describe('FacebookConversionsApi', () => {
         expect(test_payload.user_data.zip).toEqual('123459876')
         expect(test_payload.user_data.country).toEqual('us')
         expect(test_payload.user_data.externalId).toEqual(['abc12345', 'xyz123'])
+        expect(test_payload.user_data.ctwa_clid).toEqual('12345')
       })
 
       it('fields by converting state names to state codes', async () => {
