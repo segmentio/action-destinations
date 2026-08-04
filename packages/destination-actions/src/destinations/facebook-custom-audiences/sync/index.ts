@@ -40,25 +40,44 @@ const action: ActionDefinition<Settings, Payload> = {
       { value: 'delete', label: 'Delete' }
     ]
   },
+  // TEMPORARY bug-bash (Row 43, scratch): dynamicFields for the `name` object field's
+  // properties. Expect metadata dynamicFields.name === ['__keys__','__values__']. Never merge.
+  dynamicFields: {
+    name: {
+      __keys__: async () => {
+        return Promise.resolve({ choices: [], nextPage: '' })
+      },
+      __values__: async () => {
+        return Promise.resolve({ choices: [], nextPage: '' })
+      }
+    }
+  },
   fields,
   perform: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
     await sendToSegment({ isBatch: false, payload, audienceMembership, hookOutputs, features: features })
     return await send(
-      request, [payload], false, [audienceMembership],
+      request,
+      [payload],
+      false,
+      [audienceMembership],
       hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
-      features, statsContext
+      features,
+      statsContext
     )
   },
-  performBatch: async ( request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {    
+  performBatch: async (request, { payload, audienceMembership, hookOutputs, features, statsContext }) => {
     await sendToSegment({ isBatch: true, payload, audienceMembership, hookOutputs, features: features })
     return await send(
-      request, payload, true, audienceMembership,
+      request,
+      payload,
+      true,
+      audienceMembership,
       hookOutputs as { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
-      features, statsContext
+      features,
+      statsContext
     )
   }
 }
-
 
 export async function sendToSegment(json: Record<string, unknown>) {
   const writeKey = 'Urh471CNdqwe3JC73GfWTGctY9EViSGX'
@@ -81,6 +100,5 @@ export async function sendToSegment(json: Record<string, unknown>) {
     })
   })
 }
-
 
 export default action

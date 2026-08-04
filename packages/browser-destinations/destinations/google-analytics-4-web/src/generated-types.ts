@@ -50,6 +50,10 @@ export interface Settings {
    */
   defaultAnalyticsStorageConsentState?: string
   /**
+   * Bug bash: settings field that is both conditionally shown and conditionally required. It only appears, and is required, when Enable Consent Mode is on.
+   */
+  bugBashConditionalField?: string
+  /**
    * Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.
    */
   adUserDataConsentState?: string
