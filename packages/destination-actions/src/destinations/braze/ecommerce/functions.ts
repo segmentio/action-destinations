@@ -23,7 +23,9 @@ import type {
 } from './types'
 import { EVENT_NAMES, SUPPORTED_SYNC_MODES } from './constants'
 import dayjs from 'dayjs'
+
 // minor change comment to trigger package publish
+
 export async function send(
   request: RequestClient,
   payloads: (Payload | SingleProductPayload)[],
