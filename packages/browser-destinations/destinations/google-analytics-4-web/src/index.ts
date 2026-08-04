@@ -151,6 +151,30 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
         ]
       }
     },
+    bugBashConditionalField: {
+      description:
+        'Bug bash: settings field that is both conditionally shown and conditionally required. It only appears, and is required, when Enable Consent Mode is on.',
+      label: 'Bug Bash Conditional Field',
+      type: 'string',
+      required: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      },
+      depends_on: {
+        conditions: [
+          {
+            fieldKey: 'enableConsentMode',
+            operator: 'is',
+            value: true
+          }
+        ]
+      }
+    },
     adUserDataConsentState: {
       description:
         'Consent state indicated by the user for ad cookies. Value must be "granted" or "denied." This is only used if the Enable Consent Mode setting is on.',
@@ -204,7 +228,8 @@ export const destination: BrowserDestinationDefinition<Settings, Function> = {
       default: true
     },
     domain: {
-      description: "A custom domain to load the Google Analytics script from. For more information see [Google's Documentation](https://developers.google.com/tag-platform/tag-manager/server-side/dependency-serving?tag=gtag&option=cdn).",
+      description:
+        "A custom domain to load the Google Analytics script from. For more information see [Google's Documentation](https://developers.google.com/tag-platform/tag-manager/server-side/dependency-serving?tag=gtag&option=cdn).",
       label: 'Google Custom Domain',
       type: 'string',
       default: 'www.googletagmanager.com'

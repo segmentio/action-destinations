@@ -159,6 +159,32 @@
           ]
         }
       },
+      "bugBashConditionalField": {
+        "label": "Bug Bash Conditional Field",
+        "description": "Bug bash: settings field that is both conditionally shown and conditionally required. It only appears, and is required, when Enable Consent Mode is on.",
+        "type": "string",
+        "required": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        },
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "enableConsentMode",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
       "adUserDataConsentState": {
         "label": "Ad User Data Consent State",
         "description": "Consent state indicated by the user for ad cookies. Value must be \"granted\" or \"denied.\" This is only used if the Enable Consent Mode setting is on.",
