@@ -160,11 +160,11 @@ describe('formatFBEvent', () => {
         show_fields: true
       },
       contents: [
-        { id: 'product-1', quantity: 2, item_price: 25.50 },
-        { id: 'product-2', quantity: 1, item_price: 100.00 },
+        { id: 'product-1', quantity: 2, item_price: 25.5 },
+        { id: 'product-2', quantity: 1, item_price: 100.0 },
         { id: 'product-3', quantity: 3 }
       ],
-      value: 151.00
+      value: 151.0
     }
 
     const result = formatFBEvent(payload as Payload)
@@ -172,11 +172,11 @@ describe('formatFBEvent', () => {
     expect(result).toEqual({
       partner_agent: 'segment',
       contents: [
-        { id: 'product-1', quantity: 2, item_price: 25.50 },
-        { id: 'product-2', quantity: 1, item_price: 100.00 },
+        { id: 'product-1', quantity: 2, item_price: 25.5 },
+        { id: 'product-2', quantity: 1, item_price: 100.0 },
         { id: 'product-3', quantity: 3 }
       ],
-      value: 151.00
+      value: 151.0
     })
   })
 
@@ -209,6 +209,31 @@ describe('formatFBEvent', () => {
     })
   })
 
+  it('should include search_string for a Search event', () => {
+    const payload: Partial<Payload> = {
+      event_config: {
+        event_name: 'Search',
+        show_fields: true
+      },
+      search_string: 'monopoly board game',
+      content_category: 'Games',
+      content_ids: ['product-123'],
+      currency: 'USD',
+      value: 19.99
+    }
+
+    const result = formatFBEvent(payload as Payload)
+
+    expect(result).toEqual({
+      partner_agent: 'segment',
+      search_string: 'monopoly board game',
+      content_category: 'Games',
+      content_ids: ['product-123'],
+      currency: 'USD',
+      value: 19.99
+    })
+  })
+
   it('should format Subscribe event with predicted_ltv', () => {
     const payload: Partial<Payload> = {
       event_config: {
@@ -237,9 +262,9 @@ describe('formatFBEvent', () => {
         show_fields: true
       },
       content_ids: ['product-123'],
-      value: 100.00,
+      value: 100.0,
       currency: 'USD',
-      net_revenue: 85.00
+      net_revenue: 85.0
     }
 
     const result = formatFBEvent(payload as Payload)
@@ -247,9 +272,9 @@ describe('formatFBEvent', () => {
     expect(result).toEqual({
       partner_agent: 'segment',
       content_ids: ['product-123'],
-      value: 100.00,
+      value: 100.0,
       currency: 'USD',
-      net_revenue: 85.00
+      net_revenue: 85.0
     })
   })
 

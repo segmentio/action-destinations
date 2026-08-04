@@ -175,6 +175,37 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       )
     })
 
+    it('should send Search event with search_string', async () => {
+      const payload = {
+        event_config: {
+          event_name: 'Search',
+          show_fields: false
+        },
+        search_string: 'monopoly board game',
+        content_category: 'Games',
+        content_ids: ['product-123'],
+        currency: 'USD',
+        value: 19.99
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingle',
+        'test-pixel-123',
+        'Search',
+        {
+          partner_agent: 'segment',
+          search_string: 'monopoly board game',
+          content_category: 'Games',
+          content_ids: ['product-123'],
+          currency: 'USD',
+          value: 19.99
+        },
+        undefined
+      )
+    })
+
     it('should send PageView event', async () => {
       const payload = {
         event_config: {
