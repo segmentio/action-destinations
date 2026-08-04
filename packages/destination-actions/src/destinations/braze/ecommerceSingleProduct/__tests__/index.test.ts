@@ -301,4 +301,65 @@ describe('Braze.ecommerce', () => {
       expect(response.length).toBe(1)
     })
   })
+
+  describe('syncMode (no user_alias present)', () => {
+    // The tests above use a payload with a fully-formed user_alias, which always forces
+    // _update_existing_only to true regardless of syncMode (see the shared `send` function in
+    // ../../ecommerce/functions.ts). These tests remove user_alias so the syncMode ->
+    // _update_existing_only decision logic is actually exercised.
+    it('should set _update_existing_only to true when a valid syncMode of "update" is used', async () => {
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      delete deepCopy.properties?.user_alias
+      const e = createTestEvent(deepCopy)
+
+      let sentJson: any
+      nock(settings.endpoint)
+        .post('/users/track', (body) => {
+          sentJson = body
+          return true
+        })
+        .reply(200)
+
+      const response = await testDestination.testAction('ecommerceSingleProduct', {
+        event: e,
+        settings,
+        useDefaultMappings: true,
+        mapping: { ...mapping, __segment_internal_sync_mode: 'update' }
+      })
+
+      expect(response.length).toBe(1)
+      expect(sentJson.events[0]).toMatchObject({
+        name: 'ecommerce.product_viewed',
+        _update_existing_only: true
+      })
+      expect(sentJson.events[0].user_alias).toBeUndefined()
+    })
+
+    it('should omit _update_existing_only when a valid syncMode of "add" is used', async () => {
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      delete deepCopy.properties?.user_alias
+      const e = createTestEvent(deepCopy)
+
+      let sentJson: any
+      nock(settings.endpoint)
+        .post('/users/track', (body) => {
+          sentJson = body
+          return true
+        })
+        .reply(200)
+
+      const response = await testDestination.testAction('ecommerceSingleProduct', {
+        event: e,
+        settings,
+        useDefaultMappings: true,
+        mapping: { ...mapping, __segment_internal_sync_mode: 'add' }
+      })
+
+      expect(response.length).toBe(1)
+      expect(sentJson.events[0]).toMatchObject({
+        name: 'ecommerce.product_viewed'
+      })
+      expect(sentJson.events[0]._update_existing_only).toBeUndefined()
+    })
+  })
 })
