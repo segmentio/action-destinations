@@ -139,5 +139,13 @@
       }
     }
   },
-  "presets": []
+  "presets": [
+    {
+      "name": "Missing Type Preset",
+      "partnerAction": "postToChannel",
+      "subscribe": "type = \"track\"",
+      "mapping": {},
+      "eventSlug": null
+    }
+  ]
 }
