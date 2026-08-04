@@ -229,7 +229,12 @@
           }
         }
       },
-      "dynamicFields": null,
+      "dynamicFields": {
+        "name": [
+          "__keys__",
+          "__values__"
+        ]
+      },
       "fields": {
         "externalId": {
           "label": "External ID",
