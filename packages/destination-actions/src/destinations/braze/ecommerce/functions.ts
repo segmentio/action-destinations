@@ -21,7 +21,7 @@ import type {
   PayloadWithIndex,
   Product
 } from './types'
-import { EVENT_NAMES } from './constants'
+import { EVENT_NAMES, SUPPORTED_SYNC_MODES } from './constants'
 import dayjs from 'dayjs'
 
 export async function send(
@@ -33,11 +33,9 @@ export async function send(
 ) {
   const msResponse = new MultiStatusResponse()
 
-  // 'add' is the action's declared default sync mode -- fall back to it only when syncMode wasn't
-  // provided at all. A syncMode that *was* explicitly provided but isn't one this action supports
-  // (e.g. 'delete'/'mirror'/'upsert' from the broader framework-level SyncMode type) is still a
-  // real error, not something to silently coerce into 'add'.
-  if (syncMode && !['update', 'add'].includes(syncMode)) {
+  const isValidSyncMode = syncMode && Object.values(SUPPORTED_SYNC_MODES).includes(syncMode)
+  
+  if (!isValidSyncMode) {
     const message = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
     if (isBatch) {
       payloads.forEach((payload, index) => {
@@ -52,7 +50,7 @@ export async function send(
       throw new PayloadValidationError(message)
     }
   }
-  const resolvedSyncMode: SupportedSyncMode = syncMode === 'update' ? 'update' : 'add'
+  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode ? syncMode : SUPPORTED_SYNC_MODES.ADD
 
   const { endpoint } = settings
   const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, resolvedSyncMode, msResponse)
