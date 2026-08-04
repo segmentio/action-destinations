@@ -1091,7 +1091,7 @@
     },
     "send": {
       "title": "Send",
-      "description": "",
+      "description": "Send by mdkhan",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
