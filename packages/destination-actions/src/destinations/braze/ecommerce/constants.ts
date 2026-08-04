@@ -6,3 +6,8 @@ export const EVENT_NAMES = {
   ORDER_CANCELLED: 'ecommerce.order_cancelled',
   ORDER_REFUNDED: 'ecommerce.order_refunded'
 } as const
+
+export const SUPPORTED_SYNC_MODES = {
+  ADD: 'add',
+  UPDATE: 'update'
+} as const
