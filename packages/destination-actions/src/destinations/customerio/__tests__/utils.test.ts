@@ -1,4 +1,4 @@
-import { resolveIdentifiers } from '../utils'
+import { resolveIdentifiers, convertAttributeTimestamps } from '../utils'
 
 describe('resolveIdentifiers', () => {
   it('should return object_id and object_type_id if both are provided', () => {
@@ -39,5 +39,27 @@ describe('resolveIdentifiers', () => {
 
   it('should return undefined if no identifiers are provided', () => {
     expect(resolveIdentifiers({})).toBeUndefined()
+  })
+})
+
+describe('convertAttributeTimestamps — fractional second variants', () => {
+  it('converts a 7-digit fractional second ISO timestamp to unix', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.6527521Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('converts a 9-digit fractional second ISO timestamp to unix', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.652752100Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('does not regress on 3-digit millisecond timestamps', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.652Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('does not convert non-date strings', () => {
+    const result = convertAttributeTimestamps({ name: 'hello' })
+    expect(result.name).toBe('hello')
   })
 })
