@@ -21,8 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
       description: 'The partition key to use for the record',
       type: 'string',
       required: true,
-      default: { '@path': '$.messageId' },
-      disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
+      default: { '@path': '$.messageId' }
     },
     streamName: {
       label: 'Stream Name',

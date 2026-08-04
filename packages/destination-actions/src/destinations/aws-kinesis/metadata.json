@@ -87,12 +87,7 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": [
-            "variable",
-            "function",
-            "freeform",
-            "enrichment"
-          ],
+          "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
           "additionalProperties": false
