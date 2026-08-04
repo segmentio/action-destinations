@@ -198,7 +198,7 @@
     "bugBash": {
       "title": "Bug Bash",
       "description": "Updating action description bug bash testing.",
-      "platform": "web",
+      "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
       "hasPerformBatch": false,
