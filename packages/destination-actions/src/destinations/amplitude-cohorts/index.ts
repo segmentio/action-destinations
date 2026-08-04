@@ -71,7 +71,11 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { endpoint, default_owner_email } = settings
       const trimmedOwnerEmail = default_owner_email?.trim()
       if (!trimmedOwnerEmail) {
-        throw new IntegrationError('Missing Cohort Owner Email value', 'MISSING_REQUIRED_FIELD', 400)
+        throw new IntegrationError(
+          'Missing required setting: Cohort Owner Email (default_owner_email)',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
       }
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
       return request(`${baseUrl}?user=${encodeURIComponent(trimmedOwnerEmail)}`)

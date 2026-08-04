@@ -48,6 +48,14 @@ describe('Amplitude Cohorts', () => {
       await expect(testDestination.testAuthentication(aliasedSettings)).resolves.not.toThrowError()
       expect(scope.isDone()).toBe(true)
     })
+
+    it.each(['', '   '])('should throw MISSING_REQUIRED_FIELD when default_owner_email is %p', async (ownerEmail) => {
+      const badSettings = { ...settings, default_owner_email: ownerEmail }
+
+      await expect(testDestination.testAuthentication(badSettings)).rejects.toThrowError(
+        'Missing required setting: Cohort Owner Email (default_owner_email)'
+      )
+    })
   })
 
   describe('createAudience', () => {
