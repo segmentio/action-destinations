@@ -2,8 +2,8 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { createHmac } from 'crypto'
 
-// TEMPORARY bug-bash (Row 62, scratch): remove all web/cloud actions to verify
-// the bot's inferPlatforms flips platforms.browser/server to false. Never merge.
+import send from './send'
+import bugBash from './bugBash'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook',
@@ -28,7 +28,10 @@ const destination: DestinationDefinition<Settings> = {
     }
     return {}
   },
-  actions: {}
+  actions: {
+    send,
+    bugBash
+  }
 }
 
 export default destination
