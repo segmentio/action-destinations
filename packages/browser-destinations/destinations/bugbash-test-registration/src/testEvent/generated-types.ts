@@ -5,4 +5,18 @@ export interface Payload {
    * A test message field.
    */
   message?: string
+  /**
+   * A test numeric field.
+   */
+  count?: number
+  /**
+   * A test boolean field.
+   */
+  isTest?: boolean
+  /**
+   * A test object field.
+   */
+  properties?: {
+    [k: string]: unknown
+  }
 }
