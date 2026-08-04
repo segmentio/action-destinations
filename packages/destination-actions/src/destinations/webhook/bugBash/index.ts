@@ -5,7 +5,6 @@ import type { Payload } from './generated-types'
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Bug Bash',
   description: 'Updating action description bug bash testing.',
-  platform: 'web',
   fields: {
     optionalField: {
       label: 'Optional Field',
