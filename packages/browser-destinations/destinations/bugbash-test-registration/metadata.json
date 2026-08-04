@@ -1,0 +1,47 @@
+{
+  "slug": "actions-bugbash-test-registration",
+  "name": "Bugbash Test Registration",
+  "mode": "device",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "testEvent": {
+      "title": "Test Event",
+      "description": "Scratch test action for a bug-bash browser-destination registration test.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "message": {
+          "label": "Message",
+          "description": "A test message field.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}
