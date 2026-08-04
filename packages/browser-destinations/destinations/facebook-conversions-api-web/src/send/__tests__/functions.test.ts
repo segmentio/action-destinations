@@ -89,6 +89,63 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       )
     })
 
+    it('should wrap a single content_ids string into an array', async () => {
+      // The browser device-mode runtime does not arrify multiple:true fields,
+      // so a single-product event maps content_ids to a scalar string. It
+      // should still be sent to fbq as an array, not dropped.
+      const payload = {
+        event_config: {
+          event_name: 'ViewContent',
+          show_fields: false
+        },
+        content_ids: 'product-123',
+        value: 19.99
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingle',
+        'test-pixel-123',
+        'ViewContent',
+        {
+          partner_agent: 'segment',
+          content_ids: ['product-123'],
+          value: 19.99
+        },
+        undefined
+      )
+    })
+
+    it('should wrap a single contents object into an array', async () => {
+      // Likewise a single-product event maps contents to a scalar object; it
+      // should be sent to fbq wrapped in an array.
+      const payload = {
+        event_config: {
+          event_name: 'AddToCart',
+          show_fields: false
+        },
+        contents: { id: 'product-123', quantity: 2, item_price: 49.99 },
+        value: 99.98,
+        currency: 'USD'
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingle',
+        'test-pixel-123',
+        'AddToCart',
+        {
+          partner_agent: 'segment',
+          contents: [{ id: 'product-123', quantity: 2, item_price: 49.99 }],
+          value: 99.98,
+          currency: 'USD'
+        },
+        undefined
+      )
+    })
+
     it('should send ViewContent event', async () => {
       const payload = {
         event_config: {
@@ -128,7 +185,13 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'PageView', { partner_agent: 'segment' }, undefined)
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingle',
+        'test-pixel-123',
+        'PageView',
+        { partner_agent: 'segment' },
+        undefined
+      )
     })
   })
 
@@ -265,15 +328,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      expect(mockFbq).toHaveBeenCalledWith(
-        'trackSingle',
-        'test-pixel-123',
-        'Purchase',
-        expect.any(Object),
-        {
-          eventID: 'unique-event-id-123'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'Purchase', expect.any(Object), {
+        eventID: 'unique-event-id-123'
+      })
     })
 
     it('should include eventSourceUrl when provided', async () => {
@@ -289,15 +346,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      expect(mockFbq).toHaveBeenCalledWith(
-        'trackSingle',
-        'test-pixel-123',
-        'Purchase',
-        expect.any(Object),
-        {
-          eventSourceUrl: 'https://example.com/checkout'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'Purchase', expect.any(Object), {
+        eventSourceUrl: 'https://example.com/checkout'
+      })
     })
 
     it('should include both eventID and eventSourceUrl when provided', async () => {
@@ -314,16 +365,10 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      expect(mockFbq).toHaveBeenCalledWith(
-        'trackSingle',
-        'test-pixel-123',
-        'Purchase',
-        expect.any(Object),
-        {
-          eventID: 'unique-event-id-123',
-          eventSourceUrl: 'https://example.com/checkout'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('trackSingle', 'test-pixel-123', 'Purchase', expect.any(Object), {
+        eventID: 'unique-event-id-123',
+        eventSourceUrl: 'https://example.com/checkout'
+      })
     })
   })
 
@@ -465,7 +510,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
 
-      const eventData = (mockFbq).mock.calls[0][3]
+      const eventData = mockFbq.mock.calls[0][3]
       expect(eventData).toEqual({ partner_agent: 'segment' })
     })
 
@@ -592,30 +637,29 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('John', 'first_name')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('Doe', 'last_name')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('m', 'gender')
-      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('1990-05-15', 'date_of_birth')
+      expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith(
+        '1990-05-15',
+        'date_of_birth'
+      )
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('San Francisco', 'city')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('CA', 'state')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('94102', 'zip_code')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('US', 'country')
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('user-123', 'external_id')
 
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        {
-          em: 'hashed_email_value',
-          ph: 'hashed_phone_value',
-          fn: 'hashed_first_name_value',
-          ln: 'hashed_last_name_value',
-          ge: 'hashed_gender_value',
-          db: 'hashed_date_of_birth_value',
-          ct: 'hashed_city_value',
-          st: 'hashed_state_value',
-          zp: 'hashed_zip_code_value',
-          country: 'hashed_country_value',
-          external_id: 'hashed_external_id_value'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', {
+        em: 'hashed_email_value',
+        ph: 'hashed_phone_value',
+        fn: 'hashed_first_name_value',
+        ln: 'hashed_last_name_value',
+        ge: 'hashed_gender_value',
+        db: 'hashed_date_of_birth_value',
+        ct: 'hashed_city_value',
+        st: 'hashed_state_value',
+        zp: 'hashed_zip_code_value',
+        country: 'hashed_country_value',
+        external_id: 'hashed_external_id_value'
+      })
     })
 
     it('should use clientParamBuilder getFbc and getFbp methods', async () => {
@@ -645,15 +689,11 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockClientParamBuilderInstance.getFbp).toHaveBeenCalled()
 
       // ClientParamBuilder values should override payload values
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        {
-          em: 'hashed_email',
-          fbc: 'fb.1.1234567890.ClientParamBuilderFbc',
-          fbp: 'fb.1.1234567890.ClientParamBuilderFbp'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', {
+        em: 'hashed_email',
+        fbc: 'fb.1.1234567890.ClientParamBuilderFbc',
+        fbp: 'fb.1.1234567890.ClientParamBuilderFbp'
+      })
     })
 
     it('should use payload fbc/fbp when clientParamBuilder methods return null', async () => {
@@ -682,15 +722,11 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockClientParamBuilderInstance.getFbp).toHaveBeenCalled()
 
       // Should fall back to payload values when clientParamBuilder returns null
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        {
-          em: 'hashed_email',
-          fbc: 'fb.1.1234567890.PayloadFbc',
-          fbp: 'fb.1.1234567890.PayloadFbp'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', {
+        em: 'hashed_email',
+        fbc: 'fb.1.1234567890.PayloadFbc',
+        fbp: 'fb.1.1234567890.PayloadFbp'
+      })
     })
 
     it('should fall back to default formatting when clientParamBuilder returns undefined', async () => {
@@ -716,7 +752,7 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(mockClientParamBuilderInstance.getNormalizedAndHashedPII).toHaveBeenCalledWith('(555) 123-4567', 'phone')
 
       // When clientParamBuilder returns undefined, nothing should be sent (empty userData)
-      const initCalls = (mockFbq).mock.calls.filter((call) => call[0] === 'init')
+      const initCalls = mockFbq.mock.calls.filter((call) => call[0] === 'init')
       expect(initCalls.length).toBe(0)
     })
 
@@ -769,14 +805,10 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       await send(mockFbq, undefined, payload, defaultSettings, mockAnalytics)
 
       // Should use default formatting (normalize and hash)
-      expect(mockFbq).toHaveBeenCalledWith(
-        'init',
-        'test-pixel-123',
-        {
-          em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
-          ph: '3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c'
-        }
-      )
+      expect(mockFbq).toHaveBeenCalledWith('init', 'test-pixel-123', {
+        em: '973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b',
+        ph: '3c95277da5fd0da6a1a44ee3fdf56d20af6c6d242695a40e18e6e90dc3c5872c'
+      })
     })
   })
 })
