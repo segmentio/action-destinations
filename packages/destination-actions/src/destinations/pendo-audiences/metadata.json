@@ -52,7 +52,7 @@
   "audienceConfig": {
     "mode": {
       "type": "synced",
-      "full_audience_sync": false
+      "full_audience_sync": true
     },
     "audienceFields": {
       "audienceName": {
