@@ -267,20 +267,5 @@ export const fields: Record<string, InputField> = {
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue'
-  },
-  testConditionalField: {
-    label: 'Test Conditional Field',
-    description: 'TEMPORARY bug-bash field (TC33/TC34) — required only when channel is Whatsapp.',
-    type: 'string',
-    required: {
-      match: 'all',
-      conditions: [
-        {
-          fieldKey: 'channel',
-          operator: 'is',
-          value: CHANNELS.WHATSAPP
-        }
-      ]
-    }
   }
 }

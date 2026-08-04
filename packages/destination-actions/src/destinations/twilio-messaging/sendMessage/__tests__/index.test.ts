@@ -2,7 +2,7 @@ import { createTestIntegration } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
 import Destination from '../../index'
 import nock from 'nock'
-import { CHANNELS, SENDER_TYPE } from '../constants'
+import { CHANNELS, SENDER_TYPE, FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -38,7 +38,8 @@ describe('TwilioMessaging.sendMessage', () => {
   })
 
   it('should send messsage with tags', async () => {
-    const body = "To=%2B1234567890&From=%2B19876543210&Body=Hello+World%21&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D"
+    const body =
+      'To=%2B1234567890&From=%2B19876543210&Body=Hello+World%21&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D'
     nock('https://api.twilio.com')
       .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body)
       .reply(200, {
@@ -68,26 +69,30 @@ describe('TwilioMessaging.sendMessage', () => {
   })
 
   it('should thow error if tags malformed', async () => {
-     await expect( testDestination.testAction('sendMessage', {
-      settings: defaultSettings,
-      mapping: {
-        channel: CHANNELS.SMS,
-        senderType: SENDER_TYPE.PHONE_NUMBER,
-        toPhoneNumber: '+1234567890',
-        fromPhoneNumber: '+19876543210',
-        contentTemplateType: 'Inline',
-        inlineBody: 'Hello World!',
-        tags: {
-          campaign_name: 'Spring Sale 2022',
-          message_type: 'cart_abandoned',
-          number_tag: 12345,
-          boolean_tag: true,
-          null_tag: null,
-          empty_string_tag: '',
-          super_bad_tag: "$%^&*&^%$"
+    await expect(
+      testDestination.testAction('sendMessage', {
+        settings: defaultSettings,
+        mapping: {
+          channel: CHANNELS.SMS,
+          senderType: SENDER_TYPE.PHONE_NUMBER,
+          toPhoneNumber: '+1234567890',
+          fromPhoneNumber: '+19876543210',
+          contentTemplateType: 'Inline',
+          inlineBody: 'Hello World!',
+          tags: {
+            campaign_name: 'Spring Sale 2022',
+            message_type: 'cart_abandoned',
+            number_tag: 12345,
+            boolean_tag: true,
+            null_tag: null,
+            empty_string_tag: '',
+            super_bad_tag: '$%^&*&^%$'
+          }
         }
-      }
-    })).rejects.toThrow("Tag value \"$%^&*&^%$\" for key \"super_bad_tag\" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.")
+      })
+    ).rejects.toThrow(
+      'Tag value "$%^&*&^%$" for key "super_bad_tag" contains invalid characters. Only alphanumeric, space, hyphen (-), and underscore (_) are allowed.'
+    )
   })
 
   it('should send MMS with messaging service', async () => {
@@ -130,12 +135,15 @@ describe('TwilioMessaging.sendMessage', () => {
   })
 
   it('should send Facebook Messenger message', async () => {
-    const body = "To=messenger%3Ato_fbuserid1234&From=messenger%3Afrom_fbpageid1234&Body=Hello+from+Facebook+Messenger%21"
-    
-    nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body).reply(200, {
-      sid: 'SM1234567890abcdef1234567890abcdef',
-      status: 'sent'
-    })
+    const body =
+      'To=messenger%3Ato_fbuserid1234&From=messenger%3Afrom_fbpageid1234&Body=Hello+from+Facebook+Messenger%21'
+
+    nock('https://api.twilio.com')
+      .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body)
+      .reply(200, {
+        sid: 'SM1234567890abcdef1234567890abcdef',
+        status: 'sent'
+      })
 
     await testDestination.testAction('sendMessage', {
       settings: defaultSettings,
@@ -163,7 +171,9 @@ describe('TwilioMessaging.sendMessage', () => {
           inlineBody: 'This should fail!'
         }
       })
-    ).rejects.toThrow("The root value is missing the required field 'toMessengerUserId'. The root value must match \"then\" schema. The root value is missing the required field 'fromFacebookPageId'. The root value must match \"then\" schema.")
+    ).rejects.toThrow(
+      'The root value is missing the required field \'toMessengerUserId\'. The root value must match "then" schema. The root value is missing the required field \'fromFacebookPageId\'. The root value must match "then" schema.'
+    )
   })
 
   it('should throw error if Facebook Messenger send attempted with a Messaging Service', async () => {
@@ -179,7 +189,9 @@ describe('TwilioMessaging.sendMessage', () => {
           inlineBody: 'This should fail!'
         }
       })
-    ).rejects.toThrow("The root value is missing the required field 'fromFacebookPageId'. The root value must match \"then\" schema.")
+    ).rejects.toThrow(
+      'The root value is missing the required field \'fromFacebookPageId\'. The root value must match "then" schema.'
+    )
   })
 
   it('should send message with content template', async () => {
@@ -223,6 +235,39 @@ describe('TwilioMessaging.sendMessage', () => {
         contentVariables: {
           customer_name: 'Jane',
           order_total: '$99.99'
+        }
+      }
+    })
+  })
+
+  it('should stringify non-string ContentVariables values (numbers, booleans)', async () => {
+    const expectedBody =
+      'To=%2B1234567890&MessagingServiceSid=MG1234567890abcdef1234567890abcdef&ContentSid=HX1234567890abcdef1234567890abcdef&ContentVariables=%7B%22amount_to_finance%22%3A%2212899%22%2C%22cash_price%22%3A%2212500%22%2C%22monthly_payment%22%3A%22285.28%22%2C%22term%22%3A%2260%22%2C%22is_approved%22%3A%22true%22%2C%22vehicle%22%3A%22500+Mhev%22%7D'
+
+    nock('https://api.twilio.com')
+      .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, expectedBody)
+      .reply(200, {
+        sid: 'SM1234567890abcdef1234567890abcdef',
+        status: 'sent'
+      })
+
+    await testDestination.testAction('sendMessage', {
+      settings: defaultSettings,
+      features: { [FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES]: true },
+      mapping: {
+        channel: CHANNELS.SMS,
+        senderType: SENDER_TYPE.MESSAGING_SERVICE,
+        toPhoneNumber: '+1234567890',
+        messagingServiceSid: 'SMS Service [MG1234567890abcdef1234567890abcdef]',
+        contentTemplateType: 'Text',
+        contentSid: 'Template Name [HX1234567890abcdef1234567890abcdef]',
+        contentVariables: {
+          amount_to_finance: 12899,
+          cash_price: 12500,
+          monthly_payment: 285.28,
+          term: 60,
+          is_approved: true,
+          vehicle: '500 Mhev'
         }
       }
     })
@@ -294,7 +339,7 @@ describe('TwilioMessaging.sendMessage', () => {
     })
 
     const sendAt = new Date(Date.now() + 20 * 60 * 1000).toISOString() // set to 20 minutes from now
-    
+
     await testDestination.testAction('sendMessage', {
       settings: defaultSettings,
       mapping: {
@@ -311,13 +356,19 @@ describe('TwilioMessaging.sendMessage', () => {
   })
 
   it('should send RCS with messaging service and scheduled send', async () => {
-
     const sendAt = new Date(Date.now() + 20 * 60 * 1000).toISOString() // set to 20 minutes from now
 
-    nock('https://api.twilio.com').post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, `To=%2B1234567890&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&SendAt=${encodeURIComponent(sendAt)}&ScheduleType=fixed&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png`).reply(200, {
-      sid: 'SM1234567890abcdef1234567890abcdef',
-      status: 'scheduled'
-    })
+    nock('https://api.twilio.com')
+      .post(
+        `/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`,
+        `To=%2B1234567890&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&SendAt=${encodeURIComponent(
+          sendAt
+        )}&ScheduleType=fixed&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png`
+      )
+      .reply(200, {
+        sid: 'SM1234567890abcdef1234567890abcdef',
+        status: 'scheduled'
+      })
 
     await testDestination.testAction('sendMessage', {
       settings: defaultSettings,
@@ -412,13 +463,17 @@ describe('TwilioMessaging.sendMessage', () => {
           inlineBody: 'Hello World!'
         }
       })
-    ).rejects.toThrow("The root value is missing the required field 'messagingServiceSid'. The root value must match \"then\" schema.")
+    ).rejects.toThrow(
+      'The root value is missing the required field \'messagingServiceSid\'. The root value must match "then" schema.'
+    )
   })
 
   it('should send RCS messsage with tags', async () => {
     const sendAt = new Date(Date.now() + 20 * 60 * 1000).toISOString() // set to 20 minutes from now
-    
-    const body = `To=%2B1234567890&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&SendAt=${encodeURIComponent(sendAt)}&ScheduleType=fixed&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D`
+
+    const body = `To=%2B1234567890&MessagingServiceSid=MG5555555555bbbbbb5555555555bbbbbb&SendAt=${encodeURIComponent(
+      sendAt
+    )}&ScheduleType=fixed&Body=Scheduled+message+with+media&MediaUrl=https%3A%2F%2Fexample.com%2Fscheduled-image.png&Tags=%7B%22campaign_name%22%3A%22Spring+Sale+2022%22%2C%22message_type%22%3A%22cart_abandoned%22%2C%22number_tag%22%3A%2212345%22%2C%22boolean_tag%22%3A%22true%22%7D`
     nock('https://api.twilio.com')
       .post(`/2010-04-01/Accounts/${defaultSettings.accountSID}/Messages.json`, body)
       .reply(200, {
@@ -436,7 +491,7 @@ describe('TwilioMessaging.sendMessage', () => {
         contentTemplateType: 'Inline',
         inlineBody: 'Scheduled message with media',
         inlineMediaUrls: ['https://example.com/scheduled-image.png'],
-        sendAt, 
+        sendAt,
         tags: {
           campaign_name: 'Spring Sale 2022',
           message_type: 'cart_abandoned',
