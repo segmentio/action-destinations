@@ -33,7 +33,7 @@ export async function send(
 ) {
   const msResponse = new MultiStatusResponse()
 
-  const isValidSyncMode = syncMode && Object.values(SUPPORTED_SYNC_MODES).includes(syncMode)
+  const isValidSyncMode = syncMode && (Object.values(SUPPORTED_SYNC_MODES) as SyncMode[]).includes(syncMode)
   
   if (!isValidSyncMode) {
     const message = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
@@ -50,7 +50,7 @@ export async function send(
       throw new PayloadValidationError(message)
     }
   }
-  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode ? syncMode : SUPPORTED_SYNC_MODES.ADD
+  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode ? (syncMode as SupportedSyncMode) : SUPPORTED_SYNC_MODES.ADD
 
   const { endpoint } = settings
   const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, resolvedSyncMode, msResponse)
