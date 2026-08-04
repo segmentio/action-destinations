@@ -21,4 +21,8 @@ export interface Settings {
    * Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.
    */
   loadFormsSDK?: boolean
+  /**
+   * Test settings field for testing actions destination bot.
+   */
+  testSettingField?: string
 }

@@ -54,6 +54,16 @@
         "choices": null,
         "default": false,
         "depends_on": null
+      },
+      "testSettingField": {
+        "label": "Test Setting Field",
+        "description": "Test settings field for testing actions destination bot.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
       }
     }
   },

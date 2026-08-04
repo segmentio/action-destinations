@@ -80,6 +80,12 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       type: 'boolean',
       required: false,
       default: false
+    },
+    testSettingField: {
+      description: 'Test settings field for testing actions destination bot.',
+      label: 'Test Setting Field',
+      type: 'string',
+      required: false
     }
   },
 
