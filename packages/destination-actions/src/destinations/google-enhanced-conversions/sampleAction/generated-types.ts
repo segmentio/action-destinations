@@ -5,4 +5,12 @@ export interface Payload {
    * Sample field for bug bash testing
    */
   sampleField?: string
+  /**
+   * Sample identifier field for bug bash testing
+   */
+  sampleEmail?: string
+  /**
+   * Sample identifier field for bug bash testing
+   */
+  sampleUserId?: string
 }

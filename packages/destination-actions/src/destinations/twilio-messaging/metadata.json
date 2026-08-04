@@ -548,7 +548,7 @@
         },
         "testConditionalField": {
           "label": "Test Conditional Field",
-          "description": "TEMPORARY bug-bash field (TC33/TC34) — required only when channel is Whatsapp.",
+          "description": "TEMPORARY bug-bash field (TC33/TC34) — required only when channel is RCS.",
           "type": "string",
           "required": {
             "match": "all",
@@ -556,7 +556,7 @@
               {
                 "fieldKey": "channel",
                 "operator": "is",
-                "value": "Whatsapp"
+                "value": "RCS"
               }
             ]
           },

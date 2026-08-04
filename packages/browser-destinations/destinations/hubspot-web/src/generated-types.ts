@@ -8,7 +8,7 @@ export interface Settings {
   /**
    * Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.
    */
-  enableEuropeanDataCenter: boolean
+  enableEuropeanDataCenter?: boolean
   /**
    * Enable this option to fire a `trackPageView` HubSpot event immediately after each Segment `identify` call to flush the data to HubSpot immediately.
    */
@@ -21,4 +21,8 @@ export interface Settings {
    * Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.
    */
   loadFormsSDK?: boolean
+  /**
+   * Test settings field for testing actions destination bot.
+   */
+  testSettingField?: string
 }
