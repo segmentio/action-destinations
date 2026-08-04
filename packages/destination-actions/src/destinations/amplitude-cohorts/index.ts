@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getEndpointByRegion, createAudience, getAudience } from './functions'
@@ -61,8 +61,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     },
     testAuthentication: (request, { settings }) => {
       const { endpoint, default_owner_email } = settings
+      const trimmedOwnerEmail = default_owner_email?.trim()
+      if (!trimmedOwnerEmail) {
+        throw new IntegrationError('Missing Cohort Owner Email value', 'MISSING_REQUIRED_FIELD', 400)
+      }
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?user=${default_owner_email}`)
+      return request(`${baseUrl}?user=${encodeURIComponent(trimmedOwnerEmail)}`)
     }
   },
   extendRequest({ settings }) {
@@ -121,12 +125,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const {
-        audienceName,
-        settings,
-        audienceSettings,
-        statsContext
-      } = createAudienceInput
+      const { audienceName, settings, audienceSettings, statsContext } = createAudienceInput
 
       const { owner_email, audience_name, id_type, user_id } = (audienceSettings || {}) as AudienceSettings
       const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName

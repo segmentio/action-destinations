@@ -26,6 +26,28 @@ describe('Amplitude Cohorts', () => {
 
       await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
     })
+
+    it('should not alter a plain email address in the query string', async () => {
+      const plainSettings = { ...settings, default_owner_email: 'testing@test.com' }
+
+      // Match the raw query string: '@' encodes to %40, and nothing else should change.
+      const scope = nock('https://amplitude.com').get('/api/2/usersearch?user=testing%40test.com').reply(200, {})
+
+      await expect(testDestination.testAuthentication(plainSettings)).resolves.not.toThrowError()
+      expect(scope.isDone()).toBe(true)
+    })
+
+    it('should URL-encode the owner email (e.g. plus-alias) in the query string', async () => {
+      const aliasedSettings = { ...settings, default_owner_email: 'owner+alias@example.com' }
+
+      // Match the raw, encoded query string so a literal `+` (space) would not satisfy it.
+      const scope = nock('https://amplitude.com')
+        .get('/api/2/usersearch?user=owner%2Balias%40example.com')
+        .reply(200, {})
+
+      await expect(testDestination.testAuthentication(aliasedSettings)).resolves.not.toThrowError()
+      expect(scope.isDone()).toBe(true)
+    })
   })
 
   describe('createAudience', () => {
@@ -40,15 +62,9 @@ describe('Amplitude Cohorts', () => {
           matches: [{ user_id: 'seed_user_1', amplitude_id: 12345 }]
         })
 
-      nock('https://amplitude.com')
-        .get('/api/2/usersearch')
-        .query({ user: '2' })
-        .reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
 
-      nock('https://amplitude.com')
-        .get('/api/2/usersearch')
-        .query({ user: '3' })
-        .reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
 
       // Cohort creation - always uses BY_USER_ID and the seed user
       nock('https://amplitude.com')
@@ -67,11 +83,13 @@ describe('Amplitude Cohorts', () => {
         .post('/api/3/cohorts/membership', {
           cohort_id: audienceId,
           skip_invalid_ids: true,
-          memberships: [{
-            ids: ['seed_user_1'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }]
+          memberships: [
+            {
+              ids: ['seed_user_1'],
+              id_type: 'BY_NAME',
+              operation: 'REMOVE'
+            }
+          ]
         })
         .reply(200, {
           cohort_id: audienceId,
@@ -101,15 +119,9 @@ describe('Amplitude Cohorts', () => {
           matches: [{ user_id: 'seed_user_amp', amplitude_id: 99999 }]
         })
 
-      nock('https://amplitude.com')
-        .get('/api/2/usersearch')
-        .query({ user: '2' })
-        .reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
 
-      nock('https://amplitude.com')
-        .get('/api/2/usersearch')
-        .query({ user: '3' })
-        .reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
 
       // Cohort creation - always uses BY_USER_ID regardless of audience id_type
       nock('https://amplitude.com')
@@ -128,11 +140,13 @@ describe('Amplitude Cohorts', () => {
         .post('/api/3/cohorts/membership', {
           cohort_id: audienceId,
           skip_invalid_ids: true,
-          memberships: [{
-            ids: ['seed_user_amp'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }]
+          memberships: [
+            {
+              ids: ['seed_user_amp'],
+              id_type: 'BY_NAME',
+              operation: 'REMOVE'
+            }
+          ]
         })
         .reply(200, {
           cohort_id: audienceId,
@@ -171,11 +185,13 @@ describe('Amplitude Cohorts', () => {
         .post('/api/3/cohorts/membership', {
           cohort_id: audienceId,
           skip_invalid_ids: true,
-          memberships: [{
-            ids: ['my_known_user'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }]
+          memberships: [
+            {
+              ids: ['my_known_user'],
+              id_type: 'BY_NAME',
+              operation: 'REMOVE'
+            }
+          ]
         })
         .reply(200, {
           cohort_id: audienceId,
@@ -204,15 +220,9 @@ describe('Amplitude Cohorts', () => {
           matches: [{ user_id: 'seed_user', amplitude_id: 100 }]
         })
 
-      nock('https://amplitude.com')
-        .get('/api/2/usersearch')
-        .query({ user: '2' })
-        .reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
 
-      nock('https://amplitude.com')
-        .get('/api/2/usersearch')
-        .query({ user: '3' })
-        .reply(200, { matches: [] })
+      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
 
       nock('https://amplitude.com')
         .post('/api/3/cohorts/upload', {
