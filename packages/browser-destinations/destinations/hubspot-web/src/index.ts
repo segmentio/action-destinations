@@ -56,7 +56,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       description: 'Enable this option if you would like Segment to load the HubSpot SDK for EU data residency.',
       label: 'Enable the European Data Center SDK.',
       type: 'boolean',
-      required: true
+      required: false
     },
     flushIdentifyImmediately: {
       description:
@@ -71,7 +71,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       label: 'Format Custom Behavioral Event Names',
       type: 'boolean',
       required: false,
-      default: false
+      default: true
     },
     loadFormsSDK: {
       description:
@@ -92,7 +92,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       ? 'https://js-eu1.hsforms.net/forms/v2.js'
       : 'https://js.hsforms.net/forms/v2.js'
 
-    await deps.loadScript(scriptPath, { id: 'hs-script-loader' })
+    await deps.loadScript(scriptPath)
     if (settings.loadFormsSDK) {
       await deps.loadScript(formsScriptPath)
     }

@@ -14,26 +14,6 @@
         "choices": null,
         "default": null,
         "depends_on": null
-      },
-      "optionalAuthField": {
-        "label": "Optional Auth Field",
-        "description": "Updating field for bug bash testing",
-        "type": "string",
-        "required": false,
-        "multiple": true,
-        "choices": null,
-        "default": "new default value",
-        "depends_on": null
-      },
-      "booleanField": {
-        "label": "Boolean Field",
-        "description": "Updating field for bug bash testing",
-        "type": "boolean",
-        "required": false,
-        "multiple": true,
-        "choices": null,
-        "default": true,
-        "depends_on": null
       }
     }
   },
@@ -198,43 +178,6 @@
             "method",
             "headers"
           ],
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": true,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        }
-      }
-    },
-    "bugBash": {
-      "title": "Bug Bash",
-      "description": "Updating action description bug bash testing.",
-      "platform": "cloud",
-      "defaultSubscription": null,
-      "hidden": false,
-      "hasPerformBatch": false,
-      "syncMode": null,
-      "hooks": null,
-      "dynamicFields": null,
-      "fields": {
-        "optionalField": {
-          "label": "Optional Field",
-          "description": "Optional field for bug bash testing",
-          "type": "string",
-          "required": true,
-          "multiple": false,
-          "allowNull": true,
-          "dynamic": false,
-          "default": null,
           "choices": null,
           "placeholder": null,
           "properties": null,

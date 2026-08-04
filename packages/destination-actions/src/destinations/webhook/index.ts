@@ -4,8 +4,6 @@ import { createHmac } from 'crypto'
 
 import send from './send'
 
-import bugBash from './bugBash'
-
 const destination: DestinationDefinition<Settings> = {
   name: 'Webhook',
   slug: 'actions-webhook',
@@ -17,22 +15,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         label: 'Shared Secret',
         description:
-          'If set, Segment will sign requests with an HMAC in the "X-Signature" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.',
-        required: false
-      },
-      optionalAuthField: {
-        type: 'string',
-        label: 'Optional Auth Field',
-        description: 'Updating field for bug bash testing',
-        default: 'new default value',
-        multiple: true
-      },
-      booleanField: {
-        type: 'boolean',
-        label: 'Boolean Field',
-        description: 'Updating field for bug bash testing',
-        default: true,
-        multiple: true
+          'If set, Segment will sign requests with an HMAC in the "X-Signature" request header. The HMAC is a hex-encoded SHA1 hash generated using this shared secret and the request body.'
       }
     }
   },
@@ -45,8 +28,7 @@ const destination: DestinationDefinition<Settings> = {
     return {}
   },
   actions: {
-    send,
-    bugBash
+    send
   }
 }
 
