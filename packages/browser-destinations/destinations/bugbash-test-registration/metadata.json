@@ -2,7 +2,21 @@
   "slug": "actions-bugbash-test-registration",
   "name": "Bugbash Test Registration",
   "mode": "device",
-  "authentication": null,
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "A test API key setting for the bug bash private-flag test.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
   "audienceConfig": null,
   "actions": {
     "testEvent": {
