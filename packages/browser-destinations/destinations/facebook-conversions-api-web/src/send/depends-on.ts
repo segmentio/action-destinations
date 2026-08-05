@@ -30,7 +30,7 @@ export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStand
     'ViewContent'
   ],
   delivery_category: ['Purchase', 'InitiateCheckout'],
-  num_items: ['InitiateCheckout'],
+  num_items: ['InitiateCheckout', 'Purchase'],
   predicted_ltv: ['Purchase', 'Subscribe', 'StartTrial', 'CompleteRegistration', 'AddPaymentInfo', 'CustomEvent'],
   net_revenue: ['Purchase'],
   search_string: ['Search'],

@@ -24,11 +24,13 @@ describe('depends-on getDependenciesFor', () => {
   })
 
   test('single-event field still includes its event condition', () => {
-    const result = getDependenciesFor('num_items')
+    // status is relevant to exactly one event (CompleteRegistration); it must
+    // still gate on that event, not only on show_fields.
+    const result = getDependenciesFor('status')
     expect(result.match).toBe('any')
     expect(result.conditions).toEqual([
       { fieldKey: 'show_fields', operator: 'is', value: true },
-      { fieldKey: 'event_name', operator: 'is', value: 'InitiateCheckout' }
+      { fieldKey: 'event_name', operator: 'is', value: 'CompleteRegistration' }
     ])
   })
 
