@@ -4354,6 +4354,11 @@
     liquidjs "^10.25.7"
     lodash "^4.18.1"
 
+"@segment/ajv-human-errors@^2.20.0":
+  version "2.20.0"
+  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/ajv-human-errors/-/@segment/ajv-human-errors-2.20.0.tgz#cabb19a7f79012b60bc1beca09d9238fd98ff402"
+  integrity sha512-tUAVonvuZGI6rTSUIeCHBUsP9sVAtsxgtag9+3Zrhd5P9T3L1qmCrWnjUmNQxHtiI8U1h4OOpPdNvvUTJDaOVw==
+
 "@segment/analytics-browser-actions-1flow@^1.89.0":
   version "1.89.0"
   resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/analytics-browser-actions-1flow/-/@segment/analytics-browser-actions-1flow-1.89.0.tgz#e74bbb08e6f8c8d0deb2f95eb55a0032afc1d09d"
@@ -4746,6 +4751,13 @@
   integrity sha512-cijnG/i2mWf+eglfqVFOMZqv5WP0lxZwbXIS3/ZEhQ4SEBrAPWXQZ8BWz6ksWg/npHqPLwy+HWcr5hWBuk1+8g==
   dependencies:
     "@segment/actions-core" "^3.176.0"
+
+"@segment/destination-subscriptions@^3.41.0":
+  version "3.41.0"
+  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/destination-subscriptions/-/@segment/destination-subscriptions-3.41.0.tgz#669fff882b6f9c26c12808c07f6a4c9778d75410"
+  integrity sha512-X5LhCz3JM9ed1H3dmRYzEMR4mJQB85tckYVQ87AaBgyIC/IFZw0CB0gpfZiPNhZUAvMaI5ZTypODJQfQHYIjlA==
+  dependencies:
+    "@segment/fql-ts" "^1.10.1"
 
 "@segment/destinations-manifest@^1.71.0":
   version "1.167.0"
