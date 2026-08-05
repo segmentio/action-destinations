@@ -205,14 +205,14 @@ function handleRequestError(status: number, statsContext: StatsContext | undefin
 
   if (status === 409) {
     throw new RetryableError(
-      'Conflict while updating the LinkedIn DMP Company Segment. This batch will be retried.',
+      'Conflict while syncing to the LinkedIn DMP Company Segment. This event will be retried.',
       429
     )
   }
 
   if (RETRYABLE_STATUSES.includes(status)) {
     throw new RetryableError(
-      'Transient error while updating the LinkedIn DMP Company Segment. This batch will be retried.',
+      'Transient error while syncing to the LinkedIn DMP Company Segment. This event will be retried.',
       status as 408 | 423 | 429 | 500 | 502 | 503 | 504
     )
   }
