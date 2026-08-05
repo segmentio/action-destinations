@@ -9,7 +9,7 @@ const destination: DestinationDefinition<Settings> = {
   slug: 'actions-webhook',
   mode: 'cloud',
   authentication: {
-    scheme: 'custom',
+    scheme: 'oauth2',
     fields: {
       sharedSecret: {
         type: 'password',
