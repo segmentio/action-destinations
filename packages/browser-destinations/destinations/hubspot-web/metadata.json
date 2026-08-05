@@ -54,6 +54,16 @@
         "choices": null,
         "default": false,
         "depends_on": null
+      },
+      "tc79TestField": {
+        "label": "TC79 Test Field",
+        "description": "Scratch bug-bash settings field for TC79.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
       }
     }
   },
