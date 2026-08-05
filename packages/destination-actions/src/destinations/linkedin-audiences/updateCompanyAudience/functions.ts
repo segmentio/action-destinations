@@ -160,7 +160,7 @@ export async function send(
     // For single-item perform, inspect the first element result and throw if it is not 2xx.
     const element = response.data?.elements?.[0]
     if (!element || element.status < 200 || element.status >= 300) {
-      handleRequestError(element?.status ?? 400, statsContext)
+      handleRequestError(element?.status ?? 400, statsContext, element?.error?.message)
     }
     return response
   }
@@ -191,11 +191,13 @@ export async function send(
   return msResponse
 }
 
-function handleRequestError(status: number, statsContext: StatsContext | undefined): never {
+function handleRequestError(status: number, statsContext: StatsContext | undefined, detail?: string): never {
   statsContext?.statsClient?.incr('linkedin_dmp_company_segment_update_error', 1, [
     ...(statsContext?.tags ?? []),
     `status_code:${status}`
   ])
+
+  const suffix = detail ? ` LinkedIn returned: ${detail}` : ''
 
   if (status === 401) {
     throw new InvalidAuthenticationError(
@@ -205,19 +207,22 @@ function handleRequestError(status: number, statsContext: StatsContext | undefin
 
   if (status === 409) {
     throw new RetryableError(
-      'Conflict while syncing to the LinkedIn DMP Company Segment. This event will be retried.',
+      `Conflict while syncing to the LinkedIn DMP Company Segment. This event will be retried.${suffix}`,
       429
     )
   }
 
   if (RETRYABLE_STATUSES.includes(status)) {
     throw new RetryableError(
-      'Transient error while syncing to the LinkedIn DMP Company Segment. This event will be retried.',
+      `Transient error while syncing to the LinkedIn DMP Company Segment. This event will be retried.${suffix}`,
       status as 408 | 423 | 429 | 500 | 502 | 503 | 504
     )
   }
 
-  throw new APIError(`Failed to update LinkedIn DMP Company Segment. LinkedIn returned status ${status}.`, status)
+  throw new APIError(
+    `Failed to update LinkedIn DMP Company Segment. LinkedIn returned status ${status}.${suffix}`,
+    status
+  )
 }
 
 export function resolveSourceSegmentId(payload: ValidCompanyPayload): string {
@@ -274,7 +279,7 @@ async function getCompanyDmpSegmentId(
   }
 
   const dmpSegmentId = await createCompanyDmpSegment(linkedinApiClient, settings, sourceSegmentId, statsContext)
-  stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, {})
+  stateContext?.setResponseContext?.(cacheKey, dmpSegmentId, { hour: 24 })
   return dmpSegmentId
 }
 
