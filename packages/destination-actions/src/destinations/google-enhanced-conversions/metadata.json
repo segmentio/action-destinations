@@ -6269,14 +6269,6 @@
         }
       },
       "eventSlug": "journey_step_all_events_track"
-    },
-    {
-      "name": "mdkhan1234 Session Attributes Encoded Plugin",
-      "type": "automatic",
-      "partnerAction": "sessionAttributesEncoded",
-      "subscribe": "type = \"track\" or type = \"group\" or type = \"page\" or type = \"alias\"",
-      "mapping": {},
-      "eventSlug": null
     }
   ]
 }

@@ -304,13 +304,6 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'journey_step_all_events_track'
-    },
-    {
-      name: 'mdkhan1234 Session Attributes Encoded Plugin',
-      subscribe: 'type = "track" or type = "group" or type = "page" or type = "alias"',
-      partnerAction: 'sessionAttributesEncoded',
-      mapping: {},
-      type: 'automatic'
     }
   ]
 }
