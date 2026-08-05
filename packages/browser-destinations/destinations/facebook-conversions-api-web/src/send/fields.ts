@@ -286,11 +286,14 @@ export const userData: InputField = {
     },
     ge: {
       label: 'Gender',
-      description: 'Gender of the user. If unknown leave blank.',
+      description:
+        'Gender of the user. acceptable values are "m" or "male" for male and "f" or "female" for female. If unknown leave blank.',
       type: 'string',
       choices: [
-        { label: 'Male', value: 'm' },
-        { label: 'Female', value: 'f' }
+        { label: 'm', value: 'm' },
+        { label: 'f', value: 'f' },
+        { label: 'male', value: 'male' },
+        { label: 'female', value: 'female' }
       ]
     },
     db: {

@@ -2161,7 +2161,7 @@
             },
             "ge": {
               "label": "Gender",
-              "description": "Gender of the user. If unknown leave blank.",
+              "description": "Gender of the user. acceptable values are \"m\" or \"male\" for male and \"f\" or \"female\" for female. If unknown leave blank.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -2170,12 +2170,20 @@
               "default": null,
               "choices": [
                 {
-                  "label": "Male",
+                  "label": "m",
                   "value": "m"
                 },
                 {
-                  "label": "Female",
+                  "label": "f",
                   "value": "f"
+                },
+                {
+                  "label": "male",
+                  "value": "male"
+                },
+                {
+                  "label": "female",
+                  "value": "female"
                 }
               ],
               "placeholder": null,

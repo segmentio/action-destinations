@@ -217,7 +217,12 @@ export async function formatUserData(
       formatPII(ph, 'phone', 'ph', clientParamBuilder, (s) => s.replace(/\D/g, '')),
       formatPII(fn, 'first_name', 'fn', clientParamBuilder, (s) => s.toLowerCase().trim()),
       formatPII(ln, 'last_name', 'ln', clientParamBuilder, (s) => s.toLowerCase().trim()),
-      formatPII(ge, 'gender', 'ge', clientParamBuilder, (s) => (['m', 'f'].includes(s) ? s : undefined)),
+      formatPII(ge, 'gender', 'ge', clientParamBuilder, (s) => {
+        const g = s.toLowerCase().trim()
+        if (g === 'm' || g === 'male') return 'm'
+        if (g === 'f' || g === 'female') return 'f'
+        return undefined
+      }),
       formatPII(db, 'date_of_birth', 'db', clientParamBuilder, (s) => formatDate(s)),
       formatPII(ct, 'city', 'ct', clientParamBuilder, (s) => s.toLowerCase().replace(/\s+/g, '')),
       formatPII(st, 'state', 'st', clientParamBuilder, (s) => fromMap(US_STATE_CODES, s)),
