@@ -311,6 +311,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
       partnerAction: 'sessionAttributesEncoded',
       mapping: {},
       type: 'automatic'
+    },
+    {
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_all_events_track'
     }
   ]
 }
