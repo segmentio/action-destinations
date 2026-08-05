@@ -12,7 +12,14 @@ import {
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { UniversalStorage, Analytics } from '@segment/analytics-next'
-import { US_STATE_CODES, COUNTRY_CODES, MAX_INIT_COUNT, INIT_COUNT_KEY, USER_DATA_KEY } from '../constants'
+import {
+  US_STATE_CODES,
+  COUNTRY_CODES,
+  MAX_INIT_COUNT,
+  INIT_COUNT_KEY,
+  USER_DATA_KEY,
+  CURRENCY_ISO_CODES
+} from '../constants'
 import { storageFallback, setStorageInitCount } from '../functions'
 import { getNotVisibleForEvent } from './depends-on'
 
@@ -72,6 +79,23 @@ function toArray<T>(value: T | T[] | undefined | null): T[] {
   return Array.isArray(value) ? value : [value]
 }
 
+function trimmed(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const t = value.trim()
+  return t.length > 0 ? t : undefined
+}
+
+function trimmedArray(values: string[]): string[] {
+  return values.map((v) => trimmed(v)).filter((v): v is string => v !== undefined)
+}
+
+function normalizeCurrency(value: unknown): string | undefined {
+  const t = trimmed(value)
+  if (!t) return undefined
+  const upper = t.toUpperCase()
+  return CURRENCY_ISO_CODES.has(upper) ? upper : undefined
+}
+
 export function formatFBEvent(payload: Payload): FBEvent {
   const {
     content_category,
@@ -91,20 +115,26 @@ export function formatFBEvent(payload: Payload): FBEvent {
     event_config: { event_name, show_fields } = {}
   } = payload
 
-  const contentIdsArr = toArray(content_ids)
+  const contentIdsArr = trimmedArray(toArray(content_ids))
   const contentsArr = toArray(contents)
+  const contentCategory = trimmed(content_category)
+  const contentName = trimmed(content_name)
+  const contentType = trimmed(content_type)
+  const deliveryCategory = trimmed(delivery_category)
+  const searchString = trimmed(search_string)
+  const currencyCode = normalizeCurrency(currency)
 
   const fbEvent: FBEvent = {
     partner_agent: 'segment',
-    ...(content_category ? { content_category } : {}),
+    ...(contentCategory ? { content_category: contentCategory } : {}),
     ...(contentIdsArr.length > 0 ? { content_ids: contentIdsArr } : {}),
-    ...(content_name ? { content_name } : {}),
-    ...(content_type ? { content_type } : {}),
+    ...(contentName ? { content_name: contentName } : {}),
+    ...(contentType ? { content_type: contentType } : {}),
     ...(contentsArr.length > 0 ? { contents: contentsArr } : {}),
-    ...(currency ? { currency } : {}),
-    ...(delivery_category ? { delivery_category } : {}),
+    ...(currencyCode ? { currency: currencyCode } : {}),
+    ...(deliveryCategory ? { delivery_category: deliveryCategory } : {}),
     ...(typeof num_items === 'number' ? { num_items } : {}),
-    ...(search_string ? { search_string } : {}),
+    ...(searchString ? { search_string: searchString } : {}),
     ...(typeof status === 'boolean' ? { status } : {}),
     ...(typeof value === 'number' ? { value } : {}),
     ...(typeof predicted_ltv === 'number' ? { predicted_ltv } : {}),

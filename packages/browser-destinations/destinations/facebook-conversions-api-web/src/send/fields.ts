@@ -175,6 +175,7 @@ export const num_items: InputField = {
   label: 'Number of Items',
   description: 'The number of items when checkout was initiated.',
   type: 'integer',
+  minimum: 0,
   default: { '@path': '$.properties.num_items' },
   depends_on: getDependenciesFor('num_items')
 }
@@ -183,6 +184,7 @@ export const predicted_ltv: InputField = {
   label: 'Predicted LTV',
   description: 'Predicted lifetime value of a subscriber as defined by the advertiser and expressed as an exact value.',
   type: 'number',
+  minimum: 0,
   depends_on: getDependenciesFor('predicted_ltv')
 }
 
@@ -190,6 +192,7 @@ export const net_revenue: InputField = {
   label: 'Net Revenue',
   description: 'The net revenue associated with the purchase.',
   type: 'number',
+  minimum: 0,
   default: { '@path': '$.properties.net_revenue' },
   depends_on: getDependenciesFor('net_revenue')
 }
@@ -214,6 +217,7 @@ export const value: InputField = {
   description:
     'A numeric value associated with this event. This could be a monetary value or a value in some other metric.',
   type: 'number',
+  minimum: 0,
   default: { '@path': '$.properties.value' },
   depends_on: getDependenciesFor('value'),
   required: {

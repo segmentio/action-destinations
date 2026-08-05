@@ -2,6 +2,47 @@ import { formatFBEvent } from '../functions'
 import { Payload } from '../generated-types'
 
 describe('formatFBEvent', () => {
+  it('should normalize string, array, and currency fields', () => {
+    const payload = {
+      event_config: { event_name: 'Purchase', show_fields: true },
+      content_category: '  Games  ',
+      content_name: '  Monopoly  ',
+      content_type: ' product ',
+      content_ids: ['  SKU-ABC-123  ', '   ', 'SKU-XYZ-789'],
+      delivery_category: '  home_delivery  ',
+      search_string: '  board game  ',
+      currency: ' usd ',
+      value: 45.97
+    } as unknown as Payload
+
+    const result = formatFBEvent(payload)
+
+    expect(result).toEqual({
+      partner_agent: 'segment',
+      content_category: 'Games',
+      content_name: 'Monopoly',
+      content_type: 'product',
+      content_ids: ['SKU-ABC-123', 'SKU-XYZ-789'], // trimmed; whitespace-only entry dropped
+      delivery_category: 'home_delivery',
+      search_string: 'board game',
+      currency: 'USD', // trimmed + uppercased to a valid ISO code
+      value: 45.97
+    })
+  })
+
+  it('should drop an invalid currency code', () => {
+    const payload = {
+      event_config: { event_name: 'Purchase', show_fields: true },
+      content_ids: ['SKU-ABC-123'],
+      currency: 'NOTACURRENCY',
+      value: 10
+    } as unknown as Payload
+
+    const result = formatFBEvent(payload)
+
+    expect(result).not.toHaveProperty('currency')
+  })
+
   it('should format a complete Purchase event with all fields', () => {
     const payload: Partial<Payload> = {
       event_config: {
