@@ -1,6 +1,6 @@
 {
   "name": "@segment/ajv-human-errors",
-  "version": "2.20.1-staging-6c2ddae7b.0",
+  "version": "2.20.1-staging-006f5de38.0",
   "description": "Human-readable error messages for Ajv (Another JSON Schema Validator).",
   "repository": {
     "type": "git",
