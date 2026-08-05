@@ -94,7 +94,7 @@ export const destination: BrowserDestinationDefinition<
     initScript(settings, analytics)
     await deps.resolveWhen(() => typeof window.fbq === 'function', 100)
     if (formatUserDataWithParamBuilder) {
-      const script = `https://capi-automation.s3.us-east-2.amazonaws.com/public/client_js/capiParamBuilder/clientParamBuilder.bundle.js`
+      const script = `https://unpkg.com/meta-capi-param-builder-clientjs/dist/clientParamBuilder.bundle.js`
       await deps.loadScript(script)
       await deps.resolveWhen(() => typeof window.clientParamBuilder === 'object', 100)
     }
