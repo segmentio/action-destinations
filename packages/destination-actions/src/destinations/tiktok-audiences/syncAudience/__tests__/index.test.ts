@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
 import { TIKTOK_AUDIENCES_API_VERSION } from '../../versioning-info'
@@ -26,7 +26,11 @@ const defaultMapping = Object.fromEntries(
 const SUCCESS_RESPONSE = { code: 0, message: 'OK', request_id: 'test-request-id' }
 const ERROR_RESPONSE = { code: 40002, message: 'Parameter error: invalid audience ID', request_id: 'test-request-id' }
 
-function createAudienceEvent(membership: boolean, overrides: Record<string, unknown> = {}) {
+function createAudienceEvent(
+  membership: boolean,
+  computationClass: 'audience' | 'journey_step' = 'audience',
+  overrides: Record<string, unknown> = {}
+) {
   return createTestEvent({
     event: 'Audience Entered',
     type: 'track',
@@ -42,7 +46,7 @@ function createAudienceEvent(membership: boolean, overrides: Record<string, unkn
         phone: '1234567890'
       },
       personas: {
-        computation_class: 'audience',
+        computation_class: computationClass,
         computation_key: COMPUTATION_KEY,
         audience_settings: {
           advertiserId: ADVERTISER_ID
@@ -120,9 +124,7 @@ describe('TiktokAudiences.syncAudience', () => {
     })
 
     it('should send only email when only send_email is true', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
       const event = createAudienceEvent(true)
       const responses = await testDestination.testAction('syncAudience', {
@@ -139,15 +141,11 @@ describe('TiktokAudiences.syncAudience', () => {
       expect(responses.length).toBe(1)
       const requestBody = JSON.parse(responses[0].options.body as string)
       expect(requestBody.id_schema).toEqual(['EMAIL_SHA256'])
-      expect(requestBody.batch_data).toEqual([
-        [{ id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] }]
-      ])
+      expect(requestBody.batch_data).toEqual([[{ id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] }]])
     })
 
     it('should send only phone when only send_phone is true', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
       const event = createAudienceEvent(true)
       const responses = await testDestination.testAction('syncAudience', {
@@ -164,15 +162,11 @@ describe('TiktokAudiences.syncAudience', () => {
       expect(responses.length).toBe(1)
       const requestBody = JSON.parse(responses[0].options.body as string)
       expect(requestBody.id_schema).toEqual(['PHONE_SHA256'])
-      expect(requestBody.batch_data).toEqual([
-        [{ id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] }]
-      ])
+      expect(requestBody.batch_data).toEqual([[{ id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] }]])
     })
 
     it('should normalize and hash emails correctly', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
       const event = createTestEvent({
         event: 'Audience Entered',
@@ -212,9 +206,7 @@ describe('TiktokAudiences.syncAudience', () => {
 
     it('should not double-hash a pre-hashed email', async () => {
       const preHashedEmail = '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
       const event = createTestEvent({
         event: 'Audience Entered',
@@ -248,9 +240,7 @@ describe('TiktokAudiences.syncAudience', () => {
 
     it('should not double-hash a pre-hashed phone', async () => {
       const preHashedPhone = 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646'
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
       const event = createTestEvent({
         event: 'Audience Entered',
@@ -356,10 +346,59 @@ describe('TiktokAudiences.syncAudience', () => {
       ).rejects.toThrow('Bad Request: no audienceSettings found.')
     })
 
-    it('should throw when TikTok returns HTTP 200 with error code', async () => {
+    it('should add a user to the audience when membership is true (journey_step)', async () => {
       nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, ERROR_RESPONSE)
+        .post(/.*/, (body) => body.action === 'add')
+        .reply(200, SUCCESS_RESPONSE)
+
+      const event = createAudienceEvent(true, 'journey_step')
+      const responses = await testDestination.testAction('syncAudience', {
+        auth,
+        event,
+        settings: {},
+        useDefaultMappings: true,
+        mapping: {}
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.action).toBe('add')
+      expect(requestBody.advertiser_ids).toEqual([ADVERTISER_ID])
+      expect(requestBody.id_schema).toEqual(['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'])
+      expect(requestBody.batch_data).toEqual([
+        [
+          { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+        ]
+      ])
+    })
+
+    it('should remove a user from the audience when membership is false (journey_step)', async () => {
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'delete')
+        .reply(200, SUCCESS_RESPONSE)
+
+      const event = createAudienceEvent(false, 'journey_step')
+      const responses = await testDestination.testAction('syncAudience', {
+        auth,
+        event,
+        settings: {},
+        useDefaultMappings: true,
+        mapping: {}
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.action).toBe('delete')
+    })
+
+    it('should throw when TikTok returns HTTP 200 with error code', async () => {
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, ERROR_RESPONSE)
 
       const event = createAudienceEvent(true)
 
@@ -375,9 +414,7 @@ describe('TiktokAudiences.syncAudience', () => {
     })
 
     it('should throw when TikTok returns HTTP 400', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(400, ERROR_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(400, ERROR_RESPONSE)
 
       const event = createAudienceEvent(true)
 
@@ -403,10 +440,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'delete')
         .reply(200, SUCCESS_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(false) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(false)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -425,10 +459,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'add')
         .reply(200, SUCCESS_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(true) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(true)]
 
       await testDestination.executeBatch('syncAudience', {
         events,
@@ -445,10 +476,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'delete')
         .reply(200, SUCCESS_RESPONSE)
 
-      const events = [
-        createAudienceEvent(false) as SegmentEvent,
-        createAudienceEvent(false) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(false), createAudienceEvent(false)]
 
       await testDestination.executeBatch('syncAudience', {
         events,
@@ -461,14 +489,9 @@ describe('TiktokAudiences.syncAudience', () => {
     })
 
     it('should record success for all payloads when TikTok returns code 0', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(true) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(true)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -483,14 +506,9 @@ describe('TiktokAudiences.syncAudience', () => {
     })
 
     it('should record errors for all payloads when TikTok returns HTTP 200 with error code', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, ERROR_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, ERROR_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(true) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(true)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -506,14 +524,9 @@ describe('TiktokAudiences.syncAudience', () => {
     })
 
     it('should record errors for all payloads when TikTok returns HTTP 400', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(400, ERROR_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(400, ERROR_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(true) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(true)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -532,10 +545,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'add')
         .reply(200, SUCCESS_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(true) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(true)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -581,10 +591,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'delete')
         .reply(200, ERROR_RESPONSE)
 
-      const events = [
-        createAudienceEvent(false) as SegmentEvent,
-        createAudienceEvent(false) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(false), createAudienceEvent(false)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -620,8 +627,22 @@ describe('TiktokAudiences.syncAudience', () => {
       }
 
       expect(responses).toEqual([
-        { status: 400, errortype: 'BAD_REQUEST', errormessage: 'Parameter error: invalid audience ID', errorreporter: 'DESTINATION', sent: expectedSent, body: expectedBody },
-        { status: 400, errortype: 'BAD_REQUEST', errormessage: 'Parameter error: invalid audience ID', errorreporter: 'DESTINATION', sent: expectedSent, body: expectedBody }
+        {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: 'Parameter error: invalid audience ID',
+          errorreporter: 'DESTINATION',
+          sent: expectedSent,
+          body: expectedBody
+        },
+        {
+          status: 400,
+          errortype: 'BAD_REQUEST',
+          errormessage: 'Parameter error: invalid audience ID',
+          errorreporter: 'DESTINATION',
+          sent: expectedSent,
+          body: expectedBody
+        }
       ])
     })
 
@@ -634,10 +655,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'delete')
         .reply(200, SUCCESS_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(false) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(false)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -700,10 +718,7 @@ describe('TiktokAudiences.syncAudience', () => {
         .post(/.*/, (body) => body.action === 'delete')
         .reply(200, ERROR_RESPONSE)
 
-      const events = [
-        createAudienceEvent(true) as SegmentEvent,
-        createAudienceEvent(false) as SegmentEvent
-      ]
+      const events = [createAudienceEvent(true), createAudienceEvent(false)]
 
       const responses = await testDestination.executeBatch('syncAudience', {
         events,
@@ -761,11 +776,9 @@ describe('TiktokAudiences.syncAudience', () => {
     })
 
     it('should record validation errors per payload while succeeding for valid ones', async () => {
-      nock(SEGMENT_MAPPING_URL)
-        .post(/.*/)
-        .reply(200, SUCCESS_RESPONSE)
+      nock(SEGMENT_MAPPING_URL).post(/.*/).reply(200, SUCCESS_RESPONSE)
 
-      const validEvent = createAudienceEvent(true) as SegmentEvent
+      const validEvent = createAudienceEvent(true)
       const invalidEvent = createTestEvent({
         event: 'Audience Entered',
         type: 'track',
@@ -778,7 +791,7 @@ describe('TiktokAudiences.syncAudience', () => {
             external_audience_id: EXTERNAL_AUDIENCE_ID
           }
         }
-      }) as SegmentEvent
+      })
 
       const events = [validEvent, invalidEvent]
 
@@ -797,6 +810,93 @@ describe('TiktokAudiences.syncAudience', () => {
       expect(errorItems[0].errormessage).toBe(
         'At least one enabled identifier (Email, Phone, or Advertising ID) must have a value.'
       )
+    })
+  })
+
+  describe('presets', () => {
+    beforeEach(() => {
+      // The "batch (performBatch)" tests above call `testDestination.executeBatch(...)`
+      // directly (bypassing the `testBatchAction` wrapper), which never drains the shared
+      // `TestDestination.responses` accumulator. Reset it here so `testAction` below
+      // (which returns exactly that accumulator) only reflects requests made by this test.
+      testDestination.responses = []
+    })
+
+    it('should route the "Journey Step All Events" preset through syncAudience with an add when membership is true', async () => {
+      const preset = Destination.presets?.find((p) => p.name === 'Journey Step All Events')
+      if (!preset) {
+        throw new Error('Expected to find preset')
+      }
+      expect(preset?.partnerAction).toBe('syncAudience')
+      expect(preset?.type).toBe('specificEvent')
+      expect((preset as { eventSlug?: string })?.eventSlug).toBe('journey_step_all_events_track')
+
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'add')
+        .reply(200, SUCCESS_RESPONSE)
+
+      // This preset has no FQL `subscribe` filter — it's matched purely by eventSlug — so build a
+      // realistic Journeys "step all events" track event carrying the fields the preset's
+      // (default) mapping reads from.
+      const event = createAudienceEvent(true, 'journey_step')
+
+      const responses = await testDestination.testAction(preset.partnerAction, {
+        auth,
+        event,
+        settings: {},
+        mapping: preset.mapping,
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.action).toBe('add')
+      expect(requestBody.advertiser_ids).toEqual([ADVERTISER_ID])
+      expect(requestBody.id_schema).toEqual(['EMAIL_SHA256', 'PHONE_SHA256', 'IDFA_SHA256'])
+      expect(requestBody.batch_data).toEqual([
+        [
+          { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+        ]
+      ])
+    })
+
+    it('should route the "Journey Step All Events" preset through syncAudience with a delete when membership is false', async () => {
+      const preset = Destination.presets?.find((p) => p.name === 'Journey Step All Events')
+      if (!preset) {
+        throw new Error('Expected to find preset')
+      }
+
+      nock(SEGMENT_MAPPING_URL)
+        .post(/.*/, (body) => body.action === 'delete')
+        .reply(200, SUCCESS_RESPONSE)
+
+      const event = createAudienceEvent(false, 'journey_step')
+
+      const responses = await testDestination.testAction(preset.partnerAction, {
+        auth,
+        event,
+        settings: {},
+        mapping: preset.mapping,
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+
+      const requestBody = JSON.parse(responses[0].options.body as string)
+      expect(requestBody.action).toBe('delete')
+      expect(requestBody.advertiser_ids).toEqual([ADVERTISER_ID])
+      expect(requestBody.batch_data).toEqual([
+        [
+          { id: HASHED_EMAIL, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_PHONE, audience_ids: [EXTERNAL_AUDIENCE_ID] },
+          { id: HASHED_ADVERTISING_ID, audience_ids: [EXTERNAL_AUDIENCE_ID] }
+        ]
+      ])
     })
   })
 })

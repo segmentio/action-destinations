@@ -8,7 +8,8 @@ import {
   DynamicFieldResponse,
   DynamicFieldError,
   DynamicFieldItem,
-  StatsContext
+  StatsContext,
+  Features
 } from '@segment/actions-core'
 import { Payload as payload_dataExtension } from './dataExtension/generated-types'
 import { Payload as payload_contactDataExtension } from './contactDataExtension/generated-types'
@@ -19,7 +20,8 @@ import { xml2js } from 'xml-js'
 import {
   SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION,
   SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION,
-  SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION
+  SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION,
+  SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON
 } from './versioning-info'
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
@@ -670,8 +672,12 @@ export const getDataExtensionFields = async (
 
 const getCategoriesRequest = async (
   request: RequestClient,
-  auth: { soapInstanceUrl: string; accessToken: string }
+  auth: { soapInstanceUrl: string; accessToken: string },
+  features?: Features
 ): Promise<{ results?: DynamicFieldItem[]; error?: DynamicFieldError }> => {
+  const useBatchSize = features?.[SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON] === true
+  const batchSizeElement = useBatchSize ? `<Options><BatchSize>200</BatchSize></Options>` : ''
+
   try {
     const response = await request(`${auth.soapInstanceUrl}/Service.asmx`, {
       method: 'POST',
@@ -695,6 +701,7 @@ const getCategoriesRequest = async (
                   <Properties>ID</Properties>
                   <Properties>Name</Properties>
                   <Properties>ContentType</Properties>
+                  ${batchSizeElement}
                   <Filter xsi:type="SimpleFilterPart">
                   <Property>ContentType</Property>
                   <SimpleOperator>equals</SimpleOperator>
@@ -724,14 +731,19 @@ const getCategoriesRequest = async (
       results: items
     }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    const message = err?.response?.data?.message ?? err?.message ?? 'Request timed out or failed'
+    return { error: { message, code: 'BAD_REQUEST' } }
   }
 }
 
-export const getCategories = async (request: RequestClient, settings: Settings): Promise<DynamicFieldResponse> => {
+export const getCategories = async (
+  request: RequestClient,
+  settings: Settings,
+  features?: Features
+): Promise<DynamicFieldResponse> => {
   const { accessToken, soapInstanceUrl } = await getAccessToken(request, settings)
 
-  const { results, error } = await getCategoriesRequest(request, { soapInstanceUrl, accessToken })
+  const { results, error } = await getCategoriesRequest(request, { soapInstanceUrl, accessToken }, features)
 
   if (error) {
     return {
