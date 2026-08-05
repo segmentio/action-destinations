@@ -14,7 +14,7 @@ import { StateContext } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
-import type { AudienceJSON, DMPSegment, LinkedInCompanyAudienceElement, ValidCompanyPayload } from './types'
+import type { AudienceAction, AudienceJSON, DMPSegment, LinkedInCompanyAudienceElement, ValidCompanyPayload } from './types'
 import { AUDIENCE_ACTION, AUDIENCE_SOURCE, ORGANIZATION_URN_PREFIX, RETRYABLE_STATUSES, SEGMENT_TYPES } from './constants'
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
@@ -34,9 +34,18 @@ export function validate(
   payloads.forEach((payload, index) => {
     const companyDomain = payload.identifiers?.companyDomain?.trim().toLowerCase() || undefined
     const linkedInCompanyId = payload.identifiers?.linkedInCompanyId?.trim() || undefined
+
+    let message: string | undefined
     if (!companyDomain && !linkedInCompanyId) {
-      const message =
-        "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field."
+      message = "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field."
+    } else if (
+      payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
+      payload.dmp_company_action !== AUDIENCE_ACTION.REMOVE
+    ) {
+      message = `'Company Segment Action' must be exactly '${AUDIENCE_ACTION.ADD}' or '${AUDIENCE_ACTION.REMOVE}'.`
+    }
+
+    if (message) {
       if (isBatch) {
         msResponse.setErrorResponseAtIndex(index, {
           status: 400,
@@ -58,17 +67,14 @@ export function companyKey(payload: ValidCompanyPayload): string {
   const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
   const domain = companyDomain ?? ''
   const urn = linkedInCompanyId ? toOrganizationUrn(linkedInCompanyId) : ''
-  const action =
-    payload.dmp_company_action === AUDIENCE_ACTION.REMOVE ? AUDIENCE_ACTION.REMOVE : AUDIENCE_ACTION.ADD
-  return `${action}::${domain}::${urn}`
+  return `${payload.dmp_company_action}::${domain}::${urn}`
 }
 
 export function buildJSON(payloads: ValidCompanyPayload[]): AudienceJSON<LinkedInCompanyAudienceElement> {
   const elements: LinkedInCompanyAudienceElement[] = payloads.map((payload) => {
     const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
     const element: LinkedInCompanyAudienceElement = {
-      action:
-        payload.dmp_company_action === AUDIENCE_ACTION.REMOVE ? AUDIENCE_ACTION.REMOVE : AUDIENCE_ACTION.ADD
+      action: payload.dmp_company_action as AudienceAction
     }
     if (companyDomain) {
       element.companyWebsiteDomain = companyDomain
