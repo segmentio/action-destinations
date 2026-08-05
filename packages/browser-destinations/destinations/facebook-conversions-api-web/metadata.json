@@ -156,190 +156,175 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
-        "event_config": {
-          "label": "Event Configuration",
-          "description": "Specify the type of Facebook Conversions API event to send.",
-          "type": "object",
+        "event_name": {
+          "label": "Event Name",
+          "description": "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
+          "type": "string",
           "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": {
-            "event_name": "CustomEvent",
-            "custom_event_name": {
-              "@path": "$.event"
+          "default": "CustomEvent",
+          "choices": [
+            {
+              "label": "Custom Event",
+              "value": "CustomEvent"
             },
-            "show_fields": false
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": {
-            "event_name": {
-              "label": "Event Name",
-              "description": "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
-              "type": "string",
-              "required": true,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": [
-                {
-                  "label": "Custom Event",
-                  "value": "CustomEvent"
-                },
-                {
-                  "label": "Page View",
-                  "value": "PageView"
-                },
-                {
-                  "label": "Add Payment Info",
-                  "value": "AddPaymentInfo"
-                },
-                {
-                  "label": "Add To Cart",
-                  "value": "AddToCart"
-                },
-                {
-                  "label": "Add To Wishlist",
-                  "value": "AddToWishlist"
-                },
-                {
-                  "label": "Complete Registration",
-                  "value": "CompleteRegistration"
-                },
-                {
-                  "label": "Contact",
-                  "value": "Contact"
-                },
-                {
-                  "label": "Customize Product",
-                  "value": "CustomizeProduct"
-                },
-                {
-                  "label": "Donate",
-                  "value": "Donate"
-                },
-                {
-                  "label": "Find Location",
-                  "value": "FindLocation"
-                },
-                {
-                  "label": "Initiate Checkout",
-                  "value": "InitiateCheckout"
-                },
-                {
-                  "label": "Lead",
-                  "value": "Lead"
-                },
-                {
-                  "label": "Purchase",
-                  "value": "Purchase"
-                },
-                {
-                  "label": "Schedule",
-                  "value": "Schedule"
-                },
-                {
-                  "label": "Search",
-                  "value": "Search"
-                },
-                {
-                  "label": "Start Trial",
-                  "value": "StartTrial"
-                },
-                {
-                  "label": "Submit Application",
-                  "value": "SubmitApplication"
-                },
-                {
-                  "label": "Subscribe",
-                  "value": "Subscribe"
-                },
-                {
-                  "label": "View Content",
-                  "value": "ViewContent"
-                }
-              ],
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
+            {
+              "label": "Page View",
+              "value": "PageView"
             },
-            "custom_event_name": {
-              "label": "Custom Event Name",
-              "description": "Custom event name to send to Facebook",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": {
-                "match": "any",
-                "conditions": [
-                  {
-                    "fieldKey": "event_config.show_fields",
-                    "operator": "is",
-                    "value": "true"
-                  }
-                ]
-              },
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
+            {
+              "label": "Add Payment Info",
+              "value": "AddPaymentInfo"
             },
-            "show_fields": {
-              "label": "Show all fields",
-              "description": "Show all fields, even those which are not relevant to the selected Event Name.",
-              "type": "boolean",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": false,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
+            {
+              "label": "Add To Cart",
+              "value": "AddToCart"
+            },
+            {
+              "label": "Add To Wishlist",
+              "value": "AddToWishlist"
+            },
+            {
+              "label": "Complete Registration",
+              "value": "CompleteRegistration"
+            },
+            {
+              "label": "Contact",
+              "value": "Contact"
+            },
+            {
+              "label": "Customize Product",
+              "value": "CustomizeProduct"
+            },
+            {
+              "label": "Donate",
+              "value": "Donate"
+            },
+            {
+              "label": "Find Location",
+              "value": "FindLocation"
+            },
+            {
+              "label": "Initiate Checkout",
+              "value": "InitiateCheckout"
+            },
+            {
+              "label": "Lead",
+              "value": "Lead"
+            },
+            {
+              "label": "Purchase",
+              "value": "Purchase"
+            },
+            {
+              "label": "Schedule",
+              "value": "Schedule"
+            },
+            {
+              "label": "Search",
+              "value": "Search"
+            },
+            {
+              "label": "Start Trial",
+              "value": "StartTrial"
+            },
+            {
+              "label": "Submit Application",
+              "value": "SubmitApplication"
+            },
+            {
+              "label": "Subscribe",
+              "value": "Subscribe"
+            },
+            {
+              "label": "View Content",
+              "value": "ViewContent"
             }
-          },
+          ],
+          "placeholder": null,
+          "properties": null,
           "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": "keyvalue",
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_event_name": {
+          "label": "Custom Event Name",
+          "description": "Custom event name to send to Facebook",
+          "type": "string",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "CustomEvent"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "show_fields",
+                "operator": "is",
+                "value": true
+              },
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "CustomEvent"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "show_fields": {
+          "label": "Show all fields",
+          "description": "Show all fields, even those which are not relevant to the selected Event Name.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
@@ -364,22 +349,22 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "PageView"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               }
@@ -412,42 +397,42 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddPaymentInfo"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToCart"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToWishlist"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "InitiateCheckout"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               }
@@ -482,22 +467,22 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "PageView"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               }
@@ -539,27 +524,27 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToCart"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               }
@@ -680,42 +665,42 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddPaymentInfo"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToCart"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToWishlist"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "InitiateCheckout"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               }
@@ -739,7 +724,7 @@
             "match": "all",
             "conditions": [
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               }
@@ -1476,62 +1461,62 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddPaymentInfo"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToCart"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToWishlist"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "CompleteRegistration"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "InitiateCheckout"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Lead"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "StartTrial"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Subscribe"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               }
@@ -1577,17 +1562,17 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "InitiateCheckout"
               }
@@ -1622,9 +1607,14 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
+              },
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "InitiateCheckout"
               }
             ]
           },
@@ -1655,37 +1645,37 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Subscribe"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "StartTrial"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "CompleteRegistration"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddPaymentInfo"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "CustomEvent"
               }
@@ -1720,9 +1710,14 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
+              },
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "Purchase"
               }
             ]
           },
@@ -1755,9 +1750,14 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
+              },
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "Search"
               }
             ]
           },
@@ -1788,9 +1788,14 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
+              },
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "CompleteRegistration"
               }
             ]
           },
@@ -1812,7 +1817,7 @@
             "match": "all",
             "conditions": [
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               }
@@ -1832,62 +1837,62 @@
             "match": "any",
             "conditions": [
               {
-                "fieldKey": "event_config.show_fields",
+                "fieldKey": "show_fields",
                 "operator": "is",
-                "value": "true"
+                "value": true
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddPaymentInfo"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToCart"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "AddToWishlist"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "CompleteRegistration"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "InitiateCheckout"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Lead"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Purchase"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Search"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "StartTrial"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "Subscribe"
               },
               {
-                "fieldKey": "event_config.event_name",
+                "fieldKey": "event_name",
                 "operator": "is",
                 "value": "ViewContent"
               }
@@ -2378,10 +2383,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Payment Info Entered\"",
       "mapping": {
-        "event_config": {
-          "event_name": "AddPaymentInfo",
-          "show_fields": false
+        "event_name": "AddPaymentInfo",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -2479,10 +2485,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Product Added\"",
       "mapping": {
-        "event_config": {
-          "event_name": "AddToCart",
-          "show_fields": false
+        "event_name": "AddToCart",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -2578,10 +2585,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Product Added To Wishlist\"",
       "mapping": {
-        "event_config": {
-          "event_name": "AddToWishlist",
-          "show_fields": false
+        "event_name": "AddToWishlist",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -2677,10 +2685,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Signed Up\"",
       "mapping": {
-        "event_config": {
-          "event_name": "CompleteRegistration",
-          "show_fields": false
+        "event_name": "CompleteRegistration",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -2778,10 +2787,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Checkout Started\"",
       "mapping": {
-        "event_config": {
-          "event_name": "InitiateCheckout",
-          "show_fields": false
+        "event_name": "InitiateCheckout",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -2879,10 +2889,11 @@
       "partnerAction": "send",
       "subscribe": "type = \"page\"",
       "mapping": {
-        "event_config": {
-          "event_name": "PageView",
-          "show_fields": false
+        "event_name": "PageView",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.category"
         },
@@ -2980,10 +2991,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Order Completed\"",
       "mapping": {
-        "event_config": {
-          "event_name": "Purchase",
-          "show_fields": false
+        "event_name": "Purchase",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -3086,10 +3098,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Products Searched\"",
       "mapping": {
-        "event_config": {
-          "event_name": "Search",
-          "show_fields": false
+        "event_name": "Search",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },
@@ -3185,10 +3198,11 @@
       "partnerAction": "send",
       "subscribe": "event = \"Product Viewed\"",
       "mapping": {
-        "event_config": {
-          "event_name": "ViewContent",
-          "show_fields": false
+        "event_name": "ViewContent",
+        "custom_event_name": {
+          "@path": "$.event"
         },
+        "show_fields": false,
         "content_category": {
           "@path": "$.properties.category"
         },

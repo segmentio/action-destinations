@@ -28,7 +28,8 @@ describe('content_ids field', () => {
   describe('formatFBEvent handling of content_ids', () => {
     it('passes a provided array of ids through', () => {
       const payload: Partial<Payload> = {
-        event_config: { event_name: 'ViewContent', show_fields: true },
+        event_name: 'ViewContent',
+        show_fields: true,
         content_ids: ['SKU-ABC-123', 'SKU-XYZ-789']
       }
 
@@ -39,7 +40,8 @@ describe('content_ids field', () => {
 
     it('omits content_ids when it is an empty array', () => {
       const payload: Partial<Payload> = {
-        event_config: { event_name: 'AddToCart', show_fields: true },
+        event_name: 'AddToCart',
+        show_fields: true,
         content_ids: []
       }
 
@@ -50,7 +52,8 @@ describe('content_ids field', () => {
 
     it('omits content_ids when it is absent', () => {
       const payload: Partial<Payload> = {
-        event_config: { event_name: 'Purchase', show_fields: true },
+        event_name: 'Purchase',
+        show_fields: true,
         value: 45.97
       }
 

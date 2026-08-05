@@ -31,7 +31,7 @@ export async function send(
   analytics: Analytics
 ) {
   const { pixelId } = settings
-  const { event_config: { custom_event_name, event_name } = {} } = payload
+  const { custom_event_name, event_name } = payload
 
   const isCustom = event_name === 'CustomEvent' ? true : false
 
@@ -56,11 +56,7 @@ export async function send(
 }
 
 function validate(payload: Payload): string | undefined {
-  const {
-    event_config: { event_name },
-    content_ids,
-    contents
-  } = payload
+  const { event_name, content_ids, contents } = payload
 
   if (['AddToCart', 'Purchase', 'ViewContent'].includes(event_name)) {
     if (
@@ -112,7 +108,8 @@ export function formatFBEvent(payload: Payload): FBEvent {
     predicted_ltv,
     net_revenue,
     custom_data,
-    event_config: { event_name, show_fields } = {}
+    event_name,
+    show_fields
   } = payload
 
   const contentIdsArr = trimmedArray(toArray(content_ids))
@@ -177,10 +174,10 @@ async function maybeSendUserData(
 
   if (userDataFormatted) {
     /* 
-            Facebook indicated that init should only trigger on a single page load up to max 2 times. 
-            When userData is created it gets added to storage and included in the next init call on page load. 
-            Facebook also advised to always send userData when it's available, even if it was collected via previous events. 
-        */
+        Facebook indicated that init should only trigger on a single page load up to max 2 times. 
+        When userData is created it gets added to storage and included in the next init call on page load. 
+        Facebook also advised to always send userData when it's available, even if it was collected via previous events. 
+    */
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
     const initCountFromStorage: string | null = storage.get(INIT_COUNT_KEY)
     const initCount: number | undefined =

@@ -2,59 +2,52 @@ import type { InputField } from '@segment/actions-core'
 import { getDependenciesFor } from './depends-on'
 import { CURRENCY_ISO_CODES } from '../constants'
 
-export const event_config: InputField = {
-  label: 'Event Configuration',
-  description: 'Specify the type of Facebook Conversions API event to send.',
-  type: 'object',
+export const event_name: InputField = {
+  label: 'Event Name',
+  description: "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
+  type: 'string',
   required: true,
-  additionalProperties: false,
-  defaultObjectUI: 'keyvalue',
-  properties: {
-    event_name: {
-      label: 'Event Name',
-      description: "Facebook Conversions API Event Name to send. Select 'Custom Event' to send a non standard event.",
-      type: 'string',
-      required: true,
-      choices: [
-        { label: 'Custom Event', value: 'CustomEvent' },
-        { label: 'Page View', value: 'PageView' },
-        { label: 'Add Payment Info', value: 'AddPaymentInfo' },
-        { label: 'Add To Cart', value: 'AddToCart' },
-        { label: 'Add To Wishlist', value: 'AddToWishlist' },
-        { label: 'Complete Registration', value: 'CompleteRegistration' },
-        { label: 'Contact', value: 'Contact' },
-        { label: 'Customize Product', value: 'CustomizeProduct' },
-        { label: 'Donate', value: 'Donate' },
-        { label: 'Find Location', value: 'FindLocation' },
-        { label: 'Initiate Checkout', value: 'InitiateCheckout' },
-        { label: 'Lead', value: 'Lead' },
-        { label: 'Purchase', value: 'Purchase' },
-        { label: 'Schedule', value: 'Schedule' },
-        { label: 'Search', value: 'Search' },
-        { label: 'Start Trial', value: 'StartTrial' },
-        { label: 'Submit Application', value: 'SubmitApplication' },
-        { label: 'Subscribe', value: 'Subscribe' },
-        { label: 'View Content', value: 'ViewContent' }
-      ]
-    },
-    custom_event_name: {
-      label: 'Custom Event Name',
-      description: 'Custom event name to send to Facebook',
-      type: 'string',
-      depends_on: getDependenciesFor('custom_event_name')
-    },
-    show_fields: {
-      label: 'Show all fields',
-      description: 'Show all fields, even those which are not relevant to the selected Event Name.',
-      type: 'boolean',
-      default: false
-    }
+  choices: [
+    { label: 'Custom Event', value: 'CustomEvent' },
+    { label: 'Page View', value: 'PageView' },
+    { label: 'Add Payment Info', value: 'AddPaymentInfo' },
+    { label: 'Add To Cart', value: 'AddToCart' },
+    { label: 'Add To Wishlist', value: 'AddToWishlist' },
+    { label: 'Complete Registration', value: 'CompleteRegistration' },
+    { label: 'Contact', value: 'Contact' },
+    { label: 'Customize Product', value: 'CustomizeProduct' },
+    { label: 'Donate', value: 'Donate' },
+    { label: 'Find Location', value: 'FindLocation' },
+    { label: 'Initiate Checkout', value: 'InitiateCheckout' },
+    { label: 'Lead', value: 'Lead' },
+    { label: 'Purchase', value: 'Purchase' },
+    { label: 'Schedule', value: 'Schedule' },
+    { label: 'Search', value: 'Search' },
+    { label: 'Start Trial', value: 'StartTrial' },
+    { label: 'Submit Application', value: 'SubmitApplication' },
+    { label: 'Subscribe', value: 'Subscribe' },
+    { label: 'View Content', value: 'ViewContent' }
+  ],
+  default: 'CustomEvent'
+}
+
+export const custom_event_name: InputField = {
+  label: 'Custom Event Name',
+  description: 'Custom event name to send to Facebook',
+  type: 'string',
+  depends_on: getDependenciesFor('custom_event_name'),
+  required: {
+    match: 'all',
+    conditions: [{ fieldKey: 'event_name', operator: 'is', value: 'CustomEvent' }]
   },
-  default: {
-    event_name: 'CustomEvent',
-    custom_event_name: { '@path': '$.event' },
-    show_fields: false
-  }
+  default: { '@path': '$.event' }
+}
+
+export const show_fields: InputField = {
+  label: 'Show all fields',
+  description: 'Show all fields, even those which are not relevant to the selected Event Name.',
+  type: 'boolean',
+  default: false
 }
 
 export const content_category: InputField = {
@@ -151,7 +144,7 @@ export const currency: InputField = {
     match: 'all',
     conditions: [
       {
-        fieldKey: 'event_config.event_name',
+        fieldKey: 'event_name',
         operator: 'is',
         value: 'Purchase'
       }
@@ -224,7 +217,7 @@ export const value: InputField = {
     match: 'all',
     conditions: [
       {
-        fieldKey: 'event_config.event_name',
+        fieldKey: 'event_name',
         operator: 'is',
         value: 'Purchase'
       }
@@ -361,7 +354,9 @@ export const userData: InputField = {
 }
 
 export const AllFields = {
-  event_config,
+  event_name,
+  custom_event_name,
+  show_fields,
   content_category,
   content_ids,
   content_name,

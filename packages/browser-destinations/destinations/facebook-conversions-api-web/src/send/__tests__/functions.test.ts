@@ -31,10 +31,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   describe('send - Standard Events', () => {
     it('should send Purchase event with required fields', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         currency: 'USD'
@@ -58,10 +56,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should send AddToCart event with contents', async () => {
       const payload = {
-        event_config: {
-          event_name: 'AddToCart',
-          show_fields: false
-        },
+        event_name: 'AddToCart',
+        show_fields: false,
         contents: [
           {
             id: 'product-123',
@@ -94,10 +90,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       // so a single-product event maps content_ids to a scalar string. It
       // should still be sent to fbq as an array, not dropped.
       const payload = {
-        event_config: {
-          event_name: 'ViewContent',
-          show_fields: false
-        },
+        event_name: 'ViewContent',
+        show_fields: false,
         content_ids: 'product-123',
         value: 19.99
       }
@@ -121,10 +115,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       // Likewise a single-product event maps contents to a scalar object; it
       // should be sent to fbq wrapped in an array.
       const payload = {
-        event_config: {
-          event_name: 'AddToCart',
-          show_fields: false
-        },
+        event_name: 'AddToCart',
+        show_fields: false,
         contents: { id: 'product-123', quantity: 2, item_price: 49.99 },
         value: 99.98,
         currency: 'USD'
@@ -148,10 +140,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should send ViewContent event', async () => {
       const payload = {
-        event_config: {
-          event_name: 'ViewContent',
-          show_fields: false
-        },
+        event_name: 'ViewContent',
+        show_fields: false,
         content_ids: ['product-456'],
         content_name: 'Test Product',
         content_category: 'Electronics',
@@ -177,10 +167,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should send Search event with search_string', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Search',
-          show_fields: false
-        },
+        event_name: 'Search',
+        show_fields: false,
         search_string: 'monopoly board game',
         content_category: 'Games',
         content_ids: ['product-123'],
@@ -208,10 +196,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should send CompleteRegistration event with status', async () => {
       const payload = {
-        event_config: {
-          event_name: 'CompleteRegistration',
-          show_fields: false
-        },
+        event_name: 'CompleteRegistration',
+        show_fields: false,
         status: true,
         currency: 'USD',
         value: 0
@@ -235,10 +221,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should send PageView event', async () => {
       const payload = {
-        event_config: {
-          event_name: 'PageView',
-          show_fields: false
-        }
+        event_name: 'PageView',
+        show_fields: false
       }
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
@@ -256,11 +240,9 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   describe('send - Custom Events', () => {
     it('should send custom event with custom event name', async () => {
       const payload = {
-        event_config: {
-          event_name: 'CustomEvent',
-          custom_event_name: 'MyCustomEvent',
-          show_fields: true
-        },
+        event_name: 'CustomEvent',
+        custom_event_name: 'MyCustomEvent',
+        show_fields: true,
         value: 50.0,
         custom_data: {
           custom_field_1: 'value1',
@@ -290,10 +272,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   describe('send - Validation', () => {
     it('should warn if AddToCart is missing both content_ids and contents', async () => {
       const payload = {
-        event_config: {
-          event_name: 'AddToCart',
-          show_fields: false
-        },
+        event_name: 'AddToCart',
+        show_fields: false,
         value: 99.99
       }
 
@@ -307,10 +287,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should warn if Purchase is missing both content_ids and contents', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         value: 199.99,
         currency: 'USD'
       }
@@ -325,10 +303,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should warn if ViewContent is missing both content_ids and contents', async () => {
       const payload = {
-        event_config: {
-          event_name: 'ViewContent',
-          show_fields: false
-        }
+        event_name: 'ViewContent',
+        show_fields: false
       }
 
       await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
@@ -341,10 +317,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should not warn if AddToCart has content_ids', async () => {
       const payload = {
-        event_config: {
-          event_name: 'AddToCart',
-          show_fields: false
-        },
+        event_name: 'AddToCart',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99
       }
@@ -357,10 +331,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should not warn if AddToCart has contents', async () => {
       const payload = {
-        event_config: {
-          event_name: 'AddToCart',
-          show_fields: false
-        },
+        event_name: 'AddToCart',
+        show_fields: false,
         contents: [{ id: 'product-123', quantity: 1 }],
         value: 99.99
       }
@@ -375,10 +347,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   describe('send - Event Options', () => {
     it('should include eventID when provided', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         eventID: 'unique-event-id-123'
@@ -393,10 +363,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should include eventSourceUrl when provided', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         eventSourceUrl: 'https://example.com/checkout'
@@ -411,10 +379,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should include both eventID and eventSourceUrl when provided', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         eventID: 'unique-event-id-123',
@@ -433,10 +399,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
   describe('send - Event Data Fields', () => {
     it('should include all event fields when show_fields is true', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: true
-        },
+        event_name: 'Purchase',
+        show_fields: true,
         content_ids: ['product-123'],
         content_name: 'Test Product',
         content_category: 'Electronics',
@@ -470,10 +434,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should include predicted_ltv for Subscribe event', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Subscribe',
-          show_fields: false
-        },
+        event_name: 'Subscribe',
+        show_fields: false,
         predicted_ltv: 500.0,
         value: 50.0
       }
@@ -495,10 +457,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should include net_revenue for Purchase event', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         net_revenue: 450.0,
         value: 50.0
@@ -522,10 +482,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should include custom_data', async () => {
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         custom_data: {
@@ -557,10 +515,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should not include empty arrays or objects', async () => {
       const payload = {
-        event_config: {
-          event_name: 'PageView',
-          show_fields: false
-        },
+        event_name: 'PageView',
+        show_fields: false,
         content_ids: [],
         contents: [],
         custom_data: {}
@@ -574,10 +530,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
 
     it('should handle numeric values correctly including zero', async () => {
       const payload = {
-        event_config: {
-          event_name: 'InitiateCheckout',
-          show_fields: false
-        },
+        event_name: 'InitiateCheckout',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 0,
         num_items: 0
@@ -617,10 +571,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email_value')
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -640,10 +592,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_phone_value')
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -667,10 +617,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       })
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -727,10 +675,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email')
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -761,10 +707,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email')
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -792,10 +736,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue(undefined)
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -821,10 +763,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockClientParamBuilderInstance.getNormalizedAndHashedPII.mockReturnValue('hashed_email')
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {
@@ -847,10 +787,8 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       mockAnalytics.storage.get.mockReturnValue('0')
 
       const payload = {
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         content_ids: ['product-123'],
         value: 99.99,
         userData: {

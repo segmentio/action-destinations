@@ -110,10 +110,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'AddPaymentInfo',
-          show_fields: false
-        }
+        event_name: 'AddPaymentInfo',
+        show_fields: false
       },
       type: 'automatic'
     },
@@ -123,10 +121,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'AddToCart',
-          show_fields: false
-        },
+        event_name: 'AddToCart',
+        show_fields: false,
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
@@ -143,10 +139,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'AddToWishlist',
-          show_fields: false
-        },
+        event_name: 'AddToWishlist',
+        show_fields: false,
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
@@ -163,10 +157,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'CompleteRegistration',
-          show_fields: false
-        }
+        event_name: 'CompleteRegistration',
+        show_fields: false
       },
       type: 'automatic'
     },
@@ -176,10 +168,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'InitiateCheckout',
-          show_fields: false
-        }
+        event_name: 'InitiateCheckout',
+        show_fields: false
       },
       type: 'automatic'
     },
@@ -189,10 +179,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'PageView',
-          show_fields: false
-        },
+        event_name: 'PageView',
+        show_fields: false,
         content_name: { '@path': '$.name' },
         content_category: { '@path': '$.category' }
       },
@@ -204,10 +192,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'Purchase',
-          show_fields: false
-        },
+        event_name: 'Purchase',
+        show_fields: false,
         value: { '@path': '$.properties.revenue' },
         custom_data: {
           order_id: { '@path': '$.properties.order_id' }
@@ -221,10 +207,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'Search',
-          show_fields: false
-        },
+        event_name: 'Search',
+        show_fields: false,
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
@@ -240,10 +224,8 @@ export const destination: BrowserDestinationDefinition<
       partnerAction: 'send',
       mapping: {
         ...defaultValues(send.fields),
-        event_config: {
-          event_name: 'ViewContent',
-          show_fields: false
-        },
+        event_name: 'ViewContent',
+        show_fields: false,
         contents: {
           id: { '@path': '$.properties.product_id' },
           quantity: { '@path': '$.properties.quantity' },
