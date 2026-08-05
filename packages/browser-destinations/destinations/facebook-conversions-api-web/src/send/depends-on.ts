@@ -3,7 +3,6 @@ import type { FBStandardEventType, FBNonStandardEventType } from '../types'
 
 export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStandardEventType)[]> = {
   custom_event_name: ['CustomEvent'],
-  content_category: ['PageView', 'ViewContent', 'Search'],
   content_ids: [
     'AddPaymentInfo',
     'AddToCart',
@@ -13,7 +12,6 @@ export const fieldDependencies: Record<string, (FBStandardEventType | FBNonStand
     'Search',
     'ViewContent'
   ],
-  content_name: ['PageView', 'ViewContent', 'Search'],
   content_type: ['AddToCart', 'Purchase', 'Search', 'ViewContent'],
   contents: ['AddPaymentInfo', 'AddToCart', 'AddToWishlist', 'InitiateCheckout', 'Purchase', 'Search', 'ViewContent'],
   currency: [

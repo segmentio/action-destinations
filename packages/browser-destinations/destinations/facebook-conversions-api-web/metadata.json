@@ -345,31 +345,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": {
-            "match": "any",
-            "conditions": [
-              {
-                "fieldKey": "show_fields",
-                "operator": "is",
-                "value": true
-              },
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "PageView"
-              },
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "ViewContent"
-              },
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "Search"
-              }
-            ]
-          },
+          "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -463,31 +439,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": {
-            "match": "any",
-            "conditions": [
-              {
-                "fieldKey": "show_fields",
-                "operator": "is",
-                "value": true
-              },
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "PageView"
-              },
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "ViewContent"
-              },
-              {
-                "fieldKey": "event_name",
-                "operator": "is",
-                "value": "Search"
-              }
-            ]
-          },
+          "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -1615,6 +1567,11 @@
                 "fieldKey": "event_name",
                 "operator": "is",
                 "value": "InitiateCheckout"
+              },
+              {
+                "fieldKey": "event_name",
+                "operator": "is",
+                "value": "Purchase"
               }
             ]
           },

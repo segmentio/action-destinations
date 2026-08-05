@@ -54,16 +54,14 @@ export const content_category: InputField = {
   label: 'Content Category',
   description: 'The category of the content associated with the event.',
   type: 'string',
-  default: { '@path': '$.properties.category' },
-  depends_on: getDependenciesFor('content_category')
+  default: { '@path': '$.properties.category' }
 }
 
 export const content_name: InputField = {
   label: 'Content Name',
   description: 'The name of the page or product associated with the event.',
   type: 'string',
-  default: { '@path': '$.properties.name' },
-  depends_on: getDependenciesFor('content_name')
+  default: { '@path': '$.properties.name' }
 }
 
 export const content_type: InputField = {
