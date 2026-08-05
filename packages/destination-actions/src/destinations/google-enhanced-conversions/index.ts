@@ -210,8 +210,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadConversionAdjustment,
     uploadConversionAdjustment2,
     uploadClickConversion2,
-    uploadCallConversion2,
-    userList
+    uploadCallConversion2
   },
   presets: [
     {
