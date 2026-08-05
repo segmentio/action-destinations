@@ -118,7 +118,7 @@ export interface Payload {
      */
     ln?: string
     /**
-     * Gender of the user. If unknown leave blank.
+     * Gender of the user. acceptable values are "m" or "male" for male and "f" or "female" for female. If unknown leave blank.
      */
     ge?: string
     /**
