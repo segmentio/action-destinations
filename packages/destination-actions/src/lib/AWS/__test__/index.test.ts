@@ -1,5 +1,5 @@
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
-import { assumeRole } from '../sts'
+import { assumeRole, __clearAssumedRoleCacheForTests } from '../sts'
 import { ErrorCodes } from '@segment/actions-core'
 
 // Mock dependencies
@@ -24,6 +24,8 @@ describe('assumeRole', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Reset the in-memory credentials cache so cases don't leak assumed roles into one another.
+    __clearAssumedRoleCacheForTests()
     ;(STSClient as jest.Mock).mockImplementation(() => ({
       send: mockSend
     }))
@@ -107,5 +109,97 @@ describe('assumeRole', () => {
         region: 'us-west-2'
       })
     )
+  })
+
+  const mockBothRoleCalls = () => {
+    mockSend
+      .mockResolvedValueOnce({
+        Credentials: {
+          AccessKeyId: 'AKIA_INTERMEDIARY',
+          SecretAccessKey: 'SECRET_INTERMEDIARY',
+          SessionToken: 'TOKEN_INTERMEDIARY'
+        }
+      })
+      .mockResolvedValueOnce({
+        Credentials: {
+          AccessKeyId: 'AKIA_FINAL',
+          SecretAccessKey: 'SECRET_FINAL',
+          SessionToken: 'TOKEN_FINAL'
+        }
+      })
+  }
+
+  describe('credentials caching', () => {
+    it('reuses cached credentials for the same role/externalId/region without calling STS again', async () => {
+      mockBothRoleCalls()
+
+      const first = await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1')
+      expect(STSClient).toHaveBeenCalledTimes(2)
+
+      const second = await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1')
+      // No additional STS calls: served entirely from the in-memory cache.
+      expect(STSClient).toHaveBeenCalledTimes(2)
+      expect(second).toEqual(first)
+    })
+
+    it('does not share cache entries across different roles/regions', async () => {
+      mockBothRoleCalls()
+      await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1')
+      expect(STSClient).toHaveBeenCalledTimes(2)
+
+      mockBothRoleCalls()
+      await assumeRole('arn:aws:iam::999999999999:role/OtherRole', 'external-id', 'us-east-1')
+      // Different role -> cache miss -> another pair of STS calls.
+      expect(STSClient).toHaveBeenCalledTimes(4)
+    })
+
+    it('collapses concurrent cache misses into a single STS refresh', async () => {
+      mockBothRoleCalls()
+
+      const [a, b] = await Promise.all([
+        assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1'),
+        assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1')
+      ])
+
+      // Both concurrent callers share one refresh (intermediary + target = 2 STS calls total).
+      expect(STSClient).toHaveBeenCalledTimes(2)
+      expect(a).toEqual(b)
+    })
+
+    it('refreshes after cached credentials expire', async () => {
+      const nowSpy = jest.spyOn(Date, 'now')
+      try {
+        // STS returns an expiration 1 hour out; cache TTL = expiration - 5min buffer.
+        const t0 = 1_000_000_000_000
+        nowSpy.mockReturnValue(t0)
+        mockSend
+          .mockResolvedValueOnce({
+            Credentials: {
+              AccessKeyId: 'AKIA_INTERMEDIARY',
+              SecretAccessKey: 'SECRET_INTERMEDIARY',
+              SessionToken: 'TOKEN_INTERMEDIARY'
+            }
+          })
+          .mockResolvedValueOnce({
+            Credentials: {
+              AccessKeyId: 'AKIA_FINAL',
+              SecretAccessKey: 'SECRET_FINAL',
+              SessionToken: 'TOKEN_FINAL',
+              Expiration: new Date(t0 + 60 * 60 * 1000)
+            }
+          })
+
+        await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1')
+        expect(STSClient).toHaveBeenCalledTimes(2)
+
+        // Advance past the cached expiry (1h - 5min buffer).
+        nowSpy.mockReturnValue(t0 + 60 * 60 * 1000)
+        mockBothRoleCalls()
+        await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id', 'us-east-1')
+        expect(STSClient).toHaveBeenCalledTimes(4)
+      } finally {
+        nowSpy.mockRestore()
+      }
+    })
   })
 })
