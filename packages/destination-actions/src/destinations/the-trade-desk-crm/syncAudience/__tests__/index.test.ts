@@ -495,7 +495,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
 
       // Verify metadata structure
       const metadataCall = metadataCalls[metadataCalls.length - 1][0]
-      const metadata = JSON.parse(metadataCall.Body)
+      const metadata = JSON.parse(metadataCall.Body as string)
 
       expect(metadata).toMatchObject({
         TTDAuthToken: 'test-token',
@@ -513,6 +513,124 @@ describe('TheTradeDeskCrm.syncAudience', () => {
           subscriptionId: expect.any(String)
         })
       })
+    })
+
+    // NOTE: This destination has a single `syncAudience` action with no separate "remove" action,
+    // and `full_audience_sync: true` means Segment always re-uploads the complete current
+    // membership snapshot (MergeMode: 'Replace'). Neither `processPayload` nor `extractUsers`
+    // (see ../../functions.ts) ever read the membership boolean at `properties[computation_key]`,
+    // so there is no add-vs-remove branch to exercise here. `computation_class` is only read to
+    // pull `computation_id` through into `segmentInternal.audienceId` for observability. These two
+    // tests cover that native-contract field propagation for both `audience` and `journey_step`
+    // payloads, and confirm the sync is processed identically regardless of the membership value.
+    it('should propagate computation_id into segmentInternal.audienceId for a native "audience" computation_class payload', async () => {
+      const nativeAudienceEvent = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          personas_test_audience: true
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          },
+          traits: {
+            email: 'native-audience@testing.com'
+          },
+          personas: {
+            computation_class: 'audience',
+            computation_key: 'personas_test_audience',
+            computation_id: 'aud_native_12345',
+            external_audience_id: 'external_audience_id'
+          }
+        }
+      })
+
+      await testDestination.testBatchAction('syncAudience', {
+        events: [nativeAudienceEvent],
+        settings: {
+          advertiser_id: 'test-advertiser',
+          auth_token: 'test-token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {}, // AWS flow
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'Email'
+        }
+      })
+
+      const metadataCalls = MockedPutObjectCommand.mock.calls.filter((call) => {
+        return call[0].ContentType === 'application/json'
+      })
+      const metadataCall = metadataCalls[metadataCalls.length - 1][0]
+      const metadata = JSON.parse(metadataCall.Body as string)
+
+      expect(metadata.segmentInternal.audienceId).toBe('aud_native_12345')
+
+      // The user is still uploaded (not filtered out) even though this is the "membership" shape -
+      // confirming there is no add/remove gating on the boolean at properties[computation_key].
+      const userDataCalls = MockedPutObjectCommand.mock.calls.filter((call) => call[0].ContentType === 'text/csv')
+      const userDataCall = userDataCalls[userDataCalls.length - 1][0]
+      expect(userDataCall.Body).toContain('native-audience@testing.com')
+    })
+
+    it('should propagate computation_id into segmentInternal.audienceId for a native "journey_step" computation_class payload, regardless of membership value', async () => {
+      const nativeJourneyStepEvent = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          personas_test_audience: false
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          },
+          traits: {
+            email: 'native-journey-step@testing.com'
+          },
+          personas: {
+            computation_class: 'journey_step',
+            computation_key: 'personas_test_audience',
+            computation_id: 'aud_native_67890',
+            external_audience_id: 'external_audience_id'
+          }
+        }
+      })
+
+      await testDestination.testBatchAction('syncAudience', {
+        events: [nativeJourneyStepEvent],
+        settings: {
+          advertiser_id: 'test-advertiser',
+          auth_token: 'test-token',
+          __segment_internal_engage_force_full_sync: true,
+          __segment_internal_engage_batch_sync: true
+        },
+        features: {}, // AWS flow
+        useDefaultMappings: true,
+        mapping: {
+          name: 'test_audience',
+          region: 'US',
+          pii_type: 'Email'
+        }
+      })
+
+      const metadataCalls = MockedPutObjectCommand.mock.calls.filter((call) => {
+        return call[0].ContentType === 'application/json'
+      })
+      const metadataCall = metadataCalls[metadataCalls.length - 1][0]
+      const metadata = JSON.parse(metadataCall.Body as string)
+
+      expect(metadata.segmentInternal.audienceId).toBe('aud_native_67890')
+
+      // Membership is `false` here (a "remove"), yet the user is still uploaded - there is no
+      // remove/delete action or code path in this destination to divert to.
+      const userDataCalls = MockedPutObjectCommand.mock.calls.filter((call) => call[0].ContentType === 'text/csv')
+      const userDataCall = userDataCalls[userDataCalls.length - 1][0]
+      expect(userDataCall.Body).toContain('native-journey-step@testing.com')
     })
 
     it('should handle EmailHashedUnifiedId2 in AWS flow', async () => {
@@ -563,7 +681,7 @@ describe('TheTradeDeskCrm.syncAudience', () => {
       })
 
       const metadataCall = metadataCalls[metadataCalls.length - 1][0]
-      const metadata = JSON.parse(metadataCall.Body)
+      const metadata = JSON.parse(metadataCall.Body as string)
 
       expect(metadata.DropOptions.PiiType).toBe('EmailHashedUnifiedId2')
     })
