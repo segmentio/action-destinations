@@ -92,6 +92,20 @@ function normalizeCurrency(value: unknown): string | undefined {
   return CURRENCY_ISO_CODES.has(upper) ? upper : undefined
 }
 
+function trimContents(contents: Payload['contents']): NonNullable<Payload['contents']> {
+  return (contents ?? []).map((item) => {
+    if (!item || typeof item !== 'object') return item
+    const trimmedItem = { ...item }
+    for (const key of Object.keys(trimmedItem)) {
+      const v = trimmedItem[key]
+      if (typeof v === 'string') {
+        trimmedItem[key] = v.trim()
+      }
+    }
+    return trimmedItem
+  })
+}
+
 export function formatFBEvent(payload: Payload): FBEvent {
   const {
     content_category,
@@ -113,7 +127,7 @@ export function formatFBEvent(payload: Payload): FBEvent {
   } = payload
 
   const contentIdsArr = trimmedArray(toArray(content_ids))
-  const contentsArr = toArray(contents)
+  const contentsArr = trimContents(toArray(contents))
   const contentCategory = trimmed(content_category)
   const contentName = trimmed(content_name)
   const contentType = trimmed(content_type)

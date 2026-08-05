@@ -45,6 +45,25 @@ describe('formatFBEvent', () => {
     expect(result).not.toHaveProperty('currency')
   })
 
+  it('should trim string values inside contents items', () => {
+    const payload = {
+      event_name: 'AddToCart',
+      show_fields: true,
+      contents: [
+        { id: '  SKU-ABC-123  ', quantity: 2, item_price: 19.99 },
+        { id: 'SKU-XYZ-789 ', quantity: 1 }
+      ]
+    } as unknown as Payload
+
+    const result = formatFBEvent(payload)
+
+    // string id trimmed; numeric quantity/item_price untouched
+    expect(result.contents).toEqual([
+      { id: 'SKU-ABC-123', quantity: 2, item_price: 19.99 },
+      { id: 'SKU-XYZ-789', quantity: 1 }
+    ])
+  })
+
   it('should format a complete Purchase event with all fields', () => {
     const payload: Partial<Payload> = {
       event_name: 'Purchase',
