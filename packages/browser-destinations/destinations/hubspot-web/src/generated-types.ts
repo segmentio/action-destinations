@@ -21,4 +21,8 @@ export interface Settings {
    * Enable this option if you would like Segment to automatically load the HubSpot Forms SDK onto your site.
    */
   loadFormsSDK?: boolean
+  /**
+   * Scratch bug-bash settings field for TC79.
+   */
+  tc79TestField?: string
 }

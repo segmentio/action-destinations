@@ -10,14 +10,15 @@ export const fields: Record<string, InputField> = {
     required: true,
     label: 'External ID',
     category: 'hashedPII',
-    description: 'Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs.',
+    description:
+      'Your company’s custom identifier for this user. This can be any unique ID, such as loyalty membership IDs, user IDs, and external cookie IDs.',
     default: { '@path': '$.userId' }
   },
   email: {
     type: 'string',
     label: 'Email',
     description: 'User’s email (ex: foo@bar.com)',
-    category: 'hashedPII', 
+    category: 'hashedPII',
     default: {
       '@if': {
         exists: { '@path': '$.traits.email' },
@@ -43,7 +44,8 @@ export const fields: Record<string, InputField> = {
   birth: {
     type: 'object',
     label: 'Date of Birth',
-    description: 'User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)',
+    description:
+      'User’s date of birth. Include as many fields as possible for better match rates (ex: year = YYYY, month = MM, day = DD)',
     defaultObjectUI: 'keyvalue',
     properties: {
       year: {
@@ -190,7 +192,10 @@ export const fields: Record<string, InputField> = {
   igAccountIds: {
     type: 'string',
     label: 'Instagram Account IDs',
-    description: 'The Instagram account ID of the user.'
+    description: 'The Instagram account ID of the user.',
+    // TEMPORARY bug-bash (TC40, scratch): add hashedPII to an existing field to verify the
+    // description gets the hashing-note suffix and the diff doesn't linger after push. Never merge.
+    category: 'hashedPII'
   },
   external_audience_id: {
     label: 'Facebook List ID',
@@ -219,7 +224,13 @@ export const fields: Record<string, InputField> = {
   }
 }
 
-export const retlHookInputFields: ActionHookDefinition<Settings, Payload, AudienceSettings, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs>['inputFields'] = {
+export const retlHookInputFields: ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  RetlOnMappingSaveInputs,
+  RetlOnMappingSaveOutputs
+>['inputFields'] = {
   operation: {
     type: 'string',
     label: 'Create a new custom audience or connect to an existing one?',
@@ -262,7 +273,13 @@ export const retlHookInputFields: ActionHookDefinition<Settings, Payload, Audien
   }
 }
 
-export const retlHookOutputTypes: ActionHookDefinition<Settings, Payload, AudienceSettings, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs>['outputTypes'] = {
+export const retlHookOutputTypes: ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  RetlOnMappingSaveInputs,
+  RetlOnMappingSaveOutputs
+>['outputTypes'] = {
   audienceName: {
     type: 'string',
     label: 'Audience Name',

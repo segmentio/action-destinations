@@ -80,4 +80,6 @@ register('6911ea13d72d3a16aa306482', '@segment/analytics-browser-mixpanel-web-ac
 register('697088b36245ed59c958d615', '@segment/analytics-browser-actions-rokt-plugins')
 register('69805c55324ed9e25f234a1a', '@segment/analytics-browser-actions-moengage-web')
 register('698aff47f133996889ade37e', '@segment/analytics-browser-appcues-web-actions')
-
+// TEMPORARY bug-bash (Row 77, scratch): browser half of the hybrid destination. Shares its
+// metadataId with the cloud half (destination-actions registry) so both resolve to one CP record. Never merge.
+register('000000000000000000000077', '@segment/analytics-browser-actions-bug-bash-hybrid')

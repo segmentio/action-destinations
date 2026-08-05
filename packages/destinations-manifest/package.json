@@ -17,6 +17,7 @@
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
   "dependencies": {
+    "@segment/analytics-browser-actions-bug-bash-hybrid": "1.0.0",
     "@segment/analytics-browser-actions-1flow": "1.89.1-staging-7513d12e0.0",
     "@segment/analytics-browser-actions-adobe-target": "1.107.1-staging-7513d12e0.0",
     "@segment/analytics-browser-actions-algolia-plugins": "1.83.1-staging-7513d12e0.0",

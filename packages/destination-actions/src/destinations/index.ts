@@ -242,6 +242,9 @@ register('6a67497a6423a7a0d95cd427', './quora')
 register('6a61fbcd4a3fcb83e9b57434', './mntn-audiences')
 register('6a6748e14c5666d0bc0d3a66', './vibe-conversions')
 register('6a68baf59e9ffb3aafc3c3c8', './marketo-private')
+// TEMPORARY bug-bash (Row 77, scratch): cloud half of the hybrid destination. Shares its
+// metadataId with the browser half (destinations-manifest) so both resolve to one CP record. Never merge.
+register('000000000000000000000077', './bug-bash-hybrid')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

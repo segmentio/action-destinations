@@ -210,8 +210,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
     uploadConversionAdjustment,
     uploadConversionAdjustment2,
     uploadClickConversion2,
-    uploadCallConversion2,
-    userList
+    uploadCallConversion2
   },
   presets: [
     {
@@ -304,6 +303,19 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: defaultValues(userList.fields),
       type: 'specificEvent',
       eventSlug: 'journey_step_all_events_track'
+    },
+    {
+      name: 'mdkhan1234 Session Attributes Encoded Plugin',
+      subscribe: 'type = "track" or type = "group" or type = "page" or type = "alias"',
+      partnerAction: 'sessionAttributesEncoded',
+      mapping: {},
+      type: 'automatic'
+    },
+    {
+      partnerAction: 'userList',
+      mapping: defaultValues(userList.fields),
+      type: 'specificEvent',
+      eventSlug: 'warehouse_all_events_track'
     }
   ]
 }
