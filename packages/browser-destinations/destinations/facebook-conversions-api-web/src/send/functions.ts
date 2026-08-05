@@ -56,13 +56,16 @@ export async function send(
 }
 
 function validate(payload: Payload): string | undefined {
-  const { event_name, content_ids, contents } = payload
+  const { event_name, custom_event_name, content_ids, contents } = payload
+
+  if (event_name === 'CustomEvent' && !trimmed(custom_event_name)) {
+    return `custom_event_name is required when event_name is CustomEvent.`
+  }
 
   if (['AddToCart', 'Purchase', 'ViewContent'].includes(event_name)) {
-    if (
-      (!content_ids || (Array.isArray(content_ids) && content_ids.length === 0)) &&
-      (!contents || (Array.isArray(contents) && contents.length === 0))
-    ) {
+    const contentIds = trimmedArray(toArray(content_ids))
+    const contentsArr = trimContents(toArray(contents))
+    if (contentIds.length === 0 && contentsArr.length === 0) {
       return `At least one of content_ids or contents is required for the ${event_name} event.`
     }
   }

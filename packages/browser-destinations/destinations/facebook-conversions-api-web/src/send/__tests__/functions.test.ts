@@ -342,6 +342,60 @@ describe('Facebook Conversions API Web - Send Functions', () => {
       expect(consoleWarnSpy).not.toHaveBeenCalled()
       expect(mockFbq).toHaveBeenCalled()
     })
+
+    it('should warn if AddToCart content_ids is only whitespace', async () => {
+      // Whitespace-only content_ids is dropped by formatFBEvent, so validation
+      // must treat it as absent rather than letting the event through empty.
+      const payload = {
+        event_name: 'AddToCart',
+        show_fields: false,
+        content_ids: ['   '],
+        value: 99.99
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('At least one of content_ids or contents is required for the AddToCart event')
+      )
+      expect(mockFbq).not.toHaveBeenCalled()
+    })
+
+    it('should warn if CustomEvent has no custom_event_name', async () => {
+      const payload = {
+        event_name: 'CustomEvent',
+        custom_event_name: '  ',
+        show_fields: false,
+        value: 10
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('custom_event_name is required when event_name is CustomEvent')
+      )
+      expect(mockFbq).not.toHaveBeenCalled()
+    })
+
+    it('should send CustomEvent when custom_event_name is provided', async () => {
+      const payload = {
+        event_name: 'CustomEvent',
+        custom_event_name: 'MyCustomEvent',
+        show_fields: false,
+        value: 10
+      }
+
+      await send(mockFbq, mockClientParamBuilder, payload, defaultSettings, mockAnalytics)
+
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+      expect(mockFbq).toHaveBeenCalledWith(
+        'trackSingleCustom',
+        'test-pixel-123',
+        'MyCustomEvent',
+        expect.any(Object),
+        undefined
+      )
+    })
   })
 
   describe('send - Event Options', () => {
