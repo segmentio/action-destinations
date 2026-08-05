@@ -1,13 +1,13 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
-import webAction from './webAction'
 import cloudAction from './cloudAction'
 
-// TEMPORARY bug-bash (Row 77, scratch): a hybrid destination that defines BOTH a
-// platform:'web' action and a platform:'cloud' action, to verify the bot infers
-// platforms.browser:true AND platforms.server:true and handles same-mode pushes
-// without spurious cross-mode diffs. Never merge.
+// TEMPORARY bug-bash (Row 77, scratch): the cloud half of a proper hybrid destination.
+// Declares only the server-side action; the browser (web) action lives in the browser
+// package (@segment/analytics-browser-actions-bug-bash-hybrid) and is merged in at
+// manifest-build time via the shared metadataId, mirroring ms-bing-capi. The merged
+// destination infers platforms.browser:true AND server:true. Never merge.
 const destination: DestinationDefinition<Settings> = {
   name: 'Bug Bash Hybrid',
   slug: 'actions-bug-bash-hybrid',
@@ -26,7 +26,6 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    webAction,
     cloudAction
   }
 }
