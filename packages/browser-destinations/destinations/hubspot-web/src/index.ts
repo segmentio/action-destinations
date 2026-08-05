@@ -80,6 +80,15 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       type: 'boolean',
       required: false,
       default: false
+    },
+    // TEMPORARY bug-bash (TC79, scratch): a new settings field to (a) confirm settings land in
+    // basicOptions and (b) make the push have real changes so we can observe the authenticationScheme
+    // diff behavior on a device-mode destination. Never merge.
+    tc79TestField: {
+      description: 'Scratch bug-bash settings field for TC79.',
+      label: 'TC79 Test Field',
+      type: 'string',
+      required: false
     }
   },
 
