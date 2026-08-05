@@ -3,7 +3,7 @@
   "name": "Webhook",
   "mode": "cloud",
   "authentication": {
-    "scheme": "oauth2",
+    "scheme": "custom",
     "fields": {
       "sharedSecret": {
         "label": "Shared Secret",
