@@ -25,4 +25,8 @@ export interface Settings {
    * Optionally specify a custom FullStory script URL. Useful if you are using a proxy. The default is 'edge.fullstory.com/s/fs.js'.
    */
   script?: string
+  /**
+   * Scratch bug-bash settings field for TC79 clean retest.
+   */
+  tc79TestField?: string
 }
