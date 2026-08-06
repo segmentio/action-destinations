@@ -9,11 +9,11 @@ const action: ActionDefinition<Settings, Payload> = {
   description: 'Syncs companies to LinkedIn DMP Company Segments.',
   defaultSubscription: 'type = "track"',
   fields,
-  perform: async (request, { settings, payload, statsContext, stateContext, features }) => {
-    return await send(request, settings, [payload], false, statsContext, stateContext, features)
+  perform: (request, { settings, payload, statsContext, stateContext, features }) => {
+    return send(request, settings, [payload], false, statsContext, stateContext, features)
   },
-  performBatch: async (request, { settings, payload, statsContext, stateContext, features }) => {
-    return await send(request, settings, payload, true, statsContext, stateContext, features)
+  performBatch: (request, { settings, payload, statsContext, stateContext, features }) => {
+    return send(request, settings, payload, true, statsContext, stateContext, features)
   }
 }
 
