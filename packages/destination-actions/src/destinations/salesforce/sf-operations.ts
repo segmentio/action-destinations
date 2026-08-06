@@ -7,7 +7,7 @@ import {
 } from '@segment/actions-core'
 import type { GenericPayload } from './sf-types'
 import { mapObjectToShape } from './sf-object-to-shape'
-import { buildCSVData, validateInstanceURL } from './sf-utils'
+import { buildCSVData, validateInstanceURL, resolveLoginUrl } from './sf-utils'
 import { DynamicFieldResponse, createRequestClient } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { Logger } from '@segment/actions-core/destination-kit'
@@ -43,7 +43,8 @@ export const generateSalesforceRequest = async (settings: Settings, request: Req
     settings.username,
     settings.auth_password,
     settings.security_token,
-    settings.isSandbox
+    settings.isSandbox,
+    settings.customDomain
   )
 
   const passwordRequestClient = createRequestClient({
@@ -77,7 +78,8 @@ export const authenticateWithPassword = async (
   username: string,
   auth_password: string,
   security_token?: string,
-  isSandbox?: boolean
+  isSandbox?: boolean,
+  customDomain?: string
 ): Promise<RefreshAccessTokenResult> => {
   const clientId = process.env.SALESFORCE_CLIENT_ID
   const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
@@ -88,7 +90,7 @@ export const authenticateWithPassword = async (
 
   const newRequest = createRequestClient()
 
-  const loginUrl = isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+  const loginUrl = resolveLoginUrl(customDomain, isSandbox)
   const password = constructPassword(auth_password, security_token)
 
   const res = await newRequest<SalesforceRefreshTokenResponse>(`${loginUrl}/services/oauth2/token`, {

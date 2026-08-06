@@ -8,6 +8,7 @@ import customObject from './customObject'
 import contact from './contact'
 import account from './account'
 import { authenticateWithPassword } from './sf-operations'
+import { resolveLoginUrl } from './sf-utils'
 
 import lead2 from './lead2'
 import contact2 from './contact2'
@@ -44,6 +45,12 @@ const destination: DestinationDefinition<Settings> = {
         type: 'boolean',
         default: false
       },
+      customDomain: {
+        label: 'Custom Domain',
+        description:
+          'If your Salesforce org uses a custom domain (My Domain), enter the custom login URL here. For production orgs, use the format https://MyDomainName.my.salesforce.com. For sandboxes, use https://MyDomainName--SandboxName.sandbox.my.salesforce.com. This will be used for authentication token refresh instead of the default login.salesforce.com or test.salesforce.com. When set, this overrides the Sandbox Instance setting. See https://help.salesforce.com/s/articleView?id=xcloud.getstart_login_urls.htm for more details.',
+        type: 'string'
+      },
       username: {
         label: 'Username',
         description:
@@ -70,14 +77,15 @@ const destination: DestinationDefinition<Settings> = {
           settings.username,
           settings.auth_password,
           settings.security_token,
-          settings.isSandbox
+          settings.isSandbox,
+          settings.customDomain
         )
 
         return { accessToken }
       }
 
       // Return a request that refreshes the access_token if the API supports it
-      const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+      const baseUrl = resolveLoginUrl(settings.customDomain, settings.isSandbox)
       const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
         method: 'POST',
         body: new URLSearchParams({
