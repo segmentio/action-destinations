@@ -7,6 +7,8 @@
  * - ADWORDS_DEVELOPER_TOKEN: Google Ads API developer token (used in request headers)
  * - GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID: Client ID used for token refresh at runtime
  * - GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET: Client secret used for token refresh at runtime
+ * - E2E_GOOGLE_ADS_CONVERSION_ACTION_ID: A valid numeric conversion action ID in the Google Ads
+ *   account, used by the click/call/adjustment conversion actions
  */
 import type { E2EAudienceDestinationConfig, E2ETeardownAudienceContext } from '@segment/actions-core'
 
