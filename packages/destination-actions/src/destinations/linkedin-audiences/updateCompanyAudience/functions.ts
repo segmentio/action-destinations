@@ -18,10 +18,11 @@ import type { AudienceAction, AudienceJSON, DMPSegment, LinkedInCompanyAudienceE
 import { AUDIENCE_ACTION, AUDIENCE_SOURCE, ORGANIZATION_URN_PREFIX, RETRYABLE_STATUSES, SEGMENT_TYPES } from './constants'
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
-  if (linkedInCompanyId.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)) {
-    return `${ORGANIZATION_URN_PREFIX}${linkedInCompanyId.slice(ORGANIZATION_URN_PREFIX.length)}`
+  let id = linkedInCompanyId.trim()
+  while (id.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)) {
+    id = id.slice(ORGANIZATION_URN_PREFIX.length).trim()
   }
-  return `${ORGANIZATION_URN_PREFIX}${linkedInCompanyId}`
+  return `${ORGANIZATION_URN_PREFIX}${id}`
 }
 
 export function validate(
@@ -33,7 +34,11 @@ export function validate(
 
   payloads.forEach((payload, index) => {
     const companyDomain = payload.identifiers?.companyDomain?.trim().toLowerCase() || undefined
-    const linkedInCompanyId = payload.identifiers?.linkedInCompanyId?.trim() || undefined
+    const rawCompanyId = payload.identifiers?.linkedInCompanyId?.trim() || undefined
+    const idWithoutPrefix = rawCompanyId?.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)
+      ? rawCompanyId.slice(ORGANIZATION_URN_PREFIX.length).trim()
+      : rawCompanyId
+    const linkedInCompanyId = idWithoutPrefix || undefined
 
     let message: string | undefined
     if (!companyDomain && !linkedInCompanyId) {

@@ -50,6 +50,15 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
     it('passes through a value that is already a URN', () => {
       expect(toOrganizationUrn('urn:li:organization:1035')).toBe('urn:li:organization:1035')
     })
+    it('does not double-prefix a value that already contains the prefix twice', () => {
+      expect(toOrganizationUrn('urn:li:organization:urn:li:organization:1035')).toBe('urn:li:organization:1035')
+    })
+    it('detects the prefix case-insensitively', () => {
+      expect(toOrganizationUrn('URN:LI:ORGANIZATION:1035')).toBe('urn:li:organization:1035')
+    })
+    it('trims surrounding whitespace', () => {
+      expect(toOrganizationUrn('  1035  ')).toBe('urn:li:organization:1035')
+    })
   })
 
   describe('perform', () => {
@@ -394,6 +403,30 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       ).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required")
     })
 
+    it('treats a LinkedIn Company ID that is only the URN prefix as missing', async () => {
+      await expect(
+        testDestination.testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { linkedin_company_id: 'urn:li:organization:' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: { dmp_company_action: 'ADD', ...baseMapping }
+        })
+      ).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required")
+    })
+
+    it('rejects a dmp_company_action that is not exactly ADD or REMOVE', async () => {
+      await expect(
+        testDestination.testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'microsoft.com', action: 'remove' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: { ...baseMapping, dmp_company_action: { '@path': '$.traits.action' } }
+        })
+      ).rejects.toThrow('Company Segment Action must be one of: "ADD" or "REMOVE"')
+    })
+
     const performWithStatus = (status: number) => {
       mockLookup()
       nock(BASE_URL).post(`/dmpSegments/${SEGMENT_ID}/companies`).reply(status, {})
@@ -718,6 +751,29 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         .executeBatch('updateCompanyAudience', { events, settings, auth, mapping: batchMapping })
         .catch((e) => e)
       expect(error.code).toBe('RETRYABLE_ERROR')
+    })
+
+    it('marks an invalid dmp_company_action as a per-item error without failing the batch', async () => {
+      mockLookup()
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`)
+        .reply(200, { elements: [{ status: 201 }] })
+
+      const events = [
+        { type: 'track', traits: { company_domain: 'microsoft.com', action: 'nope' } },
+        { type: 'track', traits: { company_domain: 'segment.com', action: 'ADD' } }
+      ] as any
+
+      const response = await testDestination.executeBatch('updateCompanyAudience', {
+        events,
+        settings,
+        auth,
+        mapping: { ...batchMapping, dmp_company_action: { '@path': '$.traits.action' } }
+      })
+
+      expect(response[0].status).toBe(400)
+      expect((response[0] as any).errormessage).toContain('Company Segment Action must be one of')
+      expect(response[1].status).toBe(201)
     })
 
     it('fans a whitespace-only Audience Key validation error to every item in batch mode', async () => {
