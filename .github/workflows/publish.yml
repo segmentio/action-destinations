@@ -90,6 +90,126 @@ jobs:
             echo "is_release=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Pack actions-core canary
+        if: steps.channel.outputs.dist_tag == 'canary'
+        id: pack-actions-core
+        run: |
+          set -euo pipefail
+
+          artifact_dir="$RUNNER_TEMP/runtime-package-tarballs"
+          version=$(node -p "require('./packages/core/package.json').version")
+          filename="segment-actions-core-v${version}.tgz"
+          tarball="$artifact_dir/$filename"
+
+          mkdir -p "$artifact_dir"
+          yarn workspace @segment/actions-core pack --filename "$tarball"
+
+          sha256=$(shasum -a 256 "$tarball" | cut -d ' ' -f 1)
+          integrity=$(node -e '
+            const crypto = require("crypto")
+            const fs = require("fs")
+            const file = process.argv[1]
+            process.stdout.write(`sha512-${crypto.createHash("sha512").update(fs.readFileSync(file)).digest("base64")}`)
+          ' "$tarball")
+
+          ARTIFACT_DIR="$artifact_dir" \
+          FILENAME="$filename" \
+          PACKAGE_VERSION="$version" \
+          SHA256="$sha256" \
+          INTEGRITY="$integrity" \
+          node <<'NODE'
+          const fs = require('fs')
+          const path = require('path')
+
+          const manifest = {
+            schemaVersion: 1,
+            source: {
+              repository: process.env.GITHUB_REPOSITORY,
+              sha: process.env.GITHUB_SHA,
+              workflowRunId: process.env.GITHUB_RUN_ID
+            },
+            channel: 'canary',
+            publishedToNpm: false,
+            packages: [{
+              name: '@segment/actions-core',
+              version: process.env.PACKAGE_VERSION,
+              filename: process.env.FILENAME,
+              sha256: process.env.SHA256,
+              integrity: process.env.INTEGRITY
+            }]
+          }
+
+          fs.writeFileSync(
+            path.join(process.env.ARTIFACT_DIR, 'manifest.json'),
+            JSON.stringify(manifest, null, 2) + '\n'
+          )
+          NODE
+
+          echo "artifact_dir=$artifact_dir" >> "$GITHUB_OUTPUT"
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "integrity=$integrity" >> "$GITHUB_OUTPUT"
+
+      - name: Install npm with trusted publishing support
+        if: steps.channel.outputs.dist_tag == 'canary'
+        run: npm install --global npm@11.5.1
+
+      - name: Publish actions-core tarball to public npm
+        if: steps.channel.outputs.dist_tag == 'canary'
+        id: publish-actions-core
+        env:
+          ARTIFACT_DIR: ${{ steps.pack-actions-core.outputs.artifact_dir }}
+          EXPECTED_INTEGRITY: ${{ steps.pack-actions-core.outputs.integrity }}
+          PACKAGE_VERSION: ${{ steps.pack-actions-core.outputs.version }}
+          TARBALL: ${{ steps.pack-actions-core.outputs.tarball }}
+        run: |
+          set -euo pipefail
+
+          package="@segment/actions-core@$PACKAGE_VERSION"
+          if npm view "$package" version --registry https://registry.npmjs.org >/dev/null 2>&1; then
+            echo "$package already exists on public npm; skipping"
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          npm publish "$TARBALL" \
+            --access public \
+            --ignore-scripts \
+            --provenance \
+            --registry https://registry.npmjs.org \
+            --tag canary
+
+          registry_integrity=""
+          for attempt in $(seq 1 20); do
+            registry_integrity=$(npm view "$package" dist.integrity \
+              --registry https://registry.npmjs.org 2>/dev/null || true)
+            if [ "$registry_integrity" = "$EXPECTED_INTEGRITY" ]; then
+              break
+            fi
+            echo "Waiting for $package integrity to become visible (attempt $attempt/20)"
+            sleep 15
+          done
+
+          if [ "$registry_integrity" != "$EXPECTED_INTEGRITY" ]; then
+            echo "Public npm integrity does not match the packed tarball" >&2
+            echo "expected: $EXPECTED_INTEGRITY" >&2
+            echo "actual:   $registry_integrity" >&2
+            exit 1
+          fi
+
+          ARTIFACT_DIR="$ARTIFACT_DIR" node <<'NODE'
+          const fs = require('fs')
+          const path = require('path')
+
+          const manifestPath = path.join(process.env.ARTIFACT_DIR, 'manifest.json')
+          const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+          manifest.publishedToNpm = true
+          manifest.publishedAt = new Date().toISOString()
+          fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
+          NODE
+
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
       - name: Publish
         # Keyless publish via npm OIDC trusted publishing — no long-lived token.
         # Lerna 9 auto-detects GitHub Actions OIDC (id-token: write above),
@@ -101,6 +221,29 @@ jobs:
           else
             yarn lerna publish from-package --yes --loglevel=verbose --dist-tag latest
           fi
+
+      - name: Tag actions-core canary published from tarball
+        if: steps.publish-actions-core.outputs.published == 'true'
+        env:
+          PACKAGE_VERSION: ${{ steps.pack-actions-core.outputs.version }}
+        run: |
+          set -euo pipefail
+          tag="@segment/actions-core@$PACKAGE_VERSION"
+          if git rev-parse --verify --quiet "refs/tags/$tag" >/dev/null; then
+            echo "$tag already exists"
+          else
+            git tag -a "$tag" -m "Release $tag"
+            git push origin "$tag"
+          fi
+
+      - name: Upload publicly published package tarballs
+        if: steps.publish-actions-core.outputs.published == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: runtime-package-tarballs
+          path: ${{ steps.pack-actions-core.outputs.artifact_dir }}
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Generate Tags
         if: steps.channel.outputs.is_release == 'true'

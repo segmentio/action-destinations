@@ -15,10 +15,10 @@
         "default": null,
         "depends_on": null
       },
-      "secondarySecret": {
-        "label": "Secondary Secret",
+      "enabled": {
+        "label": "Enable Secondary Signature",
         "description": "If set, Segment will also sign requests with an HMAC in the \"X-Secondary-Signature\" request header. The HMAC is a hex-encoded SHA1 hash generated using this secondary secret and the request body.",
-        "type": "password",
+        "type": "boolean",
         "required": false,
         "multiple": false,
         "choices": null,
@@ -105,7 +105,7 @@
           "label": "Batch Size",
           "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
           "type": "number",
-          "required": false,
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

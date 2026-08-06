@@ -1,10 +1,10 @@
 {
-  "name": "@segment/analytics-browser-actions-commandbar",
-  "version": "1.106.1-staging-006f5de38.0",
+  "name": "@segment/analytics-browser-actions-fake-destination-web",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
-    "directory": "packages/browser-destinations/destinations/commandbar"
+    "directory": "packages/browser-destinations/destinations/fake-destination-web"
   },
   "license": "MIT",
   "publishConfig": {
