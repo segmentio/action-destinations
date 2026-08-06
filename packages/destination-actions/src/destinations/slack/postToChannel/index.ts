@@ -29,7 +29,11 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Channel',
       description:
         'The channel within the Slack workspace. Do not include the `#` character. For example, use `general`, not `#general`.',
-      type: 'string'
+      type: 'string',
+      // TEMPORARY bug-bash (TC32, scratch): flip an existing field required (implicit false) -> true,
+      // no field added/removed, on a CLEAN destination (no reserved 'enabled' option to poison the push).
+      // Tests whether the field-content change persists. Never merge.
+      required: true
     },
     username: {
       label: 'User',

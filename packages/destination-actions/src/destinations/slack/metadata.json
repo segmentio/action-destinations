@@ -68,7 +68,7 @@
           "label": "Channel",
           "description": "The channel within the Slack workspace. Do not include the `#` character. For example, use `general`, not `#general`.",
           "type": "string",
-          "required": false,
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
