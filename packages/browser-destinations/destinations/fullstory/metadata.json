@@ -3,7 +3,7 @@
   "name": "Fullstory (Actions)",
   "mode": "device",
   "authentication": {
-    "scheme": "custom",
+    "scheme": "oauth2",
     "fields": {
       "orgId": {
         "label": "FS Org",
