@@ -59,13 +59,6 @@ export const fields: Record<string, InputField> = {
       day: {
         type: 'string',
         label: 'Day'
-      },
-      // TEMPORARY bug-bash (TC42, scratch): add a nested property to an existing object field to
-      // verify fieldSchema reflects the new nested property and the diff doesn't linger after push.
-      // Never merge.
-      hour: {
-        type: 'string',
-        label: 'Hour'
       }
     },
     category: 'hashedPII'
