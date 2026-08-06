@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { validate, getTopics } from './utils'
-import { DEPENDS_ON_CLIENT_CERT, DEPEONDS_ON_AWS, DEPENDS_ON_PLAIN_OR_SCRAM } from './depends-on'
+import { DEPENDS_ON_CLIENT_CERT, DEPENDS_ON_PLAIN_OR_SCRAM } from './depends-on'
 import send from './send'
 
 const destination: DestinationDefinition<Settings> = {
@@ -36,7 +36,6 @@ const destination: DestinationDefinition<Settings> = {
           { label: 'Plain', value: 'plain' },
           { label: 'SCRAM-SHA-256', value: 'scram-sha-256' },
           { label: 'SCRAM-SHA-512', value: 'scram-sha-512' },
-          //  { label: 'AWS IAM', value: 'aws' },
           { label: 'Client Certificate', value: 'client-cert-auth' }
         ],
         default: 'plain'
@@ -56,30 +55,6 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: false,
         depends_on: DEPENDS_ON_PLAIN_OR_SCRAM
-      },
-      accessKeyId: {
-        label: 'AWS Access Key ID',
-        description:
-          'The Access Key ID for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.',
-        type: 'string',
-        required: false,
-        depends_on: DEPEONDS_ON_AWS
-      },
-      secretAccessKey: {
-        label: 'AWS Secret Key',
-        description:
-          'The Secret Key for your AWS IAM instance. Must be populated if using AWS IAM Authentication Mechanism.',
-        type: 'password',
-        required: false,
-        depends_on: DEPEONDS_ON_AWS
-      },
-      authorizationIdentity: {
-        label: 'AWS Authorization Identity',
-        description:
-          'AWS IAM role ARN used for authorization. This field is optional, and should only be populated if using the AWS IAM Authentication Mechanism.',
-        type: 'string',
-        required: false,
-        depends_on: DEPEONDS_ON_AWS
       },
       ssl_enabled: {
         label: 'SSL Enabled',
