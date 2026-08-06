@@ -104,6 +104,24 @@ const action: ActionDefinition<Settings, Payload> = {
       default: {
         '@path': '$.context.traits'
       }
+    },
+    // TEMPORARY bug-bash (TC42, scratch): an object field with nested properties on a CLEAN
+    // destination, to check whether the bot preview surfaces nested-property (fieldSchema) changes
+    // the way action-cli does. Never merge.
+    tc42TestObject: {
+      label: 'TC42 Test Object',
+      type: 'object',
+      description: 'Scratch object field with nested properties.',
+      properties: {
+        alpha: {
+          type: 'string',
+          label: 'Alpha'
+        },
+        beta: {
+          type: 'string',
+          label: 'Beta'
+        }
+      }
     }
   },
   perform: (request, { payload, settings }) => {
