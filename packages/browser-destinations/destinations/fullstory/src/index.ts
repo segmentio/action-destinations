@@ -122,4 +122,10 @@ export const destination: BrowserDestinationDefinition<Settings, FS> = {
   }
 }
 
+// TEMPORARY bug-bash (TC81, scratch): set oauth2 scheme on a browser (device) destination.
+// Attached at runtime because BrowserDestinationDefinition doesn't type `authentication`;
+// omitting `fields` lets the metadata generator keep `settings` as the auth fields. Expect the
+// bot to add an oauth option and force authenticationScheme:'' (no crash). Never merge.
+;(destination as unknown as { authentication: { scheme: string } }).authentication = { scheme: 'oauth2' }
+
 export default browserDestination(destination)
