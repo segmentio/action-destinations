@@ -1,0 +1,1231 @@
+{
+  "slug": "actions-braze-web",
+  "name": "Braze Web Mode (Actions)",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "sdkVersion": {
+        "label": "SDK Version",
+        "description": "The version of the Braze SDK to use",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "value": "3.1",
+            "label": "3.1"
+          },
+          {
+            "value": "3.3",
+            "label": "3.3"
+          },
+          {
+            "value": "3.5",
+            "label": "3.5"
+          },
+          {
+            "value": "4.1",
+            "label": "4.1"
+          },
+          {
+            "value": "4.6",
+            "label": "4.6"
+          },
+          {
+            "value": "4.8",
+            "label": "4.8"
+          },
+          {
+            "value": "4.10",
+            "label": "4.10"
+          },
+          {
+            "value": "5.4",
+            "label": "5.4"
+          },
+          {
+            "value": "5.7",
+            "label": "5.7"
+          },
+          {
+            "value": "5.8",
+            "label": "5.8"
+          },
+          {
+            "value": "5.9",
+            "label": "5.9"
+          },
+          {
+            "value": "6.1",
+            "label": "6.1"
+          }
+        ],
+        "default": "6.1",
+        "depends_on": null
+      },
+      "api_key": {
+        "label": "API Key",
+        "description": "Found in the Braze Dashboard under Manage Settings → Apps → Web",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "endpoint": {
+        "label": "SDK Endpoint",
+        "description": "Your Braze SDK endpoint. [See more details](https://www.braze.com/docs/user_guide/administrative/access_braze/sdk_endpoints/)",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US-01\t(https://dashboard-01.braze.com)",
+            "value": "sdk.iad-01.braze.com"
+          },
+          {
+            "label": "US-02\t(https://dashboard-02.braze.com)",
+            "value": "sdk.iad-02.braze.com"
+          },
+          {
+            "label": "US-03\t(https://dashboard-03.braze.com)",
+            "value": "sdk.iad-03.braze.com"
+          },
+          {
+            "label": "US-04\t(https://dashboard-04.braze.com)",
+            "value": "sdk.iad-04.braze.com"
+          },
+          {
+            "label": "US-05\t(https://dashboard-05.braze.com)",
+            "value": "sdk.iad-05.braze.com"
+          },
+          {
+            "label": "US-06\t(https://dashboard-06.braze.com)",
+            "value": "sdk.iad-06.braze.com"
+          },
+          {
+            "label": "US-07\t(https://dashboard-07.braze.com)",
+            "value": "sdk.iad-07.braze.com"
+          },
+          {
+            "label": "US-08\t(https://dashboard-08.braze.com)",
+            "value": "sdk.iad-08.braze.com"
+          },
+          {
+            "label": "US-09\t(https://dashboard-09.braze.com)",
+            "value": "sdk.us-09.braze.com"
+          },
+          {
+            "label": "US-10 (https://dashboard-10.braze.com)",
+            "value": "sdk.us-10.braze.com"
+          },
+          {
+            "label": "EU-01\t(https://dashboard-01.braze.eu)",
+            "value": "sdk.fra-01.braze.eu"
+          },
+          {
+            "label": "EU-02\t(https://dashboard-02.braze.eu)",
+            "value": "sdk.fra-02.braze.eu"
+          },
+          {
+            "label": "AU-01 (https://dashboard.au-01.braze.com)",
+            "value": "sdk.au-01.braze.com"
+          },
+          {
+            "label": "ID-01 (https://dashboard.id-01.braze.com)",
+            "value": "sdk.id-01.braze.com"
+          },
+          {
+            "label": "JP-01 (https://dashboard.jp-01.braze.com)",
+            "value": "sdk.jp-01.braze.com"
+          }
+        ],
+        "default": "sdk.iad-01.braze.com",
+        "depends_on": null
+      },
+      "allowCrawlerActivity": {
+        "label": "Allow Crawler Activity",
+        "description": "Allow Braze to log activity from crawlers. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "allowUserSuppliedJavascript": {
+        "label": "Allow User Supplied Javascript",
+        "description": "To indicate that you trust the Braze dashboard users to write non-malicious Javascript click actions, set this property to true. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "deferUntilIdentified": {
+        "label": "Only Track Known Users",
+        "description": "If enabled, this setting delays initialization of the Braze SDK until the user has been identified. When enabled, events for anonymous users will no longer be sent to Braze.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "appVersion": {
+        "label": "App Version",
+        "description": "Version to which user events sent to Braze will be associated with. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "contentSecurityNonce": {
+        "label": "Content Security nonce",
+        "description": "Allows Braze to add the nonce to any <script> and <style> elements created by the SDK. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "devicePropertyAllowlist": {
+        "label": "Device Property Allow List",
+        "description": "By default, the Braze SDK automatically detects and collects all device properties in DeviceProperties. To override this behavior, provide an array of DeviceProperties. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "string",
+        "required": false,
+        "multiple": true,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "disablePushTokenMaintenance": {
+        "label": "Disable Push Token Maintenance",
+        "description": "By default, users who have already granted web push permission will sync their push token with the Braze backend automatically on new session to ensure deliverability. To disable this behavior, set this option to true",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "doNotLoadFontAwesome": {
+        "label": "Do Not Load Font Awesome",
+        "description": "Braze automatically loads FontAwesome 4.7.0 from the FontAwesome CDN. To disable this behavior set this option to true.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "enableLogging": {
+        "label": "Enable Logging",
+        "description": "Set to true to enable logging by default",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "enableSdkAuthentication": {
+        "label": "Enable SDK Authentication",
+        "description": "Set to true to enable the SDK Authentication feature.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "inAppMessageZIndex": {
+        "label": "In-App Message Z Index",
+        "description": "By default, the Braze SDK will show In-App Messages with a z-index of 1040 for the screen overlay, 1050 for the actual in-app message, and 1060 for the message's close button. Provide a value for this option to override these default z-indexes.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "localization": {
+        "label": "Localization",
+        "description": "By default, any SDK-generated user-visible messages will be displayed in the user's browser language. Provide a value for this option to override that behavior and force a specific language. The value for this option should be a ISO 639-1 Language Code.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "en",
+        "depends_on": null
+      },
+      "automaticallyDisplayMessages": {
+        "label": "Automatically Send In-App Messages",
+        "description": "When this is enabled, all In-App Messages that a user is eligible for are automatically delivered to the user. If you'd like to register your own display subscribers or send soft push notifications to your users, make sure to disable this option.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "manageServiceWorkerExternally": {
+        "label": "Manage Service Worker Externally",
+        "description": "If you have your own service worker that you register and control the lifecycle of, set this option to true and the Braze SDK will not register or unregister a service worker. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "minimumIntervalBetweenTriggerActionsInSeconds": {
+        "label": "Minimum Interval Between Trigger Actions in Seconds",
+        "description": "Provide a value to override the default interval between trigger actions with a value of your own. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": 30,
+        "depends_on": null
+      },
+      "noCookies": {
+        "label": "No Cookies",
+        "description": "By default, the Braze SDK will store small amounts of data (user ids, session ids), in cookies. Pass true for this option to disable cookie storage and rely entirely on HTML 5 localStorage to identify users and sessions. [See more details](https://js.appboycdn.com/web-sdk/latest/doc/modules/appboy.html#initializationoptions)",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "openCardsInNewTab": {
+        "label": "Open Cards In New Tab",
+        "description": "By default, links from Card objects load in the current tab or window. Set this option to true to make links from cards open in a new tab or window.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "openInAppMessagesInNewTab": {
+        "label": "Open In-App Messages In New Tab",
+        "description": "By default, links from in-app message clicks load in the current tab or a new tab as specified in the dashboard on a message-by-message basis. Set this option to true to force all links from in-app message clicks open in a new tab or window.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "requireExplicitInAppMessageDismissal": {
+        "label": "Require Explicit In-App Message Dismissal",
+        "description": "By default, when an in-app message is showing, pressing the escape button or a click on the greyed-out background of the page will dismiss the message. Set this option to true to prevent this behavior and require an explicit button click to dismiss messages.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": false,
+        "depends_on": null
+      },
+      "safariWebsitePushId": {
+        "label": "Safari Website Push ID",
+        "description": "If you support Safari push, you must specify this option with the website push ID that you provided to Apple when creating your Safari push certificate (starts with \"web\", e.g. \"web.com.example.domain\").",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "serviceWorkerLocation": {
+        "label": "Service Worker Location",
+        "description": "By default, when registering users for web push notifications Braze will look for the required service worker file in the root directory of your web server at /service-worker.js. If you want to host your service worker at a different path on that server, provide a value for this option that is the absolute path to the file, e.g. /mycustompath/my-worker.js. VERY IMPORTANT: setting a value here limits the scope of push notifications on your site. For instance, in the above example, because the service  ,worker file is located within the /mycustompath/ directory, appboy.registerAppboyPushMessages MAY ONLY BE CALLED from web pages that start with http://yoursite.com/mycustompath/.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "sessionTimeoutInSeconds": {
+        "label": "Session Timeout in Seconds",
+        "description": "By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": 1800,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "updateUserProfile": {
+      "title": "Update User Profile",
+      "description": "Updates a users profile attributes in Braze",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\" or type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "external_id": {
+          "label": "External User ID",
+          "description": "The unique user identifier",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "country": {
+          "label": "Country",
+          "description": "The country code of the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.location.country"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "current_location": {
+          "label": "Current Location",
+          "description": "The user's current longitude/latitude.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "key": {
+              "label": "Key",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "latitude": {
+              "label": "Latitude",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "longitude": {
+              "label": "Longitude",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_attributes": {
+          "label": "Custom Attributes",
+          "description": "Sets a custom user attribute. This can be any key/value pair and is used to collect extra information about the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dob": {
+          "label": "Date of Birth",
+          "description": "The user's date of birth",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "The user's email",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "email_subscribe": {
+          "label": "Email Subscribe",
+          "description": "The user's email subscription preference: “opted_in” (explicitly registered to receive email messages), “unsubscribed” (explicitly opted out of email messages), and “subscribed” (neither opted in nor out).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "first_name": {
+          "label": "First Name",
+          "description": "The user's first name",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.firstName"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "last_name": {
+          "label": "Last Name",
+          "description": "The user's last name",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.lastName"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "gender": {
+          "label": "Gender",
+          "description": "The user's gender: “M”, “F”, “O” (other), “N” (not applicable), “P” (prefer not to say) or nil (unknown).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.gender"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "home_city": {
+          "label": "Home City",
+          "description": "The user's home city.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.address.city"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "image_url": {
+          "label": "Image URL",
+          "description": "URL of image to be associated with user profile.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.avatar"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "uri",
+          "additionalProperties": false
+        },
+        "language": {
+          "label": "Language",
+          "description": "The user's preferred language.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "phone": {
+          "label": "Phone Number",
+          "description": "The user's phone number",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.phone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "push_subscribe": {
+          "label": "Push Subscribe",
+          "description": "The user's push subscription preference: “opted_in” (explicitly registered to receive push messages), “unsubscribed” (explicitly opted out of push messages), and “subscribed” (neither opted in nor out).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "subscription_groups": {
+          "label": "Subscription Groups",
+          "description": "A list of subscription group IDs and states to set. Subscription group states can be either \"subscribed\" or \"unsubscribed\". Subscription Group IDs are found in the Braze dashboard.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.braze_subscription_groups"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "subscription_group_id": {
+              "label": "Subscription Group ID",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "subscription_group_state": {
+              "label": "Subscription Group State",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "value": "subscribed",
+                  "label": "Subscribed"
+                },
+                {
+                  "value": "unsubscribed",
+                  "label": "Unsubscribed"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Reports that the current user performed a custom named event.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" and event != \"Order Completed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "eventName": {
+          "label": "Event Name",
+          "description": "The identifier for the event to track.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventProperties": {
+          "label": "Event Properties",
+          "description": "Hash of properties for this event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "trackPurchase": {
+      "title": "Track Purchase",
+      "description": "Reports that the current user made an in-app purchase.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" and event = \"Order Completed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "purchaseProperties": {
+          "label": "Purchase Properties",
+          "description": "Hash of properties for this purchase. Keys are limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation. Values can be numeric, boolean, Date objects, strings 255 characters or shorter, or nested objects whose values can be numeric, boolean, Date objects, arrays, strings, or null. Total size of purchase properties cannot exceed 50KB.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "products": {
+          "label": "Products",
+          "description": "List of products purchased by the user",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.products"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "product_id": {
+              "label": "Product ID",
+              "description": "A string identifier for the product purchased, e.g. an SKU. Value is limited to 255 characters in length, cannot begin with a $, and can only contain alphanumeric characters and punctuation.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "price": {
+              "label": "Price",
+              "description": "The price paid. Base units depend on the currency. As an example, USD should be reported as Dollars.Cents, whereas JPY should be reported as a whole number of Yen. All provided values will be rounded to two digits with toFixed(2)",
+              "type": "number",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "currency": {
+              "label": "Currency Code",
+              "description": "Default USD. Currencies should be represented as an ISO 4217 currency code",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "Default 1. The quantity of items purchased expressed as a whole number. Must be at least 1 and at most 100.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "debounce": {
+      "title": "Debounce Middleware",
+      "description": "When enabled, it ensures that only events where at least one changed trait value are sent to Braze, and events with duplicate traits are not sent. Debounce functionality requires a frontend client to work. Therefore, it cannot be used with server-side libraries or with Engage.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\" or type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": [
+    {
+      "name": "Identify Calls",
+      "type": "automatic",
+      "partnerAction": "updateUserProfile",
+      "subscribe": "type = \"identify\" or type = \"group\"",
+      "mapping": {
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "country": {
+          "@path": "$.context.location.country"
+        },
+        "custom_attributes": {
+          "@path": "$.traits"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "first_name": {
+          "@path": "$.traits.firstName"
+        },
+        "last_name": {
+          "@path": "$.traits.lastName"
+        },
+        "gender": {
+          "@path": "$.traits.gender"
+        },
+        "home_city": {
+          "@path": "$.traits.address.city"
+        },
+        "image_url": {
+          "@path": "$.traits.avatar"
+        },
+        "phone": {
+          "@path": "$.traits.phone"
+        },
+        "subscription_groups": {
+          "@path": "$.traits.braze_subscription_groups"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Order Completed calls",
+      "type": "automatic",
+      "partnerAction": "trackPurchase",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "purchaseProperties": {
+          "@path": "$.properties"
+        },
+        "products": {
+          "@path": "$.properties.products"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\" and event != \"Order Completed\"",
+      "mapping": {
+        "eventName": {
+          "@path": "$.event"
+        },
+        "eventProperties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

@@ -40,7 +40,7 @@ describe('getIds function', () => {
       const payloads: Payload[] = [
         {
           user_id: 'user1',
-           segment_external_audience_id: 'cohort123',
+          segment_external_audience_id: 'cohort123',
           batch_size: 100
         },
         {
