@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-fake-destination-web",
-  "version": "1.0.0",
+  "version": "1.0.1-staging-7580f9221.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",

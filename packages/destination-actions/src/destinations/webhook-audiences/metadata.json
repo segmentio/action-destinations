@@ -133,7 +133,7 @@
           "label": "Batch Size",
           "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
           "type": "number",
-          "required": false,
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
