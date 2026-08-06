@@ -715,9 +715,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect((response[1] as any).errormessage).toContain('did not return a result')
     })
 
-    it('fans a non-retryable segment-create failure to every item instead of failing the whole batch', async () => {
-      // The batch cannot resolve a segment (create returns a non-retryable 400). Rather than throw
-      // and fail the entire batch opaquely, each item is marked as a per-item error.
+    it('throws when segment resolution fails so the whole batch is retried/failed together', async () => {
+      // Segment resolution is batch-scoped (same segment for every item), so a failure fails the
+      // whole batch rather than being fanned out as per-item errors.
       mockLookup([])
       nock(BASE_URL).post('/dmpSegments').reply(400, {})
 
@@ -726,15 +726,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         { type: 'track', traits: { company_domain: 'segment.com' } }
       ] as any
 
-      const response = await testDestination.executeBatch('updateCompanyAudience', {
-        events,
-        settings,
-        auth,
-        mapping: batchMapping
-      })
-
-      expect(response[0].status).toBe(400)
-      expect(response[1].status).toBe(400)
+      const error = await testDestination
+        .executeBatch('updateCompanyAudience', { events, settings, auth, mapping: batchMapping })
+        .catch((e) => e)
+      expect(error.status).toBe(400)
     })
 
     it('rethrows a retryable segment-resolution failure so the whole batch is retried', async () => {
@@ -776,23 +771,23 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(response[1].status).toBe(201)
     })
 
-    it('fans a whitespace-only Audience Key validation error to every item in batch mode', async () => {
-      // No lookup/create is attempted; resolveSourceSegmentId throws before any request.
+    it('throws on a whitespace-only Audience Key in batch mode', async () => {
+      // The Audience Key is a batch key (shared across the batch), so resolveSourceSegmentId throwing
+      // is batch-scoped and fails the whole batch before any request.
       const events = [
         { type: 'track', traits: { company_domain: 'microsoft.com' } },
         { type: 'track', traits: { company_domain: 'segment.com' } }
       ] as any
 
-      const response = await testDestination.executeBatch('updateCompanyAudience', {
-        events,
-        settings,
-        auth,
-        mapping: { ...batchMapping, computation_key: '   ' }
-      })
-
-      expect(response[0].status).toBe(400)
-      expect(response[1].status).toBe(400)
-      expect((response[0] as any).errormessage).toContain('`Audience Key` field is required')
+      const error = await testDestination
+        .executeBatch('updateCompanyAudience', {
+          events,
+          settings,
+          auth,
+          mapping: { ...batchMapping, computation_key: '   ' }
+        })
+        .catch((e) => e)
+      expect(error.message).toContain('`Audience Key` field is required')
     })
   })
 })

@@ -114,23 +114,13 @@ export async function send(
 
   const linkedinApiClient = new LinkedInAudiences(request, features)
 
-  let segmentId: string
-  try {
-    segmentId = await getCompanyDmpSegmentId(linkedinApiClient, settings, validPayloads[0], statsContext, stateContext)
-  } catch (err) {
-    if (err instanceof RetryableError || err instanceof InvalidAuthenticationError || !isBatch) {
-      throw err
-    }
-    const { status, message } = err as IntegrationError
-    validPayloads.forEach((payload) => {
-      msResponse.setErrorResponseAtIndex(payload.index, {
-        status: status ?? 400,
-        errortype: 'BAD_REQUEST',
-        errormessage: message
-      })
-    })
-    return msResponse
-  }
+  const segmentId = await getCompanyDmpSegmentId(
+    linkedinApiClient,
+    settings,
+    validPayloads[0],
+    statsContext,
+    stateContext
+  )
 
   const uniquePayloads: ValidCompanyPayload[] = []
   const payloadIndexes: number[][] = []
