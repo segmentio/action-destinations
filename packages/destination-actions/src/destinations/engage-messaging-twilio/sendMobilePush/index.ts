@@ -78,7 +78,9 @@ export const actionDefinition: ActionDefinition<Settings, Payload> = {
           description: 'The badge count which is used in combination with badge strategy to determine the final badge',
           type: 'number',
           default: 1,
-          required: false
+          required: false,
+          minimum: 1,
+          maximum: 10000000
         },
         badgeStrategy: {
           label: 'Badge strategy',
