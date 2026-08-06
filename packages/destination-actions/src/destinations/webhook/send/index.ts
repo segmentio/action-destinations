@@ -31,7 +31,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
-      required: false,
+      // TEMPORARY bug-bash (TC32, scratch): flip required false->true on an existing field, no field
+      // added/removed. Tests whether a non-force push detects the change or silently no-ops. Never merge.
+      required: true,
       default: 0
     },
     headers: {
