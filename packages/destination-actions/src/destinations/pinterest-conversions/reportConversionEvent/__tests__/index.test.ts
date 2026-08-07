@@ -553,6 +553,83 @@ describe('PinterestConversionApi', () => {
       })
     })
 
+    describe('device_info languages validation', () => {
+      const baseMapping = {
+        data_format: 'latest',
+        event_name: 'checkout',
+        action_source: 'web',
+        event_time: '2023-03-13T07:56:23.846Z',
+        event_id: 'test-lang',
+        user_data: {
+          email: ['test@gmail.com'],
+          client_user_agent: '5.5.5.5',
+          client_ip_address: '1.2.3.4'
+        }
+      }
+
+      it('should accept a single 2-character language string', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          mapping: {
+            ...baseMapping,
+            device_info: { languages: 'en' }
+          }
+        })
+        expect(responses.length).toBe(1)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect([].concat(body.data[0].device_info.languages)).toEqual(['en'])
+      })
+
+      it('should accept an array of 2-character language strings', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          mapping: {
+            ...baseMapping,
+            device_info: { languages: ['en', 'fr'] }
+          }
+        })
+        expect(responses.length).toBe(1)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].device_info.languages).toEqual(['en', 'fr'])
+      })
+
+      it('should throw when a single language string is not 2 characters', async () => {
+        await expect(
+          testDestination.testAction('reportConversionEvent', {
+            event,
+            settings: authData,
+            mapping: {
+              ...baseMapping,
+              device_info: { languages: 'en-US' }
+            }
+          })
+        ).rejects.toThrowError('Device Info languages must each be a 2-character ISO 639-1 code')
+      })
+
+      it('should throw when any language in an array is not 2 characters', async () => {
+        await expect(
+          testDestination.testAction('reportConversionEvent', {
+            event,
+            settings: authData,
+            mapping: {
+              ...baseMapping,
+              device_info: { languages: ['en', 'french'] }
+            }
+          })
+        ).rejects.toThrowError('Device Info languages must each be a 2-character ISO 639-1 code')
+      })
+    })
+
     describe('conditional required field', () => {
       it('should not require app_name in latest mode', async () => {
         nock(`https://api.pinterest.com`)
