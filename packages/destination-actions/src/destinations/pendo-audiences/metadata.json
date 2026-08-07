@@ -10,7 +10,7 @@
         "label": "Integration Key",
         "description": "Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.",
         "type": "password",
-        "required": true,
+        "required": false,
         "multiple": false,
         "choices": null,
         "default": null,

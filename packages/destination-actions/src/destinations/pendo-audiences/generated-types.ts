@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.
    */
-  integrationKey: string
+  integrationKey?: string
   /**
    * The region your Pendo account is hosted in.
    */
