@@ -34,7 +34,7 @@
           "label": "URL",
           "description": "URL to deliver data to.",
           "type": "string",
-          "required": false,
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
