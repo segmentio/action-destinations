@@ -16,11 +16,35 @@ on:
       - staging
 
 jobs:
+  detect-browser-destination-changes:
+    if: startsWith(github.event.head_commit.message, 'Publish') == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+
+      - name: Detect Browser Destination Changes
+        id: changes
+        run: |
+          if git diff --quiet HEAD^ HEAD -- packages/browser-destinations/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build-browser-destinations:
+    needs: detect-browser-destination-changes
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
-    if: startsWith(github.event.head_commit.message, 'Publish') == true
+    if: needs.detect-browser-destination-changes.outputs.changed == 'true'
     runs-on: ubuntu-latest-large
     timeout-minutes: 20
     permissions:
