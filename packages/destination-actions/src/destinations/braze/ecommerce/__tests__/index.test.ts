@@ -978,6 +978,8 @@ describe('Braze.ecommerce', () => {
 
       // e1 filtered => events sent to Braze are [e2, e3] at sent-array indices 0 and 1.
       // Braze reports an error for sent-array index 1, which is e3 (original index 2).
+      // e3's JSON is valid; we're faking a failed Braze response for that item purely to
+      // verify the error is attributed back to the correct original payload.
       let sentJson: any
       nock(settings.endpoint)
         .post('/users/track', (body) => {
