@@ -462,6 +462,62 @@ describe('PinterestConversionApi', () => {
         expect(body.data[0].app_info.app_id).toBe('429047995')
         expect(body.data[0].app_info.app_name).toBe('MyApp')
       })
+
+      it('should treat a numeric-string install_time as unix seconds (not milliseconds)', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'app_install',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            },
+            app_info: {
+              app_id: '429047995',
+              install_time: '1739211469'
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].app_info.install_time).toBe(1739211469)
+      })
+
+      it('should pass a numeric install_time through as unix seconds', async () => {
+        nock(`https://api.pinterest.com`)
+          .post(`/${API_VERSION}/ad_accounts/${authData.ad_account_id}/events`)
+          .reply(200, {})
+
+        const responses = await testDestination.testAction('reportConversionEvent', {
+          event,
+          settings: authData,
+          useDefaultMappings: true,
+          mapping: {
+            data_format: 'latest',
+            event_name: 'app_install',
+            user_data: {
+              email: ['test@gmail.com'],
+              client_user_agent: '5.5.5.5',
+              client_ip_address: '1.2.3.4'
+            },
+            app_info: {
+              app_id: '429047995',
+              install_time: 1739211469
+            }
+          }
+        })
+        expect(responses.length).toBe(1)
+        const body = JSON.parse(responses[0].options.body as string)
+        expect(body.data[0].app_info.install_time).toBe(1739211469)
+      })
     })
 
     describe('predicted_ltv conversion', () => {

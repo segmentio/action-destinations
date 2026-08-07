@@ -19,7 +19,7 @@ export const getCustomDataField = (dependsOn: DependsOnConditions): InputField =
     },
     content_ids: {
       label: 'Content IDs',
-      description: 'Product IDs as an array of strings',
+      description: 'Product IDs as an array of strings.',
       type: 'string',
       multiple: true
     },
@@ -30,14 +30,14 @@ export const getCustomDataField = (dependsOn: DependsOnConditions): InputField =
       multiple: true,
       properties: {
         id: {
-          label: 'Id',
+          label: 'ID',
           type: 'string',
-          description: 'The id of the Item'
+          description: 'The ID of the item.'
         },
         item_price: {
           label: 'Price',
           type: 'number',
-          description: 'The price of the Item'
+          description: 'The price of the item.'
         },
         quantity: {
           label: 'Quantity',
@@ -69,23 +69,23 @@ export const getCustomDataField = (dependsOn: DependsOnConditions): InputField =
     },
     num_items: {
       label: 'Number of Items',
-      description: 'Total number of products in the event. ',
+      description: 'Total number of products in the event.',
       type: 'integer'
     },
     order_id: {
       label: 'Order ID',
-      description: 'Order ID',
+      description: 'The order ID.',
       type: 'string'
     },
     search_string: {
-      label: 'Search string',
+      label: 'Search String',
       description: 'Search string related to the conversion event.',
       type: 'string'
     },
     opt_out_type: {
       label: 'Opt Out Type',
       description:
-        "Accepts opt outs for your users' privacy preference. Can handle multiple values with commas separated.",
+        "The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple comma-separated values.",
       type: 'string'
     },
     content_brand: {

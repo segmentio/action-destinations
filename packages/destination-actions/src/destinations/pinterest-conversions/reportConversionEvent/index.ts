@@ -493,7 +493,11 @@ async function processPayload(request: RequestClient, settings: Settings, payloa
 
 function convertInstallTime(value: string | number | undefined | null): number | undefined {
   if (value === undefined || value === null || value === '') return undefined
+  // Numbers are treated as Unix seconds (Pinterest expects a 10-digit Unix timestamp).
   if (typeof value === 'number') return value
+  // Digit-only strings are Unix seconds too — parsing them via dayjs would treat them as
+  // milliseconds and produce the wrong value.
+  if (/^\d+$/.test(value)) return Number(value)
   const parsed = dayjs.utc(value)
   if (!parsed.isValid()) return undefined
   return parsed.unix()
@@ -531,9 +535,9 @@ function buildDeviceInfo(payload: Payload) {
 }
 
 function buildCustomData(payload: Payload): CustomData {
-  const isStructured = payload.data_format === 'latest'
+  const isLatest = payload.data_format === 'latest'
 
-  if (isStructured) {
+  if (isLatest) {
     return {
       currency: payload.custom_data_2?.currency,
       value: typeof payload.custom_data_2?.value === 'number' ? String(payload.custom_data_2.value) : undefined,
@@ -579,7 +583,7 @@ function buildCustomData(payload: Payload): CustomData {
 }
 
 function createPinterestPayload(payload: Payload): (PinterestEventPayload | LegacyPinterestEventPayload)[] {
-  const isStructured = payload.data_format === 'latest'
+  const isLatest = payload.data_format === 'latest'
 
   return [
     {
@@ -593,16 +597,16 @@ function createPinterestPayload(payload: Payload): (PinterestEventPayload | Lega
       advertiser_tracking_enabled: payload.advertiser_tracking_enabled,
       user_data: hash_user_data({ user_data: payload.user_data }),
       custom_data: buildCustomData(payload),
-      app_id: isStructured ? undefined : payload.app_id,
-      app_name: isStructured ? undefined : payload.app_name,
-      app_version: isStructured ? undefined : payload.app_version,
-      app_info: isStructured ? buildAppInfo(payload) : undefined,
-      device_brand: isStructured ? undefined : payload.device_brand,
-      device_carrier: isStructured ? undefined : payload.device_carrier,
-      device_model: isStructured ? undefined : payload.device_model,
-      device_type: isStructured ? undefined : payload.device_type,
-      os_version: isStructured ? undefined : payload.os_version,
-      device_info: isStructured ? buildDeviceInfo(payload) : undefined,
+      app_id: isLatest ? undefined : payload.app_id,
+      app_name: isLatest ? undefined : payload.app_name,
+      app_version: isLatest ? undefined : payload.app_version,
+      app_info: isLatest ? buildAppInfo(payload) : undefined,
+      device_brand: isLatest ? undefined : payload.device_brand,
+      device_carrier: isLatest ? undefined : payload.device_carrier,
+      device_model: isLatest ? undefined : payload.device_model,
+      device_type: isLatest ? undefined : payload.device_type,
+      os_version: isLatest ? undefined : payload.os_version,
+      device_info: isLatest ? buildDeviceInfo(payload) : undefined,
       wifi: payload.wifi,
       language: payload.language
     }

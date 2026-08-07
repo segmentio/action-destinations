@@ -115,7 +115,7 @@ export interface Payload {
      */
     value?: number
     /**
-     * Product IDs as an array of strings
+     * Product IDs as an array of strings.
      */
     content_ids?: string[]
     /**
@@ -123,11 +123,11 @@ export interface Payload {
      */
     contents?: {
       /**
-       * The id of the Item
+       * The ID of the item.
        */
       id?: string
       /**
-       * The price of the Item
+       * The price of the item.
        */
       item_price?: number
       /**
@@ -156,7 +156,7 @@ export interface Payload {
      */
     num_items?: number
     /**
-     * Order ID
+     * The order ID.
      */
     order_id?: string
     /**
@@ -164,7 +164,7 @@ export interface Payload {
      */
     search_string?: string
     /**
-     * Accepts opt outs for your users' privacy preference. Can handle multiple values with commas separated.
+     * The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple comma-separated values.
      */
     opt_out_type?: string
     /**
@@ -323,7 +323,7 @@ export interface Payload {
      */
     app_version?: string
     /**
-     * App install time. Will be converted to Unix timestamp in seconds before sending.
+     * App install time. Accepts ISO 8601 format or Unix timestamp in seconds (10 digit).
      */
     install_time?: string | number
     /**
@@ -376,7 +376,7 @@ export interface Payload {
      */
     kernel_version?: string
     /**
-     * List of user installed languages. ISO 639-1 format.
+     * List of user installed languages. ISO 639-1 format. For example, ["en", "fr", "es"].
      */
     languages?: string[]
     /**
