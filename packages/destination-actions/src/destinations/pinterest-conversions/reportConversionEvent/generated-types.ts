@@ -14,7 +14,7 @@ export interface Payload {
    */
   action_source: string
   /**
-   * Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.
+   * The event timestamp needs to be provided in UTC format. Segment will automatically convert it into epoch format before sending it to the destination.
    */
   event_time: string
   /**

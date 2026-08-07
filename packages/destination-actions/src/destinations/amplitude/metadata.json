@@ -10,22 +10,27 @@
         "description": "Amplitude project API key. You can find this key in the \"General\" tab of your Amplitude project.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "secretKey": {
         "label": "Secret Key",
         "description": "Amplitude project secret key. You can find this key in the \"General\" tab of your Amplitude project.",
         "type": "password",
         "required": true,
+        "multiple": false,
         "choices": null,
-        "default": null
+        "default": null,
+        "depends_on": null
       },
       "endpoint": {
         "label": "Endpoint Region",
         "description": "The region to send your data.",
         "type": "string",
         "required": false,
+        "multiple": false,
         "choices": [
           {
             "label": "North America",
@@ -36,7 +41,8 @@
             "value": "europe"
           }
         ],
-        "default": "north_america"
+        "default": "north_america",
+        "depends_on": null
       }
     }
   },
@@ -50,7 +56,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User ID",
@@ -68,12 +75,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_id": {
           "label": "Device ID",
@@ -101,12 +111,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_type": {
           "label": "Event Type",
@@ -124,12 +137,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "session_id": {
           "label": "Session ID",
@@ -147,12 +163,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "time": {
           "label": "Timestamp",
@@ -170,12 +189,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_properties": {
           "label": "Event Properties",
@@ -193,12 +215,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "user_properties": {
           "label": "User Properties",
@@ -216,12 +241,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "groups": {
           "label": "Groups",
@@ -237,12 +265,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "app_version": {
           "label": "App Version",
@@ -260,12 +291,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "platform": {
           "label": "Platform",
@@ -283,12 +317,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_name": {
           "label": "OS Name",
@@ -306,12 +343,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_version": {
           "label": "OS Version",
@@ -329,12 +369,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_brand": {
           "label": "Device Brand",
@@ -352,12 +395,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_manufacturer": {
           "label": "Device Manufacturer",
@@ -375,12 +421,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_model": {
           "label": "Device Model",
@@ -398,12 +447,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "carrier": {
           "label": "Carrier",
@@ -421,12 +473,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -444,12 +499,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "region": {
           "label": "Region",
@@ -467,12 +525,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -490,12 +551,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "dma": {
           "label": "Designated Market Area",
@@ -511,12 +575,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "language": {
           "label": "Language",
@@ -534,12 +601,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "price": {
           "label": "Price",
@@ -557,12 +627,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "quantity": {
           "label": "Quantity",
@@ -580,12 +653,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "revenue": {
           "label": "Revenue",
@@ -603,12 +679,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "productId": {
           "label": "Product ID",
@@ -626,12 +705,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "revenueType": {
           "label": "Revenue Type",
@@ -649,12 +731,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "location_lat": {
           "label": "Latitude",
@@ -672,12 +757,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "location_lng": {
           "label": "Longtitude",
@@ -695,12 +783,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "ip": {
           "label": "IP Address",
@@ -718,12 +809,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "idfa": {
           "label": "Identifier For Advertiser (IDFA)",
@@ -751,12 +845,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "idfv": {
           "label": "Identifier For Vendor (IDFV)",
@@ -774,12 +871,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "adid": {
           "label": "Google Play Services Advertising ID",
@@ -807,12 +907,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "android_id": {
           "label": "Android ID",
@@ -828,12 +931,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_id": {
           "label": "Event ID",
@@ -849,12 +955,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "insert_id": {
           "label": "Insert ID",
@@ -870,12 +979,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library": {
           "label": "HIDDEN: Library",
@@ -893,12 +1005,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
+          "readOnly": null,
           "hidden": true,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library2": {
           "label": "Library Settings",
@@ -940,12 +1055,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "mapping": {
               "label": "Library Mapping",
@@ -961,22 +1079,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "products": {
           "label": "Products",
@@ -1025,12 +1149,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -1046,12 +1173,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "revenue": {
               "label": "Revenue",
@@ -1067,12 +1197,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "productId": {
               "label": "Product ID",
@@ -1088,12 +1221,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "revenueType": {
               "label": "Revenue Type",
@@ -1109,22 +1245,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
         },
         "use_batch_endpoint": {
           "label": "Use Batch Endpoint",
@@ -1140,12 +1282,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgent": {
           "label": "User Agent",
@@ -1163,12 +1308,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentParsing": {
           "label": "User Agent Parsing",
@@ -1184,12 +1332,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "includeRawUserAgent": {
           "label": "Include Raw User Agent",
@@ -1205,12 +1356,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "utm_properties": {
           "label": "UTM Properties",
@@ -1253,12 +1407,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_medium": {
               "label": "UTM Medium",
@@ -1273,12 +1430,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_campaign": {
               "label": "UTM Campaign",
@@ -1293,12 +1453,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_term": {
               "label": "UTM Term",
@@ -1313,12 +1476,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_content": {
               "label": "UTM Content",
@@ -1333,22 +1499,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "referrer": {
           "label": "Referrer",
@@ -1366,12 +1538,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "min_id_length": {
           "label": "Minimum ID Length",
@@ -1387,12 +1562,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentData": {
           "label": "User Agent Data",
@@ -1426,12 +1604,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "platformVersion": {
               "label": "PlatformVersion",
@@ -1446,22 +1627,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -1473,7 +1660,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User ID",
@@ -1491,12 +1679,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_id": {
           "label": "Device ID",
@@ -1524,12 +1715,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "user_properties": {
           "label": "User Properties",
@@ -1547,12 +1741,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "groups": {
           "label": "Groups",
@@ -1568,12 +1765,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "app_version": {
           "label": "App Version",
@@ -1591,12 +1791,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "platform": {
           "label": "Platform",
@@ -1614,12 +1817,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_name": {
           "label": "OS Name",
@@ -1637,12 +1843,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_version": {
           "label": "OS Version",
@@ -1660,12 +1869,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_brand": {
           "label": "Device Brand",
@@ -1683,12 +1895,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_manufacturer": {
           "label": "Device Manufacturer",
@@ -1706,12 +1921,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_model": {
           "label": "Device Model",
@@ -1729,12 +1947,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "carrier": {
           "label": "Carrier",
@@ -1752,12 +1973,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -1775,12 +1999,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "region": {
           "label": "Region",
@@ -1798,12 +2025,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -1821,12 +2051,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "dma": {
           "label": "Designated Market Area",
@@ -1842,12 +2075,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "language": {
           "label": "Language",
@@ -1865,12 +2101,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "paying": {
           "label": "Is Paying",
@@ -1886,12 +2125,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "start_version": {
           "label": "Initial Version",
@@ -1907,12 +2149,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "insert_id": {
           "label": "Insert ID",
@@ -1928,12 +2173,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgent": {
           "label": "User Agent",
@@ -1951,12 +2199,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentParsing": {
           "label": "User Agent Parsing",
@@ -1972,12 +2223,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "includeRawUserAgent": {
           "label": "Include Raw User Agent",
@@ -1993,12 +2247,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "utm_properties": {
           "label": "UTM Properties",
@@ -2041,12 +2298,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_medium": {
               "label": "UTM Medium",
@@ -2061,12 +2321,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_campaign": {
               "label": "UTM Campaign",
@@ -2081,12 +2344,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_term": {
               "label": "UTM Term",
@@ -2101,12 +2367,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_content": {
               "label": "UTM Content",
@@ -2121,22 +2390,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "referrer": {
           "label": "Referrer",
@@ -2154,12 +2429,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "min_id_length": {
           "label": "Minimum ID Length",
@@ -2175,12 +2453,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library": {
           "label": "Library",
@@ -2198,12 +2479,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentData": {
           "label": "User Agent Data",
@@ -2237,12 +2521,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "platformVersion": {
               "label": "PlatformVersion",
@@ -2257,22 +2544,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -2284,7 +2577,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User ID",
@@ -2302,12 +2596,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "global_user_id": {
           "label": "Global User ID",
@@ -2325,12 +2622,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "min_id_length": {
           "label": "Minimum ID Length",
@@ -2346,12 +2646,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -2363,7 +2666,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User ID",
@@ -2381,12 +2685,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_id": {
           "label": "Device ID",
@@ -2414,12 +2721,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "insert_id": {
           "label": "Insert ID",
@@ -2435,12 +2745,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "time": {
           "label": "Timestamp",
@@ -2458,12 +2771,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "group_properties": {
           "label": "Group Properties",
@@ -2481,12 +2797,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "group_type": {
           "label": "Group Type",
@@ -2502,12 +2821,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "group_value": {
           "label": "Group Value",
@@ -2523,12 +2845,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "min_id_length": {
           "label": "Minimum ID Length",
@@ -2544,12 +2869,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -2561,7 +2889,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "trackRevenuePerProduct": {
           "label": "Track Revenue Per Product",
@@ -2577,12 +2906,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "user_id": {
           "label": "User ID",
@@ -2600,12 +2932,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_id": {
           "label": "Device ID",
@@ -2633,12 +2968,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_type": {
           "label": "Event Type",
@@ -2656,12 +2994,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "session_id": {
           "label": "Session ID",
@@ -2679,12 +3020,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "time": {
           "label": "Timestamp",
@@ -2702,12 +3046,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_properties": {
           "label": "Event Properties",
@@ -2725,12 +3072,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "user_properties": {
           "label": "User Properties",
@@ -2748,12 +3098,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "groups": {
           "label": "Groups",
@@ -2769,12 +3122,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "app_version": {
           "label": "App Version",
@@ -2792,12 +3148,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "platform": {
           "label": "Platform",
@@ -2815,12 +3174,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_name": {
           "label": "OS Name",
@@ -2838,12 +3200,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_version": {
           "label": "OS Version",
@@ -2861,12 +3226,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_brand": {
           "label": "Device Brand",
@@ -2884,12 +3252,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_manufacturer": {
           "label": "Device Manufacturer",
@@ -2907,12 +3278,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_model": {
           "label": "Device Model",
@@ -2930,12 +3304,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "carrier": {
           "label": "Carrier",
@@ -2953,12 +3330,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -2976,12 +3356,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "region": {
           "label": "Region",
@@ -2999,12 +3382,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -3022,12 +3408,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "dma": {
           "label": "Designated Market Area",
@@ -3043,12 +3432,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "language": {
           "label": "Language",
@@ -3066,12 +3458,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "price": {
           "label": "Price",
@@ -3089,12 +3484,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "quantity": {
           "label": "Quantity",
@@ -3112,12 +3510,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "revenue": {
           "label": "Revenue",
@@ -3135,12 +3536,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "productId": {
           "label": "Product ID",
@@ -3158,12 +3562,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "revenueType": {
           "label": "Revenue Type",
@@ -3181,12 +3588,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "location_lat": {
           "label": "Latitude",
@@ -3204,12 +3614,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "location_lng": {
           "label": "Longtitude",
@@ -3227,12 +3640,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "ip": {
           "label": "IP Address",
@@ -3250,12 +3666,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "idfa": {
           "label": "Identifier For Advertiser (IDFA)",
@@ -3283,12 +3702,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "idfv": {
           "label": "Identifier For Vendor (IDFV)",
@@ -3306,12 +3728,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "adid": {
           "label": "Google Play Services Advertising ID",
@@ -3339,12 +3764,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "android_id": {
           "label": "Android ID",
@@ -3360,12 +3788,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_id": {
           "label": "Event ID",
@@ -3381,12 +3812,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "insert_id": {
           "label": "Insert ID",
@@ -3402,12 +3836,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library": {
           "label": "HIDDEN: Library",
@@ -3425,12 +3862,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
+          "readOnly": null,
           "hidden": true,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library2": {
           "label": "Library Settings",
@@ -3472,12 +3912,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "mapping": {
               "label": "Library Mapping",
@@ -3493,22 +3936,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "products": {
           "label": "Products",
@@ -3557,12 +4006,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -3578,12 +4030,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "revenue": {
               "label": "Revenue",
@@ -3613,12 +4068,15 @@
                   }
                 ]
               },
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "productId": {
               "label": "Product ID",
@@ -3634,12 +4092,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "revenueType": {
               "label": "Revenue Type",
@@ -3655,22 +4116,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
         },
         "use_batch_endpoint": {
           "label": "Use Batch Endpoint",
@@ -3686,12 +4153,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgent": {
           "label": "User Agent",
@@ -3709,12 +4179,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentParsing": {
           "label": "User Agent Parsing",
@@ -3730,12 +4203,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "includeRawUserAgent": {
           "label": "Include Raw User Agent",
@@ -3751,12 +4227,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "utm_properties": {
           "label": "UTM Properties",
@@ -3799,12 +4278,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_medium": {
               "label": "UTM Medium",
@@ -3819,12 +4301,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_campaign": {
               "label": "UTM Campaign",
@@ -3839,12 +4324,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_term": {
               "label": "UTM Term",
@@ -3859,12 +4347,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_content": {
               "label": "UTM Content",
@@ -3879,22 +4370,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "referrer": {
           "label": "Referrer",
@@ -3912,12 +4409,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "min_id_length": {
           "label": "Minimum ID Length",
@@ -3933,12 +4433,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentData": {
           "label": "User Agent Data",
@@ -3972,12 +4475,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "platformVersion": {
               "label": "PlatformVersion",
@@ -3992,22 +4498,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -4019,7 +4531,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "user_id": {
           "label": "User ID",
@@ -4037,12 +4550,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_id": {
           "label": "Device ID",
@@ -4070,12 +4586,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_type": {
           "label": "Event Type",
@@ -4093,12 +4612,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "session_id": {
           "label": "Session ID",
@@ -4116,12 +4638,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "time": {
           "label": "Timestamp",
@@ -4139,12 +4664,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_properties": {
           "label": "Event Properties",
@@ -4162,12 +4690,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "user_properties": {
           "label": "User Properties",
@@ -4185,12 +4716,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "groups": {
           "label": "Groups",
@@ -4206,12 +4740,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "app_version": {
           "label": "App Version",
@@ -4229,12 +4766,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "platform": {
           "label": "Platform",
@@ -4252,12 +4792,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_name": {
           "label": "OS Name",
@@ -4275,12 +4818,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "os_version": {
           "label": "OS Version",
@@ -4298,12 +4844,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_brand": {
           "label": "Device Brand",
@@ -4321,12 +4870,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_manufacturer": {
           "label": "Device Manufacturer",
@@ -4344,12 +4896,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "device_model": {
           "label": "Device Model",
@@ -4367,12 +4922,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "carrier": {
           "label": "Carrier",
@@ -4390,12 +4948,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "country": {
           "label": "Country",
@@ -4413,12 +4974,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "region": {
           "label": "Region",
@@ -4436,12 +5000,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "city": {
           "label": "City",
@@ -4459,12 +5026,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "dma": {
           "label": "Designated Market Area",
@@ -4480,12 +5050,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "language": {
           "label": "Language",
@@ -4503,12 +5076,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "price": {
           "label": "Price",
@@ -4526,12 +5102,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "quantity": {
           "label": "Quantity",
@@ -4549,12 +5128,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "revenue": {
           "label": "Revenue",
@@ -4572,12 +5154,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "productId": {
           "label": "Product ID",
@@ -4595,12 +5180,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "revenueType": {
           "label": "Revenue Type",
@@ -4618,12 +5206,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "location_lat": {
           "label": "Latitude",
@@ -4641,12 +5232,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "location_lng": {
           "label": "Longtitude",
@@ -4664,12 +5258,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "ip": {
           "label": "IP Address",
@@ -4687,12 +5284,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "idfa": {
           "label": "Identifier For Advertiser (IDFA)",
@@ -4720,12 +5320,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "idfv": {
           "label": "Identifier For Vendor (IDFV)",
@@ -4743,12 +5346,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "adid": {
           "label": "Google Play Services Advertising ID",
@@ -4776,12 +5382,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "android_id": {
           "label": "Android ID",
@@ -4797,12 +5406,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "event_id": {
           "label": "Event ID",
@@ -4818,12 +5430,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "insert_id": {
           "label": "Insert ID",
@@ -4839,12 +5454,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library": {
           "label": "HIDDEN: Library",
@@ -4862,12 +5480,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
+          "readOnly": null,
           "hidden": true,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "library2": {
           "label": "Library Settings",
@@ -4909,12 +5530,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "mapping": {
               "label": "Library Mapping",
@@ -4930,22 +5554,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "products": {
           "label": "Products",
@@ -4994,12 +5624,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "quantity": {
               "label": "Quantity",
@@ -5015,12 +5648,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "revenue": {
               "label": "Revenue",
@@ -5036,12 +5672,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "productId": {
               "label": "Product ID",
@@ -5057,12 +5696,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "revenueType": {
               "label": "Revenue Type",
@@ -5078,22 +5720,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
         },
         "setOnce": {
           "label": "Set Once",
@@ -5140,12 +5788,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "initial_utm_source": {
               "label": "Initial UTM Source",
@@ -5160,12 +5811,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "initial_utm_medium": {
               "label": "Initial UTM Medium",
@@ -5180,12 +5834,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "initial_utm_campaign": {
               "label": "Initial UTM Campaign",
@@ -5200,12 +5857,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "initial_utm_term": {
               "label": "Initial UTM Term",
@@ -5220,12 +5880,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "initial_utm_content": {
               "label": "Initial UTM Content",
@@ -5240,22 +5903,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
         },
         "setAlways": {
           "label": "Set Always",
@@ -5301,12 +5970,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_source": {
               "label": "UTM Source",
@@ -5321,12 +5993,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_medium": {
               "label": "UTM Medium",
@@ -5341,12 +6016,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_campaign": {
               "label": "UTM Campaign",
@@ -5361,12 +6039,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_term": {
               "label": "UTM Term",
@@ -5381,12 +6062,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "utm_content": {
               "label": "UTM Content",
@@ -5401,22 +6085,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
         },
         "add": {
           "label": "Add",
@@ -5432,12 +6122,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
         },
         "use_batch_endpoint": {
           "label": "Use Batch Endpoint",
@@ -5453,12 +6146,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgent": {
           "label": "User Agent",
@@ -5476,12 +6172,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentParsing": {
           "label": "User Agent Parsing",
@@ -5497,12 +6196,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "includeRawUserAgent": {
           "label": "Include Raw User Agent",
@@ -5518,12 +6220,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "min_id_length": {
           "label": "Minimum ID Length",
@@ -5539,12 +6244,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "userAgentData": {
           "label": "User Agent Data",
@@ -5578,12 +6286,15 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             },
             "platformVersion": {
               "label": "PlatformVersion",
@@ -5598,22 +6309,28 @@
               "properties": null,
               "category": null,
               "depends_on": null,
-              "readOnly": false,
-              "hidden": false,
+              "readOnly": null,
+              "hidden": null,
               "minimum": null,
               "maximum": null,
               "defaultObjectUI": null,
-              "disabledInputMethods": null
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     },
@@ -5625,7 +6342,8 @@
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
-      "hooks": [],
+      "hooks": null,
+      "dynamicFields": null,
       "fields": {
         "sessionLength": {
           "label": "Session Length",
@@ -5641,12 +6359,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "triggerSessionEvents": {
           "label": "Allow Session Tracking",
@@ -5662,12 +6383,15 @@
           "properties": null,
           "category": null,
           "depends_on": null,
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "sessionStartEvent": {
           "label": "Session Start Event",
@@ -5691,12 +6415,15 @@
               }
             ]
           },
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         },
         "sessionEndEvent": {
           "label": "Session End Event",
@@ -5720,12 +6447,15 @@
               }
             ]
           },
-          "readOnly": false,
-          "hidden": false,
+          "readOnly": null,
+          "hidden": null,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     }
