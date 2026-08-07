@@ -145,9 +145,61 @@
           "format": "uri",
           "additionalProperties": false
         },
+        "customer_first_name": {
+          "label": "Customer First Name",
+          "description": "The first name for the customer. Use this field for new mappings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.customer_first_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "customer_last_name": {
+          "label": "Customer Last Name",
+          "description": "The last name for the customer. Use this field for new mappings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.customer_last_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "first_name": {
-          "label": "First Name",
-          "description": "The first name for the primary handling agent.",
+          "label": "Customer First Name (Legacy)",
+          "description": "Deprecated legacy first name field currently used for customer names. For new mappings, use Customer First Name.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -172,8 +224,8 @@
           "additionalProperties": false
         },
         "last_name": {
-          "label": "Last Name",
-          "description": "The last name for the primary handling agent.",
+          "label": "Customer Last Name (Legacy)",
+          "description": "Deprecated legacy last name field currently used for customer names. For new mappings, use Customer Last Name.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -181,6 +233,84 @@
           "dynamic": false,
           "default": {
             "@path": "$.properties.last_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "agent_first_name": {
+          "label": "Agent First Name",
+          "description": "The first name for the primary handling agent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.agent_first_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "agent_last_name": {
+          "label": "Agent Last Name",
+          "description": "The last name for the primary handling agent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.agent_last_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "assign_first_last_name_by_splitting_email": {
+          "label": "Assign First / Last Name By Splitting Email",
+          "description": "When enabled, missing agent first and last names are derived from agent email addresses by splitting the email local-part. Single-token local-parts derive the first name and set last name to an empty string.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.assign_first_last_name_by_splitting_email"
           },
           "choices": null,
           "placeholder": null,
@@ -405,7 +535,7 @@
         },
         "agentLegs": {
           "label": "Agent Legs",
-          "description": "Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data.",
+          "description": "Optional warm-transfer metadata for agent handoff windows. Use this when you cannot provide channel-based multi-channel recording data. Each leg must include first and last name, or enable Assign First / Last Name By Splitting Email and provide a splittable agent email.",
           "type": "object",
           "required": false,
           "multiple": true,
@@ -510,9 +640,9 @@
             },
             "first_name": {
               "label": "First Name",
-              "description": "The first name of the agent for this call leg.",
+              "description": "The first name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email.",
               "type": "string",
-              "required": true,
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -534,9 +664,9 @@
             },
             "last_name": {
               "label": "Last Name",
-              "description": "The last name of the agent for this call leg.",
+              "description": "The last name of the agent for this call leg. Required unless Assign First / Last Name By Splitting Email derives it from agent email; single-token email local-parts derive an empty last name.",
               "type": "string",
-              "required": true,
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -617,11 +747,26 @@
         "recording_url": {
           "@path": "$.properties.recording_url"
         },
+        "customer_first_name": {
+          "@path": "$.properties.customer_first_name"
+        },
+        "customer_last_name": {
+          "@path": "$.properties.customer_last_name"
+        },
         "first_name": {
           "@path": "$.properties.first_name"
         },
         "last_name": {
           "@path": "$.properties.last_name"
+        },
+        "agent_first_name": {
+          "@path": "$.properties.agent_first_name"
+        },
+        "agent_last_name": {
+          "@path": "$.properties.agent_last_name"
+        },
+        "assign_first_last_name_by_splitting_email": {
+          "@path": "$.properties.assign_first_last_name_by_splitting_email"
         },
         "channels": {
           "@arrayPath": [
