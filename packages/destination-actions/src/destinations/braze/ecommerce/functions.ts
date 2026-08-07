@@ -34,17 +34,17 @@ export async function send(
   const msResponse = new MultiStatusResponse()
 
   if (!['update', 'add'].includes(syncMode ?? '')) {
-    const errormessage = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
+    const errorMessage = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
     if (isBatch) {
       payloads.forEach((_, index) => {
         msResponse.setErrorResponseAtIndex(index, {
           status: 400,
-          errormessage
+          errormessage: errorMessage
         })
       })
       return msResponse
     } else {
-      throw new PayloadValidationError(errormessage)
+      throw new PayloadValidationError(errorMessage)
     }
   }
 
@@ -58,7 +58,7 @@ export async function send(
     json
   })
 
-  const errors = Array.isArray(response.data.errors) ? response.data.errors : []
+  const errors = Array.isArray(response.data?.errors) ? response.data.errors : []
 
   payloadsWithIndexes.forEach((payload, index) => {
     const sentIndex = payload.index
