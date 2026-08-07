@@ -19,6 +19,24 @@ const destination: DestinationDefinition<Settings> = {
         description: 'GWEN API key. Can be found [here](http://gwen.insertcoin.se/iam/api-token) (login required)',
         type: 'password',
         required: true
+      },
+      // TEMPORARY bug-bash (required-field safety probe, scratch): a CONDITIONALLY-required auth field,
+      // required only when apiKey === 'special'. Verifies whether the bot turns a conditional
+      // requirement into a hard unconditional ['required'] validator in CP. Never merge.
+      conditionalField: {
+        label: 'Conditional Field',
+        description: 'Only required when API Key is "special".',
+        type: 'string',
+        required: {
+          match: 'all',
+          conditions: [
+            {
+              fieldKey: 'apiKey',
+              operator: 'is',
+              value: 'special'
+            }
+          ]
+        }
       }
     },
     testAuthentication: (request) => {
