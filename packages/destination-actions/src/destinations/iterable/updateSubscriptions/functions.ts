@@ -4,6 +4,7 @@ import {
   MultiStatusResponse,
   JSONLikeObject,
   HTTPError,
+  ModifiedResponse,
   DEFAULT_REQUEST_TIMEOUT
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
@@ -45,15 +46,13 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   const validPayloads: { index: number; identifier: ResolvedIdentifier }[] = []
 
   payloads.forEach((payload, index) => {
-    const sent = payload as unknown as JSONLikeObject
     const subscriptionCount = payload.subscriptions.length
 
     if (subscriptionCount === 0) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: 'At least one subscription item is required.',
-        sent
+        errormessage: 'At least one subscription item is required.'
       })
       return
     }
@@ -62,8 +61,7 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: `Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`,
-        sent
+        errormessage: `Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`
       })
       return
     }
@@ -75,8 +73,7 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: (error as Error).message,
-        sent
+        errormessage: (error as Error).message
       })
     }
   })
@@ -105,7 +102,7 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
     .filter(({ identifier }) => identifier.userId)
     .map(({ identifier }) => identifier.userId as string)
 
-  const body: BulkSubscriptionRequestBody = {
+  const json: BulkSubscriptionRequestBody = {
     ...(users.length > 0 && { users }),
     ...(usersByUserId.length > 0 && { usersByUserId })
   }
@@ -116,30 +113,35 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
         const endpoint = getBulkSubscriptionEndpoint(settings, subscription_group_type, subscription_group_id, action)
         return request(endpoint, {
           method: 'put',
-          json: body,
+          json,
           timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
         })
       })
     )
 
     validPayloads.forEach(({ index, identifier }) => {
-      const sentBody: BulkSubscriptionRequestBody = identifier.email
+      const sent: BulkSubscriptionRequestBody = identifier.email
         ? { users: [identifier.email] }
         : { usersByUserId: [identifier.userId as string] }
 
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: payloads[index] as unknown as JSONLikeObject,
-        body: sentBody as unknown as JSONLikeObject
+        sent: sent as unknown as JSONLikeObject,
+        body: { success: true }
       })
     })
   } catch (error) {
     const isHTTPError = error instanceof HTTPError
     const status = isHTTPError ? error.response.status : 500
-    const errormessage = isHTTPError ? error.response.statusText : (error as Error).message
+    const responseData = isHTTPError ? (error.response as ModifiedResponse).data : undefined
+    const responseContent = isHTTPError ? (error.response as ModifiedResponse).content : undefined
+    const errormessage =
+      (responseData as { msg?: string } | undefined)?.msg ??
+      (isHTTPError ? error.response.statusText : (error as Error).message)
+    const body = (responseData as JSONLikeObject) ?? responseContent ?? (error as Error).message
 
     validPayloads.forEach(({ index, identifier }) => {
-      const sentBody: BulkSubscriptionRequestBody = identifier.email
+      const sent: BulkSubscriptionRequestBody = identifier.email
         ? { users: [identifier.email] }
         : { usersByUserId: [identifier.userId as string] }
 
@@ -147,8 +149,8 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
         status,
         errortype: 'UNKNOWN_ERROR',
         errormessage,
-        sent: payloads[index] as unknown as JSONLikeObject,
-        body: sentBody as unknown as JSONLikeObject
+        sent: sent as unknown as JSONLikeObject,
+        body
       })
     })
   }

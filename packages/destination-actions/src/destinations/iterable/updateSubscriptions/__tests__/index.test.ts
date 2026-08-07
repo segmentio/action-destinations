@@ -308,6 +308,18 @@ describe('Iterable.updateSubscriptions', () => {
       })
 
       expect(response[0].status).toBe(200)
+
+      const multistatus = testDestination.results[0].multistatus
+      expect(multistatus![0]).toMatchObject({
+        status: 200,
+        sent: { users: ['user1@iterable.com'] },
+        body: { success: true }
+      })
+      expect(multistatus![1]).toMatchObject({
+        status: 200,
+        sent: { users: ['user2@iterable.com'] },
+        body: { success: true }
+      })
     })
 
     it('unsubscribes multiple users via bulk PUT endpoint', async () => {
@@ -487,11 +499,17 @@ describe('Iterable.updateSubscriptions', () => {
       expect(multistatus).toBeDefined()
       expect(multistatus![0]).toMatchObject({
         status: 400,
-        errortype: 'UNKNOWN_ERROR'
+        errortype: 'UNKNOWN_ERROR',
+        errormessage: 'Invalid subscription group',
+        sent: { users: ['user1@iterable.com'] },
+        body: { code: 'BadParams', msg: 'Invalid subscription group' }
       })
       expect(multistatus![1]).toMatchObject({
         status: 400,
-        errortype: 'UNKNOWN_ERROR'
+        errortype: 'UNKNOWN_ERROR',
+        errormessage: 'Invalid subscription group',
+        sent: { users: ['user2@iterable.com'] },
+        body: { code: 'BadParams', msg: 'Invalid subscription group' }
       })
     })
 
