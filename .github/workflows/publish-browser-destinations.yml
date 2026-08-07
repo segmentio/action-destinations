@@ -28,6 +28,7 @@ jobs:
       - name: Detect Browser Bundle Changes
         id: changes
         env:
+          ARTIFACT_ENVIRONMENT: ${{ github.ref_name == 'staging' && 'stage' || 'production' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           previous_publish=''
@@ -49,13 +50,15 @@ jobs:
             packages/destination-subscriptions/; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            artifact_environment=${{ github.ref_name == 'staging' && 'stage' || 'production' }}
-            artifact_name="browser-destinations-${artifact_environment}-${previous_publish}"
+            artifact_name="browser-destinations-${ARTIFACT_ENVIRONMENT}-${previous_publish}"
 
-            if artifact_count=$(gh api --method GET \
+            if artifacts=$(gh api --method GET \
               "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts" \
               -f name="$artifact_name" \
-              --jq '[.artifacts[] | select(.expired == false)] | length') && \
+              -f per_page=100) && \
+              artifact_count=$(jq --arg name "$artifact_name" \
+                '[.artifacts[] | select(.name == $name and .expired == false)] | length' \
+                <<< "$artifacts") && \
               [ "$artifact_count" -gt 0 ]; then
               echo "changed=false" >> "$GITHUB_OUTPUT"
             else
