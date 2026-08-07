@@ -50,7 +50,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Pendo Segment Name',
       description: 'The name for the Pendo Segment. Leave blank to use the Segment audience name.',
       type: 'string',
-      required: true
+      required: false
     }
   },
   audienceConfig: {
