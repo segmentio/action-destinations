@@ -20,6 +20,7 @@ jobs:
     if: startsWith(github.event.head_commit.message, 'Publish') == true
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       contents: read
     outputs:
       changed: ${{ steps.changes.outputs.changed }}
@@ -28,15 +29,45 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-          fetch-depth: 2
+          ref: ${{ github.sha }}
+          fetch-depth: 0
 
-      - name: Detect Browser Destination Changes
+      - name: Detect Browser Bundle Changes
         id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet HEAD^ HEAD -- packages/browser-destinations/; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
+          previous_publish=''
+          while IFS=$'\t' read -r commit subject; do
+            if [[ "$subject" == Publish* ]]; then
+              previous_publish="$commit"
+              break
+            fi
+          done < <(git log --first-parent --format='%H%x09%s' HEAD^)
+
+          if [ -z "$previous_publish" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif ! git diff --quiet "$previous_publish" HEAD -- \
+            packages/browser-destinations/ \
+            packages/browser-destination-runtime/ \
+            packages/core/ \
+            packages/actions-shared/ \
+            packages/ajv-human-errors/ \
+            packages/destination-subscriptions/; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            artifact_environment=${{ github.ref_name == 'staging' && 'stage' || 'production' }}
+            artifact_name="browser-destinations-${artifact_environment}-${previous_publish}"
+
+            if artifact_count=$(gh api --method GET \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts" \
+              -f name="$artifact_name" \
+              --jq '[.artifacts[] | select(.expired == false)] | length') && \
+              [ "$artifact_count" -gt 0 ]; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
   build-browser-destinations:
@@ -54,6 +85,10 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Verify Checkout Commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 
       - name: Use Node.js 22.x
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
