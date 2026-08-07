@@ -8,7 +8,7 @@ import { EVENT_NAMES } from '../../ecommerce/constants'
 //
 // Coverage mirrors the destination preset that routes here:
 //   - Product Viewed (beta) -> name: PRODUCT_VIEWED
-// plus catalog_type (price_drop / back_in_stock) coverage (STRATCONN-6824) and a batch.
+// plus catalog_type (price_drop / back_in_stock) coverage and a batch.
 
 const ADD_SYNC = { __segment_internal_sync_mode: 'add' }
 
@@ -41,7 +41,7 @@ const fixtures: E2EFixture[] = [
     expect: { status: 'success', bodyContains: '"message":"success"' }
   },
   {
-    // Product Viewed with catalog_type trigger values (STRATCONN-6824).
+    // Product Viewed with catalog_type trigger values.
     description: 'Product Viewed — with catalog_type price_drop + back_in_stock',
     subscribe: 'event = "Product Viewed"',
     mapping: {

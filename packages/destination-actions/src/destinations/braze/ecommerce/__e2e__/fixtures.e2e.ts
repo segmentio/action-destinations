@@ -12,8 +12,8 @@ import { EVENT_NAMES } from '../constants'
 //   - Checkout Started (beta)  -> name: CHECKOUT_STARTED
 //   - Order Refunded (beta)    -> name: ORDER_REFUNDED
 //   - Order Cancelled (beta)   -> name: ORDER_CANCELLED
-//   - Product Added (beta)     -> name: CART_UPDATED, action: 'add'   (STRATCONN-6824)
-//   - Product Removed (beta)   -> name: CART_UPDATED, action: 'remove' (STRATCONN-6824)
+//   - Product Added (beta)     -> name: CART_UPDATED, action: 'add'
+//   - Product Removed (beta)   -> name: CART_UPDATED, action: 'remove'
 // plus direct cart_updated (replace + minimal), a batch, and a client-side validation error.
 
 const ADD_SYNC = { __segment_internal_sync_mode: 'add' }
@@ -144,7 +144,7 @@ const fixtures: E2EFixture[] = [
     expect: { status: 'success', bodyContains: '"message":"success"' }
   },
   {
-    // Preset: Product Added (beta) -> cart_updated with action 'add' (STRATCONN-6824)
+    // Preset: Product Added (beta) -> cart_updated with action 'add'
     description: 'Product Added — cart_updated action=add',
     subscribe: 'event = "Product Added"',
     mapping: { ...baseMapping, name: EVENT_NAMES.CART_UPDATED, action: 'add' },
@@ -162,7 +162,7 @@ const fixtures: E2EFixture[] = [
     expect: { status: 'success', bodyContains: '"message":"success"' }
   },
   {
-    // Preset: Product Removed (beta) -> cart_updated with action 'remove' (STRATCONN-6824)
+    // Preset: Product Removed (beta) -> cart_updated with action 'remove'
     description: 'Product Removed — cart_updated action=remove',
     subscribe: 'event = "Product Removed"',
     mapping: { ...baseMapping, name: EVENT_NAMES.CART_UPDATED, action: 'remove' },
