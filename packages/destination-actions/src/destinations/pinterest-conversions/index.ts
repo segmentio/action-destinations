@@ -118,7 +118,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Checkout',
-      subscribe: 'type = "track" AND event = "Checkout"',
+      subscribe: 'type = "track" AND event = "Order Completed"',
       partnerAction: 'reportConversionEvent',
       mapping: {
         ...defaultValues(reportConversionEvent.fields),

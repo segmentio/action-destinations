@@ -52,7 +52,8 @@ export const getCustomDataField = (dependsOn: DependsOnConditions): InputField =
         item_brand_id: {
           label: 'Item Brand ID',
           type: 'string',
-          description: 'The brand ID of a product. Max 64 characters.'
+          description: 'The brand ID of a product. Max 64 characters.',
+          maximum: 64
         },
         item_category: {
           label: 'Item Category',
