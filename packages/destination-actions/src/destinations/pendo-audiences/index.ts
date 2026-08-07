@@ -16,7 +16,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         label: 'Integration Key',
         description: 'Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.',
         type: 'password',
-        required: false
+        required: true
       },
       region: {
         label: 'Region',
@@ -50,7 +50,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Pendo Segment Name',
       description: 'The name for the Pendo Segment. Leave blank to use the Segment audience name.',
       type: 'string',
-      required: false
+      required: true
     }
   },
   audienceConfig: {
