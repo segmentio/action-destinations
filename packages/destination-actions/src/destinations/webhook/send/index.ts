@@ -12,7 +12,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'URL',
       description: 'URL to deliver data to.',
       type: 'string',
-      required: true,
+      required: false,
       format: 'uri'
     },
     method: {
