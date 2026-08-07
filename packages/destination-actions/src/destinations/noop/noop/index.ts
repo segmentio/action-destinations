@@ -27,12 +27,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       required: false
     },
-    // (c) required explicitly true -> SHOULD be required (control case)
+    // (c) REVERSE probe: previously pushed as required:true, now flipped to false.
+    // Verifies the requirement is actually REMOVED in CP (drops from fieldSchema.required[]),
+    // not stuck-on. Never merge.
     probeTrue: {
       label: 'Probe True',
-      description: 'required:true; should be required',
+      description: 'required flipped true->false; should become optional',
       type: 'string',
-      required: true
+      required: false
     },
     // (d) conditionally required -> should be optional at the flat level, conditional in schema
     probeConditional: {

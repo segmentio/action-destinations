@@ -91,9 +91,9 @@
         },
         "probeTrue": {
           "label": "Probe True",
-          "description": "required:true; should be required",
+          "description": "required flipped true->false; should become optional",
           "type": "string",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
