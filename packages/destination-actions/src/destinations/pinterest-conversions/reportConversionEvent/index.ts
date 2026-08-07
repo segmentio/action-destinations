@@ -1,5 +1,5 @@
 import type { ActionDefinition, RequestClient } from '@segment/actions-core'
-import { IntegrationError } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError } from '@segment/actions-core'
 import type { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import { API_VERSION, PARTNER_NAME, EVENT_NAME } from '../constants'
 import type { Settings } from '../generated-types'
@@ -350,7 +350,17 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Network Type',
           type: 'string',
           description:
-            'Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).'
+            'Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).',
+          choices: [
+            { label: 'wifi', value: 'wifi' },
+            { label: 'cellular_2g', value: 'cellular_2g' },
+            { label: 'cellular_3g', value: 'cellular_3g' },
+            { label: 'cellular_4g', value: 'cellular_4g' },
+            { label: 'cellular_5g', value: 'cellular_5g' },
+            { label: 'cellular_6g', value: 'cellular_6g' },
+            { label: 'ethernet', value: 'ethernet' },
+            { label: 'unknown', value: 'unknown' }
+          ]
         },
         os_family: {
           label: 'OS Family',
@@ -498,10 +508,26 @@ function buildAppInfo(payload: Payload) {
   return hasContent ? appInfo : undefined
 }
 
+function validateLanguages(languages: string | string[] | undefined): void {
+  if (languages === undefined || languages === null) return
+  const values = Array.isArray(languages) ? languages : [languages]
+  for (const value of values) {
+    if (typeof value !== 'string' || value.length !== 2) {
+      throw new PayloadValidationError(
+        `Device Info languages must each be a 2-character ISO 639-1 code. Received invalid value: "${value}".`
+      )
+    }
+  }
+}
+
 function buildDeviceInfo(payload: Payload) {
   if (!payload.device_info) return undefined
   const hasContent = Object.values(payload.device_info).some((v) => v !== undefined && v !== null)
-  return hasContent ? payload.device_info : undefined
+  if (!hasContent) return undefined
+
+  validateLanguages(payload.device_info.languages)
+
+  return payload.device_info
 }
 
 function buildCustomData(payload: Payload): CustomData {
