@@ -496,18 +496,20 @@ describe('Braze.ecommerce', () => {
       )
     })
 
-    it('should throw an error if missing syncMode', async () => {
-      await expect(
-        testDestination.testAction('ecommerce', {
-          event: payload,
-          settings,
-          useDefaultMappings: true,
-          mapping: {
-            ...mapping,
-            __segment_internal_sync_mode: ''
-          }
-        })
-      ).rejects.toThrowError(new Error("Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'."))
+    it('should default syncMode to add if missing', async () => {
+      nock(settings.endpoint).post('/users/track').reply(200)
+
+      const response = await testDestination.testAction('ecommerce', {
+        event: payload,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          ...mapping,
+          __segment_internal_sync_mode: ''
+        }
+      })
+
+      expect(response.length).toBe(1)
     })
   })
 
@@ -1201,7 +1203,7 @@ describe('Braze.ecommerce', () => {
       expect(response).toEqual(responseJSON)
     })
 
-    it('should return correct multistatus response if there no SyncMode', async () => {
+    it('should default syncMode to add and return correct multistatus response if there is no SyncMode', async () => {
       const deepCopy1: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
@@ -1383,240 +1385,269 @@ describe('Braze.ecommerce', () => {
 
       const responseJSON = [
         {
-          errormessage: "Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'.",
-          errorreporter: 'DESTINATION',
-          errortype: 'BAD_REQUEST',
+          status: 200,
           sent: {
-            batch_size: 75,
-            braze_id: 'braze_id_1',
-            cancel_reason: "I didn't like it",
-            cart_id: 'cart_id_1',
-            checkout_id: 'checkout_id_1',
-            currency: 'USD',
-            discounts: [
-              { amount: 5, code: 'SUMMER21' },
-              { amount: 5, code: 'VIPCUSTOMER' }
-            ],
-            email: 'email@email.com',
-            enable_batching: true,
-            external_id: 'userId1',
-            metadata: {
-              checkout_url: 'https://example.com/checkout',
-              custom_field_1: 'custom_value_1',
-              custom_field_2: 100,
-              custom_field_3: true,
-              custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: { nested_key: 'nested_value' },
-              order_status_url: 'https://example.com/order/status'
-            },
             name: 'ecommerce.order_refunded',
-            order_id: 'order_id_1',
+            external_id: 'userId1',
+            user_alias: {
+              alias_name: 'alias_name_1',
+              alias_label: 'alias_label_1'
+            },
+            email: 'email@email.com',
             phone: '+14155551234',
-            products: [
+            braze_id: 'braze_id_1',
+            cancel_reason: "I didn't like it",
+            time: '2024-06-10T12:00:00.000Z',
+            checkout_id: 'checkout_id_1',
+            order_id: 'order_id_1',
+            cart_id: 'cart_id_1',
+            total_value: 100,
+            total_discounts: 10,
+            discounts: [
               {
-                color: 'red',
-                image_url: 'https://example.com/prod1.jpg',
-                price: 25,
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                quantity: 2,
-                size: 'M',
-                variant_id: 'Size M'
+                code: 'SUMMER21',
+                amount: 5
               },
               {
-                image_url: 'https://example.com/prod2.jpg',
-                price: 50,
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                quantity: 1,
-                variant_id: 'Size L'
+                code: 'VIPCUSTOMER',
+                amount: 5
               }
             ],
-            source: 'test_source',
-            time: '2024-06-10T12:00:00.000Z',
-            total_discounts: 10,
-            total_value: 100,
-            user_alias: {
-              alias_label: 'alias_label_1',
-              alias_name: 'alias_name_1'
-            }
-          },
-          status: 400
-        },
-        {
-          errormessage: "Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'.",
-          errorreporter: 'DESTINATION',
-          errortype: 'BAD_REQUEST',
-          sent: {
-            batch_size: 75,
-            cancel_reason: "I didn't like it",
-            cart_id: 'cart_id_1',
-            checkout_id: 'checkout_id_1',
             currency: 'USD',
-            discounts: [
-              { amount: 5, code: 'SUMMER21' },
-              { amount: 5, code: 'VIPCUSTOMER' }
+            source: 'test_source',
+            products: [
+              {
+                product_id: 'prod_1',
+                product_name: 'Product 1',
+                variant_id: 'Size M',
+                image_url: 'https://example.com/prod1.jpg',
+                quantity: 2,
+                price: 25,
+                color: 'red',
+                size: 'M'
+              },
+              {
+                product_id: 'prod_2',
+                product_name: 'Product 2',
+                variant_id: 'Size L',
+                image_url: 'https://example.com/prod2.jpg',
+                quantity: 1,
+                price: 50
+              }
             ],
-            enable_batching: true,
             metadata: {
-              checkout_url: 'https://example.com/checkout',
               custom_field_1: 'custom_value_1',
               custom_field_2: 100,
               custom_field_3: true,
               custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: { nested_key: 'nested_value' },
+              custom_field_5: {
+                nested_key: 'nested_value'
+              },
+              checkout_url: 'https://example.com/checkout',
               order_status_url: 'https://example.com/order/status'
             },
+            enable_batching: true,
+            batch_size: 75,
+            index: 0
+          },
+          body: '{"external_id":"userId1","braze_id":"braze_id_1","email":"email@email.com","phone":"+14155551234","user_alias":{"alias_name":"alias_name_1","alias_label":"alias_label_1"},"app_id":"test_app_id","name":"ecommerce.order_refunded","time":"2024-06-10T12:00:00.000Z","properties":{"currency":"USD","source":"test_source","metadata":{"custom_field_1":"custom_value_1","custom_field_2":100,"custom_field_3":true,"custom_field_4":["a","b","c"],"custom_field_5":{"nested_key":"nested_value"},"checkout_url":"https://example.com/checkout","order_status_url":"https://example.com/order/status"},"products":[{"quantity":2,"product_id":"prod_1","product_name":"Product 1","variant_id":"Size M","price":25,"image_url":"https://example.com/prod1.jpg","metadata":{"color":"red","size":"M"}},{"quantity":1,"product_id":"prod_2","product_name":"Product 2","variant_id":"Size L","price":50,"image_url":"https://example.com/prod2.jpg"}],"total_value":100,"order_id":"order_id_1","total_discounts":10,"discounts":[{"code":"SUMMER21","amount":5},{"code":"VIPCUSTOMER","amount":5}]},"_update_existing_only":true}'
+        },
+        {
+          status: 400,
+          errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.',
+          sent: {
             name: 'ecommerce.order_placed',
+            cancel_reason: "I didn't like it",
+            time: '2024-06-10T12:00:00.000Z',
+            checkout_id: 'checkout_id_1',
             order_id: 'order_id_1',
-            products: [
+            cart_id: 'cart_id_1',
+            total_value: 100,
+            total_discounts: 10,
+            discounts: [
               {
-                color: 'red',
-                image_url: 'https://example.com/prod1.jpg',
-                price: 25,
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                quantity: 2,
-                size: 'M',
-                variant_id: 'Size M'
+                code: 'SUMMER21',
+                amount: 5
               },
               {
-                image_url: 'https://example.com/prod2.jpg',
-                price: 50,
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                quantity: 1,
-                variant_id: 'Size L'
+                code: 'VIPCUSTOMER',
+                amount: 5
               }
             ],
-            source: 'test_source',
-            time: '2024-06-10T12:00:00.000Z',
-            total_discounts: 10,
-            total_value: 100
-          },
-          status: 400
-        },
-        {
-          errormessage: "Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'.",
-          errorreporter: 'DESTINATION',
-          errortype: 'BAD_REQUEST',
-          sent: {
-            batch_size: 75,
-            braze_id: 'braze_id_1',
-            cancel_reason: "I didn't like it",
-            cart_id: 'cart_id_1',
-            checkout_id: 'checkout_id_1',
             currency: 'USD',
-            discounts: [
-              { amount: 5, code: 'SUMMER21' },
-              { amount: 5, code: 'VIPCUSTOMER' }
+            source: 'test_source',
+            products: [
+              {
+                product_id: 'prod_1',
+                product_name: 'Product 1',
+                variant_id: 'Size M',
+                image_url: 'https://example.com/prod1.jpg',
+                quantity: 2,
+                price: 25,
+                color: 'red',
+                size: 'M'
+              },
+              {
+                product_id: 'prod_2',
+                product_name: 'Product 2',
+                variant_id: 'Size L',
+                image_url: 'https://example.com/prod2.jpg',
+                quantity: 1,
+                price: 50
+              }
             ],
-            email: 'email@email.com',
-            enable_batching: true,
-            external_id: 'userId3',
             metadata: {
-              checkout_url: 'https://example.com/checkout',
               custom_field_1: 'custom_value_1',
               custom_field_2: 100,
               custom_field_3: true,
               custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: { nested_key: 'nested_value' },
+              custom_field_5: {
+                nested_key: 'nested_value'
+              },
+              checkout_url: 'https://example.com/checkout',
               order_status_url: 'https://example.com/order/status'
             },
+            enable_batching: true,
+            batch_size: 75
+          },
+          errortype: 'BAD_REQUEST',
+          errorreporter: 'DESTINATION'
+        },
+        {
+          status: 200,
+          sent: {
             name: 'ecommerce.checkout_started',
-            order_id: 'order_id_1',
-            phone: '+14155551234',
-            products: [
-              {
-                color: 'red',
-                image_url: 'https://example.com/prod1.jpg',
-                price: 25,
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                quantity: 2,
-                size: 'M',
-                variant_id: 'Size M'
-              },
-              {
-                image_url: 'https://example.com/prod2.jpg',
-                price: 50,
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                quantity: 1,
-                variant_id: 'Size L'
-              }
-            ],
-            source: 'test_source',
-            time: '2024-06-10T12:00:00.000Z',
-            total_discounts: 10,
-            total_value: 100,
+            external_id: 'userId3',
             user_alias: {
-              alias_label: 'alias_label_1',
-              alias_name: 'alias_name_1'
-            }
-          },
-          status: 400
-        },
-        {
-          errormessage: "Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'.",
-          errorreporter: 'DESTINATION',
-          errortype: 'BAD_REQUEST',
-          sent: {
-            batch_size: 75,
+              alias_name: 'alias_name_1',
+              alias_label: 'alias_label_1'
+            },
+            email: 'email@email.com',
+            phone: '+14155551234',
             braze_id: 'braze_id_1',
             cancel_reason: "I didn't like it",
-            cart_id: 'cart_id_1',
+            time: '2024-06-10T12:00:00.000Z',
             checkout_id: 'checkout_id_1',
-            currency: 'USD',
+            order_id: 'order_id_1',
+            cart_id: 'cart_id_1',
+            total_value: 100,
+            total_discounts: 10,
             discounts: [
-              { amount: 5, code: 'SUMMER21' },
-              { amount: 5, code: 'VIPCUSTOMER' }
+              {
+                code: 'SUMMER21',
+                amount: 5
+              },
+              {
+                code: 'VIPCUSTOMER',
+                amount: 5
+              }
             ],
-            email: 'email@email.com',
-            enable_batching: true,
-            external_id: 'userId4',
+            currency: 'USD',
+            source: 'test_source',
+            products: [
+              {
+                product_id: 'prod_1',
+                product_name: 'Product 1',
+                variant_id: 'Size M',
+                image_url: 'https://example.com/prod1.jpg',
+                quantity: 2,
+                price: 25,
+                color: 'red',
+                size: 'M'
+              },
+              {
+                product_id: 'prod_2',
+                product_name: 'Product 2',
+                variant_id: 'Size L',
+                image_url: 'https://example.com/prod2.jpg',
+                quantity: 1,
+                price: 50
+              }
+            ],
             metadata: {
-              checkout_url: 'https://example.com/checkout',
               custom_field_1: 'custom_value_1',
               custom_field_2: 100,
               custom_field_3: true,
               custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: { nested_key: 'nested_value' },
+              custom_field_5: {
+                nested_key: 'nested_value'
+              },
+              checkout_url: 'https://example.com/checkout',
               order_status_url: 'https://example.com/order/status'
             },
+            enable_batching: true,
+            batch_size: 75,
+            index: 1
+          },
+          body: '{"external_id":"userId3","braze_id":"braze_id_1","email":"email@email.com","phone":"+14155551234","user_alias":{"alias_name":"alias_name_1","alias_label":"alias_label_1"},"app_id":"test_app_id","name":"ecommerce.checkout_started","time":"2024-06-10T12:00:00.000Z","properties":{"currency":"USD","source":"test_source","metadata":{"custom_field_1":"custom_value_1","custom_field_2":100,"custom_field_3":true,"custom_field_4":["a","b","c"],"custom_field_5":{"nested_key":"nested_value"},"checkout_url":"https://example.com/checkout","order_status_url":"https://example.com/order/status"},"products":[{"quantity":2,"product_id":"prod_1","product_name":"Product 1","variant_id":"Size M","price":25,"image_url":"https://example.com/prod1.jpg","metadata":{"color":"red","size":"M"}},{"quantity":1,"product_id":"prod_2","product_name":"Product 2","variant_id":"Size L","price":50,"image_url":"https://example.com/prod2.jpg"}],"total_value":100,"checkout_id":"checkout_id_1","cart_id":"cart_id_1"},"_update_existing_only":true}'
+        },
+        {
+          status: 200,
+          sent: {
             name: 'ecommerce.order_cancelled',
-            order_id: 'order_id_1',
+            external_id: 'userId4',
+            user_alias: {
+              alias_name: 'alias_name_1',
+              alias_label: 'alias_label_1'
+            },
+            email: 'email@email.com',
             phone: '+14155551234',
-            products: [
+            braze_id: 'braze_id_1',
+            cancel_reason: "I didn't like it",
+            time: '2024-06-10T12:00:00.000Z',
+            checkout_id: 'checkout_id_1',
+            order_id: 'order_id_1',
+            cart_id: 'cart_id_1',
+            total_value: 100,
+            total_discounts: 10,
+            discounts: [
               {
-                color: 'red',
-                image_url: 'https://example.com/prod1.jpg',
-                price: 25,
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                quantity: 2,
-                size: 'M',
-                variant_id: 'Size M'
+                code: 'SUMMER21',
+                amount: 5
               },
               {
-                image_url: 'https://example.com/prod2.jpg',
-                price: 50,
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                quantity: 1,
-                variant_id: 'Size L'
+                code: 'VIPCUSTOMER',
+                amount: 5
               }
             ],
+            currency: 'USD',
             source: 'test_source',
-            time: '2024-06-10T12:00:00.000Z',
-            total_discounts: 10,
-            total_value: 100,
-            user_alias: {
-              alias_label: 'alias_label_1',
-              alias_name: 'alias_name_1'
-            }
+            products: [
+              {
+                product_id: 'prod_1',
+                product_name: 'Product 1',
+                variant_id: 'Size M',
+                image_url: 'https://example.com/prod1.jpg',
+                quantity: 2,
+                price: 25,
+                color: 'red',
+                size: 'M'
+              },
+              {
+                product_id: 'prod_2',
+                product_name: 'Product 2',
+                variant_id: 'Size L',
+                image_url: 'https://example.com/prod2.jpg',
+                quantity: 1,
+                price: 50
+              }
+            ],
+            metadata: {
+              custom_field_1: 'custom_value_1',
+              custom_field_2: 100,
+              custom_field_3: true,
+              custom_field_4: ['a', 'b', 'c'],
+              custom_field_5: {
+                nested_key: 'nested_value'
+              },
+              checkout_url: 'https://example.com/checkout',
+              order_status_url: 'https://example.com/order/status'
+            },
+            enable_batching: true,
+            batch_size: 75,
+            index: 2
           },
-          status: 400
+          body: '{"external_id":"userId4","braze_id":"braze_id_1","email":"email@email.com","phone":"+14155551234","user_alias":{"alias_name":"alias_name_1","alias_label":"alias_label_1"},"app_id":"test_app_id","name":"ecommerce.order_cancelled","time":"2024-06-10T12:00:00.000Z","properties":{"currency":"USD","source":"test_source","metadata":{"custom_field_1":"custom_value_1","custom_field_2":100,"custom_field_3":true,"custom_field_4":["a","b","c"],"custom_field_5":{"nested_key":"nested_value"},"checkout_url":"https://example.com/checkout","order_status_url":"https://example.com/order/status"},"products":[{"quantity":2,"product_id":"prod_1","product_name":"Product 1","variant_id":"Size M","price":25,"image_url":"https://example.com/prod1.jpg","metadata":{"color":"red","size":"M"}},{"quantity":1,"product_id":"prod_2","product_name":"Product 2","variant_id":"Size L","price":50,"image_url":"https://example.com/prod2.jpg"}],"total_value":100,"order_id":"order_id_1","cancel_reason":"I didn\'t like it","total_discounts":10,"discounts":[{"code":"SUMMER21","amount":5},{"code":"VIPCUSTOMER","amount":5}]},"_update_existing_only":true}'
         }
       ]
 
