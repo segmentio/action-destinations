@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import { contactKey } from '../sfmc-properties'
 import type { Payload } from './generated-types'
 import { SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION } from '../versioning-info'
+import { validateSubdomain } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create Contact',
@@ -12,6 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     contactKey: { ...contactKey, required: true }
   },
   perform: (request, { settings, payload }) => {
+    validateSubdomain(settings.subdomain)
     return request(
       `https://${settings.subdomain}.rest.marketingcloudapis.com/contacts/${SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION}/contacts`,
       {
