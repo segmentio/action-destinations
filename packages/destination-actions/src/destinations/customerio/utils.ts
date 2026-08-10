@@ -37,12 +37,6 @@ export enum AccountRegion {
   EU = 'EU 🇪🇺'
 }
 
-// Normalize ISO timestamp fractional seconds to 3 digits so dayjs parses reliably.
-// dayjs only handles millisecond precision; sub-millisecond digits cause silent
-// misparse. Unix timestamps are second-level anyway so no precision is lost.
-const normalizeIsoFractionalSeconds = (value: string): string =>
-  value.replace(/(\.\d{3})\d+(Z|[+-]\d{2}:?\d{2}|$)/, '$1$2')
-
 export const convertValidTimestamp = <Value = unknown>(value: Value): Value | number => {
   // Timestamps may be on a `string` field, so check if the string is only
   // digits (optionally with a fractional part). If it is, ignore it since
@@ -53,7 +47,7 @@ export const convertValidTimestamp = <Value = unknown>(value: Value): Value | nu
     return value
   }
 
-  const maybeDate = dayjs.utc(normalizeIsoFractionalSeconds(value))
+  const maybeDate = dayjs.utc(value)
 
   if (maybeDate.isValid()) {
     return maybeDate.unix()
@@ -72,15 +66,11 @@ export const convertAttributeTimestamps = <Payload extends {}>(payload: Payload)
     const value = payload[key]
 
     if (typeof value === 'string') {
-      // Normalize sub-millisecond fractional seconds BEFORE the isIsoDate gate.
-      // In Segment's prod runtime, Date.parse returns NaN for >5 fractional digits,
-      // so isIsoDate(value) would return false and normalization would never run.
-      // Normalizing first ensures the gate sees a valid parseable string.
-      // See: STRATCONN-4121, PR #3923 review feedback from joe-ayoub-segment.
-      const normalized = normalizeIsoFractionalSeconds(value)
+      // Parse only ISO 8601 date formats in strict mode
+      const maybeDate = dayjs(value)
 
-      if (isIsoDate(normalized)) {
-        ;(clone[key] as unknown) = dayjs(normalized).unix()
+      if (isIsoDate(value)) {
+        ;(clone[key] as unknown) = maybeDate.unix()
         return
       }
     }
