@@ -115,7 +115,7 @@ describe('sendBatch', () => {
     expect(response!.length()).toBe(2)
     expect(response!.getResponseAtIndex(0).value()).toEqual({
       status: 207,
-      body: 'success',
+      body: { success: true },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
     })
     expect(response!.getResponseAtIndex(1).value()).toEqual({
@@ -188,17 +188,16 @@ describe('sendBatch', () => {
     expect(response!.getAllResponses().map((result) => result.value())).toEqual([
       {
         status: 200,
-        body: 'success',
+        body: { success: true },
         sent: { type: 'person', action: 'event', identifiers: { id: 'user-1' }, name: 'First' }
       },
       {
         status: 200,
-        body: 'success',
+        body: { success: true },
         sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' }, name: 'Second' }
       }
     ])
   })
-
 })
 
 describe('parseResponse', () => {
@@ -224,7 +223,7 @@ describe('parseResponse', () => {
     expect(response.getAllResponses().map((result) => result.value())).toEqual([
       {
         status: 207,
-        body: 'success',
+        body: { success: true },
         sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
       },
       {
@@ -236,7 +235,7 @@ describe('parseResponse', () => {
       },
       {
         status: 207,
-        body: 'success',
+        body: { success: true },
         sent: { type: 'person', action: 'event', identifiers: { id: 'user-2' } }
       }
     ])
@@ -279,7 +278,7 @@ describe('parseResponse', () => {
     expect(response).toBeInstanceOf(MultiStatusResponse)
     expect(response.getResponseAtIndex(0).value()).toEqual({
       status: 200,
-      body: 'success',
+      body: { success: true },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
     })
   })
@@ -300,7 +299,7 @@ describe('parseResponse', () => {
     expect(response).toBeInstanceOf(MultiStatusResponse)
     expect(response.getResponseAtIndex(0).value()).toEqual({
       status: 200,
-      body: 'success',
+      body: { success: true },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
     })
   })
@@ -322,7 +321,7 @@ describe('parseResponse', () => {
 
     expect(response.getResponseAtIndex(0).value()).toEqual({
       status: 207,
-      body: 'success',
+      body: { success: true },
       sent: { type: 'person', action: 'event', identifiers: { id: 'user-0' } }
     })
   })

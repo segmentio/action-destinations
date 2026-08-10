@@ -9,7 +9,8 @@ describe('CustomerIO', () => {
   describe('createUpdateObject', () => {
     describe('performBatch', () => {
       it('should return a merged MultiStatusResponse with items at original indices', async () => {
-        const request = jest.fn()
+        const request = jest
+          .fn()
           .mockResolvedValueOnce({ status: 200, data: { errors: [] } })
           .mockResolvedValueOnce({ status: 200, data: { errors: [] } })
 
@@ -20,21 +21,24 @@ describe('CustomerIO', () => {
         ]
 
         const settings = { siteId: '12345', apiKey: 'abcde', accountRegion: 'US 🇺🇸' }
-        const response = await createUpdateObject.performBatch!(request as any, {
-          payload: payloads,
-          settings,
-          rawData: [],
-          rawMapping: {},
-          audienceSettings: {},
-          features: {},
-          statsContext: {} as any,
-          logger: {} as any,
-          engageDestinationCache: {} as any,
-          transactionContext: {} as any,
-          stateContext: {} as any,
-          subscriptionMetadata: {} as any,
-          hookOutputs: {}
-        } as any)
+        const response = await createUpdateObject.performBatch!(
+          request as any,
+          {
+            payload: payloads,
+            settings,
+            rawData: [],
+            rawMapping: {},
+            audienceSettings: {},
+            features: {},
+            statsContext: {} as any,
+            logger: {} as any,
+            engageDestinationCache: {} as any,
+            transactionContext: {} as any,
+            stateContext: {} as any,
+            subscriptionMetadata: {} as any,
+            hookOutputs: {}
+          } as any
+        )
 
         expect(response).toBeInstanceOf(MultiStatusResponse)
         const multistatus = response as MultiStatusResponse
@@ -42,7 +46,7 @@ describe('CustomerIO', () => {
         expect(multistatus.getAllResponses().map((r) => r.value())).toEqual([
           {
             status: 200,
-            body: 'success',
+            body: { success: true },
             sent: {
               type: 'object',
               action: 'identify',
@@ -53,7 +57,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: 'success',
+            body: { success: true },
             sent: {
               type: 'object',
               action: 'identify_anonymous',
@@ -64,7 +68,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: 'success',
+            body: { success: true },
             sent: {
               type: 'object',
               action: 'identify',
@@ -77,7 +81,8 @@ describe('CustomerIO', () => {
       })
 
       it('should report per-item errors at the correct original indices', async () => {
-        const request = jest.fn()
+        const request = jest
+          .fn()
           .mockResolvedValueOnce({
             status: 200,
             data: { errors: [{ batch_index: 0, reason: 'invalid', message: 'Object ID invalid' }] }
@@ -91,21 +96,24 @@ describe('CustomerIO', () => {
         ]
 
         const settings = { siteId: '12345', apiKey: 'abcde', accountRegion: 'US 🇺🇸' }
-        const response = await createUpdateObject.performBatch!(request as any, {
-          payload: payloads,
-          settings,
-          rawData: [],
-          rawMapping: {},
-          audienceSettings: {},
-          features: {},
-          statsContext: {} as any,
-          logger: {} as any,
-          engageDestinationCache: {} as any,
-          transactionContext: {} as any,
-          stateContext: {} as any,
-          subscriptionMetadata: {} as any,
-          hookOutputs: {}
-        } as any)
+        const response = await createUpdateObject.performBatch!(
+          request as any,
+          {
+            payload: payloads,
+            settings,
+            rawData: [],
+            rawMapping: {},
+            audienceSettings: {},
+            features: {},
+            statsContext: {} as any,
+            logger: {} as any,
+            engageDestinationCache: {} as any,
+            transactionContext: {} as any,
+            stateContext: {} as any,
+            subscriptionMetadata: {} as any,
+            hookOutputs: {}
+          } as any
+        )
 
         expect(response).toBeInstanceOf(MultiStatusResponse)
         const multistatus = response as MultiStatusResponse
@@ -126,7 +134,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: 'success',
+            body: { success: true },
             sent: {
               type: 'object',
               action: 'identify_anonymous',
@@ -137,7 +145,7 @@ describe('CustomerIO', () => {
           },
           {
             status: 200,
-            body: 'success',
+            body: { success: true },
             sent: {
               type: 'object',
               action: 'identify',
