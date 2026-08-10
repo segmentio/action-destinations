@@ -284,7 +284,10 @@ describe('formatBingErrorBody', () => {
   })
 
   it('summarizes ErrorCode/Message/TrackingId from a known fault', () => {
-    const body = JSON.stringify({ Errors: [{ ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }], TrackingId: 't1' })
+    const body = JSON.stringify({
+      Errors: [{ ErrorCode: 'AuthenticationTokenExpired', Message: 'expired' }],
+      TrackingId: 't1'
+    })
     expect(formatBingErrorBody(body)).toBe('AuthenticationTokenExpired: expired; TrackingId: t1')
   })
 

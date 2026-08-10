@@ -496,18 +496,20 @@ describe('Braze.ecommerce', () => {
       )
     })
 
-    it('should throw an error if missing syncMode', async () => {
-      await expect(
-        testDestination.testAction('ecommerce', {
-          event: payload,
-          settings,
-          useDefaultMappings: true,
-          mapping: {
-            ...mapping,
-            __segment_internal_sync_mode: ''
-          }
-        })
-      ).rejects.toThrowError(new Error("Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'."))
+    it('should default syncMode to add if missing', async () => {
+      nock(settings.endpoint).post('/users/track').reply(200)
+
+      const response = await testDestination.testAction('ecommerce', {
+        event: payload,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          ...mapping,
+          __segment_internal_sync_mode: ''
+        }
+      })
+
+      expect(response.length).toBe(1)
     })
   })
 
@@ -1049,7 +1051,7 @@ describe('Braze.ecommerce', () => {
       })
     })
 
-    it('should return correct multistatus response if there no SyncMode', async () => {
+    it('should default syncMode to add and return correct multistatus response if there is no SyncMode', async () => {
       const deepCopy1: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
@@ -1229,14 +1231,29 @@ describe('Braze.ecommerce', () => {
         name: { '@path': '$.event' }
       }
 
-      const invalidSyncModeError = {
-        status: 400,
-        errormessage: "Invalid syncMode: undefined. Supported sync modes are 'add' and 'update'.",
-        errortype: 'BAD_REQUEST',
-        errorreporter: 'INTEGRATIONS'
-      }
-
-      const responseJSON = [invalidSyncModeError, invalidSyncModeError, invalidSyncModeError, invalidSyncModeError]
+      const responseJSON = [
+        {
+          status: 200,
+          sent: json.events[0],
+          body: { success: true }
+        },
+        {
+          status: 400,
+          errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.',
+          errortype: 'BAD_REQUEST',
+          errorreporter: 'INTEGRATIONS'
+        },
+        {
+          status: 200,
+          sent: json.events[1],
+          body: { success: true }
+        },
+        {
+          status: 200,
+          sent: json.events[2],
+          body: { success: true }
+        }
+      ]
 
       nock(settings.endpoint).post('/users/track', json).reply(200)
 

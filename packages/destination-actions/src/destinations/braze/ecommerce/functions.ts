@@ -21,7 +21,7 @@ import type {
   PayloadWithIndex,
   Product
 } from './types'
-import { EVENT_NAMES } from './constants'
+import { EVENT_NAMES, SUPPORTED_SYNC_MODES } from './constants'
 import dayjs from 'dayjs'
 
 export async function send(
@@ -33,23 +33,13 @@ export async function send(
 ) {
   const msResponse = new MultiStatusResponse()
 
-  if (!['update', 'add'].includes(syncMode ?? '')) {
-    const errorMessage = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
-    if (isBatch) {
-      payloads.forEach((_, index) => {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errormessage: errorMessage
-        })
-      })
-      return msResponse
-    } else {
-      throw new PayloadValidationError(errorMessage)
-    }
-  }
+  const isValidSyncMode = syncMode && (Object.values(SUPPORTED_SYNC_MODES) as SyncMode[]).includes(syncMode)
+  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode
+    ? (syncMode as SupportedSyncMode)
+    : SUPPORTED_SYNC_MODES.ADD
 
   const { endpoint } = settings
-  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, syncMode as SupportedSyncMode, msResponse)
+  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, resolvedSyncMode, msResponse)
   const url = `${endpoint}/users/track`
 
   const response = await request<BrazeTrackUserAPIResponse>(url, {
