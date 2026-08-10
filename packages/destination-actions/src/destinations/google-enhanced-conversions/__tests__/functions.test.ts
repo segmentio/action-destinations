@@ -1,7 +1,13 @@
-import { createTestIntegration, DynamicFieldResponse } from '@segment/actions-core'
+import { createTestIntegration } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
-import { CANARY_API_VERSION, formatToE164, commonEmailValidation, convertTimestamp, timestampToEpochMicroseconds } from '../functions'
+import {
+  CANARY_API_VERSION,
+  formatToE164,
+  commonEmailValidation,
+  convertTimestamp,
+  timestampToEpochMicroseconds
+} from '../functions'
 import destination from '../index'
 
 const testDestination = createTestIntegration(destination)
@@ -17,11 +23,11 @@ describe('.getConversionActionId', () => {
       customerId: '12345678'
     }
     const payload = {}
-    const responses = (await testDestination.testDynamicField('uploadClickConversion', 'conversion_action', {
+    const responses = await testDestination.testDynamicField('uploadClickConversion', 'conversion_action', {
       settings,
       payload,
       auth
-    })) as DynamicFieldResponse
+    })
 
     expect(responses.choices.length).toBeGreaterThanOrEqual(0)
   })
@@ -33,11 +39,11 @@ describe('.getConversionActionId', () => {
       customerId: '12345678'
     }
     const payload = {}
-    const responses = (await testDestination.testDynamicField('uploadCallConversion', 'conversion_action', {
+    const responses = await testDestination.testDynamicField('uploadCallConversion', 'conversion_action', {
       settings,
       payload,
       auth
-    })) as DynamicFieldResponse
+    })
 
     expect(responses.choices.length).toBeGreaterThanOrEqual(0)
   })
@@ -49,11 +55,11 @@ describe('.getConversionActionId', () => {
       customerId: '12345678'
     }
     const payload = {}
-    const responses = (await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
+    const responses = await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
       settings,
       payload,
       auth
-    })) as DynamicFieldResponse
+    })
 
     expect(responses.choices.length).toBeGreaterThanOrEqual(0)
   })
@@ -97,12 +103,12 @@ describe('.getConversionActionId', () => {
       ])
 
     const payload = {}
-    const responses = (await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
+    const responses = await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
       settings,
       payload,
       auth,
       features
-    })) as DynamicFieldResponse
+    })
 
     expect(responses.choices.length).toBe(3)
     expect(responses.choices).toStrictEqual([
@@ -125,16 +131,16 @@ describe('.getConversionActionId', () => {
       }
     }
     nock(`https://googleads.googleapis.com`)
-      .post(`/v21/customers/${settings.customerId}/googleAds:searchStream`)
+      .post(`/v22/customers/${settings.customerId}/googleAds:searchStream`)
       .reply(401, errorResponse)
 
     const payload = {}
-    const responses = (await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
+    const responses = await testDestination.testDynamicField('uploadConversionAdjustment', 'conversion_action', {
       settings,
       payload,
       auth,
       features
-    })) as DynamicFieldResponse
+    })
 
     expect(responses.choices.length).toBe(0)
     expect(responses.error?.message).toEqual(errorResponse.response.statusText)
@@ -206,4 +212,3 @@ describe('timestampToEpochMicroseconds', () => {
     expect(result).toEqual(undefined)
   })
 })
-
