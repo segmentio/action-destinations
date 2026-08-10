@@ -151,6 +151,22 @@ describe('Braze.ecommerce', () => {
 
       expect(response.length).toBe(1)
     })
+
+    it('should default syncMode to add if missing', async () => {
+      nock(settings.endpoint).post('/users/track').reply(200)
+
+      const response = await testDestination.testAction('ecommerceSingleProduct', {
+        event: payload,
+        settings,
+        useDefaultMappings: true,
+        mapping: {
+          ...mapping,
+          __segment_internal_sync_mode: ''
+        }
+      })
+
+      expect(response.length).toBe(1)
+    })
   })
 
   describe('batch events', () => {
