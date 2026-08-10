@@ -927,268 +927,24 @@ describe('Braze.ecommerce', () => {
       const responseJSON = [
         {
           status: 200,
-          sent: {
-            name: 'ecommerce.order_refunded',
-            external_id: 'userId1',
-            user_alias: {
-              alias_name: 'alias_name_1',
-              alias_label: 'alias_label_1'
-            },
-            email: 'email@email.com',
-            phone: '+14155551234',
-            braze_id: 'braze_id_1',
-            cancel_reason: "I didn't like it",
-            time: '2024-06-10T12:00:00.000Z',
-            checkout_id: 'checkout_id_1',
-            order_id: 'order_id_1',
-            cart_id: 'cart_id_1',
-            total_value: 100,
-            total_discounts: 10,
-            discounts: [
-              {
-                code: 'SUMMER21',
-                amount: 5
-              },
-              {
-                code: 'VIPCUSTOMER',
-                amount: 5
-              }
-            ],
-            currency: 'USD',
-            source: 'test_source',
-            products: [
-              {
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                variant_id: 'Size M',
-                image_url: 'https://example.com/prod1.jpg',
-                quantity: 2,
-                price: 25,
-                color: 'red',
-                size: 'M'
-              },
-              {
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                variant_id: 'Size L',
-                image_url: 'https://example.com/prod2.jpg',
-                quantity: 1,
-                price: 50
-              }
-            ],
-            metadata: {
-              custom_field_1: 'custom_value_1',
-              custom_field_2: 100,
-              custom_field_3: true,
-              custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: {
-                nested_key: 'nested_value'
-              },
-              checkout_url: 'https://example.com/checkout',
-              order_status_url: 'https://example.com/order/status'
-            },
-            enable_batching: true,
-            batch_size: 75,
-            index: 0
-          },
-          body: '{"external_id":"userId1","braze_id":"braze_id_1","email":"email@email.com","phone":"+14155551234","user_alias":{"alias_name":"alias_name_1","alias_label":"alias_label_1"},"app_id":"test_app_id","name":"ecommerce.order_refunded","time":"2024-06-10T12:00:00.000Z","properties":{"currency":"USD","source":"test_source","metadata":{"custom_field_1":"custom_value_1","custom_field_2":100,"custom_field_3":true,"custom_field_4":["a","b","c"],"custom_field_5":{"nested_key":"nested_value"},"checkout_url":"https://example.com/checkout","order_status_url":"https://example.com/order/status"},"products":[{"quantity":2,"product_id":"prod_1","product_name":"Product 1","variant_id":"Size M","price":25,"image_url":"https://example.com/prod1.jpg","metadata":{"color":"red","size":"M"}},{"quantity":1,"product_id":"prod_2","product_name":"Product 2","variant_id":"Size L","price":50,"image_url":"https://example.com/prod2.jpg"}],"total_value":100,"order_id":"order_id_1","total_discounts":10,"discounts":[{"code":"SUMMER21","amount":5},{"code":"VIPCUSTOMER","amount":5}]},"_update_existing_only":true}'
+          sent: json.events[0],
+          body: { success: true }
         },
         {
           status: 400,
           errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.',
-          sent: {
-            name: 'ecommerce.order_placed',
-            cancel_reason: "I didn't like it",
-            time: '2024-06-10T12:00:00.000Z',
-            checkout_id: 'checkout_id_1',
-            order_id: 'order_id_1',
-            cart_id: 'cart_id_1',
-            total_value: 100,
-            total_discounts: 10,
-            discounts: [
-              {
-                code: 'SUMMER21',
-                amount: 5
-              },
-              {
-                code: 'VIPCUSTOMER',
-                amount: 5
-              }
-            ],
-            currency: 'USD',
-            source: 'test_source',
-            products: [
-              {
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                variant_id: 'Size M',
-                image_url: 'https://example.com/prod1.jpg',
-                quantity: 2,
-                price: 25,
-                color: 'red',
-                size: 'M'
-              },
-              {
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                variant_id: 'Size L',
-                image_url: 'https://example.com/prod2.jpg',
-                quantity: 1,
-                price: 50
-              }
-            ],
-            metadata: {
-              custom_field_1: 'custom_value_1',
-              custom_field_2: 100,
-              custom_field_3: true,
-              custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: {
-                nested_key: 'nested_value'
-              },
-              checkout_url: 'https://example.com/checkout',
-              order_status_url: 'https://example.com/order/status'
-            },
-            enable_batching: true,
-            batch_size: 75
-          },
           errortype: 'BAD_REQUEST',
-          errorreporter: 'DESTINATION'
+          errorreporter: 'INTEGRATIONS'
         },
         {
           status: 200,
-          sent: {
-            name: 'ecommerce.checkout_started',
-            external_id: 'userId3',
-            user_alias: {
-              alias_name: 'alias_name_1',
-              alias_label: 'alias_label_1'
-            },
-            email: 'email@email.com',
-            phone: '+14155551234',
-            braze_id: 'braze_id_1',
-            cancel_reason: "I didn't like it",
-            time: '2024-06-10T12:00:00.000Z',
-            checkout_id: 'checkout_id_1',
-            order_id: 'order_id_1',
-            cart_id: 'cart_id_1',
-            total_value: 100,
-            total_discounts: 10,
-            discounts: [
-              {
-                code: 'SUMMER21',
-                amount: 5
-              },
-              {
-                code: 'VIPCUSTOMER',
-                amount: 5
-              }
-            ],
-            currency: 'USD',
-            source: 'test_source',
-            products: [
-              {
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                variant_id: 'Size M',
-                image_url: 'https://example.com/prod1.jpg',
-                quantity: 2,
-                price: 25,
-                color: 'red',
-                size: 'M'
-              },
-              {
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                variant_id: 'Size L',
-                image_url: 'https://example.com/prod2.jpg',
-                quantity: 1,
-                price: 50
-              }
-            ],
-            metadata: {
-              custom_field_1: 'custom_value_1',
-              custom_field_2: 100,
-              custom_field_3: true,
-              custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: {
-                nested_key: 'nested_value'
-              },
-              checkout_url: 'https://example.com/checkout',
-              order_status_url: 'https://example.com/order/status'
-            },
-            enable_batching: true,
-            batch_size: 75,
-            index: 1
-          },
-          body: '{"external_id":"userId3","braze_id":"braze_id_1","email":"email@email.com","phone":"+14155551234","user_alias":{"alias_name":"alias_name_1","alias_label":"alias_label_1"},"app_id":"test_app_id","name":"ecommerce.checkout_started","time":"2024-06-10T12:00:00.000Z","properties":{"currency":"USD","source":"test_source","metadata":{"custom_field_1":"custom_value_1","custom_field_2":100,"custom_field_3":true,"custom_field_4":["a","b","c"],"custom_field_5":{"nested_key":"nested_value"},"checkout_url":"https://example.com/checkout","order_status_url":"https://example.com/order/status"},"products":[{"quantity":2,"product_id":"prod_1","product_name":"Product 1","variant_id":"Size M","price":25,"image_url":"https://example.com/prod1.jpg","metadata":{"color":"red","size":"M"}},{"quantity":1,"product_id":"prod_2","product_name":"Product 2","variant_id":"Size L","price":50,"image_url":"https://example.com/prod2.jpg"}],"total_value":100,"checkout_id":"checkout_id_1","cart_id":"cart_id_1"},"_update_existing_only":true}'
+          sent: json.events[1],
+          body: { success: true }
         },
         {
           status: 200,
-          sent: {
-            name: 'ecommerce.order_cancelled',
-            external_id: 'userId4',
-            user_alias: {
-              alias_name: 'alias_name_1',
-              alias_label: 'alias_label_1'
-            },
-            email: 'email@email.com',
-            phone: '+14155551234',
-            braze_id: 'braze_id_1',
-            cancel_reason: "I didn't like it",
-            time: '2024-06-10T12:00:00.000Z',
-            checkout_id: 'checkout_id_1',
-            order_id: 'order_id_1',
-            cart_id: 'cart_id_1',
-            total_value: 100,
-            total_discounts: 10,
-            discounts: [
-              {
-                code: 'SUMMER21',
-                amount: 5
-              },
-              {
-                code: 'VIPCUSTOMER',
-                amount: 5
-              }
-            ],
-            currency: 'USD',
-            source: 'test_source',
-            products: [
-              {
-                product_id: 'prod_1',
-                product_name: 'Product 1',
-                variant_id: 'Size M',
-                image_url: 'https://example.com/prod1.jpg',
-                quantity: 2,
-                price: 25,
-                color: 'red',
-                size: 'M'
-              },
-              {
-                product_id: 'prod_2',
-                product_name: 'Product 2',
-                variant_id: 'Size L',
-                image_url: 'https://example.com/prod2.jpg',
-                quantity: 1,
-                price: 50
-              }
-            ],
-            metadata: {
-              custom_field_1: 'custom_value_1',
-              custom_field_2: 100,
-              custom_field_3: true,
-              custom_field_4: ['a', 'b', 'c'],
-              custom_field_5: {
-                nested_key: 'nested_value'
-              },
-              checkout_url: 'https://example.com/checkout',
-              order_status_url: 'https://example.com/order/status'
-            },
-            enable_batching: true,
-            batch_size: 75,
-            index: 2
-          },
-          body: '{"external_id":"userId4","braze_id":"braze_id_1","email":"email@email.com","phone":"+14155551234","user_alias":{"alias_name":"alias_name_1","alias_label":"alias_label_1"},"app_id":"test_app_id","name":"ecommerce.order_cancelled","time":"2024-06-10T12:00:00.000Z","properties":{"currency":"USD","source":"test_source","metadata":{"custom_field_1":"custom_value_1","custom_field_2":100,"custom_field_3":true,"custom_field_4":["a","b","c"],"custom_field_5":{"nested_key":"nested_value"},"checkout_url":"https://example.com/checkout","order_status_url":"https://example.com/order/status"},"products":[{"quantity":2,"product_id":"prod_1","product_name":"Product 1","variant_id":"Size M","price":25,"image_url":"https://example.com/prod1.jpg","metadata":{"color":"red","size":"M"}},{"quantity":1,"product_id":"prod_2","product_name":"Product 2","variant_id":"Size L","price":50,"image_url":"https://example.com/prod2.jpg"}],"total_value":100,"order_id":"order_id_1","cancel_reason":"I didn\'t like it","total_discounts":10,"discounts":[{"code":"SUMMER21","amount":5},{"code":"VIPCUSTOMER","amount":5}]},"_update_existing_only":true}'
+          sent: json.events[2],
+          body: { success: true }
         }
       ]
 
@@ -1201,6 +957,98 @@ describe('Braze.ecommerce', () => {
       })
 
       expect(response).toEqual(responseJSON)
+    })
+
+    it('should attribute Braze errors to the correct payload when an earlier payload is filtered by validate()', async () => {
+      const deepCopy1: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+
+      // e1 is missing all identifiers, so validate() filters it out of the events array sent to Braze.
+      const e1 = createTestEvent({ ...deepCopy1, event: 'ecommerce.order_refunded' })
+      e1.userId = undefined
+      delete e1.properties?.email
+      delete e1.properties?.phone
+      delete e1.properties?.braze_id
+      delete e1.anonymousId
+      delete e1.properties?.user_alias
+
+      const e2 = createTestEvent({ ...deepCopy2, userId: 'userId2', event: 'ecommerce.checkout_started' })
+      const e3 = createTestEvent({ ...deepCopy3, userId: 'userId3', event: 'ecommerce.order_cancelled' })
+
+      const events = [e1, e2, e3]
+
+      // e1 filtered => events sent to Braze are [e2, e3] at sent-array indices 0 and 1.
+      // Braze reports an error for sent-array index 1, which is e3 (original index 2).
+      // e3's JSON is valid; we're faking a failed Braze response for that item purely to
+      // verify the error is attributed back to the correct original payload.
+      let sentJson: any
+      nock(settings.endpoint)
+        .post('/users/track', (body) => {
+          sentJson = body
+          return true
+        })
+        .reply(200, { errors: [{ index: 1, type: 'a valid identifier is required' }] })
+
+      const response = await testDestination.executeBatch('ecommerce', {
+        events,
+        settings,
+        mapping: { ...mapping, __segment_internal_sync_mode: 'update', name: { '@path': '$.event' } }
+      })
+
+      expect(response[0]).toEqual({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errorreporter: 'INTEGRATIONS',
+        errormessage: 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'
+      })
+      expect(response[1]).toEqual({
+        status: 200,
+        sent: sentJson.events[0],
+        body: { success: true }
+      })
+      expect(response[2]).toEqual({
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errorreporter: 'DESTINATION',
+        errormessage: 'a valid identifier is required',
+        sent: sentJson.events[1],
+        body: 'a valid identifier is required'
+      })
+    })
+
+    it('should populate sent and body correctly for a fully successful batch', async () => {
+      const deepCopy1: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+
+      const e1 = createTestEvent({ ...deepCopy1, userId: 'userId1', event: 'ecommerce.order_placed' })
+      const e2 = createTestEvent({ ...deepCopy2, userId: 'userId2', event: 'ecommerce.checkout_started' })
+      const events = [e1, e2]
+
+      let sentJson: any
+      nock(settings.endpoint)
+        .post('/users/track', (body) => {
+          sentJson = body
+          return true
+        })
+        .reply(200)
+
+      const response = await testDestination.executeBatch('ecommerce', {
+        events,
+        settings,
+        mapping: { ...mapping, __segment_internal_sync_mode: 'add', name: { '@path': '$.event' } }
+      })
+
+      expect(response[0]).toEqual({
+        status: 200,
+        sent: sentJson.events[0],
+        body: { success: true }
+      })
+      expect(response[1]).toEqual({
+        status: 200,
+        sent: sentJson.events[1],
+        body: { success: true }
+      })
     })
 
     it('should default syncMode to add and return correct multistatus response if there is no SyncMode', async () => {

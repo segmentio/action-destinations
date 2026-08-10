@@ -34,7 +34,9 @@ export async function send(
   const msResponse = new MultiStatusResponse()
 
   const isValidSyncMode = syncMode && (Object.values(SUPPORTED_SYNC_MODES) as SyncMode[]).includes(syncMode)
-  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode ? (syncMode as SupportedSyncMode) : SUPPORTED_SYNC_MODES.ADD
+  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode
+    ? (syncMode as SupportedSyncMode)
+    : SUPPORTED_SYNC_MODES.ADD
 
   const { endpoint } = settings
   const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, resolvedSyncMode, msResponse)
@@ -46,18 +48,23 @@ export async function send(
     json
   })
 
-  const errors = Array.isArray(response.data.errors) ? response.data.errors : []
+  const errors = Array.isArray(response.data?.errors) ? response.data.errors : []
 
   payloadsWithIndexes.forEach((payload, index) => {
-    const error = errors.find((e) => e.index === index)
+    const sentIndex = payload.index
+    if (sentIndex === undefined) {
+      return
+    }
+
+    const error = errors.find((e) => e.index === sentIndex)
 
     if (error) {
       msResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'BAD_REQUEST',
         errormessage: error.type,
-        sent: payload as object as JSONLikeObject,
-        body: JSON.stringify(json.events[index])
+        sent: json.events[sentIndex] as object as JSONLikeObject,
+        body: error.type
       })
     }
   })
@@ -89,8 +96,8 @@ function getJSON(
       events.push(event)
       msResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: payload as object as JSONLikeObject,
-        body: JSON.stringify(event)
+        sent: event as object as JSONLikeObject,
+        body: { success: true }
       })
     }
   })
