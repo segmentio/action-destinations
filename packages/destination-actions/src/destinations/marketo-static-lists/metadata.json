@@ -1,0 +1,778 @@
+{
+  "slug": "actions-marketo-static-lists",
+  "name": "Marketo Static Lists (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "client_id": {
+        "label": "Client ID",
+        "description": "Your Marketo REST API Client ID.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "client_secret": {
+        "label": "Client Secret",
+        "description": "Your Marketo REST API Client Secret.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "api_endpoint": {
+        "label": "API Endpoint",
+        "description": "Your Marketo REST API Endpoint in this format: https://<your_account_id>.mktorest.com.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "folder_name": {
+        "label": "Folder Name",
+        "description": "Name of the folder in which to create static lists.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {},
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "addToList": {
+      "title": "Add to List",
+      "description": "Add users to a list in Marketo.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Connect to a static list in Marketo",
+          "description": "When saving this mapping, we will create a static list in Marketo using the fields you provided.",
+          "inputFields": {
+            "list_id": {
+              "label": "Existing List ID",
+              "description": "The ID of the Marketo Static List that users will be synced to. If defined, we will not create a new list.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "list_name": {
+              "label": "List Name",
+              "description": "The name of the Marketo Static List that you would like to create.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "outputFields": {
+            "id": {
+              "label": "ID",
+              "description": "The ID of the created Marketo Static List that users will be synced to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "List Name",
+              "description": "The name of the created Marketo Static List that users will be synced to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "dynamicFields": null,
+      "fields": {
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the Static List that users will be synced to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "lookup_field": {
+          "label": "Lookup Field",
+          "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "email",
+          "choices": [
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Id",
+              "value": "id"
+            },
+            {
+              "label": "Cookies",
+              "value": "cookies"
+            },
+            {
+              "label": "Twitter ID",
+              "value": "twitterId"
+            },
+            {
+              "label": "Facebook ID",
+              "value": "facebookId"
+            },
+            {
+              "label": "LinkedIn ID",
+              "value": "linkedinId"
+            },
+            {
+              "label": "Salesforce Account ID",
+              "value": "sfdcAccountId"
+            },
+            {
+              "label": "Salesforce Contact ID",
+              "value": "sfdcContactId"
+            },
+            {
+              "label": "Salesforce Lead ID",
+              "value": "sfdcLeadId"
+            },
+            {
+              "label": "Salesforce Opportunity ID",
+              "value": "sfdcOpptyId"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "data": {
+          "label": "Lead Info Fields",
+          "description": "The fields that contain data about the lead, such as Email, Last Name, etc. On the left-hand side, input the field name exactly how it appears in Marketo. On the right-hand side, map the Segment field that contains the corresponding value.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email",
+              "description": "The user's email address to send to Marketo.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 300000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 300000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "removeFromList": {
+      "title": "Remove From List",
+      "description": "Remove users from a list in Marketo.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Exited\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the Static List that users will be synced to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "lookup_field": {
+          "label": "Lookup Field",
+          "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "email",
+          "choices": [
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Id",
+              "value": "id"
+            },
+            {
+              "label": "Cookies",
+              "value": "cookies"
+            },
+            {
+              "label": "Twitter ID",
+              "value": "twitterId"
+            },
+            {
+              "label": "Facebook ID",
+              "value": "facebookId"
+            },
+            {
+              "label": "LinkedIn ID",
+              "value": "linkedinId"
+            },
+            {
+              "label": "Salesforce Account ID",
+              "value": "sfdcAccountId"
+            },
+            {
+              "label": "Salesforce Contact ID",
+              "value": "sfdcContactId"
+            },
+            {
+              "label": "Salesforce Lead ID",
+              "value": "sfdcLeadId"
+            },
+            {
+              "label": "Salesforce Opportunity ID",
+              "value": "sfdcOpptyId"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "field_value": {
+          "label": "Field Value",
+          "description": "The value cooresponding to the lookup field.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 300,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 300,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Entered",
+      "type": "specificEvent",
+      "partnerAction": "addToList",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "name": "Entities Audience Exited",
+      "type": "specificEvent",
+      "partnerAction": "removeFromList",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "field_value": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "addToList",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "removeFromList",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "field_value": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "addToList",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300000,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}

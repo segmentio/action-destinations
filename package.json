@@ -1,5 +1,9 @@
 {
   "name": "action-destinations",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations"
+  },
   "private": true,
   "license": "MIT",
   "workspaces": {
@@ -36,7 +40,10 @@
     "typecheck": "lerna run typecheck --stream",
     "types": "./bin/run generate:types",
     "validate": "./bin/run validate",
-    "generate:metadata-payload": "./bin/run generate:metadata-payload"
+    "generate:metadata-payload": "./bin/run generate:metadata-payload",
+    "generate:metadata-payload:cloud": "./bin/run generate:metadata-payload --mode=cloud",
+    "generate:metadata-payload:browser": "./bin/run generate:metadata-payload --mode=device",
+    "generate:metadata-payload:warehouse": "./bin/run generate:metadata-payload --mode=warehouse"
   },
   "devDependencies": {
     "@peculiar/webcrypto": "^1.2.3",
@@ -63,13 +70,13 @@
     "karma-jasmine": "^5.1.0",
     "karma-webkit-launcher": "^2.0.0",
     "karma-webpack": "^5.0.0",
-    "lerna": "^8.1.8",
+    "lerna": "^9.0.7",
     "lint-staged": "^10.5.3",
     "open": "^8.4.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
-    "playwright-chromium": "^1.29.2",
-    "playwright-webkit": "^1.29.2",
+    "playwright-chromium": "1.61.1",
+    "playwright-webkit": "1.61.1",
     "prettier": "^2.4.1",
     "process": "^0.11.10",
     "timers-browserify": "^2.0.12",
@@ -98,7 +105,9 @@
   "lint-staged": {
     "**/{browser-destinations,destinations}/**/*.ts": [
       "./bin/run generate:types -p",
-      "git add **/generated-types.ts"
+      "git add **/generated-types.ts",
+      "bash scripts/update-metadata-payload.sh",
+      "git add **/metadata.json"
     ],
     "!(**/templates/**)/*.ts": [
       "eslint --fix --cache",
@@ -126,5 +135,6 @@
     "chance": "^1.1.8",
     "liquidjs": "^10.25.7",
     "xml-js": "^1.6.11"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

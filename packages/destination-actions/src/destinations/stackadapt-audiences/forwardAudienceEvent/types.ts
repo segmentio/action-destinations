@@ -40,3 +40,9 @@ export interface Mapping {
 }
 
 export type MarketingStatus = typeof MarketingStatus[keyof typeof MarketingStatus]
+
+export interface CustomUserProperty {
+  name: string
+  type: string
+  value?: string
+}

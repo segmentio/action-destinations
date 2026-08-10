@@ -28,7 +28,7 @@ export const key: InputField = {
 export const id: InputField = {
   label: 'Data Extension ID',
   description:
-    'The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.',
+    'The ID of the data extension that you want to store information in. The data extension must be predefined in SFMC. The ID is required if a Data Extension Key is not provided.\n\nSee more information on how to find your Data Extension ID [here](https://help.salesforce.com/s/articleView?id=000385238&type=1).',
   type: 'string'
 }
 
@@ -143,8 +143,8 @@ export const dataExtensionHook: ActionHookDefinition<any, any, any, any, any> = 
       type: 'string',
       required: CREATE_OPERATION,
       depends_on: CREATE_OPERATION,
-      dynamic: async (request, { settings }) => {
-        return await getCategories(request, settings)
+      dynamic: async (request, { settings, features }) => {
+        return await getCategories(request, settings, features)
       }
     },
     name: {
