@@ -11,19 +11,13 @@ const PERSON_ID = 33333
 describe('Pipedrive domain validation', () => {
   it('should throw when domain contains URL injection characters', async () => {
     await expect(
-      testDestination.testAction('createUpdatePerson', {
-        mapping: { name: 'Test', match_value: '123' },
-        settings: { apiToken: PIPEDRIVE_API_KEY, domain: 'attacker.com/path?x=' }
-      })
+      testDestination.testAuthentication({ apiToken: PIPEDRIVE_API_KEY, domain: 'attacker.com/path?x=' })
     ).rejects.toThrowError(/Invalid domain/)
   })
 
   it('should throw when domain contains @ injection', async () => {
     await expect(
-      testDestination.testAction('createUpdatePerson', {
-        mapping: { name: 'Test', match_value: '123' },
-        settings: { apiToken: PIPEDRIVE_API_KEY, domain: 'attacker.com@legitimate' }
-      })
+      testDestination.testAuthentication({ apiToken: PIPEDRIVE_API_KEY, domain: 'attacker.com@legitimate' })
     ).rejects.toThrowError(/Invalid domain/)
   })
 })

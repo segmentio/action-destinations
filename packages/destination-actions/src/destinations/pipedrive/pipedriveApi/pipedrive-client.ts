@@ -1,6 +1,5 @@
 import { Settings } from '../generated-types'
 import type { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
-import { validateDomain } from '../utils'
 import get from 'lodash/get'
 import { ActivityTypes, PipedriveFields } from './domain'
 import { DynamicFieldResponse } from '@segment/actions-core'
@@ -53,7 +52,6 @@ class PipedriveClient {
   private _request: RequestClient
 
   constructor(settings: Settings, request: RequestClient) {
-    validateDomain(settings.domain)
     this.settings = settings
     this._request = request
   }
