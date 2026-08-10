@@ -1,9 +1,26 @@
 import { JSONLikeObject, ModifiedResponse, MultiStatusResponse } from '@segment/actions-core'
+import { Features } from '@segment/actions-core/mapping-kit'
+import { Settings } from '../generated-types'
+
+export const FLAGS = {
+  PROJECT_TOKEN_AUTH: 'actions-mixpanel-project-token-auth'
+}
 
 export enum ApiRegions {
   US = 'US 🇺🇸',
   EU = 'EU 🇪🇺',
   IN = 'IN 🇮🇳'
+}
+
+export function getImportApiCredential(settings: Settings, features?: Features): string {
+  // When the project-token-auth flag is ON, authenticate the Import API with the Project Token.
+  // When OFF (default), use the API Secret if present. apiSecret is optional, so fall back to the
+  // Project Token when it is not set — otherwise new connections without a secret would send an
+  // "undefined:" Basic auth header and get 401s.
+  if (features && features[FLAGS.PROJECT_TOKEN_AUTH]) {
+    return settings.projectToken
+  }
+  return settings.apiSecret ?? settings.projectToken
 }
 
 export enum StrictMode {
