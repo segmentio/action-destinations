@@ -4,9 +4,11 @@ import {
   isHashedInformation,
   getPurchaseEventData,
   getSearchEventData,
-  getViewContentEventData
+  getViewContentEventData,
+  getApiVersion
 } from '../../shared/functions'
-import { EventType } from '../../shared/constants'
+import { EventType, API_VERSION, CANARY_API_VERSION } from '../../shared/constants'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 
 const basePayload = {
   event_time: '1631210000',
@@ -364,6 +366,22 @@ describe('FacebookConversionsApi', () => {
 
       expect(result.event_source_url).toBe('https://example.com/product/123')
       expect(result.event_id).toBe('evt-abc-123')
+    })
+  })
+
+  describe('getApiVersion', () => {
+    it('should return the canary API version', async () => {
+      const features = {
+        'facebook-capi-actions-canary-version': true
+      }
+      const version = getApiVersion(features, {} as StatsContext)
+      expect(version).toEqual(CANARY_API_VERSION)
+    })
+
+    it('should return the regular API version', async () => {
+      const features = {}
+      const version = getApiVersion(features, {} as StatsContext)
+      expect(version).toEqual(API_VERSION)
     })
   })
 })

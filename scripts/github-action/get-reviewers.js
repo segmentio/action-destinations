@@ -2,6 +2,10 @@
 module.exports = async ({ github, context, core }) => {
     const { labelsToAdd } = process.env
 
+    // Bots such as Copilot are auto-requested as reviewers on some PRs. They must not
+    // count as human reviewers, otherwise reviewer assignment is skipped entirely.
+    const isHumanReviewer = (user) => user && user.type !== 'Bot' && user.login !== 'Copilot'
+
     // Check if there are already reviewers assigned to the PR
     try {
         const existingReviewers = await github.rest.pulls.listRequestedReviewers({
@@ -10,10 +14,13 @@ module.exports = async ({ github, context, core }) => {
             pull_number: context.payload.pull_request.number
         })
 
-        if (existingReviewers.data.users && existingReviewers.data.users.length > 0) {
+        // Ignore bot reviewers (e.g. Copilot) when deciding whether humans are already assigned.
+        const humanReviewers = (existingReviewers.data.users || []).filter(isHumanReviewer)
+
+        if (humanReviewers.length > 0) {
             core.setOutput('skip', 'true')
-            core.setOutput('reason', `PR already has ${existingReviewers.data.users.length} user reviewer(s) assigned: ${existingReviewers.data.users.map(u => u.login).join(', ')}`)
-            core.info(`Skipping reviewer assignment - users already assigned: ${existingReviewers.data.users.map(u => u.login).join(', ')}`)
+            core.setOutput('reason', `PR already has ${humanReviewers.length} user reviewer(s) assigned: ${humanReviewers.map(u => u.login).join(', ')}`)
+            core.info(`Skipping reviewer assignment - users already assigned: ${humanReviewers.map(u => u.login).join(', ')}`)
             return
         }
     } catch (error) {

@@ -106,16 +106,35 @@ describe('Audience Destination', () => {
 
   // Edit Customer Match Members - Contact Info List
   describe('Edit Customer Match Members - Contact Info List', () => {
-    const payloadContactInfo = {
-      emails: 'test@gmail.com',
-      phoneNumbers: '1234567890',
-      zipCodes: '12345',
-      firstName: 'John',
-      lastName: 'Doe',
-      countryCode: '+1'
-    }
-
     const event = createTestEvent({
+      event: 'Audience Entered',
+      type: 'track',
+      properties: {},
+      traits: {
+        phone: '1234567890',
+        zipCodes: '12345',
+        firstName: 'John',
+        lastName: 'Doe',
+        countryCode: '+1'
+      },
+      context: {
+        traits: {
+          email: 'test@gmail.com'
+        },
+        personas: {
+          external_audience_id: 'audience-id-123',
+          audience_settings: {
+            advertiserId: '12345',
+            token: 'temp-token'
+          }
+        }
+      }
+    })
+
+    // Journeys sends computation_class: 'journey_step' instead of 'audience'. The perform() functions for
+    // addToAudContactInfo/removeFromAudContactInfo never read computation_class (add vs remove is determined
+    // solely by which action is invoked), so behavior must be identical to the tests above.
+    const journeyStepEvent = createTestEvent({
       event: 'Audience Entered',
       type: 'track',
       properties: {},
@@ -126,9 +145,65 @@ describe('Audience Destination', () => {
           audience_settings: {
             advertiserId: '12345',
             token: 'temp-token'
-          }
+          },
+          computation_class: 'journey_step'
         }
       }
+    })
+
+    it('should add customer match members successfully with journey_step computation_class', async () => {
+      nock('https://displayvideo.googleapis.com')
+        .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers')
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
+      const result = await testDestination.testAction('addToAudContactInfo', {
+        event: journeyStepEvent,
+        useDefaultMappings: true,
+        features: { 'first-party-dv360-canary-version': true }
+      })
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            firstPartyAndPartnerAudienceId: 'audience-id-123'
+          })
+        })
+      )
+    })
+
+    it('should remove customer match members successfully with journey_step computation_class', async () => {
+      nock('https://displayvideo.googleapis.com')
+        .post('/v4/firstPartyAndPartnerAudiences/audience-id-123:editCustomerMatchMembers', {
+          advertiserId: '12345',
+          removedContactInfoList: {
+            contactInfos: [
+              {
+                hashedEmails: '87924606b4131a8aceeeae8868531fbb9712aaa07a5d3a756b26ce0f5d6ca674',
+                hashedPhoneNumbers: 'c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646',
+                zipCodes: '12345',
+                hashedFirstName: '96d9632f363564cc3032521409cf22a852f2032eec099ed5967c0d000cec607a',
+                hashedLastName: '799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f',
+                countryCode: '+1'
+              }
+            ],
+            consent: {
+              adUserData: 'CONSENT_STATUS_GRANTED',
+              adPersonalization: 'CONSENT_STATUS_GRANTED'
+            }
+          }
+        })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
+
+      const result = await testDestination.testAction('removeFromAudContactInfo', {
+        event: journeyStepEvent,
+        useDefaultMappings: true,
+        features: { 'first-party-dv360-canary-version': true }
+      })
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            firstPartyAndPartnerAudienceId: 'audience-id-123'
+          })
+        })
+      )
     })
 
     it('should add customer match members successfully with CANARY VERSION', async () => {

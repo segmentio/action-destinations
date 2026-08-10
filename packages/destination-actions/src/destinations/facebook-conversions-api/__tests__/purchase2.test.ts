@@ -1,8 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { API_VERSION } from '../constants'
-import { FEATURE_FLAG_PURCHASE } from '../shared/constants'
+import { API_VERSION } from '../shared/constants'
 
 const testDestination = createTestIntegration(Destination)
 const settings = {
@@ -16,12 +15,7 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
-const testCases = [
-  { name: 'flag off', features: undefined },
-  { name: 'flag on', features: { [FEATURE_FLAG_PURCHASE]: true } }
-]
-
-describe.each(testCases)('purchase2 ($name)', ({ features }) => {
+describe('purchase2', () => {
   describe('purchase2', () => {
     it('should handle a basic event', async () => {
       nock(`https://graph.facebook.com/v${API_VERSION}/${settings.pixelId}`).post(`/events`).reply(201, {})
@@ -51,7 +45,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       const responses = await testDestination.testAction('purchase2', {
         event,
         settings,
-        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -155,7 +148,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
         testDestination.testAction('purchase2', {
           event,
           settings,
-          features,
           useDefaultMappings: true,
           mapping: {
             __segment_internal_sync_mode: 'update',
@@ -203,7 +195,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       const responses = await testDestination.testAction('purchase2', {
         event,
         settings,
-        features,
         useDefaultMappings: true,
         mapping: { __segment_internal_sync_mode: 'add', action_source: { '@path': '$.properties.action_source' } }
       })
@@ -267,7 +258,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
         testDestination.testAction('purchase2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             action_source: {
@@ -307,7 +297,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
         testDestination.testAction('purchase2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -350,7 +339,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
         testDestination.testAction('purchase2', {
           event,
           settings,
-          features,
           mapping: {
             __segment_internal_sync_mode: 'add',
             currency: {
@@ -399,7 +387,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       const responses = await testDestination.testAction('purchase2', {
         event,
         settings: settingsWithTestEventCode,
-        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -500,7 +487,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       const responses = await testDestination.testAction('purchase2', {
         event,
         settings: settingsWithTestEventCode,
-        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -606,7 +592,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       const responses = await testDestination.testAction('purchase2', {
         event,
         settings,
-        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
@@ -721,7 +706,6 @@ describe.each(testCases)('purchase2 ($name)', ({ features }) => {
       const responses = await testDestination.testAction('purchase2', {
         event,
         settings,
-        features,
         mapping: {
           __segment_internal_sync_mode: 'add',
           currency: {
