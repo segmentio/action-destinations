@@ -60,7 +60,6 @@ const destination: DestinationDefinition<Settings> = {
       validateSubdomain(settings.subdomain)
     },
     refreshAccessToken: async (request, { settings }) => {
-      validateSubdomain(settings.subdomain)
       const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
       const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
         method: 'POST',

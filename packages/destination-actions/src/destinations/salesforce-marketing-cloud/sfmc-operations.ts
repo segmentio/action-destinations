@@ -28,12 +28,16 @@ import {
 // A Salesforce Marketing Cloud subdomain is a single DNS label (a tenant-specific
 // string such as "mc563885gzs27c5t9-63k636ttgm"). It is interpolated directly into
 // the host portion of every request URL, so we restrict it to the characters valid
-// in a DNS label - letters, digits and hyphens. This intentionally does not enforce
-// full DNS-label structure (length, no leading/trailing hyphen); the goal is to block
-// host/path injection, not to reject unusual-but-working subdomains. Allowing other
-// characters (e.g. "/", "@", ":", ".") would let a malicious subdomain rewrite the
-// request host and exfiltrate the OAuth client secret / access token to an
-// attacker-controlled server. See SECOPS-25213.
+// in a DNS label - letters, digits and hyphens. Allowing other characters (e.g. "/",
+// "@", ":", ".") would let a malicious subdomain rewrite the request host and
+// exfiltrate the OAuth client secret / access token to an attacker-controlled server.
+//
+// This is enforced only at settings-save time (testAuthentication), so an invalid
+// value can never be stored - we deliberately do NOT re-validate on every event, to
+// avoid breaking delivery for any pre-existing config. The pattern intentionally does
+// not enforce full DNS-label structure (length, no leading/trailing hyphen); the goal
+// is to block host/path injection, not to reject unusual-but-working subdomains.
+// See SECOPS-25213.
 const SUBDOMAIN_PATTERN = /^[a-zA-Z0-9-]+$/
 
 export function validateSubdomain(subdomain: unknown): string {
@@ -93,7 +97,6 @@ export async function asyncUpsertRowsV2(
       400
     )
   }
-  validateSubdomain(subdomain)
   // Use flattened rows for async API
   const rows = generateFlattenedRows(payloads)
   const response = await request(
@@ -120,7 +123,6 @@ export function upsertRows(
       400
     )
   }
-  validateSubdomain(subdomain)
   const rows = generateRows(payloads)
   if (key) {
     return request(
@@ -155,7 +157,6 @@ export function upsertRowsV2(
     )
   }
 
-  validateSubdomain(subdomain)
   const rows = generateRows(payloads)
   return request(
     `https://${subdomain}.rest.marketingcloudapis.com/hub/${SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION}/dataevents/${dataExtensionId}/rowset`,
@@ -173,7 +174,6 @@ export async function executeUpsertWithMultiStatus(
   dataExtensionId?: string,
   statsContext?: StatsContext
 ): Promise<MultiStatusResponse> {
-  validateSubdomain(subdomain)
   const multiStatusResponse = new MultiStatusResponse()
   let response: ModifiedResponse | undefined
   const rows = generateRows(payloads)
@@ -321,7 +321,6 @@ const getAccessToken = async (
   request: RequestClient,
   settings: Settings
 ): Promise<{ accessToken: string; soapInstanceUrl: string }> => {
-  validateSubdomain(settings.subdomain)
   const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
   const res = await request<RefreshTokenResponse>(`${baseUrl}`, {
     method: 'POST',

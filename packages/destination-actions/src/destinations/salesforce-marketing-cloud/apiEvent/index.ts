@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import { eventDefinitionKey, contactKeyAPIEvent, eventData } from '../sfmc-properties'
 import type { Payload } from './generated-types'
 import { SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION } from '../versioning-info'
-import { validateSubdomain } from '../sfmc-operations'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send API Event',
@@ -14,7 +13,6 @@ const action: ActionDefinition<Settings, Payload> = {
     data: eventData
   },
   perform: (request, { settings, payload }) => {
-    validateSubdomain(settings.subdomain)
     return request(
       `https://${settings.subdomain}.rest.marketingcloudapis.com/interaction/${SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION}/events`,
       {

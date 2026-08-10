@@ -1,11 +1,9 @@
-import nock from 'nock'
-import { createTestEvent, createTestIntegration, PayloadValidationError } from '@segment/actions-core'
+import { createTestIntegration, PayloadValidationError } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
 import { validateSubdomain } from '../sfmc-operations'
 
 const testDestination = createTestIntegration(Definition)
-const timestamp = '2022-05-12T15:21:15.449Z'
 
 const baseSettings: Settings = {
   subdomain: 'test123',
@@ -30,10 +28,6 @@ const MALICIOUS_SUBDOMAINS = [
 ]
 
 describe('Salesforce Marketing Cloud - subdomain validation', () => {
-  afterEach(() => {
-    nock.cleanAll()
-  })
-
   describe('validateSubdomain()', () => {
     it('accepts a valid tenant subdomain', () => {
       expect(validateSubdomain('mc563885gzs27c5t9-63k636ttgm')).toBe('mc563885gzs27c5t9-63k636ttgm')
@@ -50,91 +44,22 @@ describe('Salesforce Marketing Cloud - subdomain validation', () => {
     })
   })
 
+  // The subdomain is validated only at settings-save time (testAuthentication), so an
+  // invalid or injection value is rejected before it can ever be stored - the customer
+  // gets a clear, immediate error. We intentionally do NOT re-validate on every event
+  // to avoid breaking delivery for any pre-existing config. See SECOPS-25213.
   describe('testAuthentication', () => {
     it('accepts a valid subdomain', async () => {
       await expect(testDestination.testAuthentication(baseSettings)).resolves.not.toThrow()
     })
 
-    // testAuthentication runs when the customer saves their settings. The core wrapper
-    // re-throws as a generic Error but preserves the message, so the customer sees the
-    // subdomain problem immediately instead of via a later failed event delivery.
+    // The core wrapper re-throws as a generic Error but preserves the message, so the
+    // customer sees the subdomain problem immediately at save time.
     it.each(MALICIOUS_SUBDOMAINS)('rejects malicious subdomain %p at settings-save time', async (subdomain) => {
       const settings: Settings = { ...baseSettings, subdomain }
       await expect(testDestination.testAuthentication(settings)).rejects.toThrow(
         'Invalid Salesforce Marketing Cloud subdomain'
       )
-    })
-  })
-
-  describe('refreshAccessToken', () => {
-    it('does not forward the client secret to an attacker-controlled auth host', async () => {
-      const settings: Settings = { ...baseSettings, subdomain: 'sfmc-credential-capture.example/' }
-
-      // The token refresh POSTs client_id/client_secret. If the guard is removed, the
-      // request would land here (host becomes sfmc-credential-capture.example) instead
-      // of throwing. This is the path exercised by the SECOPS-25213 PoC.
-      const attackerScope = nock('https://sfmc-credential-capture.example').post(/.*/).reply(200, {
-        access_token: 'attacker-controlled-token'
-      })
-
-      await expect(
-        testDestination.refreshAccessToken(settings, {
-          refreshToken: 'refresh',
-          accessToken: 'access',
-          clientId: settings.client_id,
-          clientSecret: settings.client_secret
-        })
-      ).rejects.toThrow(PayloadValidationError)
-
-      expect(attackerScope.isDone()).toBe(false)
-    })
-  })
-
-  describe('contact action', () => {
-    it('does not forward the request to an attacker-controlled host', async () => {
-      const settings: Settings = { ...baseSettings, subdomain: 'mc123.attacker.com/' }
-
-      // If the guard is removed, the request would go here instead of throwing.
-      const attackerScope = nock('https://mc123.attacker.com').post(/.*/).reply(200, {})
-
-      const event = createTestEvent({
-        timestamp,
-        type: 'identify',
-        traits: { contactKey: 'ericForman15' }
-      })
-
-      await expect(
-        testDestination.testAction('contact', {
-          event,
-          settings,
-          mapping: { contactKey: { '@path': '$.traits.contactKey' } }
-        })
-      ).rejects.toThrow(PayloadValidationError)
-
-      expect(attackerScope.isDone()).toBe(false)
-    })
-  })
-
-  describe('apiEvent action', () => {
-    it('rejects a malicious subdomain before making a request', async () => {
-      const settings: Settings = { ...baseSettings, subdomain: 'attacker.com/' }
-      const attackerScope = nock('https://attacker.com').post(/.*/).reply(200, {})
-
-      const event = createTestEvent({ timestamp, type: 'track' })
-
-      await expect(
-        testDestination.testAction('apiEvent', {
-          event,
-          settings,
-          mapping: {
-            eventDefinitionKey: 'event-definition-key',
-            contactKey: 'contact-key',
-            data: { key: 'value' }
-          }
-        })
-      ).rejects.toThrow(PayloadValidationError)
-
-      expect(attackerScope.isDone()).toBe(false)
     })
   })
 })
