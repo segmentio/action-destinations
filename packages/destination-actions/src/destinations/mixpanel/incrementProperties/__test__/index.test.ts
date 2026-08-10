@@ -81,7 +81,7 @@ describe('Mixpanel.incrementProperties', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        projectToken: MIXPANEL_PROJECT_TOKEN
+        projectToken: MIXPANEL_PROJECT_TOKEN,
       }
     })
 
@@ -111,7 +111,7 @@ describe('Mixpanel.incrementProperties', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        projectToken: MIXPANEL_PROJECT_TOKEN
+        projectToken: MIXPANEL_PROJECT_TOKEN,
       }
     })
 
@@ -151,7 +151,7 @@ describe('Mixpanel.incrementProperties', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        projectToken: MIXPANEL_PROJECT_TOKEN
+        projectToken: MIXPANEL_PROJECT_TOKEN,
       }
     })
 

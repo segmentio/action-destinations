@@ -346,8 +346,7 @@ export const formatBingFault = (fault: BingFaultResponse | undefined): string =>
   const errors = [...(fault?.Errors ?? []), ...(fault?.OperationErrors ?? [])]
   const parts = errors.map((e) => {
     const message = e?.Message ?? 'No error message provided'
-    const capped =
-      message.length > MAX_FAULT_MESSAGE_LENGTH ? `${message.slice(0, MAX_FAULT_MESSAGE_LENGTH)}…` : message
+    const capped = message.length > MAX_FAULT_MESSAGE_LENGTH ? `${message.slice(0, MAX_FAULT_MESSAGE_LENGTH)}…` : message
     return `${e?.ErrorCode ?? 'UnknownError'}: ${capped}`
   })
   if (fault?.TrackingId) {

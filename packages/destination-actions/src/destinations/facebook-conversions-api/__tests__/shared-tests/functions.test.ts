@@ -370,18 +370,18 @@ describe('FacebookConversionsApi', () => {
   })
 
   describe('getApiVersion', () => {
-    it('should return the canary API version', async () => {
-      const features = {
-        'facebook-capi-actions-canary-version': true
-      }
-      const version = getApiVersion(features, {} as StatsContext)
-      expect(version).toEqual(CANARY_API_VERSION)
+      it('should return the canary API version', async () => {
+        const features = {
+          'facebook-capi-actions-canary-version': true
+        }
+        const version = getApiVersion(features, {} as StatsContext)
+        expect(version).toEqual(CANARY_API_VERSION)
+      })
+  
+      it('should return the regular API version', async () => {
+        const features = {}
+        const version = getApiVersion(features, {} as StatsContext)
+        expect(version).toEqual(API_VERSION)
+      })
     })
-
-    it('should return the regular API version', async () => {
-      const features = {}
-      const version = getApiVersion(features, {} as StatsContext)
-      expect(version).toEqual(API_VERSION)
-    })
-  })
 })

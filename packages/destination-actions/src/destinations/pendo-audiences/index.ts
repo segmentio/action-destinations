@@ -14,7 +14,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     fields: {
       integrationKey: {
         label: 'Integration Key',
-        description: 'Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.',
+        description:
+          'Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.',
         type: 'password',
         required: true
       },
@@ -48,7 +49,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     audienceName: {
       label: 'Pendo Segment Name',
-      description: 'The name for the Pendo Segment. Leave blank to use the Segment audience name.',
+      description:
+        'The name for the Pendo Segment. Leave blank to use the Segment audience name.',
       type: 'string',
       required: false
     }
@@ -75,10 +77,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId: segmentId }
     },
     async getAudience(request, getAudienceInput) {
-      const {
-        externalId,
-        settings: { region }
-      } = getAudienceInput
+      const { externalId, settings: { region } } = getAudienceInput
       const segmentId = await getSegment(request, region, externalId)
       return { externalId: segmentId }
     }

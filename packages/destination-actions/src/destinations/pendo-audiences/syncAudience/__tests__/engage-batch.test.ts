@@ -127,12 +127,7 @@ describe('Pendo Audiences - syncAudience', () => {
         })
 
       const responses = await testDestination.executeBatch('syncAudience', {
-        events: [
-          makeEvent('user1', true),
-          makeEvent('user2', false),
-          makeEvent('user3', true),
-          makeEvent('user4', false)
-        ],
+        events: [makeEvent('user1', true), makeEvent('user2', false), makeEvent('user3', true), makeEvent('user4', false)],
         settings,
         mapping: batchMapping
       })
@@ -215,11 +210,7 @@ describe('Pendo Audiences - syncAudience', () => {
           userId: 'user2',
           properties: {}, // computation_key missing from properties → membership undeterminable
           context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: SEGMENT_ID
-            }
+            personas: { computation_class: 'audience', computation_key: 'test_audience', external_audience_id: SEGMENT_ID }
           }
         })
       ]
@@ -261,11 +252,7 @@ describe('Pendo Audiences - syncAudience', () => {
           userId: 'user1',
           traits: { test_audience: true, customId: 'user1' },
           context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: SEGMENT_ID
-            }
+            personas: { computation_class: 'audience', computation_key: 'test_audience', external_audience_id: SEGMENT_ID }
           }
         }),
         createTestEvent({
@@ -273,11 +260,7 @@ describe('Pendo Audiences - syncAudience', () => {
           userId: 'user2',
           traits: { test_audience: true }, // no customId → visitorId resolves to undefined
           context: {
-            personas: {
-              computation_class: 'audience',
-              computation_key: 'test_audience',
-              external_audience_id: SEGMENT_ID
-            }
+            personas: { computation_class: 'audience', computation_key: 'test_audience', external_audience_id: SEGMENT_ID }
           }
         })
       ]

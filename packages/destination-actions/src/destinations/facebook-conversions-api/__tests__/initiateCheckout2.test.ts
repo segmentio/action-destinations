@@ -15,6 +15,7 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout2', () => {
     it('should throw an error for invalid syncMode', async () => {

@@ -15,6 +15,7 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+
 describe('purchase', () => {
   describe('purchase', () => {
     it('should handle a basic event', async () => {

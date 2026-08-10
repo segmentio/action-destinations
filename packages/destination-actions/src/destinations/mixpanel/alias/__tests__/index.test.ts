@@ -104,7 +104,7 @@ describe('Mixpanel.alias', () => {
       event,
       useDefaultMappings: true,
       settings: {
-        projectToken: MIXPANEL_PROJECT_TOKEN
+        projectToken: MIXPANEL_PROJECT_TOKEN,
       }
     })
     expect(responses.length).toBe(1)

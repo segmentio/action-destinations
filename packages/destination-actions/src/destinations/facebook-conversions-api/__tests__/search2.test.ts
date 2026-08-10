@@ -15,6 +15,7 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+
 describe('FacebookConversionsApi', () => {
   describe('Search', () => {
     it('should throw an error if unsupported syncMode is included', async () => {

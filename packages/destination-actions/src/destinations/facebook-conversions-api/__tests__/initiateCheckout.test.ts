@@ -15,6 +15,7 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout', () => {
     it('should handle basic mapping overrides', async () => {

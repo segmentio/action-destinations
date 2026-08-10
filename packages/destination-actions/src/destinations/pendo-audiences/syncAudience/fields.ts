@@ -22,8 +22,7 @@ export const fields: Record<string, InputField> = {
   },
   enable_batching: {
     label: 'Batch events',
-    description:
-      'When enabled, events are batched and sent to Pendo using the batch patch endpoint (up to 1000 visitors per request).',
+    description: 'When enabled, events are batched and sent to Pendo using the batch patch endpoint (up to 1000 visitors per request).',
     type: 'boolean',
     required: true,
     default: true

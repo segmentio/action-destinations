@@ -15,6 +15,7 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+
 describe('FacebookConversionsApi', () => {
   describe('ViewContent2', () => {
     it('should throw an error if syncMode is invalid', async () => {

@@ -972,11 +972,7 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (
-  payload: UserListPayload,
-  syncMode?: string,
-  audienceMembership?: AudienceMembership
-) => {
+const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
