@@ -1428,7 +1428,10 @@ describe('Braze.ecommerce', () => {
               ],
               total_value: 100,
               checkout_id: 'checkout_id_1',
-              cart_id: 'cart_id_1'
+              cart_id: 'cart_id_1',
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6
             },
             _update_existing_only: true
           },
