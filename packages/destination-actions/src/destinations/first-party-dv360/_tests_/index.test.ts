@@ -106,21 +106,21 @@ describe('Audience Destination', () => {
 
   // Edit Customer Match Members - Contact Info List
   describe('Edit Customer Match Members - Contact Info List', () => {
-    const payloadContactInfo = {
-      emails: 'test@gmail.com',
-      phoneNumbers: '1234567890',
-      zipCodes: '12345',
-      firstName: 'John',
-      lastName: 'Doe',
-      countryCode: '+1'
-    }
-
     const event = createTestEvent({
       event: 'Audience Entered',
       type: 'track',
       properties: {},
+      traits: {
+        phone: '1234567890',
+        zipCodes: '12345',
+        firstName: 'John',
+        lastName: 'Doe',
+        countryCode: '+1'
+      },
       context: {
-        traits: payloadContactInfo,
+        traits: {
+          email: 'test@gmail.com'
+        },
         personas: {
           external_audience_id: 'audience-id-123',
           audience_settings: {
