@@ -54,6 +54,11 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
+    testAuthentication: async (_request, { settings }) => {
+      // Validate the subdomain at settings-save time so the customer gets a clear,
+      // immediate error instead of a failed event delivery later. See SECOPS-25213.
+      validateSubdomain(settings.subdomain)
+    },
     refreshAccessToken: async (request, { settings }) => {
       validateSubdomain(settings.subdomain)
       const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`

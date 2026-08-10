@@ -50,6 +50,22 @@ describe('Salesforce Marketing Cloud - subdomain validation', () => {
     })
   })
 
+  describe('testAuthentication', () => {
+    it('accepts a valid subdomain', async () => {
+      await expect(testDestination.testAuthentication(baseSettings)).resolves.not.toThrow()
+    })
+
+    // testAuthentication runs when the customer saves their settings. The core wrapper
+    // re-throws as a generic Error but preserves the message, so the customer sees the
+    // subdomain problem immediately instead of via a later failed event delivery.
+    it.each(MALICIOUS_SUBDOMAINS)('rejects malicious subdomain %p at settings-save time', async (subdomain) => {
+      const settings: Settings = { ...baseSettings, subdomain }
+      await expect(testDestination.testAuthentication(settings)).rejects.toThrow(
+        'Invalid Salesforce Marketing Cloud subdomain'
+      )
+    })
+  })
+
   describe('refreshAccessToken', () => {
     it('does not forward the client secret to an attacker-controlled auth host', async () => {
       const settings: Settings = { ...baseSettings, subdomain: 'sfmc-credential-capture.example/' }
