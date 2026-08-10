@@ -1,7 +1,7 @@
 {
   "name": "@segment/actions-shared",
   "description": "Shared destination action methods and definitions.",
-  "version": "1.162.0",
+  "version": "1.163.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -41,7 +41,7 @@
     "cheerio": "^1.0.0-rc.10",
     "dayjs": "^1.10.7",
     "escape-goat": "^3",
-    "liquidjs": "^10.25.7",
+    "liquidjs": "^10.27.2",
     "lodash": "^4.18.1"
   },
   "jest": {
