@@ -1,0 +1,32 @@
+{
+  "slug": "actions-bing-ads-audiences",
+  "name": "Bing Ads Audiences",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {}
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {},
+    "supportsAudienceFunctions": false
+  },
+  "actions": {
+    "syncAudiences": {
+      "title": "Sync Audiences",
+      "description": "Sync users to Bing Ads",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}

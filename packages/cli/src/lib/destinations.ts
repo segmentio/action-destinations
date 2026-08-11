@@ -58,6 +58,13 @@ export const getManifest: () => Record<string, CloudManifest | BrowserManifest> 
       }
 
       objValue.definition.actions[actionKey] = action
+
+      const cloudDef = objValue.definition as any
+      for (const [settingsKey, setting] of Object.entries((srcValue as any).definition?.settings ?? {})) {
+        if (cloudDef.authentication) {
+          cloudDef.authentication.fields[settingsKey] = setting
+        }
+      }
     }
 
     return objValue

@@ -8,4 +8,8 @@ export const FACEBOOK_CUSTOM_AUDIENCE_FLAGON = 'facebook-custom-audience-actions
 
 export const FACEBOOK_CUSTOM_AUDIENCE_JOURNEYS_FLAGON = 'facebook-custom-audience-actions-journeys-support'
 
+// When enabled, a phone that normalizes to an empty string (e.g. '+0000000000') is
+// discarded to '' instead of throwing 'Cannot hash an empty string' and failing the whole batch.
+export const FLAGON_NAME_BATCH_DISCARD_FIX = 'fb-custom-audience-batch-discard-fix'
+
 export const BASE_URL = 'https://graph.facebook.com'
