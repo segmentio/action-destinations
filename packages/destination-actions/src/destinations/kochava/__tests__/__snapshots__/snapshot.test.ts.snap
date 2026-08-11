@@ -1,0 +1,95 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-kochava destination: event action - all fields 1`] = `
+Object {
+  "action": "event",
+  "data": Object {
+    "app_tracking_transparency": Object {
+      "att": false,
+      "att_detail": "c)30knD9jX&cI",
+      "att_duration": 1955441609277.44,
+      "att_time": 1955441609277.44,
+    },
+    "app_version": "c)30knD9jX&cI",
+    "currency": "AMD",
+    "device_ids": Object {
+      "adid": "c)30knD9jX&cI",
+      "android_id": "c)30knD9jX&cI",
+      "idfa": "c)30knD9jX&cI",
+      "idfv": "c)30knD9jX&cI",
+    },
+    "device_limit_tracking": true,
+    "device_ua": "c)30knD9jX%26cI",
+    "device_ver": "c)30knD9jX&cI",
+    "event_data": Object {
+      "testType": "c)30knD9jX&cI",
+    },
+    "event_name": "c)30knD9jX&cI",
+    "origination_ip": "c)30knD9jX&cI",
+    "usertime": 1612137600,
+  },
+  "kochava_app_id": "c)30knD9jX&cI",
+  "kochava_device_id": "c)30knD9jX&cI",
+}
+`;
+
+exports[`Testing snapshot for actions-kochava destination: event action - required fields 1`] = `
+Object {
+  "action": "event",
+  "data": Object {
+    "device_ids": Object {
+      "adid": "c)30knD9jX&cI",
+      "android_id": "c)30knD9jX&cI",
+      "idfa": "c)30knD9jX&cI",
+      "idfv": "c)30knD9jX&cI",
+    },
+    "event_name": "c)30knD9jX&cI",
+  },
+  "kochava_app_id": "c)30knD9jX&cI",
+  "kochava_device_id": "c)30knD9jX&cI",
+}
+`;
+
+exports[`Testing snapshot for actions-kochava destination: install action - all fields 1`] = `
+Object {
+  "action": "install",
+  "data": Object {
+    "ad_services_token": "2m*qGXENfE",
+    "app_tracking_transparency": Object {
+      "att": true,
+      "att_detail": "2m*qGXENfE",
+      "att_duration": -32716306922864.64,
+      "att_time": -32716306922864.64,
+    },
+    "app_version": "2m*qGXENfE",
+    "device_ids": Object {
+      "adid": "2m*qGXENfE",
+      "android_id": "2m*qGXENfE",
+      "idfa": "2m*qGXENfE",
+      "idfv": "2m*qGXENfE",
+    },
+    "device_ua": "2m*qGXENfE",
+    "device_ver": "2m*qGXENfE",
+    "origination_ip": "2m*qGXENfE",
+    "usertime": 1612137600,
+  },
+  "kochava_app_id": "2m*qGXENfE",
+  "kochava_device_id": "2m*qGXENfE",
+}
+`;
+
+exports[`Testing snapshot for actions-kochava destination: install action - required fields 1`] = `
+Object {
+  "action": "install",
+  "data": Object {
+    "device_ids": Object {
+      "adid": "2m*qGXENfE",
+      "android_id": "2m*qGXENfE",
+      "idfa": "2m*qGXENfE",
+      "idfv": "2m*qGXENfE",
+    },
+  },
+  "kochava_app_id": "2m*qGXENfE",
+  "kochava_device_id": "2m*qGXENfE",
+}
+`;
