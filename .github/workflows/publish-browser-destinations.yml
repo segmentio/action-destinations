@@ -11,7 +11,7 @@ on:
 jobs:
   detect-browser-destination-changes:
     if: startsWith(github.event.head_commit.message, 'Publish') == true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-large
     permissions:
       actions: read
       contents: read
