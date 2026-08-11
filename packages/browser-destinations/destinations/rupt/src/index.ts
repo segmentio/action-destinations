@@ -63,7 +63,7 @@ export const destination: BrowserDestinationDefinition<Settings, Rupt> = {
   initialize: async (_, deps) => {
     try {
       await deps.loadScript('https://cdn.rupt.dev/js/rupt.js')
-      await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Rupt'), 500)
+      await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'Rupt'), 1000)
       return window.Rupt
     } catch (error) {
       throw new Error('Failed to load Rupt. ' + error)
