@@ -2,10 +2,7 @@
   "slug": "actions-display-video-360",
   "name": "Display and Video 360 (Actions)",
   "mode": "cloud",
-  "authentication": {
-    "scheme": "oauth2",
-    "fields": {}
-  },
+  "authentication": null,
   "audienceConfig": {
     "mode": {
       "type": "synced",

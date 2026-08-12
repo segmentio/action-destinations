@@ -14,10 +14,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
   slug: 'actions-display-video-360',
   mode: 'cloud',
-  authentication: {
-    scheme: 'oauth2',
-    fields: {}
-  },
   audienceFields: {
     advertiserId: {
       type: 'string',
