@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-rupt",
-  "version": "1.96.0",
+  "version": "1.96.1-staging-2502b0281.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
