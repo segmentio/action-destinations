@@ -95,7 +95,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.emails"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -121,7 +131,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.phoneNumbers"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -147,7 +167,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.zipCodes"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.zipCodes"
+              },
+              "then": {
+                "@path": "$.traits.zipCodes"
+              },
+              "else": {
+                "@path": "$.properties.zipCodes"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -173,7 +203,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.firstName"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -199,7 +239,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.lastName"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -225,7 +275,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits..countryCode"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.countryCode"
+              },
+              "then": {
+                "@path": "$.traits.countryCode"
+              },
+              "else": {
+                "@path": "$.properties.countryCode"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -503,7 +563,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.emails"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -529,7 +599,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.phoneNumbers"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -555,7 +635,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.zipCodes"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.zipCodes"
+              },
+              "then": {
+                "@path": "$.traits.zipCodes"
+              },
+              "else": {
+                "@path": "$.properties.zipCodes"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -581,7 +671,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.firstName"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -607,7 +707,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.lastName"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -633,7 +743,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits..countryCode"
+            "@if": {
+              "exists": {
+                "@path": "$.traits.countryCode"
+              },
+              "then": {
+                "@path": "$.traits.countryCode"
+              },
+              "else": {
+                "@path": "$.properties.countryCode"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -899,22 +1019,82 @@
       "partnerAction": "addToAudContactInfo",
       "mapping": {
         "emails": {
-          "@path": "$.context.traits.emails"
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
         },
         "phoneNumbers": {
-          "@path": "$.context.traits.phoneNumbers"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
         },
         "zipCodes": {
-          "@path": "$.context.traits.zipCodes"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
         },
         "firstName": {
-          "@path": "$.context.traits.firstName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
         },
         "lastName": {
-          "@path": "$.context.traits.lastName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
         },
         "countryCode": {
-          "@path": "$.context.traits..countryCode"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
         },
         "external_id": {
           "@path": "$.context.personas.external_audience_id"
@@ -933,22 +1113,82 @@
       "partnerAction": "removeFromAudContactInfo",
       "mapping": {
         "emails": {
-          "@path": "$.context.traits.emails"
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
         },
         "phoneNumbers": {
-          "@path": "$.context.traits.phoneNumbers"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
         },
         "zipCodes": {
-          "@path": "$.context.traits.zipCodes"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
         },
         "firstName": {
-          "@path": "$.context.traits.firstName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
         },
         "lastName": {
-          "@path": "$.context.traits.lastName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
         },
         "countryCode": {
-          "@path": "$.context.traits..countryCode"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
         },
         "external_id": {
           "@path": "$.context.personas.external_audience_id"
@@ -967,22 +1207,82 @@
       "partnerAction": "addToAudContactInfo",
       "mapping": {
         "emails": {
-          "@path": "$.context.traits.emails"
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
         },
         "phoneNumbers": {
-          "@path": "$.context.traits.phoneNumbers"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
         },
         "zipCodes": {
-          "@path": "$.context.traits.zipCodes"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
         },
         "firstName": {
-          "@path": "$.context.traits.firstName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
         },
         "lastName": {
-          "@path": "$.context.traits.lastName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
         },
         "countryCode": {
-          "@path": "$.context.traits..countryCode"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
         },
         "external_id": {
           "@path": "$.context.personas.external_audience_id"
@@ -1001,22 +1301,82 @@
       "partnerAction": "removeFromAudContactInfo",
       "mapping": {
         "emails": {
-          "@path": "$.context.traits.emails"
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
         },
         "phoneNumbers": {
-          "@path": "$.context.traits.phoneNumbers"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
         },
         "zipCodes": {
-          "@path": "$.context.traits.zipCodes"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
         },
         "firstName": {
-          "@path": "$.context.traits.firstName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
         },
         "lastName": {
-          "@path": "$.context.traits.lastName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
         },
         "countryCode": {
-          "@path": "$.context.traits..countryCode"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
         },
         "external_id": {
           "@path": "$.context.personas.external_audience_id"
@@ -1035,22 +1395,82 @@
       "partnerAction": "addToAudContactInfo",
       "mapping": {
         "emails": {
-          "@path": "$.context.traits.emails"
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
         },
         "phoneNumbers": {
-          "@path": "$.context.traits.phoneNumbers"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
         },
         "zipCodes": {
-          "@path": "$.context.traits.zipCodes"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
         },
         "firstName": {
-          "@path": "$.context.traits.firstName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
         },
         "lastName": {
-          "@path": "$.context.traits.lastName"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
         },
         "countryCode": {
-          "@path": "$.context.traits..countryCode"
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
         },
         "external_id": {
           "@path": "$.context.personas.external_audience_id"
