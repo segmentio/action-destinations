@@ -30,6 +30,10 @@ const payload = {
     cart_id: 'cart_id_1',
     checkout_id: 'checkout_id_1',
     total: 100.0,
+    subtotal: 85.0,
+    tax: 9.0,
+    shipping: 6.0,
+    action: 'replace',
     discount: 10,
     discount_items: [
       {
@@ -99,25 +103,29 @@ const mapping = {
   order_id: { '@path': '$.properties.order_id' },
   cart_id: { '@path': '$.properties.cart_id' },
   total_value: { '@path': '$.properties.total' },
+  action: { '@path': '$.properties.action' },
+  subtotal_value: { '@path': '$.properties.subtotal' },
+  tax: { '@path': '$.properties.tax' },
+  shipping: { '@path': '$.properties.shipping' },
   total_discounts: { '@path': '$.properties.discount' },
   discounts: { '@path': '$.properties.discount_items' },
   currency: { '@path': '$.properties.currency' },
   source: { '@path': '$.properties.source' },
   products: {
-    '@arrayPath': [
-      '$.properties.products',
-      {
-        product_id: { '@path': '$.product_id' },
-        product_name: { '@path': '$.name' },
-        variant_id: { '@path': '$.variant' },
-        image_url: { '@path': '$.image_url' },
-        product_url: { '@path': '$.url' },
-        quantity: { '@path': '$.quantity' },
-        price: { '@path': '$.price' },
-        color: { '@path': '$.color' },
-        size: { '@path': '$.size' }
-      }
-    ]
+      '@arrayPath': [
+          '$.properties.products',
+          {
+              product_id: { '@path': '$.product_id' },
+              product_name: { '@path': '$.name' },
+              variant_id: { '@path': '$.variant'},
+              image_url: {'@path': '$.image_url'},
+              product_url: {'@path': '$.url'},
+              quantity: {'@path': '$.quantity'},
+              price: {'@path': '$.price'},
+              color: { '@path': '$.color' },
+              size: { '@path': '$.size' }
+          }
+      ]
   },
   product: {
     product_id: { '@path': '$.properties.product.product_id' },
@@ -191,13 +199,16 @@ describe('Braze.ecommerce', () => {
                 }
               ],
               total_value: 100,
-              order_id: 'order_id_1',
+              order_id: "order_id_1",
+              cart_id: "cart_id_1",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               total_discounts: 10,
               discounts: [
                 { code: 'SUMMER21', amount: 5 },
                 { code: 'VIPCUSTOMER', amount: 5 }
               ],
-              cart_id: 'cart_id_1',
               metadata: {
                 custom_field_1: 'custom_value_1',
                 custom_field_2: 100,
@@ -228,6 +239,7 @@ describe('Braze.ecommerce', () => {
     })
 
     it('should send Checkout Started event correctly', async () => {
+
       const mapping2 = {
         ...mapping,
         name: EVENT_NAMES.CHECKOUT_STARTED
@@ -277,8 +289,11 @@ describe('Braze.ecommerce', () => {
                 }
               ],
               total_value: 100,
-              checkout_id: 'checkout_id_1',
-              cart_id: 'cart_id_1',
+              checkout_id: "checkout_id_1",
+              cart_id: "cart_id_1",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               metadata: {
                 custom_field_1: 'custom_value_1',
                 custom_field_2: 100,
@@ -390,6 +405,7 @@ describe('Braze.ecommerce', () => {
     })
 
     it('should send Order Cancelled event correctly', async () => {
+
       const mapping2 = {
         ...mapping,
         name: EVENT_NAMES.ORDER_CANCELLED
@@ -441,6 +457,9 @@ describe('Braze.ecommerce', () => {
               total_value: 100,
               order_id: 'order_id_1',
               cancel_reason: "I didn't like it",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               total_discounts: 10,
               discounts: [
                 { code: 'SUMMER21', amount: 5 },
@@ -462,6 +481,180 @@ describe('Braze.ecommerce', () => {
       }
 
       nock(settings.endpoint).post('/users/track', json).reply(200)
+
+      const response = await testDestination.testAction('ecommerce', {
+        event: e,
+        settings,
+        useDefaultMappings: true,
+        mapping: mapping2
+      })
+
+      expect(response.length).toBe(1)
+    })
+
+    it('should send Cart Updated event with all fields correctly', async () => {
+
+      const mapping2 = {
+        ...mapping,
+        name: EVENT_NAMES.CART_UPDATED
+      }
+
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const e = createTestEvent(deepCopy)
+      delete e.properties?.product
+
+      const json = {
+        events: [
+          {
+            external_id: "userId1",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: {
+              alias_name: "alias_name_1",
+              alias_label: "alias_label_1"
+            },
+            app_id: "test_app_id",
+            name: "ecommerce.cart_updated",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              products: [
+                {
+                  product_id: "prod_1",
+                  product_name: "Product 1",
+                  variant_id: "Size M",
+                  image_url: "https://example.com/prod1.jpg",
+                  quantity: 2,
+                  price: 25,
+                  metadata: {
+                    color: "red",
+                    size: "M"
+                  }
+                },
+                {
+                  product_id: "prod_2",
+                  product_name: "Product 2",
+                  variant_id: "Size L",
+                  image_url: "https://example.com/prod2.jpg",
+                  quantity: 1,
+                  price: 50
+                }
+              ],
+              total_value: 100,
+              cart_id: "cart_id_1",
+              action: "replace",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              }
+            },
+            _update_existing_only: true
+          }
+        ]
+      }
+
+      nock(settings.endpoint)
+        .post('/users/track', json)
+        .reply(200)
+
+      const response = await testDestination.testAction('ecommerce', {
+        event: e,
+        settings,
+        useDefaultMappings: true,
+        mapping: mapping2
+      })
+
+      expect(response.length).toBe(1)
+    })
+
+    it('should send Cart Updated event with minimal fields correctly', async () => {
+
+      const mapping2 = {
+        ...mapping,
+        name: EVENT_NAMES.CART_UPDATED,
+        action: undefined,
+        subtotal_value: undefined,
+        tax: undefined,
+        shipping: undefined
+      }
+
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      delete deepCopy.properties?.action
+      delete deepCopy.properties?.subtotal
+      delete deepCopy.properties?.tax
+      delete deepCopy.properties?.shipping
+      const e = createTestEvent(deepCopy)
+      delete e.properties?.product
+
+      const json = {
+        events: [
+          {
+            external_id: "userId1",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: {
+              alias_name: "alias_name_1",
+              alias_label: "alias_label_1"
+            },
+            app_id: "test_app_id",
+            name: "ecommerce.cart_updated",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              products: [
+                {
+                  product_id: "prod_1",
+                  product_name: "Product 1",
+                  variant_id: "Size M",
+                  image_url: "https://example.com/prod1.jpg",
+                  quantity: 2,
+                  price: 25,
+                  metadata: {
+                    color: "red",
+                    size: "M"
+                  }
+                },
+                {
+                  product_id: "prod_2",
+                  product_name: "Product 2",
+                  variant_id: "Size L",
+                  image_url: "https://example.com/prod2.jpg",
+                  quantity: 1,
+                  price: 50
+                }
+              ],
+              total_value: 100,
+              cart_id: "cart_id_1",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              }
+            },
+            _update_existing_only: true
+          }
+        ]
+      }
+
+      nock(settings.endpoint)
+        .post('/users/track', json)
+        .reply(200)
 
       const response = await testDestination.testAction('ecommerce', {
         event: e,
@@ -519,16 +712,18 @@ describe('Braze.ecommerce', () => {
       const deepCopy2: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy3: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const deepCopy4: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      const deepCopy5: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
 
-      const e1 = createTestEvent({ ...deepCopy1, userId: 'userId1', event: 'ecommerce.order_placed' })
-      const e2 = createTestEvent({ ...deepCopy2, userId: 'userId2', event: 'ecommerce.order_refunded' })
-      const e3 = createTestEvent({ ...deepCopy3, userId: 'userId3', event: 'ecommerce.checkout_started' })
-      const e4 = createTestEvent({ ...deepCopy4, userId: 'userId4', event: 'ecommerce.order_cancelled' })
-      const events = [e1, e2, e3, e4]
+      const e1 = createTestEvent({...deepCopy1, userId: 'userId1', event: 'ecommerce.order_placed' })
+      const e2 = createTestEvent({...deepCopy2, userId: 'userId2', event: 'ecommerce.order_refunded' })
+      const e3 = createTestEvent({...deepCopy3, userId: 'userId3', event: 'ecommerce.checkout_started' })
+      const e4 = createTestEvent({...deepCopy4, userId: 'userId4', event: 'ecommerce.order_cancelled' })
+      const e5 = createTestEvent({...deepCopy5, userId: 'userId5', event: 'ecommerce.cart_updated' })
+      const events = [e1, e2, e3, e4, e5]
 
       const mapping2 = {
         ...mapping,
-        name: { '@path': '$.event' }
+        name: { '@path': '$.event' },
       }
 
       const json = {
@@ -574,13 +769,16 @@ describe('Braze.ecommerce', () => {
                 }
               ],
               total_value: 100,
-              order_id: 'order_id_1',
+              order_id: "order_id_1",
+              cart_id: "cart_id_1",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               total_discounts: 10,
               discounts: [
-                { code: 'SUMMER21', amount: 5 },
-                { code: 'VIPCUSTOMER', amount: 5 }
-              ],
-              cart_id: 'cart_id_1'
+                { code: "SUMMER21", amount: 5 },
+                { code: "VIPCUSTOMER", amount: 5 }
+              ]
             },
             _update_existing_only: true
           },
@@ -675,8 +873,11 @@ describe('Braze.ecommerce', () => {
                 }
               ],
               total_value: 100,
-              checkout_id: 'checkout_id_1',
-              cart_id: 'cart_id_1'
+              checkout_id: "checkout_id_1",
+              cart_id: "cart_id_1",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6
             },
             _update_existing_only: true
           },
@@ -723,11 +924,63 @@ describe('Braze.ecommerce', () => {
               total_value: 100,
               order_id: 'order_id_1',
               cancel_reason: "I didn't like it",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               total_discounts: 10,
               discounts: [
                 { code: 'SUMMER21', amount: 5 },
                 { code: 'VIPCUSTOMER', amount: 5 }
               ]
+            },
+            _update_existing_only: true
+          },
+          {
+            external_id: "userId5",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: { alias_name: "alias_name_1", alias_label: "alias_label_1" },
+            app_id: "test_app_id",
+            name: "ecommerce.cart_updated",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              },
+              products: [
+                {
+                  product_id: "prod_1",
+                  product_name: "Product 1",
+                  variant_id: "Size M",
+                  image_url: "https://example.com/prod1.jpg",
+                  quantity: 2,
+                  price: 25,
+                  metadata: { color: "red", size: "M" }
+                },
+                {
+                  product_id: "prod_2",
+                  product_name: "Product 2",
+                  variant_id: "Size L",
+                  image_url: "https://example.com/prod2.jpg",
+                  quantity: 1,
+                  price: 50
+                }
+              ],
+              total_value: 100,
+              cart_id: "cart_id_1",
+              action: "replace",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6
             },
             _update_existing_only: true
           }
@@ -741,6 +994,8 @@ describe('Braze.ecommerce', () => {
         settings,
         mapping: mapping2
       })
+
+      expect(response.length).toBe(1)
 
       expect(response.length).toBe(1)
     })
@@ -860,8 +1115,11 @@ describe('Braze.ecommerce', () => {
                 }
               ],
               total_value: 100,
-              checkout_id: 'checkout_id_1',
-              cart_id: 'cart_id_1'
+              checkout_id: "checkout_id_1",
+              cart_id: "cart_id_1",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6
             },
             _update_existing_only: true
           },
@@ -908,6 +1166,9 @@ describe('Braze.ecommerce', () => {
               total_value: 100,
               order_id: 'order_id_1',
               cancel_reason: "I didn't like it",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               total_discounts: 10,
               discounts: [
                 { code: 'SUMMER21', amount: 5 },
@@ -1167,7 +1428,10 @@ describe('Braze.ecommerce', () => {
               ],
               total_value: 100,
               checkout_id: 'checkout_id_1',
-              cart_id: 'cart_id_1'
+              cart_id: 'cart_id_1',
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6
             },
             _update_existing_only: true
           },
@@ -1214,6 +1478,9 @@ describe('Braze.ecommerce', () => {
               total_value: 100,
               order_id: 'order_id_1',
               cancel_reason: "I didn't like it",
+              subtotal_value: 85,
+              tax: 9,
+              shipping: 6,
               total_discounts: 10,
               discounts: [
                 { code: 'SUMMER21', amount: 5 },
