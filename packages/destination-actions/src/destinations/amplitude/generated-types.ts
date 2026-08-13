@@ -12,5 +12,5 @@ export interface Settings {
   /**
    * The region to send your data.
    */
-  endpoint?: string
+  endpoint?: string & string[]
 }
