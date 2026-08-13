@@ -91,6 +91,7 @@ const destination: DestinationDefinition<Settings> = {
         description: 'The region to send your data.',
         type: 'string',
         format: 'text',
+        multiple: false,
         choices: [
           {
             label: 'North America',
