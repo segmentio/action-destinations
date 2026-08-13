@@ -1,4 +1,4 @@
-// no op change for @segment/actions-core
+// no op change-2 for @segment/actions-core
 export { Destination, fieldsToJsonSchema } from './destination-kit'
 export { getAuthData } from './destination-kit/parse-settings'
 export { transform, Features } from './mapping-kit'
