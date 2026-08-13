@@ -1,0 +1,77 @@
+{
+  "slug": "actions-iqm",
+  "name": "Iqm",
+  "mode": "cloud",
+  "description": "Send Segment events to IQM",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "pixel_id": {
+        "label": "Pixel ID",
+        "description": "The Pixel ID for your IQM Conversion.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "postEvent": {
+      "title": "Post Event",
+      "description": "Post a user event to IQM",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "data": {
+          "label": "Data",
+          "description": "The data to be sent to IQM",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$."
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send an event to IQM",
+      "type": "automatic",
+      "partnerAction": "postEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "data": {
+          "@path": "$."
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

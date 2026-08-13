@@ -370,12 +370,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     }
 
     linkedinApiClient.setConversionRuleId(conversionRuleId)
-
-    try {
-      return linkedinApiClient.batchConversionAdd(payloads)
-    } catch (error) {
-      throw handleRequestError(error)
-    }
+    return linkedinApiClient.batchConversionAdd(payloads)
   }
 }
 
@@ -404,6 +399,10 @@ function handleRequestError(error: unknown) {
 }
 
 function validate(payload: Payload, conversionTime: number) {
+  if (!Number.isFinite(conversionTime)) {
+    throw new PayloadValidationError('Timestamp is not a valid date.')
+  }
+
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
   if (conversionTime < ninetyDaysAgo) {
