@@ -30,7 +30,7 @@
         "description": "The region to send your data.",
         "type": "string",
         "required": false,
-        "multiple": false,
+        "multiple": true,
         "choices": [
           {
             "label": "North America",
