@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze-cloud-plugins",
-  "version": "1.122.1-staging-0b96f5c74.0",
+  "version": "1.122.1-staging-2e9ee86c4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -20,8 +20,8 @@
   },
   "typings": "./dist/esm",
   "dependencies": {
-    "@segment/analytics-browser-actions-braze": "1.122.1-staging-0b96f5c74.0",
-    "@segment/browser-destination-runtime": "1.106.1-staging-0b96f5c74.0"
+    "@segment/analytics-browser-actions-braze": "1.122.1-staging-2e9ee86c4.0",
+    "@segment/browser-destination-runtime": "1.106.1-staging-2e9ee86c4.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"
