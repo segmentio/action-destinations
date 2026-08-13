@@ -16,3 +16,5 @@ playwright-report
 # NX
 .nx/cache
 .nx/workspace-data
+# Internal-only Buildkite steps (pasted into the Buildkite UI; never committed)
+.buildkite/
