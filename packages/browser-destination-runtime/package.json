@@ -1,6 +1,6 @@
 {
   "name": "@segment/browser-destination-runtime",
-  "version": "1.106.1-staging-0b96f5c74.0",
+  "version": "1.106.1-staging-2e9ee86c4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -67,7 +67,7 @@
     }
   },
   "dependencies": {
-    "@segment/actions-core": "3.177.1-staging-0b96f5c74.0"
+    "@segment/actions-core": "3.177.1-staging-2e9ee86c4.0"
   },
   "devDependencies": {
     "@segment/analytics-next": "*"
