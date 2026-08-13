@@ -462,10 +462,10 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       expect(error.status).toBe(400)
     })
 
-    it('throws a non-retryable error on 404 (segment not found)', async () => {
+    it('throws a retryable error on 404 (segment just created, not available yet)', async () => {
       const error = await performWithStatus(404).catch((e) => e)
-      expect(error.code).not.toBe('RETRYABLE_ERROR')
-      expect(error.status).toBe(404)
+      expect(error.code).toBe('RETRYABLE_ERROR')
+      expect(error.status).toBe(429)
     })
 
     // LinkedIn's batch-style endpoint returns HTTP 200 even when the single company fails,

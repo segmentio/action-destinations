@@ -207,6 +207,16 @@ function handleRequestError(status: number, statsContext: StatsContext | undefin
     )
   }
 
+  // A freshly created DMP segment is not immediately available for company updates: LinkedIn
+  // documents a short propagation delay and returns 404 "Could not find DMP segment with ID ..."
+  // until it is ready. Retry so the now-existing segment resolves on a subsequent attempt.
+  if (status === 404) {
+    throw new RetryableError(
+      `LinkedIn DMP Company Segment is not available yet. It may have just been created. This event will be retried.${suffix}`,
+      429
+    )
+  }
+
   if (RETRYABLE_STATUSES.includes(status)) {
     throw new RetryableError(
       `Transient error while syncing to the LinkedIn DMP Company Segment. This event will be retried.${suffix}`,
