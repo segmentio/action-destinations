@@ -1,0 +1,217 @@
+# Paste this into cdp-action-destinations -> Settings -> Steps (Buildkite UI).
+# Internal-only publish to Twilio's NPM Artifactory, run manually alongside
+# (not instead of) the existing public npmjs.org release in
+# .github/workflows/publish.yml (Lerna + GitHub OIDC trusted publishing).
+#
+# Deliberately lives ONLY here in Buildkite, not as a committed file in
+# segmentio/action-destinations (public repo) -- this avoids putting internal
+# Twilio infra details (Artifactory hostname, ECR account, plugin refs,
+# secret name) into a public, OSS-contributor-visible tree. Buildkite still
+# checks out the real action-destinations source at build time regardless of
+# where this step definition lives (see pipeline's Repository setting).
+#
+# Only three packages are published to Artifactory, each renamed with an
+# "-internal" suffix (@segment/actions-core-internal,
+# @segment/actions-shared-internal, @segment/action-destinations-internal) --
+# these are exactly what the `integrations` repo consumes via npm aliases.
+# Their package.json hardcodes `publishConfig.registry` to registry.npmjs.org,
+# so the Publish step rewrites it to the Artifactory URL and appends the suffix
+# in the ephemeral checkout only -- nothing is committed or pushed back to
+# GitHub. Publishing is done with a direct `npm publish` per package (no
+# Lerna): see the whitelist comment on the Publish step for the full rationale.
+#
+# Hardened Twilio agents (general-039) block public npm/yarn registry
+# egress, so install also routes through virtual-npm-twilio, which
+# aggregates the public thirdparty proxy and serves private @segment/*
+# packages (same registry used for install and publish, per the
+# action-cli / action-emitters Buildkite pipelines).
+#
+# NOTE: every literal `$` below is doubled ($$) on purpose -- Buildkite
+# interpolates $VAR/${VAR} in this YAML at upload time, so a single $ would
+# be swallowed before the runtime shell (or the embedded Node script) ever
+# sees it.
+
+env:
+  # NOTE: no nested env-var reference here (e.g. NODE_IMAGE: '${ECR_REGISTRY}/...').
+  # Build #2 failed with "docker: invalid reference format" because Buildkite's
+  # interpolation of the pipeline's static `configuration` (set via the Pipelines
+  # API) does NOT resolve one env: entry referencing another -- ECR_REGISTRY came
+  # back empty, leaving a bare leading slash. This works fine when a pipeline.yml
+  # is dynamically uploaded via `buildkite-agent pipeline upload` (see
+  # action-emitters' pipeline.twilio.yml, which uses the same nested pattern) but
+  # not for a pipeline's initial static Steps config -- so the full path is
+  # inlined directly instead.
+  NODE_IMAGE: '018537234677.dkr.ecr.us-east-1.amazonaws.com/docker.io/library/node:22.18.0-bookworm'
+  ARTIFACTORY_NPM: 'https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/'
+  # Build #3 failed: playwright-webkit's postinstall tries to download a WebKit
+  # browser binary from cdn.playwright.dev / Microsoft's CDN, which the hardened
+  # agent's egress blocks (ECONNRESET / connect timeout). We only need `yarn
+  # build`, not browser tests, so skip the download entirely.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+agents:
+  queue: general-039
+
+steps:
+  - label: ':yarn: Build'
+    key: 'build'
+    timeout_in_minutes: 30
+    command: |
+      node --version
+      npm config set registry "$${ARTIFACTORY_NPM}"
+      yarn config set registry "$${ARTIFACTORY_NPM}"
+      sed -i "s#https://registry.yarnpkg.com/#$${ARTIFACTORY_NPM}#g" yarn.lock
+      yarn install --frozen-lockfile --network-concurrency 1
+      if [ -n "$${PUBLISH_SCOPE:-}" ]; then
+        echo "--- Build ($${PUBLISH_SCOPE} and its dependency graph only)"
+        NODE_ENV=production yarn nx build "$${PUBLISH_SCOPE}"
+      else
+        echo "--- Build (all packages)"
+        NODE_ENV=production yarn build
+      fi
+    plugins:
+      - docker#v5.13.0:
+          image: '${NODE_IMAGE}'
+          propagate-environment: true
+          environment:
+            - CI=true
+            - HUSKY=0
+            - ARTIFACTORY_NPM
+            - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+            - PUBLISH_SCOPE
+
+  - wait: ~
+
+  - block: ':rocket: Publish to NPM Artifactory'
+    prompt: "Publish action-destinations packages to Twilio's NPM Artifactory? Confirm the weekly version-bump has already landed on main."
+    branches: 'main,staging'
+
+  - label: ':artifactory: Publish to Artifactory'
+    key: 'publish'
+    if: build.branch == "main" || build.branch == "staging"
+    timeout_in_minutes: 30
+    plugins:
+      - twilio-internal/admiral-secret#v0.1.0:
+          realm: corp-us1
+          secrets:
+            - key-full: NPM_ARTIFACTORY_SECRET
+              secret-name: jobs_jenkins_npm_credentials
+      - twilio-internal/npm-artifactory#v1.1.0:
+          secret-name: 'NPM_ARTIFACTORY_SECRET'
+          scope: '@segment'
+      - docker#v5.13.0:
+          image: '${NODE_IMAGE}'
+          propagate-environment: true
+          environment:
+            - CI=true
+            - HUSKY=0
+            - ARTIFACTORY_NPM
+            - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD
+            - PUBLISH_SCOPE
+            - PUBLISH_TEST_VERSION
+            - PUBLISH_FORCE
+            - BUILDKITE_BRANCH
+    command: |
+      npm config set registry "$${ARTIFACTORY_NPM}"
+      yarn config set registry "$${ARTIFACTORY_NPM}"
+      sed -i "s#https://registry.yarnpkg.com/#$${ARTIFACTORY_NPM}#g" yarn.lock
+      yarn install --frozen-lockfile --network-concurrency 1
+      if [ -n "$${PUBLISH_SCOPE:-}" ]; then
+        echo "--- Build ($${PUBLISH_SCOPE} and its dependency graph only)"
+        NODE_ENV=production yarn nx build "$${PUBLISH_SCOPE}"
+      else
+        echo "--- Build (all packages)"
+        NODE_ENV=production yarn build
+      fi
+      echo "--- Rewriting publishConfig.registry -> Artifactory + appending -internal suffix (this checkout only)"
+      # NOTE: the docker-buildkite-plugin runs this command under /bin/sh
+      # (dash on the node:bookworm image), not bash -- doing the whole patch
+      # as one Node script avoids bash-only constructs. It prints the list of
+      # published package directories (one per line) to stdout; the per-file
+      # log lines go to stderr so they never land in the captured value.
+      #
+      # WHITELIST -- only these three packages are ever published to
+      # Artifactory, and each is renamed with an "-internal" suffix:
+      #     packages/core                -> @segment/actions-core-internal
+      #     packages/actions-shared      -> @segment/actions-shared-internal
+      #     packages/destination-actions -> @segment/action-destinations-internal
+      # The suffix keeps the internal build unambiguously distinct from the
+      # public npmjs.org package of the same base name. The `integrations`
+      # repo (the only consumer of these Artifactory packages) npm-aliases
+      # exactly these three to their -internal versions; everything else it
+      # needs (e.g. @segment/destination-subscriptions) resolves via
+      # virtual-npm-twilio's public-npmjs mirror side, so nothing else is
+      # published here. browser-destinations, warehouse-destinations,
+      # browser-destination-runtime and destinations-manifest are therefore
+      # NOT published to Artifactory at all.
+      #
+      # The list is ordered dependency-first (core, actions-shared,
+      # destination-actions) so a package's internal deps land on Artifactory
+      # before its dependents publish. Internal cross-package dependency
+      # ranges (e.g. action-destinations' dependency on @segment/actions-core)
+      # are intentionally left un-suffixed: `integrations` dedupes them onto
+      # the top-level -internal alias at the same version, so the original
+      # names never need to exist separately.
+      #
+      # PUBLISH_SCOPE (matched against the ORIGINAL, un-suffixed name) narrows
+      # the run to a single package; if set but not one of the three, the run
+      # fails. PUBLISH_TEST_VERSION (only applied together with PUBLISH_SCOPE)
+      # overrides that package's version before publish -- needed because
+      # virtual-npm-twilio also proxies public npmjs, so testing against a
+      # real current version can never prove the private publish path works
+      # (the "already published" check would match via the public mirror). A
+      # version guaranteed not to exist publicly (e.g. 3.497.0-twilio-internal-test.1)
+      # proves it.
+      publish_dirs="$$(REGISTRY="$${ARTIFACTORY_NPM}" SCOPE="$${PUBLISH_SCOPE:-}" TEST_VERSION="$${PUBLISH_TEST_VERSION:-}" node -e '
+        const fs = require("fs");
+        const path = require("path");
+        const registry = process.env.REGISTRY;
+        const scope = process.env.SCOPE || "";
+        const testVersion = process.env.TEST_VERSION || "";
+        // Ordered dependency-first. This IS the complete publish whitelist.
+        const WHITELIST = ["core", "actions-shared", "destination-actions"];
+        const dirs = [];
+        for (const sub of WHITELIST) {
+          const dir = path.join("packages", sub);
+          const file = path.join(dir, "package.json");
+          const pkg = JSON.parse(fs.readFileSync(file, "utf8"));
+          const originalName = pkg.name;
+          if (scope && originalName !== scope) continue;
+          pkg.publishConfig = pkg.publishConfig || {};
+          pkg.publishConfig.registry = registry;
+          pkg.name = originalName + "-internal";
+          if (scope && testVersion) pkg.version = testVersion;
+          fs.writeFileSync(file, JSON.stringify(pkg, null, 2) + "\n");
+          console.error("  " + originalName + "@" + pkg.version + " -> " + pkg.name + " @ " + registry);
+          dirs.push(dir);
+        }
+        process.stdout.write(dirs.join("\n"));
+      ')"
+      if [ -n "$${PUBLISH_SCOPE:-}" ] && [ -z "$$publish_dirs" ]; then
+        echo "No package matched PUBLISH_SCOPE=$${PUBLISH_SCOPE} (must be one of @segment/actions-core, @segment/actions-shared, @segment/action-destinations)" >&2
+        exit 1
+      fi
+      if [ "$${BUILDKITE_BRANCH}" = "staging" ]; then
+        dist_tag="canary"
+      else
+        dist_tag="latest"
+      fi
+      # Publish each whitelisted package directly from its directory (no lerna
+      # -- there are no workspace:/file: deps for lerna to resolve, and npm
+      # publish honors the same prepublishOnly build hook). A per-iteration
+      # subshell isolates the cd; `|| exit 1` propagates any publish failure so
+      # the step fails loudly. Idempotent: skips versions already on
+      # Artifactory unless PUBLISH_FORCE=true.
+      for dir in $$publish_dirs; do
+        (
+          cd "$$dir"
+          pkg_name="$$(node -p 'require("./package.json").name')"
+          pkg_version="$$(node -p 'require("./package.json").version')"
+          if [ "$${PUBLISH_FORCE:-}" != "true" ] && npm view "$${pkg_name}@$${pkg_version}" version --registry "$${ARTIFACTORY_NPM}" >/dev/null 2>&1; then
+            echo "$${pkg_name}@$${pkg_version} already published to Artifactory -- skipping"
+          else
+            echo "--- Publishing $${pkg_name}@$${pkg_version} (tag $${dist_tag}) from $${dir}"
+            npm publish --registry "$${ARTIFACTORY_NPM}" --tag "$${dist_tag}"
+          fi
+        ) || exit 1
+      done
