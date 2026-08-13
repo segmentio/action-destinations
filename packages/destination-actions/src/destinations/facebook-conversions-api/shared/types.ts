@@ -218,7 +218,6 @@ export interface UserData {
   fb_login_id?: number
   partner_id?: string
   partner_name?: string
-  ctwa_clid?: string
 }
 
 export type Content = {

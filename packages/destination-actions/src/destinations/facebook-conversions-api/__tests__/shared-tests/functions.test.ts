@@ -10,7 +10,7 @@ import {
   getUserData
 } from '../../shared/functions'
 import { EventType, FEATURE_FLAG_APPEND_VALUE } from '../../shared/constants'
-import { CustomEventData, PurchaseEventData } from '../../shared/types'
+import { CustomEventData } from '../../shared/types'
 
 const basePayload = {
   event_time: '1631210000',
@@ -553,9 +553,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw when is_append_event is true but flag is OFF', () => {
-      expect(() => getCustomEventData(customPayload, {})).toThrow(
-        'AppendValue is not enabled for this destination'
-      )
+      expect(() => getCustomEventData(customPayload, {})).toThrow('AppendValue is not enabled for this destination')
     })
 
     it('should return normal CustomEventData when is_append_event is false', () => {
@@ -594,9 +592,7 @@ describe('FacebookConversionsApi', () => {
     })
 
     it('should throw when is_append_event is true but flag is OFF', () => {
-      expect(() => getPurchaseEventData(purchasePayload, {})).toThrow(
-        'AppendValue is not enabled for this destination'
-      )
+      expect(() => getPurchaseEventData(purchasePayload, {})).toThrow('AppendValue is not enabled for this destination')
     })
 
     it('should return normal PurchaseEventData when is_append_event is false', () => {
@@ -622,8 +618,7 @@ describe('FacebookConversionsApi', () => {
         anonId: '  anon-456  ',
         madId: '  mad-789  ',
         partner_id: '  partner-1  ',
-        partner_name: '  Meta  ',
-        ctwa_clid: '  click-id-123  '
+        partner_name: '  Meta  '
       }
 
       const result = getUserData(userData)
@@ -637,48 +632,32 @@ describe('FacebookConversionsApi', () => {
       expect(result.madid).toBe('mad-789')
       expect(result.partner_id).toBe('partner-1')
       expect(result.partner_name).toBe('Meta')
-      expect(result.ctwa_clid).toBe('click-id-123')
     })
 
     it('should exclude fields that are empty strings', () => {
       const userData = {
         email: 'test@test.com',
         client_ip_address: '',
-        fbc: '',
-        ctwa_clid: ''
+        fbc: ''
       }
 
       const result = getUserData(userData)
 
       expect(result).not.toHaveProperty('client_ip_address')
       expect(result).not.toHaveProperty('fbc')
-      expect(result).not.toHaveProperty('ctwa_clid')
     })
 
     it('should exclude fields that are whitespace-only strings', () => {
       const userData = {
         email: 'test@test.com',
         client_ip_address: '   ',
-        fbc: ' \t ',
-        ctwa_clid: '  '
+        fbc: ' \t '
       }
 
       const result = getUserData(userData)
 
       expect(result).not.toHaveProperty('client_ip_address')
       expect(result).not.toHaveProperty('fbc')
-      expect(result).not.toHaveProperty('ctwa_clid')
-    })
-
-    it('should include ctwa_clid when it is a valid non-empty string', () => {
-      const userData = {
-        email: 'test@test.com',
-        ctwa_clid: 'valid-click-id'
-      }
-
-      const result = getUserData(userData)
-
-      expect(result.ctwa_clid).toBe('valid-click-id')
     })
 
     it('should preserve numeric fields without trimming', () => {
