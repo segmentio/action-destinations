@@ -22,7 +22,7 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
 
   settings: {
     websiteId: {
-      description: 'Your website ID (given in Screeb app).',
+      description: 'Your website ID, found in the Screeb app under Settings > Install.',
       label: 'Website ID',
       type: 'string',
       required: true
@@ -71,7 +71,6 @@ export const destination: BrowserDestinationDefinition<Settings, Screeb> = {
 
     await deps.loadScript('https://t.screeb.app/tag.js')
     await deps.resolveWhen(() => window.$screeb !== preloadFunction, 500)
-
 
     let visitorId: ID = null
     if (analytics && typeof analytics.user === 'function' && analytics.user().id) {
