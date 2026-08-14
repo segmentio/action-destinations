@@ -19,7 +19,7 @@ export interface FlatProperties {
 }
 
 export interface HeapTrackEvent {
-  event: string 
+  event: string
   user_identifier: UserIdentifier // ≥1 key
   custom_properties?: FlatProperties
   idempotency_key?: string // ≥8 chars
@@ -36,8 +36,15 @@ export interface TrackJSON {
 /** POST /api/integrations/add_user_properties */
 export interface AddUserPropertiesJSON {
   app_id: string // required
-  identity: string // required
-  properties: {
-    [k: string]: string | number | boolean | null // required
-  }
+  library: 'server' // required, "server"
+  users: [
+    {
+      user_identifier: {
+        identity: string // required
+      }
+      custom_properties: {
+        [k: string]: string | number | boolean | null // required
+      }
+    }
+  ]
 }

@@ -27,8 +27,15 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   if (hasUserTraits && trimmedIdentity !== undefined) {
     const json: AddUserPropertiesJSON = {
       app_id: appId,
-      identity: trimmedIdentity,
-      properties: flat(traits)
+      library: HEAP_LIBRARY,
+      users: [
+        {
+          user_identifier: {
+            identity: trimmedIdentity
+          },
+          custom_properties: flat(traits)
+        }
+      ]
     }
 
     requests.push(
@@ -122,5 +129,3 @@ export const getEventName = ({ type, event }: { type?: string; event?: string })
       return event || 'track'
   }
 }
-
-

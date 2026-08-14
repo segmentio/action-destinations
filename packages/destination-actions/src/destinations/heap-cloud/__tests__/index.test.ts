@@ -61,8 +61,13 @@ describe('Heap Cloud', () => {
       expect(responses.length).toBe(2)
       expect(profile.value).toStrictEqual({
         app_id: APP_ID,
-        identity: 'user-1',
-        properties: { name: 'Katherine Johnson', email: 'kj@example.com' }
+        library: 'server',
+        users: [
+          {
+            user_identifier: { identity: 'user-1' },
+            custom_properties: { name: 'Katherine Johnson', email: 'kj@example.com' }
+          }
+        ]
       })
       expect(track.value).toStrictEqual({
         app_id: APP_ID,
@@ -265,8 +270,13 @@ describe('Heap Cloud', () => {
       expect(responses.length).toBe(1)
       expect(profile.value).toStrictEqual({
         app_id: APP_ID,
-        identity: 'user-1',
-        properties: { name: 'Katherine Johnson', plan: 'pro' }
+        library: 'server',
+        users: [
+          {
+            user_identifier: { identity: 'user-1' },
+            custom_properties: { name: 'Katherine Johnson', plan: 'pro' }
+          }
+        ]
       })
     })
   })
@@ -291,8 +301,13 @@ describe('Heap Cloud', () => {
       expect(responses.length).toBe(2)
       expect(profile.value).toStrictEqual({
         app_id: APP_ID,
-        identity: 'user-1',
-        properties: { name: 'Katherine Johnson' }
+        library: 'server',
+        users: [
+          {
+            user_identifier: { identity: 'user-1' },
+            custom_properties: { name: 'Katherine Johnson' }
+          }
+        ]
       })
       expect(track.value).toStrictEqual({
         app_id: APP_ID,
@@ -322,9 +337,7 @@ describe('Heap Cloud', () => {
         context: {}
       })
 
-      await expect(run(event)).rejects.toThrow(
-        'At least one of Identity, Anonymous ID, User ID or Email is required.'
-      )
+      await expect(run(event)).rejects.toThrow('At least one of Identity, Anonymous ID, User ID or Email is required.')
     })
 
     it('throws when an identify call has no identity', async () => {
