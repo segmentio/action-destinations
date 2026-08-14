@@ -3,6 +3,7 @@ import type { Settings } from './generated-types'
 import { actionDefinition as sendSms } from './sendSms'
 import { actionDefinition as sendWhatsApp } from './sendWhatsApp'
 import { actionDefinition as sendMobilePush } from './sendMobilePush'
+import { validateTwilioHostname } from './utils'
 
 const getRange = (val: number): { value: number; label: string }[] => {
   return Array(val)
@@ -167,7 +168,7 @@ export const destinationDefinition: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: (request, options) => {
-      const hostName = options.settings.twilioHostname ?? 'api.twilio.com'
+      const hostName = validateTwilioHostname(options.settings.twilioHostname ?? 'api.twilio.com')
       return request(`https://${hostName}/2010-04-01`)
     }
   },

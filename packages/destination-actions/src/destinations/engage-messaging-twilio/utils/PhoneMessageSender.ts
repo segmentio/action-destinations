@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { TwilioMessageSender, TwilioPayloadBase } from './TwilioMessageSender'
+import { TwilioMessageSender, TwilioPayloadBase, validateTwilioHostname } from './TwilioMessageSender'
 import { OperationDecorator, TrackedError, OperationContext, ExtId } from '@segment/actions-shared'
 
 /**
@@ -14,7 +14,7 @@ export abstract class PhoneMessageSender<Payload extends PhoneMessagePayload> ex
   abstract getBody(phone: string): Promise<URLSearchParams>
 
   get twilioHostname() {
-    return this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME
+    return validateTwilioHostname(this.settings.twilioHostname ?? this.DEFAULT_HOSTNAME)
   }
   get twilioToken() {
     return Buffer.from(`${this.settings.twilioApiKeySID}:${this.settings.twilioApiKeySecret}`).toString('base64')
