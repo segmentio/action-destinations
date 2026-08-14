@@ -25,7 +25,11 @@ export const emails: InputField = {
   description: `A list of the user's emails. If not already hashed, the system will hash them before use.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits.emails'
+    '@if': {
+      exists: { '@path': '$.context.traits.email' },
+      then: { '@path': '$.context.traits.email' },
+      else: { '@path': '$.traits.email' }
+    }
   },
   category: 'hashedPII'
 }
@@ -35,7 +39,11 @@ export const phoneNumbers: InputField = {
   description: `A list of the user's phone numbers. If not already hashed, the system will hash them before use.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits.phoneNumbers'
+    '@if': {
+      exists: { '@path': '$.traits.phone' },
+      then: { '@path': '$.traits.phone' },
+      else: { '@path': '$.properties.phone' }
+    }
   },
   category: 'hashedPII'
 }
@@ -45,7 +53,11 @@ export const zipCodes: InputField = {
   description: `A list of the user's zip codes.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits.zipCodes'
+    '@if': {
+      exists: { '@path': '$.traits.zipCodes' },
+      then: { '@path': '$.traits.zipCodes' },
+      else: { '@path': '$.properties.zipCodes' }
+    }
   }
 }
 
@@ -54,7 +66,11 @@ export const firstName: InputField = {
   description: `The user's first name. If not already hashed, the system will hash it before use.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits.firstName'
+    '@if': {
+      exists: { '@path': '$.traits.firstName' },
+      then: { '@path': '$.traits.firstName' },
+      else: { '@path': '$.properties.firstName' }
+    }
   },
   category: 'hashedPII'
 }
@@ -64,7 +80,11 @@ export const lastName: InputField = {
   description: `The user's last name. If not already hashed, the system will hash it before use.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits.lastName'
+    '@if': {
+      exists: { '@path': '$.traits.lastName' },
+      then: { '@path': '$.traits.lastName' },
+      else: { '@path': '$.properties.lastName' }
+    }
   },
   category: 'hashedPII'
 }
@@ -74,7 +94,11 @@ export const countryCode: InputField = {
   description: `The country code of the user.`,
   type: 'string',
   default: {
-    '@path': '$.context.traits..countryCode'
+    '@if': {
+      exists: { '@path': '$.traits.countryCode' },
+      then: { '@path': '$.traits.countryCode' },
+      else: { '@path': '$.properties.countryCode' }
+    }
   }
 }
 

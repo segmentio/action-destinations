@@ -192,7 +192,7 @@
         },
         "signed_up_at": {
           "label": "Signed Up Timestamp",
-          "description": "The time specified for when a contact signed up.",
+          "description": "The time specified for when a contact signed up. Accepts ISO 8601 date-time or a UTC Unix timestamp (in seconds). Segment will convert to Unix if not already converted.",
           "type": "datetime",
           "required": false,
           "multiple": false,
@@ -216,7 +216,7 @@
         },
         "last_seen_at": {
           "label": "Last Seen Timestamp",
-          "description": "The time when the contact was last seen.",
+          "description": "The time when the contact was last seen. Accepts ISO 8601 date-time or a UTC Unix timestamp (in seconds). Segment will convert to Unix if not already converted.",
           "type": "datetime",
           "required": false,
           "multiple": false,
