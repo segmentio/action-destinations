@@ -272,6 +272,86 @@ describe('CustomerIO', () => {
           type: 'person'
         })
       })
+
+      it('should succeed with mapping of preset and Entities Audience Entered event (presets)', async () => {
+        const userId = 'abc123'
+        const name = 'Audience Entered'
+        const data = {
+          audience_key: 'sneakers_buyers',
+          audience_name: 'Sneakers Buyers',
+          sneakers_buyers: true
+        }
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          event: name,
+          userId,
+          properties: data,
+          timestamp
+        })
+        const mapping = {
+          ...getDefaultMappings('trackEvent'),
+          convert_timestamp: false,
+          data: {
+            '@path': '$.properties'
+          }
+        }
+        const response = await action('trackEvent', { event, mapping, settings })
+
+        expect(response).toEqual({
+          action: 'event',
+          id: event.messageId,
+          identifiers: {
+            id: userId
+          },
+          name,
+          attributes: {
+            ...data,
+            anonymous_id: event.anonymousId
+          },
+          timestamp: dayjs.utc(timestamp).unix(),
+          type: 'person'
+        })
+      })
+
+      it('should succeed with mapping of preset and Entities Exited event (presets)', async () => {
+        const userId = 'abc123'
+        const name = 'Audience Exited'
+        const data = {
+          audience_key: 'sneakers_buyers',
+          audience_name: 'Sneakers Buyers',
+          sneakers_buyers: false
+        }
+        const timestamp = dayjs.utc().toISOString()
+        const event = createTestEvent({
+          event: name,
+          userId,
+          properties: data,
+          timestamp
+        })
+        const mapping = {
+          ...getDefaultMappings('trackEvent'),
+          convert_timestamp: false,
+          data: {
+            '@path': '$.properties'
+          }
+        }
+        const response = await action('trackEvent', { event, mapping, settings })
+
+        expect(response).toEqual({
+          action: 'event',
+          id: event.messageId,
+          identifiers: {
+            id: userId
+          },
+          name,
+          attributes: {
+            ...data,
+            anonymous_id: event.anonymousId
+          },
+          timestamp: dayjs.utc(timestamp).unix(),
+          type: 'person'
+        })
+      })
     })
   })
 })

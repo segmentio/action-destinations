@@ -9,7 +9,7 @@ import {
   IntegrationError
 } from '@segment/actions-core'
 import { BASE_URL } from './constants'
-import { SyncAudiencePayload, PartialError, Action, Identifier } from './types'
+import { SyncAudiencePayload, PartialError, Action, Identifier, BingFaultResponse } from './types'
 
 /**
  * Hashes an email address using the SHA-256 algorithm and returns the result as a hexadecimal string.
@@ -157,15 +157,52 @@ export const handleMultistatusResponse = (
   })
 }
 
+// Bing auth error codes whose fix is a token refresh (105 = invalid, 109 = expired). Normalizing
+// these to HTTP 401 makes the framework's OAuth retry (destination-kit shouldRetry -> handleAuthError)
+// refresh the token and retry. 106 (no access to the entity) is excluded: a refresh can't grant
+// access, so it's surfaced as its real error instead.
+// Docs: https://learn.microsoft.com/en-us/advertising/guides/handle-service-errors-exceptions
+const REFRESHABLE_AUTH_ERROR_CODES = new Set([105, 109])
+
 /**
- * Handles HTTP errors by parsing the error response and updating the provided `msResponse`
- * object with error details for each affected payload index.
+ * Normalizes a Bing fault into the status + message we record per item. This is what fixes the
+ * original bug: Bing's fault body has NO top-level `status` field (verified against a real expired-
+ * token response: `{"Errors":[{"Code":109,...}],"TrackingId":...,"Type":"AdApiFaultDetail"}`), so the
+ * old code's `errorResponse.status` was always `undefined`. The framework only refreshes when a
+ * multistatus entry has `status === 401`, so an expired-token 401 was recorded as `undefined` and the
+ * refresh never fired. We now record the REAL HTTP status (`error.response.status`) instead.
  *
- * @param msResponse - The response object that supports setting error responses at specific indices.
- * @param error - The HTTP error object containing the response to be parsed.
- * @param listItemsMap - A map of payload identifiers to their corresponding indices in the payload array.
- * @param payload - The array of payloads that were attempted to be sent.
- * @returns A promise that resolves when all error responses have been set.
+ * We additionally force 401 for refreshable auth codes (105/109) even if the HTTP status isn't 401.
+ * In practice the REST API returns 401 for an expired token, so this is a defensive hedge for Bing's
+ * SOAP-era contract (errors as HTTP 500 — see the docs link on REFRESHABLE_AUTH_ERROR_CODES) in case
+ * an auth fault ever arrives on a non-401 status. Handles both AdApiFaultDetail (`Errors`) and
+ * ApiFaultDetail (`OperationErrors`).
+ */
+export const parseBingFault = (
+  fault: BingFaultResponse | undefined,
+  httpStatus: number | undefined,
+  fallbackMessage: string
+): { status: number; errormessage: string; trackingId?: string; refreshable: boolean } => {
+  // Inspect ALL errors, not just the first: Bing can return a multi-error fault where the auth
+  // code isn't in position 0. Coerce Code with Number() since JSON may deliver it as a string.
+  const errors = [...(fault?.Errors ?? []), ...(fault?.OperationErrors ?? [])]
+  // `refreshable` is true ONLY when a 105/109 code is actually present — this is what should drive a
+  // token refresh, NOT a bare 401 status (a 106/no-access or bodyless 401 can't be fixed by a refresh).
+  const refreshable = errors.some((e) => e.Code !== undefined && REFRESHABLE_AUTH_ERROR_CODES.has(Number(e.Code)))
+  const status = refreshable ? 401 : httpStatus ?? 500
+
+  const firstError = errors[0]
+  const code = firstError?.Code !== undefined ? ` (${firstError.Code})` : ''
+  const errormessage = firstError
+    ? `${firstError.ErrorCode ?? 'UnknownError'}${code}: ${firstError.Message ?? fallbackMessage}`
+    : fallbackMessage
+  return { status, errormessage, trackingId: fault?.TrackingId, refreshable }
+}
+
+/**
+ * Records a Bing HTTP failure against every affected payload index. Reads the body defensively
+ * (Bing may return non-JSON / empty bodies) and surfaces the parsed fault, or the raw text when it
+ * isn't the known shape.
  */
 export const handleHttpError = async (
   msResponse: MultiStatusResponse,
@@ -173,17 +210,56 @@ export const handleHttpError = async (
   listItemsMap: Map<string, number[]>,
   payload: Payload[]
 ): Promise<void> => {
-  const errorResponse = await error?.response?.json()
+  // Parse the fault from the UNTRUNCATED body so status normalization (e.g. auth 105/109 -> 401,
+  // which drives token refresh) is never lost to truncation. The request client's after-response
+  // hook already parses JSON bodies into `response.data`, so prefer that; otherwise parse the raw
+  // (untruncated) text.
+  const fault = extractBingFault(error?.response)
+  const { status, errormessage } = parseBingFault(fault, error?.response?.status, error.message)
+  // Summarize the loggable body from the already-parsed fault when we have it — re-reading via
+  // readResponseBody would truncate a large fault mid-JSON and lose the TrackingId/ErrorCode. Only
+  // fall back to the raw (capped) body when the response wasn't the known fault shape.
+  const loggableBody = fault ? formatBingFault(fault) : formatBingErrorBody(await readResponseBody(error?.response))
+
   listItemsMap.forEach((indices) => {
     indices.forEach((index) => {
       msResponse.setErrorResponseAtIndex(index, {
-        status: errorResponse?.status,
-        errormessage: errorResponse?.message || error.message,
+        status,
+        errormessage,
         sent: payload[index] as unknown as JSONLikeObject,
-        body: JSON.stringify(errorResponse)
+        body: loggableBody
       })
     })
   })
+}
+
+// Inspects an HTTP error for a refreshable Bing auth failure (codes 105/109), regardless of the
+// HTTP status Bing returned. Returns the refreshable flag plus the parsed error message so the
+// single-event path can re-throw an InvalidAuthenticationError that carries the Bing ErrorCode/
+// Message (not just the bare HTTP statusText).
+export const inspectAuthError = (error: HTTPError): { refreshable: boolean; errormessage: string } => {
+  const fault = extractBingFault(error?.response)
+  const { refreshable, errormessage } = parseBingFault(fault, error?.response?.status, error.message)
+  return { refreshable, errormessage }
+}
+
+// Pull the parsed Bing fault out of an error response without truncating: prefer the already-parsed
+// `data` from the request client's after-response hook, else parse the untruncated raw text. Never
+// throws — returns undefined when the body isn't the known JSON fault shape.
+const extractBingFault = (response?: ModifiedResponse | Response): BingFaultResponse | undefined => {
+  const data = (response as ModifiedResponse | undefined)?.data
+  if (data && typeof data === 'object') {
+    return data as BingFaultResponse
+  }
+  const content = (response as ModifiedResponse | undefined)?.content
+  if (typeof content === 'string' && content) {
+    try {
+      return JSON.parse(content) as BingFaultResponse
+    } catch {
+      return undefined
+    }
+  }
+  return undefined
 }
 
 // Cap the response body we fold into the error message. Bing (or an intermediary proxy) can
@@ -198,7 +274,7 @@ export const MAX_ERROR_BODY_LENGTH = 2048
  * response stream was cloned) and only falls back to re-reading the stream via `text()`. The
  * result is truncated to a sane length, and falls back to an empty string if the body can't be read.
  */
-export const readResponseBody = async (response?: ModifiedResponse): Promise<string> => {
+export const readResponseBody = async (response?: ModifiedResponse | Response): Promise<string> => {
   if (!response) {
     return ''
   }
@@ -208,7 +284,7 @@ export const readResponseBody = async (response?: ModifiedResponse): Promise<str
   // `content` is the body the request client already read. Reading it avoids re-consuming the
   // response stream (which throws if it was not cloned — see skipResponseCloning). It is usually a
   // string, but handle Buffer / parsed-object shapes too so we don't silently lose Bing's payload.
-  const content = response.content as unknown
+  const content = (response as ModifiedResponse).content as unknown
   if (typeof content === 'string') {
     return truncate(content)
   }
@@ -229,37 +305,56 @@ export const readResponseBody = async (response?: ModifiedResponse): Promise<str
 /**
  * Extracts the debugging-relevant, non-sensitive fields from a Bing Ads error body.
  *
- * Bing failures use the AdApiFaultDetail shape:
- *   { Errors: [{ ErrorCode, Message, Code }], TrackingId, Type }
- * We surface only ErrorCode, Message and TrackingId. The TrackingId is the reference Microsoft
- * support needs to investigate a failure, and none of these fields carry request credentials or
- * PII.
- *
- * We deliberately never return the raw body. If the body isn't the known JSON shape (e.g. an HTML
- * proxy/gateway error page), it could reflect request headers such as the Authorization or
- * DeveloperToken, so we surface a safe placeholder instead — the HTTP status is still included by
- * the caller, which is enough to know it was an unrecognized upstream error.
+ * Bing failures use two envelopes: AdApiFaultDetail nests errors under `Errors`, ApiFaultDetail
+ * under `OperationErrors` — both share the { ErrorCode, Message, Code } shape:
+ *   { Errors | OperationErrors: [{ ErrorCode, Message, Code }], TrackingId, Type }
+ * We surface only ErrorCode, Message and TrackingId — the TrackingId is what Microsoft support
+ * needs to investigate a failure, and these whole-request fault fields don't carry credentials or
+ * identifiers (unlike per-item PartialError free-text, which is redacted elsewhere). If the body
+ * isn't the known shape, we return a fixed placeholder rather than echoing raw text, which could
+ * contain an echoed identifier.
  */
 export const formatBingErrorBody = (rawBody: string): string => {
   if (!rawBody) {
     return 'no response body'
   }
-  const UNRECOGNIZED = 'unrecognized error response'
   try {
-    const parsed = JSON.parse(rawBody) as {
-      Errors?: Array<{ ErrorCode?: string; Message?: string }>
-      TrackingId?: string
-    }
-    const parts = (parsed?.Errors ?? []).map(
-      (e) => `${e?.ErrorCode ?? 'UnknownError'}: ${e?.Message ?? 'No error message provided'}`
-    )
-    if (parsed?.TrackingId) {
-      parts.push(`TrackingId: ${parsed.TrackingId}`)
-    }
-    // Valid JSON but not the known fault shape (no Errors/TrackingId) — don't echo arbitrary fields.
-    return parts.length ? parts.join('; ') : UNRECOGNIZED
+    return formatBingFault(JSON.parse(rawBody) as BingFaultResponse)
   } catch {
-    // Not JSON at all (HTML page, truncated body, etc.) — never echo raw bytes that may be sensitive.
-    return UNRECOGNIZED
+    // Not the known JSON shape (HTML page, truncated body, etc.). Do NOT echo the raw text — Bing
+    // error bodies can echo back the offending identifier (hashed email / CRM id). Surface nothing
+    // beyond the fact that it was unparseable.
+    return 'unparseable response body'
   }
+}
+
+// Per-error Message cap. Bing's own messages are short (~60 chars), but a proxy or an echoed value
+// can be huge; capping each Message individually keeps the high-value ErrorCode + TrackingId from
+// being truncated off the end when one message is oversized.
+const MAX_FAULT_MESSAGE_LENGTH = 512
+
+/**
+ * Summarizes an already-parsed Bing fault into the same ErrorCode/Message/TrackingId string as
+ * formatBingErrorBody. Preferred over re-reading the raw body when the fault is already in hand (see
+ * handleHttpError): a large fault body that readResponseBody would truncate mid-JSON — and thus
+ * render unparseable — still yields a useful summary here. Each Message is capped individually so the
+ * short, high-value ErrorCode and TrackingId always survive, then the whole summary is capped too.
+ */
+export const formatBingFault = (fault: BingFaultResponse | undefined): string => {
+  // Combine both envelopes (same as parseBingFault): `??` alone would drop OperationErrors when
+  // Errors is an empty array (`[]`) rather than null/undefined.
+  const errors = [...(fault?.Errors ?? []), ...(fault?.OperationErrors ?? [])]
+  const parts = errors.map((e) => {
+    const message = e?.Message ?? 'No error message provided'
+    const capped =
+      message.length > MAX_FAULT_MESSAGE_LENGTH ? `${message.slice(0, MAX_FAULT_MESSAGE_LENGTH)}…` : message
+    return `${e?.ErrorCode ?? 'UnknownError'}: ${capped}`
+  })
+  if (fault?.TrackingId) {
+    parts.push(`TrackingId: ${fault.TrackingId}`)
+  }
+  // No recognizable error fields — don't echo arbitrary parsed fields, which could carry an echoed
+  // identifier (PII). Surface only that it was unrecognized.
+  const summary = parts.length ? parts.join('; ') : 'unrecognized response body'
+  return summary.length > MAX_ERROR_BODY_LENGTH ? `${summary.slice(0, MAX_ERROR_BODY_LENGTH)}...(truncated)` : summary
 }
