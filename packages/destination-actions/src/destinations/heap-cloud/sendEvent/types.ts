@@ -1,6 +1,9 @@
 // Request type definitions for Heap's partner integration API.
 // Responses are ignored — the platform handles retries on HTTP errors.
 
+// How object/array values in properties and traits are handled before sending.
+export type NestedMode = 'flatten' | 'stringify' | 'drop'
+
 /**
  * At least one key is required. `user_id` is Heap's own internal numeric ID
  * (numeric string, 0–2^53), NOT an arbitrary Segment userId.

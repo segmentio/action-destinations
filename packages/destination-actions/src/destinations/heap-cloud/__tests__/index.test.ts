@@ -152,6 +152,88 @@ describe('Heap Cloud', () => {
       })
     })
 
+    it('stringifies nested objects and arrays when mode is "stringify"', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Purchase',
+        userId: null,
+        anonymousId: 'anon-1',
+        messageId: 'msg-12345678',
+        timestamp,
+        context: {},
+        properties: { order: { total: 42, currency: 'USD' }, foods: ['cheese', 'beer'], count: 3 }
+      })
+
+      const track = capture(US_URL, TRACK_URI)
+
+      const responses = await testDestination.testAction('sendEvent', {
+        event,
+        useDefaultMappings: true,
+        mapping: { nested_properties_mode: 'stringify' },
+        settings: { appId: APP_ID }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(track.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        events: [
+          {
+            event: 'Purchase',
+            user_identifier: { anonymous_id: 'anon-1' },
+            custom_properties: {
+              segment_library: LIBRARY,
+              order: '{"total":42,"currency":"USD"}',
+              foods: '["cheese","beer"]',
+              count: '3'
+            },
+            idempotency_key: 'msg-12345678',
+            timestamp
+          }
+        ]
+      })
+    })
+
+    it('drops nested objects and arrays when mode is "drop"', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Purchase',
+        userId: null,
+        anonymousId: 'anon-1',
+        messageId: 'msg-12345678',
+        timestamp,
+        context: {},
+        properties: { order: { total: 42, currency: 'USD' }, foods: ['cheese', 'beer'], count: 3 }
+      })
+
+      const track = capture(US_URL, TRACK_URI)
+
+      const responses = await testDestination.testAction('sendEvent', {
+        event,
+        useDefaultMappings: true,
+        mapping: { nested_properties_mode: 'drop' },
+        settings: { appId: APP_ID }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(track.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        events: [
+          {
+            event: 'Purchase',
+            user_identifier: { anonymous_id: 'anon-1' },
+            custom_properties: {
+              segment_library: LIBRARY,
+              count: '3'
+            },
+            idempotency_key: 'msg-12345678',
+            timestamp
+          }
+        ]
+      })
+    })
+
     it('accepts "0" as a valid identity', async () => {
       const event = createTestEvent({
         type: 'track',
@@ -275,6 +357,41 @@ describe('Heap Cloud', () => {
           {
             user_identifier: { identity: 'user-1' },
             custom_properties: { name: 'Katherine Johnson', plan: 'pro' }
+          }
+        ]
+      })
+    })
+
+    it('stringifies nested user properties when mode is "stringify"', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-1',
+        anonymousId: null,
+        messageId: 'msg-12345678',
+        timestamp,
+        traits: { name: 'Katherine Johnson', address: { city: 'Hampton', zip: '23666' } }
+      })
+
+      const profile = capture(US_URL, ADD_USER_PROPERTIES_URI)
+
+      const responses = await testDestination.testAction('sendEvent', {
+        event,
+        useDefaultMappings: true,
+        mapping: { nested_properties_mode: 'stringify' },
+        settings: { appId: APP_ID }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(profile.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        users: [
+          {
+            user_identifier: { identity: 'user-1' },
+            custom_properties: {
+              name: 'Katherine Johnson',
+              address: '{"city":"Hampton","zip":"23666"}'
+            }
           }
         ]
       })

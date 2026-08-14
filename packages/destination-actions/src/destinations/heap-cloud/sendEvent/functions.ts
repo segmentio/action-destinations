@@ -1,12 +1,19 @@
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HEAP_LIBRARY, HEAP_SEGMENT_CLOUD_LIBRARY_NAME, getHeapBaseUrl } from './constants'
-import type { AddUserPropertiesJSON, FlatProperties, HeapTrackEvent, TrackJSON, UserIdentifier } from './types'
+import { DEFAULT_NESTED_MODE, HEAP_LIBRARY, HEAP_SEGMENT_CLOUD_LIBRARY_NAME, getHeapBaseUrl } from './constants'
+import type {
+  AddUserPropertiesJSON,
+  FlatProperties,
+  HeapTrackEvent,
+  NestedMode,
+  TrackJSON,
+  UserIdentifier
+} from './types'
 
 export function send(request: RequestClient, settings: Settings, payload: Payload) {
   const { appId, region } = settings
-  const { identity, type, properties, name, timestamp, message_id, traits } = payload
+  const { identity, type, properties, name, timestamp, message_id, traits, nested_properties_mode } = payload
 
   const baseUrl = getHeapBaseUrl(region)
   const requests: Promise<unknown>[] = []
@@ -33,7 +40,7 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
           user_identifier: {
             identity: trimmedIdentity
           },
-          custom_properties: flat(traits)
+          custom_properties: flat(traits, nested_properties_mode as NestedMode)
         }
       ]
     }
@@ -52,7 +59,7 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
       user_identifier: getUserIdentifier(payload),
       custom_properties: {
         segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
-        ...flat(properties || {}),
+        ...flat(properties || {}, nested_properties_mode as NestedMode),
         ...(hasValue(name) ? { name } : {})
       },
       idempotency_key: message_id,
@@ -76,13 +83,19 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   return Promise.all(requests)
 }
 
-export function flat(data: Payload['properties'], prefix = ''): FlatProperties {
+export function flat(data: Payload['properties'], mode: NestedMode = DEFAULT_NESTED_MODE, prefix = ''): FlatProperties {
   let result: FlatProperties = {}
   for (const key in data) {
-    if (typeof data[key] === 'object' && data[key] !== null) {
-      result = { ...result, ...flat(data[key] as Payload['properties'], prefix + '.' + key) }
+    const value = data[key]
+    const fullKey = (prefix + '.' + key).replace(/^\./, '')
+    if (typeof value === 'object' && value !== null) {
+      if (mode === 'stringify') {
+        result[fullKey] = JSON.stringify(value)
+      } else if (mode !== 'drop') {
+        result = { ...result, ...flat(value as Payload['properties'], mode, prefix + '.' + key) }
+      }
     } else {
-      result[(prefix + '.' + key).replace(/^\./, '')] = stringify(data[key])
+      result[fullKey] = stringify(value)
     }
   }
   return result

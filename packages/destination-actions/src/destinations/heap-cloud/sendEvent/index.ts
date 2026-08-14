@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions'
+import { DEFAULT_NESTED_MODE, NESTED_MODE_CHOICES } from './constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
@@ -93,6 +94,15 @@ const action: ActionDefinition<Settings, Payload> = {
           else: { '@path': '$.traits' }
         }
       }
+    },
+    nested_properties_mode: {
+      label: 'Nested Object & Array Handling',
+      type: 'string',
+      description:
+        'How to handle object and array values in Event Properties and User Properties. "Flatten" (default) expands them into dot-delimited keys (e.g. an_obj.color, foods.0). "Stringify" sends each object or array as a single JSON string. "Drop" removes object and array fields so they are not sent.',
+      choices: NESTED_MODE_CHOICES,
+      default: DEFAULT_NESTED_MODE,
+      required: false
     },
     timestamp: {
       label: 'Timestamp',

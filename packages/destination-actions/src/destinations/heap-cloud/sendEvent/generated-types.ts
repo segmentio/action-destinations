@@ -42,6 +42,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * How to handle object and array values in Event Properties and User Properties. "Flatten" (default) expands them into dot-delimited keys (e.g. an_obj.color, foods.0). "Stringify" sends each object or array as a single JSON string. "Drop" removes object and array fields so they are not sent.
+   */
+  nested_properties_mode?: string
+  /**
    * The timestamp of the event. Defaults to the current time if not provided.
    */
   timestamp?: string | number

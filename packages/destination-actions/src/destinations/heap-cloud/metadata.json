@@ -301,6 +301,43 @@
           "format": null,
           "additionalProperties": false
         },
+        "nested_properties_mode": {
+          "label": "Nested Object & Array Handling",
+          "description": "How to handle object and array values in Event Properties and User Properties. \"Flatten\" (default) expands them into dot-delimited keys (e.g. an_obj.color, foods.0). \"Stringify\" sends each object or array as a single JSON string. \"Drop\" removes object and array fields so they are not sent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "flatten",
+          "choices": [
+            {
+              "label": "Flatten (default)",
+              "value": "flatten"
+            },
+            {
+              "label": "Stringify",
+              "value": "stringify"
+            },
+            {
+              "label": "Drop",
+              "value": "drop"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "timestamp": {
           "label": "Timestamp",
           "description": "The timestamp of the event. Defaults to the current time if not provided.",
@@ -407,6 +444,7 @@
             }
           }
         },
+        "nested_properties_mode": "flatten",
         "timestamp": {
           "@path": "$.timestamp"
         },
