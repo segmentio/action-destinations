@@ -21,6 +21,11 @@ export interface FlatProperties {
   [k: string]: string
 }
 
+// Heap's add_user_properties `custom_properties` preserves primitive types.
+export interface UserProperties {
+  [k: string]: string | number | boolean | null
+}
+
 export interface HeapTrackEvent {
   event: string
   user_identifier: UserIdentifier // ≥1 key
@@ -45,9 +50,7 @@ export interface AddUserPropertiesJSON {
       user_identifier: {
         identity: string // required
       }
-      custom_properties: {
-        [k: string]: string | number | boolean | null // required
-      }
+      custom_properties: UserProperties // required
     }
   ]
 }

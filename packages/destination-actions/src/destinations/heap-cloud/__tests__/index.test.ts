@@ -396,6 +396,33 @@ describe('Heap Cloud', () => {
         ]
       })
     })
+
+    it('preserves number, boolean and null user property values', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-1',
+        anonymousId: null,
+        messageId: 'msg-12345678',
+        timestamp,
+        traits: { plan: 'pro', age: 34, active: true, nickname: null }
+      })
+
+      const profile = capture(US_URL, ADD_USER_PROPERTIES_URI)
+
+      const responses = await run(event)
+
+      expect(responses.length).toBe(1)
+      expect(profile.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        users: [
+          {
+            user_identifier: { identity: 'user-1' },
+            custom_properties: { plan: 'pro', age: 34, active: true, nickname: null }
+          }
+        ]
+      })
+    })
   })
 
   describe('EU region', () => {

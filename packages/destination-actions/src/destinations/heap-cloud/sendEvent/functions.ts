@@ -8,7 +8,8 @@ import type {
   HeapTrackEvent,
   NestedMode,
   TrackJSON,
-  UserIdentifier
+  UserIdentifier,
+  UserProperties
 } from './types'
 
 export function send(request: RequestClient, settings: Settings, payload: Payload) {
@@ -40,7 +41,7 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
           user_identifier: {
             identity: trimmedIdentity
           },
-          custom_properties: flat(traits, nested_properties_mode as NestedMode)
+          custom_properties: flatUserProperties(traits, nested_properties_mode as NestedMode)
         }
       ]
     }
@@ -63,7 +64,7 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
         ...(hasValue(name) ? { name } : {})
       },
       idempotency_key: message_id,
-      ...(timestamp ? { timestamp } : {})
+      ...(timestamp != null ? { timestamp } : {})
     }
 
     const json: TrackJSON = {
@@ -83,19 +84,40 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   return Promise.all(requests)
 }
 
-export function flat(data: Payload['properties'], mode: NestedMode = DEFAULT_NESTED_MODE, prefix = ''): FlatProperties {
-  let result: FlatProperties = {}
+// Track custom_properties: string values only.
+export function flat(data: Payload['properties'], mode: NestedMode = DEFAULT_NESTED_MODE): FlatProperties {
+  return flatten(data, mode, stringify)
+}
+
+// Profile custom_properties: preserve number/boolean/null primitives.
+export function flatUserProperties(
+  data: Payload['properties'],
+  mode: NestedMode = DEFAULT_NESTED_MODE
+): UserProperties {
+  return flatten(data, mode, coerceUserPropertyValue)
+}
+
+function flatten<T>(
+  data: Payload['properties'],
+  mode: NestedMode,
+  leaf: (value: unknown) => T,
+  prefix = ''
+): Record<string, T> {
+  const result: Record<string, T> = {}
   for (const key in data) {
     const value = data[key]
+    if (value === undefined) {
+      continue
+    }
     const fullKey = (prefix + '.' + key).replace(/^\./, '')
     if (typeof value === 'object' && value !== null) {
       if (mode === 'stringify') {
-        result[fullKey] = JSON.stringify(value)
+        result[fullKey] = leaf(JSON.stringify(value))
       } else if (mode !== 'drop') {
-        result = { ...result, ...flat(value as Payload['properties'], mode, prefix + '.' + key) }
+        Object.assign(result, flatten(value as Payload['properties'], mode, leaf, prefix + '.' + key))
       }
     } else {
-      result[fullKey] = stringify(value)
+      result[fullKey] = leaf(value)
     }
   }
   return result
@@ -107,6 +129,13 @@ function stringify(value: unknown): string {
   }
   if (typeof value === 'number' || typeof value === 'boolean') {
     return value.toString()
+  }
+  return JSON.stringify(value)
+}
+
+function coerceUserPropertyValue(value: unknown): string | number | boolean | null {
+  if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value
   }
   return JSON.stringify(value)
 }
