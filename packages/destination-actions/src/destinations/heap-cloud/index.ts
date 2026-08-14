@@ -34,10 +34,31 @@ const destination: DestinationDefinition<Settings> = {
 
   presets: [
     {
-      name: 'Send Calls',
-      subscribe: 'type = "track" or type = "page" or type = "screen" or type = "identify"',
+      name: 'Send Event',
+      subscribe: 'type = "track"',
       partnerAction: 'sendEvent',
-      mapping: defaultValues(sendEvent.fields),
+      mapping: { ...defaultValues(sendEvent.fields), type: 'track', traits: { '@path': '$.context.traits' } },
+      type: 'automatic'
+    },
+    {
+      name: 'Send Page',
+      subscribe: 'type = "page"',
+      partnerAction: 'sendEvent',
+      mapping: { ...defaultValues(sendEvent.fields), type: 'page', traits: { '@path': '$.context.traits' } },
+      type: 'automatic'
+    },
+    {
+      name: 'Send Screen',
+      subscribe: 'type = "screen"',
+      partnerAction: 'sendEvent',
+      mapping: { ...defaultValues(sendEvent.fields), type: 'screen', traits: { '@path': '$.context.traits' } },
+      type: 'automatic'
+    },
+    {
+      name: 'Send User',
+      subscribe: 'type = "identify"',
+      partnerAction: 'sendEvent',
+      mapping: { ...defaultValues(sendEvent.fields), type: 'identify', traits: { '@path': '$.traits' } },
       type: 'automatic'
     }
   ],

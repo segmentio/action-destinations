@@ -24,6 +24,12 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       description:
         'Name of the event. Present on track calls only, limited to 1024 characters. Page and screen calls are sent as "Page viewed" and "Screen viewed".',
+      required: {
+        conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
+      },
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
+      },
       default: {
         '@path': '$.event'
       }
@@ -32,6 +38,13 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Page or Screen Name',
       type: 'string',
       description: 'Name of the page or screen being viewed. Present on page and screen calls only.',
+      depends_on: {
+        match: 'any',
+        conditions: [
+          { fieldKey: 'type', operator: 'is', value: 'page' },
+          { fieldKey: 'type', operator: 'is', value: 'screen' }
+        ]
+      },
       default: {
         '@path': '$.name'
       }
@@ -49,6 +62,9 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Anonymous ID',
       type: 'string',
       description: 'The Segment anonymous ID for the user.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      },
       default: {
         '@path': '$.anonymousId'
       }
@@ -58,13 +74,19 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'string',
       allowNull: true,
       description:
-        'Heap’s own internal numeric user ID (a numeric string between 0 and 2^53). This is not a Segment userId — map the Segment userId to Identity instead.'
+        'Heap’s own internal numeric user ID (a numeric string between 0 and 2^53). This is not a Segment userId — map the Segment userId to Identity instead.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      }
     },
     email: {
       label: 'Email',
       type: 'string',
       format: 'email',
       description: 'The user’s email address, sent as an additional Heap identifier.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      },
       default: {
         '@if': {
           exists: { '@path': '$.email' },
@@ -78,6 +100,9 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       description:
         'An object with key-value properties to associate with the event. Nested objects are flattened and all values are sent to Heap as strings.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      },
       default: {
         '@path': '$.properties'
       }

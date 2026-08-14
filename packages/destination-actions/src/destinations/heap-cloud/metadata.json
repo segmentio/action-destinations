@@ -79,7 +79,15 @@
           "label": "Event Name",
           "description": "Name of the event. Present on track calls only, limited to 1024 characters. Page and screen calls are sent as \"Page viewed\" and \"Screen viewed\".",
           "type": "string",
-          "required": false,
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -90,7 +98,15 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -116,7 +132,21 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "page"
+              },
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "screen"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -168,7 +198,15 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -192,7 +230,15 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -228,7 +274,15 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -254,7 +308,15 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -395,14 +457,12 @@
   },
   "presets": [
     {
-      "name": "Send Calls",
+      "name": "Send Event",
       "type": "automatic",
       "partnerAction": "sendEvent",
-      "subscribe": "type = \"track\" or type = \"page\" or type = \"screen\" or type = \"identify\"",
+      "subscribe": "type = \"track\"",
       "mapping": {
-        "type": {
-          "@path": "$.type"
-        },
+        "type": "track",
         "event": {
           "@path": "$.event"
         },
@@ -432,17 +492,151 @@
           "@path": "$.properties"
         },
         "traits": {
+          "@path": "$.context.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Page",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "type": "page",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
           "@if": {
             "exists": {
-              "@path": "$.context.traits"
+              "@path": "$.email"
             },
             "then": {
-              "@path": "$.context.traits"
+              "@path": "$.email"
             },
             "else": {
-              "@path": "$.traits"
+              "@path": "$.context.traits.email"
             }
           }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.context.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Screen",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "type": "screen",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.email"
+            },
+            "then": {
+              "@path": "$.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.context.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send User",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "type": "identify",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.email"
+            },
+            "then": {
+              "@path": "$.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.traits"
         },
         "nested_properties_mode": "flatten",
         "timestamp": {
