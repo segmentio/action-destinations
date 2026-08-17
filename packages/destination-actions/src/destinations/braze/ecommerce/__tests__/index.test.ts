@@ -1113,8 +1113,6 @@ describe('Braze.ecommerce', () => {
       })
 
       expect(response.length).toBe(1)
-
-      expect(response.length).toBe(1)
     })
 
     it('should return correct multistatus response if there is a bad event', async () => {
