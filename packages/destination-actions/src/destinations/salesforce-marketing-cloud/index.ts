@@ -11,6 +11,7 @@ import dataExtensionV2 from './dataExtensionV2'
 import asyncDataExtension from './asyncDataExtension'
 import contactDataExtensionV2 from './contactDataExtensionV2'
 import { SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION } from './versioning-info'
+import { validateSubdomain } from './sfmc-operations'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -52,6 +53,11 @@ const destination: DestinationDefinition<Settings> = {
         type: 'password',
         required: true
       }
+    },
+    testAuthentication: async (_request, { settings }) => {
+      // Validate the subdomain at settings-save time so the customer gets a clear,
+      // immediate error instead of a failed event delivery later. See SECOPS-25213.
+      validateSubdomain(settings.subdomain)
     },
     refreshAccessToken: async (request, { settings }) => {
       const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
