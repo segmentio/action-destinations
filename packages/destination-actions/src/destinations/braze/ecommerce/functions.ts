@@ -335,13 +335,25 @@ function getProductAndMetadataJSON(payload: Payload): Product[] {
 }
 
 function validate(payload: Payload | SingleProductPayload, isBatch: boolean): string | void {
-  const { braze_id, user_alias, external_id, email, phone } = payload
+  const { name, braze_id, user_alias, external_id, email, phone } = payload
   if (!braze_id && !user_alias && !external_id && !email && !phone) {
     const message = 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'
     if (!isBatch) {
       throw new PayloadValidationError(message)
     } else {
       return message
+    }
+  }
+
+  if (name === EVENT_NAMES.CART_UPDATED) {
+    const { total_value, action } = payload
+    if (typeof total_value !== 'number' && action !== 'add' && action !== 'remove') {
+      const message = 'total_value is required for cart_updated events unless action is "add" or "remove".'
+      if (!isBatch) {
+        throw new PayloadValidationError(message)
+      } else {
+        return message
+      }
     }
   }
 }

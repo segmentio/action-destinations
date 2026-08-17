@@ -6477,16 +6477,11 @@
         },
         "total_value": {
           "label": "Total Value",
-          "description": "Total monetary value of the cart.",
+          "description": "Total monetary value of the cart. Required for checkout and order events. For cart_updated, required unless action is \"add\" or \"remove\".",
           "type": "number",
           "required": {
             "match": "any",
             "conditions": [
-              {
-                "fieldKey": "name",
-                "operator": "is",
-                "value": "ecommerce.cart_updated"
-              },
               {
                 "fieldKey": "name",
                 "operator": "is",
@@ -8440,16 +8435,11 @@
         },
         "total_value": {
           "label": "Total Value",
-          "description": "Total monetary value of the cart.",
+          "description": "Total monetary value of the cart. Required for checkout and order events. For cart_updated, required unless action is \"add\" or \"remove\".",
           "type": "number",
           "required": {
             "match": "any",
             "conditions": [
-              {
-                "fieldKey": "name",
-                "operator": "is",
-                "value": "ecommerce.cart_updated"
-              },
               {
                 "fieldKey": "name",
                 "operator": "is",

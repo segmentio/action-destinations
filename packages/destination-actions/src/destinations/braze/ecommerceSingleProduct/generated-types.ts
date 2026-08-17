@@ -49,7 +49,7 @@ export interface Payload {
    */
   cart_id?: string
   /**
-   * Total monetary value of the cart.
+   * Total monetary value of the cart. Required for checkout and order events. For cart_updated, required unless action is "add" or "remove".
    */
   total_value?: number
   /**
