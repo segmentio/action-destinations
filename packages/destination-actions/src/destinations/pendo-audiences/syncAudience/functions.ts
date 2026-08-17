@@ -171,7 +171,7 @@ function handleError(
   if (!isBatch) {
     if (errType === 'PayloadValidationError') {
       throw new PayloadValidationError(message)
-    } else if (errType === 'InvalidAudienceMembershipError' ) {
+    } else if (errType === 'InvalidAudienceMembershipError') {
       throw new InvalidAudienceMembershipError(message)
     } else {
       throw new IntegrationError(message, getErrorCodeFromHttpStatus(status) || ErrorCodes.UNKNOWN_ERROR, status)
