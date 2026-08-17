@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.169.1-staging-2e9ee86c4.0",
+  "version": "1.169.1-staging-7c2a956ac.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -50,7 +50,7 @@
     "@segment/analytics-browser-actions-replaybird": "1.89.1-staging-2e9ee86c4.0",
     "@segment/analytics-browser-actions-rokt-plugins": "1.15.1-staging-2e9ee86c4.0",
     "@segment/analytics-browser-actions-sabil": "^1.6.0",
-    "@segment/analytics-browser-actions-screeb": "1.108.1-staging-2e9ee86c4.0",
+    "@segment/analytics-browser-actions-screeb": "1.108.1-staging-7c2a956ac.0",
     "@segment/analytics-browser-actions-snap-plugins": "1.89.1-staging-2e9ee86c4.0",
     "@segment/analytics-browser-actions-sprig": "1.107.1-staging-2e9ee86c4.0",
     "@segment/analytics-browser-actions-stackadapt": "1.109.1-staging-2e9ee86c4.0",
