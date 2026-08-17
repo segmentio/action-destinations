@@ -666,6 +666,123 @@ describe('Braze.ecommerce', () => {
       expect(response.length).toBe(1)
     })
 
+    it('should throw an error if total_value is missing for Cart Updated and action is not "add" or "remove"', async () => {
+      const mapping2 = {
+        ...mapping,
+        name: EVENT_NAMES.CART_UPDATED,
+        action: undefined,
+        total_value: undefined
+      }
+
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      delete deepCopy.properties?.total
+      delete deepCopy.properties?.action
+      const e = createTestEvent(deepCopy)
+
+      await expect(
+        testDestination.testAction('ecommerce', {
+          event: e,
+          settings,
+          useDefaultMappings: true,
+          mapping: mapping2
+        })
+      ).rejects.toThrowError(
+        new Error('total_value is required for cart_updated events unless action is "add" or "remove".')
+      )
+    })
+
+    it('should not require total_value for Cart Updated when action is "add"', async () => {
+      const mapping2 = {
+        ...mapping,
+        name: EVENT_NAMES.CART_UPDATED,
+        action: 'add',
+        total_value: undefined,
+        subtotal_value: undefined,
+        tax: undefined,
+        shipping: undefined
+      }
+
+      const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
+      delete deepCopy.properties?.total
+      delete deepCopy.properties?.subtotal
+      delete deepCopy.properties?.tax
+      delete deepCopy.properties?.shipping
+      if (deepCopy.properties) {
+        deepCopy.properties.action = 'add'
+      }
+      const e = createTestEvent(deepCopy)
+      delete e.properties?.product
+
+      const json = {
+        events: [
+          {
+            external_id: "userId1",
+            braze_id: "braze_id_1",
+            email: "email@email.com",
+            phone: "+14155551234",
+            user_alias: {
+              alias_name: "alias_name_1",
+              alias_label: "alias_label_1"
+            },
+            app_id: "test_app_id",
+            name: "ecommerce.cart_updated",
+            time: "2024-06-10T12:00:00.000Z",
+            properties: {
+              currency: "USD",
+              source: "test_source",
+              products: [
+                {
+                  product_id: "prod_1",
+                  product_name: "Product 1",
+                  variant_id: "Size M",
+                  image_url: "https://example.com/prod1.jpg",
+                  quantity: 2,
+                  price: 25,
+                  metadata: {
+                    color: "red",
+                    size: "M"
+                  }
+                },
+                {
+                  product_id: "prod_2",
+                  product_name: "Product 2",
+                  variant_id: "Size L",
+                  image_url: "https://example.com/prod2.jpg",
+                  quantity: 1,
+                  price: 50
+                }
+              ],
+              cart_id: "cart_id_1",
+              action: "add",
+              metadata: {
+                custom_field_1: "custom_value_1",
+                custom_field_2: 100,
+                custom_field_3: true,
+                custom_field_4: ["a", "b", "c"],
+                custom_field_5: { nested_key: "nested_value" },
+                checkout_url: "https://example.com/checkout",
+                order_status_url: "https://example.com/order/status"
+              }
+            },
+            _update_existing_only: true
+          }
+        ]
+      }
+
+      nock(settings.endpoint)
+        .post('/users/track', json)
+        .reply(200)
+
+      const response = await testDestination.testAction('ecommerce', {
+        event: e,
+        settings,
+        useDefaultMappings: true,
+        mapping: mapping2
+      })
+
+      expect(response.length).toBe(1)
+    })
+
     it('should throw an error if missing identifier', async () => {
       const deepCopy: Partial<SegmentEvent> = JSON.parse(JSON.stringify(payload))
       const e = createTestEvent(deepCopy)
