@@ -103,8 +103,8 @@ function flatten<T>(
   leaf: (value: unknown) => T,
   prefix = ''
 ): Record<string, T> {
-  const result: Record<string, T> = {}
-  for (const key in data) {
+  const result: Record<string, T> = Object.create(null)
+  for (const key of Object.keys(data ?? {})) {
     const value = data[key]
     if (value === undefined) {
       continue

@@ -234,6 +234,74 @@ describe('Heap Cloud', () => {
       })
     })
 
+    it('flattens arrays by index in the default flatten mode', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Purchase',
+        userId: null,
+        anonymousId: 'anon-1',
+        messageId: 'msg-12345678',
+        timestamp,
+        context: {},
+        properties: { foods: ['cheese', 'beer'] }
+      })
+
+      const track = capture(US_URL, TRACK_URI)
+
+      const responses = await run(event)
+
+      expect(responses.length).toBe(1)
+      expect(track.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        events: [
+          {
+            event: 'Purchase',
+            user_identifier: { anonymous_id: 'anon-1' },
+            custom_properties: {
+              segment_library: LIBRARY,
+              'foods.0': 'cheese',
+              'foods.1': 'beer'
+            },
+            idempotency_key: 'msg-12345678',
+            timestamp
+          }
+        ]
+      })
+    })
+
+    it('skips properties with undefined values', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Purchase',
+        userId: null,
+        anonymousId: 'anon-1',
+        messageId: 'msg-12345678',
+        timestamp,
+        context: {},
+        properties: { name: 'widget', missing: undefined }
+      })
+
+      const track = capture(US_URL, TRACK_URI)
+
+      const responses = await run(event)
+
+      expect(responses.length).toBe(1)
+      expect(track.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        events: [
+          {
+            event: 'Purchase',
+            user_identifier: { anonymous_id: 'anon-1' },
+            custom_properties: { segment_library: LIBRARY, name: 'widget' },
+            idempotency_key: 'msg-12345678',
+            timestamp
+          }
+        ]
+      })
+    })
+
     it('accepts "0" as a valid identity', async () => {
       const event = createTestEvent({
         type: 'track',
