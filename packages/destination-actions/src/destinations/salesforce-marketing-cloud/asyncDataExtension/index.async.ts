@@ -203,7 +203,13 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       const resultsResponse = await request<AsyncUpsertRowsPollResultsResponse>(
         `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/results`,
         {
-          method: 'GET'
+          method: 'GET',
+          // The results payload carries one item per failed record and routinely exceeds the
+          // 16KB highWaterMark of the tee that `response.clone()` sets up in prepare-response.
+          // Reading only the clone while the original body goes unread deadlocks that tee, so
+          // the request never settles and the caller's poll deadline expires instead. Same fix
+          // and same root cause as the Iterable Lists hang (PR #2461).
+          skipResponseCloning: true
         }
       )
 
