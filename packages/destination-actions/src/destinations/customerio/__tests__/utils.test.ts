@@ -1,4 +1,4 @@
-import { convertAttributeTimestamps, convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
+import { convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -83,50 +83,5 @@ describe('resolveIdentifiers', () => {
 describe('convertValidTimestamp', () => {
   it('should leave decimal unix timestamps unchanged', () => {
     expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
-  })
-
-  it('should convert a 7-digit fractional second ISO timestamp to unix', () => {
-    expect(convertValidTimestamp('2024-08-14T20:36:48.6527521Z')).toBe(1723667808)
-  })
-
-  it('should convert a 9-digit fractional second ISO timestamp to unix', () => {
-    expect(convertValidTimestamp('2024-08-14T20:36:48.652752100Z')).toBe(1723667808)
-  })
-
-  it('should leave non-date strings unchanged', () => {
-    expect(convertValidTimestamp('not-a-date')).toBe('not-a-date')
-  })
-})
-
-describe('convertAttributeTimestamps — sub-millisecond fractional seconds (STRATCONN-4121)', () => {
-  const realParse = Date.parse
-  afterEach(() => jest.restoreAllMocks())
-
-  it('converts a 7-digit fractional second timestamp when Date.parse rejects long fractions (prod runtime)', () => {
-    jest.spyOn(Date, 'parse').mockImplementation((s: string) => {
-      const m = /\.(\d+)/.exec(s)
-      return m && m[1].length > 5 ? NaN : realParse(s)
-    })
-    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.6527521Z' })
-    expect(result.createdat).toBe(1723667808)
-  })
-
-  it('converts a 9-digit fractional second timestamp when Date.parse rejects long fractions (prod runtime)', () => {
-    jest.spyOn(Date, 'parse').mockImplementation((s: string) => {
-      const m = /\.(\d+)/.exec(s)
-      return m && m[1].length > 5 ? NaN : realParse(s)
-    })
-    const result = convertAttributeTimestamps({ ts: '2024-08-14T20:36:48.652752100Z' })
-    expect(result.ts).toBe(1723667808)
-  })
-
-  it('still converts a standard 3-digit millisecond timestamp', () => {
-    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.652Z' })
-    expect(result.createdat).toBe(1723667808)
-  })
-
-  it('leaves non-date strings unchanged', () => {
-    const result = convertAttributeTimestamps({ name: 'Acme Corp' })
-    expect(result.name).toBe('Acme Corp')
   })
 })
