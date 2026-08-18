@@ -5,7 +5,8 @@ import {
   getPurchaseEventData,
   getSearchEventData,
   getViewContentEventData,
-  getApiVersion
+  getApiVersion,
+  getUserData
 } from '../../shared/functions'
 import { EventType, API_VERSION, CANARY_API_VERSION } from '../../shared/constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
@@ -370,18 +371,52 @@ describe('FacebookConversionsApi', () => {
   })
 
   describe('getApiVersion', () => {
-      it('should return the canary API version', async () => {
-        const features = {
-          'facebook-capi-actions-canary-version': true
-        }
-        const version = getApiVersion(features, {} as StatsContext)
-        expect(version).toEqual(CANARY_API_VERSION)
-      })
-  
-      it('should return the regular API version', async () => {
-        const features = {}
-        const version = getApiVersion(features, {} as StatsContext)
-        expect(version).toEqual(API_VERSION)
-      })
+    it('should return the canary API version', async () => {
+      const features = {
+        'facebook-capi-actions-canary-version': true
+      }
+      const version = getApiVersion(features, {} as StatsContext)
+      expect(version).toEqual(CANARY_API_VERSION)
     })
+
+    it('should return the regular API version', async () => {
+      const features = {}
+      const version = getApiVersion(features, {} as StatsContext)
+      expect(version).toEqual(API_VERSION)
+    })
+  })
+
+  describe('getUserData - ctwa_clid', () => {
+    it('should include ctwa_clid when it is a valid non-empty string', () => {
+      const userData = {
+        email: 'test@test.com',
+        ctwa_clid: 'valid-click-id'
+      }
+
+      const result = getUserData(userData)
+
+      expect(result.ctwa_clid).toBe('valid-click-id')
+    })
+
+    it('should exclude ctwa_clid when it is an empty string', () => {
+      const userData = {
+        email: 'test@test.com',
+        ctwa_clid: ''
+      }
+
+      const result = getUserData(userData)
+
+      expect(result).not.toHaveProperty('ctwa_clid')
+    })
+
+    it('should exclude ctwa_clid when it is not provided', () => {
+      const userData = {
+        email: 'test@test.com'
+      }
+
+      const result = getUserData(userData)
+
+      expect(result).not.toHaveProperty('ctwa_clid')
+    })
+  })
 })
