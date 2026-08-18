@@ -41,7 +41,7 @@ export async function addToList(
   settings: Settings,
   payload: AddToListPayload,
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   // If the list ID is provided in the hook outputs, use it
   const list_id = hookOutputs?.id ?? payload.external_id
@@ -86,7 +86,7 @@ export async function addToListBatch(
   settings: Settings,
   payloads: AddToListPayload[],
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   // If the list ID is provided in the hook outputs, use it
   const list_id = hookOutputs?.id ?? payloads[0].external_id
@@ -155,7 +155,7 @@ export async function removeFromList(
   settings: Settings,
   payload: RemoveFromListPayload,
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   // If the list ID is provided in the hook outputs, use it
   const list_id = hookOutputs?.id ?? payload.external_id
@@ -213,7 +213,7 @@ export async function removeFromListBatch(
   settings: Settings,
   payloads: RemoveFromListPayload[],
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   // If the list ID is provided in the hook outputs, use it
   const list_id = hookOutputs?.id ?? payloads[0].external_id

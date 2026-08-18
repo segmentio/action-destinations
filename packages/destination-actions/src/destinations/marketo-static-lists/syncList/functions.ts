@@ -16,7 +16,7 @@ export async function syncList(
   payload: Payload,
   audienceMembership: AudienceMembership,
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   if (audienceMembership === true) {
     return addToList(request, settings, payload, statsContext, hookOutputs)
@@ -33,7 +33,7 @@ export async function syncListBatch(
   payloads: Payload[],
   audienceMembership: AudienceMembership[],
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   const addIndices: number[] = []
@@ -69,16 +69,17 @@ export async function syncListBatch(
       : undefined
   ])
 
-  addIndices.forEach((originalIndex, i) => {
-    multiStatusResponse.pushResponseObjectAtIndex(originalIndex, (addResult as MultiStatusResponse).getResponseAtIndex(i))
-  })
+  if (addResult) {
+    addIndices.forEach((originalIndex, i) => {
+      multiStatusResponse.pushResponseObjectAtIndex(originalIndex, addResult.getResponseAtIndex(i))
+    })
+  }
 
-  removeIndices.forEach((originalIndex, i) => {
-    multiStatusResponse.pushResponseObjectAtIndex(
-      originalIndex,
-      (removeResult as MultiStatusResponse).getResponseAtIndex(i)
-    )
-  })
+  if (removeResult) {
+    removeIndices.forEach((originalIndex, i) => {
+      multiStatusResponse.pushResponseObjectAtIndex(originalIndex, removeResult.getResponseAtIndex(i))
+    })
+  }
 
   return multiStatusResponse
 }
