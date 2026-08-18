@@ -1,5 +1,5 @@
 import { ModifiedResponse } from '@segment/actions-core'
-import { MAX_HUBSPOT_BATCH_SIZE } from '../constants'
+import { HS_OBJECT_ID, MAX_HUBSPOT_BATCH_SIZE } from '../constants'
 import { Client } from '../client'
 import {
   AssociationPayload,
@@ -85,7 +85,9 @@ export async function readAssociatedRecords(
     const { object_type: objectType } = payloads[0].object_details
 
     return await client.batchObjectRequest(AssociationSyncMode.Read, objectType, {
-      idProperty: payloads[0].object_details.id_field_name,
+      ...(payloads[0].object_details.id_field_name === HS_OBJECT_ID
+        ? {}
+        : { idProperty: payloads[0].object_details.id_field_name }),
       properties: [payloads[0].object_details.id_field_name],
       inputs: payloads.map((payload) => {
         return {
@@ -107,6 +109,13 @@ async function upsertAssociatedRecords(
 
     return await client.batchObjectRequest(AssociationSyncMode.Upsert, objectType, {
       inputs: payloads.map((payload) => {
+        if (payload.object_details.id_field_name === HS_OBJECT_ID) {
+          // hs_object_id is HubSpot's internal record id - send it as the id with no idProperty
+          return {
+            id: payload.object_details.id_field_value,
+            properties: {}
+          }
+        }
         return {
           idProperty: payload.object_details.id_field_name,
           id: payload.object_details.id_field_value,
@@ -142,7 +151,11 @@ function returnAssociatedRecordsWithIds(
     .filter((payload) => (payload as AssociationPayloadWithId).object_details.record_id) as AssociationPayloadWithId[]
 }
 
-export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[], action: AssociationsAction) {
+export async function sendAssociations(
+  client: Client,
+  payloads: AssociationPayloadWithId[],
+  action: AssociationsAction
+) {
   const groupedPayloads: AssociationPayloadWithId[][] = groupPayloads(payloads as AssociationPayload[], [
     'object_type'
   ]) as AssociationPayloadWithId[][]

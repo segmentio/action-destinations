@@ -111,14 +111,14 @@ export interface Result {
 }
 
 export interface ReadReq {
-  idProperty: string
+  idProperty?: string
   properties: string[]
   inputs: Array<{ id: string }>
 }
 
 export interface UpsertReq {
   inputs: Array<{
-    idProperty: string
+    idProperty?: string
     id: string
     properties: Record<string, string>
   }>
@@ -126,7 +126,7 @@ export interface UpsertReq {
 
 export interface CreateReq {
   inputs: Array<{
-    idProperty: string
+    idProperty?: string
     properties: Record<string, string>
   }>
 }
@@ -269,9 +269,12 @@ export interface AddRemoveFromListReq {
 
 export type EngageAudiencePayload = Payload & {
   traits_or_props: {
-    [k : string]: unknown
+    [k: string]: unknown
   }
   computation_key: string
 }
 
-export type PayloadListType = 'is_engage_audience_payload' | 'is_non_engage_audience_payload' | 'is_not_audience_payload'
+export type PayloadListType =
+  | 'is_engage_audience_payload'
+  | 'is_non_engage_audience_payload'
+  | 'is_not_audience_payload'
