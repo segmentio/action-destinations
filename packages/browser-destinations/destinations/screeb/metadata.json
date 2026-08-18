@@ -7,7 +7,7 @@
     "fields": {
       "websiteId": {
         "label": "Website ID",
-        "description": "Your website ID (given in Screeb app).",
+        "description": "Your website ID, found in the Screeb app under Settings > Install.",
         "type": "string",
         "required": true,
         "multiple": false,

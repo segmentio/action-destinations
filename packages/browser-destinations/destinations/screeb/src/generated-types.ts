@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your website ID (given in Screeb app).
+   * Your website ID, found in the Screeb app under Settings > Install.
    */
   websiteId: string
 }

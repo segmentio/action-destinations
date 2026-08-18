@@ -235,17 +235,12 @@ const cart_id: InputField = {
 
 const total_value: InputField = {
     label: 'Total Value',
-    description: 'Total monetary value of the cart.',
+    description: 'Total monetary value of the cart. Required for checkout and order events. For cart_updated, required unless action is "add" or "remove".',
     type: 'number',
     default: { '@path': '$.properties.total'},
     required: {
         match: 'any',
         conditions: [
-            {
-                fieldKey: 'name',
-                operator: 'is',
-                value: EVENT_NAMES.CART_UPDATED
-            },
             {
                 fieldKey: 'name',
                 operator: 'is',
