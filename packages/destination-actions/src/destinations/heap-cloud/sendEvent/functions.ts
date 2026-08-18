@@ -33,25 +33,29 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   }
 
   if (hasUserTraits && trimmedIdentity !== undefined) {
-    const json: AddUserPropertiesJSON = {
-      app_id: appId,
-      library: HEAP_LIBRARY,
-      users: [
-        {
-          user_identifier: {
-            identity: trimmedIdentity
-          },
-          custom_properties: flatUserProperties(traits, nested_properties_mode as NestedMode)
-        }
-      ]
-    }
+    const customProperties = flatUserProperties(traits, nested_properties_mode as NestedMode)
 
-    requests.push(
-      request(`${baseUrl}/api/integrations/add_user_properties`, {
-        method: 'post',
-        json
-      })
-    )
+    if (Object.keys(customProperties).length > 0) {
+      const json: AddUserPropertiesJSON = {
+        app_id: appId,
+        library: HEAP_LIBRARY,
+        users: [
+          {
+            user_identifier: {
+              identity: trimmedIdentity
+            },
+            custom_properties: customProperties
+          }
+        ]
+      }
+
+      requests.push(
+        request(`${baseUrl}/api/integrations/add_user_properties`, {
+          method: 'post',
+          json
+        })
+      )
+    }
   }
 
   if (type !== 'identify') {
@@ -104,8 +108,9 @@ function flatten<T>(
   prefix = ''
 ): Record<string, T> {
   const result: Record<string, T> = Object.create(null)
-  for (const key of Object.keys(data ?? {})) {
-    const value = data[key]
+  const source = data ?? {}
+  for (const key of Object.keys(source)) {
+    const value = source[key]
     if (value === undefined) {
       continue
     }

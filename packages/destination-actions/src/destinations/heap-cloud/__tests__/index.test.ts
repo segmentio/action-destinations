@@ -465,6 +465,21 @@ describe('Heap Cloud', () => {
       })
     })
 
+    it('skips the profile update when traits flatten to no keys', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-1',
+        anonymousId: null,
+        messageId: 'msg-12345678',
+        timestamp,
+        traits: { empty_object: {}, empty_array: [] }
+      })
+
+      const responses = await run(event)
+
+      expect(responses.length).toBe(0)
+    })
+
     it('preserves number, boolean and null user property values', async () => {
       const event = createTestEvent({
         type: 'identify',
