@@ -46,8 +46,8 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     choices: [
-      { label: 'Add to Company Audience', value: AUDIENCE_ACTION.ADD },
-      { label: 'Remove from Company Audience', value: AUDIENCE_ACTION.REMOVE }
+      { label: 'Add to Company Segment', value: AUDIENCE_ACTION.ADD },
+      { label: 'Remove from Company Segment', value: AUDIENCE_ACTION.REMOVE }
     ]
   },
   audience_source: {
