@@ -19,7 +19,7 @@ type AsyncUpsertRowsPollResultMessage = {
   message: string
 }
 
-type AsyncUpsertRowsjobStatusResponse = {
+type AsyncUpsertRowsJobStatusResponse = {
   status: {
     callDateTime: string
     completionDateTime: string
@@ -146,10 +146,13 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     }
 
     try {
-      const statusResponse = await request<AsyncUpsertRowsjobStatusResponse>(
+      const statusResponse = await request<AsyncUpsertRowsJobStatusResponse>(
         `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/status`,
         {
-          method: 'GET'
+          method: 'GET',
+          // resultMessages is unbounded, so this response can cross the same clone-tee
+          // threshold as /results below and deadlock identically.
+          skipResponseCloning: true
         }
       )
 
@@ -197,19 +200,26 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
 
       // If the control reaches here, it means the request is complete but has errors
       // Fetch the results to get the granular error messages for failed records
-      response.jobStatus = 'SUCCEEDED'
       response.multiStatusResponse = new MultiStatusResponse()
 
       const resultsResponse = await request<AsyncUpsertRowsPollResultsResponse>(
         `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/results`,
         {
-          method: 'GET'
+          method: 'GET',
+          // The results payload carries one item per failed record and routinely exceeds the
+          // 16KB highWaterMark of the tee that `response.clone()` sets up in prepare-response.
+          // Reading only the clone while the original body goes unread deadlocks that tee, so
+          // the request never settles and the caller's poll deadline expires instead. Same fix
+          // and same root cause as the Iterable Lists hang (PR #2461).
+          skipResponseCloning: true
         }
       )
 
+      let successCount = 0
       for (let i = 0; i < resultsResponse.data.items.length; i++) {
         // If an individual record has an 'OK' status, consider it a success, otherwise consider it a failure and set the error message from the API response
         if (resultsResponse.data.items[i].status === 'OK') {
+          successCount++
           response.multiStatusResponse.setSuccessResponseAtIndex(i, {
             status: 200,
             sent: {},
@@ -223,6 +233,10 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
           })
         }
       }
+
+      // Only report SUCCEEDED if at least one record actually succeeded --
+      // otherwise this contradicts a success_count of 0 downstream.
+      response.jobStatus = successCount > 0 ? 'SUCCEEDED' : 'FAILED'
 
       return response
     } catch (error) {

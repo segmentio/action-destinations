@@ -724,6 +724,118 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(2)
       })
 
+      it('should return FAILED (not SUCCEEDED) when Complete but every record errored', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 2,
+            items: [
+              {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              },
+              {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Regression test: jobStatus used to be hardcoded SUCCEEDED here even
+        // when every record failed, contradicting a successCount of 0.
+        expect(response.jobStatus).toBe('FAILED')
+        expect(response.multiStatusResponse?.errorCount).toBe(2)
+        expect(response.multiStatusResponse?.successCount).toBe(0)
+      })
+
+      // Regression test for the response-clone deadlock. The results payload carries one item
+      // per record, so a realistically-sized batch pushes it past the 16KB highWaterMark of the
+      // tee that response.clone() sets up in prepare-response. Without skipResponseCloning on
+      // the /results request, clone.text() never resolves and this test times out rather than
+      // failing an assertion -- which is exactly how it manifests in production, as a poll that
+      // hangs until the caller's deadline expires. A small fixture (like the test above) stays
+      // under the threshold and passes either way, so the large body here is load-bearing.
+      it('should not hang when the results payload is larger than the clone buffer', async () => {
+        const itemCount = 1640
+        const items = Array.from({ length: itemCount }, (_, i) =>
+          i % 2 === 0
+            ? {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            : { message: 'Upserted DataExtensionObject', status: 'OK' }
+        )
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .reply(200, {
+            page: 1,
+            pageSize: itemCount,
+            count: itemCount,
+            items,
+            requestId: jobId,
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.errorCount).toBe(itemCount / 2)
+        expect(response.multiStatusResponse?.successCount).toBe(itemCount / 2)
+      })
+
       it('should return FAILED when requestStatus is Error', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
