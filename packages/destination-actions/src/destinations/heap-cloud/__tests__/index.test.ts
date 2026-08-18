@@ -496,21 +496,6 @@ describe('Heap Cloud', () => {
       })
     })
 
-    it('skips the profile update when traits flatten to no keys', async () => {
-      const event = createTestEvent({
-        type: 'identify',
-        userId: 'user-1',
-        anonymousId: null,
-        messageId: 'msg-12345678',
-        timestamp,
-        traits: { empty_object: {}, empty_array: [] }
-      })
-
-      const responses = await run(event)
-
-      expect(responses.length).toBe(0)
-    })
-
     it('preserves number, boolean and null user property values', async () => {
       const event = createTestEvent({
         type: 'identify',
@@ -609,6 +594,36 @@ describe('Heap Cloud', () => {
       })
 
       await expect(run(event)).rejects.toThrow('Identity is required for identify calls.')
+    })
+
+    it('throws when an identify call has no traits', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-1',
+        anonymousId: null,
+        messageId: 'msg-12345678',
+        timestamp,
+        traits: undefined
+      })
+
+      await expect(run(event)).rejects.toThrow(
+        'No properties to update. Identify calls require at least one User Property.'
+      )
+    })
+
+    it('throws when an identify call has only empty object/array traits', async () => {
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user-1',
+        anonymousId: null,
+        messageId: 'msg-12345678',
+        timestamp,
+        traits: { empty_object: {}, empty_array: [] }
+      })
+
+      await expect(run(event)).rejects.toThrow(
+        'No properties to update. Identify calls require at least one User Property.'
+      )
     })
 
     it('throws when user properties are provided without an identity', async () => {

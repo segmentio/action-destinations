@@ -82,6 +82,10 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
     )
   }
 
+  if (requests.length === 0) {
+    throw new PayloadValidationError('No properties to update. Identify calls require at least one User Property.')
+  }
+
   return Promise.all(requests)
 }
 
