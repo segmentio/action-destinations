@@ -1181,6 +1181,51 @@
         }
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "syncList",
+      "mapping": {
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "lookup_field": "email",
+        "data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          }
+        },
+        "field_value": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 300,
+        "event_name": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": "journey_step_all_events_track"
     }
   ]
 }
