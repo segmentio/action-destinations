@@ -149,7 +149,10 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       const statusResponse = await request<AsyncUpsertRowsjobStatusResponse>(
         `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/status`,
         {
-          method: 'GET'
+          method: 'GET',
+          // resultMessages is unbounded, so this response can cross the same clone-tee
+          // threshold as /results below and deadlock identically.
+          skipResponseCloning: true
         }
       )
 
@@ -213,9 +216,21 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         }
       )
 
-      for (let i = 0; i < resultsResponse.data.items.length; i++) {
+      // The status API already told us this job has errors, so results must describe them.
+      // A missing or empty items array means we cannot attribute outcomes to records: reporting
+      // SUCCEEDED here (jobStatus is already set above) would mark every record in the batch as
+      // delivered while accounting for none of them. Surface it as retryable instead.
+      const items = resultsResponse.data?.items
+      if (!Array.isArray(items) || items.length === 0) {
+        response.jobStatus = 'RETRYABLE_ERROR'
+        response.status = 502
+        response.multiStatusResponse = undefined
+        return response
+      }
+
+      for (let i = 0; i < items.length; i++) {
         // If an individual record has an 'OK' status, consider it a success, otherwise consider it a failure and set the error message from the API response
-        if (resultsResponse.data.items[i].status === 'OK') {
+        if (items[i].status === 'OK') {
           response.multiStatusResponse.setSuccessResponseAtIndex(i, {
             status: 200,
             sent: {},
@@ -224,7 +239,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         } else {
           response.multiStatusResponse.setErrorResponseAtIndex(i, {
             status: 400,
-            errormessage: resultsResponse.data.items[i].message,
+            errormessage: items[i].message,
             body: {}
           })
         }

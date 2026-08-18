@@ -727,10 +727,12 @@ describe('Salesforce Marketing Cloud - Async', () => {
       // Regression test for the response-clone deadlock. The results payload carries one item
       // per record, so a realistically-sized batch pushes it past the 16KB highWaterMark of the
       // tee that response.clone() sets up in prepare-response. Without skipResponseCloning on
-      // the /results request, clone.text() never resolves and this test times out rather than
-      // failing an assertion -- which is exactly how it manifests in production, as a poll that
-      // hangs until the caller's deadline expires. A small fixture (like the test above) stays
-      // under the threshold and passes either way, so the large body here is load-bearing.
+      // the /results request, clone.text() never resolves; this test then fails by exhausting
+      // its timeout rather than by a failing assertion -- which is exactly how the bug manifests
+      // in production, as a poll that hangs until the caller's deadline expires. Read a timeout
+      // here as the regression reproducing, not as flaky infrastructure. A small fixture (like
+      // the test above) stays under the threshold and passes either way, so the large body is
+      // load-bearing; the counts below only confirm the parse completed intact.
       it('should not hang when the results payload is larger than the clone buffer', async () => {
         const itemCount = 1640
         const items = Array.from({ length: itemCount }, (_, i) =>
@@ -777,7 +779,10 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.jobStatus).toBe('SUCCEEDED')
         expect(response.multiStatusResponse?.errorCount).toBe(itemCount / 2)
         expect(response.multiStatusResponse?.successCount).toBe(itemCount / 2)
-      })
+        // Every item must be accounted for -- a truncated read would still parse and still
+        // alternate, but would not reach the full count.
+        expect(response.multiStatusResponse?.length()).toBe(itemCount)
+      }, 15000)
 
       it('should return FAILED when requestStatus is Error', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
