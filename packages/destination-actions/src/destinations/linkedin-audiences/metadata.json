@@ -561,11 +561,11 @@
           "default": null,
           "choices": [
             {
-              "label": "Add to Company Audience",
+              "label": "Add to Company Segment",
               "value": "ADD"
             },
             {
-              "label": "Remove from Company Audience",
+              "label": "Remove from Company Segment",
               "value": "REMOVE"
             }
           ],
