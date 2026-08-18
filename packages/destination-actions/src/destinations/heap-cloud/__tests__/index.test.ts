@@ -115,6 +115,37 @@ describe('Heap Cloud', () => {
       })
     })
 
+    it('does not require identity when traits flatten to no keys', async () => {
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Viewed',
+        userId: null,
+        anonymousId: 'anon-1',
+        messageId: 'msg-12345678',
+        timestamp,
+        context: { traits: { empty_object: {}, empty_array: [] } }
+      })
+
+      const track = capture(US_URL, TRACK_URI)
+
+      const responses = await run(event)
+
+      expect(responses.length).toBe(1)
+      expect(track.value).toStrictEqual({
+        app_id: APP_ID,
+        library: 'server',
+        events: [
+          {
+            event: 'Viewed',
+            user_identifier: { anonymous_id: 'anon-1' },
+            custom_properties: { segment_library: LIBRARY },
+            idempotency_key: 'msg-12345678',
+            timestamp
+          }
+        ]
+      })
+    })
+
     it('flattens nested event properties into dot-delimited strings', async () => {
       const event = createTestEvent({
         type: 'track',

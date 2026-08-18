@@ -20,7 +20,8 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   const requests: Promise<unknown>[] = []
 
   const trimmedIdentity = hasValue(identity) ? identity.trim() : undefined
-  const hasUserTraits = hasTraits(traits)
+  const customProperties = flatUserProperties(traits, nested_properties_mode as NestedMode)
+  const hasUserTraits = Object.keys(customProperties).length > 0
 
   // Identify calls exist solely to update the user profile, which is keyed on identity.
   if (type === 'identify' && trimmedIdentity === undefined) {
@@ -33,29 +34,25 @@ export function send(request: RequestClient, settings: Settings, payload: Payloa
   }
 
   if (hasUserTraits && trimmedIdentity !== undefined) {
-    const customProperties = flatUserProperties(traits, nested_properties_mode as NestedMode)
-
-    if (Object.keys(customProperties).length > 0) {
-      const json: AddUserPropertiesJSON = {
-        app_id: appId,
-        library: HEAP_LIBRARY,
-        users: [
-          {
-            user_identifier: {
-              identity: trimmedIdentity
-            },
-            custom_properties: customProperties
-          }
-        ]
-      }
-
-      requests.push(
-        request(`${baseUrl}/api/integrations/add_user_properties`, {
-          method: 'post',
-          json
-        })
-      )
+    const json: AddUserPropertiesJSON = {
+      app_id: appId,
+      library: HEAP_LIBRARY,
+      users: [
+        {
+          user_identifier: {
+            identity: trimmedIdentity
+          },
+          custom_properties: customProperties
+        }
+      ]
     }
+
+    requests.push(
+      request(`${baseUrl}/api/integrations/add_user_properties`, {
+        method: 'post',
+        json
+      })
+    )
   }
 
   if (type !== 'identify') {
@@ -146,9 +143,6 @@ function coerceUserPropertyValue(value: unknown): string | number | boolean | nu
 }
 
 export const hasValue = (value?: string | null): value is string => typeof value === 'string' && value.trim().length > 0
-
-export const hasTraits = (traits: Payload['traits']): boolean =>
-  traits != null && Object.values(traits).some((v) => (typeof v === 'string' ? v.trim().length > 0 : v != null))
 
 export const getUserIdentifier = (payload: Payload): UserIdentifier => {
   const { identity, anonymous_id, user_id, email } = payload
