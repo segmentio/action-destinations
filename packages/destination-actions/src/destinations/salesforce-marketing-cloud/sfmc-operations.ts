@@ -84,19 +84,39 @@ function isRetryableError(errData: ErrorData, status: number): boolean {
   )
 }
 
-type AsyncUpsertRowsV2Response = {
-  requestId: string
-  resultMessages: {
-    resultType: string
-    resultClass: string
-    resultCode: string
-    message: string
-  }[]
+type AsyncUpsertRowsV2ResultMessage = {
+  resultType: string
+  resultClass: string
+  resultCode: string
+  message: string
+}
+
+// requestId is not guaranteed here: SFMC can reply with a resultMessages-shaped body
+// (no `message`) on a non-2xx status while still omitting requestId, e.g. AsyncRequestStatusNotFound.
+export type AsyncUpsertRowsV2SuccessResponse = {
+  requestId?: string
+  resultMessages: AsyncUpsertRowsV2ResultMessage[]
+}
+
+// Batch-level failures (401, 403, 500, etc) return this shape instead - a top-level
+// `message` and no (or empty) resultMessages.
+export type AsyncUpsertRowsV2ErrorResponse = {
+  requestId?: string
+  message: string
+  resultMessages?: AsyncUpsertRowsV2ResultMessage[]
+}
+
+export type AsyncUpsertRowsV2Response = AsyncUpsertRowsV2SuccessResponse | AsyncUpsertRowsV2ErrorResponse
+
+export function isAsyncUpsertRowsV2ErrorResponse(
+  data: AsyncUpsertRowsV2Response
+): data is AsyncUpsertRowsV2ErrorResponse {
+  return typeof (data as AsyncUpsertRowsV2ErrorResponse)?.message === 'string'
 }
 
 export async function asyncUpsertRowsV2(
   request: RequestClient,
-  subdomain: String,
+  subdomain: string,
   payloads: payload_dataExtension[] | payload_contactDataExtension[],
   dataExtensionId?: string,
   throwHttpErrors = true

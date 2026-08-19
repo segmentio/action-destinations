@@ -10,7 +10,7 @@ import Definition from '../index'
 import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
-const timestamp = '2025-10-13T4:00:00.449Z'
+const timestamp = '2025-10-13T04:00:00.449Z'
 const settings: Settings = {
   subdomain: 'test123',
   client_id: 'test123',
