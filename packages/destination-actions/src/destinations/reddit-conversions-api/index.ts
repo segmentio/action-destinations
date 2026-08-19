@@ -3,7 +3,7 @@ import type { Settings } from './generated-types'
 import type { RedditConversionsTestAuthenticationError } from './types'
 import standardEvent from './standardEvent'
 import customEvent from './customEvent'
-import { REDDIT_CONVERSIONS_API_VERSION } from './versioning-info'
+import { LEGACY_API_VERSION } from './versioning-info'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Reddit Conversions API',
@@ -28,16 +28,24 @@ const destination: DestinationDefinition<Settings> = {
       },
       test_mode: {
         label: 'Test Mode',
-        description: 'Indicates if events should be treated as test events by Reddit.',
+        description:
+          'Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2. V3 (Beta) is the latest API version. To send test events on V3, set the Test ID setting instead.',
         type: 'boolean',
         required: false,
         default: false
+      },
+      test_id: {
+        label: 'Test ID',
+        description:
+          'A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3 (Beta).',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: async (request, { settings }) => {
       try {
         return await request(
-          `https://ads-api.reddit.com/api/${REDDIT_CONVERSIONS_API_VERSION}/conversions/events/${settings.ad_account_id}`,
+          `https://ads-api.reddit.com/api/${LEGACY_API_VERSION}/conversions/events/${settings.ad_account_id}`,
           {
             method: 'POST',
             headers: {
@@ -100,6 +108,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'PageVisit',
         event_metadata: {}
       },
@@ -111,6 +120,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'ViewContent',
         event_metadata: {}
       },
@@ -122,6 +132,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'Search',
         event_metadata: {}
       },
@@ -133,6 +144,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'AddToCart',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
@@ -148,6 +160,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'AddToWishlist',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
@@ -163,6 +176,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'Purchase'
       },
       type: 'automatic'
@@ -173,6 +187,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'Lead',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
@@ -187,6 +202,7 @@ const destination: DestinationDefinition<Settings> = {
       partnerAction: 'standardEvent',
       mapping: {
         ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
         tracking_type: 'SignUp',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },

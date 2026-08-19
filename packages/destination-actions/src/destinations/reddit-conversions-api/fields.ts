@@ -1,4 +1,6 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { LEGACY_API_VERSION, LATEST_API_VERSION } from './versioning-info'
+import { ACTION_SOURCE_V3_LABELS } from './v3/constants'
 
 export const event_at: InputField = {
   label: 'Event At',
@@ -34,6 +36,45 @@ export const tracking_type: InputField = {
     { label: 'Lead', value: 'Lead' },
     { label: 'Sign Up', value: 'SignUp' }
   ]
+}
+
+export const api_version: InputField = {
+  label: 'API Version',
+  description:
+    'The version of the Reddit Conversions API to send this event to. "V3 (Beta)" requires Action Source to be set.',
+  type: 'string',
+  required: false,
+  default: LEGACY_API_VERSION,
+  choices: [
+    { label: 'V3 (Beta)', value: LATEST_API_VERSION },
+    { label: 'V2', value: LEGACY_API_VERSION }
+  ],
+  disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
+}
+
+const API_VERSION_IS_V3 = {
+  match: 'all' as const,
+  conditions: [{ fieldKey: 'api_version', operator: 'is' as const, value: LATEST_API_VERSION }]
+}
+
+export const action_source: InputField = {
+  label: 'Action Source',
+  description:
+    'The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3 (Beta).',
+  type: 'string',
+  required: API_VERSION_IS_V3,
+  depends_on: API_VERSION_IS_V3,
+  choices: Object.entries(ACTION_SOURCE_V3_LABELS).map(([value, label]) => ({ label, value }))
+}
+
+export const event_source_url: InputField = {
+  label: 'Event Source URL',
+  description:
+    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).',
+  type: 'string',
+  required: false,
+  depends_on: API_VERSION_IS_V3,
+  default: { '@path': '$.context.page.url' }
 }
 
 export const click_id: InputField = {
@@ -292,6 +333,18 @@ export const products: InputField = {
       description: 'The name of the product. Optional.',
       type: 'string',
       required: false
+    },
+    quantity: {
+      label: 'Quantity',
+      description: 'The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).',
+      type: 'integer',
+      required: false
+    },
+    item_price: {
+      label: 'Item Price',
+      description: 'The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).',
+      type: 'number',
+      required: false
     }
   },
   default: {
@@ -300,7 +353,9 @@ export const products: InputField = {
       {
         category: { '@path': '$.category' },
         id: { '@path': '$.product_id' },
-        name: { '@path': '$.name' }
+        name: { '@path': '$.name' },
+        quantity: { '@path': '$.quantity' },
+        item_price: { '@path': '$.price' }
       }
     ]
   }
