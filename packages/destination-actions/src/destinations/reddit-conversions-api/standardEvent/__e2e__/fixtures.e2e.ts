@@ -110,7 +110,10 @@ const fixtures: E2EFixture[] = [
       },
       context: { page: { url: 'https://example.com/checkout' } }
     }),
-    expect: { status: 'success' }
+    // Per Reddit's v3 API docs, a successful call returns 200 with { data: { message: "Successfully
+    // processed N conversion events." } } - asserting on the fixed prefix rather than the full string
+    // since the event count/grammar in the message varies by request.
+    expect: { status: 'success', httpStatus: 200, bodyContains: 'Successfully processed' }
   },
   {
     description:
