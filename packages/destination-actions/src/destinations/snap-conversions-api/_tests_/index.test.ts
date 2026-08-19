@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { smartHash } from '../reportConversionEvent/utils'
+import { FLAGON_EVENT_TIME_IN_SECONDS } from '../reportConversionEvent/snap-capi-v3'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -840,7 +841,7 @@ describe('Snap Conversions API ', () => {
   })
 
   describe('event_time normalization (snap-capi-event-time-in-seconds flag)', () => {
-    const FLAG = 'snap-capi-event-time-in-seconds'
+    const FLAG = FLAGON_EVENT_TIME_IN_SECONDS
 
     it('emits milliseconds (13 digits) when the flag is OFF (default, unchanged behavior)', async () => {
       const { data } = await reportConversionEvent({
