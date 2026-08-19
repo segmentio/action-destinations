@@ -38,7 +38,7 @@ export async function sendV3(
   return multiStatusResponse
 }
 
-function createRedditPayloadV3(
+export function createRedditPayloadV3(
   payloads: (StandardEvent | CustomEvent)[],
   settings: Settings,
   multiStatusResponse: MultiStatusResponse,
@@ -117,14 +117,14 @@ export function toEpochMs(value: string | number | undefined): number {
   )
 }
 
-function toV3TrackingType(tracking_type: string | undefined): EventTypeV3 {
+export function toV3TrackingType(tracking_type: string | undefined): EventTypeV3 {
   if (!tracking_type) throw new PayloadValidationError('tracking_type is required')
   const mapped = (TRACKING_TYPE_V3 as Record<string, EventTypeV3>)[tracking_type]
   if (!mapped) throw new PayloadValidationError(`Unsupported tracking_type: ${tracking_type}`)
   return mapped
 }
 
-function toActionSourceV3(action_source: string | undefined): ActionSourceV3 {
+export function toActionSourceV3(action_source: string | undefined): ActionSourceV3 {
   if (!action_source)
     throw new PayloadValidationError('action_source is required when sending to Reddit Conversions API v3')
   if (!(action_source in ACTION_SOURCE_V3_LABELS)) {
@@ -133,7 +133,7 @@ function toActionSourceV3(action_source: string | undefined): ActionSourceV3 {
   return action_source as ActionSourceV3
 }
 
-function getProducts(products: ProductsType): ProductV3[] | undefined {
+export function getProducts(products: ProductsType): ProductV3[] | undefined {
   if (!products) return undefined
   return products.map((product) => ({
     category: clean(product.category),
@@ -144,13 +144,13 @@ function getProducts(products: ProductsType): ProductV3[] | undefined {
   }))
 }
 
-function toProductIdV3(id: string | undefined): string {
+export function toProductIdV3(id: string | undefined): string {
   const cleaned = clean(id)
   if (!cleaned) throw new PayloadValidationError('products.id is required when sending to Reddit Conversions API v3')
   return cleaned
 }
 
-function getMetadata(
+export function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
   conversion_id: ConversionIdType
