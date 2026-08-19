@@ -4,6 +4,7 @@ import {
   JSONLikeObject,
   ModifiedResponse,
   IntegrationError,
+  PayloadValidationError,
   ActionHookResponse,
   DynamicFieldResponse,
   DynamicFieldError,
@@ -23,6 +24,30 @@ import {
   SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION,
   SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON
 } from './versioning-info'
+
+// A Salesforce Marketing Cloud subdomain is a single DNS label (a tenant-specific
+// string such as "mc563885gzs27c5t9-63k636ttgm"). It is interpolated directly into
+// the host portion of every request URL, so we restrict it to the characters valid
+// in a DNS label - letters, digits and hyphens. Allowing other characters (e.g. "/",
+// "@", ":", ".") would let a malicious subdomain rewrite the request host and
+// exfiltrate the OAuth client secret / access token to an attacker-controlled server.
+//
+// This is enforced only at settings-save time (testAuthentication), so an invalid
+// value can never be stored - we deliberately do NOT re-validate on every event, to
+// avoid breaking delivery for any pre-existing config. The pattern intentionally does
+// not enforce full DNS-label structure (length, no leading/trailing hyphen); the goal
+// is to block host/path injection, not to reject unusual-but-working subdomains.
+// See SECOPS-25213.
+const SUBDOMAIN_PATTERN = /^[a-zA-Z0-9-]+$/
+
+export function validateSubdomain(subdomain: unknown): string {
+  if (typeof subdomain !== 'string' || !SUBDOMAIN_PATTERN.test(subdomain)) {
+    throw new PayloadValidationError(
+      'Invalid Salesforce Marketing Cloud subdomain. The subdomain may only contain letters, numbers and hyphens, and must not include the ".rest.marketingcloudapis.com" part of your subdomain URL.'
+    )
+  }
+  return subdomain
+}
 
 function generateRows(payloads: payload_dataExtension[] | payload_contactDataExtension[]): Record<string, any>[] {
   const rows: Record<string, any>[] = []
