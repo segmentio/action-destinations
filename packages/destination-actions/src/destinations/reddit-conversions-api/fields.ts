@@ -1,4 +1,5 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
+import { LEGACY_API_VERSION, LATEST_API_VERSION } from './versioning-info'
 
 export const event_at: InputField = {
   label: 'Event At',
@@ -42,16 +43,16 @@ export const api_version: InputField = {
     'The version of the Reddit Conversions API to send this event to. "Latest (V3)" requires Action Source to be set. Accounts that configured this action before this setting existed keep sending on "Legacy (V2)" until this is explicitly changed.',
   type: 'string',
   required: false,
-  default: 'v3',
+  default: LATEST_API_VERSION,
   choices: [
-    { label: 'Latest (V3)', value: 'v3' },
-    { label: 'Legacy (V2)', value: 'v2' }
+    { label: 'Latest (V3)', value: LATEST_API_VERSION },
+    { label: 'Legacy (V2)', value: LEGACY_API_VERSION }
   ]
 }
 
 const API_VERSION_IS_V3 = {
   match: 'all' as const,
-  conditions: [{ fieldKey: 'api_version', operator: 'is' as const, value: 'v3' }]
+  conditions: [{ fieldKey: 'api_version', operator: 'is' as const, value: LATEST_API_VERSION }]
 }
 
 export const action_source: InputField = {

@@ -5,7 +5,7 @@ import type { Payload as StandardEvent } from '../standardEvent/generated-types'
 import type { Payload as CustomEvent } from '../customEvent/generated-types'
 import { V3EventItem, V3Payload, V3Metadata, V3Product, V3User, V3DataProcessingOptions } from './types-v3'
 import { processHashing } from '../../../lib/hashing-utils'
-import { REDDIT_CONVERSIONS_CANARY_API_VERSION } from '../versioning-info'
+import { LEGACY_API_VERSION, LATEST_API_VERSION, ApiVersion } from '../versioning-info'
 
 /** FLAGON_NAME
  * Flagon flag gating whether Reddit Conversions API v3 is reachable at all for an account.
@@ -26,11 +26,11 @@ export function isCanary(features?: Features): boolean {
  * the field existed have no value for it (resolves to `undefined` here), so they stay on v2 too,
  * until they explicitly opt into `'v3'`.
  */
-export function resolveVersion(apiVersion: string | undefined, features?: Features): 'v2' | 'v3' {
+export function resolveVersion(apiVersion: string | undefined, features?: Features): ApiVersion {
   if (!isCanary(features)) {
-    return 'v2'
+    return LEGACY_API_VERSION
   }
-  return apiVersion === 'v3' ? 'v3' : 'v2'
+  return apiVersion === LATEST_API_VERSION ? LATEST_API_VERSION : LEGACY_API_VERSION
 }
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
@@ -41,7 +41,7 @@ type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
 const V3_URL = (adAccountId: string) =>
-  `https://ads-api.reddit.com/api/${REDDIT_CONVERSIONS_CANARY_API_VERSION}/pixels/${adAccountId}/conversion_events`
+  `https://ads-api.reddit.com/api/${LATEST_API_VERSION}/pixels/${adAccountId}/conversion_events`
 
 // v2 tracking_type (mixed case) -> v3 UPPER_SNAKE_CASE.
 const TRACKING_TYPE_V3: Record<string, string> = {
