@@ -19,29 +19,9 @@ export async function sendV3(
   isBatch: boolean
 ) {
   const multiStatusResponse = new MultiStatusResponse()
-  const indices: number[] = []
-  const events: EventItemV3[] = []
+  const data = createRedditPayloadV3(payloads, settings, multiStatusResponse, isBatch)
 
-  payloads.forEach((payload, index) => {
-    const { error, event } = createRedditPayloadV3(payload)
-    if (error) {
-      if (!isBatch) {
-        throw new PayloadValidationError(error)
-      }
-      multiStatusResponse.setErrorResponseAtIndex(index, { status: 400, errormessage: error })
-    } else {
-      indices.push(index)
-      events.push(event as EventItemV3)
-      multiStatusResponse.setSuccessResponseAtIndex(index, {
-        status: 200,
-        sent: events[indices.indexOf(index)] as unknown as JSONLikeObject,
-        body: { success: true }
-      })
-    }
-  })
-
-  if (events.length) {
-    const data: PayloadV3 = { data: { events, partner: 'SEGMENT', test_id: clean(settings.test_id) } }
+  if (data.data.events.length) {
     const response = await request(
       `https://ads-api.reddit.com/api/${LATEST_API_VERSION}/pixels/${settings.ad_account_id}/conversion_events`,
       {
@@ -59,27 +39,33 @@ export async function sendV3(
 }
 
 function createRedditPayloadV3(
-  payload: StandardEvent | CustomEvent
-): { error: string; event?: undefined } | { error?: undefined; event: EventItemV3 } {
-  try {
-    const {
-      event_at,
-      click_id,
-      products,
-      user,
-      data_processing_options,
-      screen_dimensions,
-      event_metadata,
-      conversion_id,
-      action_source,
-      event_source_url
-    } = payload
+  payloads: (StandardEvent | CustomEvent)[],
+  settings: Settings,
+  multiStatusResponse: MultiStatusResponse,
+  isBatch: boolean
+): PayloadV3 {
+  const indices: number[] = []
+  const events: EventItemV3[] = []
 
-    const custom_event_name = clean((payload as CustomEvent).custom_event_name)
-    const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
+  payloads.forEach((payload, index) => {
+    try {
+      const {
+        event_at,
+        click_id,
+        products,
+        user,
+        data_processing_options,
+        screen_dimensions,
+        event_metadata,
+        conversion_id,
+        action_source,
+        event_source_url
+      } = payload
 
-    return {
-      event: {
+      const custom_event_name = clean((payload as CustomEvent).custom_event_name)
+      const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
+
+      const event: EventItemV3 = {
         event_at: toEpochMs(event_at),
         action_source: toActionSourceV3(action_source),
         event_source_url: clean(event_source_url),
@@ -91,10 +77,24 @@ function createRedditPayloadV3(
         event_metadata: getMetadata(event_metadata, products, conversion_id),
         user: getUser(user, data_processing_options, screen_dimensions)
       }
+
+      indices.push(index)
+      events.push(event)
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: events[indices.indexOf(index)] as unknown as JSONLikeObject,
+        body: { success: true }
+      })
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Invalid payload for Reddit Conversions API v3'
+      if (!isBatch) {
+        throw new PayloadValidationError(error)
+      }
+      multiStatusResponse.setErrorResponseAtIndex(index, { status: 400, errormessage: error })
     }
-  } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Invalid payload for Reddit Conversions API v3' }
-  }
+  })
+
+  return { data: { events, partner: 'SEGMENT', test_id: clean(settings.test_id) } }
 }
 
 export function toEpochMs(value: string | number | undefined): number {
