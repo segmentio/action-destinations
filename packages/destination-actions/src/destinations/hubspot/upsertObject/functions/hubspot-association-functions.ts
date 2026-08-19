@@ -1,5 +1,6 @@
 import { ModifiedResponse } from '@segment/actions-core'
-import { HS_OBJECT_ID, MAX_HUBSPOT_BATCH_SIZE } from '../constants'
+import { MAX_HUBSPOT_BATCH_SIZE } from '../constants'
+import { maybeIdentifierProperty, maybeIdProperty } from './id-property-functions'
 import { Client } from '../client'
 import {
   AssociationPayload,
@@ -85,9 +86,7 @@ export async function readAssociatedRecords(
     const { object_type: objectType } = payloads[0].object_details
 
     return await client.batchObjectRequest(AssociationSyncMode.Read, objectType, {
-      ...(payloads[0].object_details.id_field_name === HS_OBJECT_ID
-        ? {}
-        : { idProperty: payloads[0].object_details.id_field_name }),
+      ...maybeIdProperty(payloads[0].object_details.id_field_name),
       properties: [payloads[0].object_details.id_field_name],
       inputs: payloads.map((payload) => {
         return {
@@ -109,19 +108,13 @@ async function upsertAssociatedRecords(
 
     return await client.batchObjectRequest(AssociationSyncMode.Upsert, objectType, {
       inputs: payloads.map((payload) => {
-        if (payload.object_details.id_field_name === HS_OBJECT_ID) {
-          // hs_object_id is HubSpot's internal record id - send it as the id with no idProperty
-          return {
-            id: payload.object_details.id_field_value,
-            properties: {}
-          }
-        }
         return {
-          idProperty: payload.object_details.id_field_name,
+          ...maybeIdProperty(payload.object_details.id_field_name),
           id: payload.object_details.id_field_value,
-          properties: {
-            [payload.object_details.id_field_name]: payload.object_details.id_field_value
-          }
+          properties: maybeIdentifierProperty(
+            payload.object_details.id_field_name,
+            payload.object_details.id_field_value
+          )
         }
       })
     })

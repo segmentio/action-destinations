@@ -1,7 +1,7 @@
 import { ModifiedResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { Client } from '../client'
-import { HS_OBJECT_ID } from '../constants'
+import { maybeIdentifierProperty, maybeIdProperty } from './id-property-functions'
 import {
   ObjReqType,
   CreateReq,
@@ -38,17 +38,14 @@ async function upsertRecords(client: Client, payloads: Payload[], objectType: st
   const response = await client.batchObjectRequest(ObjReqType.Upsert, objectType, {
     inputs: payloads.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
       const idFieldName = payloads[0].object_details.id_field_name
-      if (idFieldName === HS_OBJECT_ID) {
-        // hs_object_id must be sent as the record id only - it is read-only and not a valid idProperty
-        return {
-          id: id_field_value,
-          properties: { ...properties, ...sensitive_properties }
-        }
-      }
       return {
-        idProperty: idFieldName,
+        ...maybeIdProperty(idFieldName),
         id: id_field_value,
-        properties: { ...properties, ...sensitive_properties, [idFieldName]: id_field_value }
+        properties: {
+          ...properties,
+          ...sensitive_properties,
+          ...maybeIdentifierProperty(idFieldName, id_field_value)
+        }
       }
     })
   } as UpsertReq)
@@ -72,7 +69,7 @@ async function updateRecords(client: Client, payloads: Payload[], objectType: st
     inputs: existingRecords.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
       const idFieldName = payloads[0].object_details.id_field_name
       return {
-        ...(idFieldName === HS_OBJECT_ID ? {} : { idProperty: idFieldName }),
+        ...maybeIdProperty(idFieldName),
         id: id_field_value,
         properties: { ...properties, ...sensitive_properties }
       }
@@ -94,15 +91,13 @@ async function addRecords(client: Client, payloads: Payload[], objectType: strin
     inputs: recordsToCreate.map(
       ({ object_details: { id_field_value: fromIdFieldValue }, properties, sensitive_properties }) => {
         const idFieldName = payloads[0].object_details.id_field_name
-        if (idFieldName === HS_OBJECT_ID) {
-          // hs_object_id is assigned by HubSpot, so it can't be set on a new record
-          return {
-            properties: { ...properties, ...sensitive_properties }
-          }
-        }
         return {
-          idProperty: idFieldName,
-          properties: { ...properties, ...sensitive_properties, [idFieldName]: fromIdFieldValue }
+          ...maybeIdProperty(idFieldName),
+          properties: {
+            ...properties,
+            ...sensitive_properties,
+            ...maybeIdentifierProperty(idFieldName, fromIdFieldValue)
+          }
         }
       }
     )
@@ -121,7 +116,7 @@ async function readRecords(
 
   const readResponse = await client.batchObjectRequest(ObjReqType.Read, objectType, {
     properties: [idFieldName],
-    ...(idFieldName === HS_OBJECT_ID ? {} : { idProperty: idFieldName }),
+    ...maybeIdProperty(idFieldName),
     inputs: payloads.map((payload) => {
       return { id: payload.object_details.id_field_value }
     })
