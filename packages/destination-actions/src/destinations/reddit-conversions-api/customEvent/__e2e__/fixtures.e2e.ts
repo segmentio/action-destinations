@@ -28,7 +28,10 @@ const fixtures: E2EFixture[] = [
       userId: nextUser(),
       properties: { email: 'e2e-reddit-custom-v2@segment.com' }
     }),
-    expect: { status: 'success' }
+    // Per Reddit's v2 API docs, a successful call returns 200 with { message: "string" } - a flat
+    // envelope, unlike v3's { data: { message } }. The doc only shows a generic placeholder value
+    // for message, so we can't assert its contents, just the status code.
+    expect: { status: 'success', httpStatus: 200 }
   },
   {
     description: 'V3: successfully sends a Custom event with action_source set',

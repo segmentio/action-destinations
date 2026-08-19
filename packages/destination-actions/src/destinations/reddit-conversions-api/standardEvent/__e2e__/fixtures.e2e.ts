@@ -40,7 +40,10 @@ const fixtures: E2EFixture[] = [
         products: [{ product_id: 'sku-001', category: 'Shoes', name: 'Running Shoes' }]
       }
     }),
-    expect: { status: 'success' }
+    // Per Reddit's v2 API docs, a successful call returns 200 with { message: "string" } - a flat
+    // envelope, unlike v3's { data: { message } }. The doc only shows a generic placeholder value
+    // for message, so we can't assert its contents, just the status code.
+    expect: { status: 'success', httpStatus: 200 }
   },
   {
     description: 'V2: successfully sends a batch of Add to Cart events (plain response, no MultiStatusResponse)',
@@ -67,7 +70,8 @@ const fixtures: E2EFixture[] = [
         }
       })
     ],
-    expect: { status: 'success' }
+    // Same v2 envelope caveat as above - { message } only, contents not asserted.
+    expect: { status: 'success', httpStatus: 200 }
   },
   {
     description:
@@ -83,7 +87,8 @@ const fixtures: E2EFixture[] = [
       userId: nextUser(),
       properties: { email: 'e2e-reddit-legacy@segment.com' }
     }),
-    expect: { status: 'success' },
+    // Same v2 envelope caveat as above - { message } only, contents not asserted.
+    expect: { status: 'success', httpStatus: 200 },
     verboseFailureHint:
       'Proves the migration safety net: a mapping saved before api_version existed has no value for it, which must resolve to LEGACY_API_VERSION (V2) at runtime, not V3.'
   },
