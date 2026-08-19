@@ -220,7 +220,7 @@ describe('createRedditPayloadV3', () => {
     })
 
     expect(multiStatusResponse.isSuccessResponseAtIndex(0)).toBe(true)
-    expect(multiStatusResponse.getResponseAtIndex(0)).toMatchObject({ status: 200, body: { success: true } })
+    expect(multiStatusResponse.getResponseAtIndex(0)).toMatchObject({ data: { status: 200, body: { success: true } } })
   })
 
   it('routes settings.test_id onto the payload', () => {
@@ -258,8 +258,10 @@ describe('createRedditPayloadV3', () => {
     expect(multiStatusResponse.isSuccessResponseAtIndex(0)).toBe(true)
     expect(multiStatusResponse.isErrorResponseAtIndex(1)).toBe(true)
     expect(multiStatusResponse.getResponseAtIndex(1)).toMatchObject({
-      status: 400,
-      errormessage: 'action_source is required when sending to Reddit Conversions API v3'
+      data: {
+        status: 400,
+        errormessage: 'action_source is required when sending to Reddit Conversions API v3'
+      }
     })
     expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
   })

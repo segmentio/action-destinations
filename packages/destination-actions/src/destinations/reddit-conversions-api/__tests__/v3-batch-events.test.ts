@@ -76,7 +76,8 @@ describe('Reddit Conversions Api - V3 batch events', () => {
         expect(multistatus?.[i]).toEqual({
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: "The root value is missing the required field 'action_source'.",
+          errormessage:
+            'The root value is missing the required field \'action_source\'. The root value must match "then" schema.',
           errorreporter: 'INTEGRATIONS'
         })
       } else if (kind === 'businessInvalid') {
@@ -93,6 +94,7 @@ describe('Reddit Conversions Api - V3 batch events', () => {
           sent: {
             event_at: epochMs,
             action_source: 'WEBSITE',
+            event_source_url: 'https://segment.com/academy/',
             type: {
               tracking_type: 'PURCHASE'
             },
@@ -108,7 +110,10 @@ describe('Reddit Conversions Api - V3 batch events', () => {
               conversion_id: sha256(`msg-${i}`)
             },
             user: {
-              external_id: sha256(`user_id_${i}`)
+              external_id: sha256(`user_id_${i}`),
+              ip_address: sha256('8.8.8.8'),
+              user_agent:
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
             }
           },
           body: { success: true }
