@@ -1,26 +1,31 @@
-export interface V3Product {
+import { ACTION_SOURCE_V3, EVENT_TYPE_V3 } from './constants'
+
+export type ActionSourceV3 = typeof ACTION_SOURCE_V3[number]
+export type EventTypeV3 = typeof EVENT_TYPE_V3[number]
+
+export interface ProductV3 {
   category?: string
-  id?: string
+  id: string
   name?: string
   quantity?: number
   item_price?: number
 }
 
-export interface V3Metadata {
+export interface MetadataV3 {
   currency?: string
   item_count?: number
   value?: number
   conversion_id?: string
-  products?: Array<V3Product>
+  products?: Array<ProductV3>
 }
 
-export interface V3DataProcessingOptions {
+export interface DataProcessingOptionsV3 {
   country?: string
   modes?: string[]
   region?: string
 }
 
-export interface V3User {
+export interface UserV3 {
   idfa?: string
   aaid?: string
   email?: string
@@ -28,7 +33,7 @@ export interface V3User {
   ip_address?: string
   user_agent?: string
   uuid?: string
-  data_processing_options?: V3DataProcessingOptions
+  data_processing_options?: DataProcessingOptionsV3
   screen_dimensions?: {
     height?: number
     width?: number
@@ -36,22 +41,22 @@ export interface V3User {
   phone_number?: string
 }
 
-export interface V3EventItem {
-  event_at: number
-  action_source?: string
+export interface EventItemV3 {
+  event_at: number // milliseconds
+  action_source: ActionSourceV3
   event_source_url?: string
   click_id?: string
   type: {
-    tracking_type: string
-    custom_event_name?: string
+    tracking_type: EventTypeV3
+    custom_event_name?: string // required if tracking_type is CUSTOM
   }
-  event_metadata?: V3Metadata
-  user?: V3User
+  event_metadata?: MetadataV3
+  user?: UserV3
 }
 
-export interface V3Payload {
+export interface PayloadV3 {
   data: {
-    events: V3EventItem[]
+    events: EventItemV3[]
     partner: 'SEGMENT'
     test_id?: string
   }

@@ -1,5 +1,6 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import { LEGACY_API_VERSION, LATEST_API_VERSION } from './versioning-info'
+import { ACTION_SOURCE_V3, ACTION_SOURCE_V3_LABELS } from './v3/constants'
 
 export const event_at: InputField = {
   label: 'Event At',
@@ -47,7 +48,8 @@ export const api_version: InputField = {
   choices: [
     { label: 'V3 (Beta)', value: LATEST_API_VERSION },
     { label: 'V2', value: LEGACY_API_VERSION }
-  ]
+  ],
+  disabledInputMethods: ['literal', 'variable', 'function', 'freeform', 'enrichment']
 }
 
 const API_VERSION_IS_V3 = {
@@ -62,12 +64,7 @@ export const action_source: InputField = {
   type: 'string',
   required: API_VERSION_IS_V3,
   depends_on: API_VERSION_IS_V3,
-  choices: [
-    { label: 'Website', value: 'WEBSITE' },
-    { label: 'App', value: 'APP' },
-    { label: 'Offline (Physical Store)', value: 'PHYSICAL_STORE' },
-    { label: 'Other', value: 'OTHER' }
-  ]
+  choices: ACTION_SOURCE_V3.map((value) => ({ label: ACTION_SOURCE_V3_LABELS[value], value }))
 }
 
 export const event_source_url: InputField = {
@@ -78,15 +75,6 @@ export const event_source_url: InputField = {
   required: false,
   depends_on: API_VERSION_IS_V3,
   default: { '@path': '$.context.page.url' }
-}
-
-export const test_id: InputField = {
-  label: 'Test ID',
-  description:
-    'A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3 (Beta).',
-  type: 'string',
-  required: false,
-  depends_on: API_VERSION_IS_V3
 }
 
 export const click_id: InputField = {

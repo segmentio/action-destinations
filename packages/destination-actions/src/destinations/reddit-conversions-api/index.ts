@@ -29,10 +29,17 @@ const destination: DestinationDefinition<Settings> = {
       test_mode: {
         label: 'Test Mode',
         description:
-          'Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2. V3 (Beta) is the latest API version. To send test events on V3, set the Test ID field on an action mapping instead.',
+          'Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2. V3 (Beta) is the latest API version. To send test events on V3, set the Test ID setting instead.',
         type: 'boolean',
         required: false,
         default: false
+      },
+      test_id: {
+        label: 'Test ID',
+        description:
+          'A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3 (Beta).',
+        type: 'string',
+        required: false
       }
     },
     testAuthentication: async (request, { settings }) => {

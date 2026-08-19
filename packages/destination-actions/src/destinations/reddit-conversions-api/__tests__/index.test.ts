@@ -934,13 +934,12 @@ describe('Reddit Conversions Api', () => {
       nock('https://ads-api.reddit.com').post('/api/v3/pixels/ad_account_id_1/conversion_events').reply(200, {})
       const responses = await testDestination.testAction('standardEvent', {
         event,
-        settings,
+        settings: { ...settings, test_id: 'test-123' },
         useDefaultMappings: true,
         mapping: {
           tracking_type: 'Purchase',
           api_version: 'v3',
-          action_source: 'WEBSITE',
-          test_id: 'test-123'
+          action_source: 'WEBSITE'
         }
       })
 

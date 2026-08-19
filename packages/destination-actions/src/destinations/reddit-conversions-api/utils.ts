@@ -22,14 +22,11 @@ type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['sc
 
 export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
   const data = createRedditPayload(payload, settings)
-  return request(
-    `https://ads-api.reddit.com/api/${LEGACY_API_VERSION}/conversions/events/${settings.ad_account_id}`,
-    {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${settings.conversion_token}` },
-      json: JSON.parse(JSON.stringify(data))
-    }
-  )
+  return request(`https://ads-api.reddit.com/api/${LEGACY_API_VERSION}/conversions/events/${settings.ad_account_id}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${settings.conversion_token}` },
+    json: JSON.parse(JSON.stringify(data))
+  })
 }
 
 function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
@@ -73,12 +70,12 @@ function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings
   }
 }
 
-function clean(str: string | undefined): string | undefined {
+export function clean(str: string | undefined): string | undefined {
   if (str === undefined || str === null || str === '') return undefined
   return str.trim()
 }
 
-function cleanNum(num: number | undefined): number | undefined {
+export function cleanNum(num: number | undefined): number | undefined {
   if (num === undefined || num === null) return undefined
   return num
 }
@@ -92,7 +89,9 @@ function getProducts(products: ProductsType): Product[] | undefined {
     return {
       category: clean(product.category),
       id: clean(product.id),
-      name: clean(product.name)
+      name: clean(product.name),
+      quantity: cleanNum(product.quantity),
+      item_price: cleanNum(product.item_price)
     }
   })
 }
@@ -115,14 +114,17 @@ function getMetadata(
   }
 }
 
-function getAdId(device_type?: string, advertising_id?: string): { [key: string]: string | undefined } | undefined {
+export function getAdId(
+  device_type?: string,
+  advertising_id?: string
+): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
   const hashedAdId = smartHash(advertising_id)
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
-function getDataProcessingOptions(
+export function getDataProcessingOptions(
   dataProcessingOptions: DataProcessingOptionsType
 ): DatapProcessingOptions | undefined {
   if (!dataProcessingOptions) return undefined
@@ -133,7 +135,7 @@ function getDataProcessingOptions(
   }
 }
 
-function getScreen(height?: number, width?: number): { height: number; width: number } | undefined {
+export function getScreen(height?: number, width?: number): { height: number; width: number } | undefined {
   if (height === undefined || width === undefined) return undefined
   return {
     height,
@@ -141,7 +143,7 @@ function getScreen(height?: number, width?: number): { height: number; width: nu
   }
 }
 
-function getUser(
+export function getUser(
   user: UserType,
   dataProcessingOptions: DataProcessingOptionsType,
   screenDimensions: ScreenDimensionsType
@@ -161,19 +163,22 @@ function getUser(
   }
 }
 
-function canonicalizeEmail(value: string): string {
+export function canonicalizeEmail(value: string): string {
   value = value.trim()
   const localPartAndDomain = value.split('@')
   const localPart = localPartAndDomain[0].replace(/\./g, '').split('+')[0]
   return `${localPart.toLowerCase()}@${localPartAndDomain[1].toLowerCase()}`
 }
 
-const smartHash = (value: string | undefined, cleaningFunction?: (value: string) => string): string | undefined => {
+export const smartHash = (
+  value: string | undefined,
+  cleaningFunction?: (value: string) => string
+): string | undefined => {
   if (value === undefined) return
   return processHashing(value, 'sha256', 'hex', cleaningFunction)
 }
 
-function cleanPhoneNumber(phoneNumber: string): string {
+export function cleanPhoneNumber(phoneNumber: string): string {
   if (!phoneNumber) return ''
   phoneNumber = phoneNumber.trim()
   const prefix = '+'

@@ -138,8 +138,4 @@ export interface Payload {
    * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).
    */
   event_source_url?: string
-  /**
-   * A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3 (Beta).
-   */
-  test_id?: string
 }
