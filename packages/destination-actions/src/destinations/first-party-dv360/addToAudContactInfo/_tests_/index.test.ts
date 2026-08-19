@@ -202,6 +202,13 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
           step_name: 'test-step-name'
         }
       },
+      traits: {
+        phone: '+19876543210',
+        zipCodes: '54321',
+        firstName: 'Jane',
+        lastName: 'Doe',
+        countryCode: 'US'
+      },
       context: {
         personas: {
           external_audience_id: '9876543210',
@@ -210,12 +217,7 @@ describe('First-Party-dv360.addToAudContactInfo', () => {
           }
         },
         traits: {
-          emails: 'journeys@testing.com',
-          phoneNumbers: '+19876543210',
-          zipCodes: '54321',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          countryCode: 'US'
+          email: 'journeys@testing.com'
         }
       }
     })

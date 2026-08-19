@@ -13,7 +13,7 @@ import type {
   ProductViewedEventName,
   ProductViewedEvent,
   MultiProductBaseEvent,
-  //CartUpdatedEvent,
+  CartUpdatedEvent,
   CheckoutStartedEvent,
   OrderPlacedEvent,
   OrderRefundedEvent,
@@ -21,7 +21,7 @@ import type {
   PayloadWithIndex,
   Product
 } from './types'
-import { EVENT_NAMES } from './constants'
+import { EVENT_NAMES, SUPPORTED_SYNC_MODES } from './constants'
 import dayjs from 'dayjs'
 
 export async function send(
@@ -33,23 +33,13 @@ export async function send(
 ) {
   const msResponse = new MultiStatusResponse()
 
-  if (!['update', 'add'].includes(syncMode ?? '')) {
-    const errorMessage = `Invalid syncMode: ${syncMode}. Supported sync modes are 'add' and 'update'.`
-    if (isBatch) {
-      payloads.forEach((_, index) => {
-        msResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errormessage: errorMessage
-        })
-      })
-      return msResponse
-    } else {
-      throw new PayloadValidationError(errorMessage)
-    }
-  }
+  const isValidSyncMode = syncMode && (Object.values(SUPPORTED_SYNC_MODES) as SyncMode[]).includes(syncMode)
+  const resolvedSyncMode: SupportedSyncMode = isValidSyncMode
+    ? (syncMode as SupportedSyncMode)
+    : SUPPORTED_SYNC_MODES.ADD
 
   const { endpoint } = settings
-  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, syncMode as SupportedSyncMode, msResponse)
+  const { json, payloadsWithIndexes } = getJSON(payloads, settings, isBatch, resolvedSyncMode, msResponse)
   const url = `${endpoint}/users/track`
 
   const response = await request<BrazeTrackUserAPIResponse>(url, {
@@ -164,19 +154,23 @@ function getJSONItem(
 
   switch (name) {
     case EVENT_NAMES.PRODUCT_VIEWED: {
-      const { product } = payload as SingleProductPayload
+      const {
+        product,
+        catalog_type
+      } = payload as SingleProductPayload
 
       const event: ProductViewedEvent = {
         ...baseEvent,
         name: EVENT_NAMES.PRODUCT_VIEWED,
         properties: {
           ...baseEvent.properties,
-          ...product
+          ...product,
+          ...(catalog_type && catalog_type.length > 0 ? { type: catalog_type } : {})
         }
       }
       return event
-    }
-    // case EVENT_NAMES.CART_UPDATED:
+    } 
+    case EVENT_NAMES.CART_UPDATED:
     case EVENT_NAMES.CHECKOUT_STARTED:
     case EVENT_NAMES.ORDER_PLACED:
     case EVENT_NAMES.ORDER_CANCELLED:
@@ -193,23 +187,33 @@ function getJSONItem(
         }
       }
 
-      switch (name) {
-        // case EVENT_NAMES.CART_UPDATED: {
-        //   const { cart_id } = payload
+      switch(name) {
+        case EVENT_NAMES.CART_UPDATED: {
+          const { cart_id, action, subtotal_value, tax, shipping } = payload as Payload
 
-        //   const event: CartUpdatedEvent = {
-        //     ...multiProductEvent,
-        //     name: EVENT_NAMES.CART_UPDATED,
-        //     properties: {
-        //       ...multiProductEvent.properties,
-        //       cart_id: cart_id as string
-        //     }
-        //   }
-        //   return event
-        // }
+          const event: CartUpdatedEvent = {
+            ...multiProductEvent,
+            name: EVENT_NAMES.CART_UPDATED,
+            properties: {
+              ...multiProductEvent.properties,
+              cart_id: cart_id as string,
+              ...(action ? { action: action as 'add' | 'remove' | 'replace' } : {}),
+              ...(typeof subtotal_value === 'number' ? { subtotal_value } : {}),
+              ...(typeof tax === 'number' ? { tax } : {}),
+              ...(typeof shipping === 'number' ? { shipping } : {})
+            }
+          }
+          return event
+        }
 
         case EVENT_NAMES.CHECKOUT_STARTED: {
-          const { checkout_id, cart_id } = payload
+          const {
+            checkout_id,
+            cart_id,
+            subtotal_value,
+            tax,
+            shipping
+          } = payload as Payload
 
           const event: CheckoutStartedEvent = {
             ...multiProductEvent,
@@ -217,14 +221,25 @@ function getJSONItem(
             properties: {
               ...multiProductEvent.properties,
               checkout_id: checkout_id as string,
-              ...(cart_id ? { cart_id } : {})
+              ...(cart_id ? { cart_id } : {}),
+              ...(typeof subtotal_value === 'number' ? { subtotal_value } : {}),
+              ...(typeof tax === 'number' ? { tax } : {}),
+              ...(typeof shipping === 'number' ? { shipping } : {})
             }
           }
           return event
         }
 
         case EVENT_NAMES.ORDER_PLACED: {
-          const { order_id, cart_id, total_discounts, discounts } = payload
+          const {
+            order_id,
+            cart_id,
+            subtotal_value,
+            tax,
+            shipping,
+            total_discounts,
+            discounts
+          } = payload as Payload
 
           const event: OrderPlacedEvent = {
             ...multiProductEvent,
@@ -232,16 +247,23 @@ function getJSONItem(
             properties: {
               ...multiProductEvent.properties,
               order_id: order_id as string,
+              ...(cart_id ? { cart_id } : {}),
+              ...(typeof subtotal_value === 'number' ? { subtotal_value } : {}),
+              ...(typeof tax === 'number' ? { tax } : {}),
+              ...(typeof shipping === 'number' ? { shipping } : {}),
               ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
-              ...(discounts ? { discounts } : {}),
-              ...(cart_id ? { cart_id } : {})
+              ...(discounts ? { discounts } : {})
             }
           }
           return event
         }
 
         case EVENT_NAMES.ORDER_REFUNDED: {
-          const { order_id, total_discounts, discounts } = payload
+          const {
+            order_id,
+            total_discounts,
+            discounts
+          } = payload as Payload
 
           const event: OrderRefundedEvent = {
             ...multiProductEvent,
@@ -257,7 +279,15 @@ function getJSONItem(
         }
 
         case EVENT_NAMES.ORDER_CANCELLED: {
-          const { order_id, cancel_reason, total_discounts, discounts } = payload
+          const {
+            order_id,
+            cancel_reason,
+            subtotal_value,
+            tax,
+            shipping,
+            total_discounts,
+            discounts
+          } = payload as Payload
 
           const event: OrderCancelledEvent = {
             ...multiProductEvent,
@@ -266,6 +296,9 @@ function getJSONItem(
               ...multiProductEvent.properties,
               order_id: order_id as string,
               cancel_reason: cancel_reason as string,
+              ...(typeof subtotal_value === 'number' ? { subtotal_value } : {}),
+              ...(typeof tax === 'number' ? { tax } : {}),
+              ...(typeof shipping === 'number' ? { shipping } : {}),
               ...(typeof total_discounts === 'number' ? { total_discounts } : {}),
               ...(discounts ? { discounts } : {})
             }
@@ -302,13 +335,25 @@ function getProductAndMetadataJSON(payload: Payload): Product[] {
 }
 
 function validate(payload: Payload | SingleProductPayload, isBatch: boolean): string | void {
-  const { braze_id, user_alias, external_id, email, phone } = payload
+  const { name, braze_id, user_alias, external_id, email, phone } = payload
   if (!braze_id && !user_alias && !external_id && !email && !phone) {
     const message = 'One of "external_id" or "user_alias" or "braze_id" or "email" or "phone" is required.'
     if (!isBatch) {
       throw new PayloadValidationError(message)
     } else {
       return message
+    }
+  }
+
+  if (name === EVENT_NAMES.CART_UPDATED) {
+    const { total_value, action } = payload
+    if (typeof total_value !== 'number' && action !== 'add' && action !== 'remove') {
+      const message = 'total_value is required for cart_updated events unless action is "add" or "remove".'
+      if (!isBatch) {
+        throw new PayloadValidationError(message)
+      } else {
+        return message
+      }
     }
   }
 }
