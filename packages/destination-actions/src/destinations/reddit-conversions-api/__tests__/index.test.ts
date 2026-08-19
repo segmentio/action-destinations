@@ -2,7 +2,6 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { FLAGON_NAME } from '../v3/utils-v3'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
@@ -937,7 +936,6 @@ describe('Reddit Conversions Api', () => {
         event,
         settings,
         useDefaultMappings: true,
-        features: { [FLAGON_NAME]: true },
         mapping: {
           tracking_type: 'Purchase',
           api_version: 'v3',
@@ -996,7 +994,6 @@ describe('Reddit Conversions Api', () => {
         event,
         settings,
         useDefaultMappings: true,
-        features: { [FLAGON_NAME]: true },
         mapping: {
           custom_event_name: 'Some Custom Event Name',
           api_version: 'v3',
@@ -1009,7 +1006,7 @@ describe('Reddit Conversions Api', () => {
       expect(body.data.events[0].type.tracking_type).toBe('CUSTOM')
     })
 
-    it('should stay on v2 when the flag is on but api_version is not set (existing customers)', async () => {
+    it('should stay on v2 when api_version is not set (existing customers)', async () => {
       const event = createTestEvent({
         timestamp: timestamp,
         event: 'Order Completed',
@@ -1024,7 +1021,6 @@ describe('Reddit Conversions Api', () => {
         event,
         settings,
         useDefaultMappings: true,
-        features: { [FLAGON_NAME]: true },
         // See the comment in the "dedicated event actions" describe block below: useDefaultMappings
         // would otherwise merge in api_version's own default ('v3'), which isn't what an existing,
         // pre-this-field customer's stored mapping looks like.
@@ -1053,7 +1049,6 @@ describe('Reddit Conversions Api', () => {
           event,
           settings,
           useDefaultMappings: true,
-          features: { [FLAGON_NAME]: true },
           mapping: {
             tracking_type: 'Purchase',
             api_version: 'v3'

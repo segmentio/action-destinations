@@ -7,12 +7,6 @@ import { V3EventItem, V3Payload, V3Metadata, V3Product, V3User, V3DataProcessing
 import { processHashing } from '../../../lib/hashing-utils'
 import { LATEST_API_VERSION } from '../versioning-info'
 
-/** FLAGON_NAME
- * Flagon flag gating whether Reddit Conversions API v3 is reachable at all for an account.
- * https://flagon.segment.com/families/centrifuge-destinations/gates/reddit-conversions-api-canary-version
- */
-export const FLAGON_NAME = 'reddit-conversions-api-canary-version'
-
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
 type ProductsType = StandardEvent['products'] | CustomEvent['products']
 type ConversionIdType = StandardEvent['conversion_id'] | CustomEvent['conversion_id']
