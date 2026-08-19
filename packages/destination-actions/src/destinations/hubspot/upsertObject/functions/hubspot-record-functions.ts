@@ -10,6 +10,7 @@ import {
   ReadType,
   BatchObjResp,
   SyncMode,
+  UpdateReq,
   UpsertReq
 } from '../types'
 
@@ -72,7 +73,7 @@ async function updateRecords(client: Client, payloads: Payload[], objectType: st
         properties: { ...properties, ...sensitive_properties }
       }
     })
-  } as UpsertReq)
+  } as UpdateReq)
 
   return returnRecordsWithIds(existingRecords, response)
 }
