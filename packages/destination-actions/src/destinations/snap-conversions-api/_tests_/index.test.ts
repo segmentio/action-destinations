@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { smartHash } from '../reportConversionEvent/utils'
+import { FLAGON_EVENT_TIME_IN_SECONDS } from '../reportConversionEvent/snap-capi-v3'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -836,6 +837,58 @@ describe('Snap Conversions API ', () => {
       expect(user_data.madid).toBe(testEvent.context?.device?.advertisingId)
       expect(user_data.sc_click_id).toEqual((testEvent.integrations?.['Snap Conversions Api'] as any)?.click_id)
       expect(user_data.sc_cookie1).toEqual((testEvent.integrations?.['Snap Conversions Api'] as any)?.uuid_c1)
+    })
+  })
+
+  describe('event_time normalization (snap-capi-event-time-in-seconds flag)', () => {
+    const FLAG = FLAGON_EVENT_TIME_IN_SECONDS
+
+    it('emits milliseconds (13 digits) when the flag is OFF (default, unchanged behavior)', async () => {
+      const { data } = await reportConversionEvent({
+        mapping: { event_type: 'PURCHASE', event_conversion_type: 'WEB' }
+      })
+
+      // Date.parse('2022-05-12T15:21:15.449Z') === 1652368875449 (milliseconds)
+      expect(data.event_time).toEqual(1652368875449)
+    })
+
+    it('converts an ISO8601 timestamp to Unix seconds (10 digits) when the flag is ON', async () => {
+      const { data } = await reportConversionEvent({
+        features: { [FLAG]: true },
+        mapping: { event_type: 'PURCHASE', event_conversion_type: 'WEB' }
+      })
+
+      // 1652368875449 ms -> 1652368875 s
+      expect(data.event_time).toEqual(1652368875)
+    })
+
+    it('reproduces STRATCONN-6951: offline lead ms timestamp becomes valid seconds when ON', async () => {
+      const { data } = await reportConversionEvent({
+        event: { ...testEvent, timestamp: '2026-05-20T19:29:22.702Z' },
+        features: { [FLAG]: true },
+        mapping: { event_name: 'SIGN_UP', event_conversion_type: 'OFFLINE' }
+      })
+
+      // 1779305362702 ms (rejected by Snap as invalid) -> 1779305362 s (valid)
+      expect(data.event_time).toEqual(1779305362)
+    })
+
+    it('divides a numeric millisecond event_time (13 digits) to seconds when ON', async () => {
+      const { data } = await reportConversionEvent({
+        features: { [FLAG]: true },
+        mapping: { event_type: 'PURCHASE', event_conversion_type: 'WEB', event_time: '1652368875449' }
+      })
+
+      expect(data.event_time).toEqual(1652368875)
+    })
+
+    it('leaves a numeric second event_time (10 digits) untouched when ON', async () => {
+      const { data } = await reportConversionEvent({
+        features: { [FLAG]: true },
+        mapping: { event_type: 'PURCHASE', event_conversion_type: 'WEB', event_time: '1652368875' }
+      })
+
+      expect(data.event_time).toEqual(1652368875)
     })
   })
 })
