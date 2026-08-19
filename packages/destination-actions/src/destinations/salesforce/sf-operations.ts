@@ -39,7 +39,13 @@ export const generateSalesforceRequest = async (settings: Settings, request: Req
     return request
   }
 
-  const { accessToken } = await authenticateWithPassword(settings)
+  const { accessToken } = await authenticateWithPassword(
+    settings.username,
+    settings.auth_password,
+    settings.security_token,
+    settings.isSandbox,
+    settings.instanceUrl
+  )
 
   const passwordRequestClient = createRequestClient({
     headers: {
@@ -68,17 +74,18 @@ const constructPassword = (password: string, securityToken?: string): string => 
   return combined
 }
 
-export const authenticateWithPassword = async (settings: Settings): Promise<RefreshAccessTokenResult> => {
-  const { username, auth_password, security_token, isSandbox, instanceUrl } = settings
+export const authenticateWithPassword = async (
+  username: string,
+  auth_password: string,
+  security_token?: string,
+  isSandbox?: boolean,
+  instanceUrl?: string
+): Promise<RefreshAccessTokenResult> => {
   const clientId = process.env.SALESFORCE_CLIENT_ID
   const clientSecret = process.env.SALESFORCE_CLIENT_SECRET
 
   if (!clientId || !clientSecret) {
     throw new IntegrationError('Missing Salesforce client ID or client secret', 'Missing Credentials', 400)
-  }
-
-  if (!username || !auth_password) {
-    throw new IntegrationError('Missing Salesforce username or password', 'Missing Credentials', 400)
   }
 
   const newRequest = createRequestClient()

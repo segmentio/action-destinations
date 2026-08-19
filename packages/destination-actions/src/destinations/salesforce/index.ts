@@ -67,7 +67,13 @@ const destination: DestinationDefinition<Settings> = {
     },
     refreshAccessToken: async (request, { auth, settings }) => {
       if (settings.username && settings.auth_password) {
-        const { accessToken } = await authenticateWithPassword(settings)
+        const { accessToken } = await authenticateWithPassword(
+          settings.username,
+          settings.auth_password,
+          settings.security_token,
+          settings.isSandbox,
+          settings.instanceUrl
+        )
 
         return { accessToken }
       }
