@@ -2,7 +2,8 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from '../utils'
-import { resolveVersion, sendV3 } from '../v3/utils-v3'
+import { sendV3 } from '../v3/utils-v3'
+import { resolveVersion } from '../action'
 import { LEGACY_API_VERSION, LATEST_API_VERSION } from '../versioning-info'
 import {
   event_at,
