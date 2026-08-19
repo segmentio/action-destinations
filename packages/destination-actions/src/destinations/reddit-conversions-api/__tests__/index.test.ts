@@ -2,13 +2,13 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
+import { FLAGON_NAME } from '../utils'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
 const settings: Settings = {
   ad_account_id: 'ad_account_id_1',
-  conversion_token: 'conversion_token_1',
-  test_mode: false
+  conversion_token: 'conversion_token_1'
 }
 
 describe('Reddit Conversions Api', () => {
@@ -48,7 +48,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          custom_event_name: 'Some Custom Event Name'
+          custom_event_name: 'Some Custom Event Name',
+          api_version: 'v2'
         }
       })
 
@@ -91,8 +92,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -131,7 +131,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          custom_event_name: 'Some Custom Event Name'
+          custom_event_name: 'Some Custom Event Name',
+          api_version: 'v2'
         }
       })
 
@@ -174,8 +175,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
   })
@@ -217,7 +217,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Purchase'
+          tracking_type: 'Purchase',
+          api_version: 'v2'
         }
       })
 
@@ -259,8 +260,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -300,7 +300,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -341,8 +342,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -379,7 +379,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -419,8 +420,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -456,7 +456,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -494,8 +495,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -535,7 +535,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -576,8 +577,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -615,7 +615,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -656,8 +657,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -697,7 +697,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -738,8 +739,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -779,7 +779,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -820,8 +821,7 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
     })
 
@@ -861,7 +861,8 @@ describe('Reddit Conversions Api', () => {
         settings,
         useDefaultMappings: true,
         mapping: {
-          tracking_type: 'Lead'
+          tracking_type: 'Lead',
+          api_version: 'v2'
         }
       })
 
@@ -902,9 +903,163 @@ describe('Reddit Conversions Api', () => {
             }
           }
         ],
-        partner: 'SEGMENT',
-        test_mode: false
+        partner: 'SEGMENT'
       })
+    })
+  })
+
+  describe('v3 (canary)', () => {
+    it('should send a Purchase Standard event to v3 when api_version is v3 and action_source is set', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Order Completed',
+        messageId: 'test-message-id-contact',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {
+          click_id: 'click_id_1',
+          currency: 'USD',
+          quantity: 10,
+          revenue: 100,
+          uuid: 'uuid_1',
+          products: [{ product_id: 'product_id_1', category: 'category_1', name: 'name_1', quantity: 2, price: 25 }],
+          email: 'test@test.com'
+        },
+        context: {
+          userAgent: 'test-user-agent',
+          ip: '111.111.111.111',
+          page: { url: 'https://example.com/checkout' }
+        }
+      })
+
+      nock('https://ads-api.reddit.com').post('/api/v3/pixels/ad_account_id_1/conversion_events').reply(200, {})
+      const responses = await testDestination.testAction('standardEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        features: { [FLAGON_NAME]: true },
+        mapping: {
+          tracking_type: 'Purchase',
+          api_version: 'v3',
+          action_source: 'WEBSITE',
+          test_id: 'test-123'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        data: {
+          partner: 'SEGMENT',
+          test_id: 'test-123',
+          events: [
+            {
+              action_source: 'WEBSITE',
+              event_source_url: 'https://example.com/checkout',
+              click_id: 'click_id_1',
+              event_at: 1704721970212,
+              type: {
+                tracking_type: 'PURCHASE'
+              },
+              event_metadata: {
+                currency: 'USD',
+                item_count: 10,
+                value: 100,
+                products: [
+                  {
+                    category: 'category_1',
+                    id: 'product_id_1',
+                    name: 'name_1',
+                    quantity: 2,
+                    item_price: 25
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      })
+    })
+
+    it('should route a Custom event to v3 with UPPER_SNAKE_CASE tracking_type', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Some Custom Event Name',
+        messageId: 'test-message-id-contact',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: {}
+      })
+
+      nock('https://ads-api.reddit.com').post('/api/v3/pixels/ad_account_id_1/conversion_events').reply(200, {})
+      const responses = await testDestination.testAction('customEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        features: { [FLAGON_NAME]: true },
+        mapping: {
+          custom_event_name: 'Some Custom Event Name',
+          api_version: 'v3',
+          action_source: 'APP'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      const body = responses[0].options.json as { data: { events: Array<{ type: { tracking_type: string } }> } }
+      expect(body.data.events[0].type.tracking_type).toBe('CUSTOM')
+    })
+
+    it('should stay on v2 when the flag is on but api_version is not set (existing customers)', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Order Completed',
+        messageId: 'test-message-id-contact',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: { revenue: 100 }
+      })
+
+      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      const responses = await testDestination.testAction('standardEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        features: { [FLAGON_NAME]: true },
+        // See the comment in the "dedicated event actions" describe block below: useDefaultMappings
+        // would otherwise merge in api_version's own default ('v3'), which isn't what an existing,
+        // pre-this-field customer's stored mapping looks like.
+        mapping: {
+          tracking_type: 'Purchase',
+          api_version: 'v2'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should reject the mapping when api_version is v3 but action_source is not set', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Order Completed',
+        messageId: 'test-message-id-contact',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: { revenue: 100 }
+      })
+
+      await expect(
+        testDestination.testAction('standardEvent', {
+          event,
+          settings,
+          useDefaultMappings: true,
+          features: { [FLAGON_NAME]: true },
+          mapping: {
+            tracking_type: 'Purchase',
+            api_version: 'v3'
+          }
+        })
+      ).rejects.toThrow()
     })
   })
 })

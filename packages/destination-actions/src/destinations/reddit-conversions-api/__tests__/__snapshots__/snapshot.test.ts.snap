@@ -1,5 +1,137 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-reddit-conversions-api destination: addToCart action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "p#r(0K#rxAAl(v)^z",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "448eedc9c255cc5add0a5dc99c29d361d8e958c5ecf7d02a83c6925cfd4d943d",
+        "currency": "SHP",
+        "item_count": 4702971690483712,
+        "products": Array [
+          Object {
+            "category": "p#r(0K#rxAAl(v)^z",
+            "id": "p#r(0K#rxAAl(v)^z",
+            "name": "p#r(0K#rxAAl(v)^z",
+          },
+        ],
+        "value_decimal": 47029716904837.12,
+      },
+      "event_type": Object {
+        "tracking_type": "AddToCart",
+      },
+      "user": Object {
+        "aaid": "448eedc9c255cc5add0a5dc99c29d361d8e958c5ecf7d02a83c6925cfd4d943d",
+        "data_processing_options": Object {
+          "country": "RS",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "p#r(0K#rxAAl(v)^z",
+        },
+        "email": "a406eef9f73ae55d785d1835781c825452fa48024c9f8e1e4f5ec605431d28fb",
+        "external_id": "448eedc9c255cc5add0a5dc99c29d361d8e958c5ecf7d02a83c6925cfd4d943d",
+        "ip_address": "448eedc9c255cc5add0a5dc99c29d361d8e958c5ecf7d02a83c6925cfd4d943d",
+        "phone_number": "c101893d61ca9787edac49beedc0cb15dcc86c6495402b634963bcafdc7c925a",
+        "screen_dimensions": Object {
+          "height": 4702971690483712,
+          "width": 4702971690483712,
+        },
+        "user_agent": "p#r(0K#rxAAl(v)^z",
+        "uuid": "p#r(0K#rxAAl(v)^z",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: addToCart action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "p#r(0K#rxAAl(v)^z",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "448eedc9c255cc5add0a5dc99c29d361d8e958c5ecf7d02a83c6925cfd4d943d",
+      },
+      "event_type": Object {
+        "tracking_type": "AddToCart",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: addToWishlist action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "fuz[PT)N!tq14MWd#v",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "9abb6d3de4c839a34790d44ee626f1ea0281aac619fb1c8c737a8d6fa94a97b7",
+        "currency": "THB",
+        "item_count": 5745118342545408,
+        "products": Array [
+          Object {
+            "category": "fuz[PT)N!tq14MWd#v",
+            "id": "fuz[PT)N!tq14MWd#v",
+            "name": "fuz[PT)N!tq14MWd#v",
+          },
+        ],
+        "value_decimal": 57451183425454.08,
+      },
+      "event_type": Object {
+        "tracking_type": "AddToWishlist",
+      },
+      "user": Object {
+        "aaid": "9abb6d3de4c839a34790d44ee626f1ea0281aac619fb1c8c737a8d6fa94a97b7",
+        "data_processing_options": Object {
+          "country": "SN",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "fuz[PT)N!tq14MWd#v",
+        },
+        "email": "f46bc5e064354c63dad112ee067db9299d4d5cdc296d65141031284d8069ded8",
+        "external_id": "9abb6d3de4c839a34790d44ee626f1ea0281aac619fb1c8c737a8d6fa94a97b7",
+        "ip_address": "9abb6d3de4c839a34790d44ee626f1ea0281aac619fb1c8c737a8d6fa94a97b7",
+        "phone_number": "517d3db2ccc6219d2d77a095f669ed393315267838df3a902cdabd7784f2d780",
+        "screen_dimensions": Object {
+          "height": 5745118342545408,
+          "width": 5745118342545408,
+        },
+        "user_agent": "fuz[PT)N!tq14MWd#v",
+        "uuid": "fuz[PT)N!tq14MWd#v",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: addToWishlist action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "fuz[PT)N!tq14MWd#v",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "9abb6d3de4c839a34790d44ee626f1ea0281aac619fb1c8c737a8d6fa94a97b7",
+      },
+      "event_type": Object {
+        "tracking_type": "AddToWishlist",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
 exports[`Testing snapshot for actions-reddit-conversions-api destination: customEvent action - all fields 1`] = `
 Object {
   "events": Array [
@@ -46,7 +178,6 @@ Object {
     },
   ],
   "partner": "SEGMENT",
-  "test_mode": true,
 }
 `;
 
@@ -66,7 +197,336 @@ Object {
     },
   ],
   "partner": "SEGMENT",
-  "test_mode": true,
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: lead action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "WThh$KLW6%(Lw!jiO]q",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "b20c6c53b102653d1466290ee7ef6656c8a152839a9340d42fb7b304210affbb",
+        "currency": "UYW",
+        "item_count": 7322245504434176,
+        "products": Array [
+          Object {
+            "category": "WThh$KLW6%(Lw!jiO]q",
+            "id": "WThh$KLW6%(Lw!jiO]q",
+            "name": "WThh$KLW6%(Lw!jiO]q",
+          },
+        ],
+        "value_decimal": 73222455044341.77,
+      },
+      "event_type": Object {
+        "tracking_type": "Lead",
+      },
+      "user": Object {
+        "aaid": "b20c6c53b102653d1466290ee7ef6656c8a152839a9340d42fb7b304210affbb",
+        "data_processing_options": Object {
+          "country": "TT",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "WThh$KLW6%(Lw!jiO]q",
+        },
+        "email": "2e4a86bd5a63a56435cb6d2baebf1a30a6b58e45a78d15fe567e66f1f81ce46d",
+        "external_id": "b20c6c53b102653d1466290ee7ef6656c8a152839a9340d42fb7b304210affbb",
+        "ip_address": "b20c6c53b102653d1466290ee7ef6656c8a152839a9340d42fb7b304210affbb",
+        "phone_number": "f6ea26ab26c3eb154996c9900ca7b9d960a9a35603310fb3b40b35f51d68e01b",
+        "screen_dimensions": Object {
+          "height": 7322245504434176,
+          "width": 7322245504434176,
+        },
+        "user_agent": "WThh$KLW6%(Lw!jiO]q",
+        "uuid": "WThh$KLW6%(Lw!jiO]q",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: lead action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "WThh$KLW6%(Lw!jiO]q",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "b20c6c53b102653d1466290ee7ef6656c8a152839a9340d42fb7b304210affbb",
+      },
+      "event_type": Object {
+        "tracking_type": "Lead",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: pageVisit action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "7B$qESc",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "4f2239823d2f7e468866085272ce0bded63a0e236c3cb8f83869d80d24d2b239",
+        "currency": "CDF",
+        "item_count": -6062670935490560,
+        "products": Array [
+          Object {
+            "category": "7B$qESc",
+            "id": "7B$qESc",
+            "name": "7B$qESc",
+          },
+        ],
+        "value_decimal": -60626709354905.6,
+      },
+      "event_type": Object {
+        "tracking_type": "PageVisit",
+      },
+      "user": Object {
+        "aaid": "4f2239823d2f7e468866085272ce0bded63a0e236c3cb8f83869d80d24d2b239",
+        "data_processing_options": Object {
+          "country": "CF",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "7B$qESc",
+        },
+        "email": "4dc02b43a09caa28090093c65393bb6b8946576c1cbe0f8a6d1001543ceea5bd",
+        "external_id": "4f2239823d2f7e468866085272ce0bded63a0e236c3cb8f83869d80d24d2b239",
+        "ip_address": "4f2239823d2f7e468866085272ce0bded63a0e236c3cb8f83869d80d24d2b239",
+        "phone_number": "da91a9a6e4c52003a0781ce0a1ac648ab6e72df48de4f23c1d2984cf9e2e52c1",
+        "screen_dimensions": Object {
+          "height": -6062670935490560,
+          "width": -6062670935490560,
+        },
+        "user_agent": "7B$qESc",
+        "uuid": "7B$qESc",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: pageVisit action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "7B$qESc",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "4f2239823d2f7e468866085272ce0bded63a0e236c3cb8f83869d80d24d2b239",
+      },
+      "event_type": Object {
+        "tracking_type": "PageVisit",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: purchase action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "KYja1m&ZYQ",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "128fed12616f6f3e2d9693f90054d6feb81dbae5b8249c3c2781814d8b20916c",
+        "currency": "IDR",
+        "item_count": -2400024885460992,
+        "products": Array [
+          Object {
+            "category": "KYja1m&ZYQ",
+            "id": "KYja1m&ZYQ",
+            "name": "KYja1m&ZYQ",
+          },
+        ],
+        "value_decimal": -24000248854609.92,
+      },
+      "event_type": Object {
+        "tracking_type": "Purchase",
+      },
+      "user": Object {
+        "aaid": "128fed12616f6f3e2d9693f90054d6feb81dbae5b8249c3c2781814d8b20916c",
+        "data_processing_options": Object {
+          "country": "GU",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "KYja1m&ZYQ",
+        },
+        "email": "47ada54f61ac343e9be3c730c861d7c5615656ad9ec1b779a5f1590b24a43519",
+        "external_id": "128fed12616f6f3e2d9693f90054d6feb81dbae5b8249c3c2781814d8b20916c",
+        "ip_address": "128fed12616f6f3e2d9693f90054d6feb81dbae5b8249c3c2781814d8b20916c",
+        "phone_number": "e8c6111a6c5ce4814c99e9a0c8c576831793b3cb9e7d129f690b6f300ab9d600",
+        "screen_dimensions": Object {
+          "height": -2400024885460992,
+          "width": -2400024885460992,
+        },
+        "user_agent": "KYja1m&ZYQ",
+        "uuid": "KYja1m&ZYQ",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: purchase action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "KYja1m&ZYQ",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "128fed12616f6f3e2d9693f90054d6feb81dbae5b8249c3c2781814d8b20916c",
+      },
+      "event_type": Object {
+        "tracking_type": "Purchase",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: search action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "iWy&@8r4Oj28DP%5",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "bbb9c495c6f05f8c12cbfd3f38b4fcfe23e0e8b946cf1ff84d3c87a8990f302c",
+        "currency": "SBD",
+        "item_count": 4106327638933504,
+        "products": Array [
+          Object {
+            "category": "iWy&@8r4Oj28DP%5",
+            "id": "iWy&@8r4Oj28DP%5",
+            "name": "iWy&@8r4Oj28DP%5",
+          },
+        ],
+        "value_decimal": 41063276389335.04,
+      },
+      "event_type": Object {
+        "tracking_type": "Search",
+      },
+      "user": Object {
+        "aaid": "bbb9c495c6f05f8c12cbfd3f38b4fcfe23e0e8b946cf1ff84d3c87a8990f302c",
+        "data_processing_options": Object {
+          "country": "PN",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "iWy&@8r4Oj28DP%5",
+        },
+        "email": "c8c37ddbecc769a0e7c7a1bff02a1f4a126b3b9135455dde3c20a059a45ec14a",
+        "external_id": "bbb9c495c6f05f8c12cbfd3f38b4fcfe23e0e8b946cf1ff84d3c87a8990f302c",
+        "ip_address": "bbb9c495c6f05f8c12cbfd3f38b4fcfe23e0e8b946cf1ff84d3c87a8990f302c",
+        "phone_number": "a216bca2681b91a26e7a31b540c7100e54ad93088280b3f5761012ed14e8d1cb",
+        "screen_dimensions": Object {
+          "height": 4106327638933504,
+          "width": 4106327638933504,
+        },
+        "user_agent": "iWy&@8r4Oj28DP%5",
+        "uuid": "iWy&@8r4Oj28DP%5",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: search action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "iWy&@8r4Oj28DP%5",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "bbb9c495c6f05f8c12cbfd3f38b4fcfe23e0e8b946cf1ff84d3c87a8990f302c",
+      },
+      "event_type": Object {
+        "tracking_type": "Search",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: signUp action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "pB*l&&$y3eW4B",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "c78095393925a78161e8e001b249ae1f2784297128c62b7c0140b50a43b984c1",
+        "currency": "MDL",
+        "item_count": 562951232684032,
+        "products": Array [
+          Object {
+            "category": "pB*l&&$y3eW4B",
+            "id": "pB*l&&$y3eW4B",
+            "name": "pB*l&&$y3eW4B",
+          },
+        ],
+        "value_decimal": 5629512326840.32,
+      },
+      "event_type": Object {
+        "tracking_type": "SignUp",
+      },
+      "user": Object {
+        "aaid": "c78095393925a78161e8e001b249ae1f2784297128c62b7c0140b50a43b984c1",
+        "data_processing_options": Object {
+          "country": "LT",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "pB*l&&$y3eW4B",
+        },
+        "email": "dc4e7023fdf4f0acfd7dd43c5379581ab280b6f189d9423ea35257a6f6f55b01",
+        "external_id": "c78095393925a78161e8e001b249ae1f2784297128c62b7c0140b50a43b984c1",
+        "ip_address": "c78095393925a78161e8e001b249ae1f2784297128c62b7c0140b50a43b984c1",
+        "phone_number": "73758501a37e57515d77d2b2e323e687abf03ba299a87f91f53cfad50665a2f3",
+        "screen_dimensions": Object {
+          "height": 562951232684032,
+          "width": 562951232684032,
+        },
+        "user_agent": "pB*l&&$y3eW4B",
+        "uuid": "pB*l&&$y3eW4B",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: signUp action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "pB*l&&$y3eW4B",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "c78095393925a78161e8e001b249ae1f2784297128c62b7c0140b50a43b984c1",
+      },
+      "event_type": Object {
+        "tracking_type": "SignUp",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
 }
 `;
 
@@ -115,7 +575,6 @@ Object {
     },
   ],
   "partner": "SEGMENT",
-  "test_mode": false,
 }
 `;
 
@@ -134,6 +593,71 @@ Object {
     },
   ],
   "partner": "SEGMENT",
-  "test_mode": false,
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: viewContent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "OaH[Fid(DjO7DB2SWZ",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "265b4e2dc0b0e7d18f5a2396298731c5acc64823f84623d7fb073d2e2b4053c5",
+        "currency": "TWD",
+        "item_count": 6698367690211328,
+        "products": Array [
+          Object {
+            "category": "OaH[Fid(DjO7DB2SWZ",
+            "id": "OaH[Fid(DjO7DB2SWZ",
+            "name": "OaH[Fid(DjO7DB2SWZ",
+          },
+        ],
+        "value_decimal": 66983676902113.28,
+      },
+      "event_type": Object {
+        "tracking_type": "ViewContent",
+      },
+      "user": Object {
+        "aaid": "265b4e2dc0b0e7d18f5a2396298731c5acc64823f84623d7fb073d2e2b4053c5",
+        "data_processing_options": Object {
+          "country": "TH",
+          "modes": Array [
+            "LDU",
+          ],
+          "region": "OaH[Fid(DjO7DB2SWZ",
+        },
+        "email": "de3399b808c0d5ef77de7a8ebe448d52cfc589255d422886ed5527203c0b98b9",
+        "external_id": "265b4e2dc0b0e7d18f5a2396298731c5acc64823f84623d7fb073d2e2b4053c5",
+        "ip_address": "265b4e2dc0b0e7d18f5a2396298731c5acc64823f84623d7fb073d2e2b4053c5",
+        "phone_number": "c37ec75a5e5691e5885e28fa159fd5d118517254b4941e41f8d14870406702e3",
+        "screen_dimensions": Object {
+          "height": 6698367690211328,
+          "width": 6698367690211328,
+        },
+        "user_agent": "OaH[Fid(DjO7DB2SWZ",
+        "uuid": "OaH[Fid(DjO7DB2SWZ",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
+}
+`;
+
+exports[`Testing snapshot for actions-reddit-conversions-api destination: viewContent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "click_id": "OaH[Fid(DjO7DB2SWZ",
+      "event_at": "2021-02-01T00:00:00.000Z",
+      "event_metadata": Object {
+        "conversion_id": "265b4e2dc0b0e7d18f5a2396298731c5acc64823f84623d7fb073d2e2b4053c5",
+      },
+      "event_type": Object {
+        "tracking_type": "ViewContent",
+      },
+    },
+  ],
+  "partner": "SEGMENT",
 }
 `;

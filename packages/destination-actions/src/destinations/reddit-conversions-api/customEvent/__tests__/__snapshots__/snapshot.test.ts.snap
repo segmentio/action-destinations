@@ -46,7 +46,6 @@ Object {
     },
   ],
   "partner": "SEGMENT",
-  "test_mode": false,
 }
 `;
 
@@ -66,6 +65,5 @@ Object {
     },
   ],
   "partner": "SEGMENT",
-  "test_mode": false,
 }
 `;

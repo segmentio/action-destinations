@@ -36,6 +36,58 @@ export const tracking_type: InputField = {
   ]
 }
 
+export const api_version: InputField = {
+  label: 'API Version',
+  description:
+    'The version of the Reddit Conversions API to send this event to. "Latest (V3)" requires Action Source to be set. Accounts that configured this action before this setting existed keep sending on "Legacy (V2)" until this is explicitly changed.',
+  type: 'string',
+  required: false,
+  default: 'v3',
+  choices: [
+    { label: 'Latest (V3)', value: 'v3' },
+    { label: 'Legacy (V2)', value: 'v2' }
+  ]
+}
+
+const API_VERSION_IS_V3 = {
+  match: 'all' as const,
+  conditions: [{ fieldKey: 'api_version', operator: 'is' as const, value: 'v3' }]
+}
+
+export const action_source: InputField = {
+  label: 'Action Source',
+  description:
+    'The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3.',
+  type: 'string',
+  required: API_VERSION_IS_V3,
+  depends_on: API_VERSION_IS_V3,
+  choices: [
+    { label: 'Website', value: 'WEBSITE' },
+    { label: 'App', value: 'APP' },
+    { label: 'Offline (Physical Store)', value: 'PHYSICAL_STORE' },
+    { label: 'Other', value: 'OTHER' }
+  ]
+}
+
+export const event_source_url: InputField = {
+  label: 'Event Source URL',
+  description:
+    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3.',
+  type: 'string',
+  required: false,
+  depends_on: API_VERSION_IS_V3,
+  default: { '@path': '$.context.page.url' }
+}
+
+export const test_id: InputField = {
+  label: 'Test ID',
+  description:
+    'A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3.',
+  type: 'string',
+  required: false,
+  depends_on: API_VERSION_IS_V3
+}
+
 export const click_id: InputField = {
   label: 'Click ID',
   description: 'The Reddit-generated id associated with a single ad click.',
@@ -292,6 +344,18 @@ export const products: InputField = {
       description: 'The name of the product. Optional.',
       type: 'string',
       required: false
+    },
+    quantity: {
+      label: 'Quantity',
+      description: 'The number of this product in the event. Only applies to Reddit Conversions API V3.',
+      type: 'integer',
+      required: false
+    },
+    item_price: {
+      label: 'Item Price',
+      description: 'The unit price of the product. Only applies to Reddit Conversions API V3.',
+      type: 'number',
+      required: false
     }
   },
   default: {
@@ -300,7 +364,9 @@ export const products: InputField = {
       {
         category: { '@path': '$.category' },
         id: { '@path': '$.product_id' },
-        name: { '@path': '$.name' }
+        name: { '@path': '$.name' },
+        quantity: { '@path': '$.quantity' },
+        item_price: { '@path': '$.price' }
       }
     ]
   }

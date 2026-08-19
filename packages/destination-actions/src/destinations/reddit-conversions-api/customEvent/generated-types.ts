@@ -29,6 +29,14 @@ export interface Payload {
      * The name of the product. Optional.
      */
     name?: string
+    /**
+     * The number of this product in the event. Only applies to Reddit Conversions API V3.
+     */
+    quantity?: number
+    /**
+     * The unit price of the product. Only applies to Reddit Conversions API V3.
+     */
+    item_price?: number
   }[]
   /**
    * The identifying user parameters associated with the conversion event.
@@ -118,4 +126,20 @@ export interface Payload {
    * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.
    */
   conversion_id?: string
+  /**
+   * The version of the Reddit Conversions API to send this event to. "Latest (V3)" requires Action Source to be set. Accounts that configured this action before this setting existed keep sending on "Legacy (V2)" until this is explicitly changed.
+   */
+  api_version?: string
+  /**
+   * The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3.
+   */
+  action_source?: string
+  /**
+   * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3.
+   */
+  event_source_url?: string
+  /**
+   * A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3.
+   */
+  test_id?: string
 }
