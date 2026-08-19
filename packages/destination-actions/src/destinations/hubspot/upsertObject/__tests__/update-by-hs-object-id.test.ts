@@ -44,9 +44,10 @@ const propertiesResp = {
   ]
 }
 
-// idProperty must be omitted - hs_object_id is not a unique property, it is the record id
+// batch/read accepts hs_object_id as idProperty, so the read is unchanged
 const readObjectReq = {
   properties: ['hs_object_id'],
+  idProperty: 'hs_object_id',
   inputs: [
     {
       id: '57865728900'
@@ -96,7 +97,7 @@ beforeEach((done) => {
 
 describe('Hubspot.upsertObject', () => {
   describe('where syncMode = update and id_field_name = hs_object_id', () => {
-    it('should omit idProperty from the read and update requests', async () => {
+    it('should omit idProperty from the update request', async () => {
       const event = createTestEvent(payload)
 
       nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/company').reply(200, propertiesResp)

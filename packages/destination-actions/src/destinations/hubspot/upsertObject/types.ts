@@ -111,13 +111,23 @@ export interface Result {
 }
 
 export interface ReadReq {
-  idProperty?: string
+  idProperty: string
   properties: string[]
   inputs: Array<{ id: string }>
 }
 
 export interface UpsertReq {
   inputs: Array<{
+    idProperty: string
+    id: string
+    properties: Record<string, string>
+  }>
+}
+
+export interface UpdateReq {
+  inputs: Array<{
+    // Omitted when the identifier is hs_object_id, which batch/update resolves as the record id.
+    // batch/upsert has the opposite contract - see UpsertReq - so the two must not share a type.
     idProperty?: string
     id: string
     properties: Record<string, string>
@@ -126,7 +136,7 @@ export interface UpsertReq {
 
 export interface CreateReq {
   inputs: Array<{
-    idProperty?: string
+    idProperty: string
     properties: Record<string, string>
   }>
 }
