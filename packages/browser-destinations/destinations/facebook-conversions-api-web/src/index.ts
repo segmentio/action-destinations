@@ -5,9 +5,6 @@ import send from './send'
 import { initScript } from './functions'
 import { FBClient, FBClientParamBuilder, LDU } from './types'
 import { defaultValues } from '@segment/actions-core'
-import untypedClientParamBuilder from 'meta-capi-param-builder-clientjs'
-
-const clientParamBuilder = untypedClientParamBuilder as unknown as FBClientParamBuilder
 
 declare global {
   interface Window {
@@ -95,7 +92,12 @@ export const destination: BrowserDestinationDefinition<
     const { formatUserDataWithParamBuilder } = settings
     initScript(settings, analytics)
     await deps.resolveWhen(() => typeof window.fbq === 'function', 100)
-    return { fbq: window.fbq, clientParamBuilder: formatUserDataWithParamBuilder ? clientParamBuilder : undefined }
+    let clientParamBuilder: FBClientParamBuilder | undefined
+    if (formatUserDataWithParamBuilder) {
+      const { default: untypedClientParamBuilder } = await import('meta-capi-param-builder-clientjs')
+      clientParamBuilder = untypedClientParamBuilder as unknown as FBClientParamBuilder
+    }
+    return { fbq: window.fbq, clientParamBuilder }
   },
   actions: {
     send
