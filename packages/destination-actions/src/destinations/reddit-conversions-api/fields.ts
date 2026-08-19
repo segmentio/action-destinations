@@ -1,6 +1,6 @@
 import { InputField } from '@segment/actions-core/destination-kit/types'
 import { LEGACY_API_VERSION, LATEST_API_VERSION } from './versioning-info'
-import { ACTION_SOURCE_V3, ACTION_SOURCE_V3_LABELS } from './v3/constants'
+import { ACTION_SOURCE_V3_LABELS } from './v3/constants'
 
 export const event_at: InputField = {
   label: 'Event At',
@@ -64,7 +64,7 @@ export const action_source: InputField = {
   type: 'string',
   required: API_VERSION_IS_V3,
   depends_on: API_VERSION_IS_V3,
-  choices: ACTION_SOURCE_V3.map((value) => ({ label: ACTION_SOURCE_V3_LABELS[value], value }))
+  choices: Object.entries(ACTION_SOURCE_V3_LABELS).map(([value, label]) => ({ label, value }))
 }
 
 export const event_source_url: InputField = {

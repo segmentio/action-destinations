@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload as StandardEvent } from '../standardEvent/generated-types'
 import type { Payload as CustomEvent } from '../customEvent/generated-types'
 import { EventItemV3, PayloadV3, MetadataV3, ProductV3, ActionSourceV3, EventTypeV3 } from './types-v3'
-import { ACTION_SOURCE_V3, TRACKING_TYPE_V3 } from './constants'
+import { ACTION_SOURCE_V3_LABELS, TRACKING_TYPE_V3 } from './constants'
 import { clean, cleanNum, getUser, smartHash } from '../utils'
 import { LATEST_API_VERSION } from '../versioning-info'
 
@@ -127,7 +127,7 @@ function toV3TrackingType(tracking_type: string | undefined): EventTypeV3 {
 function toActionSourceV3(action_source: string | undefined): ActionSourceV3 {
   if (!action_source)
     throw new PayloadValidationError('action_source is required when sending to Reddit Conversions API v3')
-  if (!(ACTION_SOURCE_V3 as readonly string[]).includes(action_source)) {
+  if (!(action_source in ACTION_SOURCE_V3_LABELS)) {
     throw new PayloadValidationError(`Unsupported action_source: ${action_source}`)
   }
   return action_source as ActionSourceV3

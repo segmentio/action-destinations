@@ -1,11 +1,9 @@
-export const ACTION_SOURCE_V3 = ['WEBSITE', 'APP', 'OTHER', 'PHYSICAL_STORE'] as const
-
-export const ACTION_SOURCE_V3_LABELS: Record<typeof ACTION_SOURCE_V3[number], string> = {
+export const ACTION_SOURCE_V3_LABELS = {
   WEBSITE: 'Website',
   APP: 'App',
   OTHER: 'Other',
   PHYSICAL_STORE: 'Offline (Physical Store)'
-}
+} as const
 
 // v2 tracking_type (mixed case) -> v3 UPPER_SNAKE_CASE.
 export const TRACKING_TYPE_V3 = {
