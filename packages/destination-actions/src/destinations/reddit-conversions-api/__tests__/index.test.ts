@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { FLAGON_NAME } from '../utils'
+import { FLAGON_NAME } from '../utils-v3'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'

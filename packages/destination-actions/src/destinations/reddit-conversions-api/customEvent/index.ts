@@ -1,9 +1,8 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { resolveVersion } from '../utils'
-import { sendV2 } from '../utils-v2'
-import { sendV3 } from '../utils-v3'
+import { send } from '../utils'
+import { resolveVersion, sendV3 } from '../utils-v3'
 import {
   event_at,
   custom_event_name,
@@ -41,13 +40,13 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { settings, payload, features }) => {
     return resolveVersion(payload.api_version, features) === 'v3'
       ? sendV3(request, settings, [payload])
-      : sendV2(request, settings, [payload])
+      : send(request, settings, [payload])
   },
   performBatch: async (request, { settings, payload, features }) => {
     const v2Payloads = payload.filter((p) => resolveVersion(p.api_version, features) === 'v2')
     const v3Payloads = payload.filter((p) => resolveVersion(p.api_version, features) === 'v3')
     const requests = []
-    if (v2Payloads.length) requests.push(sendV2(request, settings, v2Payloads))
+    if (v2Payloads.length) requests.push(send(request, settings, v2Payloads))
     if (v3Payloads.length) requests.push(sendV3(request, settings, v3Payloads))
     return Promise.all(requests)
   }
