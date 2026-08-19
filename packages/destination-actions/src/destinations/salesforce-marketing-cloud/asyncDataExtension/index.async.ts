@@ -73,7 +73,9 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     try {
       const asyncUpsertResponse = await asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId, false)
 
-      // Set Job ID and HTTP status from API response. requestId is not guaranteed on error responses.
+      // Surface whatever requestId SFMC returns, regardless of HTTP status - SFMC can assign a
+      // requestId even on a rejected submission (e.g. a 400 with row-level validation messages),
+      // and callers rely on seeing it when present.
       response.jobId = asyncUpsertResponse.data.requestId
       response.status = asyncUpsertResponse.status
 
@@ -221,8 +223,9 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/results`,
         {
           method: 'GET',
-          // The results payload carries one item per failed record and routinely exceeds the
-          // 16KB highWaterMark of the tee that `response.clone()` sets up in prepare-response.
+          // The results payload carries one item per uploaded record (both 'OK' and 'Error'
+          // entries, in submission order), and routinely exceeds the 16KB highWaterMark of the
+          // tee that `response.clone()` sets up in prepare-response.
           // Reading only the clone while the original body goes unread deadlocks that tee, so
           // the request never settles and the caller's poll deadline expires instead. Same fix
           // and same root cause as the Iterable Lists hang (PR #2461).

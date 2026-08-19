@@ -135,7 +135,11 @@ export async function asyncUpsertRowsV2(
     {
       method: 'PUT',
       json: { items: rows },
-      throwHttpErrors
+      throwHttpErrors,
+      // The submission ack is small today (requestId + a short resultMessages array), but skip
+      // response cloning here too as insurance against the same clone-tee deadlock handled for
+      // /status and /results in index.async.ts, in case SFMC ever returns per-row detail here.
+      skipResponseCloning: true
     }
   )
 
