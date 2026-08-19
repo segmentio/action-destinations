@@ -119,7 +119,7 @@ export function toEpochMs(value: string | number | undefined): number {
 
 function toV3TrackingType(tracking_type: string | undefined): EventTypeV3 {
   if (!tracking_type) throw new PayloadValidationError('tracking_type is required')
-  const mapped = TRACKING_TYPE_V3[tracking_type]
+  const mapped = (TRACKING_TYPE_V3 as Record<string, EventTypeV3>)[tracking_type]
   if (!mapped) throw new PayloadValidationError(`Unsupported tracking_type: ${tracking_type}`)
   return mapped
 }

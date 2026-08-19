@@ -1,7 +1,7 @@
-import { ACTION_SOURCE_V3, EVENT_TYPE_V3 } from './constants'
+import { ACTION_SOURCE_V3, TRACKING_TYPE_V3 } from './constants'
 
 export type ActionSourceV3 = typeof ACTION_SOURCE_V3[number]
-export type EventTypeV3 = typeof EVENT_TYPE_V3[number]
+export type EventTypeV3 = typeof TRACKING_TYPE_V3[keyof typeof TRACKING_TYPE_V3]
 
 export interface ProductV3 {
   category?: string

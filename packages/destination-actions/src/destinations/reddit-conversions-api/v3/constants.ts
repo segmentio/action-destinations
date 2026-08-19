@@ -7,20 +7,8 @@ export const ACTION_SOURCE_V3_LABELS: Record<typeof ACTION_SOURCE_V3[number], st
   PHYSICAL_STORE: 'Offline (Physical Store)'
 }
 
-export const EVENT_TYPE_V3 = [
-  'PAGE_VISIT',
-  'VIEW_CONTENT',
-  'SEARCH',
-  'ADD_TO_CART',
-  'ADD_TO_WISHLIST',
-  'PURCHASE',
-  'LEAD',
-  'SIGN_UP',
-  'CUSTOM'
-] as const
-
 // v2 tracking_type (mixed case) -> v3 UPPER_SNAKE_CASE.
-export const TRACKING_TYPE_V3: Record<string, typeof EVENT_TYPE_V3[number]> = {
+export const TRACKING_TYPE_V3 = {
   PageVisit: 'PAGE_VISIT',
   ViewContent: 'VIEW_CONTENT',
   Search: 'SEARCH',
@@ -30,4 +18,4 @@ export const TRACKING_TYPE_V3: Record<string, typeof EVENT_TYPE_V3[number]> = {
   Lead: 'LEAD',
   SignUp: 'SIGN_UP',
   Custom: 'CUSTOM'
-}
+} as const
