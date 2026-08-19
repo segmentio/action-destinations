@@ -126,7 +126,7 @@ export interface UpsertReq {
 
 export interface CreateReq {
   inputs: Array<{
-    idProperty?: string
+    idProperty: string
     properties: Record<string, string>
   }>
 }
