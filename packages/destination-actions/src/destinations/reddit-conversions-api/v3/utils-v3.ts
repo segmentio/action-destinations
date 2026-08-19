@@ -1,11 +1,11 @@
 import type { Features, RequestClient } from '@segment/actions-core'
 import { PayloadValidationError } from '@segment/actions-core'
-import type { Settings } from './generated-types'
-import type { Payload as StandardEvent } from './standardEvent/generated-types'
-import type { Payload as CustomEvent } from './customEvent/generated-types'
+import type { Settings } from '../generated-types'
+import type { Payload as StandardEvent } from '../standardEvent/generated-types'
+import type { Payload as CustomEvent } from '../customEvent/generated-types'
 import { V3EventItem, V3Payload, V3Metadata, V3Product, V3User, V3DataProcessingOptions } from './types-v3'
-import { processHashing } from '../../lib/hashing-utils'
-import { REDDIT_CONVERSIONS_CANARY_API_VERSION } from './versioning-info'
+import { processHashing } from '../../../lib/hashing-utils'
+import { REDDIT_CONVERSIONS_CANARY_API_VERSION } from '../versioning-info'
 
 /** FLAGON_NAME
  * Flagon flag gating whether Reddit Conversions API v3 is reachable at all for an account.

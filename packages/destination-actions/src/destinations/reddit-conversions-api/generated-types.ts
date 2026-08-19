@@ -9,4 +9,8 @@ export interface Settings {
    * The conversion token for your Reddit account. This can be found by following the steps mentioned [here](https://business.reddithelp.com/helpcenter/s/article/conversion-access-token).
    */
   conversion_token: string
+  /**
+   * Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2, which is deprecated - V3 is the latest API version. To send test events on V3, set the Test ID field on an action mapping instead.
+   */
+  test_mode?: boolean
 }

@@ -2,7 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from '../utils'
-import { resolveVersion, sendV3 } from '../utils-v3'
+import { resolveVersion, sendV3 } from '../v3/utils-v3'
 import {
   event_at,
   custom_event_name,
