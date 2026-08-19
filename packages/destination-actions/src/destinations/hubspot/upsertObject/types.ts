@@ -111,7 +111,7 @@ export interface Result {
 }
 
 export interface ReadReq {
-  idProperty?: string
+  idProperty: string
   properties: string[]
   inputs: Array<{ id: string }>
 }
