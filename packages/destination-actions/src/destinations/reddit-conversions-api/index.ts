@@ -1,4 +1,4 @@
-import { DestinationDefinition } from '@segment/actions-core'
+import { defaultValues, DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { RedditConversionsTestAuthenticationError } from './types'
 import standardEvent from './standardEvent'
@@ -27,9 +27,9 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       },
       test_mode: {
-        label: '[Deprecated] Test Mode',
+        label: 'Test Mode',
         description:
-          'Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2, which is deprecated - V3 is the latest API version. To send test events on V3, set the Test ID field on an action mapping instead.',
+          'Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2. V3 (Beta) is the latest API version. To send test events on V3, set the Test ID field on an action mapping instead.',
         type: 'boolean',
         required: false,
         default: false
@@ -93,6 +93,115 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
       partnerAction: 'redditPlugin',
       mapping: {},
+      type: 'automatic'
+    },
+    {
+      name: 'Page Visit',
+      subscribe: 'type = "page"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'PageVisit',
+        event_metadata: {}
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'View Content',
+      subscribe: 'type = "track" and event = "Product Viewed"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'ViewContent',
+        event_metadata: {}
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Search',
+      subscribe: 'type = "track" and event = "Products Searched"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'Search',
+        event_metadata: {}
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Cart',
+      subscribe: 'type = "track" and event = "Product Added"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'AddToCart',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Add to Wishlist',
+      subscribe: 'type = "track" and event = "Product Added to Wishlist"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'AddToWishlist',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          itemCount: { '@path': '$.properties.quantity' },
+          value: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Purchase',
+      subscribe: 'type = "track" and event = "Order Completed"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'Purchase'
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Lead',
+      subscribe: 'type = "track" and event = "Lead Generated"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'Lead',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value_decimal: { '@path': '$.properties.price' }
+        }
+      },
+      type: 'automatic'
+    },
+    {
+      name: 'Sign Up',
+      subscribe: 'type = "track" and event = "Signed Up"',
+      partnerAction: 'standardEvent',
+      mapping: {
+        ...defaultValues(standardEvent.fields),
+        api_version: LEGACY_API_VERSION,
+        tracking_type: 'SignUp',
+        event_metadata: {
+          currency: { '@path': '$.properties.currency' },
+          value_decimal: { '@path': '$.properties.price' }
+        }
+      },
       type: 'automatic'
     }
   ],

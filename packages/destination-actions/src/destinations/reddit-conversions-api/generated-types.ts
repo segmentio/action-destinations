@@ -10,7 +10,7 @@ export interface Settings {
    */
   conversion_token: string
   /**
-   * Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2, which is deprecated - V3 is the latest API version. To send test events on V3, set the Test ID field on an action mapping instead.
+   * Indicates if events should be treated as test events by Reddit. Only applies to Reddit Conversions API V2. V3 (Beta) is the latest API version. To send test events on V3, set the Test ID field on an action mapping instead.
    */
   test_mode?: boolean
 }

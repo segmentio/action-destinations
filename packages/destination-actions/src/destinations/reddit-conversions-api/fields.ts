@@ -40,13 +40,13 @@ export const tracking_type: InputField = {
 export const api_version: InputField = {
   label: 'API Version',
   description:
-    'The version of the Reddit Conversions API to send this event to. "Latest (V3)" requires Action Source to be set. Accounts that configured this action before this setting existed keep sending on "Legacy (V2)" until this is explicitly changed.',
+    'The version of the Reddit Conversions API to send this event to. "V3 (Beta)" requires Action Source to be set.',
   type: 'string',
   required: false,
-  default: LATEST_API_VERSION,
+  default: LEGACY_API_VERSION,
   choices: [
-    { label: 'Latest (V3)', value: LATEST_API_VERSION },
-    { label: 'Legacy (V2)', value: LEGACY_API_VERSION }
+    { label: 'V3 (Beta)', value: LATEST_API_VERSION },
+    { label: 'V2', value: LEGACY_API_VERSION }
   ]
 }
 
@@ -58,7 +58,7 @@ const API_VERSION_IS_V3 = {
 export const action_source: InputField = {
   label: 'Action Source',
   description:
-    'The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3.',
+    'The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3 (Beta).',
   type: 'string',
   required: API_VERSION_IS_V3,
   depends_on: API_VERSION_IS_V3,
@@ -73,7 +73,7 @@ export const action_source: InputField = {
 export const event_source_url: InputField = {
   label: 'Event Source URL',
   description:
-    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3.',
+    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).',
   type: 'string',
   required: false,
   depends_on: API_VERSION_IS_V3,
@@ -83,7 +83,7 @@ export const event_source_url: InputField = {
 export const test_id: InputField = {
   label: 'Test ID',
   description:
-    'A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3.',
+    'A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3 (Beta).',
   type: 'string',
   required: false,
   depends_on: API_VERSION_IS_V3
@@ -348,13 +348,13 @@ export const products: InputField = {
     },
     quantity: {
       label: 'Quantity',
-      description: 'The number of this product in the event. Only applies to Reddit Conversions API V3.',
+      description: 'The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).',
       type: 'integer',
       required: false
     },
     item_price: {
       label: 'Item Price',
-      description: 'The unit price of the product. Only applies to Reddit Conversions API V3.',
+      description: 'The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).',
       type: 'number',
       required: false
     }

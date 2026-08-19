@@ -30,11 +30,11 @@ export interface Payload {
      */
     name?: string
     /**
-     * The number of this product in the event. Only applies to Reddit Conversions API V3.
+     * The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).
      */
     quantity?: number
     /**
-     * The unit price of the product. Only applies to Reddit Conversions API V3.
+     * The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).
      */
     item_price?: number
   }[]
@@ -127,19 +127,19 @@ export interface Payload {
    */
   conversion_id?: string
   /**
-   * The version of the Reddit Conversions API to send this event to. "Latest (V3)" requires Action Source to be set. Accounts that configured this action before this setting existed keep sending on "Legacy (V2)" until this is explicitly changed.
+   * The version of the Reddit Conversions API to send this event to. "V3 (Beta)" requires Action Source to be set.
    */
   api_version?: string
   /**
-   * The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3.
+   * The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3 (Beta).
    */
   action_source?: string
   /**
-   * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3.
+   * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).
    */
   event_source_url?: string
   /**
-   * A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3.
+   * A test ID from Reddit Event Testing. When set, events are routed to Event Testing for verification instead of production. Remove before sending production traffic. Only applies to Reddit Conversions API V3 (Beta).
    */
   test_id?: string
 }
