@@ -221,8 +221,6 @@ const snakeCaseToPascalCase = (key: string): string => {
   return token.charAt(0).toUpperCase() + token.slice(1)
 }
 
-const SALESFORCE_DOMAIN_REGEX = /^https:\/\/[^/]+\.(salesforce\.com|salesforce-sites\.com|force\.com)(\/|$)/
-
 export const validateInstanceURL = (instanceUrl: string): string => {
   if (instanceUrl === undefined || instanceUrl === '') {
     throw new IntegrationError(
@@ -232,7 +230,10 @@ export const validateInstanceURL = (instanceUrl: string): string => {
     )
   }
 
-  if (SALESFORCE_DOMAIN_REGEX.test(instanceUrl)) {
+  const salesforceRegex = /^(https):\/\/.*\.salesforce\.com/
+  const isValid = salesforceRegex.test(instanceUrl)
+
+  if (isValid) {
     return instanceUrl
   }
 
@@ -243,17 +244,41 @@ export const validateInstanceURL = (instanceUrl: string): string => {
   )
 }
 
-export const resolveLoginUrl = (customDomain?: string, isSandbox?: boolean): string => {
-  if (customDomain) {
-    const url = customDomain.replace(/\/+$/, '')
-    if (!SALESFORCE_DOMAIN_REGEX.test(customDomain)) {
-      throw new IntegrationError(
-        'Invalid custom domain. Must be a valid Salesforce URL (e.g., https://mycompany.my.salesforce.com).',
-        'INVALID_CUSTOM_DOMAIN',
-        400
-      )
-    }
-    return url
+// Salesforce is retiring generic login URLs in favour of Enhanced Domains / My Domain, so the
+// token endpoint has to live on the org's own host. Salesforce hands us that host as
+// `instance_url` during OAuth, which oauth-service persists as the `instanceUrl` setting.
+const MY_DOMAIN_SUFFIX = '.my.salesforce.com'
+
+/**
+ * Returns the origin to use as the OAuth token endpoint, or undefined when instanceUrl is not
+ * confidently a My Domain host. The auth request carries the client secret, so this is
+ * deliberately stricter than validateInstanceURL, which only guards Bearer-token API calls.
+ */
+const parseSalesforceAuthHost = (instanceUrl: string): string | undefined => {
+  let url: URL
+  try {
+    url = new URL(instanceUrl)
+  } catch {
+    return undefined
   }
+
+  if (url.protocol !== 'https:') return undefined
+  if (url.port || url.username || url.password) return undefined
+  if (!url.hostname.endsWith(MY_DOMAIN_SUFFIX)) return undefined
+  if (url.hostname.length === MY_DOMAIN_SUFFIX.length) return undefined
+
+  // origin discards any path, query and fragment, so the caller always gets a base host.
+  return url.origin
+}
+
+export const resolveLoginUrl = (instanceUrl?: string, isSandbox?: boolean): string => {
+  if (instanceUrl) {
+    const authHost = parseSalesforceAuthHost(instanceUrl)
+    if (authHost) {
+      return authHost
+    }
+  }
+
+  // Orgs still on legacy pod hosts (na1.salesforce.com) keep the generic login URLs.
   return isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
 }

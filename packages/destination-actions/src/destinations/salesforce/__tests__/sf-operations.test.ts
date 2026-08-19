@@ -1146,12 +1146,7 @@ describe('Salesforce', () => {
           access_token: 'abc'
         })
 
-      const res = await authenticateWithPassword(
-        usernamePasswordOnly.username as string, // tells typescript that these are defined
-        usernamePasswordOnly.auth_password as string,
-        usernamePasswordOnly.security_token,
-        usernamePasswordOnly.isSandbox
-      )
+      const res = await authenticateWithPassword(usernamePasswordOnly)
 
       expect(res.accessToken).toEqual('abc')
     })
@@ -1169,12 +1164,7 @@ describe('Salesforce', () => {
           access_token: 'abc'
         })
 
-      const res = await authenticateWithPassword(
-        usernamePasswordAndToken.username as string, // tells typescript that these are defined
-        usernamePasswordAndToken.auth_password as string,
-        usernamePasswordAndToken.security_token,
-        usernamePasswordAndToken.isSandbox
-      )
+      const res = await authenticateWithPassword(usernamePasswordAndToken)
 
       expect(res.accessToken).toEqual('abc')
     })
