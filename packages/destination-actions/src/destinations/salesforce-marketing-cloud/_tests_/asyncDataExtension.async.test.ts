@@ -10,7 +10,7 @@ import Definition from '../index'
 import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
-const timestamp = '2025-10-13T4:00:00.449Z'
+const timestamp = '2025-10-13T04:00:00.449Z'
 const settings: Settings = {
   subdomain: 'test123',
   client_id: 'test123',
@@ -722,6 +722,62 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.isSuccessResponseAtIndex(2)).toBe(true)
         expect(response.multiStatusResponse?.errorCount).toBe(2)
         expect(response.multiStatusResponse?.successCount).toBe(2)
+      })
+
+      it('should flag a deadlocked row as retryable (429) while other errorCode 2 failures stay non-retryable (400)', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 2,
+            items: [
+              {
+                errorCode: 2,
+                message:
+                  'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.',
+                status: 'Error'
+              },
+              {
+                errorCode: 2,
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('FAILED')
+        expect(response.multiStatusResponse).toBeDefined()
+
+        const deadlockResponse = response.multiStatusResponse?.getResponseAtIndex(0)
+        expect(deadlockResponse?.value().status).toBe(429)
+        expect(
+          deadlockResponse instanceof ActionDestinationErrorResponse && deadlockResponse.value().errormessage
+        ).toEqual(
+          'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.'
+        )
+
+        const validationErrorResponse = response.multiStatusResponse?.getResponseAtIndex(1)
+        expect(validationErrorResponse?.value().status).toBe(400)
+        expect(
+          validationErrorResponse instanceof ActionDestinationErrorResponse &&
+            validationErrorResponse.value().errormessage
+        ).toEqual('Cannot locate the existing record. Required keys are missing.')
       })
 
       it('should return FAILED (not SUCCEEDED) when Complete but every record errored', async () => {

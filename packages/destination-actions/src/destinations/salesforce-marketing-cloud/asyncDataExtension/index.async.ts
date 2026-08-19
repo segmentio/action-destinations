@@ -3,10 +3,13 @@ import {
   AsyncActionDefinition,
   AsyncBatchResponse,
   IntegrationError,
+  APIError,
+  RetryableError,
   PollResponse,
-  HTTPError
+  HTTPError,
+  JSONLikeObject
 } from '@segment/actions-core'
-import { asyncUpsertRowsV2 } from '../sfmc-operations'
+import { asyncUpsertRowsV2, isAsyncUpsertRowsV2ErrorResponse } from '../sfmc-operations'
 import { fields, dynamicFields, hooks } from './fields'
 
 import type { Settings } from '../generated-types'
@@ -18,6 +21,10 @@ type AsyncUpsertRowsPollResultMessage = {
   resultCode: string
   message: string
 }
+
+// SFMC reports SQL deadlocks (transient - retrying the same row will likely succeed) under the
+// same generic errorCode as permanent validation failures, but always ends the message this way.
+const RETRYABLE_ROW_ERROR_SUFFIX = 'Rerun the transaction.'
 
 type AsyncUpsertRowsJobStatusResponse = {
   status: {
@@ -46,12 +53,6 @@ type AsyncUpsertRowsPollResultsResponse = {
   resultMessages: AsyncUpsertRowsPollResultMessage[]
 }
 
-type GenericAPIErrorResponse = {
-  documentation: string
-  errorcode: number
-  message: string
-}
-
 const asyncAction: AsyncActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
   description: `Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.`,
@@ -76,7 +77,9 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     try {
       const asyncUpsertResponse = await asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId, false)
 
-      // Set Job ID and HTTP status from API response
+      // Surface whatever requestId SFMC returns, regardless of HTTP status - SFMC can assign a
+      // requestId even on a rejected submission (e.g. a 400 with row-level validation messages),
+      // and callers rely on seeing it when present.
       response.jobId = asyncUpsertResponse.data.requestId
       response.status = asyncUpsertResponse.status
 
@@ -93,13 +96,13 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         return response
       }
       // Handle batch level errors where the entire batch is rejected due to an error (401, 403, 500, etc)
-      else if ((asyncUpsertResponse.data as unknown as GenericAPIErrorResponse).message) {
+      else if (isAsyncUpsertRowsV2ErrorResponse(asyncUpsertResponse.data)) {
         for (let i = 0; i < payload.length; i++) {
           response.multiStatusResponse.setErrorResponseAtIndex(i, {
             status: asyncUpsertResponse.status,
-            errormessage: (asyncUpsertResponse.data as unknown as GenericAPIErrorResponse).message,
+            errormessage: asyncUpsertResponse.data.message,
             sent: JSON.stringify(payload[i]),
-            body: asyncUpsertResponse.data as unknown as GenericAPIErrorResponse
+            body: asyncUpsertResponse.data as Object as JSONLikeObject
           })
         }
 
@@ -130,12 +133,30 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         }
         return response
       }
-    } catch (error) {
-      // Throw a generic non-retryable integration error for non HTTPError types
-      throw new IntegrationError(`Failed to upsert rows asynchronously: ${error.message}`, 'BAD_REQUEST', 400)
-    }
+    } catch (error: unknown) {
+      // Preserve the upstream status so 429/5xx get retried and other 4xx don't.
+      if (error instanceof HTTPError) {
+        const status = error.response?.status ?? 500
+        throw new APIError(`Failed to upsert rows asynchronously: ${error.message}`, status)
+      }
 
-    return response
+      // Network-level failures (timeouts, connection resets, DNS issues) are transient - retry them.
+      const code = error instanceof Error ? (error as Error & { code?: string }).code : undefined
+      const isRetryableNetworkError =
+        code === 'ETIMEDOUT' ||
+        code === 'ECONNRESET' ||
+        code === 'ECONNREFUSED' ||
+        code === 'EAI_AGAIN' ||
+        code === 'ENOTFOUND'
+      if (isRetryableNetworkError) {
+        throw new RetryableError(`Failed to upsert rows asynchronously: ${(error as Error).message}`)
+      }
+
+      // Anything else (unexpected/unclassified errors) is treated as non-retryable to avoid
+      // retrying deterministic bugs indefinitely.
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      throw new IntegrationError(`Failed to upsert rows asynchronously: ${message}`, 'BAD_REQUEST', 400)
+    }
   },
 
   performPoll: async (request, { settings, payload }) => {
@@ -206,8 +227,9 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/results`,
         {
           method: 'GET',
-          // The results payload carries one item per failed record and routinely exceeds the
-          // 16KB highWaterMark of the tee that `response.clone()` sets up in prepare-response.
+          // The results payload carries one item per uploaded record (both 'OK' and 'Error'
+          // entries, in submission order), and routinely exceeds the 16KB highWaterMark of the
+          // tee that `response.clone()` sets up in prepare-response.
           // Reading only the clone while the original body goes unread deadlocks that tee, so
           // the request never settles and the caller's poll deadline expires instead. Same fix
           // and same root cause as the Iterable Lists hang (PR #2461).
@@ -226,9 +248,13 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
             body: 'OK'
           })
         } else {
+          const errormessage = resultsResponse.data.items[i].message
+          // errorCode 2 is a generic SFMC bucket covering both permanent validation failures and
+          // transient SQL deadlocks - use the message text to flag deadlocked rows as retryable.
+          const isRetryableRowError = errormessage.endsWith(RETRYABLE_ROW_ERROR_SUFFIX)
           response.multiStatusResponse.setErrorResponseAtIndex(i, {
-            status: 400,
-            errormessage: resultsResponse.data.items[i].message,
+            status: isRetryableRowError ? 429 : 400,
+            errormessage,
             body: {}
           })
         }
@@ -246,7 +272,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         return response
       }
 
-      // For 429 or 500 errors, set jobStatus to IN_PROGRESS as these errors typically indicate a temporary issue on SFMC's end
+      // For 429 or 500 errors, set jobStatus to RETRYABLE_ERROR as these errors typically indicate a temporary issue on SFMC's end
       if (error.response.status === 429 || error.response.status === 500) {
         response.status = error.response.status
         response.jobStatus = 'RETRYABLE_ERROR'
