@@ -50,7 +50,7 @@ export interface EventItemV3 {
     tracking_type: EventTypeV3
     custom_event_name?: string // required if tracking_type is CUSTOM
   }
-  event_metadata?: MetadataV3
+  metadata?: MetadataV3
   user?: UserV3
 }
 

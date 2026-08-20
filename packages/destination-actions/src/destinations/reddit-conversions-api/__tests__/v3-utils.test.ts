@@ -212,7 +212,7 @@ describe('createRedditPayloadV3', () => {
             event_source_url: 'https://example.com/checkout',
             click_id: 'click_id_1',
             type: { tracking_type: 'PURCHASE', custom_event_name: undefined },
-            event_metadata: undefined,
+            metadata: undefined,
             user: undefined
           }
         ]

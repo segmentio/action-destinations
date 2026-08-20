@@ -74,7 +74,7 @@ export function createRedditPayloadV3(
           tracking_type: toV3TrackingType(tracking_type),
           custom_event_name
         },
-        event_metadata: getMetadata(event_metadata, products, conversion_id),
+        metadata: getMetadata(event_metadata, products, conversion_id),
         user: getUser(user, data_processing_options, screen_dimensions)
       }
 
