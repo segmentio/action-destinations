@@ -38,35 +38,54 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       scroll,
       submit,
       capture_text_content,
+      api_host,
+      cross_subdomain_cookie,
       persistence,
-      ...rest
+      track_marketing,
+      cookie_expiration,
+      disable_persistence,
+      ip,
+      record_block_class,
+      record_block_selector,
+      record_canvas,
+      record_heatmap_data,
+      record_idle_timeout_ms,
+      record_mask_all_text,
+      record_mask_text_class,
+      record_mask_text_selector,
+      record_unmask_text_selector,
+      record_mask_all_inputs,
+      record_mask_input_selector,
+      record_unmask_input_selector,
+      record_max_ms,
+      record_min_ms,
+      record_sessions_percent
     } = settings
 
-    const numericKeys = new Set([
-      'record_sessions_percent',
-      'record_min_ms',
-      'record_max_ms',
-      'record_idle_timeout_ms',
-      'cookie_expiration'
-    ])
-    
-    const remainingSettings = Object.fromEntries(
-      Object.entries(rest).flatMap(([key, value]) => {
-        if (numericKeys.has(key)) {
-          if (value === undefined || value === null || value === '') { 
-            return [] 
-          }
-          const num = Number(value)
-          if (Number.isNaN(num)) {
-            console.warn(`Setting "${key}" with value "${value}" cannot be converted to a number. Setting will be ignored.`)
-            return []
-          }
-          return [[key, num]]
-        }
-        return [[key, value]]
-      })
-    )
-    
+    const asString = (value: unknown): string | undefined => {
+      if (typeof value !== 'string') {
+        return undefined
+      }
+      const trimmed = value.trim()
+      return trimmed === '' ? undefined : trimmed
+    }
+
+    const asNumber = (value: unknown): number | undefined => {
+      if (typeof value === 'number') {
+        return Number.isNaN(value) ? undefined : value
+      }
+      if (typeof value === 'string' && value.trim() !== '') {
+        const num = Number(value)
+        return Number.isNaN(num) ? undefined : num
+      }
+      return undefined
+    }
+
+    const asBoolean = (value: unknown): boolean | undefined => (typeof value === 'boolean' ? value : undefined)
+
+    const defined = (obj: Partial<Config>): Partial<Config> =>
+      Object.fromEntries(Object.entries(obj).filter(([, value]) => value !== undefined)) as Partial<Config>
+
     const config: Config = {
       autocapture:
         autocapture === AUTOCAPTURE_OPTIONS.CUSTOM
@@ -83,10 +102,31 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
           : autocapture === AUTOCAPTURE_OPTIONS.ENABLED
           ? true
           : false,
-      persistence: persistence as PersistenceOptions,
-      ...remainingSettings
+      ...defined({
+        api_host: asString(api_host),
+        persistence: asString(persistence) as PersistenceOptions | undefined,
+        cross_subdomain_cookie: asBoolean(cross_subdomain_cookie),
+        track_marketing: asBoolean(track_marketing),
+        cookie_expiration: asNumber(cookie_expiration),
+        disable_persistence: asBoolean(disable_persistence),
+        ip: asBoolean(ip),
+        record_block_class: asString(record_block_class),
+        record_block_selector: asString(record_block_selector),
+        record_canvas: asBoolean(record_canvas),
+        record_heatmap_data: asBoolean(record_heatmap_data),
+        record_idle_timeout_ms: asNumber(record_idle_timeout_ms),
+        record_mask_all_text: asBoolean(record_mask_all_text),
+        record_mask_text_class: asString(record_mask_text_class),
+        record_mask_text_selector: asString(record_mask_text_selector),
+        record_unmask_text_selector: asString(record_unmask_text_selector),
+        record_mask_all_inputs: asBoolean(record_mask_all_inputs),
+        record_mask_input_selector: asString(record_mask_input_selector),
+        record_unmask_input_selector: asString(record_unmask_input_selector),
+        record_max_ms: asNumber(record_max_ms),
+        record_min_ms: asNumber(record_min_ms),
+        record_sessions_percent: asNumber(record_sessions_percent)
+      })
     }
-
     return new Promise<Mixpanel>((resolve) => {
       config.loaded = (mp) => resolve(mp)
 
