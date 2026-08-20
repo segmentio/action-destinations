@@ -63,6 +63,7 @@
     "@segment/analytics-browser-appcues-web-actions": "^1.15.0",
     "@segment/analytics-browser-hubble-web": "^1.93.0",
     "@segment/analytics-browser-mixpanel-web-actions": "^1.19.0",
+    "@segment/analytics-browser-actions-wingify": "^1.1.0",
     "@segment/browser-destination-runtime": "^1.106.0"
   }
 }
