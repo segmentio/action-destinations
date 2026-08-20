@@ -159,7 +159,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     }
   },
 
-  performPoll: async (request, { settings, payload }) => {
+  performPoll: async (request, { settings, payload, logger }) => {
     const response: PollResponse = {
       jobId: payload.jobId,
       status: 200,
@@ -180,9 +180,20 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       // Set HTTP status from API response
       response.status = statusResponse.status
 
-      // If the status object is not present in the response, this typically indicates an operation failure, eg: AsyncRequestStatusNotFound
+      // The status object can be absent either because the job is genuinely unknown/expired,
+      // or because it hasn't been picked up for processing yet (a normal, transient, pre-pickup
+      // state) -- confirmed by observing this exact response shape for a job that later completed
+      // with 100% success. We can't tell the two apart from this response alone, so treat it as
+      // retryable rather than a terminal failure -- a job that's truly gone will keep hitting this
+      // on every retry and eventually be handled by the caller's own retry/backoff limits, while a
+      // job that just hasn't started avoids being falsely reported as FAILED.
       if (!statusResponse.data.status) {
-        response.jobStatus = 'FAILED'
+        logger?.warn?.(
+          `SFMC async status response missing status object for job ${payload.jobId}: ${JSON.stringify(
+            statusResponse.data
+          )}`
+        )
+        response.jobStatus = 'RETRYABLE_ERROR'
         return response
       }
 

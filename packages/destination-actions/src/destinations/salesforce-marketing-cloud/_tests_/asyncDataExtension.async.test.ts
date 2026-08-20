@@ -919,7 +919,11 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.status).toBe(200)
       })
 
-      it('should return FAILED when status object is missing in response', async () => {
+      it('should return RETRYABLE_ERROR (not FAILED) when status object is missing in response', async () => {
+        // A missing status object can mean the job is genuinely unknown, or that it just
+        // hasn't been picked up for processing yet -- a normal, transient, pre-pickup state
+        // confirmed in production for a job that later completed with 100% success. Since we
+        // can't tell the two apart from this response alone, this must not be a terminal FAILED.
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -932,7 +936,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
           settings
         })
 
-        expect(response.jobStatus).toBe('FAILED')
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
         expect(response.status).toBe(200)
       })
     })
