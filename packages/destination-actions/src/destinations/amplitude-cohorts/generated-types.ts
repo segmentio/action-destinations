@@ -21,6 +21,10 @@ export interface Settings {
    * The region to send your data.
    */
   endpoint: string
+  /**
+   * When enabled, all audience (cohort) names sent to Amplitude are prefixed with "[Segment] ". Turn this off to send audience names without the prefix.
+   */
+  prefix_audience_names?: boolean
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 
