@@ -623,6 +623,36 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.status).toBe(500)
       })
 
+      it('should return RETRYABLE_ERROR (not FAILED) on a transient network error', async () => {
+        // A network-level failure (e.g. a connection reset mid-flight) has nothing to do with
+        // the job's actual state -- confirmed in production for a job that had already completed
+        // successfully by the time a poll hit exactly this error. Mirrors performBatch's existing
+        // classification of these same error codes as retryable.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .replyWithError({ message: 'socket hang up', code: 'ECONNRESET' })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+      })
+
+      it('should still return FAILED for an unclassified non-HTTP error', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .replyWithError({ message: 'something unexpected', code: 'EUNEXPECTED' })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('FAILED')
+      })
+
       it('should return SUCCEEDED with success count from uploadCount when Complete and OK', async () => {
         // Only the lightweight status API is mocked. The heavyweight results API is intentionally
         // not mocked, so if the destination were to call it the request would fail and this test would break.
@@ -722,6 +752,62 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.isSuccessResponseAtIndex(2)).toBe(true)
         expect(response.multiStatusResponse?.errorCount).toBe(2)
         expect(response.multiStatusResponse?.successCount).toBe(2)
+      })
+
+      it('should flag a deadlocked row as retryable (429) while other errorCode 2 failures stay non-retryable (400)', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 2,
+            items: [
+              {
+                errorCode: 2,
+                message:
+                  'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.',
+                status: 'Error'
+              },
+              {
+                errorCode: 2,
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('FAILED')
+        expect(response.multiStatusResponse).toBeDefined()
+
+        const deadlockResponse = response.multiStatusResponse?.getResponseAtIndex(0)
+        expect(deadlockResponse?.value().status).toBe(429)
+        expect(
+          deadlockResponse instanceof ActionDestinationErrorResponse && deadlockResponse.value().errormessage
+        ).toEqual(
+          'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.'
+        )
+
+        const validationErrorResponse = response.multiStatusResponse?.getResponseAtIndex(1)
+        expect(validationErrorResponse?.value().status).toBe(400)
+        expect(
+          validationErrorResponse instanceof ActionDestinationErrorResponse &&
+            validationErrorResponse.value().errormessage
+        ).toEqual('Cannot locate the existing record. Required keys are missing.')
       })
 
       it('should return FAILED (not SUCCEEDED) when Complete but every record errored', async () => {
@@ -863,7 +949,11 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.status).toBe(200)
       })
 
-      it('should return FAILED when status object is missing in response', async () => {
+      it('should return RETRYABLE_ERROR (not FAILED) when status object is missing in response', async () => {
+        // A missing status object can mean the job is genuinely unknown, or that it just
+        // hasn't been picked up for processing yet -- a normal, transient, pre-pickup state
+        // confirmed in production for a job that later completed with 100% success. Since we
+        // can't tell the two apart from this response alone, this must not be a terminal FAILED.
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -876,7 +966,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
           settings
         })
 
-        expect(response.jobStatus).toBe('FAILED')
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
         expect(response.status).toBe(200)
       })
     })
