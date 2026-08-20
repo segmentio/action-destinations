@@ -278,8 +278,23 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       return response
     } catch (error) {
       if (!(error instanceof HTTPError)) {
+        // Network-level failures (timeouts, connection resets, DNS issues) are transient -- the
+        // job itself may be fine (confirmed in production: a poll that hit one of these mid-flight
+        // for a job that had already completed successfully). Mirrors the same classification
+        // performBatch already does for these error codes.
+        const code = error instanceof Error ? (error as Error & { code?: string }).code : undefined
+        const isRetryableNetworkError =
+          code === 'ETIMEDOUT' ||
+          code === 'ECONNRESET' ||
+          code === 'ECONNREFUSED' ||
+          code === 'EAI_AGAIN' ||
+          code === 'ENOTFOUND'
+
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        logger?.warn?.(`SFMC async poll failed for job ${payload.jobId} with a non-HTTP error: ${message}`)
+
         response.status = 400
-        response.jobStatus = 'FAILED'
+        response.jobStatus = isRetryableNetworkError ? 'RETRYABLE_ERROR' : 'FAILED'
         return response
       }
 

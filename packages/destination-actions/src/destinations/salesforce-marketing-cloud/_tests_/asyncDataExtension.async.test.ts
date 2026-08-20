@@ -623,6 +623,36 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.status).toBe(500)
       })
 
+      it('should return RETRYABLE_ERROR (not FAILED) on a transient network error', async () => {
+        // A network-level failure (e.g. a connection reset mid-flight) has nothing to do with
+        // the job's actual state -- confirmed in production for a job that had already completed
+        // successfully by the time a poll hit exactly this error. Mirrors performBatch's existing
+        // classification of these same error codes as retryable.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .replyWithError({ message: 'socket hang up', code: 'ECONNRESET' })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+      })
+
+      it('should still return FAILED for an unclassified non-HTTP error', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .replyWithError({ message: 'something unexpected', code: 'EUNEXPECTED' })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('FAILED')
+      })
+
       it('should return SUCCEEDED with success count from uploadCount when Complete and OK', async () => {
         // Only the lightweight status API is mocked. The heavyweight results API is intentionally
         // not mocked, so if the destination were to call it the request would fail and this test would break.
