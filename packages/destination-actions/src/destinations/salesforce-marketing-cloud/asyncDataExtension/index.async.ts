@@ -159,7 +159,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     }
   },
 
-  performPoll: async (request, { settings, payload, logger }) => {
+  performPoll: async (request, { settings, payload }) => {
     const response: PollResponse = {
       jobId: payload.jobId,
       status: 200,
@@ -188,11 +188,6 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       // on every retry and eventually be handled by the caller's own retry/backoff limits, while a
       // job that just hasn't started avoids being falsely reported as FAILED.
       if (!statusResponse.data.status) {
-        logger?.warn?.(
-          `SFMC async status response missing status object for job ${payload.jobId}: ${JSON.stringify(
-            statusResponse.data
-          )}`
-        )
         response.jobStatus = 'RETRYABLE_ERROR'
         return response
       }
