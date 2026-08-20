@@ -48,6 +48,7 @@ describe('Mixpanel.track', () => {
         track_pageview: jest.fn(),
         track: jest.fn(),
         identify: jest.fn(),
+        register: jest.fn(),
         alias: jest.fn(),
         get_group: jest.fn().mockReturnValue(mockGroup),
         set_group: jest.fn(),
