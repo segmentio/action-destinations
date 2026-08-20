@@ -1,8 +1,11 @@
 import { createTestIntegration } from '../create-test-integration'
-import { engageAudienceMembership, retlAudienceMembership } from '../audience-membership'
+import { createTestEvent } from '../create-test-event'
+import { engageAudienceMembership, retlAudienceMembership, legacyJourneysAudienceMembership } from '../audience-membership'
+import { FLAGS } from '../flags'
 import { DestinationDefinition } from '../destination-kit'
 import { ExecuteInput } from '../destination-kit/types'
 import { JSONObject } from '../json-object'
+import { SegmentEvent } from '../segment-event'
 
 describe('engageAudienceMembership', () => {
   describe('identify events', () => {
@@ -226,6 +229,106 @@ describe('retlAudienceMembership', () => {
   })
 })
 
+describe('legacyJourneysAudienceMembership', () => {
+  describe('returns true (added to audience)', () => {
+    it('returns true when computation_class is journey_step and computation_key is missing', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'track',
+          context: { personas: { computation_class: 'journey_step' } },
+          properties: {}
+        })
+      ).toBe(true)
+    })
+
+    it('returns true when type is track and properties[computation_key] is absent', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'track',
+          context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+          properties: {}
+        })
+      ).toBe(true)
+    })
+
+    it('returns true when type is track and properties[computation_key] is not a boolean', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'track',
+          context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+          properties: { my_step: 'true' }
+        })
+      ).toBe(true)
+    })
+
+    it('returns true when type is identify and traits[computation_key] is absent', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'identify',
+          context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+          traits: {}
+        })
+      ).toBe(true)
+    })
+
+    it('returns true when type is identify and traits[computation_key] is not a boolean', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'identify',
+          context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+          traits: { my_step: 'true' }
+        })
+      ).toBe(true)
+    })
+  })
+
+  describe('returns undefined', () => {
+    it('returns undefined when rawData is undefined', () => {
+      expect(legacyJourneysAudienceMembership(undefined)).toBeUndefined()
+    })
+
+    it('returns undefined when computation_class is not journey_step', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'track',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: {}
+        })
+      ).toBeUndefined()
+    })
+
+    it('returns undefined when computation_class is missing', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'track',
+          context: { personas: { computation_key: 'my_step' } },
+          properties: {}
+        })
+      ).toBeUndefined()
+    })
+
+    it('returns undefined when type is track and properties[computation_key] is a boolean', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'track',
+          context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+          properties: { my_step: true }
+        })
+      ).toBeUndefined()
+    })
+
+    it('returns undefined when type is identify and traits[computation_key] is a boolean', () => {
+      expect(
+        legacyJourneysAudienceMembership({
+          type: 'identify',
+          context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+          traits: { my_step: false }
+        })
+      ).toBeUndefined()
+    })
+  })
+})
+
 interface BatchCaptureRef {
   payload?: JSONObject[]
   audienceMembership?: (boolean | undefined)[]
@@ -256,9 +359,9 @@ function makeBatchDestination(captureRef: BatchCaptureRef): DestinationDefinitio
   }
 }
 
-function makeDestination(
-  captureRef: { data?: ExecuteInput<JSONObject, JSONObject> }
-): DestinationDefinition<JSONObject> {
+function makeDestination(captureRef: {
+  data?: ExecuteInput<JSONObject, JSONObject>
+}): DestinationDefinition<JSONObject> {
   return {
     name: 'Test Destination',
     mode: 'cloud',
@@ -302,45 +405,56 @@ async function runAction(
 }
 
 describe('audienceMembership on ExecuteInput in perform()', () => {
-
   describe('Engage payloads', () => {
     it('is true for identify event with membership in traits', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: true }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'identify',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          traits: { my_audience: true }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(true)
     })
 
     it('is false for identify event with membership in traits', async () => {
-      const data = await runAction({
-        type: 'identify',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        traits: { my_audience: false }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'identify',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          traits: { my_audience: false }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(false)
     })
 
     it('is true for track event with membership in properties', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        properties: { my_audience: true }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: { my_audience: true }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(true)
     })
 
     it('is false for track event with membership in properties', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
-        properties: { my_audience: false }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
+          properties: { my_audience: false }
+        },
+        undefined
+      )
       expect(data?.audienceMembership).toBe(false)
     })
   })
@@ -365,11 +479,42 @@ describe('audienceMembership on ExecuteInput in perform()', () => {
 
   describe('non-audience events', () => {
     it('is undefined for a non-audience event', async () => {
-      const data = await runAction({
-        type: 'track',
-        userId: 'user-1',
-        properties: { foo: 'bar' }
-      }, undefined)
+      const data = await runAction(
+        {
+          type: 'track',
+          userId: 'user-1',
+          properties: { foo: 'bar' }
+        },
+        undefined
+      )
+      expect(data?.audienceMembership).toBeUndefined()
+    })
+  })
+
+  describe('Legacy Journeys payloads (feature flagged)', () => {
+    const legacyJourneyEvent = {
+      type: 'track',
+      userId: 'user-1',
+      context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+      properties: {}
+    }
+
+    it('is true when the feature flag is enabled', async () => {
+      const data = await runAction(legacyJourneyEvent, undefined, {
+        [FLAGS.ACTIONS_LEGACY_JOURNEYS_AUDIENCE_MEMBERSHIP]: true
+      })
+      expect(data?.audienceMembership).toBe(true)
+    })
+
+    it('is undefined when the feature flag is disabled', async () => {
+      const data = await runAction(legacyJourneyEvent, undefined, {
+        [FLAGS.ACTIONS_LEGACY_JOURNEYS_AUDIENCE_MEMBERSHIP]: false
+      })
+      expect(data?.audienceMembership).toBeUndefined()
+    })
+
+    it('is undefined when the feature flag is absent', async () => {
+      const data = await runAction(legacyJourneyEvent, undefined)
       expect(data?.audienceMembership).toBeUndefined()
     })
   })
@@ -381,34 +526,34 @@ describe('audienceMembership on ExecuteInput in performBatch()', () => {
     const testDestination = createTestIntegration(makeBatchDestination(captureRef))
 
     const events = [
-      {
+      createTestEvent({
         type: 'identify',
         userId: 'user-1',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: true },
         properties: { count: 1 }
-      },
-      {
+      }),
+      createTestEvent({
         type: 'identify',
         userId: 'user-2',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: false },
         properties: { count: 2 }
-      },
-      {
+      }),
+      createTestEvent({
         type: 'identify',
         userId: 'user-3',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: true },
         properties: { count: 'not-a-number' }
-      },
-      {
+      }),
+      createTestEvent({
         type: 'identify',
         userId: 'user-4',
         context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } },
         traits: { my_audience: false },
         properties: { count: 4 }
-      }
+      })
     ]
 
     await testDestination.testBatchAction('testAction', {
@@ -428,5 +573,52 @@ describe('audienceMembership on ExecuteInput in performBatch()', () => {
 
     expect(captureRef.audienceMembership).toHaveLength(3)
     expect(captureRef.audienceMembership).toEqual([true, false, false])
+  })
+
+  describe('Legacy Journeys payloads (feature flagged)', () => {
+    const legacyJourneyEvents: Partial<SegmentEvent>[] = [
+      {
+        type: 'track',
+        userId: 'user-1',
+        context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+        properties: { count: 1 }
+      },
+      {
+        type: 'track',
+        userId: 'user-2',
+        context: { personas: { computation_class: 'journey_step', computation_key: 'my_step' } },
+        properties: { count: 2 }
+      }
+    ]
+    const mapping = {
+      userId: { '@path': '$.userId' },
+      count: { '@path': '$.properties.count' }
+    }
+
+    it('resolves membership to true when the feature flag is enabled', async () => {
+      const captureRef: BatchCaptureRef = {}
+      const testDestination = createTestIntegration(makeBatchDestination(captureRef))
+
+      await testDestination.testBatchAction('testAction', {
+        events: legacyJourneyEvents.map((event) => createTestEvent(event)),
+        mapping,
+        features: { [FLAGS.ACTIONS_LEGACY_JOURNEYS_AUDIENCE_MEMBERSHIP]: true }
+      })
+
+      expect(captureRef.audienceMembership).toEqual([true, true])
+    })
+
+    it('leaves membership undefined when the feature flag is disabled', async () => {
+      const captureRef: BatchCaptureRef = {}
+      const testDestination = createTestIntegration(makeBatchDestination(captureRef))
+
+      await testDestination.testBatchAction('testAction', {
+        events: legacyJourneyEvents.map((event) => createTestEvent(event)),
+        mapping,
+        features: { [FLAGS.ACTIONS_LEGACY_JOURNEYS_AUDIENCE_MEMBERSHIP]: false }
+      })
+
+      expect(captureRef.audienceMembership).toEqual([undefined, undefined])
+    })
   })
 })
