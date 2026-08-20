@@ -159,7 +159,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     }
   },
 
-  performPoll: async (request, { settings, payload }) => {
+  performPoll: async (request, { settings, payload, logger }) => {
     const response: PollResponse = {
       jobId: payload.jobId,
       status: 200,
@@ -188,6 +188,11 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       // on every retry and eventually be handled by the caller's own retry/backoff limits, while a
       // job that just hasn't started avoids being falsely reported as FAILED.
       if (!statusResponse.data.status) {
+        logger?.warn?.(
+          `SFMC async status response missing status object for job ${payload.jobId}: ${JSON.stringify(
+            statusResponse.data
+          )}`
+        )
         response.jobStatus = 'RETRYABLE_ERROR'
         return response
       }
@@ -273,8 +278,23 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       return response
     } catch (error) {
       if (!(error instanceof HTTPError)) {
+        // Network-level failures (timeouts, connection resets, DNS issues) are transient -- the
+        // job itself may be fine (confirmed in production: a poll that hit one of these mid-flight
+        // for a job that had already completed successfully). Mirrors the same classification
+        // performBatch already does for these error codes.
+        const code = error instanceof Error ? (error as Error & { code?: string }).code : undefined
+        const isRetryableNetworkError =
+          code === 'ETIMEDOUT' ||
+          code === 'ECONNRESET' ||
+          code === 'ECONNREFUSED' ||
+          code === 'EAI_AGAIN' ||
+          code === 'ENOTFOUND'
+
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        logger?.warn?.(`SFMC async poll failed for job ${payload.jobId} with a non-HTTP error: ${message}`)
+
         response.status = 400
-        response.jobStatus = 'FAILED'
+        response.jobStatus = isRetryableNetworkError ? 'RETRYABLE_ERROR' : 'FAILED'
         return response
       }
 
