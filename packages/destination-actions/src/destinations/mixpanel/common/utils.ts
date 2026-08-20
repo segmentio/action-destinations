@@ -20,7 +20,7 @@ export function getImportApiCredential(settings: Settings, features?: Features):
   if (features && features[FLAGS.PROJECT_TOKEN_AUTH]) {
     return settings.projectToken
   }
-  return settings.apiSecret ?? settings.projectToken
+  return settings.apiSecret || settings.projectToken
 }
 
 export enum StrictMode {
