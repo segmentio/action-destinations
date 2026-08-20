@@ -1,3 +1,13 @@
+import { InvalidAuthenticationError } from '@segment/actions-core'
+
+export function validateDatacenter(datacenter: string): void {
+  if (!/^[a-zA-Z0-9-]+$/.test(datacenter)) {
+    throw new InvalidAuthenticationError(
+      'Invalid datacenter ID. Datacenter must contain only alphanumeric characters and hyphens.'
+    )
+  }
+}
+
 export function parsedEmbeddedData(
   data: { [key: string]: unknown } | undefined
 ): Record<string, string | number | boolean> {
@@ -7,11 +17,11 @@ export function parsedEmbeddedData(
       return
     }
     if (typeof data[key] === 'string') {
-      parsedData[key] = data[key] as string
+      parsedData[key] = data[key]
     } else if (typeof data[key] === 'number') {
-      parsedData[key] = data[key] as number
+      parsedData[key] = data[key]
     } else if (typeof data[key] === 'boolean') {
-      parsedData[key] = data[key] as boolean
+      parsedData[key] = data[key]
     } else {
       try {
         parsedData[key] = JSON.stringify(data)
