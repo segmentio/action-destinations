@@ -70,6 +70,20 @@ export const parseDateSafe = (v: string | undefined): number | undefined => {
   return Number.isSafeInteger(parsed) ? parsed : undefined
 }
 
+// Snap's Conversions API expects `event_time` as a Unix timestamp in seconds (e.g. 1777819609).
+// `Date.parse` (and some upstream sources) produce milliseconds (e.g. 1777819609520), which Snap's
+// offline endpoint interprets as seconds far in the future and rejects with
+// "Param data['event_time'] is an invalid Unix timestamp." Normalize milliseconds to seconds
+// while leaving values already in seconds untouched.
+//
+// Any value >= 1e12 is treated as milliseconds: 1e12 ms is 2001-09-09, whereas a seconds
+// timestamp does not reach 1e12 until the year 33658 — so modern seconds and milliseconds
+// timestamps never overlap this threshold.
+const MILLISECONDS_THRESHOLD = 1e12
+
+export const normalizeToUnixSeconds = (timestamp: number): number =>
+  timestamp >= MILLISECONDS_THRESHOLD ? Math.floor(timestamp / 1000) : Math.floor(timestamp)
+
 export const smartHash = (
   value: string | undefined,
   cleaningFunction?: (value: string) => string

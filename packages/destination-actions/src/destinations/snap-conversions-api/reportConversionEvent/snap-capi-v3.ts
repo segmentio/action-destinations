@@ -1,4 +1,4 @@
-import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ExecuteInput, Features, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -11,10 +11,16 @@ import {
   emptyStringToUndefined,
   parseNumberSafe,
   parseDateSafe,
+  normalizeToUnixSeconds,
   smartHash
 } from './utils'
 import { processHashing } from '../../../lib/hashing-utils'
 import { SNAP_CONVERSIONS_API_VERSION } from '../versioning-info'
+
+// When enabled, `event_time` is normalized to a Unix timestamp in seconds (10 digits) as
+// required by Snap's Conversions API, instead of the milliseconds (13 digits) produced by
+// `Date.parse`. Gated for safe rollout on this high-volume destination.
+export const FLAGON_EVENT_TIME_IN_SECONDS = 'snap-capi-event-time-in-seconds'
 
 const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -607,7 +613,7 @@ const getSupportedActionSource = (action_source: string | undefined): string | u
     : undefined
 }
 
-const buildPayloadData = (payload: Payload, settings: Settings) => {
+const buildPayloadData = (payload: Payload, settings: Settings, features?: Features) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source =
@@ -624,7 +630,13 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   // Handle the case where a number is passed instead of an ISO8601 timestamp
   const event_time_number = parseNumberSafe(payload_event_time ?? '')
   const event_time_date_time = parseDateSafe(payload_event_time ?? '')
-  const event_time = event_time_date_time ?? event_time_number
+  const event_time_raw = event_time_date_time ?? event_time_number
+  // Snap's Conversions API expects `event_time` in seconds. `Date.parse` yields milliseconds,
+  // which Snap rejects as an invalid Unix timestamp. Normalize to seconds when the flag is on.
+  const event_time =
+    features?.[FLAGON_EVENT_TIME_IN_SECONDS] && event_time_raw != null
+      ? normalizeToUnixSeconds(event_time_raw)
+      : event_time_raw
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
@@ -733,9 +745,9 @@ export const performSnapCAPIv3 = async (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
-  const { payload, settings } = data
+  const { payload, settings, features } = data
 
-  const payloadData = buildPayloadData(payload, settings)
+  const payloadData = buildPayloadData(payload, settings, features)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)
