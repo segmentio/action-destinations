@@ -5927,10 +5927,10 @@
           "currency": {
             "@path": "$.properties.currency"
           },
-          "itemCount": {
+          "item_count": {
             "@path": "$.properties.quantity"
           },
-          "value": {
+          "value_decimal": {
             "@path": "$.properties.price"
           }
         },
@@ -6067,10 +6067,10 @@
           "currency": {
             "@path": "$.properties.currency"
           },
-          "itemCount": {
+          "item_count": {
             "@path": "$.properties.quantity"
           },
-          "value": {
+          "value_decimal": {
             "@path": "$.properties.price"
           }
         },

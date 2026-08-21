@@ -5,7 +5,7 @@ import type { Payload as StandardEvent } from '../standardEvent/generated-types'
 import type { Payload as CustomEvent } from '../customEvent/generated-types'
 import { EventItemV3, PayloadV3, MetadataV3, ProductV3, ActionSourceV3, EventTypeV3 } from './types-v3'
 import { ACTION_SOURCE_V3_LABELS, TRACKING_TYPE_V3 } from './constants'
-import { clean, cleanNum, getUser, smartHash } from '../utils'
+import { clean, cleanNum, getUser, smartHash, supportsValueMetadata, supportsItemCount } from '../utils'
 import { LATEST_API_VERSION } from '../versioning-info'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
@@ -74,7 +74,7 @@ export function createRedditPayloadV3(
           tracking_type: toV3TrackingType(tracking_type),
           custom_event_name
         },
-        metadata: getMetadata(event_metadata, products, conversion_id),
+        metadata: getMetadata(event_metadata, products, conversion_id, tracking_type),
         user: getUser(user, data_processing_options, screen_dimensions)
       }
 
@@ -153,15 +153,19 @@ export function toProductIdV3(id: string | undefined): string {
 export function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
-  conversion_id: ConversionIdType
+  conversion_id: ConversionIdType,
+  trackingType?: string
 ): MetadataV3 | undefined {
   if (!metadata && !products && !conversion_id) return undefined
+  const valueMetadataSupported = supportsValueMetadata(trackingType)
+  const itemCountSupported = supportsItemCount(trackingType)
+
   return {
-    currency: clean(metadata?.currency),
-    item_count: cleanNum(metadata?.item_count),
+    currency: valueMetadataSupported ? clean(metadata?.currency) : undefined,
+    item_count: itemCountSupported ? cleanNum(metadata?.item_count) : undefined,
     // The Segment-facing field is still named `value_decimal` (unchanged from v2, so existing
     // mappings keep working) - only the wire-level key sent to Reddit v3 renames to `value`.
-    value: cleanNum(metadata?.value_decimal),
+    value: valueMetadataSupported ? cleanNum(metadata?.value_decimal) : undefined,
     products: getProducts(products),
     conversion_id: smartHash(conversion_id, (value) => value.trim())
   }
