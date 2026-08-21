@@ -12,7 +12,7 @@ import {
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { external_id, lookup_field, data, enable_batching, batch_size, event_name } from '../properties'
+import { fields } from './fields'
 import {
   formatEndpoint,
   formatData,
@@ -103,28 +103,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
   description:
     'Add users to a list in Marketo asynchronously using the Bulk Lead Import API. Submits an import job and polls its status.',
   defaultSubscription: 'event = "Audience Entered"',
-  fields: {
-    external_id: { ...external_id },
-    lookup_field: { ...lookup_field },
-    data: { ...data },
-    enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size },
-    event_name: { ...event_name },
-    // Hidden platform flag that signals Segment's async pipeline to route this action
-    // through the async (performBatch + performPoll) lifecycle. Not read by action code.
-    subscription_type: {
-      label: 'Subscription Type',
-      description: 'The type of subscription. Flag for enabling Async Pipeline.',
-      type: 'string',
-      choices: [
-        { label: 'Sync', value: 'sync' },
-        { label: 'Async', value: 'async' }
-      ],
-      default: 'async',
-      required: false,
-      unsafe_hidden: true
-    }
-  },
+  fields,
 
   // Submit the CSV of leads to the Bulk Import API and return the Marketo batchId as the jobId.
   performBatch: async (request, { settings, payload }) => {

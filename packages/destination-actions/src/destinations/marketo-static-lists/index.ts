@@ -5,7 +5,10 @@ import type { Settings } from './generated-types'
 import addToList from './addToList'
 import removeFromList from './removeFromList'
 // POC (staging-only): async Add to List via the Bulk Lead Import API.
-import asyncAddToList from './asyncAddToList/index.async'
+// Both variants share the same fields and key. The sync variant is registered under `actions` so its
+// schema reaches metadata.json/the control plane; the async variant runs when the async pipeline is on.
+import asyncAddToList from './asyncAddToList'
+import asyncAddToListAsyncPipeline from './asyncAddToList/index.async'
 import { MarketoListResponse, GET_LIST_ENDPOINT } from './constants'
 import { createList, formatEndpoint, getAccessToken } from './functions'
 
@@ -98,10 +101,11 @@ const destination: AudienceDestinationDefinition<Settings> = {
   },
   actions: {
     addToList,
-    removeFromList
+    removeFromList,
+    asyncAddToList
   },
   asyncActions: {
-    asyncAddToList
+    asyncAddToList: asyncAddToListAsyncPipeline
   },
   presets: [
     {
