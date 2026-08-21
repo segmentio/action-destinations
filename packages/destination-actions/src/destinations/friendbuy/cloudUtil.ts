@@ -1,4 +1,4 @@
-import { JSONObject, RequestClient, RequestOptions } from '@segment/actions-core'
+import { JSONObject, RequestClient, RequestOptions, RetryableError } from '@segment/actions-core'
 
 import { Settings } from './generated-types'
 
@@ -39,32 +39,76 @@ export async function createMapiRequest(
 
 const AUTH_PADDING_MS = 10000 // 10 seconds
 
+// Workers are long-lived, so the cache needs a ceiling.
+const AUTH_CACHE_MAX_ENTRIES = 1000
+
 interface FriendbuyAuth {
   token: string
   expiresEpoch: number
 }
 
-let friendbuyAuth: FriendbuyAuth
+// Keyed per credential: a shared slot sends one merchant's token with another's events.
+const authCache = new Map<string, FriendbuyAuth>()
 
-export async function getAuthToken(request: RequestClient, mapiBaseUrl: string, authKey: string, authSecret: string) {
-  // Refresh the token if necessary.
-  if (!friendbuyAuth || Date.now() >= friendbuyAuth.expiresEpoch) {
-    const r = await request(`${mapiBaseUrl}/v1/authorization`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      json: { key: authKey, secret: authSecret }
-    })
+// Base URL is in the key because an `environment:` prefix repoints the same key at another host.
+function authCacheKey(mapiBaseUrl: string, authKey: string) {
+  return `${mapiBaseUrl}|${authKey}`
+}
 
-    if (r.data) {
-      const data = r.data as { token: string; expires: string }
-      friendbuyAuth = {
-        token: data.token,
-        expiresEpoch: Date.parse(data.expires) - AUTH_PADDING_MS
-      }
+function pruneAuthCache() {
+  const now = Date.now()
+  for (const [key, auth] of authCache) {
+    if (now >= auth.expiresEpoch) {
+      authCache.delete(key)
     }
   }
+  // Map iterates in insertion order, so the first key is the oldest.
+  while (authCache.size >= AUTH_CACHE_MAX_ENTRIES) {
+    const oldest = authCache.keys().next()
+    if (oldest.done) {
+      break
+    }
+    authCache.delete(oldest.value)
+  }
+}
 
-  return friendbuyAuth.token
+/** Clears the cache; module state outlives a single test. */
+export function resetAuthCache() {
+  authCache.clear()
+}
+
+export async function getAuthToken(request: RequestClient, mapiBaseUrl: string, authKey: string, authSecret: string) {
+  const cacheKey = authCacheKey(mapiBaseUrl, authKey)
+
+  const cached = authCache.get(cacheKey)
+  if (cached && Date.now() < cached.expiresEpoch) {
+    return cached.token
+  }
+
+  const r = await request(`${mapiBaseUrl}/v1/authorization`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    json: { key: authKey, secret: authSecret }
+  })
+
+  const data = r.data as { token?: string; expires?: string } | undefined
+  if (!data?.token || !data.expires) {
+    // A rejected credential already threw an HTTPError above, so a 2xx without a
+    // token is service-side, not the merchant's to fix.
+    throw new RetryableError('Friendbuy MAPI authorization did not return a token.')
+  }
+
+  if (authCache.size >= AUTH_CACHE_MAX_ENTRIES) {
+    pruneAuthCache()
+  }
+
+  // A malformed `expires` gives NaN, which compares false above and forces re-auth.
+  authCache.set(cacheKey, {
+    token: data.token,
+    expiresEpoch: Date.parse(data.expires) - AUTH_PADDING_MS
+  })
+
+  return data.token
 }
