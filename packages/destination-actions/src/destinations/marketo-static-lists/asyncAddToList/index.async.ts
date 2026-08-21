@@ -24,9 +24,11 @@ import {
   CSV_LIMIT,
   BULK_IMPORT_ENDPOINT,
   BULK_IMPORT_STATUS_ENDPOINT,
+  BULK_IMPORT_FAILURES_ENDPOINT,
   MarketoBulkImportResponse,
   MarketoBatchStatusResponse
 } from '../constants'
+import type { RequestClient, Logger } from '@segment/actions-core'
 
 // Network-level error codes that indicate a transient failure worth retrying.
 const RETRYABLE_NETWORK_CODES = new Set(['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND'])
@@ -34,6 +36,66 @@ const RETRYABLE_NETWORK_CODES = new Set(['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSE
 function isRetryableNetworkError(error: unknown): boolean {
   const code = error instanceof Error ? (error as Error & { code?: string }).code : undefined
   return code !== undefined && RETRYABLE_NETWORK_CODES.has(code)
+}
+
+// Best-effort: fetch failures.json (CSV of only the failed rows + a trailing reason column) and
+// summarize the distinct reasons into a short message. This is purely for surfacing WHY rows failed
+// -- it is NOT used to attribute failures to specific payload indices (the poll phase has neither the
+// original payloads nor an ordering guarantee, and Marketo returns only the failed subset). The file
+// 404s when numOfRowsFailed is 0, so callers must only invoke this when the count is > 0.
+async function fetchFailureReasons(
+  request: RequestClient,
+  apiEndpoint: string,
+  jobId: string,
+  logger?: Logger
+): Promise<string | undefined> {
+  try {
+    const failuresUrl = apiEndpoint + BULK_IMPORT_FAILURES_ENDPOINT.replace('batchId', jobId)
+    const failuresResponse = await request<string>(failuresUrl, {
+      method: 'GET',
+      throwHttpErrors: false,
+      skipResponseCloning: true
+    })
+
+    if (failuresResponse.status !== 200) {
+      return undefined
+    }
+
+    return summarizeFailureReasons(failuresResponse.content)
+  } catch (error) {
+    // Enrichment only -- never let a failures.json problem change the job outcome.
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    logger?.warn?.(`Marketo async: failed to read failures.json for batch ${jobId}: ${message}`)
+    return undefined
+  }
+}
+
+// Parse the failures CSV and return the distinct reasons (from the column whose header contains
+// "Reason", falling back to the last column) joined into one short message.
+function summarizeFailureReasons(csv: string): string | undefined {
+  const lines = (csv ?? '').trim().split(/\r?\n/)
+  if (lines.length < 2) {
+    return undefined
+  }
+
+  const header = lines[0].split(',')
+  const reasonIndex = header.findIndex((h) => /reason/i.test(h))
+  const columnIndex = reasonIndex >= 0 ? reasonIndex : header.length - 1
+
+  const reasons = new Set<string>()
+  for (let i = 1; i < lines.length; i++) {
+    const cells = lines[i].split(',')
+    const reason = cells[columnIndex]?.trim()
+    if (reason) {
+      reasons.add(reason)
+    }
+  }
+
+  if (reasons.size === 0) {
+    return undefined
+  }
+
+  return `Marketo bulk import failure(s): ${Array.from(reasons).join('; ')}`
 }
 
 const asyncAction: AsyncActionDefinition<Settings, Payload> = {
@@ -99,7 +161,8 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     }
 
     const url =
-      api_endpoint + BULK_IMPORT_ENDPOINT.replace('externalId', list_id).replace('fieldToLookup', payload[0].lookup_field)
+      api_endpoint +
+      BULK_IMPORT_ENDPOINT.replace('externalId', list_id).replace('fieldToLookup', payload[0].lookup_field)
 
     let importResponse
     try {
@@ -154,10 +217,17 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
     return response
   },
 
-  // Poll the Bulk Import batch job for status. Granular per-record correlation via failures.json
-  // is deferred to Phase 2 (option a: default rows to success, mark only failures.json rows as
-  // errors, matched by lookup-field value). The poll payload only carries { jobId, uploadCount },
-  // so obtaining the lookup values needs validation against a live Marketo instance first.
+  // Poll the Bulk Import batch job for status and report outcomes by COUNT.
+  //
+  // Marketo's Bulk Import is a batch-level async API: it does not support per-record attribution at
+  // poll time. Confirmed against a live instance -- invalid emails become warnings (row still
+  // imported), structural row noise is ignored, and bad headers are rejected by the submit call
+  // itself (handled in performBatch). Genuine poll-time row failures are rare, and failures.json
+  // returns only the failed subset with no ordering guarantee. The poll payload also carries only
+  // { jobId, uploadCount } -- no original payloads. So we cannot map a failed row back to a specific
+  // payload index. Instead we report accurate COUNTS from the status response: the exact number of
+  // successes and failures is correct, but which specific indices are marked failed is approximate.
+  // Warnings are treated as success (mirrors Marketo's own "Import succeeded" verdict).
   performPoll: async (request, { settings, payload, logger }) => {
     const response: PollResponse = {
       jobId: payload.jobId,
@@ -199,26 +269,41 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       }
 
       // result.status === 'Complete'
-      const numFailed = result.numOfRowsFailed ?? 0
-      if (numFailed === 0) {
-        // Every uploaded row imported cleanly. Report success using the uploadCount from the poll,
-        // avoiding the heavier failures.json fetch (mirrors the SFMC async fast path).
+      const uploadCount = payload.uploadCount
+      // numOfRowsWithWarning intentionally does NOT count as a failure -- Marketo still imported
+      // those rows. Only numOfRowsFailed reduces the success count.
+      const failedCount = Math.min(result.numOfRowsFailed ?? 0, uploadCount)
+      const successCount = uploadCount - failedCount
+
+      response.multiStatusResponse = new MultiStatusResponse()
+
+      if (failedCount === 0) {
+        // Every uploaded row imported (warnings included). Skip the failures.json fetch entirely --
+        // it would 404 with a zero failure count anyway.
         response.jobStatus = 'SUCCEEDED'
-        response.multiStatusResponse = new MultiStatusResponse()
-        for (let i = 0; i < payload.uploadCount; i++) {
-          response.multiStatusResponse.setSuccessResponseAtIndex(i, {
-            status: 200,
-            sent: {},
-            body: 'OK'
-          })
+        for (let i = 0; i < uploadCount; i++) {
+          response.multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: 'OK' })
         }
         return response
       }
 
-      // Partial or full failure. Phase 2 will fetch failures.json and build a granular multistatus
-      // (option a). For now report the terminal job outcome without per-record detail; PollResponse
-      // allows an absent multiStatusResponse, in which case jobStatus/status drive the outcome.
-      response.jobStatus = (result.numOfLeadsProcessed ?? 0) > 0 ? 'SUCCEEDED' : 'FAILED'
+      // Some rows failed. Fetch failures.json only to enrich the error message with the reason(s);
+      // it is not used to pick which indices failed (see the method comment).
+      const failureReason =
+        (await fetchFailureReasons(request, api_endpoint, payload.jobId, logger)) ??
+        `Row failed during Marketo bulk import (batch ${payload.jobId})`
+
+      // Approximate attribution: mark the first `successCount` indices as success and the remaining
+      // `failedCount` as errors. Counts are exact; specific index attribution is best-effort.
+      for (let i = 0; i < uploadCount; i++) {
+        if (i < successCount) {
+          response.multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: 'OK' })
+        } else {
+          response.multiStatusResponse.setErrorResponseAtIndex(i, { status: 400, errormessage: failureReason })
+        }
+      }
+
+      response.jobStatus = successCount > 0 ? 'SUCCEEDED' : 'FAILED'
       return response
     } catch (error) {
       if (!(error instanceof HTTPError)) {
