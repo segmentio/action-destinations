@@ -4,6 +4,8 @@ import type { Settings } from './generated-types'
 
 import addToList from './addToList'
 import removeFromList from './removeFromList'
+// POC (staging-only): async Add to List via the Bulk Lead Import API.
+import asyncAddToList from './asyncAddToList/index.async'
 import { MarketoListResponse, GET_LIST_ENDPOINT } from './constants'
 import { createList, formatEndpoint, getAccessToken } from './functions'
 
@@ -97,6 +99,9 @@ const destination: AudienceDestinationDefinition<Settings> = {
   actions: {
     addToList,
     removeFromList
+  },
+  asyncActions: {
+    asyncAddToList
   },
   presets: [
     {
