@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import createTestServer from 'create-test-server'
-import createInstance from '../request-client'
+import createInstance, { NetworkError } from '../request-client'
 import { Response } from '../fetch'
 
 jest.setTimeout(12000)
@@ -501,5 +501,25 @@ describe('request()', () => {
     expect(response.status).toBe(201)
     expect(await response.text()).toBe('hello=world')
     await server.close()
+  })
+
+  it('should throw a NetworkError (not the raw Node error) when the connection is refused', async () => {
+    // Start and immediately close a server so nothing is listening on its port -- guarantees
+    // an ECONNREFUSED without depending on any external network access.
+    const server = await createTestServer()
+    const { url } = server
+    await server.close()
+
+    const request = createInstance()
+
+    await expect(request(url)).rejects.toThrow(NetworkError)
+    try {
+      await request(url)
+      throw new Error('expected request() to reject')
+    } catch (error) {
+      expect(error).toBeInstanceOf(NetworkError)
+      expect((error as NetworkError).code).toBe('ECONNREFUSED')
+      expect((error as NetworkError).status).toBe(500)
+    }
   })
 })

@@ -240,6 +240,37 @@ export class RequestTimeoutError extends CustomError {
 }
 
 /**
+ * Node error codes that indicate the request never reached/received a response from the
+ * server at all (DNS failure, connection reset/refused, etc.), as opposed to the server
+ * responding with a non-2xx status (that's `HTTPError`). These are almost always transient.
+ */
+export const RETRYABLE_NETWORK_ERROR_CODES = new Set([
+  'ETIMEDOUT',
+  'ECONNRESET',
+  'ECONNREFUSED',
+  'EAI_AGAIN',
+  'ENOTFOUND'
+])
+
+/**
+ * Error thrown when the underlying network connection fails before any response is received,
+ * for one of `RETRYABLE_NETWORK_ERROR_CODES`. Thrown by the request client itself so every
+ * destination gets this classification automatically instead of each having to hand-roll the
+ * same Node error-code list in its own catch block. The original Node error code is preserved
+ * on `.code` -- a destination that wants different behavior for a specific code (e.g. treat
+ * `ECONNRESET` as non-retryable for its API) can still catch this and re-classify based on it.
+ */
+export class NetworkError extends CustomError {
+  code: string
+  status = 500
+
+  constructor(code: string, message: string) {
+    super(message)
+    this.code = code
+  }
+}
+
+/**
  * Given a request, reject the request when a timeout is exceeded
  */
 function timeoutFetch(
@@ -330,6 +361,12 @@ class RequestClient {
         }
         throw new RequestClientError()
       }
+
+      const code = (err as NodeJS.ErrnoException)?.code
+      if (code && RETRYABLE_NETWORK_ERROR_CODES.has(code)) {
+        throw new NetworkError(code, (err as Error).message)
+      }
+
       throw err
     }
     for (const hook of this.options.afterResponse ?? []) {
