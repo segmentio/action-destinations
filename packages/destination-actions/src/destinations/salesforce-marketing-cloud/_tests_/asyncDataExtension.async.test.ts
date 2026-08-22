@@ -698,10 +698,11 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 50,
-            count: 5,
+            count: 4,
             items: [
               {
                 errorCode: 2,
@@ -754,6 +755,56 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(2)
       })
 
+      it('should fetch every /results page instead of only the first when count exceeds pageSize', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        // 3 total results, pageSize of 2 -- page 1 has 2 items, page 2 has the remaining 1.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '1' })
+          .reply(200, {
+            page: 1,
+            pageSize: 2,
+            count: 3,
+            items: [
+              { message: 'Upserted DataExtensionObject', status: 'OK' },
+              { message: 'Upserted DataExtensionObject', status: 'OK' }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '2' })
+          .reply(200, {
+            page: 2,
+            pageSize: 2,
+            count: 3,
+            items: [{ message: 'Cannot locate the existing record. Required keys are missing.', status: 'Error' }],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Without pagination handling, only page 1's 2 successes would be seen and the
+        // real error on page 2 would be silently dropped.
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(2)
+        expect(response.multiStatusResponse?.errorCount).toBe(1)
+        expect(response.multiStatusResponse?.isErrorResponseAtIndex(2)).toBe(true)
+      })
+
       it('should flag a deadlocked row as retryable (429) while other errorCode 2 failures stay non-retryable (400)', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
@@ -765,6 +816,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 50,
@@ -810,6 +862,44 @@ describe('Salesforce Marketing Cloud - Async', () => {
         ).toEqual('Cannot locate the existing record. Required keys are missing.')
       })
 
+      it('should still flag a deadlocked row as retryable (429) with trailing whitespace on the message', async () => {
+        // Regression test: a strict endsWith() match would miss this if SFMC ever appends
+        // trailing whitespace or minor variations after "Rerun the transaction."
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 1,
+            items: [
+              {
+                errorCode: 2,
+                message:
+                  'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. \n',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.multiStatusResponse?.getResponseAtIndex(0)?.value().status).toBe(429)
+      })
+
       it('should return FAILED (not SUCCEEDED) when Complete but every record errored', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
@@ -821,6 +911,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 50,
@@ -878,6 +969,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 2500,
@@ -909,6 +1001,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 2500,
@@ -962,6 +1055,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: itemCount,
@@ -1006,6 +1100,51 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.jobId).toBe(jobId)
         expect(response.jobStatus).toBe('FAILED')
         expect(response.status).toBe(200)
+        // resultMessages was empty here, so falls back to a generic message rather than
+        // leaving the caller with no explanation at all -- see the next test for the case
+        // where SFMC actually supplies one.
+        expect(response.multiStatusResponse).toBeDefined()
+        const failure = response.multiStatusResponse?.getResponseAtIndex(0)
+        expect(failure instanceof ActionDestinationErrorResponse && failure.value().errormessage).toEqual(
+          'SFMC reported the request as failed'
+        )
+      })
+
+      it('should surface resultMessages from /status when requestStatus is Error', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              callDateTime: '2024-07-11T22:19:02.04',
+              completionDateTime: '2024-07-11T22:19:03.97',
+              hasErrors: true,
+              pickupDateTime: '2024-07-11T22:19:03.567',
+              requestStatus: 'Error',
+              resultStatus: 'OK',
+              requestId: '12260e92-b8cb-41ec-8c5a-116fb9d23eb4'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: [
+              {
+                resultType: 'Validation',
+                resultClass: 'Error',
+                resultCode: 'NullOrEmptyRows',
+                message: 'Invalid request, Items cannot be null or empty.'
+              }
+            ]
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('FAILED')
+        expect(response.multiStatusResponse).toBeDefined()
+        const failure = response.multiStatusResponse?.getResponseAtIndex(0)
+        expect(failure instanceof ActionDestinationErrorResponse && failure.value().errormessage).toEqual(
+          'Invalid request, Items cannot be null or empty.'
+        )
       })
 
       it('should return RETRYABLE_ERROR (not FAILED) when status object is missing in response', async () => {
