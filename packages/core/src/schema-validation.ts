@@ -55,6 +55,9 @@ export function validateSchema(obj: unknown, schema: JSONSchema4, options?: Vali
   let validate: ValidateFunction
   const exemptedFields: Record<string, unknown> = {}
 
+  console.log(process.env.NODE_ENV)
+  console.log(window?.location.host)
+
   // save exempted fields
   const objCopy = { ...(obj as Record<string, unknown>) }
   exempt.forEach((prop) => {
