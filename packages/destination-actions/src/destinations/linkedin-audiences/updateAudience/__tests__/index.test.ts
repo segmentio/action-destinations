@@ -1,7 +1,13 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { BASE_URL, LINKEDIN_SOURCE_PLATFORM } from '../../constants'
+import {
+  BASE_URL,
+  LINKEDIN_SOURCE_PLATFORM,
+  LINKEDIN_API_VERSION,
+  LINKEDIN_CANARY_API_VERSION,
+  FLAGON_NAME
+} from '../../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -199,6 +205,58 @@ describe('LinkedinAudiences.updateAudience', () => {
         mapping: {
           personas_audience_key: 'personas_test_audience',
           dmp_user_action: 'REMOVE'
+        }
+      })
+
+      expect(response).toBeTruthy()
+    })
+
+    it('should set action to "ADD" for a Journeys event (computation_class: journey_step) in AUTO mode', async () => {
+      // This destination has no computation_class-aware code: in AUTO mode (the default),
+      // getAction() (functions.ts) decides ADD/REMOVE purely from the literal `event` name
+      // ("Audience Entered"/"Audience Exited"), never from computation_class. This test pins
+      // down that a Journeys-originated event (computation_class: 'journey_step') is handled
+      // identically to a classic Engage one, since only the event name matters here.
+      const journeysEvent = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          },
+          traits: {
+            email: 'testing@testing.com'
+          },
+          personas: {
+            computation_class: 'journey_step',
+            computation_key: 'personas_test_audience'
+          }
+        }
+      })
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const response = await testDestination.testAction('updateAudience', {
+        event: journeysEvent,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
         }
       })
 
@@ -864,5 +922,67 @@ describe('LinkedinAudiences.updateAudience', () => {
         })
       ).rejects.toThrow('The value of `source_segment_id` and `personas_audience_key` must match.')
     })
+  })
+})
+
+describe('LinkedinAudiences.updateAudience - API Version Feature Flag', () => {
+  it('should use stable API version by default', async () => {
+    nock(`${BASE_URL}/dmpSegments`)
+      .get(/.*/)
+      .matchHeader('LinkedIn-Version', LINKEDIN_API_VERSION)
+      .query(() => true)
+      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+      .post(/.*/)
+      .matchHeader('LinkedIn-Version', LINKEDIN_API_VERSION)
+      .reply(200)
+
+    await expect(
+      testDestination.testAction('updateAudience', {
+        event,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
+        }
+        // no features = stable version
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should use canary API version when feature flag is enabled', async () => {
+    nock(`${BASE_URL}/dmpSegments`)
+      .get(/.*/)
+      .matchHeader('LinkedIn-Version', LINKEDIN_CANARY_API_VERSION)
+      .query(() => true)
+      .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+    nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+      .post(/.*/)
+      .matchHeader('LinkedIn-Version', LINKEDIN_CANARY_API_VERSION)
+      .reply(200)
+
+    await expect(
+      testDestination.testAction('updateAudience', {
+        event,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
+        },
+        features: { [FLAGON_NAME]: true }
+      })
+    ).resolves.not.toThrowError()
   })
 })

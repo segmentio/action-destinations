@@ -4,6 +4,7 @@ import type { Settings, AudienceSettings } from './generated-types'
 
 import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
+import syncAudience from './syncAudience'
 
 import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
 import { buildHeaders, getAuthToken, getAuthSettings } from './shared'
@@ -164,6 +165,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
+    syncAudience,
     addToAudience,
     removeFromAudience
   },
@@ -202,6 +204,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(addToAudience.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
   ]
 }

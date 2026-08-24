@@ -14,6 +14,8 @@ import addToAudience from './addToAudience'
 
 import removeFromAudience from './removeFromAudience'
 
+import syncAudience from './syncAudience'
+
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'TikTok Audiences',
   slug: 'actions-tiktok-audiences',
@@ -160,6 +162,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   actions: {
+    syncAudience,
     addToAudience,
     removeFromAudience,
     addUser,
@@ -201,6 +204,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(addToAudience.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
   ]
 }

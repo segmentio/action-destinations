@@ -10,6 +10,10 @@ export interface Payload {
    */
   userId?: string
   /**
+   * The new email address to assign to the user. For single event processing, Segment makes a separate API call to set the new email address. Batch updating a profile email address is only supported for Hybrid projects.
+   */
+  newEmail?: string
+  /**
    * Data to store on the user profile.
    */
   dataFields?: {
@@ -27,6 +31,10 @@ export interface Payload {
    * When enabled, Segment will send data to Iterable in batches of up to 1001
    */
   enable_batching?: boolean
+  /**
+   * When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.
+   */
+  updateOnly?: boolean
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */

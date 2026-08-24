@@ -6,6 +6,7 @@ import {
   getListIdDynamicData,
   getProfiles,
   processPhoneNumber,
+  validateExternalId,
   removeBulkProfilesFromList,
   removeProfileFromList
 } from '../functions'
@@ -67,6 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
     }
+    validateExternalId(external_id)
     const profileIds = await getProfiles(
       request,
       email ? [email] : undefined,

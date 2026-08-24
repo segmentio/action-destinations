@@ -9,9 +9,8 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     idfa: {
       type: 'string',
-      required: true,
       label: 'iOS Advertising ID (IDFA)',
-      description: "User's IDFA",
+      description: "User's IDFA. Required if GAID is not provided.",
       default: {
         '@if': {
           exists: { '@path': '$.traits.idfa' },
@@ -22,9 +21,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     gaid: {
       type: 'string',
-      required: true,
       label: 'Android Advertising ID (GAID)',
-      description: "User's GAID",
+      description: "User's GAID. Required if IDFA is not provided.",
       default: {
         '@if': {
           exists: { '@path': '$.traits.gaid' },

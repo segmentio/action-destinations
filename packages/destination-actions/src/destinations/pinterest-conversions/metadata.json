@@ -1,0 +1,6405 @@
+{
+  "slug": "actions-pinterest-conversions-api",
+  "name": "Pinterest Conversions API",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "ad_account_id": {
+        "label": "Ad Account ID",
+        "description": "Unique identifier of an ad account. This can be found in the Pinterest UI by following the steps mentioned [here](https://developers.pinterest.com/docs/conversions/conversions/#Find%20your%20%2Cad_account_id).",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "conversion_token": {
+        "label": "Conversion Token",
+        "description": "The conversion token for your Pinterest account. This can be found in the Pinterest UI by following the steps mentioned [here](https://developers.pinterest.com/docs/conversions/conversions/#Get%20the%20conversion%20token).",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "reportConversionEvent": {
+      "title": "Report Conversion Event",
+      "description": "Report events directly to Pinterest. Data shared can power Pinterest solutions that will help evaluate ads effectiveness and improve content, targeting, and placement of future ads.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "data_format": {
+          "label": "Use Latest Fields",
+          "description": "Switch between the latest field configuration and the legacy fields. New instances default to the latest fields.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "latest",
+          "choices": [
+            {
+              "label": "Latest Fields",
+              "value": "latest"
+            },
+            {
+              "label": "Legacy Fields",
+              "value": "legacy"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_name": {
+          "label": "Event Name",
+          "description": "The conversion event type. For custom events, you must use the predefined event name \"custom\". Please refer to the possible event types in [Pinterest API docs](https://developers.pinterest.com/docs/api/v5/#operation/events/create).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Add Payment Info",
+              "value": "add_payment_info"
+            },
+            {
+              "label": "Add to Cart",
+              "value": "add_to_cart"
+            },
+            {
+              "label": "Add to Wishlist",
+              "value": "add_to_wishlist"
+            },
+            {
+              "label": "App Install",
+              "value": "app_install"
+            },
+            {
+              "label": "App Open",
+              "value": "app_open"
+            },
+            {
+              "label": "Checkout",
+              "value": "checkout"
+            },
+            {
+              "label": "Contact",
+              "value": "contact"
+            },
+            {
+              "label": "Custom",
+              "value": "custom"
+            },
+            {
+              "label": "Customize Product",
+              "value": "customize_product"
+            },
+            {
+              "label": "Find Location",
+              "value": "find_location"
+            },
+            {
+              "label": "Initiate Checkout",
+              "value": "initiate_checkout"
+            },
+            {
+              "label": "Lead",
+              "value": "lead"
+            },
+            {
+              "label": "Page Visit",
+              "value": "page_visit"
+            },
+            {
+              "label": "Schedule",
+              "value": "schedule"
+            },
+            {
+              "label": "Search",
+              "value": "search"
+            },
+            {
+              "label": "Sign Up",
+              "value": "signup"
+            },
+            {
+              "label": "Start Trial",
+              "value": "start_trial"
+            },
+            {
+              "label": "Submit Application",
+              "value": "submit_application"
+            },
+            {
+              "label": "Subscribe",
+              "value": "subscribe"
+            },
+            {
+              "label": "View Category",
+              "value": "view_category"
+            },
+            {
+              "label": "View Content",
+              "value": "view_content"
+            },
+            {
+              "label": "Watch Video",
+              "value": "watch_video"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "action_source": {
+          "label": "Action Source",
+          "description": "The source indicating where the conversion event occurred. This must be app_android, app_ios , web or offline.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "web",
+          "choices": [
+            {
+              "label": "App Android",
+              "value": "app_android"
+            },
+            {
+              "label": "App IOS",
+              "value": "app_ios"
+            },
+            {
+              "label": "Web",
+              "value": "web"
+            },
+            {
+              "label": "Offline",
+              "value": "offline"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_time": {
+          "label": "Event Timestamp",
+          "description": "The event timestamp needs to be provided in UTC format. Segment will automatically convert it into epoch format before sending it to the destination.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_id": {
+          "label": "Event ID",
+          "description": "A unique id string that identifies this event and can be used for deduping between events ingested via both the conversion API and Pinterest tracking.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_source_url": {
+          "label": "Event Source URL",
+          "description": "URL of the web conversion event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "opt_out": {
+          "label": "Opt Out",
+          "description": "When action_source is web or offline, it defines whether the user has opted out of tracking for web conversion events. While when action_source is app_android or app_ios, it defines whether the user has enabled Limit Ad Tracking on their iOS device, or opted out of Ads Personalization on their Android device.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "advertiser_tracking_enabled": {
+          "label": "Advertiser Tracking Enabled",
+          "description": "Defines whether the user has enabled ATT permission on their iOS device.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.adTrackingEnabled"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_data": {
+          "label": "User Data",
+          "description": "Object containing customer information data. Note, It is required at least one of 1) em, 2) hashed_maids or 3) pair client_ip_address + client_user_agent..",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "client_ip_address": {
+              "@path": "$.context.ip"
+            },
+            "client_user_agent": {
+              "@path": "$.context.userAgent"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email",
+              "description": "An email address in lowercase.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "hashed_maids": {
+              "label": "Mobile Ad Identifier",
+              "description": "User’s Google advertising ID (GAIDs) or Apple’s identifier for advertisers (IDFAs).",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "client_ip_address": {
+              "label": "Client IP Address",
+              "description": "The IP address of the browser corresponding to the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "client_user_agent": {
+              "label": "Client User Agent",
+              "description": "User agent of the device the API call originated from.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phone": {
+              "label": "Phone Number",
+              "description": "A phone number. Include only digits with country code, area code, and number. Remove symbols, letters, and any leading zeros. In addition, always include the country code, even if all of the data is from the same country, as the country code is used for matching.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "first_name": {
+              "label": "First Name",
+              "description": "A first name in lowercase.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "last_name": {
+              "label": "Last Name",
+              "description": "A last name in lowercase.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "external_id": {
+              "label": "External ID",
+              "description": "Any unique ID from the advertiser, such as loyalty membership IDs, user IDs, and external cookie IDs. You can send one or more external IDs for a given event.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "gender": {
+              "label": "Gender",
+              "description": "Gender in lowercase. Either f or m.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "date_of_birth": {
+              "label": "Date of Birth",
+              "description": "A date of birth given as year, month, and day. Example: 19971226 for December 26, 1997.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "description": "A city in lowercase without spaces or punctuation. Example: menlopark.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "state": {
+              "label": "State",
+              "description": "A two-letter state code in lowercase. Example: ca.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "zip": {
+              "label": "Zip Code",
+              "description": "A five-digit zip code for United States. For other locations, follow each country`s standards.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "country": {
+              "label": "Country",
+              "description": "A two-letter country code in lowercase.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "click_id": {
+              "label": "Click ID",
+              "description": "The unique identifier stored in _epik cookie on your domain or &epik= query parameter in the URL.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "partner_id": {
+              "label": "Partner ID",
+              "description": "A unique identifier of visitors' information defined by third party partners.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_data": {
+          "label": "[Legacy] Custom Data",
+          "description": "Object containing custom event data.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "value": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.price"
+                },
+                "then": {
+                  "@path": "$.properties.price"
+                },
+                "else": {
+                  "@path": "$.properties.value"
+                }
+              }
+            },
+            "search_string": {
+              "@path": "$.properties.query"
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "currency": {
+              "@path": "$.properties.currency"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "currency": {
+              "label": "Currency",
+              "description": "ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "value": {
+              "label": "Value",
+              "description": "Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_ids": {
+              "label": "Content IDs",
+              "description": "Product IDs as an array of strings.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "contents": {
+              "label": "Product Info",
+              "description": "A list of objects containing information about products.",
+              "type": "object",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": {
+                "id": {
+                  "label": "ID",
+                  "description": "The ID of the item.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                },
+                "item_price": {
+                  "label": "Price",
+                  "description": "The price of the item.",
+                  "type": "number",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                },
+                "quantity": {
+                  "label": "Quantity",
+                  "description": "The number of items purchased.",
+                  "type": "integer",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                },
+                "item_brand": {
+                  "label": "Item Brand",
+                  "description": "The brand of a product.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                },
+                "item_brand_id": {
+                  "label": "Item Brand ID",
+                  "description": "The brand ID of a product. Max 64 characters.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": 64,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                },
+                "item_category": {
+                  "label": "Item Category",
+                  "description": "The category of a product.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                },
+                "item_name": {
+                  "label": "Item Name",
+                  "description": "The name of a product.",
+                  "type": "string",
+                  "required": false,
+                  "multiple": false,
+                  "allowNull": false,
+                  "dynamic": false,
+                  "default": null,
+                  "choices": null,
+                  "placeholder": null,
+                  "properties": null,
+                  "category": null,
+                  "depends_on": null,
+                  "readOnly": null,
+                  "hidden": null,
+                  "minimum": null,
+                  "maximum": null,
+                  "defaultObjectUI": null,
+                  "disabledInputMethods": null,
+                  "displayMode": null,
+                  "format": null,
+                  "additionalProperties": false
+                }
+              },
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "num_items": {
+              "label": "Number of Items",
+              "description": "Total number of products in the event.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "order_id": {
+              "label": "Order ID",
+              "description": "The order ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "search_string": {
+              "label": "Search String",
+              "description": "Search string related to the conversion event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "opt_out_type": {
+              "label": "Opt Out Type",
+              "description": "The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple comma-separated values.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_brand": {
+              "label": "Content Brand",
+              "description": "The brand of the content associated with the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_category": {
+              "label": "Content Category",
+              "description": "The category of the content associated with the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_name": {
+              "label": "Content Name",
+              "description": "The name of the page or product associated with the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "predicted_ltv": {
+              "label": "Predicted LTV",
+              "description": "Predicted lifetime value of user associated with the event.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "app_id": {
+          "label": "[Legacy] App ID",
+          "description": "The app store app ID.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "context.app.id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "app_name": {
+          "label": "[Legacy] App Name",
+          "description": "Name of the app.",
+          "type": "string",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "app_version": {
+          "label": "[Legacy] App Version",
+          "description": "Version of the app.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "device_brand": {
+          "label": "[Legacy] Device Brand",
+          "description": "Brand of the user device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.brand"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "device_carrier": {
+          "label": "[Legacy] Device Carrier",
+          "description": "User device's mobile carrier.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "context.device.carrier"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "device_model": {
+          "label": "[Legacy] Device Model",
+          "description": "Model of the user device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.model"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "device_type": {
+          "label": "[Legacy] Device Type",
+          "description": "Type of the user device.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.device.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "os_version": {
+          "label": "[Legacy] OS Version",
+          "description": "Version of the device operating system.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.os.version"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "legacy"
+              },
+              {
+                "fieldKey": "data_format",
+                "operator": "is"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_data_2": {
+          "label": "Custom Data",
+          "description": "Object containing custom event data.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "currency": {
+              "@path": "$.properties.currency"
+            },
+            "value": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.price"
+                },
+                "then": {
+                  "@path": "$.properties.price"
+                },
+                "else": {
+                  "@path": "$.properties.value"
+                }
+              }
+            },
+            "order_id": {
+              "@path": "$.properties.order_id"
+            },
+            "search_string": {
+              "@path": "$.properties.query"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "currency": {
+              "label": "Currency",
+              "description": "ISO-4217 currency code. If not provided, it will default to the currency set for the ad account.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "value": {
+              "label": "Value",
+              "description": "Total value of the event. E.g. if there are multiple items in a checkout event, value should be the total price of all items.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_ids": {
+              "label": "Content IDs",
+              "description": "Product IDs as an array of strings.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "num_items": {
+              "label": "Number of Items",
+              "description": "Total number of products in the event.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "order_id": {
+              "label": "Order ID",
+              "description": "The order ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "search_string": {
+              "label": "Search String",
+              "description": "Search string related to the conversion event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "opt_out_type": {
+              "label": "Opt Out Type",
+              "description": "The field where Pinterest accepts opt outs for your users' privacy preference. It can handle multiple values with commas separated.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_brand": {
+              "label": "Content Brand",
+              "description": "The brand of the content associated with the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_category": {
+              "label": "Content Category",
+              "description": "The category of the content associated with the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_name": {
+              "label": "Content Name",
+              "description": "The name of the page or product associated with the event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "predicted_ltv": {
+              "label": "Predicted LTV",
+              "description": "Predicted lifetime value of user associated with the event.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "latest"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "contents": {
+          "label": "Contents",
+          "description": "A list of objects containing information about products.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "item_price": {
+                  "@path": "$.price"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "item_brand": {
+                  "@path": "$.brand"
+                },
+                "item_category": {
+                  "@path": "$.category"
+                },
+                "item_name": {
+                  "@path": "$.name"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "Product ID",
+              "description": "The id of the item.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_price": {
+              "label": "Price",
+              "description": "The price of the item.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The number of items purchased.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_brand": {
+              "label": "Item Brand",
+              "description": "The brand of the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_brand_id": {
+              "label": "Item Brand ID",
+              "description": "The brand ID of the product. Max 64 characters.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": 64,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_category": {
+              "label": "Item Category",
+              "description": "The category of the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_name": {
+              "label": "Item Name",
+              "description": "The name of the product.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "latest"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "app_info": {
+          "label": "App Info",
+          "description": "Object containing information about the application where event occurred.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "app_name": {
+              "@path": "$.context.app.name"
+            },
+            "app_package_name": {
+              "@path": "$.context.app.namespace"
+            },
+            "app_version": {
+              "@path": "$.context.app.version"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "window_height": {
+              "@path": "$.context.screen.height"
+            },
+            "window_width": {
+              "@path": "$.context.screen.width"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "app_id": {
+              "label": "App ID",
+              "description": "App ID in Google Play Store, AppStore or other stores.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "app_name": {
+              "label": "App Name",
+              "description": "Name of the app.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "app_package_name": {
+              "label": "App Package Name",
+              "description": "App package name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "app_store": {
+              "label": "App Store",
+              "description": "The name of the app distributor or store from which the app was installed.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "app_version": {
+              "label": "App Version",
+              "description": "App version.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "install_time": {
+              "label": "Install Time",
+              "description": "App install time. Accepts ISO 8601 format or Unix timestamp in seconds (10 digit).",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "user_agent": {
+              "label": "User Agent",
+              "description": "User Agent request header.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "window_height": {
+              "label": "Window Height",
+              "description": "Inner height of the window or viewport.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "window_width": {
+              "label": "Window Width",
+              "description": "Inner width of the window or viewport.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "latest"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "device_info": {
+          "label": "Device Info",
+          "description": "Object containing information about the device where event occurred.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "brand": {
+              "@path": "$.context.device.manufacturer"
+            },
+            "carrier": {
+              "@path": "$.context.network.carrier"
+            },
+            "model": {
+              "@path": "$.context.device.model"
+            },
+            "type": {
+              "@path": "$.context.device.type"
+            },
+            "os_version": {
+              "@path": "$.context.os.version"
+            },
+            "locale": {
+              "@path": "$.context.locale"
+            },
+            "screen_density": {
+              "@path": "$.context.screen.density"
+            },
+            "screen_height": {
+              "@path": "$.context.screen.height"
+            },
+            "screen_width": {
+              "@path": "$.context.screen.width"
+            },
+            "timezone": {
+              "@path": "$.context.timezone"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "battery_level": {
+              "label": "Battery Level",
+              "description": "Battery charge level percentage.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "brand": {
+              "label": "Brand",
+              "description": "Device brand.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "carrier": {
+              "label": "Carrier",
+              "description": "User device's mobile carrier.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "cpu_cores": {
+              "label": "CPU Cores",
+              "description": "Number of CPU cores.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "external_storage_free_space": {
+              "label": "External Storage Free Space",
+              "description": "External storage free space in GB.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "external_storage_size": {
+              "label": "External Storage Size",
+              "description": "External storage size in GB.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "form_factor": {
+              "label": "Form Factor",
+              "description": "Device form factor (desktop, laptop, cellphone, tablet, smartwatch, tv, vr, console, other).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "other",
+              "choices": [
+                {
+                  "label": "desktop",
+                  "value": "desktop"
+                },
+                {
+                  "label": "laptop",
+                  "value": "laptop"
+                },
+                {
+                  "label": "cellphone",
+                  "value": "cellphone"
+                },
+                {
+                  "label": "tablet",
+                  "value": "tablet"
+                },
+                {
+                  "label": "smartwatch",
+                  "value": "smartwatch"
+                },
+                {
+                  "label": "tv",
+                  "value": "tv"
+                },
+                {
+                  "label": "vr",
+                  "value": "vr"
+                },
+                {
+                  "label": "console",
+                  "value": "console"
+                },
+                {
+                  "label": "other",
+                  "value": "other"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "kernel_version": {
+              "label": "Kernel Version",
+              "description": "Kernel version of the device's operating system.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "languages": {
+              "label": "Languages",
+              "description": "List of user installed languages. ISO 639-1 format. For example, [\"en\", \"fr\", \"es\"].",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "locale": {
+              "label": "Locale",
+              "description": "Device locale in BCP-47 format.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "model": {
+              "label": "Model",
+              "description": "Device model name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "network_type": {
+              "label": "Network Type",
+              "description": "Network type (wifi, cellular_2g, cellular_3g, cellular_4g, cellular_5g, cellular_6g, ethernet, unknown).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "wifi",
+                  "value": "wifi"
+                },
+                {
+                  "label": "cellular_2g",
+                  "value": "cellular_2g"
+                },
+                {
+                  "label": "cellular_3g",
+                  "value": "cellular_3g"
+                },
+                {
+                  "label": "cellular_4g",
+                  "value": "cellular_4g"
+                },
+                {
+                  "label": "cellular_5g",
+                  "value": "cellular_5g"
+                },
+                {
+                  "label": "cellular_6g",
+                  "value": "cellular_6g"
+                },
+                {
+                  "label": "ethernet",
+                  "value": "ethernet"
+                },
+                {
+                  "label": "unknown",
+                  "value": "unknown"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "os_family": {
+              "label": "OS Family",
+              "description": "OS Family (ios, android, macos, windows, linux, bsd, other).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "other",
+              "choices": [
+                {
+                  "label": "ios",
+                  "value": "ios"
+                },
+                {
+                  "label": "android",
+                  "value": "android"
+                },
+                {
+                  "label": "macos",
+                  "value": "macos"
+                },
+                {
+                  "label": "windows",
+                  "value": "windows"
+                },
+                {
+                  "label": "linux",
+                  "value": "linux"
+                },
+                {
+                  "label": "bsd",
+                  "value": "bsd"
+                },
+                {
+                  "label": "other",
+                  "value": "other"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "os_name": {
+              "label": "OS Name",
+              "description": "Short name of the OS.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": 100,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "os_release_name": {
+              "label": "OS Release Name",
+              "description": "Marketing name for the release version.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "os_version": {
+              "label": "OS Version",
+              "description": "Full name of the OS version.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": 100,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "screen_density": {
+              "label": "Screen Density",
+              "description": "Screen density, PPI.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "screen_height": {
+              "label": "Screen Height",
+              "description": "Screen height in pixels.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "screen_width": {
+              "label": "Screen Width",
+              "description": "Screen width in pixels.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "storage_free_space": {
+              "label": "Storage Free Space",
+              "description": "Internal storage free space in GB.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "storage_size": {
+              "label": "Storage Size",
+              "description": "Internal storage size in GB.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "timezone": {
+              "label": "Timezone",
+              "description": "Device timezone.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "timezone_abbr": {
+              "label": "Timezone Abbreviation",
+              "description": "Timezone abbreviation.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "type": {
+              "label": "Type",
+              "description": "Device type.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "data_format",
+                "operator": "is",
+                "value": "latest"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "wifi": {
+          "label": "Wifi",
+          "description": "Whether the event occurred when the user device was connected to wifi.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.network.wifi"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "language": {
+          "label": "Language",
+          "description": "Two-character ISO-639-1 language code indicating the user's language.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Add Payment Info",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Payment Info Entered\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "add_payment_info"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Cart",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Product Added\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "add_to_cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Wishlist",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "add_to_wishlist"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "App Install",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Application Installed\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "app_install"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "App Open",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Application Opened\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "app_open"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Checkout",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Order Completed\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "checkout"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Initiate Checkout",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Checkout Started\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "initiate_checkout"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Lead",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Generate Lead\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "lead"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Visit",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "page_visit"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Search",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Products Searched\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "search"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Sign Up",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Signed Up\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "signup"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Start Trial",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Trial Started\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "start_trial"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Subscribe",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Subscription Created\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "subscribe"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "View Category",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Product Category Viewed\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "view_category"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "View Content",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Product Viewed\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "view_content"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Watch Video",
+      "type": "automatic",
+      "partnerAction": "reportConversionEvent",
+      "subscribe": "type = \"track\" AND event = \"Product Video Watched\"",
+      "mapping": {
+        "data_format": "latest",
+        "action_source": "web",
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": true,
+        "advertiser_tracking_enabled": {
+          "@path": "$.context.device.adTrackingEnabled"
+        },
+        "user_data": {
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          }
+        },
+        "custom_data": {
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "currency": {
+            "@path": "$.properties.currency"
+          }
+        },
+        "app_id": {
+          "@path": "context.app.id"
+        },
+        "app_name": {
+          "@path": "$.context.app.name"
+        },
+        "app_version": {
+          "@path": "$.context.app.version"
+        },
+        "device_brand": {
+          "@path": "$.context.device.brand"
+        },
+        "device_carrier": {
+          "@path": "context.device.carrier"
+        },
+        "device_model": {
+          "@path": "$.context.device.model"
+        },
+        "device_type": {
+          "@path": "$.context.device.type"
+        },
+        "os_version": {
+          "@path": "$.context.os.version"
+        },
+        "custom_data_2": {
+          "currency": {
+            "@path": "$.properties.currency"
+          },
+          "value": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.price"
+              },
+              "then": {
+                "@path": "$.properties.price"
+              },
+              "else": {
+                "@path": "$.properties.value"
+              }
+            }
+          },
+          "order_id": {
+            "@path": "$.properties.order_id"
+          },
+          "search_string": {
+            "@path": "$.properties.query"
+          }
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "item_price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_category": {
+                "@path": "$.category"
+              },
+              "item_name": {
+                "@path": "$.name"
+              }
+            }
+          ]
+        },
+        "app_info": {
+          "app_name": {
+            "@path": "$.context.app.name"
+          },
+          "app_package_name": {
+            "@path": "$.context.app.namespace"
+          },
+          "app_version": {
+            "@path": "$.context.app.version"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "window_height": {
+            "@path": "$.context.screen.height"
+          },
+          "window_width": {
+            "@path": "$.context.screen.width"
+          }
+        },
+        "device_info": {
+          "brand": {
+            "@path": "$.context.device.manufacturer"
+          },
+          "carrier": {
+            "@path": "$.context.network.carrier"
+          },
+          "model": {
+            "@path": "$.context.device.model"
+          },
+          "type": {
+            "@path": "$.context.device.type"
+          },
+          "os_version": {
+            "@path": "$.context.os.version"
+          },
+          "locale": {
+            "@path": "$.context.locale"
+          },
+          "screen_density": {
+            "@path": "$.context.screen.density"
+          },
+          "screen_height": {
+            "@path": "$.context.screen.height"
+          },
+          "screen_width": {
+            "@path": "$.context.screen.width"
+          },
+          "timezone": {
+            "@path": "$.context.timezone"
+          }
+        },
+        "wifi": {
+          "@path": "$.context.network.wifi"
+        },
+        "event_name": "watch_video"
+      },
+      "eventSlug": null
+    }
+  ]
+}

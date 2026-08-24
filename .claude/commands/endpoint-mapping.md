@@ -34,6 +34,7 @@ Parse the spec and index: base URL, API version, auth scheme, all endpoints (pat
 ### Phase 2: Action-to-Endpoint Matching
 
 For each action, find matching endpoint(s) using this priority:
+
 1. Exact operationId match
 2. Semantic match (description alignment)
 3. Path + Method match
@@ -41,6 +42,23 @@ For each action, find matching endpoint(s) using this priority:
 5. Composite match (multiple sequential calls)
 
 Verify: HTTP method aligns, path params can be sourced, request body accommodates fields, response has needed IDs.
+
+#### Prefer a batch/bulk endpoint when one exists
+
+For **every** action, look for a dedicated batch/bulk endpoint alongside the single-record endpoint. These are the endpoints that will back `performBatch` in code, so identifying them here is required.
+
+Signals that an endpoint is a batch endpoint:
+
+- Path or operationId contains `batch`, `bulk`, `import`, `collection`, `events`, or a plural resource (`/users` accepting an array vs `/users/{id}`).
+- Request body schema is an **array** (or an object wrapping an array, e.g. `{ "data": [...] }`, `{ "records": [...] }`, `{ "events": [...] }`).
+- Docs mention "up to N records per request", a batch/bulk limit, or bulk import semantics.
+
+For each action, record BOTH when available:
+
+- **Single endpoint** — sends one record (backs `perform`).
+- **Batch endpoint** — accepts many records (backs `performBatch`).
+
+**Preference rule:** when a batch endpoint exists, it is the preferred delivery path — flag it as such and capture its records-per-request limit and array wrapper key (if any). If the API only exposes a single-record endpoint that happens to accept an array of records at the same path/method, note that the same endpoint serves both paths. If no batch capability exists at all, say so explicitly (this tells the generator not to invent one).
 
 ### Phase 3: Field-Level Mapping
 
@@ -72,6 +90,7 @@ Generated: <current date>
 ---
 
 ## API Overview
+
 - **Base URL:** <url>
 - **API Version:** <version>
 - **Auth:** <scheme>
@@ -89,19 +108,23 @@ Generated: <current date>
 **API Operation:** `<operationId>` — `<HTTP METHOD>`
 **Endpoint URI:** `<full path>`
 
+**Batch Endpoint:** `<operationId>` — `<HTTP METHOD>` `<full path>` — records-per-request limit: `<N or "undocumented">`, array wrapper key: `<key or "root array">`
+_(If no batch endpoint exists, write: "None — API accepts one record per call." If the single endpoint itself accepts an array, write: "Same as single endpoint — accepts an array of records.")_
+
 #### Field Mapping Table
 
-| Source Field | Segment Path | Target Field (API) | Target Type | Transform | Required by API |
-|---|---|---|---|---|---|
-| `email` | `$.traits.email` | `$.properties.email` | string | Direct | Yes |
+| Source Field | Segment Path     | Target Field (API)   | Target Type | Transform | Required by API |
+| ------------ | ---------------- | -------------------- | ----------- | --------- | --------------- |
+| `email`      | `$.traits.email` | `$.properties.email` | string      | Direct    | Yes             |
 
 #### Mandatory API Parameters (not in action fields)
 
-| Parameter | Location | Source | Value |
-|---|---|---|---|
-| `projectId` | path | settings | `settings.projectId` |
+| Parameter   | Location | Source   | Value                |
+| ----------- | -------- | -------- | -------------------- |
+| `projectId` | path     | settings | `settings.projectId` |
 
 #### Response Handling
+
 - **Success (200/201):** <what to extract>
 - **Error (4xx/5xx):** <handling>
 
@@ -110,6 +133,7 @@ Generated: <current date>
 ## Gap Reconciliations
 
 ### Gap: <Action Name>
+
 **Reason:** ...
 **Nearest Proxy:** ...
 **Composite Sequence:** ...
@@ -118,9 +142,9 @@ Generated: <current date>
 
 ## Coverage Summary
 
-| Action | Endpoint Match | Match Type | Gaps |
-|---|---|---|---|
-| `actionOne` | `POST /resource` | Direct | None |
+| Action      | Endpoint Match   | Match Type | Gaps |
+| ----------- | ---------------- | ---------- | ---- |
+| `actionOne` | `POST /resource` | Direct     | None |
 ```
 
 ### `endpoint-mapping.json`
@@ -134,9 +158,7 @@ Machine-readable format:
   "configuration": {
     "authType": "<auth method>",
     "authDetails": "<description>",
-    "settings": [
-      { "name": "setting_name", "type": "string", "required": true, "description": "Description" }
-    ]
+    "settings": [{ "name": "setting_name", "type": "string", "required": true, "description": "Description" }]
   },
   "apiOverview": {
     "baseUrl": "<url>",
@@ -161,6 +183,16 @@ Machine-readable format:
       "httpMethod": "POST",
       "endpointUri": "/resource/{id}",
       "matchType": "direct",
+      "batchEndpoint": {
+        "supported": true,
+        "apiOperation": "batchOperationId",
+        "httpMethod": "POST",
+        "endpointUri": "/resource/batch",
+        "sameAsSingle": false,
+        "arrayWrapperKey": "records",
+        "maxRecordsPerRequest": 1000,
+        "notes": "Preferred delivery path; backs performBatch"
+      },
       "fieldMappings": [
         {
           "sourceField": "email",
@@ -179,9 +211,7 @@ Machine-readable format:
     }
   ],
   "gapReconciliations": [],
-  "coverageSummary": [
-    { "action": "actionName", "endpoint": "POST /resource", "matchType": "direct", "hasGap": false }
-  ]
+  "coverageSummary": [{ "action": "actionName", "endpoint": "POST /resource", "matchType": "direct", "hasGap": false }]
 }
 ```
 
@@ -189,10 +219,11 @@ Machine-readable format:
 
 - **ZERO-DROP RULE**: Every action MUST appear in output — no exceptions.
 - **DO NOT** generate TypeScript code — only the mapping analysis.
-- **DO NOT** invent API endpoints not in the spec — flag as a gap.
+- **DO NOT** invent API endpoints not in the spec — flag as a gap. This includes batch endpoints: only record a batch endpoint that actually exists in the spec; if none exists, set `"supported": false`.
 - **DO NOT** skip required API fields.
 - Every field mapping MUST have a transformation type (even if "Direct").
 - Every path parameter MUST have a defined source.
+- Every action MUST have a `batchEndpoint` object. When a real batch/bulk endpoint exists, it is the preferred delivery path and MUST be captured with its array wrapper key and records-per-request limit.
 
 ## Validation Checklist
 
@@ -202,6 +233,7 @@ Machine-readable format:
 - [ ] Every gap has a reconciliation report
 - [ ] Every path parameter has a source
 - [ ] Response handling is defined for each mapping
+- [ ] Every action records a batch endpoint (or explicitly states none exists); when one exists it is flagged as the preferred delivery path with its array wrapper key and record limit
 
 ## Post-Output
 

@@ -518,7 +518,7 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.PurchaseHistory.favoriteCategory).toBe('Electronics')
     })
 
-    it('should handle multiple trait groups in the same profile', async () => {
+    it('should handle multiple trait groups in the same profile including non-STRING trait types', async () => {
       const event = createTestEvent({
         type: 'identify',
         userId: 'user-891',
@@ -527,7 +527,9 @@ describe('Memora.upsertProfile', () => {
           first_name: 'Bob',
           last_purchase: '2024-02-20',
           loyalty_tier: 'Gold',
-          last_login: '2024-03-01'
+          last_login: '2024-03-01',
+          total_orders: 42,
+          is_subscribed: true
         }
       })
 
@@ -551,7 +553,9 @@ describe('Memora.upsertProfile', () => {
           profile_traits: {
             'Contact.$.firstName': { '@path': '$.traits.first_name' },
             'PurchaseHistory.$.lastPurchaseDate': { '@path': '$.traits.last_purchase' },
+            'PurchaseHistory.$.totalOrders': { '@path': '$.traits.total_orders' },
             'Loyalty.$.tier': { '@path': '$.traits.loyalty_tier' },
+            'Loyalty.$.isSubscribed': { '@path': '$.traits.is_subscribed' },
             'Engagement.$.lastLogin': { '@path': '$.traits.last_login' }
           }
         },
@@ -563,7 +567,10 @@ describe('Memora.upsertProfile', () => {
       expect(profile.traits.Contact.email).toBe('multi@example.com')
       expect(profile.traits.Contact.firstName).toBe('Bob')
       expect(profile.traits.PurchaseHistory.lastPurchaseDate).toBe('2024-02-20')
+      // Non-STRING trait values must be passed through as their native types (not coerced to strings)
+      expect(profile.traits.PurchaseHistory.totalOrders).toBe(42)
       expect(profile.traits.Loyalty.tier).toBe('Gold')
+      expect(profile.traits.Loyalty.isSubscribed).toBe(true)
       expect(profile.traits.Engagement.lastLogin).toBe('2024-03-01')
     })
 
@@ -1666,7 +1673,7 @@ describe('Memora.upsertProfile', () => {
     })
 
     describe('profile_identifiers (dynamic identifiers from all trait groups)', () => {
-      it('should fetch and return identifier traits from all trait groups', async () => {
+      it('should fetch and return identifier traits from all trait groups including non-STRING types', async () => {
         nock(BASE_URL)
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
@@ -1720,6 +1727,27 @@ describe('Memora.upsertProfile', () => {
                   }
                 },
                 version: 1
+              },
+              {
+                displayName: 'Device',
+                description: 'Device traits',
+                traits: {
+                  deviceId: {
+                    dataType: 'NUMBER',
+                    description: 'Numeric device identifier',
+                    displayName: 'Device ID',
+                    idTypePromotion: 'device_id',
+                    validationRule: null
+                  },
+                  osVersion: {
+                    dataType: 'STRING',
+                    description: 'OS version',
+                    displayName: 'OS Version',
+                    idTypePromotion: null,
+                    validationRule: null
+                  }
+                },
+                version: 1
               }
             ]
           })
@@ -1730,11 +1758,12 @@ describe('Memora.upsertProfile', () => {
         })) as DynamicFieldResponse
 
         expect(result).toBeDefined()
-        // Should return only traits with idTypePromotion set
+        // Should return all traits with idTypePromotion set, regardless of dataType
         expect(result.choices).toEqual([
           { label: 'Contact.email', value: 'Contact.$.email', description: 'Contact - email (email)' },
           { label: 'Contact.phone', value: 'Contact.$.phone', description: 'Contact - phone (phone)' },
-          { label: 'Loyalty.Member ID', value: 'Loyalty.$.memberId', description: 'Loyalty member ID' }
+          { label: 'Loyalty.Member ID', value: 'Loyalty.$.memberId', description: 'Loyalty member ID' },
+          { label: 'Device.Device ID', value: 'Device.$.deviceId', description: 'Numeric device identifier' }
         ])
       })
 
@@ -1815,6 +1844,13 @@ describe('Memora.upsertProfile', () => {
                     displayName: 'age',
                     idTypePromotion: null,
                     validationRule: null
+                  },
+                  isSubscribed: {
+                    dataType: 'BOOLEAN',
+                    description: 'Email subscription status',
+                    displayName: 'Is Subscribed',
+                    idTypePromotion: null,
+                    validationRule: null
                   }
                 },
                 version: 1
@@ -1856,15 +1892,22 @@ describe('Memora.upsertProfile', () => {
         })) as DynamicFieldResponse
 
         expect(result).toBeDefined()
-        // Should exclude identifiers (traits with idTypePromotion) and non-STRING traits
+        // Should exclude identifiers (traits with idTypePromotion) but include all non-identifier traits regardless of dataType
         // All trait groups use traitGroupName.$.traitName format
         expect(result.choices).toEqual([
           { label: 'Contact.firstName', value: 'Contact.$.firstName', description: 'Contact - firstName (STRING)' },
           { label: 'Contact.lastName', value: 'Contact.$.lastName', description: 'Contact - lastName (STRING)' },
+          { label: 'Contact.age', value: 'Contact.$.age', description: 'User age' },
+          { label: 'Contact.Is Subscribed', value: 'Contact.$.isSubscribed', description: 'Email subscription status' },
           {
             label: 'PurchaseHistory.Last Purchase Date',
             value: 'PurchaseHistory.$.lastPurchaseDate',
             description: 'Date of last purchase'
+          },
+          {
+            label: 'PurchaseHistory.Total Spent',
+            value: 'PurchaseHistory.$.totalSpent',
+            description: 'Total amount spent'
           },
           {
             label: 'PurchaseHistory.Favorite Category',

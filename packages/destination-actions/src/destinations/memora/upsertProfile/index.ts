@@ -379,7 +379,7 @@ type DynamicFieldResult = {
 }
 
 // Fetch all trait group fields and return identifiers and traits separately.
-// Identifiers are traits with idTypePromotion set; traits are non-identifier STRING traits.
+// Identifiers are traits with idTypePromotion set; traits are all non-identifier traits regardless of dataType.
 async function fetchTraitGroupFields(
   request: RequestClient,
   settings: Settings,
@@ -412,12 +412,12 @@ async function fetchTraitGroupFields(
         const value = `${traitGroupName}.$.${traitName}`
         const label = `${traitGroupName}.${trait.displayName || traitName}`
 
-        if (trait.idTypePromotion && trait.dataType === 'STRING') {
+        if (trait.idTypePromotion) {
           const description = trait.description
             ? trait.description
             : `${traitGroupName} - ${trait.displayName} (${trait.idTypePromotion})`
           identifierChoices.push({ label, value, description })
-        } else if (!trait.idTypePromotion && trait.dataType === 'STRING') {
+        } else {
           const description = trait.description
             ? trait.description
             : `${traitGroupName} - ${trait.displayName} (${trait.dataType})`
