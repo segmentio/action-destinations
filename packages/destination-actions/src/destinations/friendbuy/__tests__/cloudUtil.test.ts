@@ -57,12 +57,15 @@ function authCallCount(responses: DecoratedResponse[]) {
   return requestsTo(responses, '/v1/authorization').length
 }
 
-function trackPurchase(orderId: string, settings: { authKey: string; authSecret: string }) {
+function trackPurchase(
+  orderId: string,
+  settings: { authKey: string; authSecret: string }
+): Promise<DecoratedResponse[]> {
   return testDestination.testAction('trackPurchase', {
     event: purchaseEvent(orderId),
     settings,
     useDefaultMappings: true
-  })
+  }) as Promise<DecoratedResponse[]>
 }
 
 describe('Friendbuy cloud auth token cache', () => {
