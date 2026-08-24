@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-jimo2-register-stage-test",
-  "version": "1.98.0",
+  "version": "1.98.1-staging-1bc9c9afb.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
