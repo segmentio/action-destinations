@@ -4299,7 +4299,7 @@
 
 "@segment/action-destinations@^3.288.0":
   version "3.512.0"
-  resolved "https://registry.yarnpkg.com/@segment/action-destinations/-/@segment/action-destinations-3.512.0.tgz#b0900c1dd1b02c783f588e9ac76ecc5257f0ed62"
+  resolved "https://npmjs.artifacts.twilio.com/artifactory/api/npm/virtual-npm-twilio/@segment/action-destinations/-/@segment/action-destinations-3.512.0.tgz#b0900c1dd1b02c783f588e9ac76ecc5257f0ed62"
   integrity sha512-ja9LC+HHDInwiGlT/fYYkF3+DM5uDg49/Y8DDBF/BPu0Z5N0baCn548IDXOgjnqhb1FTJyFBLeuD74IXPvGLFw==
   dependencies:
     "@amplitude/ua-parser-js" "^0.7.25"
