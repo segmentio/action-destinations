@@ -41,7 +41,6 @@
     "@segment/analytics-browser-actions-intercom": "1.119.1-staging-f8f1cd75c.0",
     "@segment/analytics-browser-actions-iterate": "1.108.1-staging-f8f1cd75c.0",
     "@segment/analytics-browser-actions-jimo": "1.98.1-staging-f8f1cd75c.0",
-    "@segment/analytics-browser-actions-jimo2-register-stage-test": "^1.98.0",
     "@segment/analytics-browser-actions-koala": "1.109.1-staging-f8f1cd75c.0",
     "@segment/analytics-browser-actions-logrocket": "1.108.1-staging-f8f1cd75c.0",
     "@segment/analytics-browser-actions-moengage-web": "1.15.1-staging-f8f1cd75c.0",
