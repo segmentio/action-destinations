@@ -189,8 +189,7 @@ export async function removeFromList(
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
-  const deleteLeadsUrl =
-    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
+  const deleteLeadsUrl = api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -255,8 +254,7 @@ export async function removeFromListBatch(
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
-  const deleteLeadsUrl =
-    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
+  const deleteLeadsUrl = api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -291,13 +289,13 @@ export async function removeFromListBatch(
   return multiStatusResponse
 }
 
-function createFormData(csvData: string) {
+export function createFormData(csvData: string) {
   const boundary = '--SEGMENT-DATA--'
   const formData = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="leads.csv"\r\nContent-Type: text/csv\r\n\r\n${csvData}\r\n--${boundary}--\r\n`
   return formData
 }
 
-function formatData(payloads: AddToListPayload[]): [string, string[]] {
+export function formatData(payloads: AddToListPayload[]): [string, string[]] {
   if (payloads.length === 0) {
     return ['', []]
   }
@@ -409,7 +407,7 @@ function parseErrorResponse(response: MarketoResponse) {
   throw new RetryableError(message)
 }
 
-function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
+export function parseErrorResponseBatch(response: MarketoResponse, payloadSize: number) {
   if (!response.errors || response.errors.length === 0) {
     return buildMultiStatusErrorResponse(payloadSize, {
       status: 500,
@@ -552,7 +550,7 @@ export async function createList(request: RequestClient, input: CreateListInput,
   return listId
 }
 
-const buildMultiStatusErrorResponse = (payloadSize: number, error: ActionDestinationErrorResponseType) => {
+export const buildMultiStatusErrorResponse = (payloadSize: number, error: ActionDestinationErrorResponseType) => {
   const multiStatusResponse = new MultiStatusResponse()
 
   for (let i = 0; i < payloadSize; i++) {
