@@ -6,6 +6,15 @@ import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
 
+/**
+ * Entering an ID in the 'Existing Conversion Rule ID' field is not enough on its own: the conversion rule is only
+ * linked to the mapping once the 'Create a Conversion Rule' hook runs and stores its output. Saving the mapping does
+ * not run the hook, so the field can look correctly filled in while no rule is actually linked.
+ */
+const NO_CONVERSION_RULE_LINKED_ERROR =
+  'No conversion rule is linked to this mapping. Open the mapping and click "Create a Conversion Rule" to link one. ' +
+  'If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
+
 const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
@@ -349,7 +358,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     }
 
     if (!conversionRuleId) {
-      throw new PayloadValidationError('Conversion Rule ID is required.')
+      throw new PayloadValidationError(NO_CONVERSION_RULE_LINKED_ERROR)
     }
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
@@ -366,7 +375,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
 
     if (!conversionRuleId) {
-      throw new PayloadValidationError('Conversion Rule ID is required.')
+      throw new PayloadValidationError(NO_CONVERSION_RULE_LINKED_ERROR)
     }
 
     linkedinApiClient.setConversionRuleId(conversionRuleId)
