@@ -7,11 +7,12 @@ export const fields = {
   external_id: { ...external_id },
   lookup_field: { ...lookup_field },
   data: { ...data },
-  enable_batching: { ...enable_batching },
+  // Exposed (unhidden) for this action so it can be seen/toggled in the mapping UI.
+  enable_batching: { ...enable_batching, unsafe_hidden: false },
   batch_size: { ...batch_size },
   event_name: { ...event_name },
-  // Hidden platform flag that signals Segment's async pipeline to route this action
-  // through the async (performBatch + performPoll) lifecycle. Not read by action code.
+  // Platform flag that signals Segment's async pipeline to route this action through the async
+  // (performBatch + performPoll) lifecycle. Exposed in the mapping UI. Not read by action code.
   subscription_type: {
     label: 'Subscription Type',
     description: 'The type of subscription. Flag for enabling Async Pipeline.',
@@ -22,6 +23,6 @@ export const fields = {
     ],
     default: 'async',
     required: false,
-    unsafe_hidden: true
+    unsafe_hidden: false
   }
 }
