@@ -1,4 +1,4 @@
-import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ExecuteInput, Features, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -613,7 +613,7 @@ const getSupportedActionSource = (action_source: string | undefined): string | u
     : undefined
 }
 
-const buildPayloadData = (payload: Payload, settings: Settings) => {
+const buildPayloadData = (payload: Payload, settings: Settings, features?: Features) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source =
@@ -631,9 +631,12 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   const event_time_number = parseNumberSafe(payload_event_time ?? '')
   const event_time_date_time = parseDateSafe(payload_event_time ?? '')
   const event_time_raw = event_time_date_time ?? event_time_number
-  // [STAGING DEBUG] Force normalization to seconds regardless of the feature flag so the updated
-  // code path is always exercised in staging. Revert to the flag-gated version before merging to main.
-  const event_time = event_time_raw != null ? normalizeToUnixSeconds(event_time_raw) : event_time_raw
+  // Snap's Conversions API expects `event_time` in seconds. `Date.parse` yields milliseconds,
+  // which Snap rejects as an invalid Unix timestamp. Normalize to seconds when the flag is on.
+  const event_time =
+    features?.[FLAGON_EVENT_TIME_IN_SECONDS] && event_time_raw != null
+      ? normalizeToUnixSeconds(event_time_raw)
+      : event_time_raw
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
@@ -744,22 +747,20 @@ export const performSnapCAPIv3 = async (
 ): Promise<ModifiedResponse<unknown>> => {
   const { payload, settings, features, statsContext, logger } = data
 
-  // [STAGING DEBUG] Observe whether the event_time-in-seconds flag is being received.
-  // The conversion is forced ON in buildPayloadData regardless; this only reports flag delivery.
+  // Observe whether the event_time-in-seconds flag is being received for this event.
   const flagReceived = Boolean(features?.[FLAGON_EVENT_TIME_IN_SECONDS])
   statsContext?.statsClient?.incr('snap_conversions.event_time_seconds', 1, [
     ...(statsContext?.tags ?? []),
-    `flag_received:${flagReceived}`,
-    'forced:true'
+    `flag_received:${flagReceived}`
   ])
   logger?.info(
-    `[snap-conversions][STAGING] event_time-in-seconds flag_received=${flagReceived} ` +
+    `[snap-conversions] event_time-in-seconds flag_received=${flagReceived} ` +
       `features=${features ? JSON.stringify(features) : 'none'}`
   )
 
-  const payloadData = buildPayloadData(payload, settings)
+  const payloadData = buildPayloadData(payload, settings, features)
 
-  logger?.info(`[snap-conversions][STAGING] outgoing event_time=${String(payloadData.event_time)}`)
+  logger?.info(`[snap-conversions] outgoing event_time=${String(payloadData.event_time)}`)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)

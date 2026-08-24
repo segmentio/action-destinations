@@ -97,7 +97,7 @@ describe('Snap Conversions API ', () => {
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
 
       expect(em[0]).toBe('cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9')
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
@@ -129,7 +129,7 @@ describe('Snap Conversions API ', () => {
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
       expect(event_source_url).toBe('https://segment.com/academy/')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(client_ip_address).toBe('8.8.8.8')
       expect(client_user_agent).toBe(
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
@@ -185,7 +185,7 @@ describe('Snap Conversions API ', () => {
       expect(integration).toBe('segment')
       expect(event_name).toBe('SAVE')
       expect(event_source_url).toBe('https://segment.com/academy/')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(client_ip_address).toBe('8.8.8.8')
       expect(client_user_agent).toBe(
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
@@ -219,7 +219,7 @@ describe('Snap Conversions API ', () => {
       expect(integration).toBe('segment')
       expect(event_name).toBe('SAVE')
       expect(event_source_url).toBe('https://segment.com/academy/')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(client_ip_address).toBe('8.8.8.8')
       expect(client_user_agent).toBe(
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
@@ -298,7 +298,7 @@ describe('Snap Conversions API ', () => {
       expect(integration).toBe('segment')
       expect(event_name).toBe('CUSTOM_EVENT_5')
       expect(event_source_url).toBe('https://segment.com/academy/')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(client_ip_address).toBe('8.8.8.8')
       expect(client_user_agent).toBe(
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
@@ -350,7 +350,7 @@ describe('Snap Conversions API ', () => {
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(em[0]).toBe('cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9')
       expect(ph).toBeUndefined()
       expect(action_source).toBe('website')
@@ -376,7 +376,7 @@ describe('Snap Conversions API ', () => {
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
       expect(action_source).toBe('website')
     })
@@ -405,7 +405,7 @@ describe('Snap Conversions API ', () => {
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(madid).toBe(advertisingId)
       expect(action_source).toBe('website')
     })
@@ -427,7 +427,7 @@ describe('Snap Conversions API ', () => {
 
       expect(integration).toBe('segment')
       expect(event_name).toBe('PURCHASE')
-      expect(event_time).toBe(1652368875)
+      expect(event_time).toBe(1652368875449)
       expect(client_ip_address).toBe('8.8.8.8')
       expect(client_user_agent).toBe(
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
@@ -563,7 +563,7 @@ describe('Snap Conversions API ', () => {
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
       expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
-      expect(event_time).toEqual(Math.floor(Date.parse(testEvent.timestamp as string) / 1000))
+      expect(event_time).toEqual(Date.parse(testEvent.timestamp as string))
 
       expect(data_processing_options).toEqual(['LDU'])
       expect(data_processing_options_country).toEqual(1)
@@ -681,7 +681,7 @@ describe('Snap Conversions API ', () => {
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
       expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
-      expect(event_time).toEqual(Math.floor(Date.parse(testEvent.timestamp as string) / 1000))
+      expect(event_time).toEqual(Date.parse(testEvent.timestamp as string))
 
       expect(data_processing_options).toEqual(['LDU'])
       expect(data_processing_options_country).toEqual(1)
@@ -789,7 +789,7 @@ describe('Snap Conversions API ', () => {
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
       expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
-      expect(event_time).toEqual(Math.floor(Date.parse(testEvent.timestamp as string) / 1000))
+      expect(event_time).toEqual(Date.parse(testEvent.timestamp as string))
 
       expect(data_processing_options).toEqual(['LDU'])
       expect(data_processing_options_country).toEqual(1)
@@ -843,13 +843,13 @@ describe('Snap Conversions API ', () => {
   describe('event_time normalization (snap-capi-event-time-in-seconds flag)', () => {
     const FLAG = FLAGON_EVENT_TIME_IN_SECONDS
 
-    it('[STAGING DEBUG] converts to seconds even when the flag is OFF (conversion forced on)', async () => {
+    it('emits milliseconds (13 digits) when the flag is OFF (default, unchanged behavior)', async () => {
       const { data } = await reportConversionEvent({
         mapping: { event_type: 'PURCHASE', event_conversion_type: 'WEB' }
       })
 
-      // Conversion is forced regardless of the flag in staging: 1652368875449 ms -> 1652368875 s
-      expect(data.event_time).toEqual(1652368875)
+      // Date.parse('2022-05-12T15:21:15.449Z') === 1652368875449 (milliseconds)
+      expect(data.event_time).toEqual(1652368875449)
     })
 
     it('converts an ISO8601 timestamp to Unix seconds (10 digits) when the flag is ON', async () => {
