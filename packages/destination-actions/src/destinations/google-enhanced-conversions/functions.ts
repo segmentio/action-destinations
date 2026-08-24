@@ -14,7 +14,8 @@ import {
   OfflineUserJobPayload,
   AddOperationPayload,
   KeyValuePairList,
-  KeyValueItem
+  KeyValueItem,
+  DataManagerUserList
 } from './types'
 import {
   ModifiedResponse,
@@ -441,6 +442,141 @@ export async function getGoogleAudience(
 
   statsClient?.incr('getAudience.success', 1, statsTags)
   return response.data as UserListResponse
+}
+
+export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
+export const FLAGON_NAME_DATA_MANAGER_API = 'actions-google-ec-data-manager-api'
+
+// Maps Google Ads API uploadKeyType values to Data Manager API uploadKeyTypes enum values
+const UPLOAD_KEY_TYPE_MAP: Record<string, string> = {
+  CONTACT_INFO: 'CONTACT_ID',
+  CRM_ID: 'USER_ID',
+  MOBILE_ADVERTISING_ID: 'MOBILE_ID'
+}
+
+// 540 days expressed as a protobuf Duration string (must be exact multiples of 86400s)
+const MEMBERSHIP_DURATION = `${540 * 86400}s`
+
+export async function createDataManagerUserList(
+  request: RequestClient,
+  input: CreateAudienceInput,
+  auth: CreateAudienceInput['settings']['oauth']
+): Promise<string> {
+  if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
+    throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
+  }
+
+  if (
+    !auth?.refresh_token ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+  ) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: auth.refresh_token,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  const accessToken = tokenRes.data.access_token
+
+  const customerId = input.settings.customerId?.replace(/-/g, '')
+  const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
+
+  const uploadKeyType =
+    UPLOAD_KEY_TYPE_MAP[input.audienceSettings.external_id_type ?? ''] ?? input.audienceSettings.external_id_type
+
+  const ingestedUserListInfo: Record<string, unknown> = {
+    uploadKeyTypes: [uploadKeyType]
+  }
+  if (uploadKeyType === 'MOBILE_ID' && input.audienceSettings.app_id) {
+    ingestedUserListInfo.mobileIdInfo = { appId: input.audienceSettings.app_id }
+  }
+
+  const body: Record<string, unknown> = {
+    displayName: input.audienceName,
+    membershipDuration: MEMBERSHIP_DURATION,
+    ingestedUserListInfo
+  }
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${accessToken}`
+  }
+  if (loginCustomerId) {
+    // Equivalent of login-customer-id in Google Ads API — identifies the MCC managing the account
+    headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+  }
+
+  const response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
+    method: 'post',
+    headers,
+    json: body
+  })
+
+  const userList = response.data as DataManagerUserList
+  if (!userList?.id) {
+    throw new IntegrationError('Failed to receive a created user list id from Data Manager.', 'INVALID_RESPONSE', 400)
+  }
+
+  return userList.id
+}
+
+export async function getDataManagerUserList(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  externalId: string,
+  auth: CreateAudienceInput['settings']['oauth']
+): Promise<DataManagerUserList> {
+  if (
+    !auth?.refresh_token ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+  ) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: auth.refresh_token,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  const accessToken = tokenRes.data.access_token
+
+  const customerId = settings.customerId?.replace(/-/g, '')
+  const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${accessToken}`
+  }
+  if (loginCustomerId) {
+    headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+  }
+
+  const response = await request(
+    `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${externalId}`,
+    {
+      method: 'get',
+      headers
+    }
+  )
+
+  const userList = response.data as DataManagerUserList
+  if (!userList?.id) {
+    throw new IntegrationError('Failed to retrieve user list from Data Manager.', 'INVALID_RESPONSE', 400)
+  }
+
+  return userList
 }
 
 // Standardize phone number to E.164 format, This format represents a phone number as a number up to fifteen digits
@@ -972,7 +1108,11 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership
+) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
