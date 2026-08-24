@@ -46,17 +46,18 @@ function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings
 
     const custom_event_name = (payload as CustomEvent).custom_event_name
     const tracking_type = (payload as StandardEvent).tracking_type
+    const resolvedTrackingType = custom_event_name ? 'Custom' : tracking_type
 
     const payloadItem: StandardEventPayloadItem = {
       event_at: event_at as string,
       event_type: {
         // if custom_event_name is present, tracking_type is 'Custom'
         // if custom_event_name not present then we know the event is a StandardEvent
-        tracking_type: custom_event_name ? 'Custom' : tracking_type,
+        tracking_type: resolvedTrackingType,
         custom_event_name: clean(custom_event_name)
       },
       click_id: clean(click_id),
-      event_metadata: getMetadata(event_metadata, products, conversion_id),
+      event_metadata: getMetadata(event_metadata, products, conversion_id, resolvedTrackingType),
       user: getUser(user, data_processing_options, screen_dimensions)
     }
 
@@ -80,6 +81,20 @@ export function cleanNum(num: number | undefined): number | undefined {
   return num
 }
 
+// Per https://business.reddithelp.com/s/article/about-event-metadata: PageVisit/ViewContent/Search
+// don't support currency/value/item_count at all (conversion_id/products are still fine), and
+// Lead/SignUp support currency/value but not item_count.
+const TRACKING_TYPES_WITHOUT_VALUE_METADATA = new Set(['PageVisit', 'ViewContent', 'Search'])
+const TRACKING_TYPES_WITHOUT_ITEM_COUNT = new Set(['Lead', 'SignUp'])
+
+export function supportsValueMetadata(trackingType: string | undefined): boolean {
+  return !TRACKING_TYPES_WITHOUT_VALUE_METADATA.has(trackingType ?? '')
+}
+
+export function supportsItemCount(trackingType: string | undefined): boolean {
+  return supportsValueMetadata(trackingType) && !TRACKING_TYPES_WITHOUT_ITEM_COUNT.has(trackingType ?? '')
+}
+
 function getProducts(products: ProductsType): Product[] | undefined {
   if (!products) {
     return undefined
@@ -96,19 +111,23 @@ function getProducts(products: ProductsType): Product[] | undefined {
   })
 }
 
-function getMetadata(
+export function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
-  conversion_id: ConversionIdType
+  conversion_id: ConversionIdType,
+  trackingType?: string
 ): EventMetadata | undefined {
   if (!metadata && !products && !conversion_id) {
     return undefined
   }
 
+  const valueMetadataSupported = supportsValueMetadata(trackingType)
+  const itemCountSupported = supportsItemCount(trackingType)
+
   return {
-    currency: clean(metadata?.currency),
-    item_count: cleanNum(metadata?.item_count),
-    value_decimal: cleanNum(metadata?.value_decimal),
+    currency: valueMetadataSupported ? clean(metadata?.currency) : undefined,
+    item_count: itemCountSupported ? cleanNum(metadata?.item_count) : undefined,
+    value_decimal: valueMetadataSupported ? cleanNum(metadata?.value_decimal) : undefined,
     products: getProducts(products),
     conversion_id: smartHash(conversion_id, (value) => value.trim())
   }

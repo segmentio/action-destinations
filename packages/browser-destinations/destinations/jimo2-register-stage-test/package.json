@@ -1,0 +1,28 @@
+{
+  "name": "@segment/analytics-browser-actions-jimo2-register-stage-test",
+  "version": "1.98.1-staging-1bc9c9afb.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/jimo2-register-stage-test"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
+  "dependencies": {
+    "@segment/browser-destination-runtime": "^1.106.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": ">=1.55.0"
+  }
+}

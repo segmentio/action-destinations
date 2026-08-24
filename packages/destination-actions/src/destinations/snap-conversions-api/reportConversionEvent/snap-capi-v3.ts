@@ -745,9 +745,22 @@ export const performSnapCAPIv3 = async (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
-  const { payload, settings, features } = data
+  const { payload, settings, features, statsContext, logger } = data
+
+  // Observe whether the event_time-in-seconds flag is being received for this event.
+  const flagReceived = Boolean(features?.[FLAGON_EVENT_TIME_IN_SECONDS])
+  statsContext?.statsClient?.incr('snap_conversions.event_time_seconds', 1, [
+    ...(statsContext?.tags ?? []),
+    `flag_received:${flagReceived}`
+  ])
+  logger?.info(
+    `[snap-conversions] event_time-in-seconds flag_received=${flagReceived} ` +
+      `features=${features ? JSON.stringify(features) : 'none'}`
+  )
 
   const payloadData = buildPayloadData(payload, settings, features)
+
+  logger?.info(`[snap-conversions] outgoing event_time=${String(payloadData.event_time)}`)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)

@@ -98,7 +98,7 @@ describe('Reddit Conversions Api - V3 batch events', () => {
             type: {
               tracking_type: 'PURCHASE'
             },
-            event_metadata: {
+            metadata: {
               value: 100,
               products: [
                 {

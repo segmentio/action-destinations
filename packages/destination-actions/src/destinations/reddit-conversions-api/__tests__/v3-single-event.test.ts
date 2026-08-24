@@ -61,7 +61,7 @@ describe('Reddit Conversions Api - V3 single event', () => {
             type: {
               tracking_type: 'PURCHASE'
             },
-            event_metadata: {
+            metadata: {
               currency: 'USD',
               item_count: 10,
               value: 100,

@@ -188,6 +188,20 @@ describe('getMetadata', () => {
       conversion_id: undefined
     })
   })
+
+  it("drops currency/value/item_count for tracking types that don't support any event metadata", () => {
+    const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, undefined, 'Search')
+    expect(result?.currency).toBeUndefined()
+    expect(result?.item_count).toBeUndefined()
+    expect(result?.value).toBeUndefined()
+  })
+
+  it('drops item_count but keeps currency/value for Lead/SignUp', () => {
+    const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, undefined, 'Lead')
+    expect(result?.currency).toBe('USD')
+    expect(result?.value).toBe(10)
+    expect(result?.item_count).toBeUndefined()
+  })
 })
 
 describe('createRedditPayloadV3', () => {
@@ -212,7 +226,7 @@ describe('createRedditPayloadV3', () => {
             event_source_url: 'https://example.com/checkout',
             click_id: 'click_id_1',
             type: { tracking_type: 'PURCHASE', custom_event_name: undefined },
-            event_metadata: undefined,
+            metadata: undefined,
             user: undefined
           }
         ]

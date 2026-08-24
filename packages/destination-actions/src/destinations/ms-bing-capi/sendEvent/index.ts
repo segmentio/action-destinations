@@ -72,7 +72,7 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
   const details = response.data?.error?.details ?? []
 
   payloads.forEach((payload, index) => {
-    const error = details.find((detail) => detail.index === index)
+    const error = details.find((detail) => detail.index === index && !detail.isWarning)
     if (error) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
