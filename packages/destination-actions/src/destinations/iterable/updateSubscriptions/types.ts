@@ -23,12 +23,6 @@ export interface ResolvedIdentifier {
   userId?: string
 }
 
-export interface DynamicFieldContext {
-  selectedArrayIndex?: number
-  selectedKey?: string
-  query?: string
-}
-
 export interface ChannelsResponse {
   channels: ChannelDetails[]
 }

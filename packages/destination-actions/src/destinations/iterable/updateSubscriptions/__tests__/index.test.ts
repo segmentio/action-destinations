@@ -10,13 +10,11 @@ const defaultMapping = {
     userId: { '@path': '$.userId' }
   },
   user_identifier_preference: 'email',
-  subscriptions: [
-    {
-      subscription_group_type: 'messageChannel',
-      subscription_group_id: '123',
-      action: 'subscribe'
-    }
-  ],
+  subscription: {
+    subscription_group_type: 'messageChannel',
+    subscription_group_id: '123',
+    action: 'subscribe'
+  },
   enable_batching: false
 }
 
@@ -93,54 +91,15 @@ describe('Iterable.updateSubscriptions', () => {
         event,
         mapping: {
           ...defaultMapping,
-          subscriptions: [
-            {
-              subscription_group_type: 'messageChannel',
-              subscription_group_id: '456',
-              action: 'unsubscribe'
-            }
-          ]
+          subscription: {
+            subscription_group_type: 'messageChannel',
+            subscription_group_id: '456',
+            action: 'unsubscribe'
+          }
         }
       })
 
       expect(responses[0].status).toBe(200)
-    })
-
-    it('handles multiple subscription items in one event', async () => {
-      const event = createTestEvent({
-        type: 'track',
-        event: 'Subscriptions Updated',
-        userId: 'user123',
-        properties: {
-          email: 'test@iterable.com'
-        }
-      })
-
-      nock('https://api.iterable.com')
-        .patch('/api/subscriptions/messageChannel/123/user/test%40iterable.com')
-        .reply(200, { code: 'Success', msg: '' })
-
-      nock('https://api.iterable.com')
-        .delete('/api/subscriptions/messageType/456/user/test%40iterable.com')
-        .reply(200, { code: 'Success', msg: '' })
-
-      nock('https://api.iterable.com')
-        .patch('/api/subscriptions/emailList/789/user/test%40iterable.com')
-        .reply(200, { code: 'Success', msg: '' })
-
-      const responses = await testDestination.testAction('updateSubscriptions', {
-        event,
-        mapping: {
-          ...defaultMapping,
-          subscriptions: [
-            { subscription_group_type: 'messageChannel', subscription_group_id: '123', action: 'subscribe' },
-            { subscription_group_type: 'messageType', subscription_group_id: '456', action: 'unsubscribe' },
-            { subscription_group_type: 'emailList', subscription_group_id: '789', action: 'subscribe' }
-          ]
-        }
-      })
-
-      expect(responses.length).toBe(3)
     })
 
     it('prefers email when preference is email and both are provided', async () => {
@@ -238,28 +197,6 @@ describe('Iterable.updateSubscriptions', () => {
       ).rejects.toThrowError(PayloadValidationError)
     })
 
-    it('throws PayloadValidationError when more than 6 subscription items are provided', async () => {
-      const event = createTestEvent({
-        type: 'track',
-        event: 'Subscriptions Updated',
-        properties: { email: 'test@iterable.com' }
-      })
-
-      await expect(
-        testDestination.testAction('updateSubscriptions', {
-          event,
-          mapping: {
-            ...defaultMapping,
-            subscriptions: Array.from({ length: 7 }, (_, i) => ({
-              subscription_group_type: 'messageChannel',
-              subscription_group_id: String(i),
-              action: 'subscribe'
-            }))
-          }
-        })
-      ).rejects.toThrowError(PayloadValidationError)
-    })
-
     it('uses Europe endpoint when data center is configured', async () => {
       const event = createTestEvent({
         type: 'track',
@@ -346,49 +283,11 @@ describe('Iterable.updateSubscriptions', () => {
         events,
         mapping: {
           ...defaultMapping,
-          subscriptions: [
-            {
-              subscription_group_type: 'messageChannel',
-              subscription_group_id: '456',
-              action: 'unsubscribe'
-            }
-          ]
-        }
-      })
-
-      expect(response[0].status).toBe(200)
-    })
-
-    it('handles multiple subscription items for batch', async () => {
-      const events = [
-        createTestEvent({
-          type: 'track',
-          event: 'Subscriptions Updated',
-          properties: { email: 'user1@iterable.com' }
-        }),
-        createTestEvent({
-          type: 'track',
-          event: 'Subscriptions Updated',
-          properties: { email: 'user2@iterable.com' }
-        })
-      ]
-
-      nock('https://api.iterable.com')
-        .put('/api/subscriptions/messageChannel/123?action=subscribe')
-        .reply(200, { code: 'Success', msg: '' })
-
-      nock('https://api.iterable.com')
-        .put('/api/subscriptions/messageType/456?action=unsubscribe')
-        .reply(200, { code: 'Success', msg: '' })
-
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
-        events,
-        mapping: {
-          ...defaultMapping,
-          subscriptions: [
-            { subscription_group_type: 'messageChannel', subscription_group_id: '123', action: 'subscribe' },
-            { subscription_group_type: 'messageType', subscription_group_id: '456', action: 'unsubscribe' }
-          ]
+          subscription: {
+            subscription_group_type: 'messageChannel',
+            subscription_group_id: '456',
+            action: 'unsubscribe'
+          }
         }
       })
 
@@ -531,13 +430,11 @@ describe('Iterable.updateSubscriptions', () => {
         events,
         mapping: {
           ...defaultMapping,
-          subscriptions: [
-            {
-              subscription_group_type: 'messageChannel',
-              subscription_group_id: '123',
-              action: 'invalid_action'
-            }
-          ]
+          subscription: {
+            subscription_group_type: 'messageChannel',
+            subscription_group_id: '123',
+            action: 'invalid_action'
+          }
         }
       })
 
@@ -563,9 +460,7 @@ describe('Iterable.updateSubscriptions', () => {
           event: 'Subscriptions Updated',
           properties: {
             email: 'user1@iterable.com',
-            subscriptions: [
-              { subscription_group_type: 'messageChannel', subscription_group_id: '123', action: 'subscribe' }
-            ]
+            subscription: { subscription_group_type: 'messageChannel', subscription_group_id: '123', action: 'subscribe' }
           }
         }),
         createTestEvent({
@@ -573,9 +468,7 @@ describe('Iterable.updateSubscriptions', () => {
           event: 'Subscriptions Updated',
           properties: {
             email: 'user2@iterable.com',
-            subscriptions: [
-              { subscription_group_type: 'messageChannel', subscription_group_id: '456', action: 'unsubscribe' }
-            ]
+            subscription: { subscription_group_type: 'messageChannel', subscription_group_id: '456', action: 'unsubscribe' }
           }
         })
       ]
@@ -585,7 +478,7 @@ describe('Iterable.updateSubscriptions', () => {
           events,
           mapping: {
             ...defaultMapping,
-            subscriptions: { '@path': '$.properties.subscriptions' }
+            subscription: { '@path': '$.properties.subscription' }
           }
         })
       ).rejects.toThrowError(PayloadValidationError)
