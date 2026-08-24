@@ -10,7 +10,7 @@ on:
 
 jobs:
   detect-browser-destination-changes:
-    if: startsWith(github.event.head_commit.message, 'Publish') == true
+    if: startsWith(github.event.head_commit.message, 'Release') == true
     runs-on: ubuntu-latest-large
     permissions:
       actions: read
