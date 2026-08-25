@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.169.1-staging-4ff97d337.0",
+  "version": "1.169.1-staging-4bb625313.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
