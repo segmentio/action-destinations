@@ -11,16 +11,34 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DataCenterLocation } from '../shared-fields'
 import { getRegionalBaseUrl } from '../utils'
-import { MIN_REQUEST_TIMEOUT } from './constants'
+import { MAX_SUBSCRIPTION_ITEMS, MIN_REQUEST_TIMEOUT } from './constants'
 import type { ResolvedIdentifier, BulkSubscriptionRequestBody } from './types'
 
 export async function performUpdateSubscriptions(request: RequestClient, payload: Payload, settings: Settings) {
-  const { subscription_group_type, subscription_group_id, action } = payload.subscription
+  const { subscriptions } = payload
+  const subscriptionCount = subscriptions.length
+
+  if (subscriptionCount === 0) {
+    throw new PayloadValidationError('At least one subscription item is required.')
+  }
+
+  if (subscriptionCount > MAX_SUBSCRIPTION_ITEMS) {
+    throw new PayloadValidationError(
+      `Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`
+    )
+  }
+
   const identifier = resolveIdentifier(payload)
 
-  const endpoint = getSingleUserEndpoint(settings, subscription_group_type, subscription_group_id, identifier)
-  const method = action === 'subscribe' ? 'patch' : 'delete'
-  return request(endpoint, { method, timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT) })
+  const results = await Promise.all(
+    subscriptions.map(async ({ subscription_group_type, subscription_group_id, action }) => {
+      const endpoint = getSingleUserEndpoint(settings, subscription_group_type, subscription_group_id, identifier)
+      const method = action === 'subscribe' ? 'patch' : 'delete'
+      return request(endpoint, { method, timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT) })
+    })
+  )
+
+  return results[results.length - 1]
 }
 
 export async function performBatchUpdateSubscriptions(request: RequestClient, payloads: Payload[], settings: Settings) {
@@ -28,6 +46,26 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   const validPayloads: { index: number; identifier: ResolvedIdentifier }[] = []
 
   payloads.forEach((payload, index) => {
+    const subscriptionCount = payload.subscriptions.length
+
+    if (subscriptionCount === 0) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'At least one subscription item is required.'
+      })
+      return
+    }
+
+    if (subscriptionCount > MAX_SUBSCRIPTION_ITEMS) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: `Maximum of ${MAX_SUBSCRIPTION_ITEMS} subscription items allowed. Received ${subscriptionCount}.`
+      })
+      return
+    }
+
     try {
       const identifier = resolveIdentifier(payload)
       validPayloads.push({ index, identifier })
@@ -44,16 +82,16 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
     return multiStatusResponse
   }
 
-  // All payloads in a batch are grouped by the `subscription` batch key (see `batch_keys` default in
-  // index.ts), so every payload here is guaranteed to share the same `subscription` config.
-  const subscription = payloads[validPayloads[0].index].subscription
-  const referenceKey = JSON.stringify(subscription)
+  // All payloads in a batch are grouped by the `subscriptions` batch key (see `batch_keys` default in
+  // index.ts), so every payload here is guaranteed to share the same `subscriptions` config.
+  const subscriptions = payloads[validPayloads[0].index].subscriptions
+  const referenceKey = JSON.stringify(subscriptions)
   const hasMismatchedSubscriptions = validPayloads.some(
-    ({ index }) => JSON.stringify(payloads[index].subscription) !== referenceKey
+    ({ index }) => JSON.stringify(payloads[index].subscriptions) !== referenceKey
   )
   if (hasMismatchedSubscriptions) {
     throw new PayloadValidationError(
-      'All events in a batch must share the same subscription preference. Received a batch with differing subscriptions, which is not supported.'
+      'All events in a batch must share the same subscription preferences. Received a batch with differing subscriptions, which is not supported.'
     )
   }
 
@@ -70,13 +108,16 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
   }
 
   try {
-    const { subscription_group_type, subscription_group_id, action } = subscription
-    const endpoint = getBulkSubscriptionEndpoint(settings, subscription_group_type, subscription_group_id, action)
-    await request(endpoint, {
-      method: 'put',
-      json,
-      timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
-    })
+    await Promise.all(
+      subscriptions.map(async ({ subscription_group_type, subscription_group_id, action }) => {
+        const endpoint = getBulkSubscriptionEndpoint(settings, subscription_group_type, subscription_group_id, action)
+        return request(endpoint, {
+          method: 'put',
+          json,
+          timeout: Math.max(MIN_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT)
+        })
+      })
+    )
 
     validPayloads.forEach(({ index, identifier }) => {
       const sent: BulkSubscriptionRequestBody = identifier.email

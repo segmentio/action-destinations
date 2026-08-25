@@ -101,30 +101,6 @@
           "format": null,
           "additionalProperties": false
         },
-        "newEmail": {
-          "label": "New Email Address",
-          "description": "The new email address to assign to the user. For single event processing, Segment makes a separate API call to set the new email address. Batch updating a profile email address is only supported for Hybrid projects.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": null,
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": "email",
-          "additionalProperties": false
-        },
         "dataFields": {
           "label": "User Data Fields",
           "description": "Data to store on the user profile.",
@@ -1672,11 +1648,11 @@
         }
       }
     },
-    "updateSubscription": {
-      "title": "Update Subscription [Beta]",
+    "updateSubscriptions": {
+      "title": "Update Subscriptions [Beta]",
       "description": "This feature is in beta. Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists. This integration is only supported on Iterable projects with opt-in Message Type Subscriptions and the Subscriptions API enabled.",
       "platform": "cloud",
-      "defaultSubscription": "type = \"track\" and event = \"Subscription Updated\"",
+      "defaultSubscription": "type = \"track\" and event = \"Subscriptions Updated\"",
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
@@ -1801,12 +1777,12 @@
           "format": null,
           "additionalProperties": false
         },
-        "subscription": {
-          "label": "Subscription Preference",
-          "description": "The subscription change to apply for this user.",
+        "subscriptions": {
+          "label": "Subscription Preferences",
+          "description": "Subscription changes to apply for this user. Maximum 6 items.",
           "type": "object",
           "required": true,
-          "multiple": false,
+          "multiple": true,
           "allowNull": false,
           "dynamic": false,
           "default": null,
@@ -1924,7 +1900,7 @@
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": null,
+          "defaultObjectUI": "arrayeditor",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
@@ -1987,7 +1963,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": [
-            "subscription",
+            "subscriptions",
             "user_identifier_preference"
           ],
           "choices": null,
