@@ -5,10 +5,10 @@ import { performUpdateSubscriptions, performBatchUpdateSubscriptions } from './f
 import { getSubscriptionGroupId } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Subscriptions [Beta]',
+  title: 'Update Subscription [Beta]',
   description:
     'This feature is in beta. Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists. This integration is only supported on Iterable projects with opt-in Message Type Subscriptions and the Subscriptions API enabled.',
-  defaultSubscription: 'type = "track" and event = "Subscriptions Updated"',
+  defaultSubscription: 'type = "track" and event = "Subscription Updated"',
   fields: {
     identifier: {
       label: 'User Identifier',
