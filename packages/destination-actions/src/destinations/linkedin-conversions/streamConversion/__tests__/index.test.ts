@@ -526,7 +526,7 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError(
-      'No conversion rule is linked to this mapping. Open the mapping and click "Create a Conversion Rule" to link one. If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
+      'No conversion rule is linked to this mapping. Open the mapping and click "Link or Create a Conversion Rule" to link one. If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
     )
   })
 

@@ -7,12 +7,18 @@ import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './gener
 import { LinkedInError } from '../types'
 
 /**
+ * Rendered as the button text for this hook in the mapping editor, and quoted in the error below so the two cannot
+ * drift apart. Update this constant rather than either usage.
+ */
+const CONVERSION_RULE_HOOK_LABEL = 'Link or Create a Conversion Rule'
+
+/**
  * Entering an ID in the 'Existing Conversion Rule ID' field is not enough on its own: the conversion rule is only
- * linked to the mapping once the 'Create a Conversion Rule' hook runs and stores its output. Saving the mapping does
- * not run the hook, so the field can look correctly filled in while no rule is actually linked.
+ * linked to the mapping once the hook runs and stores its output. Saving the mapping does not run the hook, so the
+ * field can look correctly filled in while no rule is actually linked.
  */
 const NO_CONVERSION_RULE_LINKED_ERROR =
-  'No conversion rule is linked to this mapping. Open the mapping and click "Create a Conversion Rule" to link one. ' +
+  `No conversion rule is linked to this mapping. Open the mapping and click "${CONVERSION_RULE_HOOK_LABEL}" to link one. ` +
   'If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
 
 const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
@@ -21,7 +27,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
   defaultSubscription: 'type = "track"',
   hooks: {
     onMappingSave: {
-      label: 'Link or Create a Conversion Rule',
+      label: CONVERSION_RULE_HOOK_LABEL,
       description:
         'Links this mapping to a LinkedIn conversion rule. Events cannot be delivered until this step completes. ' +
         'If you already have a conversion rule, enter its ID in "Existing Conversion Rule ID" and we will use that ' +
