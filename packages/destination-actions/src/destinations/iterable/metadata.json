@@ -1673,10 +1673,10 @@
       }
     },
     "updateSubscription": {
-      "title": "Update Subscriptions [Beta]",
+      "title": "Update Subscription [Beta]",
       "description": "This feature is in beta. Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists. This integration is only supported on Iterable projects with opt-in Message Type Subscriptions and the Subscriptions API enabled.",
       "platform": "cloud",
-      "defaultSubscription": "type = \"track\" and event = \"Subscriptions Updated\"",
+      "defaultSubscription": "type = \"track\" and event = \"Subscription Updated\"",
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
