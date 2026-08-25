@@ -378,11 +378,11 @@ export async function createGoogleAudience(
   // {"results": [{ "resourceName": "customers/<customer_id>/userLists/<user_list_id>" }]}
   const name = (response.data as CreateGoogleAudienceResponse).results[0].resourceName
   if (!name) {
-    statsClient?.incr('createAudience.error', 1, statsTags)
+    statsClient?.incr('createAudience.gdmerror', 1, statsTags)
     throw new IntegrationError('Failed to receive a created customer list id.', 'INVALID_RESPONSE', 400)
   }
 
-  statsClient?.incr('createAudience.success', 1, statsTags)
+  statsClient?.incr('createAudience.gdmsuccess', 1, statsTags)
   return name.split('/')[3]
 }
 
@@ -436,11 +436,11 @@ export async function getGoogleAudience(
   const id = (response.data as any).results[0].userList.id
 
   if (!id) {
-    statsClient?.incr('getAudience.error', 1, statsTags)
+    statsClient?.incr('getAudience.gdmerror', 1, statsTags)
     throw new IntegrationError('Failed to receive a customer list.', 'INVALID_RESPONSE', 400)
   }
 
-  statsClient?.incr('getAudience.success', 1, statsTags)
+  statsClient?.incr('getAudience.gdmsuccess', 1, statsTags)
   return response.data as UserListResponse
 }
 
@@ -525,11 +525,11 @@ export async function createDataManagerUserList(
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
-    statsClient?.incr('createAudience.gdm.error', 1, statsTags)
+    statsClient?.incr('createAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to receive a created user list id from Data Manager.', 'INVALID_RESPONSE', 400)
   }
 
-  statsClient?.incr('createAudience.gdm.success', 1, statsTags)
+  statsClient?.incr('createAudience.success', 1, statsTags)
   return userList.id
 }
 
@@ -583,11 +583,11 @@ export async function getDataManagerUserList(
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
-    statsClient?.incr('getAudience.gdm.error', 1, statsTags)
+    statsClient?.incr('getAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to retrieve user list from Data Manager.', 'INVALID_RESPONSE', 400)
   }
 
-  statsClient?.incr('getAudience.gdm.success', 1, statsTags)
+  statsClient?.incr('getAudience.success', 1, statsTags)
   return userList
 }
 
