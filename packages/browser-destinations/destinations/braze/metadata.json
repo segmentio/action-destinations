@@ -59,9 +59,13 @@
           {
             "value": "6.1",
             "label": "6.1"
+          },
+          {
+            "value": "6.10",
+            "label": "6.10"
           }
         ],
-        "default": "6.1",
+        "default": "6.10",
         "depends_on": null
       },
       "api_key": {
