@@ -9,6 +9,7 @@ import {
   ReadPropsResp,
   BatchObjResp,
   UpsertReq,
+  UpdateReq,
   CreateListReq,
   CreateListResp,
   ReadListResp,
@@ -49,7 +50,7 @@ export class Client {
     return response
   }
 
-  async batchObjectRequest(action: ObjReqType, objectType: string, json: ReadReq | UpsertReq | CreateReq) {
+  async batchObjectRequest(action: ObjReqType, objectType: string, json: ReadReq | UpsertReq | UpdateReq | CreateReq) {
     const response = await this.request<BatchObjResp>(
       `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/${objectType}/batch/${action}`,
       {

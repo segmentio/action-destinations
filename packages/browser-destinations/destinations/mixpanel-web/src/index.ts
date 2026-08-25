@@ -29,6 +29,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     const {
       projectToken,
       name,
+      sourceName,
       autocapture,
       pageview,
       click,
@@ -88,7 +89,14 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     }
 
     return new Promise<Mixpanel>((resolve) => {
-      config.loaded = (mp) => resolve(mp)
+      config.loaded = (mp) => {
+        const trimmedSourceName = sourceName?.trim()
+        if (trimmedSourceName && typeof mp?.register === 'function') {
+          // Registered as a super property so it is attached to every event
+          mp.register({ segment_source_name: trimmedSourceName })
+        }
+        resolve(mp)
+      }
 
       if (name) {
         window.mixpanel.init(projectToken, config, name)
