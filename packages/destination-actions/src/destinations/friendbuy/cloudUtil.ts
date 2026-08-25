@@ -40,7 +40,11 @@ export async function createMapiRequest(
 const AUTH_PADDING_MS = 10000 // 10 seconds
 
 // Workers are long-lived, so the cache needs a ceiling.
-const AUTH_CACHE_MAX_ENTRIES = 1000
+export const AUTH_CACHE_MAX_ENTRIES = 1000
+
+// The `environment:` prefix and the token are both external input, so bound the
+// per-entry size too; an oversized entry still authenticates, it just isn't kept.
+export const AUTH_CACHE_MAX_ENTRY_LENGTH = 256
 
 interface FriendbuyAuth {
   token: string
@@ -72,9 +76,18 @@ function pruneAuthCache() {
   }
 }
 
+function isCacheable(cacheKey: string, token: string) {
+  return cacheKey.length <= AUTH_CACHE_MAX_ENTRY_LENGTH && token.length <= AUTH_CACHE_MAX_ENTRY_LENGTH
+}
+
 /** Clears the cache; module state outlives a single test. */
 export function resetAuthCache() {
   authCache.clear()
+}
+
+/** Exposed so the cache ceiling can be asserted directly. */
+export function authCacheSize() {
+  return authCache.size
 }
 
 export async function getAuthToken(request: RequestClient, mapiBaseUrl: string, authKey: string, authSecret: string) {
@@ -100,15 +113,17 @@ export async function getAuthToken(request: RequestClient, mapiBaseUrl: string, 
     throw new RetryableError('Friendbuy MAPI authorization did not return a token.')
   }
 
-  if (authCache.size >= AUTH_CACHE_MAX_ENTRIES) {
-    pruneAuthCache()
-  }
+  if (isCacheable(cacheKey, data.token)) {
+    if (authCache.size >= AUTH_CACHE_MAX_ENTRIES) {
+      pruneAuthCache()
+    }
 
-  // A malformed `expires` gives NaN, which compares false above and forces re-auth.
-  authCache.set(cacheKey, {
-    token: data.token,
-    expiresEpoch: Date.parse(data.expires) - AUTH_PADDING_MS
-  })
+    // A malformed `expires` gives NaN, which compares false above and forces re-auth.
+    authCache.set(cacheKey, {
+      token: data.token,
+      expiresEpoch: Date.parse(data.expires) - AUTH_PADDING_MS
+    })
+  }
 
   return data.token
 }

@@ -1,9 +1,16 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import type { DecoratedResponse } from '@segment/actions-core'
+import type { DecoratedResponse, RequestClient } from '@segment/actions-core'
 import Destination from '../index'
 
-import { defaultMapiBaseUrl, resetAuthCache } from '../cloudUtil'
+import {
+  AUTH_CACHE_MAX_ENTRIES,
+  AUTH_CACHE_MAX_ENTRY_LENGTH,
+  authCacheSize,
+  defaultMapiBaseUrl,
+  getAuthToken,
+  resetAuthCache
+} from '../cloudUtil'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -65,7 +72,7 @@ function trackPurchase(
     event: purchaseEvent(orderId),
     settings,
     useDefaultMappings: true
-  }) as Promise<DecoratedResponse[]>
+  })
 }
 
 describe('Friendbuy cloud auth token cache', () => {
@@ -141,5 +148,84 @@ describe('Friendbuy cloud auth token cache', () => {
     await expect(trackPurchase('order-x', merchantB)).rejects.toThrowError(
       'Friendbuy MAPI authorization did not return a token.'
     )
+  })
+})
+
+function stubAuthRequest(token = 'stub-token') {
+  const keys: string[] = []
+  const request = ((_url: string, options: { json: { key: string } }) => {
+    keys.push(options.json.key)
+    return Promise.resolve({ data: { token, expires: expires() } })
+  }) as unknown as RequestClient
+  return { request, keys }
+}
+
+describe('Friendbuy cloud auth cache bounds', () => {
+  beforeEach(() => {
+    resetAuthCache()
+  })
+
+  test('never grows beyond 1000 entries', async () => {
+    const { request } = stubAuthRequest()
+
+    for (let i = 0; i < AUTH_CACHE_MAX_ENTRIES + 500; i++) {
+      await getAuthToken(request, defaultMapiBaseUrl, `key-${i}`, 'secret')
+    }
+
+    expect(authCacheSize()).toBeLessThanOrEqual(1000)
+  })
+
+  test('evicts the oldest entry rather than the newest', async () => {
+    const { request, keys } = stubAuthRequest()
+
+    for (let i = 0; i <= AUTH_CACHE_MAX_ENTRIES; i++) {
+      await getAuthToken(request, defaultMapiBaseUrl, `key-${i}`, 'secret')
+    }
+    const authCalls = keys.length
+
+    // key-0 was pushed out, so it has to re-authenticate.
+    await getAuthToken(request, defaultMapiBaseUrl, 'key-0', 'secret')
+    expect(keys.length).toBe(authCalls + 1)
+
+    // The most recent entry is still cached.
+    await getAuthToken(request, defaultMapiBaseUrl, `key-${AUTH_CACHE_MAX_ENTRIES}`, 'secret')
+    expect(keys.length).toBe(authCalls + 1)
+  })
+
+  test('does not cache a key longer than the maximum entry length', async () => {
+    const { request, keys } = stubAuthRequest()
+    const longBaseUrl = `https://mapi.fbot-${'e'.repeat(AUTH_CACHE_MAX_ENTRY_LENGTH)}.me`
+
+    const token = await getAuthToken(request, longBaseUrl, 'key-long', 'secret')
+    await getAuthToken(request, longBaseUrl, 'key-long', 'secret')
+
+    // Still authenticates and returns a usable token; it just isn't retained.
+    expect(token).toBe('stub-token')
+    expect(keys.length).toBe(2)
+    expect(authCacheSize()).toBe(0)
+  })
+
+  test('does not cache a token longer than the maximum entry length', async () => {
+    const oversizedToken = 't'.repeat(AUTH_CACHE_MAX_ENTRY_LENGTH + 1)
+    const { request, keys } = stubAuthRequest(oversizedToken)
+
+    const token = await getAuthToken(request, defaultMapiBaseUrl, merchantA.authKey, merchantA.authSecret)
+    await getAuthToken(request, defaultMapiBaseUrl, merchantA.authKey, merchantA.authSecret)
+
+    expect(token).toBe(oversizedToken)
+    expect(keys.length).toBe(2)
+    expect(authCacheSize()).toBe(0)
+  })
+
+  test('caches an entry at exactly the maximum length', async () => {
+    const { request, keys } = stubAuthRequest()
+    // Boundary is inclusive, so a key of exactly the limit is still kept.
+    const authKey = 'k'.repeat(AUTH_CACHE_MAX_ENTRY_LENGTH - `${defaultMapiBaseUrl}|`.length)
+
+    await getAuthToken(request, defaultMapiBaseUrl, authKey, 'secret')
+    await getAuthToken(request, defaultMapiBaseUrl, authKey, 'secret')
+
+    expect(keys.length).toBe(1)
+    expect(authCacheSize()).toBe(1)
   })
 })
