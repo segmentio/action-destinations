@@ -460,7 +460,8 @@ const MEMBERSHIP_DURATION = `${540 * 86400}s`
 export async function createDataManagerUserList(
   request: RequestClient,
   input: CreateAudienceInput,
-  auth: CreateAudienceInput['settings']['oauth']
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
 ): Promise<string> {
   if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
@@ -473,6 +474,9 @@ export async function createDataManagerUserList(
   ) {
     throw new PayloadValidationError('Oauth credentials missing.')
   }
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
 
   const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
     method: 'POST',
@@ -521,9 +525,11 @@ export async function createDataManagerUserList(
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
+    statsClient?.incr('createAudience.gdm.error', 1, statsTags)
     throw new IntegrationError('Failed to receive a created user list id from Data Manager.', 'INVALID_RESPONSE', 400)
   }
 
+  statsClient?.incr('createAudience.gdm.success', 1, statsTags)
   return userList.id
 }
 
@@ -531,7 +537,8 @@ export async function getDataManagerUserList(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   externalId: string,
-  auth: CreateAudienceInput['settings']['oauth']
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
 ): Promise<DataManagerUserList> {
   if (
     !auth?.refresh_token ||
@@ -540,6 +547,9 @@ export async function getDataManagerUserList(
   ) {
     throw new PayloadValidationError('Oauth credentials missing.')
   }
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
 
   const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
     method: 'POST',
@@ -573,9 +583,11 @@ export async function getDataManagerUserList(
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
+    statsClient?.incr('getAudience.gdm.error', 1, statsTags)
     throw new IntegrationError('Failed to retrieve user list from Data Manager.', 'INVALID_RESPONSE', 400)
   }
 
+  statsClient?.incr('getAudience.gdm.success', 1, statsTags)
   return userList
 }
 

@@ -162,7 +162,12 @@ const destination: AudienceDestinationDefinition<Settings> = {
       let userListId
       try {
         if (useDataManager) {
-          userListId = await createDataManagerUserList(request, createAudienceInput, auth)
+          userListId = await createDataManagerUserList(
+            request,
+            createAudienceInput,
+            auth,
+            createAudienceInput.statsContext
+          )
         } else {
           userListId = await createGoogleAudience(
             request,
@@ -208,7 +213,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
           request,
           getAudienceInput.settings,
           getAudienceInput.externalId,
-          getAudienceInput.settings.oauth
+          getAudienceInput.settings.oauth,
+          getAudienceInput.statsContext
         )
         return { externalId: userList.id }
       }
