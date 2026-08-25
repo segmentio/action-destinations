@@ -35,8 +35,6 @@ register('61eed75ba749df7601b12186', './cordial')
 register('6238cec53a46dd187d094eb7', './criteo-audiences')
 register('5f7dd78fe27ce7ff2b8bfa37', './customerio')
 register('63f65c1c42e3bded41f0499c', './emarsys')
-register('6101bf0e15772f7e12407fa9', './engage-messaging-sendgrid')
-register('6116a41e2e8fc680d8daf821', './engage-messaging-twilio')
 register('61806e472cd47ea1104885fc', './facebook-conversions-api')
 register('645d5fc12eb891cf0a93fe4b', './facebook-custom-audiences')
 register('61dde0dc77eb0db0392649d3', './friendbuy')
@@ -242,6 +240,7 @@ register('6a67497a6423a7a0d95cd427', './quora')
 register('6a61fbcd4a3fcb83e9b57434', './mntn-audiences')
 register('6a6748e14c5666d0bc0d3a66', './vibe-conversions')
 register('6a68baf59e9ffb3aafc3c3c8', './marketo-private')
+register('6a8461f58f98175178f49c3c', './heap-cloud')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

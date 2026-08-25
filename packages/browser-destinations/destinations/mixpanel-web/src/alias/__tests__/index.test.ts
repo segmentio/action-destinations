@@ -36,7 +36,6 @@ describe('Mixpanel.alias', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-
       mockGroup = {
         set: jest.fn(),
         set_once: jest.fn(),
@@ -48,6 +47,7 @@ describe('Mixpanel.alias', () => {
         track_pageview: jest.fn(),
         track: jest.fn(),
         identify: jest.fn(),
+        register: jest.fn(),
         alias: jest.fn(),
         get_group: jest.fn().mockReturnValue(mockGroup),
         set_group: jest.fn(),
@@ -69,7 +69,7 @@ describe('Mixpanel.alias', () => {
         enabled: true,
         subscribe: 'type = "alias"',
         mapping: {
-          alias:{ '@path': '$.userId' },
+          alias: { '@path': '$.userId' },
           original: { '@path': '$.previousId' }
         }
       }
@@ -91,6 +91,6 @@ describe('Mixpanel.alias', () => {
     await event.load(Context.system(), {} as Analytics)
     await event.alias?.(context)
 
-    expect(mockMPP.alias).toHaveBeenCalledWith("userId1", "previousId1")
+    expect(mockMPP.alias).toHaveBeenCalledWith('userId1', 'previousId1')
   })
 })

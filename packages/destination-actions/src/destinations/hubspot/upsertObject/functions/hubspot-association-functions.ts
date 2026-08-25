@@ -142,7 +142,11 @@ function returnAssociatedRecordsWithIds(
     .filter((payload) => (payload as AssociationPayloadWithId).object_details.record_id) as AssociationPayloadWithId[]
 }
 
-export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[], action: AssociationsAction) {
+export async function sendAssociations(
+  client: Client,
+  payloads: AssociationPayloadWithId[],
+  action: AssociationsAction
+) {
   const groupedPayloads: AssociationPayloadWithId[][] = groupPayloads(payloads as AssociationPayload[], [
     'object_type'
   ]) as AssociationPayloadWithId[][]

@@ -36,7 +36,6 @@ describe('Mixpanel.group', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-
       mockGroup = {
         set: jest.fn(),
         set_once: jest.fn(),
@@ -48,6 +47,7 @@ describe('Mixpanel.group', () => {
         track_pageview: jest.fn(),
         track: jest.fn(),
         identify: jest.fn(),
+        register: jest.fn(),
         alias: jest.fn(),
         get_group: jest.fn().mockReturnValue(mockGroup),
         set_group: jest.fn(),
@@ -70,15 +70,15 @@ describe('Mixpanel.group', () => {
         subscribe: 'type = "group"',
         mapping: {
           group_details: {
-              group_key: { '@path': '$.traits.group_key' },
-              group_id: { '@path': '$.groupId' }
+            group_key: { '@path': '$.traits.group_key' },
+            group_id: { '@path': '$.groupId' }
           },
-          group_profile_properties_to_set: { 
-              company_name: { '@path': '$.traits.company_name' },
-              number_employees: { '@path': '$.traits.number_employees' }
+          group_profile_properties_to_set: {
+            company_name: { '@path': '$.traits.company_name' },
+            number_employees: { '@path': '$.traits.number_employees' }
           },
           group_profile_properties_to_set_once: {
-              set_once_trait: { '@path': '$.traits.set_once_trait_1' },
+            set_once_trait: { '@path': '$.traits.set_once_trait_1' }
           },
           group_profile_properties_to_union: { '@path': '$.traits.union_properties' }
         }
