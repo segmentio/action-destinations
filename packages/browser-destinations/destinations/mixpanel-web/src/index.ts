@@ -29,7 +29,6 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     const {
       projectToken,
       instanceName,
-      name,
       sourceName,
       autocapture,
       pageview,
@@ -139,10 +138,8 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         resolve(mp)
       }
 
-      const mixpanelInstanceName = instanceName || name
-
-      if (mixpanelInstanceName) {
-        window.mixpanel.init(projectToken, config, mixpanelInstanceName)
+      if (instanceName) {
+        window.mixpanel.init(projectToken, config, instanceName)
       } else {
         window.mixpanel.init(projectToken, config)
       }

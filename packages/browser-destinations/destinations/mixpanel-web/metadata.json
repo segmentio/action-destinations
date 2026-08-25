@@ -25,16 +25,6 @@
         "default": null,
         "depends_on": null
       },
-      "name": {
-        "label": "Mixpanel Instance Name (Deprecated)",
-        "description": "Deprecated - use Mixpanel Instance Name instead. This field key collides with a reserved property in Segment, so its value is never saved. Kept only for backwards compatibility with existing settings payloads.",
-        "type": "string",
-        "required": false,
-        "multiple": false,
-        "choices": null,
-        "default": null,
-        "depends_on": null
-      },
       "sourceName": {
         "label": "Source Name",
         "description": "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event, including events Mixpanel captures automatically.",

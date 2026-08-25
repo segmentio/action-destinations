@@ -10,10 +10,6 @@ export interface Settings {
    */
   instanceName?: string
   /**
-   * Deprecated - use Mixpanel Instance Name instead. This field key collides with a reserved property in Segment, so its value is never saved. Kept only for backwards compatibility with existing settings payloads.
-   */
-  name?: string
-  /**
    * This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event, including events Mixpanel captures automatically.
    */
   sourceName?: string

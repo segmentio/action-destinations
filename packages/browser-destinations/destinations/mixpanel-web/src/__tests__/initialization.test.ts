@@ -263,68 +263,7 @@ describe('Mixpanel Web initialization', () => {
     )
   })
 
-  test('falls back to the deprecated name setting when instanceName is not set', async () => {
-    const mockSnippetMixpanel: Partial<Mixpanel> = {
-      init: jest.fn().mockImplementation((_token, config, _name) => {
-        setTimeout(() => {
-          if (config?.loaded) {
-            config.loaded({} as Mixpanel)
-          }
-        }, 10)
-      })
-    }
-
-    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
-      ;(window as any).mixpanel = mockSnippetMixpanel
-    })
-
-    const [event] = await MixpanelDestination({
-      ...baseSettings,
-      name: 'Legacy Instance Name',
-      subscriptions
-    })
-
-    await event.load(Context.system(), {} as Analytics)
-
-    expect(mockSnippetMixpanel.init).toHaveBeenCalledWith(
-      'test-project-token',
-      expect.objectContaining({ loaded: expect.any(Function) }),
-      'Legacy Instance Name'
-    )
-  })
-
-  test('prefers instanceName over the deprecated name setting when both are set', async () => {
-    const mockSnippetMixpanel: Partial<Mixpanel> = {
-      init: jest.fn().mockImplementation((_token, config, _name) => {
-        setTimeout(() => {
-          if (config?.loaded) {
-            config.loaded({} as Mixpanel)
-          }
-        }, 10)
-      })
-    }
-
-    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
-      ;(window as any).mixpanel = mockSnippetMixpanel
-    })
-
-    const [event] = await MixpanelDestination({
-      ...baseSettings,
-      instanceName: 'New Instance Name',
-      name: 'Legacy Instance Name',
-      subscriptions
-    })
-
-    await event.load(Context.system(), {} as Analytics)
-
-    expect(mockSnippetMixpanel.init).toHaveBeenCalledWith(
-      'test-project-token',
-      expect.objectContaining({ loaded: expect.any(Function) }),
-      'New Instance Name'
-    )
-  })
-
-  test('omits the instance name argument when neither instanceName nor name is set', async () => {
+  test('omits the instance name argument when instanceName is not set', async () => {
     const mockSnippetMixpanel: Partial<Mixpanel> = {
       init: jest.fn().mockImplementation((_token, config, _name) => {
         setTimeout(() => {

@@ -13,13 +13,6 @@ export const settingFields: Record<string, GlobalSetting> = {
     description: 'The name for the new mixpanel instance that you want created.',
     type: 'string'
   },
-  name: {
-    label: 'Mixpanel Instance Name (Deprecated)',
-    description:
-      'Deprecated - use Mixpanel Instance Name instead. This field key collides with a reserved property in Segment, so its value is never saved. Kept only for backwards compatibility with existing settings payloads.',
-    type: 'string',
-    unsafe_hidden: true
-  },
   sourceName: {
     label: 'Source Name',
     description:
