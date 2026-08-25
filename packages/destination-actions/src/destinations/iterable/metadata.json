@@ -1672,7 +1672,7 @@
         }
       }
     },
-    "updateSubscriptions": {
+    "updateSubscription": {
       "title": "Update Subscriptions [Beta]",
       "description": "This feature is in beta. Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists. This integration is only supported on Iterable projects with opt-in Message Type Subscriptions and the Subscriptions API enabled.",
       "platform": "cloud",
@@ -1801,12 +1801,12 @@
           "format": null,
           "additionalProperties": false
         },
-        "subscriptions": {
-          "label": "Subscription Preferences",
-          "description": "Subscription changes to apply for this user. Maximum 6 items.",
+        "subscription": {
+          "label": "Subscription Preference",
+          "description": "The subscription change to apply for this user.",
           "type": "object",
           "required": true,
-          "multiple": true,
+          "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": null,
@@ -1924,7 +1924,7 @@
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": "arrayeditor",
+          "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
@@ -1987,7 +1987,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": [
-            "subscriptions",
+            "subscription",
             "user_identifier_preference"
           ],
           "choices": null,

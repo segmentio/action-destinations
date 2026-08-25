@@ -49,13 +49,11 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'email',
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
-    subscriptions: {
-      label: 'Subscription Preferences',
-      description: 'Subscription changes to apply for this user. Maximum 6 items.',
+    subscription: {
+      label: 'Subscription Preference',
+      description: 'The subscription change to apply for this user.',
       type: 'object',
-      multiple: true,
       required: true,
-      defaultObjectUI: 'arrayeditor',
       additionalProperties: false,
       properties: {
         subscription_group_type: {
@@ -112,13 +110,13 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       unsafe_hidden: true,
       required: false,
-      default: ['subscriptions', 'user_identifier_preference']
+      default: ['subscription', 'user_identifier_preference']
     }
   },
   dynamicFields: {
-    subscriptions: {
-      subscription_group_id: async (request, { payload, dynamicFieldContext, settings }) => {
-        return getSubscriptionGroupId(request, { payload, dynamicFieldContext, settings })
+    subscription: {
+      subscription_group_id: async (request, { payload, settings }) => {
+        return getSubscriptionGroupId(request, { payload, settings })
       }
     }
   },

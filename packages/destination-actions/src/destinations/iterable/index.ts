@@ -5,7 +5,7 @@ import updateUser from './updateUser'
 import trackEvent from './trackEvent'
 import updateCart from './updateCart'
 import trackPurchase from './trackPurchase'
-import updateSubscriptions from './updateSubscriptions'
+import updateSubscription from './updateSubscription'
 import { DataCenterLocation } from './shared-fields'
 import { getRegionalEndpoint } from './utils'
 
@@ -60,7 +60,7 @@ const destination: DestinationDefinition<Settings> = {
     trackEvent,
     updateCart,
     trackPurchase,
-    updateSubscriptions
+    updateSubscription
   },
   presets: [
     {
