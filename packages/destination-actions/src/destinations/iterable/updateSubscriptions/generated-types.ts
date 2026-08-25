@@ -19,9 +19,9 @@ export interface Payload {
    */
   user_identifier_preference: string
   /**
-   * The subscription change to apply for this user.
+   * Subscription changes to apply for this user. Maximum 6 items.
    */
-  subscription: {
+  subscriptions: {
     /**
      * The type of subscription group.
      */
@@ -34,7 +34,7 @@ export interface Payload {
      * Whether to subscribe or unsubscribe the user from this group.
      */
     action: string
-  }
+  }[]
   /**
    * When enabled, Segment will send data to Iterable in batches.
    */

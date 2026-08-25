@@ -5,10 +5,10 @@ import { performUpdateSubscriptions, performBatchUpdateSubscriptions } from './f
 import { getSubscriptionGroupId } from './dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Update Subscription [Beta]',
+  title: 'Update Subscriptions [Beta]',
   description:
     'This feature is in beta. Manage subscription preferences for a user, including subscribing and unsubscribing from channels, message types, and email lists. This integration is only supported on Iterable projects with opt-in Message Type Subscriptions and the Subscriptions API enabled.',
-  defaultSubscription: 'type = "track" and event = "Subscription Updated"',
+  defaultSubscription: 'type = "track" and event = "Subscriptions Updated"',
   fields: {
     identifier: {
       label: 'User Identifier',
@@ -49,11 +49,13 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 'email',
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment']
     },
-    subscription: {
-      label: 'Subscription Preference',
-      description: 'The subscription change to apply for this user.',
+    subscriptions: {
+      label: 'Subscription Preferences',
+      description: 'Subscription changes to apply for this user. Maximum 6 items.',
       type: 'object',
+      multiple: true,
       required: true,
+      defaultObjectUI: 'arrayeditor',
       additionalProperties: false,
       properties: {
         subscription_group_type: {
@@ -110,13 +112,13 @@ const action: ActionDefinition<Settings, Payload> = {
       multiple: true,
       unsafe_hidden: true,
       required: false,
-      default: ['subscription', 'user_identifier_preference']
+      default: ['subscriptions', 'user_identifier_preference']
     }
   },
   dynamicFields: {
-    subscription: {
-      subscription_group_id: async (request, { payload, settings }) => {
-        return getSubscriptionGroupId(request, { payload, settings })
+    subscriptions: {
+      subscription_group_id: async (request, { payload, dynamicFieldContext, settings }) => {
+        return getSubscriptionGroupId(request, { payload, dynamicFieldContext, settings })
       }
     }
   },

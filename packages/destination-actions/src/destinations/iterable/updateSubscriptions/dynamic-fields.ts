@@ -3,13 +3,14 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { DataCenterLocation } from '../shared-fields'
 import { getRegionalEndpoint } from '../utils'
-import type { ChannelsResponse, MessageTypesResponse, ListsResponse } from './types'
+import type { DynamicFieldContext, ChannelsResponse, MessageTypesResponse, ListsResponse } from './types'
 
 export async function getSubscriptionGroupId(
   request: RequestClient,
-  { payload, settings }: { payload: Payload; settings: Settings }
+  { payload, dynamicFieldContext, settings }: { payload: Payload; dynamicFieldContext?: DynamicFieldContext; settings: Settings }
 ): Promise<DynamicFieldResponse> {
-  const groupType = payload?.subscription?.subscription_group_type
+  const { selectedArrayIndex: index = 0 } = dynamicFieldContext ?? {}
+  const groupType = payload?.subscriptions?.[index]?.subscription_group_type
   const { dataCenterLocation } = settings
 
   if (!groupType) {

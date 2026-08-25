@@ -94,7 +94,6 @@ const regionBaseUrls = {
 
 export const apiEndpoints = {
   updateUser: '/api/users/update',
-  updateEmail: '/api/users/updateEmail',
   bulkUpdateUser: '/api/users/bulkUpdate',
   trackEvent: '/api/events/track',
   bulkTrackEvent: '/api/events/trackBulk',
