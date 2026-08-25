@@ -18,7 +18,7 @@ const defaultMapping = {
   enable_batching: false
 }
 
-describe('Iterable.updateSubscriptions', () => {
+describe('Iterable.updateSubscription', () => {
   afterEach(() => {
     nock.cleanAll()
   })
@@ -38,7 +38,7 @@ describe('Iterable.updateSubscriptions', () => {
         .patch('/api/subscriptions/messageChannel/123/user/test%40iterable.com')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: defaultMapping
       })
@@ -58,7 +58,7 @@ describe('Iterable.updateSubscriptions', () => {
         .patch('/api/subscriptions/messageChannel/123/byUserId/user123')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: {
           ...defaultMapping,
@@ -87,7 +87,7 @@ describe('Iterable.updateSubscriptions', () => {
         .delete('/api/subscriptions/messageChannel/456/user/test%40iterable.com')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: {
           ...defaultMapping,
@@ -116,7 +116,7 @@ describe('Iterable.updateSubscriptions', () => {
         .patch('/api/subscriptions/messageChannel/123/user/test%40iterable.com')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: {
           ...defaultMapping,
@@ -141,7 +141,7 @@ describe('Iterable.updateSubscriptions', () => {
         .patch('/api/subscriptions/messageChannel/123/byUserId/user123')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: {
           ...defaultMapping,
@@ -164,7 +164,7 @@ describe('Iterable.updateSubscriptions', () => {
         .patch('/api/subscriptions/messageChannel/123/byUserId/user123')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: {
           ...defaultMapping,
@@ -187,7 +187,7 @@ describe('Iterable.updateSubscriptions', () => {
       })
 
       await expect(
-        testDestination.testAction('updateSubscriptions', {
+        testDestination.testAction('updateSubscription', {
           event,
           mapping: {
             ...defaultMapping,
@@ -208,7 +208,7 @@ describe('Iterable.updateSubscriptions', () => {
         .patch('/api/subscriptions/messageChannel/123/user/test%40iterable.com')
         .reply(200, { code: 'Success', msg: '' })
 
-      const responses = await testDestination.testAction('updateSubscriptions', {
+      const responses = await testDestination.testAction('updateSubscription', {
         event,
         mapping: defaultMapping,
         settings: { apiKey: 'test-api-key', dataCenterLocation: 'europe' }
@@ -239,7 +239,7 @@ describe('Iterable.updateSubscriptions', () => {
         .put('/api/subscriptions/messageChannel/123?action=subscribe')
         .reply(200, { code: 'Success', msg: '' })
 
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
+      const response = await testDestination.testBatchAction('updateSubscription', {
         events,
         mapping: defaultMapping
       })
@@ -279,7 +279,7 @@ describe('Iterable.updateSubscriptions', () => {
         .put('/api/subscriptions/messageChannel/456?action=unsubscribe')
         .reply(200, { code: 'Success', msg: '' })
 
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
+      const response = await testDestination.testBatchAction('updateSubscription', {
         events,
         mapping: {
           ...defaultMapping,
@@ -316,7 +316,7 @@ describe('Iterable.updateSubscriptions', () => {
         })
         .reply(200, { code: 'Success', msg: '' })
 
-      const response = await testDestination.testBatchAction('updateSubscriptions', {
+      const response = await testDestination.testBatchAction('updateSubscription', {
         events,
         mapping: {
           ...defaultMapping,
@@ -346,7 +346,7 @@ describe('Iterable.updateSubscriptions', () => {
         .put('/api/subscriptions/messageChannel/123?action=subscribe')
         .reply(200, { code: 'Success', msg: '' })
 
-      await testDestination.testBatchAction('updateSubscriptions', {
+      await testDestination.testBatchAction('updateSubscription', {
         events,
         mapping: {
           ...defaultMapping,
@@ -388,7 +388,7 @@ describe('Iterable.updateSubscriptions', () => {
         .put('/api/subscriptions/messageChannel/123?action=subscribe')
         .reply(400, { code: 'BadParams', msg: 'Invalid subscription group' })
 
-      await testDestination.testBatchAction('updateSubscriptions', {
+      await testDestination.testBatchAction('updateSubscription', {
         events,
         mapping: defaultMapping
       })
@@ -426,7 +426,7 @@ describe('Iterable.updateSubscriptions', () => {
         })
       ]
 
-      await testDestination.testBatchAction('updateSubscriptions', {
+      await testDestination.testBatchAction('updateSubscription', {
         events,
         mapping: {
           ...defaultMapping,
@@ -474,7 +474,7 @@ describe('Iterable.updateSubscriptions', () => {
       ]
 
       await expect(
-        testDestination.testBatchAction('updateSubscriptions', {
+        testDestination.testBatchAction('updateSubscription', {
           events,
           mapping: {
             ...defaultMapping,
