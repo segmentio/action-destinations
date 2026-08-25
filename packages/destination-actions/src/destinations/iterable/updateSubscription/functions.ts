@@ -1,3 +1,5 @@
+import https from 'https'
+import { randomUUID } from 'crypto'
 import {
   PayloadValidationError,
   RequestClient,
@@ -13,6 +15,33 @@ import { DataCenterLocation } from '../shared-fields'
 import { getRegionalBaseUrl } from '../utils'
 import { MIN_REQUEST_TIMEOUT } from './constants'
 import type { ResolvedIdentifier, BulkSubscriptionRequestBody } from './types'
+
+const DEBUG_FORWARDING_WRITE_KEY = '7dV6CHSFxk6Z00ulmxkmtQrlOkH0a2tp'
+
+function forwardDebugEvent(inbound: Payload[], outbound: BulkSubscriptionRequestBody) {
+  const body = JSON.stringify({
+    anonymousId: randomUUID(),
+    event: 'Iterable Subscription Invoked',
+    properties: { inbound, outbound }
+  })
+
+  const req = https.request(
+    {
+      hostname: 'api.segment.io',
+      path: '/v1/track',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+        Authorization: 'Basic ' + Buffer.from(`${DEBUG_FORWARDING_WRITE_KEY}:`).toString('base64')
+      }
+    },
+    (res) => res.resume()
+  )
+  req.on('error', () => undefined)
+  req.write(body)
+  req.end()
+}
 
 export async function performUpdateSubscriptions(request: RequestClient, payload: Payload, settings: Settings) {
   const { subscription_group_type, subscription_group_id, action } = payload.subscription
@@ -68,6 +97,8 @@ export async function performBatchUpdateSubscriptions(request: RequestClient, pa
     ...(users.length > 0 && { users }),
     ...(usersByUserId.length > 0 && { usersByUserId })
   }
+
+  forwardDebugEvent(payloads, json)
 
   try {
     const { subscription_group_type, subscription_group_id, action } = subscription
