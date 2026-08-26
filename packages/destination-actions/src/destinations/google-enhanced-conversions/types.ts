@@ -228,3 +228,39 @@ export interface AddOperationPayload {
   enablePartialFailure?: boolean
   enableWarnings?: boolean
 }
+
+export interface PartnerLinkResponse {
+  name: string
+  partnerLinkId: string
+  owningAccount: {
+    accountId: string
+    accountType: string
+  }
+  partnerAccount: {
+    accountId: string
+    accountType: string
+  }
+}
+
+export interface DataManagerAudienceMember {
+  userData?: {
+    userIdentifiers: Array<{
+      emailAddress?: string
+      phoneNumber?: string
+      address?: {
+        givenName?: string
+        familyName?: string
+        regionCode: string
+        postalCode: string
+      }
+    }>
+  }
+  mobileData?: { mobileIds: string[] }
+  userIdData?: { userId: string }
+  consent?: { adUserData?: string; adPersonalization?: string }
+}
+
+export interface DataManagerIngestResponse {
+  requestId: string
+  fieldWarnings?: Array<{ field: string; description: string }>
+}

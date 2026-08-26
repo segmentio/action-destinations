@@ -80,4 +80,3 @@ register('6911ea13d72d3a16aa306482', '@segment/analytics-browser-mixpanel-web-ac
 register('697088b36245ed59c958d615', '@segment/analytics-browser-actions-rokt-plugins')
 register('69805c55324ed9e25f234a1a', '@segment/analytics-browser-actions-moengage-web')
 register('698aff47f133996889ade37e', '@segment/analytics-browser-appcues-web-actions')
-register('6a8d53a118aa88d33b29583f', '@segment/analytics-browser-actions-jimo3-register-stage-test')
