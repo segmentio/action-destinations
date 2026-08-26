@@ -9,7 +9,8 @@ import {
   verifyCustomerId,
   createDataManagerUserList,
   getDataManagerUserList,
-  createDataManagerPartnerLink
+  createDataManagerPartnerLink,
+  exchangeForAccessToken
 } from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
@@ -157,9 +158,21 @@ const destination: AudienceDestinationDefinition<Settings> = {
       const auth = createAudienceInput.settings.oauth
       // const useDataManager = createAudienceInput.features?.[FLAGON_NAME_DATA_MANAGER_API]
 
+      const customerId = createAudienceInput.settings.customerId
+      const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+
+      // Best-effort partner link creation — errors must not block audience creation
+      if (auth?.refresh_token) {
+        try {
+          const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+          await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+        } catch (_) {
+          // intentionally swallowed
+        }
+      }
+
       let userListId
       try {
-        await createDataManagerPartnerLink(request, createAudienceInput, auth, createAudienceInput.statsContext)
         userListId = await createDataManagerUserList(
           request,
           createAudienceInput,

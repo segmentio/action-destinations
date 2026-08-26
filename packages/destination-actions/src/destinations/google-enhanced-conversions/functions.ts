@@ -17,7 +17,8 @@ import {
   KeyValueItem,
   DataManagerUserList,
   DataManagerAudienceMember,
-  DataManagerIngestResponse
+  DataManagerIngestResponse,
+  PartnerLinkResponse
 } from './types'
 import {
   ModifiedResponse,
@@ -593,40 +594,18 @@ export async function getDataManagerUserList(
   return userList
 }
 
+const PARTNER_ACCOUNT_ID = '262932431'
+
 export async function createDataManagerPartnerLink(
   request: RequestClient,
-  input: CreateAudienceInput,
-  auth: CreateAudienceInput['settings']['oauth'],
-  statsContext?: StatsContext
-): Promise<void> {
-  if (
-    !auth?.refresh_token ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
-  ) {
-    throw new PayloadValidationError('Oauth credentials missing.')
-  }
-
-  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: auth.refresh_token,
-      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
-      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
-      grant_type: 'refresh_token'
-    })
-  })
-
-  const customerAccessToken = tokenRes.data.access_token
-  const customerId = input.settings.customerId?.replace(/-/g, '')
-  const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
+  customerId: string,
+  customerAccessToken: string,
+  loginCustomerId?: string
+): Promise<PartnerLinkResponse> {
   const owningAccountId = loginCustomerId || customerId
-
-  const statsClient = statsContext?.statsClient
-  const statsTags = statsContext?.tags
-
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
   try {
-    await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`, {
+    const response = await request<PartnerLinkResponse>(url, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${customerAccessToken}`,
@@ -637,14 +616,12 @@ export async function createDataManagerPartnerLink(
         partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
       }
     })
-    statsClient?.incr('createPartnerLink.success', 1, statsTags)
+    return response.data
   } catch (err: any) {
     // 409 ALREADY_EXISTS means the link is already established — treat as success
     if (err?.response?.status === 409) {
-      statsClient?.incr('createPartnerLink.alreadyExists', 1, statsTags)
-      return
+      return err.response.data as PartnerLinkResponse
     }
-    statsClient?.incr('createPartnerLink.error', 1, statsTags)
     throw err
   }
 }
@@ -666,8 +643,6 @@ export async function exchangeForAccessToken(request: RequestClient, refreshToke
 
   return res.data.access_token
 }
-
-const PARTNER_ACCOUNT_ID = '262932431'
 
 function buildDataManagerDestination(customerId: string, userListId: string, loginCustomerId?: string) {
   const linkedAccountId = loginCustomerId || customerId
@@ -801,19 +776,14 @@ export async function handleDataManagerUpdate(
   const idType = hookListType ?? audienceSettings?.external_id_type ?? 'CONTACT_INFO'
 
   // Ensure the partner link exists — covers existing customers when the flag is first enabled.
-  // Uses extendRequest's customer auth token. 409 = already exists, safe to ignore.
-  const owningAccountId = loginCustomerId || customerId
-  try {
-    await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`, {
-      method: 'POST',
-      headers: { 'login-account': `accountTypes/GOOGLE_ADS/accounts/${owningAccountId}` },
-      json: {
-        owningAccount: { accountId: owningAccountId, accountType: 'GOOGLE_ADS' },
-        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
-      }
-    })
-  } catch (err: any) {
-    if (err?.response?.status !== 409) throw err
+  // Best-effort: errors are swallowed so member sync can still proceed.
+  if (settings.oauth?.refresh_token) {
+    try {
+      const customerAccessToken = await exchangeForAccessToken(request, settings.oauth.refresh_token)
+      await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+    } catch (_) {
+      // intentionally swallowed — partner link errors must not block member sync
+    }
   }
 
   const addMembers: DataManagerAudienceMember[] = []

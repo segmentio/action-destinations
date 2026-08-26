@@ -332,6 +332,22 @@ const action: ActionDefinition<Settings, Payload> = {
       personasContext
     )
 
+    // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+    //   return await handleDataManagerUpdate(
+    //     request,
+    //     settings,
+    //     audienceSettings,
+    //     [payload],
+    //     hookOutputs?.retlOnMappingSave?.outputs.id,
+    //     hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+    //     syncMode,
+    //     features,
+    //     statsContext,
+    //     audienceMembership,
+    //     personasContext
+    //   )
+    // }
+
     // return await handleUpdate(
     //   request,
     //   settings,
@@ -374,6 +390,22 @@ const action: ActionDefinition<Settings, Payload> = {
       audienceMembership,
       personasContext
     )
+
+    // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+    //   return await handleDataManagerUpdate(
+    //     request,
+    //     settings,
+    //     audienceSettings,
+    //     payload,
+    //     hookOutputs?.retlOnMappingSave?.outputs.id,
+    //     hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+    //     syncMode,
+    //     features,
+    //     statsContext,
+    //     audienceMembership,
+    //     personasContext
+    //   )
+    // }
 
     // return await processBatchPayload(
     //   request,
