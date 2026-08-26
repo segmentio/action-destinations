@@ -645,13 +645,19 @@ export async function exchangeForAccessToken(request: RequestClient, refreshToke
 }
 
 function buildDataManagerDestination(customerId: string, userListId: string, loginCustomerId?: string) {
-  const linkedAccountId = loginCustomerId || customerId
-  return {
-    loginAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' },
-    linkedAccount: { accountId: linkedAccountId, accountType: 'GOOGLE_ADS' },
+  // loginAccount must match the authorization token (customer's GOOGLE_ADS token from extendRequest).
+  // For MCC setups: loginAccount = MCC, linkedAccount = sub-account the MCC manages, operatingAccount = sub-account.
+  const loginAccountId = loginCustomerId || customerId
+  const dest: Record<string, unknown> = {
+    loginAccount: { accountId: loginAccountId, accountType: 'GOOGLE_ADS' },
     operatingAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
     productDestinationId: userListId
   }
+  // linkedAccount: for MCC, this is the sub-account (customerId) that the MCC has access to via account link.
+  if (loginCustomerId) {
+    dest.linkedAccount = { accountId: customerId, accountType: 'GOOGLE_ADS' }
+  }
+  return dest
 }
 
 function toDataManagerConsentStatus(value?: string): string | undefined {
@@ -721,10 +727,14 @@ export async function ingestAudienceMembers(
   customerId: string,
   userListId: string,
   members: DataManagerAudienceMember[],
-  loginCustomerId?: string
+  loginCustomerId?: string,
+  customerAccessToken?: string
 ): Promise<DataManagerIngestResponse> {
   const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
     method: 'POST',
+    headers: {
+      authorization: `Bearer ${customerAccessToken}`
+    },
     json: {
       destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
       audienceMembers: members,
@@ -740,10 +750,14 @@ export async function removeAudienceMembers(
   customerId: string,
   userListId: string,
   members: DataManagerAudienceMember[],
-  loginCustomerId?: string
+  loginCustomerId?: string,
+  customerAccessToken?: string
 ): Promise<DataManagerIngestResponse> {
   const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
     method: 'POST',
+    headers: {
+      authorization: `Bearer ${customerAccessToken}`
+    },
     json: {
       destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
       audienceMembers: members,
@@ -777,9 +791,10 @@ export async function handleDataManagerUpdate(
 
   // Ensure the partner link exists — covers existing customers when the flag is first enabled.
   // Best-effort: errors are swallowed so member sync can still proceed.
+  let customerAccessToken: string | undefined
   if (settings.oauth?.refresh_token) {
     try {
-      const customerAccessToken = await exchangeForAccessToken(request, settings.oauth.refresh_token)
+      customerAccessToken = await exchangeForAccessToken(request, settings.oauth.refresh_token)
       await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
     } catch (_) {
       // intentionally swallowed — partner link errors must not block member sync
@@ -818,12 +833,26 @@ export async function handleDataManagerUpdate(
   const results: DataManagerIngestResponse[] = []
 
   if (addMembers.length > 0) {
-    const r = await ingestAudienceMembers(request, customerId, externalAudienceId, addMembers, loginCustomerId)
+    const r = await ingestAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      addMembers,
+      loginCustomerId,
+      customerAccessToken
+    )
     results.push(r)
   }
 
   if (removeMembers.length > 0) {
-    const r = await removeAudienceMembers(request, customerId, externalAudienceId, removeMembers, loginCustomerId)
+    const r = await removeAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      removeMembers,
+      loginCustomerId,
+      customerAccessToken
+    )
     results.push(r)
   }
 
