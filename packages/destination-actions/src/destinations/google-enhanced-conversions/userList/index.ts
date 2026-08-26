@@ -5,11 +5,8 @@ import {
   createGoogleAudience,
   getGoogleAudience,
   getListIds,
-  handleUpdate,
-  processBatchPayload,
   verifyCustomerId,
-  handleDataManagerUpdate,
-  FLAGON_NAME_DATA_MANAGER_API
+  handleDataManagerUpdate
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -321,23 +318,7 @@ const action: ActionDefinition<Settings, Payload> = {
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-      return await handleDataManagerUpdate(
-        request,
-        settings,
-        audienceSettings,
-        [payload],
-        hookOutputs?.retlOnMappingSave?.outputs.id,
-        hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-        syncMode,
-        features,
-        statsContext,
-        audienceMembership,
-        personasContext
-      )
-    }
-
-    return await handleUpdate(
+    return await handleDataManagerUpdate(
       request,
       settings,
       audienceSettings,
@@ -347,8 +328,22 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership
+      audienceMembership,
+      personasContext
     )
+
+    // return await handleUpdate(
+    //   request,
+    //   settings,
+    //   audienceSettings,
+    //   [payload],
+    //   hookOutputs?.retlOnMappingSave?.outputs.id,
+    //   hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+    //   syncMode,
+    //   features,
+    //   statsContext,
+    //   audienceMembership
+    // )
   },
   performBatch: async (
     request,
@@ -366,23 +361,7 @@ const action: ActionDefinition<Settings, Payload> = {
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-      return await handleDataManagerUpdate(
-        request,
-        settings,
-        audienceSettings,
-        payload,
-        hookOutputs?.retlOnMappingSave?.outputs.id,
-        hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-        syncMode,
-        features,
-        statsContext,
-        audienceMembership,
-        personasContext
-      )
-    }
-
-    return await processBatchPayload(
+    return await handleDataManagerUpdate(
       request,
       settings,
       audienceSettings,
@@ -392,8 +371,22 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership
+      audienceMembership,
+      personasContext
     )
+
+    // return await processBatchPayload(
+    //   request,
+    //   settings,
+    //   audienceSettings,
+    //   payload,
+    //   hookOutputs?.retlOnMappingSave?.outputs.id,
+    //   hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+    //   syncMode,
+    //   features,
+    //   statsContext,
+    //   audienceMembership
+    // )
   }
 }
 

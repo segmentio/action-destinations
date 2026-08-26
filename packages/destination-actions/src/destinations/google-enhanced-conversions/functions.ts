@@ -785,7 +785,7 @@ export async function handleDataManagerUpdate(
     results.push(r)
   }
 
-  statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
   return results
 }
 
