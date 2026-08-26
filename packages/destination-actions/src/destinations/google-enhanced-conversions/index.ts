@@ -5,7 +5,12 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput } from './types'
-import { verifyCustomerId, createDataManagerUserList, getDataManagerUserList } from './functions'
+import {
+  verifyCustomerId,
+  createDataManagerUserList,
+  getDataManagerUserList,
+  createDataManagerPartnerLink
+} from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -154,6 +159,7 @@ const destination: AudienceDestinationDefinition<Settings> = {
 
       let userListId
       try {
+        await createDataManagerPartnerLink(request, createAudienceInput, auth, createAudienceInput.statsContext)
         userListId = await createDataManagerUserList(
           request,
           createAudienceInput,
