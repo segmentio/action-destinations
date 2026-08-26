@@ -732,9 +732,8 @@ export async function ingestAudienceMembers(
 ): Promise<DataManagerIngestResponse> {
   const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${customerAccessToken}`
-    },
+    // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
+    ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
     json: {
       destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
       audienceMembers: members,
@@ -755,9 +754,8 @@ export async function removeAudienceMembers(
 ): Promise<DataManagerIngestResponse> {
   const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
     method: 'POST',
-    headers: {
-      authorization: `Bearer ${customerAccessToken}`
-    },
+    // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
+    ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
     json: {
       destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
       audienceMembers: members,
