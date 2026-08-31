@@ -112,6 +112,100 @@ describe('ajs-integration', () => {
     expect(typeof updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBe('number')
   })
 
+  test('preserves caller supplied options on the Actions Amplitude entry', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        All: false,
+        // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+        'Actions Amplitude': { subscriptionId: 'sub-123' },
+        Split: true
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(typeof updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBe('number')
+    // @ts-expect-error
+    expect(updatedCtx?.event.integrations['Actions Amplitude']?.subscriptionId).toBe('sub-123')
+    expect(updatedCtx?.event.integrations?.Split).toBe(true)
+    expect(updatedCtx?.event.integrations?.All).toBe(false)
+  })
+
+  test('keeps the rest of the allowlist intact when All: false but Actions Amplitude: true', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        All: false,
+        'Actions Amplitude': true,
+        Split: true
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(typeof updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBe('number')
+    expect(updatedCtx?.event.integrations['Actions Amplitude']).toBeTruthy()
+    expect(updatedCtx?.event.integrations?.Split).toBe(true)
+    expect(updatedCtx?.event.integrations?.All).toBe(false)
+  })
+
+  test('sets a session id when the Actions Amplitude entry is null', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+        'Actions Amplitude': null
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+
+    // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+    expect(typeof updatedCtx?.event.integrations['Actions Amplitude']?.session_id).toBe('number')
+  })
+
+  test('sets a session id that survives serialization when the Actions Amplitude entry is an array', async () => {
+    await sessionIdPlugin.load(Context.system(), ajs)
+
+    const ctx = new Context({
+      type: 'track',
+      event: 'greet',
+      properties: {
+        greeting: 'Oi!'
+      },
+      integrations: {
+        // @ts-expect-error Need to fix ajs-next types to allow for complex objects in `integrations`
+        'Actions Amplitude': []
+      }
+    })
+
+    const updatedCtx = await sessionIdPlugin.track?.(ctx)
+    const serialized = JSON.parse(JSON.stringify(updatedCtx?.event))
+
+    expect(typeof serialized.integrations['Actions Amplitude']?.session_id).toBe('number')
+  })
+
   test('doesnt update the original event with a session id when All: false', async () => {
     await sessionIdPlugin.load(Context.system(), ajs)
 

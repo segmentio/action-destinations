@@ -145,8 +145,13 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     storage.set('analytics_session_id.last_access', newSession)
 
     if (context.event.integrations?.All !== false || context.event.integrations['Actions Amplitude']) {
-      context.updateEvent('integrations.Actions Amplitude', {})
-      context.updateEvent('integrations.Actions Amplitude.session_id', id)
+      const configured: unknown = context.event.integrations?.['Actions Amplitude']
+      const existing =
+        configured !== null && typeof configured === 'object' && !Array.isArray(configured)
+          ? (configured as Record<string, unknown>)
+          : {}
+
+      context.updateEvent('integrations.Actions Amplitude', { ...existing, session_id: id })
     }
 
     return
