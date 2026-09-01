@@ -1121,7 +1121,8 @@ export const handleUpdate = async (
   if (!externalAudienceId) {
     throw new PayloadValidationError('External Audience ID is required.')
   }
-  const id_type = hookListType ?? audienceSettings?.external_id_type
+  // const id_type = hookListType ?? audienceSettings?.external_id_type
+  const id_type = hookListType ?? audienceSettings?.external_id_type ?? 'CONTACT_INFO'
   // Format the user data for Google Ads API
   const [adduserIdentifiers, removeUserIdentifiers] = extractUserIdentifiers(
     payloads,
