@@ -780,6 +780,51 @@ describe('LinkedinConversions.streamConversion', () => {
     ).rejects.toThrowError('No conversion rule is linked to this mapping.')
   })
 
+  it('should throw an actionable error when no conversion rule is linked to the mapping', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError(
+      'No conversion rule is linked to this mapping. Open the mapping and click "Link or Create a Conversion Rule" to link one. If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
+    )
+  })
+
+  // Asserts a prefix of the error message intentionally: the test above owns its exact wording.
+  it('should throw an actionable error when hook inputs were saved but the hook never produced outputs', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          // The mapping is saved with the user's hook inputs but no outputs, which is the state
+          // produced when the mapping is saved without running the 'Create a Conversion Rule' hook.
+          onMappingSave: {
+            inputs: {
+              adAccountId: 'urn:li:sponsoredAccount:12345',
+              conversionRuleId: '20812604'
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError('No conversion rule is linked to this mapping.')
+  })
+
   it('should normalize the user ID email field such that uppercase letters are converted to lowercase', async () => {
     nock(`${BASE_URL}/conversionEvents`)
       .post('', {

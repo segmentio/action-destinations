@@ -29,6 +29,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     const {
       projectToken,
       name,
+      sourceName,
       autocapture,
       pageview,
       click,
@@ -49,16 +50,18 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
       'record_idle_timeout_ms',
       'cookie_expiration'
     ])
-    
+
     const remainingSettings = Object.fromEntries(
       Object.entries(rest).flatMap(([key, value]) => {
         if (numericKeys.has(key)) {
-          if (value === undefined || value === null || value === '') { 
-            return [] 
+          if (value === undefined || value === null || value === '') {
+            return []
           }
           const num = Number(value)
           if (Number.isNaN(num)) {
-            console.warn(`Setting "${key}" with value "${value}" cannot be converted to a number. Setting will be ignored.`)
+            console.warn(
+              `Setting "${key}" with value "${value}" cannot be converted to a number. Setting will be ignored.`
+            )
             return []
           }
           return [[key, num]]
@@ -66,7 +69,7 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
         return [[key, value]]
       })
     )
-    
+
     const config: Config = {
       autocapture:
         autocapture === AUTOCAPTURE_OPTIONS.CUSTOM
@@ -88,7 +91,14 @@ export const destination: BrowserDestinationDefinition<Settings, Mixpanel> = {
     }
 
     return new Promise<Mixpanel>((resolve) => {
-      config.loaded = (mp) => resolve(mp)
+      config.loaded = (mp) => {
+        const trimmedSourceName = sourceName?.trim()
+        if (trimmedSourceName && typeof mp?.register === 'function') {
+          // Registered as a super property so it is attached to every event
+          mp.register({ segment_source_name: trimmedSourceName })
+        }
+        resolve(mp)
+      }
 
       if (name) {
         window.mixpanel.init(projectToken, config, name)

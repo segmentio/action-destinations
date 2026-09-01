@@ -1,5 +1,5 @@
 # Short-term workflow for producing browser destination artifacts independently
-# from npm package publishing. Both workflows start concurrently on Publish pushes.
+# from npm package publishing. Both workflows start concurrently on Release pushes.
 name: Publish Browser Destination Workflow
 
 on:
@@ -33,7 +33,7 @@ jobs:
         run: |
           previous_publish=''
           while IFS=$'\t' read -r commit subject; do
-            if [[ "$subject" == Publish* ]]; then
+            if [[ "$subject" == Release* ]]; then
               previous_publish="$commit"
               break
             fi
