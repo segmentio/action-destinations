@@ -4297,6 +4297,21 @@
   resolved "https://registry.yarnpkg.com/@segment/a1-notation/-/a1-notation-2.1.4.tgz#35a48a0688019c3ffff23b1ba890e864c891a11f"
   integrity sha512-SId7GOdDFmm/B9ajIQpXELHW4OTbVvmJbOsoJkQOcUEtoZIiX2UWfk1v4BpKql8wJW9oAhzhIIru2Pv2Yxcg+w==
 
+"@segment/actions-core@^3.168.0":
+  version "3.177.1-staging-4ff97d337.0"
+  dependencies:
+    "@lukeed/uuid" "^2.0.0"
+    "@segment/ajv-human-errors" "^2.20.0"
+    "@segment/destination-subscriptions" "^3.41.0"
+    "@types/node" "^22.13.1"
+    aggregate-error "^3.1.0"
+    ajv "^8.18.0"
+    ajv-formats "^2.1.1"
+    btoa-lite "^1.0.0"
+    cross-fetch "^3.1.4"
+    dayjs "^1.10.7"
+    ts-custom-error "^3.2.0"
+
 "@segment/analytics-browser-actions-sabil@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@segment/analytics-browser-actions-sabil/-/analytics-browser-actions-sabil-1.6.0.tgz#4e1faf694e7b9b513e7309b74654abc31e789a37"
@@ -4338,9 +4353,14 @@
     unfetch "^3.1.1"
 
 "@segment/browser-destination-runtime@^1.6.0":
-  version "1.106.1-staging-f8f1cd75c.0"
+  version "1.106.1-staging-4ff97d337.0"
   dependencies:
-    "@segment/actions-core" "3.177.1-staging-f8f1cd75c.0"
+    "@segment/actions-core" "3.177.1-staging-4ff97d337.0"
+
+"@segment/browser-destination-runtime@^1.97.0":
+  version "1.106.1-staging-4ff97d337.0"
+  dependencies:
+    "@segment/actions-core" "3.177.1-staging-4ff97d337.0"
 
 "@segment/facade@^3.4.9":
   version "3.4.10"
