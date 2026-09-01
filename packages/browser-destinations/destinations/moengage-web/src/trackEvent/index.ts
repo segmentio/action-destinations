@@ -20,16 +20,13 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
       label: 'Attributes',
       description: 'A dictionary of key-value pairs that will be sent as event attributes to Moengage.',
       type: 'object',
-      required: false, 
+      required: false,
       default: { '@path': '$.properties' }
     }
   },
   perform: (client, { payload }) => {
-    const { 
-      event_name, 
-      attributes 
-    } = payload
-    client.track_event(event_name, attributes || {})
+    const { event_name, attributes } = payload
+    client.trackEvent(event_name, attributes || {})
   }
 }
 
