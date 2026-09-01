@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.169.1-staging-c9c5a6d0a.0",
+  "version": "1.169.1-staging-afa19b4ac.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -29,7 +29,7 @@
     "@segment/analytics-browser-actions-commandbar": "1.107.1-staging-4ff97d337.0",
     "@segment/analytics-browser-actions-contentstack-web": "1.50.1-staging-4ff97d337.0",
     "@segment/analytics-browser-actions-devrev": "1.94.1-staging-4ff97d337.0",
-    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.24.1-staging-c9c5a6d0a.0",
+    "@segment/analytics-browser-actions-facebook-conversions-api-web": "1.24.1-staging-afa19b4ac.0",
     "@segment/analytics-browser-actions-friendbuy": "1.114.1-staging-4ff97d337.0",
     "@segment/analytics-browser-actions-fullsession": "1.19.1-staging-4ff97d337.0",
     "@segment/analytics-browser-actions-fullstory": "1.109.1-staging-4ff97d337.0",
