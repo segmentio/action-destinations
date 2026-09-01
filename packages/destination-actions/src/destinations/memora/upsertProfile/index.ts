@@ -127,6 +127,7 @@ async function upsertProfiles(
 
   // Track valid profiles and their original indices
   const validProfiles: { traits: Record<string, Record<string, unknown>> }[] = []
+  const validIdentifiers: Record<string, unknown>[] = []
   const validIndices: number[] = []
   const invalidIndices: number[] = []
   const validationErrors: Map<number, string> = new Map()
@@ -162,6 +163,7 @@ async function upsertProfiles(
     try {
       const traitGroups = buildTraitGroups(payload)
       validProfiles.push({ traits: traitGroups })
+      validIdentifiers.push(identifiers as Record<string, unknown>)
       validIndices.push(index)
     } catch (error) {
       // Catch validation errors for invalid trait key formats
@@ -194,6 +196,8 @@ async function upsertProfiles(
     })
     return { rawResponse: undefined, multiStatus: multiStatusResponse }
   }
+
+  reportIdentifierOverlap(computeIdentifierOverlap(validIdentifiers), statsTags, tagStr, logger, statsContext)
 
   try {
     const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
@@ -248,6 +252,116 @@ async function upsertProfiles(
     )
     statsContext?.statsClient?.incr('memora.upsert_profile.failure', payloads.length, statsTags)
     throw error
+  }
+}
+
+interface IdentifierOverlapStats {
+  /** Number of profiles in the request. */
+  events: number
+  /** Events that share no identifier value with any other event, plus one per overlapping group. */
+  distinctProfiles: number
+  /** Events that share at least one identifier value with another event in the request. */
+  overlappingEvents: number
+  /** Size of the largest group of events collapsing into a single profile. */
+  largestGroupSize: number
+}
+
+/**
+ * Measure how much a batch collapses upstream.
+ *
+ * Two events belong to the same profile if they share any identifier value, and that
+ * relation is transitive: events carrying {email1, phone1}, {email1} and {phone1} all
+ * resolve to one profile even though the last two share nothing directly. That makes
+ * this a connected-components count over identifier values rather than a count of
+ * distinct identifier tuples.
+ */
+function computeIdentifierOverlap(identifierSets: Record<string, unknown>[]): IdentifierOverlapStats {
+  const total = identifierSets.length
+  const parent = Array.from({ length: total }, (_, i) => i)
+
+  const find = (index: number): number => {
+    let root = index
+    while (parent[root] !== root) {
+      parent[root] = parent[parent[root]] // path halving
+      root = parent[root]
+    }
+    return root
+  }
+
+  const union = (a: number, b: number): void => {
+    const rootA = find(a)
+    const rootB = find(b)
+    if (rootA !== rootB) {
+      parent[rootB] = rootA
+    }
+  }
+
+  // `identifierKey=value` -> index of the first event that carried it
+  const firstSeenAt = new Map<string, number>()
+
+  identifierSets.forEach((identifiers, index) => {
+    Object.entries(identifiers).forEach(([key, value]) => {
+      if (value === undefined || value === null) {
+        return
+      }
+      const normalized = String(value).trim()
+      if (normalized === '') {
+        // Blank identifiers carry no identity; joining every event that has one would
+        // report a single huge group that upstream never actually sees.
+        return
+      }
+      const identity = `${key}=${normalized}`
+      const previousIndex = firstSeenAt.get(identity)
+      if (previousIndex === undefined) {
+        firstSeenAt.set(identity, index)
+      } else {
+        union(previousIndex, index)
+      }
+    })
+  })
+
+  const groupSizes = new Map<number, number>()
+  for (let index = 0; index < total; index++) {
+    const root = find(index)
+    groupSizes.set(root, (groupSizes.get(root) ?? 0) + 1)
+  }
+
+  let overlappingEvents = 0
+  let largestGroupSize = 0
+  groupSizes.forEach((size) => {
+    if (size > 1) {
+      overlappingEvents += size
+    }
+    if (size > largestGroupSize) {
+      largestGroupSize = size
+    }
+  })
+
+  return {
+    events: total,
+    distinctProfiles: groupSizes.size,
+    overlappingEvents,
+    largestGroupSize
+  }
+}
+
+// Identifier values are PII, so only counts are ever emitted — never the values themselves.
+function reportIdentifierOverlap(
+  stats: IdentifierOverlapStats,
+  statsTags: string[],
+  tagStr: string,
+  logger?: Logger,
+  statsContext?: StatsContext
+): void {
+  const statsClient = statsContext?.statsClient
+  statsClient?.histogram('memora.upsert_profile.batch_overlapping_events', stats.overlappingEvents, statsTags)
+  statsClient?.histogram('memora.upsert_profile.batch_largest_group', stats.largestGroupSize, statsTags)
+
+  if (stats.overlappingEvents > 0) {
+    logger?.warn?.(
+      `Overlapping identifiers in batch: ${stats.events} profile(s) resolve to ${stats.distinctProfiles} distinct profile(s). ` +
+        `${stats.overlappingEvents} profile(s) share an identifier value with another profile; largest group is ${stats.largestGroupSize}. ${tagStr}`
+    )
   }
 }
 
