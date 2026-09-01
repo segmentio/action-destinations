@@ -197,7 +197,16 @@ async function upsertProfiles(
     return { rawResponse: undefined, multiStatus: multiStatusResponse }
   }
 
-  reportIdentifierOverlap(computeIdentifierOverlap(validIdentifiers), statsTags, tagStr, logger, statsContext)
+  // Observability must never affect delivery: a throw here would reject the whole
+  // batch before the upsert is even attempted, with no status code to mark it
+  // non-retryable. Nothing in this block is worth losing events over.
+  try {
+    reportIdentifierOverlap(computeIdentifierOverlap(validIdentifiers), statsTags, tagStr, logger, statsContext)
+  } catch (error) {
+    logger?.warn?.(
+      `Failed to compute identifier overlap: ${error instanceof Error ? error.message : String(error)}. ${tagStr}`
+    )
+  }
 
   try {
     const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {

@@ -1532,14 +1532,15 @@ describe('Memora.upsertProfile', () => {
       profile_traits: { 'Contact.$.firstName': 'X' }
     })
 
-    const runBatch = async (payloads: Payload[]) => {
+    const runBatch = async (payloads: Payload[], statsContext: unknown = mockStatsContext) => {
       const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
       await Destination.actions.upsertProfile.performBatch!(mockRequestFn as unknown as RequestClient, {
         payload: payloads,
         settings: defaultSettings,
-        statsContext: mockStatsContext,
+        statsContext: statsContext as never,
         logger: mockLogger as any
       })
+      return mockRequestFn
     }
 
     beforeEach(() => {
@@ -1663,6 +1664,50 @@ describe('Memora.upsertProfile', () => {
       expect(warning).toContain('2 profile(s) resolve to 1 distinct profile(s)')
       expect(warning).toContain('largest group is 2')
       expect(warning).not.toContain('secret@example.com')
+    })
+
+    // Regression: an identifier value of `{ toString: null }` is expressible in plain
+    // JSON and makes String() throw. The metric ran outside the request try/catch, so
+    // one such event rejected the whole batch before the upsert was attempted, with no
+    // status code to mark it non-retryable. Delivery must survive; the batch forfeits
+    // its overlap metrics, which is the accepted tradeoff.
+    it('should still deliver the batch when an identifier value cannot be coerced to a string', async () => {
+      const hostile = JSON.parse('{"toString":null}')
+
+      const mockRequestFn = await runBatch([
+        profile({ 'Contact.$.email': 'ok1@example.com' }),
+        profile({ 'Contact.$.email': hostile }),
+        profile({ 'Contact.$.email': 'ok2@example.com' })
+      ])
+
+      // The bulk upsert must still have been sent, with all three profiles
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(3)
+
+      // Metrics for this batch are forfeited rather than emitted, and the failure is logged
+      expect(mockStatsClient.histogram).not.toHaveBeenCalled()
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to compute identifier overlap'))
+    })
+
+    it('should deliver the batch even if the stats client itself throws', async () => {
+      const throwingStatsContext = {
+        statsClient: {
+          ...mockStatsClient,
+          histogram: jest.fn(() => {
+            throw new Error('statsd exploded')
+          })
+        },
+        tags: ['env:test']
+      }
+
+      const mockRequestFn = await runBatch(
+        [profile({ 'Contact.$.email': 'a@example.com' }), profile({ 'Contact.$.email': 'a@example.com' })],
+        throwingStatsContext
+      )
+
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(2)
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to compute identifier overlap'))
     })
   })
 
