@@ -125,9 +125,11 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
             // body) so we re-serialize the body here so that we can demonstrate
             // signture validation
 
-            // Validate the signature
+            // Validate the signature against the full batch body (all events),
+            // not just the first event. The X-Signature HMAC must be computed
+            // over the exact body that is sent when batching is enabled.
             const expectSignature = this.req.headers['x-signature'][0]
-            const actualSignature = createHmac('sha1', sharedSecret).update(JSON.stringify(body[0])).digest('hex')
+            const actualSignature = createHmac('sha1', sharedSecret).update(JSON.stringify(body)).digest('hex')
 
             // Use constant-time comparison to avoid timing attacks
             if (
