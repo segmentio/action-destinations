@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-mixpanel-web-actions",
-  "version": "1.19.1-staging-4ff97d337.0",
+  "version": "1.19.1-staging-ffd063af9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
