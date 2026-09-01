@@ -596,15 +596,30 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
   OFFLINE: 'OFFLINE'
 }
 
+// Snap-native action_source values a customer can pick directly. When chosen explicitly,
+// we send them to Snap as-is instead of the legacy internal value.
+const NATIVE_ACTION_SOURCE_VALUES = ['WEB', 'MOBILE_APP', 'OFFLINE']
+
+// Snap-native action_source values are accepted as aliases for their internal equivalents,
+// so routing/validation logic below can keep working off 'website' | 'app' | 'OFFLINE'.
+const nativeActionSourceToInternal: { [k in string]?: string } = {
+  WEB: 'website',
+  MOBILE_APP: 'app',
+  OFFLINE: 'OFFLINE'
+}
+
 const getSupportedActionSource = (action_source: string | undefined): string | undefined => {
   const normalizedActionSource = emptyStringToUndefined(action_source)
+  if (normalizedActionSource == null) {
+    return undefined
+  }
+
+  if (normalizedActionSource in nativeActionSourceToInternal) {
+    return nativeActionSourceToInternal[normalizedActionSource]
+  }
 
   // Snap doesn't support all the defined action sources, so fall back to OFFLINE if specified.
-  return ['website', 'app'].indexOf(normalizedActionSource ?? '') > -1
-    ? normalizedActionSource
-    : normalizedActionSource != null
-    ? 'OFFLINE'
-    : undefined
+  return ['website', 'app'].indexOf(normalizedActionSource) > -1 ? normalizedActionSource : 'OFFLINE'
 }
 
 const buildPayloadData = (payload: Payload, settings: Settings) => {
@@ -613,6 +628,14 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   const action_source =
     getSupportedActionSource(payload.action_source) ??
     eventConversionTypeToActionSource[payload.event_conversion_type ?? '']
+
+  // If the customer explicitly picked a Snap-native action_source value, send it to Snap
+  // as-is. Otherwise, preserve the existing (legacy) behavior of sending the internal value.
+  const rawActionSource = emptyStringToUndefined(payload.action_source)
+  const outbound_action_source =
+    rawActionSource != null && NATIVE_ACTION_SOURCE_VALUES.indexOf(rawActionSource) > -1
+      ? rawActionSource
+      : action_source
 
   // Snaps CAPI v3 supports the legacy v2 events so don't bother
   // translating them
@@ -640,7 +663,10 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
     event_time,
     user_data,
     custom_data,
+    // action_source is used internally for settings validation and request routing.
     action_source,
+    // outbound_action_source is the literal value sent to Snap's API.
+    outbound_action_source,
     app_data,
     data_processing_options,
     data_processing_options_country: payload.data_processing_options_country,
@@ -745,10 +771,12 @@ export const performSnapCAPIv3 = async (
 
   const url = buildRequestURL(settings, payloadData.action_source, authToken)
 
+  const { outbound_action_source, ...rest } = payloadData
+
   return request(url, {
     method: 'post',
     json: {
-      data: [payloadData]
+      data: [{ ...rest, action_source: outbound_action_source }]
     }
   })
 }
