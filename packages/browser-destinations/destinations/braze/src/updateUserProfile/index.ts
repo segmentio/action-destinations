@@ -179,7 +179,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     // When deferUntilIdentified is enabled this is what allows ready() to initialize
     // the SDK, using this fresh userId rather than a stale value from localStorage.
     if (payload.external_id) {
-      client.setDeferredUser?.(payload.external_id)
+      client.setDeferredUser(payload.external_id)
     }
 
     if (!client.ready()) {
