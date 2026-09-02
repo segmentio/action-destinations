@@ -15,7 +15,7 @@
         "default": null,
         "depends_on": null
       },
-      "name": {
+      "instanceName": {
         "label": "Mixpanel Instance Name",
         "description": "The name for the new mixpanel instance that you want created.",
         "type": "string",
@@ -341,7 +341,17 @@
         "required": false,
         "multiple": false,
         "choices": null,
-        "default": 180000,
+        "default": 1800000,
+        "depends_on": null
+      },
+      "record_mask_all_text": {
+        "label": "Record Mask All Text",
+        "description": "When enabled, all text is masked in session recordings by default. Disable to record text and mask only specific elements via Record Mask Text Selector.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
         "depends_on": null
       },
       "record_mask_text_class": {
@@ -356,13 +366,85 @@
       },
       "record_mask_text_selector": {
         "label": "Record Mask Text Selector",
-        "description": "CSS selector to mask text elements in session recordings.",
+        "description": "CSS selector for text elements to mask. Only applies when Record Mask All Text is disabled.",
         "type": "string",
         "required": false,
         "multiple": false,
         "choices": null,
-        "default": "*",
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "record_mask_all_text",
+              "operator": "is",
+              "value": false
+            }
+          ]
+        }
+      },
+      "record_unmask_text_selector": {
+        "label": "Record Unmask Text Selector",
+        "description": "CSS selector for text elements to leave unmasked. Only applies when Record Mask All Text is enabled.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "record_mask_all_text",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
+      },
+      "record_mask_all_inputs": {
+        "label": "Record Mask All Inputs",
+        "description": "When enabled, all input fields are masked in session recordings by default. Disable to record inputs and mask only specific elements via Record Mask Input Selector.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
         "depends_on": null
+      },
+      "record_mask_input_selector": {
+        "label": "Record Mask Input Selector",
+        "description": "CSS selector for input elements to mask. Only applies when Record Mask All Inputs is disabled.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "record_mask_all_inputs",
+              "operator": "is",
+              "value": false
+            }
+          ]
+        }
+      },
+      "record_unmask_input_selector": {
+        "label": "Record Unmask Input Selector",
+        "description": "CSS selector for input elements to leave unmasked. Only applies when Record Mask All Inputs is enabled.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "record_mask_all_inputs",
+              "operator": "is",
+              "value": true
+            }
+          ]
+        }
       },
       "record_max_ms": {
         "label": "Record Max (ms)",
