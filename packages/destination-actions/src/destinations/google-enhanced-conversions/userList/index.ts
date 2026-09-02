@@ -6,8 +6,7 @@ import {
   getGoogleAudience,
   getListIds,
   verifyCustomerId,
-  handleDataManagerUpdate,
-  handleUpdate
+  handleDataManagerUpdate
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -305,23 +304,33 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (
     request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
+    {
+      settings,
+      audienceSettings,
+      payload,
+      hookOutputs,
+      statsContext,
+      syncMode,
+      features,
+      audienceMembership,
+      personasContext
+    }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    // return await handleDataManagerUpdate(
-    //   request,
-    //   settings,
-    //   audienceSettings,
-    //   [payload],
-    //   hookOutputs?.retlOnMappingSave?.outputs.id,
-    //   hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-    //   syncMode,
-    //   features,
-    //   statsContext,
-    //   audienceMembership,
-    //   personasContext
-    // )
+    return await handleDataManagerUpdate(
+      request,
+      settings,
+      audienceSettings,
+      [payload],
+      hookOutputs?.retlOnMappingSave?.outputs.id,
+      hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+      syncMode,
+      features,
+      statsContext,
+      audienceMembership,
+      personasContext
+    )
 
     // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
     //   return await handleDataManagerUpdate(
@@ -339,18 +348,18 @@ const action: ActionDefinition<Settings, Payload> = {
     //   )
     // }
 
-    return await handleUpdate(
-      request,
-      settings,
-      audienceSettings,
-      [payload],
-      hookOutputs?.retlOnMappingSave?.outputs.id,
-      hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-      syncMode,
-      features,
-      statsContext,
-      audienceMembership
-    )
+    // return await handleUpdate(
+    //   request,
+    //   settings,
+    //   audienceSettings,
+    //   [payload],
+    //   hookOutputs?.retlOnMappingSave?.outputs.id,
+    //   hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+    //   syncMode,
+    //   features,
+    //   statsContext,
+    //   audienceMembership
+    // )
   },
   performBatch: async (
     request,
