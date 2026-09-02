@@ -398,7 +398,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
 
           // Attribute the session to the identified user before opening it so Braze
           // does not create a separate, un-mergeable anonymous profile for this device.
-          if (deferredUserId !== undefined) {
+          // Gated on `deferUntilIdentified` so behavior is provably unchanged when the
+          // setting is off: in that path attribution is handled by updateUserProfile's
+          // own changeUser() on identify, and the session opens as before.
+          if (deferUntilIdentified && deferredUserId !== undefined) {
             client.instance.changeUser(deferredUserId)
           }
 

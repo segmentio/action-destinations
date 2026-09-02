@@ -1532,14 +1532,15 @@ describe('Memora.upsertProfile', () => {
       profile_traits: { 'Contact.$.firstName': 'X' }
     })
 
-    const runBatch = async (payloads: Payload[]) => {
+    const runBatch = async (payloads: Payload[], statsContext: unknown = mockStatsContext) => {
       const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
       await Destination.actions.upsertProfile.performBatch!(mockRequestFn as unknown as RequestClient, {
         payload: payloads,
         settings: defaultSettings,
-        statsContext: mockStatsContext,
+        statsContext: statsContext as never,
         logger: mockLogger as any
       })
+      return mockRequestFn
     }
 
     beforeEach(() => {

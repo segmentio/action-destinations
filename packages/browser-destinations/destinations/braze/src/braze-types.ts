@@ -9,5 +9,5 @@ export type BrazeDestinationClient = {
   // Records the userId from an identify observed in the current page load so that,
   // when `deferUntilIdentified` is enabled, `ready()` can gate initialization on a
   // fresh identify instead of a value persisted in localStorage.
-  setDeferredUser?: (userId: string) => void
+  setDeferredUser: (userId: string) => void
 }
