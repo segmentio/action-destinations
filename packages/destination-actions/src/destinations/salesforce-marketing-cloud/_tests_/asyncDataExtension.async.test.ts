@@ -867,6 +867,65 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(0)
       })
 
+      it('should return RETRYABLE_ERROR (not FAILED) when /status reports errors but /results returns zero items', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .reply(200, {
+            page: 1,
+            pageSize: 2500,
+            count: 0,
+            items: [],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // /status vs /results inconsistency -- treat as retryable rather than a hard FAILED
+        // with no per-record detail, and don't leave a misleading empty multiStatusResponse.
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) when /status reports errors but /results is missing the items array', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .reply(200, {
+            page: 1,
+            pageSize: 2500,
+            count: 0,
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
       // Regression test for the response-clone deadlock. The results payload carries one item
       // per record, so a realistically-sized batch pushes it past the 16KB highWaterMark of the
       // tee that response.clone() sets up in prepare-response. Without skipResponseCloning on
