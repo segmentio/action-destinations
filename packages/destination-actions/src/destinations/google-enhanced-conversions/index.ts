@@ -5,7 +5,15 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
-import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  verifyCustomerId,
+  getDataManagerAudience,
+  exchangeForAccessToken,
+  createDataManagerPartnerLink,
+  FLAGON_NAME_DATA_MANAGER_API
+} from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -189,6 +197,33 @@ const destination: AudienceDestinationDefinition<Settings> = {
         }
       }
       getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
+
+      const customerId = getAudienceInput.settings.customerId
+      const loginCustomerId = getAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+      const auth = getAudienceInput.settings.oauth
+
+      // Best-effort partner link creation — errors must not block audience creation
+      if (auth?.refresh_token) {
+        try {
+          const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+          await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+        } catch (_) {
+          // intentionally swallowed
+        }
+      }
+
+      const useDataManagerAPI = getAudienceInput.features?.[FLAGON_NAME_DATA_MANAGER_API]
+
+      if (useDataManagerAPI) {
+        const userList = await getDataManagerAudience(
+          request,
+          getAudienceInput.settings,
+          getAudienceInput.externalId,
+          getAudienceInput.settings.oauth,
+          getAudienceInput.statsContext
+        )
+        return { externalId: userList.id }
+      }
       const response: UserListResponse = await getGoogleAudience(
         request,
         getAudienceInput.settings,
