@@ -83,11 +83,13 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  perform: async (_requests, { settings, payload, statsContext, logger, signal }) => {
-    await send(settings, [payload], statsContext, logger, signal)
+  perform: async (_requests, { settings, payload, features, statsContext, logger, signal }) => {
+    const advancedLogging = Boolean(features?.['actions-aws-kinesis-advanced-logging'])
+    await send(settings, [payload], statsContext, logger, signal, advancedLogging)
   },
-  performBatch: async (_requests, { settings, payload, statsContext, logger, signal }) => {
-    await send(settings, payload, statsContext, logger, signal)
+  performBatch: async (_requests, { settings, payload, features, statsContext, logger, signal }) => {
+    const advancedLogging = Boolean(features?.['actions-aws-kinesis-advanced-logging'])
+    await send(settings, payload, statsContext, logger, signal, advancedLogging)
   }
 }
 
