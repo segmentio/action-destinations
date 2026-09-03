@@ -1,7 +1,7 @@
 import { ActionDefinition, RequestClient, ModifiedResponse, HTTPError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HUBSPOT_BASE_URL, SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
+import { SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
 import {
   HubSpotError,
   MissingIdentityCallThrowableError,
@@ -13,7 +13,7 @@ import {
 } from '../errors'
 import { flattenObject, ResponseInfo, SearchResponse, UpsertRecordResponse } from '../utils'
 import { Hubspot } from '../api'
-import { HUBSPOT_CRM_API_VERSION } from '../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../versioning-info'
 
 interface CompanyProperty {
   name: string
@@ -211,7 +211,8 @@ const action: ActionDefinition<Settings, Payload> = {
       allowNull: false
     }
   },
-  perform: async (request, { payload, transactionContext }) => {
+  perform: async (request, { payload, transactionContext, features }) => {
+    const urls = hubspotUrls(features)
     // Check if user has mapped the internal property SEGMENT_UNIQUE_IDENTIFIER in other Properties field
     if (payload.properties?.[SEGMENT_UNIQUE_IDENTIFIER]) {
       throw RestrictedPropertyThrowableError
@@ -221,7 +222,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (payload.associateContact && !transactionContext?.transaction?.contact_id) {
       throw MissingIdentityCallThrowableError
     }
-    const hubspotApiClient: Hubspot = new Hubspot(request, 'companies')
+    const hubspotApiClient: Hubspot = new Hubspot(request, 'companies', undefined, features)
 
     // Construct company properties
     const companyProperties = {
@@ -259,7 +260,7 @@ const action: ActionDefinition<Settings, Payload> = {
       // the search would still find the correct company, but the update would fail with a 400 error stating property doesn't exist
       // Segment will attempt to create the SEGMENT_UNIQUE_IDENTIFIER property and throw a retryable error to Centrifuge
       if (isSegmentUniqueIdentifierPropertyError(error, SEGMENT_UNIQUE_IDENTIFIER)) {
-        await createSegmentUniqueIdentifierProperty(request)
+        await createSegmentUniqueIdentifierProperty(request, urls)
         throw SegmentUniqueIdentifierMissingRetryableError
       }
 
@@ -315,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
           return await hubspotApiClient.create(companyProperties)
         }
 
-        companyId = await upsertCompanyWithRetry(request, createCompanyWrapper)
+        companyId = await upsertCompanyWithRetry(request, urls, createCompanyWrapper)
       } else {
         // Throw error if more than one companies were found with search criteria
         if (searchCompanyResponse.data.total > 1) {
@@ -330,13 +331,19 @@ const action: ActionDefinition<Settings, Payload> = {
           return await hubspotApiClient.update(companyId, companyProperties)
         }
 
-        await upsertCompanyWithRetry(request, updateCompanyWrapper)
+        await upsertCompanyWithRetry(request, urls, updateCompanyWrapper)
       }
     }
 
     // Associate company with contact if Associate Contact flag is set to true
     if (payload.associateContact && transactionContext?.transaction?.contact_id) {
-      await associateCompanyToContact(request, companyId, transactionContext.transaction.contact_id, ASSOCIATION_TYPE)
+      await associateCompanyToContact(
+        request,
+        urls,
+        companyId,
+        transactionContext.transaction.contact_id,
+        ASSOCIATION_TYPE
+      )
     }
   }
 }
@@ -347,7 +354,7 @@ const action: ActionDefinition<Settings, Payload> = {
  * @param {CompanyProperty} property Property to add to Companies CRM Object
  * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves to Property creation status
  */
-function createSegmentUniqueIdentifierProperty(request: RequestClient) {
+function createSegmentUniqueIdentifierProperty(request: RequestClient, urls: HubspotUrls) {
   // Define SEGMENT_UNIQUE_IDENTIFIER property
   const segmentUniqueIdentifierProperty: CompanyProperty = {
     name: SEGMENT_UNIQUE_IDENTIFIER,
@@ -362,7 +369,7 @@ function createSegmentUniqueIdentifierProperty(request: RequestClient) {
     formField: false
   }
 
-  return request<UpsertRecordResponse>(`${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/companies`, {
+  return request<UpsertRecordResponse>(`${urls.properties}/companies`, {
     method: 'POST',
     json: {
       ...segmentUniqueIdentifierProperty
@@ -379,12 +386,13 @@ function createSegmentUniqueIdentifierProperty(request: RequestClient) {
  */
 function associateCompanyToContact(
   request: RequestClient,
+  urls: HubspotUrls,
   companyId: string,
   contactId: string,
   associationType: string
 ) {
   return request<CompanyContactAssociationResponse>(
-    `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
+    `${urls.objects}/companies/${companyId}/associations/contacts/${contactId}/${associationType}`,
     {
       method: 'PUT'
     }
@@ -397,7 +405,11 @@ function associateCompanyToContact(
  * @param {UpsertCompanyFunction} upsertCompanyFunction A wrapper function on createCompany and updateCompany
  * @returns {Promise<String>} A promise that contains the id of the company being created or updated
  */
-async function upsertCompanyWithRetry(request: RequestClient, upsertCompanyFunction: UpsertCompanyFunction) {
+async function upsertCompanyWithRetry(
+  request: RequestClient,
+  urls: HubspotUrls,
+  upsertCompanyFunction: UpsertCompanyFunction
+) {
   try {
     const upsertCompanyResponse = await upsertCompanyFunction()
     return upsertCompanyResponse.data.id
@@ -409,7 +421,7 @@ async function upsertCompanyWithRetry(request: RequestClient, upsertCompanyFunct
 
       try {
         // Attempt to create Segment Unique Identifier Property
-        await createSegmentUniqueIdentifierProperty(request)
+        await createSegmentUniqueIdentifierProperty(request, urls)
       } catch (e) {
         // If custom property already exists HubSpot throws 409 Conflict
         // Ignore this error to avoid race conditions where multiple requests try to create the same custom property
