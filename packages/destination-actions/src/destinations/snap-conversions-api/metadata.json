@@ -137,6 +137,18 @@
           "default": null,
           "choices": [
             {
+              "label": "WEB (Snap Native)",
+              "value": "WEB"
+            },
+            {
+              "label": "MOBILE_APP (Snap Native)",
+              "value": "MOBILE_APP"
+            },
+            {
+              "label": "OFFLINE (Snap Native)",
+              "value": "OFFLINE"
+            },
+            {
               "label": "EMAIL",
               "value": "email"
             },

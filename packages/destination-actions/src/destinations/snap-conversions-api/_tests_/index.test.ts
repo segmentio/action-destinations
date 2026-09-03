@@ -199,6 +199,20 @@ describe('Snap Conversions API ', () => {
       expect(app_data).toBeUndefined()
     })
 
+    it('should send the Snap-native action_source value as-is when explicitly selected', async () => {
+      const { data } = await reportConversionEvent({
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          action_source: { '@literal': 'WEB' }
+        }
+      })
+
+      const { action_source } = data
+
+      expect(action_source).toBe('WEB')
+    })
+
     it('should handle a mobile app event conversion type', async () => {
       const { data } = await reportConversionEvent({
         mapping: {
