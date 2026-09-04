@@ -23,7 +23,8 @@ const baseCreateAudienceInput = () => ({
   audienceName: '',
   audienceSettings: {
     engageAdAccountId: adAccountId,
-    audienceDescription: 'We are the Mario Brothers and plumbing is our game.'
+    audienceDescription: 'We are the Mario Brothers and plumbing is our game.',
+    audienceLabel: undefined as string | undefined
   },
   features: {}
 })
@@ -42,8 +43,12 @@ describe('Facebook Custom Audiences', () => {
     })
 
     it('should create a new Facebook Audience', async () => {
+      let requestBody: Record<string, unknown> = {}
       nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
-        .post('/customaudiences')
+        .post('/customaudiences', (body) => {
+          requestBody = body
+          return true
+        })
         .reply(200, { id: '88888888888888888' })
 
       const input = baseCreateAudienceInput()
@@ -51,6 +56,33 @@ describe('Facebook Custom Audiences', () => {
 
       const r = await testDestination.createAudience(input)
       expect(r).toEqual({ externalId: '88888888888888888' })
+      expect(requestBody).not.toHaveProperty('audience_labels')
+    })
+
+    it('should include audience_labels when an audience label is set', async () => {
+      let requestBody: Record<string, unknown> = {}
+      nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences', (body) => {
+          requestBody = body
+          return true
+        })
+        .reply(200, { id: '88888888888888888' })
+
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'The Super Mario Brothers Fans'
+      input.audienceSettings.audienceLabel = 'HIGH_VALUE_CUSTOMERS'
+
+      const r = await testDestination.createAudience(input)
+      expect(r).toEqual({ externalId: '88888888888888888' })
+      expect(requestBody.audience_labels).toEqual(['HIGH_VALUE_CUSTOMERS'])
+    })
+
+    it('should reject an audience label value outside the predefined choices', async () => {
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'The Super Mario Brothers Fans'
+      input.audienceSettings.audienceLabel = 'NOT_A_REAL_LABEL'
+
+      await expect(testDestination.createAudience(input)).rejects.toThrow()
     })
 
     it('should use error_user_title and error_user_msg when both are present', async () => {
@@ -70,7 +102,7 @@ describe('Facebook Custom Audiences', () => {
       input.audienceName = 'Restricted Audience'
 
       await expect(testDestination.createAudience(input)).rejects.toThrow(
-        "error_user_title: \"Update Restricted Fields and Rule\". error_user_msg: \"This custom audience has integrity restrictions.\". fbmessage: \"Invalid parameter\". message: \"Bad Request\". code: \"100\""
+        'error_user_title: "Update Restricted Fields and Rule". error_user_msg: "This custom audience has integrity restrictions.". fbmessage: "Invalid parameter". message: "Bad Request". code: "100"'
       )
     })
 
