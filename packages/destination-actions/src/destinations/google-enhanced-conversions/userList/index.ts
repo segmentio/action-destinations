@@ -7,7 +7,9 @@ import {
   getListIds,
   handleUpdate,
   processBatchPayload,
-  verifyCustomerId
+  verifyCustomerId,
+  FLAGON_NAME_DATA_MANAGER_API,
+  handleDataManagerUpdate
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -309,6 +311,21 @@ const action: ActionDefinition<Settings, Payload> = {
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
+    if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+      return await handleDataManagerUpdate(
+        request,
+        settings,
+        audienceSettings,
+        [payload],
+        hookOutputs?.retlOnMappingSave?.outputs.id,
+        hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+        syncMode,
+        features,
+        statsContext,
+        audienceMembership
+      )
+    }
+
     return await handleUpdate(
       request,
       settings,
@@ -327,6 +344,21 @@ const action: ActionDefinition<Settings, Payload> = {
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
+
+    if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+      return await handleDataManagerUpdate(
+        request,
+        settings,
+        audienceSettings,
+        payload,
+        hookOutputs?.retlOnMappingSave?.outputs.id,
+        hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+        syncMode,
+        features,
+        statsContext,
+        audienceMembership
+      )
+    }
     return await processBatchPayload(
       request,
       settings,
