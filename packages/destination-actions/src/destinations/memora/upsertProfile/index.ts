@@ -499,7 +499,10 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
           const traitGroupName = match[1]
           const traitName = match[2]
 
-          if (!traitGroups[traitGroupName]) {
+          // Own-property check: `traitGroups['__proto__']` and `traitGroups['constructor']`
+          // resolve through the prototype chain and are truthy, so a truthiness guard here
+          // would be skipped and the write below would not target an own property.
+          if (!Object.prototype.hasOwnProperty.call(traitGroups, traitGroupName)) {
             traitGroups[traitGroupName] = {}
           }
           traitGroups[traitGroupName][traitName] = value
@@ -531,7 +534,10 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
         if (match) {
           const traitGroupName = match[1]
           const traitName = match[2]
-          if (!traitGroups[traitGroupName]) {
+          // Own-property check: `traitGroups['__proto__']` and `traitGroups['constructor']`
+          // resolve through the prototype chain and are truthy, so a truthiness guard here
+          // would be skipped and the write below would not target an own property.
+          if (!Object.prototype.hasOwnProperty.call(traitGroups, traitGroupName)) {
             traitGroups[traitGroupName] = {}
           }
           traitGroups[traitGroupName][traitName] = value
