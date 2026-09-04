@@ -300,12 +300,6 @@ interface IdentifierOverlapStats {
   overlappingEvents: number
   /** Size of the largest group of events collapsing into a single profile. */
   largestGroupSize: number
-  /**
-   * Identifier values that carried no usable identity and were therefore excluded from
-   * grouping. A non-zero count means a mapping is pointing an identifier at something
-   * that cannot identify anyone.
-   */
-  nonScalarIdentifiers: number
 }
 
 /**
@@ -349,7 +343,6 @@ function computeIdentifierGroups(identifierSets: Record<string, unknown>[]): Ide
 
   // `identifierKey=value` -> index of the first event that carried it
   const firstSeenAt = new Map<string, number>()
-  let nonScalarIdentifiers = 0
 
   identifierSets.forEach((identifiers, index) => {
     Object.entries(identifiers).forEach(([key, value]) => {
@@ -371,10 +364,6 @@ function computeIdentifierGroups(identifierSets: Record<string, unknown>[]): Ide
         typeof value === 'string' || typeof value === 'bigint' || (typeof value === 'number' && Number.isFinite(value))
 
       if (!isIdentityValue) {
-        if (value !== undefined && value !== null) {
-          // null/undefined mean the identifier is simply absent, which is not a mapping fault.
-          nonScalarIdentifiers++
-        }
         return
       }
       const normalized = String(value).trim()
@@ -427,8 +416,7 @@ function computeIdentifierGroups(identifierSets: Record<string, unknown>[]): Ide
       events: total,
       distinctProfiles: byRoot.size,
       overlappingEvents,
-      largestGroupSize,
-      nonScalarIdentifiers
+      largestGroupSize
     }
   }
 }
@@ -469,16 +457,6 @@ function reportIdentifierOverlap(
   const statsClient = statsContext?.statsClient
   statsClient?.histogram('memora.upsert_profile.batch_overlapping_events', stats.overlappingEvents, statsTags)
   statsClient?.histogram('memora.upsert_profile.batch_largest_group', stats.largestGroupSize, statsTags)
-
-  if (stats.nonScalarIdentifiers > 0) {
-    // Counts only -- identifier values are PII and never leave the process.
-    statsClient?.incr('memora.upsert_profile.non_scalar_identifiers', stats.nonScalarIdentifiers, statsTags)
-    logger?.warn?.(
-      `Ignored ${stats.nonScalarIdentifiers} identifier value(s) that could not identify anyone ` +
-        `(not a string, finite number, or bigint); those values were excluded from profile merging. ` +
-        `Check the identifier mapping. ${tagStr}`
-    )
-  }
 
   if (stats.overlappingEvents > 0) {
     logger?.warn?.(

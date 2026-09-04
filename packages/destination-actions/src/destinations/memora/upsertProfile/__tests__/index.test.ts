@@ -1701,9 +1701,6 @@ describe('Memora.upsertProfile', () => {
       // Grouping no longer fails, so metrics are still emitted
       expect(mockStatsClient.histogram).toHaveBeenCalled()
       expect(mockLogger.warn).not.toHaveBeenCalledWith(expect.stringContaining('Failed to merge overlapping profiles'))
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.stringContaining('Ignored 1 identifier value(s) that could not identify anyone')
-      )
     })
 
     it('should not group on values that cannot identify anyone', async () => {
@@ -1782,39 +1779,6 @@ describe('Memora.upsertProfile', () => {
       expect(sent[0].traits.Contact.addr).toEqual({ city: 'NY' })
       expect(sent[0].traits.Contact.firstName).toBe('A')
       expect(sent[0].traits.Contact.lastName).toBe('B')
-    })
-
-    it('should report non-scalar identifiers via a counter', async () => {
-      await runBatch([
-        {
-          memora_store: 'test-store-id',
-          profile_identifiers: { 'Contact.$.email': 'a@example.com', 'Contact.$.addr': { city: 'SF' } },
-          profile_traits: { 'Contact.$.firstName': 'A' }
-        }
-      ])
-
-      expect(mockStatsClient.incr).toHaveBeenCalledWith(
-        'memora.upsert_profile.non_scalar_identifiers',
-        1,
-        expect.arrayContaining(['env:test'])
-      )
-    })
-
-    it('should not count an absent identifier as unusable', async () => {
-      await runBatch([
-        {
-          memora_store: 'test-store-id',
-          profile_identifiers: { 'Contact.$.email': 'a@example.com', 'Contact.$.phone': null as never },
-          profile_traits: { 'Contact.$.firstName': 'A' }
-        }
-      ])
-
-      expect(mockStatsClient.incr).not.toHaveBeenCalledWith(
-        'memora.upsert_profile.non_scalar_identifiers',
-        expect.anything(),
-        expect.anything()
-      )
-      expect(mockLogger.warn).not.toHaveBeenCalledWith(expect.stringContaining('could not identify anyone'))
     })
 
     it('should deliver the batch even if the stats client itself throws', async () => {
