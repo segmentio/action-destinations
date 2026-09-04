@@ -383,7 +383,10 @@ function computeIdentifierGroups(identifierSets: Record<string, unknown>[]): Ide
         // report a single huge group that upstream never actually sees.
         return
       }
-      const identity = `${key}=${normalized}`
+      // Length-prefixed so the key/value boundary is unambiguous. Without it, key
+      // `Contact.$.a` with value `b=c` and key `Contact.$.a=b` with value `c` both
+      // produce `Contact.$.a=b=c` and would union two unrelated events into one profile.
+      const identity = `${key.length}:${key}=${normalized}`
       const previousIndex = firstSeenAt.get(identity)
       if (previousIndex === undefined) {
         firstSeenAt.set(identity, index)
@@ -443,6 +446,12 @@ function mergeTraitGroups(
   const merged: Record<string, Record<string, unknown>> = {}
   perEvent.forEach((traitGroups) => {
     Object.entries(traitGroups).forEach(([groupName, traits]) => {
+      // Create the group as an own property first. Reading `merged[groupName]` before it
+      // exists walks the prototype chain, so a polluted `Object.prototype` would have its
+      // traits copied into this profile.
+      if (!Object.prototype.hasOwnProperty.call(merged, groupName)) {
+        merged[groupName] = {}
+      }
       merged[groupName] = { ...merged[groupName], ...traits }
     })
   })

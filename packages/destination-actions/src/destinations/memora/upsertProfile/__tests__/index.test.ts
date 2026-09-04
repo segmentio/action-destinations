@@ -1741,6 +1741,26 @@ describe('Memora.upsertProfile', () => {
       }
     })
 
+    it('should not union events whose key and value concatenate to the same string', async () => {
+      // 'Contact.$.a' + 'b=c' and 'Contact.$.a=b' + 'c' both render as 'Contact.$.a=b=c'
+      const mockRequestFn = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.a': 'b=c' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.a=b': 'c' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        }
+      ])
+
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(2)
+      expect(histogramValue('batch_overlapping_events')).toBe(0)
+      expect(histogramValue('batch_largest_group')).toBe(1)
+    })
+
     it('should still merge through a usable identifier when another value is unusable', async () => {
       // The guard is per value, not per event: the shared email must still merge these two
       const mockRequestFn = await runBatch([
@@ -2118,6 +2138,34 @@ describe('Memora.upsertProfile', () => {
 
       expect(sent).toHaveLength(3)
       expect(sent.map((p: any) => p.traits.Contact.n).sort()).toEqual(['a2', 'b2', 'solo'])
+    })
+
+    it('should not copy inherited properties into a merged profile', async () => {
+      // The first event creates a real own `Contact` group. The second carries a
+      // `__proto__.$.Contact` trait key, which pollutes Object.prototype while the batch is
+      // still being validated. Merging then runs: without the own-property guard,
+      // `merged['Contact']` is an inherited read and the spread copies the injected traits
+      // into the first event's outgoing profile.
+      try {
+        const { sent } = await runBatch([
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+            profile_traits: { 'Contact.$.firstName': 'A' }
+          },
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+            profile_traits: { '__proto__.$.Contact': { leaked: 'INJECTED' } as never }
+          }
+        ])
+
+        // Assert on what is actually serialised: reading `.Contact` off the payload would
+        // itself walk the polluted prototype and give a false positive.
+        expect(JSON.stringify(sent)).not.toContain('INJECTED')
+      } finally {
+        delete (Object.prototype as unknown as Record<string, unknown>).Contact
+      }
     })
 
     it('should leave non-overlapping events as separate profiles', async () => {
