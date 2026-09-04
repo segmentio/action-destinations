@@ -1603,6 +1603,20 @@ describe('Memora.upsertProfile', () => {
       expect(histogramValue('batch_largest_group')).toBe(2)
     })
 
+    it('should sum overlapping events across multiple distinct groups', async () => {
+      // Two groups of two, plus a singleton: overlapping = 4, largest group = 2
+      await runBatch([
+        profile({ 'Contact.$.email': 'a@example.com' }),
+        profile({ 'Contact.$.email': 'solo@example.com' }),
+        profile({ 'Contact.$.email': 'b@example.com' }),
+        profile({ 'Contact.$.email': 'a@example.com' }),
+        profile({ 'Contact.$.email': 'b@example.com' })
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(4)
+      expect(histogramValue('batch_largest_group')).toBe(2)
+    })
+
     it('should not treat the same value under different identifier keys as an overlap', async () => {
       await runBatch([
         profile({ 'Contact.$.email': 'shared-value' }),
@@ -1664,6 +1678,532 @@ describe('Memora.upsertProfile', () => {
       expect(warning).toContain('2 profile(s) resolve to 1 distinct profile(s)')
       expect(warning).toContain('largest group is 2')
       expect(warning).not.toContain('secret@example.com')
+    })
+
+    // Regression: an identifier value of `{ toString: null }` is expressible in plain JSON
+    // and used to make String() throw, which abandoned merging for the ENTIRE batch and
+    // reintroduced the duplicate-entry shape this feature exists to prevent. The identity
+    // guard makes the coercion total, so the bad value is simply ignored and the rest of
+    // the batch still merges.
+    it('should keep merging the rest of the batch when one identifier value is uncoercible', async () => {
+      const hostile = JSON.parse('{"toString":null}')
+
+      const mockRequestFn = await runBatch([
+        profile({ 'Contact.$.email': 'dupe@example.com' }),
+        profile({ 'Contact.$.email': 'dupe@example.com' }),
+        profile({ 'Contact.$.email': hostile })
+      ])
+
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      // The two duplicates still collapse; the uncoercible one stands alone
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(2)
+
+      // Grouping no longer fails, so metrics are still emitted
+      expect(mockStatsClient.histogram).toHaveBeenCalled()
+      expect(mockLogger.warn).not.toHaveBeenCalledWith(expect.stringContaining('Failed to merge overlapping profiles'))
+    })
+
+    it('should not group on values that cannot identify anyone', async () => {
+      // Each case: three DIFFERENT people sharing one unusable identifier value
+      const cases: Array<[string, unknown[]]> = [
+        ['objects', [{ city: 'SF' }, { city: 'NYC' }, { city: 'LA' }]],
+        ['booleans', [true, true, true]],
+        ['NaN', [NaN, NaN, NaN]],
+        ['arrays', [['a'], ['b'], ['c']]]
+      ]
+
+      for (const [label, values] of cases) {
+        jest.clearAllMocks()
+        const mockRequestFn = await runBatch([
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': `a-${label}@example.com`, 'Contact.$.x': values[0] },
+            profile_traits: { 'Contact.$.firstName': 'A' }
+          },
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': `b-${label}@example.com`, 'Contact.$.x': values[1] },
+            profile_traits: { 'Contact.$.firstName': 'B' }
+          },
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': `c-${label}@example.com`, 'Contact.$.x': values[2] },
+            profile_traits: { 'Contact.$.firstName': 'C' }
+          }
+        ])
+
+        // Three distinct people must stay three profiles
+        expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(3)
+        expect(histogramValue('batch_largest_group')).toBe(1)
+      }
+    })
+
+    it('should not union events whose key and value concatenate to the same string', async () => {
+      // 'Contact.$.a' + 'b=c' and 'Contact.$.a=b' + 'c' both render as 'Contact.$.a=b=c'
+      const mockRequestFn = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.a': 'b=c' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.a=b': 'c' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        }
+      ])
+
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(2)
+      expect(histogramValue('batch_overlapping_events')).toBe(0)
+      expect(histogramValue('batch_largest_group')).toBe(1)
+    })
+
+    it('should still merge through a usable identifier when another value is unusable', async () => {
+      // The guard is per value, not per event: the shared email must still merge these two
+      const mockRequestFn = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'same@example.com', 'Contact.$.addr': { city: 'SF' } },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'same@example.com', 'Contact.$.addr': { city: 'NY' } },
+          profile_traits: { 'Contact.$.lastName': 'B' }
+        }
+      ])
+
+      const sent = mockRequestFn.mock.calls[0][1].json.profiles
+      expect(sent).toHaveLength(1)
+      // The unusable value is excluded from GROUPING but still sent as data
+      expect(sent[0].traits.Contact.addr).toEqual({ city: 'NY' })
+      expect(sent[0].traits.Contact.firstName).toBe('A')
+      expect(sent[0].traits.Contact.lastName).toBe('B')
+    })
+
+    it('should deliver the batch even if the stats client itself throws', async () => {
+      const throwingStatsContext = {
+        statsClient: {
+          ...mockStatsClient,
+          histogram: jest.fn(() => {
+            throw new Error('statsd exploded')
+          })
+        },
+        tags: ['env:test']
+      }
+
+      const mockRequestFn = await runBatch(
+        [profile({ 'Contact.$.email': 'a@example.com' }), profile({ 'Contact.$.email': 'a@example.com' })],
+        throwingStatsContext
+      )
+
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      // Merging is unaffected by the stats failure: both events share an email, so one profile
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(1)
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to report identifier overlap'))
+    })
+  })
+
+  describe('merging overlapping profiles', () => {
+    const mockLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      crit: jest.fn(),
+      log: jest.fn(),
+      level: ''
+    }
+
+    const runBatch = async (payloads: Payload[]) => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      const multiStatus = await Destination.actions.upsertProfile.performBatch!(
+        mockRequestFn as unknown as RequestClient,
+        { payload: payloads, settings: defaultSettings, logger: mockLogger as any }
+      )
+      return { sent: mockRequestFn.mock.calls[0]?.[1]?.json?.profiles, multiStatus, mockRequestFn }
+    }
+
+    // Look profiles up by their contents. Position within the request body is deterministic
+    // but not meaningful -- Memora matches profiles by identifier, not by slot -- so asserting
+    // on order would fail on a harmless reordering of the bucketing loop.
+    const findProfile = (sent: any[], predicate: (contact: any) => boolean) =>
+      sent.find((p: any) => predicate(p.traits.Contact))
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      nock.cleanAll()
+    })
+
+    it('should merge events that share an identifier into a single profile', async () => {
+      const ids = { 'Contact.$.email': 'email1@example.com', 'Contact.$.phone': '+15550001' }
+      const { sent } = await runBatch([
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.firstName': 'A' } },
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.lastName': 'B' } },
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.city': 'SF' } }
+      ])
+
+      expect(sent).toHaveLength(1)
+      // Non-conflicting traits from every event survive the merge
+      expect(sent[0].traits.Contact).toEqual({
+        email: 'email1@example.com',
+        phone: '+15550001',
+        firstName: 'A',
+        lastName: 'B',
+        city: 'SF'
+      })
+    })
+
+    it('should let the later event win on a conflicting trait', async () => {
+      const ids = { 'Contact.$.email': 'dupe@example.com' }
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: ids,
+          profile_traits: { 'Contact.$.firstName': 'Stale', 'Contact.$.city': 'SF' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: ids,
+          profile_traits: { 'Contact.$.firstName': 'Fresh' }
+        }
+      ])
+
+      expect(sent).toHaveLength(1)
+      expect(sent[0].traits.Contact.firstName).toBe('Fresh')
+      // A trait only the earlier event set is preserved rather than dropped wholesale
+      expect(sent[0].traits.Contact.city).toBe('SF')
+    })
+
+    it('should let the later event win on a conflicting identifier', async () => {
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'dupe@example.com', 'Contact.$.phone': '+15550001' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'dupe@example.com', 'Contact.$.phone': '+15559999' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        }
+      ])
+
+      expect(sent).toHaveLength(1)
+      expect(sent[0].traits.Contact.phone).toBe('+15559999')
+      expect(sent[0].traits.Contact.firstName).toBe('B')
+    })
+
+    it('should merge transitively linked events into one profile', async () => {
+      const pair = { 'Contact.$.email': 'email1@example.com', 'Contact.$.phone': '+15550001' }
+      const { sent } = await runBatch([
+        { memora_store: 'test-store-id', profile_identifiers: pair, profile_traits: { 'Contact.$.a': '1' } },
+        { memora_store: 'test-store-id', profile_identifiers: pair, profile_traits: { 'Contact.$.b': '2' } },
+        { memora_store: 'test-store-id', profile_identifiers: pair, profile_traits: { 'Contact.$.c': '3' } },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'email1@example.com' },
+          profile_traits: { 'Contact.$.d': '4' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.phone': '+15550001' },
+          profile_traits: { 'Contact.$.e': '5' }
+        }
+      ])
+
+      expect(sent).toHaveLength(1)
+      expect(sent[0].traits.Contact).toMatchObject({ a: '1', b: '2', c: '3', d: '4', e: '5' })
+    })
+
+    // Guards the `find()` call in the bucketing loop. Every other fixture unions into
+    // index 0's root, so parent chains never exceed depth 1 and reading `parent[index]`
+    // directly would pass. Here root 0 is ABSORBED under a later root, so only a true
+    // find() resolves all four events to one profile.
+    it('should merge a group whose root was absorbed by a later union', async () => {
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.a': '1' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com', 'Contact.$.phone': '+1555' },
+          profile_traits: { 'Contact.$.b': '2' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.externalId': 'ext-1' },
+          profile_traits: { 'Contact.$.c': '3' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.phone': '+1555', 'Contact.$.externalId': 'ext-1' },
+          profile_traits: { 'Contact.$.d': '4' }
+        }
+      ])
+
+      expect(sent).toHaveLength(1)
+      expect(sent[0].traits.Contact).toMatchObject({ a: '1', b: '2', c: '3', d: '4' })
+    })
+
+    it('should merge two independent groups without leaking traits between them', async () => {
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'alice@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Alice', 'Contact.$.city': 'SF' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'alice@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Alice2' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'bob@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Bob', 'Contact.$.country': 'UK' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'bob@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'Bob2' }
+        }
+      ])
+
+      expect(sent).toHaveLength(2)
+
+      const alice = findProfile(sent, (c) => c.email === 'alice@example.com')
+      const bob = findProfile(sent, (c) => c.email === 'bob@example.com')
+
+      // Each group applies later-wins independently
+      expect(alice.traits.Contact).toEqual({ email: 'alice@example.com', firstName: 'Alice2', city: 'SF' })
+      expect(bob.traits.Contact).toEqual({ email: 'bob@example.com', firstName: 'Bob2', country: 'UK' })
+
+      // No cross-contamination: Alice must not acquire Bob's country, nor Bob Alice's city
+      expect(alice.traits.Contact.country).toBeUndefined()
+      expect(bob.traits.Contact.city).toBeUndefined()
+    })
+
+    it('should merge two groups whose events are interleaved in the batch', async () => {
+      // Members are NOT contiguous: A, B, A, B
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.a1': 'yes' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.b1': 'yes' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.a2': 'yes' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.b2': 'yes' }
+        }
+      ])
+
+      expect(sent).toHaveLength(2)
+      expect(findProfile(sent, (c) => c.email === 'a@example.com').traits.Contact).toEqual({
+        email: 'a@example.com',
+        a1: 'yes',
+        a2: 'yes'
+      })
+      expect(findProfile(sent, (c) => c.email === 'b@example.com').traits.Contact).toEqual({
+        email: 'b@example.com',
+        b1: 'yes',
+        b2: 'yes'
+      })
+    })
+
+    it('should merge two transitively-linked groups that are interleaved', async () => {
+      // Group A linked via email+phone, group B via userId+externalId, interleaved.
+      // Neither group shares any identifier value with the other.
+      const { sent, multiStatus } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com', 'Contact.$.phone': '+1111' },
+          profile_traits: { 'Contact.$.a1': '1' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.userId': 'u-b', 'Contact.$.externalId': 'x-b' },
+          profile_traits: { 'Contact.$.b1': '1' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.phone': '+1111' },
+          profile_traits: { 'Contact.$.a2': '2' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.externalId': 'x-b' },
+          profile_traits: { 'Contact.$.b2': '2' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.a3': '3' }
+        }
+      ])
+
+      expect(sent).toHaveLength(2)
+      const groupA = findProfile(sent, (c) => c.a1 !== undefined)
+      const groupB = findProfile(sent, (c) => c.b1 !== undefined)
+
+      expect(groupA.traits.Contact).toMatchObject({ a1: '1', a2: '2', a3: '3' })
+      expect(groupB.traits.Contact).toMatchObject({ b1: '1', b2: '2' })
+      // Group A's traits must not appear on group B
+      expect(groupB.traits.Contact.a1).toBeUndefined()
+      expect(groupA.traits.Contact.b1).toBeUndefined()
+
+      // All five original events still get their own result
+      expect(multiStatus.length()).toBe(5)
+      for (let i = 0; i < 5; i++) {
+        expect(multiStatus.isSuccessResponseAtIndex(i)).toBe(true)
+      }
+    })
+
+    it('should handle two merged groups alongside an unmergeable singleton', async () => {
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.n': 'a1' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'solo@example.com' },
+          profile_traits: { 'Contact.$.n': 'solo' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.n': 'b1' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.n': 'a2' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.n': 'b2' }
+        }
+      ])
+
+      expect(sent).toHaveLength(3)
+      expect(sent.map((p: any) => p.traits.Contact.n).sort()).toEqual(['a2', 'b2', 'solo'])
+    })
+
+    it('should not copy inherited properties into a merged profile', async () => {
+      // The first event creates a real own `Contact` group. The second carries a
+      // `__proto__.$.Contact` trait key, which pollutes Object.prototype while the batch is
+      // still being validated. Merging then runs: without the own-property guard,
+      // `merged['Contact']` is an inherited read and the spread copies the injected traits
+      // into the first event's outgoing profile.
+      try {
+        const { sent } = await runBatch([
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+            profile_traits: { 'Contact.$.firstName': 'A' }
+          },
+          {
+            memora_store: 'test-store-id',
+            profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+            profile_traits: { '__proto__.$.Contact': { leaked: 'INJECTED' } as never }
+          }
+        ])
+
+        // Assert on what is actually serialised: reading `.Contact` off the payload would
+        // itself walk the polluted prototype and give a false positive.
+        expect(JSON.stringify(sent)).not.toContain('INJECTED')
+      } finally {
+        delete (Object.prototype as unknown as Record<string, unknown>).Contact
+      }
+    })
+
+    it('should leave non-overlapping events as separate profiles', async () => {
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'c@example.com' },
+          profile_traits: { 'Contact.$.firstName': 'C' }
+        }
+      ])
+
+      expect(sent).toHaveLength(3)
+      expect(sent.map((p: any) => p.traits.Contact.firstName).sort()).toEqual(['A', 'B', 'C'])
+    })
+
+    it('should merge trait groups independently of each other', async () => {
+      const ids = { 'Contact.$.email': 'dupe@example.com' }
+      const { sent } = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: ids,
+          profile_traits: { 'Contact.$.firstName': 'A', 'PurchaseHistory.$.lastOrder': 'o1' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: ids,
+          profile_traits: { 'PurchaseHistory.$.lastOrder': 'o2', 'PurchaseHistory.$.total': '99' }
+        }
+      ])
+
+      expect(sent).toHaveLength(1)
+      expect(sent[0].traits.Contact.firstName).toBe('A')
+      expect(sent[0].traits.PurchaseHistory).toEqual({ lastOrder: 'o2', total: '99' })
+    })
+
+    it('should report success for every original event index when events are merged', async () => {
+      const ids = { 'Contact.$.email': 'dupe@example.com' }
+      const { sent, multiStatus } = await runBatch([
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.firstName': 'A' } },
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.firstName': 'B' } },
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.firstName': 'C' } }
+      ])
+
+      // Three events collapse into one upstream profile, but each event still gets a result
+      expect(sent).toHaveLength(1)
+      expect(multiStatus.length()).toBe(3)
+      for (let i = 0; i < 3; i++) {
+        expect(multiStatus.isSuccessResponseAtIndex(i)).toBe(true)
+      }
+    })
+
+    it('should merge valid events while still reporting invalid ones as errors', async () => {
+      const ids = { 'Contact.$.email': 'dupe@example.com' }
+      const { sent, multiStatus } = await runBatch([
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.firstName': 'A' } },
+        { memora_store: 'test-store-id', profile_identifiers: {}, profile_traits: { 'Contact.$.firstName': 'Bad' } },
+        { memora_store: 'test-store-id', profile_identifiers: ids, profile_traits: { 'Contact.$.firstName': 'C' } }
+      ])
+
+      expect(sent).toHaveLength(1)
+      expect(sent[0].traits.Contact.firstName).toBe('C')
+      expect(multiStatus.isSuccessResponseAtIndex(0)).toBe(true)
+      expect(multiStatus.isErrorResponseAtIndex(1)).toBe(true)
+      expect(multiStatus.isSuccessResponseAtIndex(2)).toBe(true)
     })
   })
 
