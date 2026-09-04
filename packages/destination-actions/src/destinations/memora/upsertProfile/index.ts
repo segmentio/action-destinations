@@ -197,15 +197,38 @@ async function upsertProfiles(
     return { rawResponse: undefined, multiStatus: multiStatusResponse }
   }
 
+  // Events sharing an identifier value resolve to one profile upstream, and sending them
+  // as separate entries of the same bulk request is what Memora chokes on. Collapse each
+  // group into a single profile before sending. A failure here must never cost events, so
+  // fall back to the previous behaviour of sending them unmerged.
+  let profilesToSend = validProfiles
+  let overlapStats: IdentifierOverlapStats | undefined
+  try {
+    const { groups, stats } = computeIdentifierGroups(validIdentifiers)
+    overlapStats = stats
+    profilesToSend = groups.map((positions) => ({
+      traits: mergeTraitGroups(positions.map((position) => validProfiles[position].traits))
+    }))
+  } catch (error) {
+    logger?.warn?.(
+      `Failed to merge overlapping profiles, sending them unmerged: ${
+        error instanceof Error ? error.message : String(error)
+      }. ${tagStr}`
+    )
+    profilesToSend = validProfiles
+  }
+
   // Observability must never affect delivery: a throw here would reject the whole
   // batch before the upsert is even attempted, with no status code to mark it
   // non-retryable. Nothing in this block is worth losing events over.
-  try {
-    reportIdentifierOverlap(computeIdentifierOverlap(validIdentifiers), statsTags, tagStr, logger, statsContext)
-  } catch (error) {
-    logger?.warn?.(
-      `Failed to compute identifier overlap: ${error instanceof Error ? error.message : String(error)}. ${tagStr}`
-    )
+  if (overlapStats) {
+    try {
+      reportIdentifierOverlap(overlapStats, statsTags, tagStr, logger, statsContext)
+    } catch (error) {
+      logger?.warn?.(
+        `Failed to report identifier overlap: ${error instanceof Error ? error.message : String(error)}. ${tagStr}`
+      )
+    }
   }
 
   try {
@@ -218,13 +241,17 @@ async function upsertProfiles(
       username: settings.username,
       password: settings.password,
       json: {
-        profiles: validProfiles
+        profiles: profilesToSend
       }
     })
 
     const twilioRequestId = response.headers?.get?.('twilio-request-id')
+    const mergeNote =
+      profilesToSend.length === validProfiles.length
+        ? ''
+        : ` (${validProfiles.length} event(s) merged into ${profilesToSend.length})`
     logger?.info?.(
-      `Bulk upsert completed successfully for ${validProfiles.length} profile(s)${
+      `Bulk upsert completed successfully for ${profilesToSend.length} profile(s)${mergeNote}${
         twilioRequestId ? `. twilio-request-id: ${twilioRequestId}` : ''
       }. ${tagStr}`
     )
@@ -273,6 +300,12 @@ interface IdentifierOverlapStats {
   overlappingEvents: number
   /** Size of the largest group of events collapsing into a single profile. */
   largestGroupSize: number
+  /**
+   * Identifier values that carried no usable identity and were therefore excluded from
+   * grouping. A non-zero count means a mapping is pointing an identifier at something
+   * that cannot identify anyone.
+   */
+  nonScalarIdentifiers: number
 }
 
 /**
@@ -284,7 +317,16 @@ interface IdentifierOverlapStats {
  * this a connected-components count over identifier values rather than a count of
  * distinct identifier tuples.
  */
-function computeIdentifierOverlap(identifierSets: Record<string, unknown>[]): IdentifierOverlapStats {
+interface IdentifierGrouping {
+  /**
+   * One entry per resolved profile, holding positions into the valid-profile arrays in
+   * ascending batch order, so a later event's traits overwrite an earlier one's on merge.
+   */
+  groups: number[][]
+  stats: IdentifierOverlapStats
+}
+
+function computeIdentifierGroups(identifierSets: Record<string, unknown>[]): IdentifierGrouping {
   const total = identifierSets.length
   const parent = Array.from({ length: total }, (_, i) => i)
 
@@ -307,10 +349,32 @@ function computeIdentifierOverlap(identifierSets: Record<string, unknown>[]): Id
 
   // `identifierKey=value` -> index of the first event that carried it
   const firstSeenAt = new Map<string, number>()
+  let nonScalarIdentifiers = 0
 
   identifierSets.forEach((identifiers, index) => {
     Object.entries(identifiers).forEach(([key, value]) => {
-      if (value === undefined || value === null) {
+      // Merging is destructive and irreversible, so it must require positive evidence that
+      // two events are the same person. `profile_identifiers` is an `additionalProperties:
+      // true` field whose values are typed `unknown` and are never type-checked -- AJV
+      // constrains only the keys, and the validation above checks presence, not type -- so
+      // anything the mapping produced arrives here intact.
+      //
+      // Only values with real identity cardinality qualify. Objects and arrays all coerce
+      // to the same '[object Object]' or comma-joined token; booleans have a two-value
+      // domain; 'NaN' and 'Infinity' are stable tokens shared by every event carrying them.
+      // Grouping on any of those merges unrelated people into one profile. Skipping is the
+      // safe failure: the event keeps its own profile, exactly as before merging existed.
+      //
+      // This is per VALUE, not per event -- an event with an unusable value still merges
+      // through its other identifiers, and the value itself is still sent as a trait.
+      const isIdentityValue =
+        typeof value === 'string' || typeof value === 'bigint' || (typeof value === 'number' && Number.isFinite(value))
+
+      if (!isIdentityValue) {
+        if (value !== undefined && value !== null) {
+          // null/undefined mean the identifier is simply absent, which is not a mapping fault.
+          nonScalarIdentifiers++
+        }
         return
       }
       const normalized = String(value).trim()
@@ -329,29 +393,60 @@ function computeIdentifierOverlap(identifierSets: Record<string, unknown>[]): Id
     })
   })
 
-  const groupSizes = new Map<number, number>()
+  // Bucket by true root. `find` is required here: union only ever repoints roots, so a
+  // node's parent may still be an absorbed intermediate. Ascending iteration keeps each
+  // bucket in batch order.
+  const byRoot = new Map<number, number[]>()
   for (let index = 0; index < total; index++) {
     const root = find(index)
-    groupSizes.set(root, (groupSizes.get(root) ?? 0) + 1)
+    const members = byRoot.get(root)
+    if (members) {
+      members.push(index)
+    } else {
+      byRoot.set(root, [index])
+    }
   }
 
   let overlappingEvents = 0
   let largestGroupSize = 0
-  groupSizes.forEach((size) => {
-    if (size > 1) {
-      overlappingEvents += size
+  byRoot.forEach((members) => {
+    if (members.length > 1) {
+      overlappingEvents += members.length
     }
-    if (size > largestGroupSize) {
-      largestGroupSize = size
+    if (members.length > largestGroupSize) {
+      largestGroupSize = members.length
     }
   })
 
   return {
-    events: total,
-    distinctProfiles: groupSizes.size,
-    overlappingEvents,
-    largestGroupSize
+    groups: Array.from(byRoot.values()),
+    stats: {
+      events: total,
+      distinctProfiles: byRoot.size,
+      overlappingEvents,
+      largestGroupSize,
+      nonScalarIdentifiers
+    }
   }
+}
+
+/**
+ * Merge the trait groups of every event that resolved to the same profile.
+ *
+ * Merging is per trait, not per trait group, so an earlier event's traits survive unless
+ * a later event sets the same trait. `perEvent` must be in ascending batch order: the
+ * last writer wins, which makes the later event authoritative on conflict.
+ */
+function mergeTraitGroups(
+  perEvent: Record<string, Record<string, unknown>>[]
+): Record<string, Record<string, unknown>> {
+  const merged: Record<string, Record<string, unknown>> = {}
+  perEvent.forEach((traitGroups) => {
+    Object.entries(traitGroups).forEach(([groupName, traits]) => {
+      merged[groupName] = { ...merged[groupName], ...traits }
+    })
+  })
+  return merged
 }
 
 // Identifier values are PII, so only counts are ever emitted — never the values themselves.
@@ -365,6 +460,16 @@ function reportIdentifierOverlap(
   const statsClient = statsContext?.statsClient
   statsClient?.histogram('memora.upsert_profile.batch_overlapping_events', stats.overlappingEvents, statsTags)
   statsClient?.histogram('memora.upsert_profile.batch_largest_group', stats.largestGroupSize, statsTags)
+
+  if (stats.nonScalarIdentifiers > 0) {
+    // Counts only -- identifier values are PII and never leave the process.
+    statsClient?.incr('memora.upsert_profile.non_scalar_identifiers', stats.nonScalarIdentifiers, statsTags)
+    logger?.warn?.(
+      `Ignored ${stats.nonScalarIdentifiers} identifier value(s) that could not identify anyone ` +
+        `(not a string, finite number, or bigint); those values were excluded from profile merging. ` +
+        `Check the identifier mapping. ${tagStr}`
+    )
+  }
 
   if (stats.overlappingEvents > 0) {
     logger?.warn?.(
