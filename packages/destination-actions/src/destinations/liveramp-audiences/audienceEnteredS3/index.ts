@@ -66,7 +66,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     filename: {
       label: 'Filename',
-      description: `Name of the CSV file to upload for LiveRamp ingestion. For multiple subscriptions, make sure to use a unique filename for each subscription.`,
+      description: `Name of the CSV file to upload for LiveRamp ingestion. Files are gzipped before upload and \`.gz\` is appended to the filename in the destination S3 bucket (e.g. \`audience.csv\` becomes \`audience.csv.gz\`). For multiple subscriptions, make sure to use a unique filename for each subscription.`,
       type: 'string',
       required: true,
       default: { '@template': '{{properties.audience_key}}.csv' }
