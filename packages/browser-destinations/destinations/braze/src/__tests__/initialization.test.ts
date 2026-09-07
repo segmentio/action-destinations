@@ -1,6 +1,7 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import { Subscription } from '@segment/browser-destination-runtime'
 import brazeDestination, { destination } from '../index'
+import { DESTINATION_CANARY_API_VERSION } from '../versioning-info'
 
 describe('initialization', () => {
   const settings = {
@@ -225,5 +226,73 @@ describe('initialization', () => {
     // Check that the config passed to initialize contains the allowlist
     const callArgs = initializeSpy.mock.calls[0][0]?.settings || {}
     expect(callArgs.devicePropertyAllowlist).toEqual(devicePropertyAllowlist)
+  })
+
+  test('uses default SDK version (6.10) when none specified', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      // sdkVersion not specified - should use default
+      subscriptions: [
+        {
+          partnerAction: 'trackEvent',
+          name: 'Track Event',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            eventName: { '@path': '$.event' },
+            eventProperties: { '@path': '$.properties' }
+          }
+        }
+      ]
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    const brazeScript = Array.from(scripts).find((script) => script.src.includes('js.appboycdn.com/web-sdk'))
+
+    expect(brazeScript?.src).toBe('https://js.appboycdn.com/web-sdk/6.10/braze.no-module.min.js')
+  })
+
+  test('can load canary SDK version (6.5) when explicitly selected', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      sdkVersion: DESTINATION_CANARY_API_VERSION, // Explicitly select 6.5
+      subscriptions: [
+        {
+          partnerAction: 'trackEvent',
+          name: 'Track Event',
+          enabled: true,
+          subscribe: 'type = "track"',
+          mapping: {
+            eventName: { '@path': '$.event' },
+            eventProperties: { '@path': '$.properties' }
+          }
+        }
+      ]
+    })
+
+    jest.spyOn(destination, 'initialize')
+
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    const scripts = window.document.querySelectorAll('script')
+    const brazeScript = Array.from(scripts).find((script) => script.src.includes('js.appboycdn.com/web-sdk'))
+
+    expect(brazeScript?.src).toBe(
+      `https://js.appboycdn.com/web-sdk/${DESTINATION_CANARY_API_VERSION}/braze.no-module.min.js`
+    )
+  })
+
+  test('verifies SDK version 6.5 is available in settings choices', () => {
+    const sdkVersionField = destination.settings.sdkVersion
+    const choices = sdkVersionField?.choices || []
+    const hasVersion65 = choices.some((choice) => choice.value === '6.5')
+
+    expect(hasVersion65).toBe(true)
+    expect(sdkVersionField?.default).toBe('6.10')
   })
 })
