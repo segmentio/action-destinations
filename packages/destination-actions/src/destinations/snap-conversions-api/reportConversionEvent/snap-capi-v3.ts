@@ -598,11 +598,16 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
 
 // Snap-native action_source values a customer can pick directly. When chosen explicitly,
 // we send them to Snap as-is instead of the legacy internal value.
-const NATIVE_ACTION_SOURCE_VALUES = ['WEB', 'MOBILE_APP', 'OFFLINE']
+const NATIVE_ACTION_SOURCE_VALUES = ['WEB', 'MOBILE_APP', 'OFFLINE'] as const
+type NativeActionSourceValue = typeof NATIVE_ACTION_SOURCE_VALUES[number]
+const nativeActionSourceValueSet = new Set<string>(NATIVE_ACTION_SOURCE_VALUES)
+const isNativeActionSourceValue = (value: string): value is NativeActionSourceValue => {
+  return nativeActionSourceValueSet.has(value)
+}
 
 // Snap-native action_source values are accepted as aliases for their internal equivalents,
 // so routing/validation logic below can keep working off 'website' | 'app' | 'OFFLINE'.
-const nativeActionSourceToInternal: { [k in string]?: string } = {
+const nativeActionSourceToInternal: Record<NativeActionSourceValue, string> = {
   WEB: 'website',
   MOBILE_APP: 'app',
   OFFLINE: 'OFFLINE'
@@ -614,7 +619,7 @@ const getSupportedActionSource = (action_source: string | undefined): string | u
     return undefined
   }
 
-  if (normalizedActionSource in nativeActionSourceToInternal) {
+  if (isNativeActionSourceValue(normalizedActionSource)) {
     return nativeActionSourceToInternal[normalizedActionSource]
   }
 
@@ -633,9 +638,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   // as-is. Otherwise, preserve the existing (legacy) behavior of sending the internal value.
   const rawActionSource = emptyStringToUndefined(payload.action_source)
   const outbound_action_source =
-    rawActionSource != null && NATIVE_ACTION_SOURCE_VALUES.indexOf(rawActionSource) > -1
-      ? rawActionSource
-      : action_source
+    rawActionSource != null && isNativeActionSourceValue(rawActionSource) ? rawActionSource : action_source
 
   // Snaps CAPI v3 supports the legacy v2 events so don't bother
   // translating them
