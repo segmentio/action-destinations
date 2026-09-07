@@ -1,4 +1,4 @@
-import { ExecuteInput, Features, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -11,16 +11,10 @@ import {
   emptyStringToUndefined,
   parseNumberSafe,
   parseDateSafe,
-  normalizeToUnixSeconds,
   smartHash
 } from './utils'
 import { processHashing } from '../../../lib/hashing-utils'
 import { SNAP_CONVERSIONS_API_VERSION } from '../versioning-info'
-
-// When enabled, `event_time` is normalized to a Unix timestamp in seconds (10 digits) as
-// required by Snap's Conversions API, instead of the milliseconds (13 digits) produced by
-// `Date.parse`. Gated for safe rollout on this high-volume destination.
-export const FLAGON_EVENT_TIME_IN_SECONDS = 'snap-capi-event-time-in-seconds'
 
 const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -602,23 +596,49 @@ const eventConversionTypeToActionSource: { [k in string]?: string } = {
   OFFLINE: 'OFFLINE'
 }
 
-const getSupportedActionSource = (action_source: string | undefined): string | undefined => {
-  const normalizedActionSource = emptyStringToUndefined(action_source)
-
-  // Snap doesn't support all the defined action sources, so fall back to OFFLINE if specified.
-  return ['website', 'app'].indexOf(normalizedActionSource ?? '') > -1
-    ? normalizedActionSource
-    : normalizedActionSource != null
-    ? 'OFFLINE'
-    : undefined
+// Snap-native action_source values a customer can pick directly. When chosen explicitly,
+// we send them to Snap as-is instead of the legacy internal value.
+const NATIVE_ACTION_SOURCE_VALUES = ['WEB', 'MOBILE_APP', 'OFFLINE'] as const
+type NativeActionSourceValue = typeof NATIVE_ACTION_SOURCE_VALUES[number]
+const nativeActionSourceValueSet = new Set<string>(NATIVE_ACTION_SOURCE_VALUES)
+const isNativeActionSourceValue = (value: string): value is NativeActionSourceValue => {
+  return nativeActionSourceValueSet.has(value)
 }
 
-const buildPayloadData = (payload: Payload, settings: Settings, features?: Features) => {
+// Snap-native action_source values are accepted as aliases for their internal equivalents,
+// so routing/validation logic below can keep working off 'website' | 'app' | 'OFFLINE'.
+const nativeActionSourceToInternal: Record<NativeActionSourceValue, string> = {
+  WEB: 'website',
+  MOBILE_APP: 'app',
+  OFFLINE: 'OFFLINE'
+}
+
+const getSupportedActionSource = (action_source: string | undefined): string | undefined => {
+  const normalizedActionSource = emptyStringToUndefined(action_source)
+  if (normalizedActionSource == null) {
+    return undefined
+  }
+
+  if (isNativeActionSourceValue(normalizedActionSource)) {
+    return nativeActionSourceToInternal[normalizedActionSource]
+  }
+
+  // Snap doesn't support all the defined action sources, so fall back to OFFLINE if specified.
+  return ['website', 'app'].indexOf(normalizedActionSource) > -1 ? normalizedActionSource : 'OFFLINE'
+}
+
+const buildPayloadData = (payload: Payload, settings: Settings) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source =
     getSupportedActionSource(payload.action_source) ??
     eventConversionTypeToActionSource[payload.event_conversion_type ?? '']
+
+  // If the customer explicitly picked a Snap-native action_source value, send it to Snap
+  // as-is. Otherwise, preserve the existing (legacy) behavior of sending the internal value.
+  const rawActionSource = emptyStringToUndefined(payload.action_source)
+  const outbound_action_source =
+    rawActionSource != null && isNativeActionSourceValue(rawActionSource) ? rawActionSource : action_source
 
   // Snaps CAPI v3 supports the legacy v2 events so don't bother
   // translating them
@@ -630,13 +650,7 @@ const buildPayloadData = (payload: Payload, settings: Settings, features?: Featu
   // Handle the case where a number is passed instead of an ISO8601 timestamp
   const event_time_number = parseNumberSafe(payload_event_time ?? '')
   const event_time_date_time = parseDateSafe(payload_event_time ?? '')
-  const event_time_raw = event_time_date_time ?? event_time_number
-  // Snap's Conversions API expects `event_time` in seconds. `Date.parse` yields milliseconds,
-  // which Snap rejects as an invalid Unix timestamp. Normalize to seconds when the flag is on.
-  const event_time =
-    features?.[FLAGON_EVENT_TIME_IN_SECONDS] && event_time_raw != null
-      ? normalizeToUnixSeconds(event_time_raw)
-      : event_time_raw
+  const event_time = event_time_date_time ?? event_time_number
 
   const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
@@ -652,7 +666,10 @@ const buildPayloadData = (payload: Payload, settings: Settings, features?: Featu
     event_time,
     user_data,
     custom_data,
+    // action_source is used internally for settings validation and request routing.
     action_source,
+    // outbound_action_source is the literal value sent to Snap's API.
+    outbound_action_source,
     app_data,
     data_processing_options,
     data_processing_options_country: payload.data_processing_options_country,
@@ -745,22 +762,9 @@ export const performSnapCAPIv3 = async (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
-  const { payload, settings, features, statsContext, logger } = data
+  const { payload, settings } = data
 
-  // Observe whether the event_time-in-seconds flag is being received for this event.
-  const flagReceived = Boolean(features?.[FLAGON_EVENT_TIME_IN_SECONDS])
-  statsContext?.statsClient?.incr('snap_conversions.event_time_seconds', 1, [
-    ...(statsContext?.tags ?? []),
-    `flag_received:${flagReceived}`
-  ])
-  logger?.info(
-    `[snap-conversions] event_time-in-seconds flag_received=${flagReceived} ` +
-      `features=${features ? JSON.stringify(features) : 'none'}`
-  )
-
-  const payloadData = buildPayloadData(payload, settings, features)
-
-  logger?.info(`[snap-conversions] outgoing event_time=${String(payloadData.event_time)}`)
+  const payloadData = buildPayloadData(payload, settings)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)
@@ -770,10 +774,12 @@ export const performSnapCAPIv3 = async (
 
   const url = buildRequestURL(settings, payloadData.action_source, authToken)
 
+  const { outbound_action_source, ...rest } = payloadData
+
   return request(url, {
     method: 'post',
     json: {
-      data: [payloadData]
+      data: [{ ...rest, action_source: outbound_action_source }]
     }
   })
 }
