@@ -2,14 +2,20 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
-  createGoogleAudience,
-  getGoogleAudience,
-  getListIds,
+  createDataManagerUserList,
+  getDataManagerUserList,
+  getDataManagerListIds,
+  // createGoogleAudience,
+  // getGoogleAudience,
+  // getListIds,
   verifyCustomerId,
-  handleDataManagerUpdate
+  handleDataManagerUpdate,
+  createDataManagerPartnerLink,
+  exchangeForAccessToken
+  // FLAGON_NAME_DATA_MANAGER_API
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
-import { UserListResponse } from '../types'
+// import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
@@ -173,8 +179,9 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          dynamic: async (request, { settings, auth, features, statsContext }) => {
-            return await getListIds(request, settings, auth, features, statsContext)
+          dynamic: async (request, { settings, auth, statsContext }) => {
+            return await getDataManagerListIds(request, settings, { refresh_token: auth?.refreshToken }, statsContext)
+            // return await getListIds(request, settings, auth, features, statsContext)
           }
         },
         list_name: {
@@ -230,28 +237,61 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
         settings.customerId = verifyCustomerId(settings.customerId)
+        // const useDataManager = features?.[FLAGON_NAME_DATA_MANAGER_API]
+
+        const customerId = settings.customerId
+        const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+
+        // Best-effort partner link creation — errors must not block list creation/lookup
+        if (auth?.refreshToken) {
+          try {
+            const customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
+            await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+          } catch (_) {
+            // intentionally swallowed — partner link errors must not block list creation/lookup
+          }
+        }
+
         if (hookInputs.list_id) {
           try {
-            const response: UserListResponse = await getGoogleAudience(
+            const userList = await getDataManagerUserList(
               request,
               settings,
               hookInputs.list_id,
               {
                 refresh_token: auth?.refreshToken
               },
-              features,
               statsContext
             )
             return {
-              successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
+              successMessage: `Using existing list '${userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
                 id: hookInputs.list_id,
-                name: response.results[0].userList.name,
+                name: userList.displayName,
                 external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
               }
             }
+
+            // const response: UserListResponse = await getGoogleAudience(
+            //   request,
+            //   settings,
+            //   hookInputs.list_id,
+            //   {
+            //     refresh_token: auth?.refreshToken
+            //   },
+            //   features,
+            //   statsContext
+            // )
+            // return {
+            //   successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
+            //   savedData: {
+            //     id: hookInputs.list_id,
+            //     name: response.results[0].userList.name,
+            //     external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
+            //   }
+            // }
           } catch (e) {
             const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
             const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
@@ -273,13 +313,20 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-          const listId = await createGoogleAudience(
+
+          const listId = await createDataManagerUserList(
             request,
             input,
             { refresh_token: auth?.refreshToken },
-            features,
             statsContext
           )
+          //  await createGoogleAudience(
+          //     request,
+          //     input,
+          //     { refresh_token: auth?.refreshToken },
+          //     features,
+          //     statsContext
+          //   )
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,

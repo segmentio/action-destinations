@@ -594,6 +594,69 @@ export async function getDataManagerUserList(
   return userList
 }
 
+// See: https://developers.google.com/data-manager/api/reference/rest/v1/accountTypes.accounts.userLists/list
+export async function getDataManagerListIds(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  auth?: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
+) {
+  try {
+    if (!auth?.refresh_token) {
+      throw new PayloadValidationError('Oauth credentials missing.')
+    }
+
+    const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
+
+    const customerId = settings.customerId?.replace(/-/g, '')
+    const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
+
+    // Best-effort partner link creation — errors must not block list lookup
+    if (customerId) {
+      try {
+        await createDataManagerPartnerLink(request, customerId, accessToken, loginCustomerId)
+      } catch (_) {
+        // intentionally swallowed — partner link errors must not block list lookup
+      }
+    }
+
+    const headers: Record<string, string> = {
+      authorization: `Bearer ${accessToken}`
+    }
+    if (loginCustomerId) {
+      headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+    }
+
+    const response = await request(
+      `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`,
+      {
+        method: 'get',
+        headers
+      }
+    )
+
+    const data = response.data as { userLists?: DataManagerUserList[]; nextPageToken?: string }
+    const userLists = data.userLists ?? []
+    const choices = userLists.map((userList) => ({
+      value: userList.id,
+      label: userList.displayName ?? userList.id
+    }))
+
+    statsContext?.statsClient?.incr('getDataManagerListIds.success', 1, statsContext?.tags)
+    return { choices, nextPage: data.nextPageToken }
+  } catch (err) {
+    statsContext?.statsClient?.incr('getDataManagerListIds.error', 1, statsContext?.tags)
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: String((err as GoogleAdsError).response?.status ?? 500)
+      }
+    }
+  }
+}
+
 const PARTNER_ACCOUNT_ID = '262932431'
 
 export async function createDataManagerPartnerLink(
