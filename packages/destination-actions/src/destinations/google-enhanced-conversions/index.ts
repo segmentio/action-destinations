@@ -223,8 +223,20 @@ const destination: AudienceDestinationDefinition<Settings> = {
           externalId: getAudienceInput.externalId
         }
       }
-      getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
       // const useDataManager = getAudienceInput.features?.[FLAGON_NAME_DATA_MANAGER_API]
+      getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
+      const customerId = getAudienceInput.settings.customerId
+      const loginCustomerId = getAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+      const auth = getAudienceInput.settings.oauth
+
+      if (auth?.refresh_token) {
+        try {
+          const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+          await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+        } catch (_) {
+          // intentionally swallowed
+        }
+      }
 
       const userList = await getDataManagerUserList(
         request,

@@ -304,17 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (
     request,
-    {
-      settings,
-      audienceSettings,
-      payload,
-      hookOutputs,
-      statsContext,
-      syncMode,
-      features,
-      audienceMembership,
-      personasContext
-    }
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
@@ -328,8 +318,7 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership,
-      personasContext
+      audienceMembership
     )
 
     // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
@@ -343,8 +332,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //     syncMode,
     //     features,
     //     statsContext,
-    //     audienceMembership,
-    //     personasContext
+    //     audienceMembership
     //   )
     // }
 
@@ -363,17 +351,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (
     request,
-    {
-      settings,
-      audienceSettings,
-      payload,
-      hookOutputs,
-      statsContext,
-      syncMode,
-      features,
-      audienceMembership,
-      personasContext
-    }
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
@@ -387,8 +365,7 @@ const action: ActionDefinition<Settings, Payload> = {
       syncMode,
       features,
       statsContext,
-      audienceMembership,
-      personasContext
+      audienceMembership
     )
 
     // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
@@ -402,8 +379,7 @@ const action: ActionDefinition<Settings, Payload> = {
     //     syncMode,
     //     features,
     //     statsContext,
-    //     audienceMembership,
-    //     personasContext
+    //     audienceMembership
     //   )
     // }
 

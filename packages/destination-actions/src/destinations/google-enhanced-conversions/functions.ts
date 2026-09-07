@@ -33,7 +33,7 @@ import {
   ErrorCodes,
   AudienceMembership
 } from '@segment/actions-core'
-import { StatsContext, Personas } from '@segment/actions-core/destination-kit'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
 import { HTTPError } from '@segment/actions-core'
 import type { Payload as UserListPayload } from './userList/generated-types'
@@ -528,11 +528,11 @@ export async function createDataManagerUserList(
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
-    statsClient?.incr('createAudience.error', 1, statsTags)
+    statsClient?.incr('createDataManagerAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to receive a created user list id from Data Manager.', 'INVALID_RESPONSE', 400)
   }
 
-  statsClient?.incr('createAudience.success', 1, statsTags)
+  statsClient?.incr('createDataManagerAudience.success', 1, statsTags)
   return userList.id
 }
 
@@ -586,11 +586,11 @@ export async function getDataManagerUserList(
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
-    statsClient?.incr('getAudience.error', 1, statsTags)
+    statsClient?.incr('getDataManagerAudience.error', 1, statsTags)
     throw new IntegrationError('Failed to retrieve user list from Data Manager.', 'INVALID_RESPONSE', 400)
   }
 
-  statsClient?.incr('getAudience.success', 1, statsTags)
+  statsClient?.incr('getDataManagerAudience.success', 1, statsTags)
   return userList
 }
 
@@ -775,10 +775,9 @@ export async function handleDataManagerUpdate(
   syncMode?: string,
   features?: Features,
   statsContext?: StatsContext,
-  audienceMembership?: AudienceMembership | AudienceMembership[],
-  personasContext?: Personas
+  audienceMembership?: AudienceMembership | AudienceMembership[]
 ) {
-  const externalAudienceId = hookListId || payloads[0]?.external_audience_id
+  const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
     throw new PayloadValidationError('External Audience ID is required.')
   }
@@ -802,30 +801,27 @@ export async function handleDataManagerUpdate(
   const addMembers: DataManagerAudienceMember[] = []
   const removeMembers: DataManagerAudienceMember[] = []
 
-  const computation_class = (personasContext as Record<string, unknown>)?.computation_class as string | undefined
-
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     const member = buildAudienceMember(payload, idType, features, statsContext)
     if (!member) continue
 
     const membership = Array.isArray(audienceMembership) ? audienceMembership[i] : audienceMembership
-
-    const isAdd =
+    if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
       (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
-      membership === true ||
-      computation_class === 'journey_step'
-
-    const isRemove =
+      membership === true
+    ) {
+      addMembers.push(member)
+    } else if (
       payload.event_name === 'Audience Exited' ||
       syncMode === 'delete' ||
       (syncMode === 'mirror' && payload.event_name === 'deleted') ||
       membership === false
-
-    if (isAdd) addMembers.push(member)
-    else if (isRemove) removeMembers.push(member)
+    ) {
+      removeMembers.push(member)
+    }
   }
 
   const results: DataManagerIngestResponse[] = []
@@ -854,7 +850,7 @@ export async function handleDataManagerUpdate(
     results.push(r)
   }
 
-  statsContext?.statsClient?.incr('success.offlineUpdateAudience', 1, statsContext?.tags)
+  statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
   return results
 }
 
