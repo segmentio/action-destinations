@@ -1,4 +1,4 @@
-import { Client, isAWSError, mapAWSError } from '../syncToS3/client'
+import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
 import { APIError, IntegrationError, RetryableError } from '@segment/actions-core'
 import { Settings } from '../generated-types'
@@ -140,5 +140,75 @@ describe('mapAWSError', () => {
     const err = mapAWSError(new Error('Could not load credentials from any providers'), 'Failed to assume AWS role')
     expect(err).toBeInstanceOf(RetryableError)
     expect(err.message).toContain('Could not load credentials from any providers')
+  })
+})
+
+describe('STS credential caching', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+
+  // A minimal successful AssumeRole response whose credentials expire `expiresInMs` from now.
+  const stsResponse = (expiresInMs: number) => ({
+    Credentials: {
+      AccessKeyId: 'AKIAEXAMPLE',
+      SecretAccessKey: 'secret',
+      SessionToken: 'token',
+      Expiration: new Date(Date.now() + expiresInMs)
+    }
+  })
+
+  const newClient = (roleArn = settings.iam_role_arn) =>
+    new Client(settings.s3_aws_region, roleArn, settings.iam_external_id)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  beforeEach(() => {
+    mockStsSend.mockReset()
+    clearCredentialsCache()
+  })
+
+  it('reuses cached credentials across uploads instead of re-calling STS for every file', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    await upload(newClient())
+    await upload(newClient())
+
+    // First upload assumes both roles (intermediary + customer) = 2 STS calls.
+    // Second upload finds both cached = 0 STS calls.
+    expect(mockStsSend).toHaveBeenCalledTimes(2)
+  })
+
+  it('refreshes credentials once they fall within the expiry safety buffer', async () => {
+    // Expires in 1 minute, inside the 5-minute refresh buffer -> never safe to cache.
+    mockStsSend.mockResolvedValue(stsResponse(60 * 1000))
+
+    await upload(newClient())
+    await upload(newClient())
+
+    expect(mockStsSend).toHaveBeenCalledTimes(4)
+  })
+
+  it('caches per role identity while sharing the intermediary role', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    await upload(newClient('arn:aws:iam::123456789012:role/test'))
+    await upload(newClient('arn:aws:iam::999999999999:role/other'))
+
+    // Intermediary role assumed once (shared), plus one customer assume-role per distinct ARN = 3.
+    expect(mockStsSend).toHaveBeenCalledTimes(3)
+  })
+
+  it('does not cache when STS omits an expiration', async () => {
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+
+    await upload(newClient())
+    await upload(newClient())
+
+    expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 })

@@ -6,6 +6,34 @@ import * as process from 'process'
 import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
 import { Credentials } from './types'
 
+/**
+ * Module-level STS credential cache, shared across every Client instance.
+ *
+ * A new Client is constructed on every upload (see syncToS3/functions.ts), so a per-instance
+ * cache would never be reused. Under high-volume audience syncs the two-hop assume-role chain
+ * (intermediary role -> customer role) re-ran STS on every file, which is the most likely source
+ * of the `rate exceeded` / STS throttling errors seen during load testing. Caching the minted
+ * credentials until just before their STS-reported expiry keeps STS call volume flat as the
+ * number of files grows.
+ *
+ * Keyed by region + role ARN + external id, the inputs that determine the returned credentials.
+ */
+interface CachedCredentials {
+  credentials: Credentials
+  expiration: number // epoch millis, from STS Credentials.Expiration
+}
+
+const credentialsCache = new Map<string, CachedCredentials>()
+
+// Refresh this long before the STS-reported expiration so we never hand out credentials that
+// would expire mid-upload.
+const CREDENTIALS_EXPIRY_BUFFER_MS = 5 * 60 * 1000
+
+// Exposed for tests to reset the shared cache between cases.
+export function clearCredentialsCache(): void {
+  credentialsCache.clear()
+}
+
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -26,7 +54,13 @@ export class Client {
     return this.getSTSCredentials(this.roleArn, this.externalId, intermediaryCreds)
   }
 
-  private async getSTSCredentials(roleId: string, externalId: string, credentials?: Credentials) {
+  private async getSTSCredentials(roleId: string, externalId: string, credentials?: Credentials): Promise<Credentials> {
+    const cacheKey = `${this.region}|${roleId}|${externalId ?? ''}`
+    const cached = credentialsCache.get(cacheKey)
+    if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
+      return cached.credentials
+    }
+
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
@@ -52,11 +86,21 @@ export class Client {
       // TODO: Add more specific error handling
       throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
     }
-    return {
+    const creds: Credentials = {
       accessKeyId: result.Credentials.AccessKeyId,
       secretAccessKey: result.Credentials.SecretAccessKey,
       sessionToken: result.Credentials.SessionToken
     }
+
+    // Cache the freshly minted credentials until shortly before STS says they expire. Only cache
+    // when STS reports an expiration; without it we can't know the safe lifetime, so we re-fetch
+    // every time rather than risk handing out credentials of unknown validity.
+    const expiration = result.Credentials.Expiration
+    if (expiration instanceof Date) {
+      credentialsCache.set(cacheKey, { credentials: creds, expiration: expiration.getTime() })
+    }
+
+    return creds
   }
 
   async uploadS3(
