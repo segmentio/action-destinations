@@ -29,10 +29,7 @@ function serializeEventData(ed: Payload['ed']): string | undefined {
 }
 
 // Convert an ISO8601 / epoch timestamp to UNIX milliseconds.
-function toUnixMs(ts: Payload['ts']): number | undefined {
-  if (ts === undefined || ts === null || ts === '') {
-    return undefined
-  }
+function toUnixMs(ts: Payload['ts']): number {
   const ms = typeof ts === 'number' ? ts : new Date(ts).getTime()
   if (Number.isNaN(ms)) {
     throw new PayloadValidationError('`ts` (timestamp) is not a valid date.')
@@ -42,22 +39,18 @@ function toUnixMs(ts: Payload['ts']): number | undefined {
 
 // Build a single typed request body from a payload, applying validation and transforms.
 export function buildConversionEvent(payload: Payload, settings: Settings): ConversionEventRequest {
-  const { a, eid, ts, ip, em, ed, gid, ua, url } = payload
+  const { a, eid, ts, ip, ed, gid, ua, url } = payload
 
   if (!isEventType(a)) {
     throw new PayloadValidationError(`\`a\` (Event Type) must be one of: ${EVENT_TYPES.join(', ')}.`)
   }
 
-  if (!ip && !em) {
-    throw new PayloadValidationError('Either `ip` (IP Address) or `em` (Email) is required.')
-  }
-
-  if (ip && isIP(ip) !== 4) {
+  if (isIP(ip) !== 4) {
     throw new PayloadValidationError('`ip` (IP Address) must be a valid IPv4 address.')
   }
 
   const tsMs = toUnixMs(ts)
-  if (tsMs !== undefined && Date.now() - tsMs > MAX_EVENT_AGE_MS) {
+  if (Date.now() - tsMs > MAX_EVENT_AGE_MS) {
     throw new PayloadValidationError('`ts` (timestamp) must be within the last 7 days.')
   }
 
@@ -66,8 +59,7 @@ export function buildConversionEvent(payload: Payload, settings: Settings): Conv
     eid,
     aid: settings.aid,
     ts: tsMs,
-    ip: ip || undefined,
-    em: em || undefined,
+    ip,
     ed: serializeEventData(ed),
     gid: gid || undefined,
     ua: ua || undefined,

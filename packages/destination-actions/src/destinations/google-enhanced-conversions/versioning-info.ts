@@ -3,7 +3,7 @@
  * API reference: https://developers.google.com/google-ads/api/docs/upgrade
  */
 export const GOOGLE_ENHANCED_CONVERSIONS_API_VERSION = 'v22'
-export const GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION = 'v22'
+export const GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION = 'v25'
 
 /** GOOGLE_ENHANCED_CONVERSIONS_EVENTS_API_VERSION
  * Google Ads event API version.
