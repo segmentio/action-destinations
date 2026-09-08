@@ -11,18 +11,18 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = track or type = identify',
   syncMode: {
     label: 'Sync Mode',
-    description: 'Specify how Segment should sync data to Marketo.',
+    description: 'Specify how Segment should sync data to Marketo when connected to a database Source.',
     default: 'mirror',
     choices: [
-      { label: 'Add - Segment will invoke this action when a new row is added to the table', value: 'add' },
-      { label: 'Update - Segment will invoke this action when a row is updated in the table', value: 'update' },
+      { label: 'Add - when connected to a database Source, adding a row will trigger this mapping', value: 'add' },
+      { label: 'Update - when connected to a database Source, updating a row will trigger this mapping', value: 'update' },
       {
-        label: 'Upsert - Segment will invoke this action when a row is added or updated in the table',
+        label: 'Upsert - when connected to a database Source, adding or updating a row will trigger this mapping',
         value: 'upsert'
       },
-      { label: 'Delete - Segment will invoke this action when a row is deleted from the table', value: 'delete' },
+      { label: 'Delete - when connected to a database Source, deleting a row will trigger this mapping', value: 'delete' },
       {
-        label: 'Mirror - Segment will invoke this action when a row is added, updated, or deleted from the table',
+        label: 'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
         value: 'mirror'
       }
     ]

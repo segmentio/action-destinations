@@ -3,7 +3,13 @@ import type { ActionHookDefinition } from '@segment/actions-core/destination-kit
 import type { Settings } from './generated-types'
 import { createList, getList } from './functions'
 
-export function retlOnMappingSaveHook<Payload>(): ActionHookDefinition<Settings, Payload, any, any, any> {
+export function retlOnMappingSaveHook<Payload>(): ActionHookDefinition<
+  Settings,
+  Payload,
+  any,
+  { list_id?: string; list_name?: string },
+  { id?: string; name?: string }
+> {
   return {
     label: 'Connect to a static list in Marketo',
     description: 'When saving this mapping, we will create a static list in Marketo using the fields you provided.',
@@ -36,7 +42,7 @@ export function retlOnMappingSaveHook<Payload>(): ActionHookDefinition<Settings,
         required: false
       }
     },
-    performHook: async (request, { settings, hookInputs, statsContext }) => {
+    performHook: async (request, { settings, hookInputs = {}, statsContext }) => {
       if (hookInputs.list_id) {
         try {
           return getList(request, settings, hookInputs.list_id)
@@ -54,7 +60,7 @@ export function retlOnMappingSaveHook<Payload>(): ActionHookDefinition<Settings,
 
       try {
         const input = {
-          audienceName: hookInputs.list_name,
+          audienceName: hookInputs.list_name ?? '',
           settings: settings
         }
         const listId = await createList(request, input, statsContext)
