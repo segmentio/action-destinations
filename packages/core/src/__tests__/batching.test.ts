@@ -538,6 +538,41 @@ describe('MultiStatus', () => {
     expect(multiStatusResponse.successCount).toBe(3)
     expect(multiStatusResponse.errorCount).toBe(4)
   })
+
+  it('isEmpty() and size reflect whether any response has been recorded', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+
+    // A fresh instance is truthy but empty
+    expect(multiStatusResponse).toBeTruthy()
+    expect(multiStatusResponse.isEmpty()).toBe(true)
+    expect(multiStatusResponse.size).toBe(0)
+    expect(multiStatusResponse.size).toBe(multiStatusResponse.length())
+
+    multiStatusResponse.pushSuccessResponse({
+      body: { ok: true },
+      sent: { user_id: 'user001' },
+      status: 200
+    })
+
+    expect(multiStatusResponse.isEmpty()).toBe(false)
+    expect(multiStatusResponse.size).toBe(1)
+    expect(multiStatusResponse.size).toBe(multiStatusResponse.length())
+  })
+
+  it('size counts sparse slots like length() while isEmpty stays false', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+
+    // Setting at a non-zero index creates a sparse array of length index+1
+    multiStatusResponse.setErrorResponseAtIndex(2, {
+      errormessage: 'boom',
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      status: 400
+    })
+
+    expect(multiStatusResponse.isEmpty()).toBe(false)
+    expect(multiStatusResponse.size).toBe(3)
+    expect(multiStatusResponse.size).toBe(multiStatusResponse.length())
+  })
 })
 
 describe('Async Batching', () => {

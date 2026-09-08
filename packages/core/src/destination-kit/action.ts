@@ -1198,6 +1198,19 @@ export class MultiStatusResponse {
     return this.responses.length
   }
 
+  // Number of response slots currently held (alias of length() as a getter, Map/Set-style).
+  public get size(): number {
+    return this.responses.length
+  }
+
+  // True when no response has been recorded yet.
+  // Use this instead of a truthiness check on the instance: a MultiStatusResponse is always
+  // a truthy object even when it holds zero entries, so `if (multiStatusResponse)` reports
+  // "present" for an empty result. isEmpty() distinguishes "no per-record detail" from "has data".
+  public isEmpty(): boolean {
+    return this.responses.length === 0
+  }
+
   // Pushes a Generic Response at the end of the responses array
   public pushResponseObject(response: ActionDestinationSuccessResponse | ActionDestinationErrorResponse) {
     this.responses.push(response)

@@ -8,9 +8,11 @@ import {
   PollResponse,
   HTTPError,
   NetworkError,
-  JSONLikeObject
+  JSONLikeObject,
+  RequestClient
 } from '@segment/actions-core'
 import { asyncUpsertRowsV2, isAsyncUpsertRowsV2ErrorResponse } from '../sfmc-operations'
+import type { AsyncUpsertRowsV2Response } from '../sfmc-operations'
 import { fields, dynamicFields, hooks } from './fields'
 
 import type { Settings } from '../generated-types'
@@ -23,11 +25,27 @@ type AsyncUpsertRowsPollResultMessage = {
   message: string
 }
 
-// SFMC reports SQL deadlocks (transient - retrying the same row will likely succeed) under the
-// same generic errorCode as permanent validation failures, but the message text always
+// SFMC reports SQL deadlocks (transient - SFMC lands the row on its own internal retry) under
+// the same generic errorCode as permanent validation failures, but the deadlock message always
 // contains this phrase. Match with a tolerant substring check (not a strict endsWith) so
 // trailing whitespace or minor message variations don't cause a false negative.
-const RETRYABLE_ROW_ERROR_PHRASE = 'Rerun the transaction'
+const TRANSIENT_ROW_ERROR_PHRASE = 'Rerun the transaction'
+
+// When an async submit is rejected (non-2xx), SFMC returns one of three response shapes that
+// differ only in where the error message lives. This resolves the {errormessage, body} to apply
+// to every row, so performBatch can use a single error loop instead of three near-identical ones.
+function resolveBatchErrorDetail(data: AsyncUpsertRowsV2Response): { errormessage: string; body: JSONLikeObject } {
+  // 1. Batch-level error (401/403/500): a top-level `message`.
+  if (isAsyncUpsertRowsV2ErrorResponse(data)) {
+    return { errormessage: data.message, body: data as Object as JSONLikeObject }
+  }
+  // 2. Validation error (400): messages live in a `resultMessages[]` array.
+  if (data.resultMessages && data.resultMessages.length > 0) {
+    return { errormessage: data.resultMessages[0]?.message ?? 'Unknown error', body: {} }
+  }
+  // 3. Unrecognized shape: surface the raw response so it isn't lost.
+  return { errormessage: `SFMC API responded with ${JSON.stringify(data)}.`, body: {} }
+}
 
 type AsyncUpsertRowsJobStatusResponse = {
   status: {
@@ -56,6 +74,94 @@ type AsyncUpsertRowsPollResultsResponse = {
   resultMessages: AsyncUpsertRowsPollResultMessage[]
 }
 
+type PollResultItems = AsyncUpsertRowsPollResultsResponse['items']
+
+/**
+ * Fetches every page of a job's `/results`. SFMC paginates at 50 items/page by default and
+ * `count` is the true total, so we must walk all pages -- reading only page 1 would silently
+ * under-report results for any batch larger than one page.
+ *
+ * `skipResponseCloning` avoids a clone-tee deadlock: the results body carries one item per
+ * uploaded record and routinely exceeds the 16KB highWaterMark of the tee that
+ * `response.clone()` sets up in prepare-response; reading only the clone deadlocks it and the
+ * request never settles (same root cause/fix as the Iterable Lists hang, PR #2461).
+ */
+async function fetchAllResultItems(request: RequestClient, subdomain: string, jobId: string): Promise<PollResultItems> {
+  const items: PollResultItems = []
+  let page = 1
+  let totalCount = 0
+  let pageSize = 0
+
+  for (;;) {
+    const resultsResponse = await request<AsyncUpsertRowsPollResultsResponse>(
+      `https://${subdomain}.rest.marketingcloudapis.com/data/v1/async/${jobId}/results?page=${page}`,
+      { method: 'GET', skipResponseCloning: true }
+    )
+
+    items.push(...(resultsResponse.data.items ?? []))
+    totalCount = resultsResponse.data.count ?? items.length
+    pageSize = resultsResponse.data.pageSize || pageSize
+
+    if (!pageSize || items.length >= totalCount) {
+      break
+    }
+    page++
+  }
+
+  return items
+}
+
+/**
+ * Populates `multiStatusResponse` from the per-row `/results` items and returns the tallies.
+ * Row classification:
+ *  - `OK`                        -> success
+ *  - transient SQL deadlock      -> counted as DELIVERED (success), not a failure. SFMC's async
+ *                                   framework lands these on its own internal retry -- confirmed
+ *                                   in production (a 500k sync had every row in the data extension
+ *                                   while /results still reported ~7.9% as deadlock errors).
+ *                                   Folding them into the failure count over-reports drops for
+ *                                   rows that actually delivered (surfaces downstream as granobs
+ *                                   REASON_MESSAGE_REJECTED). See workspace/manual-todo.md #1 --
+ *                                   this rests on SFMC always landing deadlock rows; a Complete
+ *                                   async job is immutable so re-polling can't re-drive them.
+ *  - any other error             -> genuine terminal per-row failure (400).
+ */
+function applyResultItems(
+  multiStatusResponse: MultiStatusResponse,
+  items: PollResultItems
+): { successCount: number; recoveredTransientCount: number; permanentErrorCount: number } {
+  let successCount = 0
+  let recoveredTransientCount = 0
+  let permanentErrorCount = 0
+
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].status === 'OK') {
+      successCount++
+      multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: 'OK' })
+      continue
+    }
+
+    const errormessage = items[i].message
+    // Substring match anywhere in the message -- inherently tolerant of leading/trailing
+    // whitespace and surrounding text, so no trim/normalization is needed here.
+    const isTransientRowError = errormessage.includes(TRANSIENT_ROW_ERROR_PHRASE)
+
+    if (isTransientRowError) {
+      recoveredTransientCount++
+      multiStatusResponse.setSuccessResponseAtIndex(i, {
+        status: 200,
+        sent: {},
+        body: 'OK (row reported a transient SFMC deadlock; SFMC lands these on internal retry)'
+      })
+    } else {
+      permanentErrorCount++
+      multiStatusResponse.setErrorResponseAtIndex(i, { status: 400, errormessage, body: {} })
+    }
+  }
+
+  return { successCount, recoveredTransientCount, permanentErrorCount }
+}
+
 const asyncAction: AsyncActionDefinition<Settings, Payload> = {
   title: 'Send Event asynchronously to Data Extension',
   description: `Upsert event records asynchronously as rows into a data extension in Salesforce Marketing Cloud.`,
@@ -63,7 +169,7 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
   dynamicFields,
   hooks,
 
-  performBatch: async (request, { settings, payload, hookOutputs }) => {
+  performBatch: async (request, { settings, payload, hookOutputs, logger }) => {
     const response: AsyncBatchResponse = {
       multiStatusResponse: new MultiStatusResponse(),
       jobId: undefined,
@@ -88,6 +194,18 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
 
       // No HTTP errors, consider all rows as accepted for processing by SFMC
       if (asyncUpsertResponse.ok) {
+        // resultMessages is "typically" empty on a 2xx, but SFMC can attach informational
+        // messages/warnings even on an accepted submission. Surface them (they don't change the
+        // outcome -- per-row results still come from the poll's /results call) so they're not
+        // silently dropped.
+        if (asyncUpsertResponse.data.resultMessages && asyncUpsertResponse.data.resultMessages.length > 0) {
+          logger?.warn?.(
+            `SFMC async submit accepted (${asyncUpsertResponse.status}) with resultMessages for requestId ${
+              asyncUpsertResponse.data.requestId ?? 'unknown'
+            }: ${JSON.stringify(asyncUpsertResponse.data.resultMessages)}`
+          )
+        }
+
         for (let i = 0; i < payload.length; i++) {
           response.multiStatusResponse.setSuccessResponseAtIndex(i, {
             status: 200,
@@ -98,14 +216,9 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         return response
       }
 
-      // Every remaining case is a batch-level rejection (401/403/500/etc, a validation
-      // resultMessages body, or an unrecognized shape) -- same per-row error treatment
-      // either way, differing only in the message/body sourced from the response.
-      const { errormessage, body } = isAsyncUpsertRowsV2ErrorResponse(asyncUpsertResponse.data)
-        ? { errormessage: asyncUpsertResponse.data.message, body: asyncUpsertResponse.data as Object as JSONLikeObject }
-        : asyncUpsertResponse.data.resultMessages && asyncUpsertResponse.data.resultMessages.length > 0
-        ? { errormessage: asyncUpsertResponse.data.resultMessages[0]?.message ?? 'Unknown error', body: {} }
-        : { errormessage: `SFMC API responded with ${JSON.stringify(asyncUpsertResponse.data)}.`, body: {} }
+      // Every remaining case is a batch-level rejection -- same per-row error treatment, differing
+      // only in the message/body sourced from the response (resolved by shape above).
+      const { errormessage, body } = resolveBatchErrorDetail(asyncUpsertResponse.data)
 
       for (let i = 0; i < payload.length; i++) {
         response.multiStatusResponse.setErrorResponseAtIndex(i, {
@@ -175,6 +288,16 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         return response
       }
 
+      // Defensive integrity check: the nested status object echoes the original job's requestId.
+      // If it doesn't match the job we polled, we may be reading a stale/mismatched response
+      // (proxy/cache quirk, SFMC bug) -- log it rather than trust counts for the wrong job. We
+      // only warn (don't fail) to avoid false positives if SFMC's echoed shape ever varies.
+      if (statusResponse.data.status.requestId && statusResponse.data.status.requestId !== payload.jobId) {
+        logger?.warn?.(
+          `SFMC async status requestId mismatch for job ${payload.jobId}: response reported ${statusResponse.data.status.requestId}`
+        )
+      }
+
       // Return IN_PROGRESS status if SFMC indicates that the request is still being processed
       if (
         statusResponse.data.status.requestStatus === 'Pending' ||
@@ -228,40 +351,8 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       // (Pending/Executing/Error/Complete+OK all returned above) -- fetch the results to get
       // the granular error messages for failed records.
       const statusHasErrors = statusResponse.data.status?.resultStatus === 'Has Errors'
-      response.multiStatusResponse = new MultiStatusResponse()
 
-      // /results is paginated (50 items per page by default) -- fetch every page up front so
-      // `count` (the true total) is fully represented in `items` before we decide successCount/
-      // jobStatus. Without this, any batch over one page's worth of rows would silently report
-      // results for only the first page.
-      const items: AsyncUpsertRowsPollResultsResponse['items'] = []
-      let page = 1
-      let totalCount = 0
-      let pageSize = 0
-      for (;;) {
-        const resultsResponse = await request<AsyncUpsertRowsPollResultsResponse>(
-          `https://${settings.subdomain}.rest.marketingcloudapis.com/data/v1/async/${payload.jobId}/results?page=${page}`,
-          {
-            method: 'GET',
-            // The results payload carries one item per uploaded record (both 'OK' and 'Error'
-            // entries, in submission order), and routinely exceeds the 16KB highWaterMark of the
-            // tee that `response.clone()` sets up in prepare-response.
-            // Reading only the clone while the original body goes unread deadlocks that tee, so
-            // the request never settles and the caller's poll deadline expires instead. Same fix
-            // and same root cause as the Iterable Lists hang (PR #2461).
-            skipResponseCloning: true
-          }
-        )
-
-        items.push(...(resultsResponse.data.items ?? []))
-        totalCount = resultsResponse.data.count ?? items.length
-        pageSize = resultsResponse.data.pageSize || pageSize
-
-        if (!pageSize || items.length >= totalCount) {
-          break
-        }
-        page++
-      }
+      const items = await fetchAllResultItems(request, settings.subdomain, payload.jobId)
 
       // SFMC's /status can report hasErrors on a job whose /results page(s) come back with zero
       // (or a missing) items -- a status/results inconsistency, not proof the job actually
@@ -271,37 +362,27 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       // the Complete+Has Errors path in a future refactor.
       if (statusHasErrors && items.length === 0) {
         logger?.warn?.(`SFMC async /status reported errors for job ${payload.jobId} but /results returned no items`)
-        delete response.multiStatusResponse
         response.jobStatus = 'RETRYABLE_ERROR'
         return response
       }
 
-      let successCount = 0
-      for (let i = 0; i < items.length; i++) {
-        // If an individual record has an 'OK' status, consider it a success, otherwise consider it a failure and set the error message from the API response
-        if (items[i].status === 'OK') {
-          successCount++
-          response.multiStatusResponse.setSuccessResponseAtIndex(i, {
-            status: 200,
-            sent: {},
-            body: 'OK'
-          })
-        } else {
-          const errormessage = items[i].message
-          // errorCode 2 is a generic SFMC bucket covering both permanent validation failures and
-          // transient SQL deadlocks - use the message text to flag deadlocked rows as retryable.
-          const isRetryableRowError = errormessage.trim().includes(RETRYABLE_ROW_ERROR_PHRASE)
-          response.multiStatusResponse.setErrorResponseAtIndex(i, {
-            status: isRetryableRowError ? 429 : 400,
-            errormessage,
-            body: {}
-          })
-        }
+      // Allocate only once we know we have per-record items to fill it with (the empty-items
+      // path above returns without one).
+      response.multiStatusResponse = new MultiStatusResponse()
+      const { successCount, recoveredTransientCount, permanentErrorCount } = applyResultItems(
+        response.multiStatusResponse,
+        items
+      )
+
+      if (recoveredTransientCount > 0) {
+        logger?.warn?.(
+          `SFMC async job ${payload.jobId}: ${recoveredTransientCount} row(s) reported transient deadlock errors in /results; counted as delivered (SFMC lands these on internal retry). permanent errors: ${permanentErrorCount}, ok: ${successCount}`
+        )
       }
 
-      // Only report SUCCEEDED if at least one record actually succeeded --
-      // otherwise this contradicts a success_count of 0 downstream.
-      response.jobStatus = successCount > 0 ? 'SUCCEEDED' : 'FAILED'
+      // SUCCEEDED if any row was delivered (a genuine OK or a recovered transient deadlock);
+      // only FAILED when every row was a permanent, non-retryable error.
+      response.jobStatus = successCount + recoveredTransientCount > 0 ? 'SUCCEEDED' : 'FAILED'
 
       return response
     } catch (error) {
