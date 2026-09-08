@@ -822,8 +822,8 @@
           "format": null,
           "additionalProperties": false
         },
-        "ipAddress": {
-          "label": "IP Address",
+        "plaintextIpAddress": {
+          "label": "Plain Text IP Address",
           "description": "The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.",
           "type": "string",
           "required": false,
@@ -844,6 +844,30 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": "ipv4",
+          "additionalProperties": false
+        },
+        "sha256IpAddress": {
+          "label": "SHA256 IP Address",
+          "description": "The user's IPv4 address. Segment will hash this value using SHA256 before sending it to LinkedIn, unless it is already hashed. At least one user identifier is required.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
           "additionalProperties": false
         },
         "googleAID": {
