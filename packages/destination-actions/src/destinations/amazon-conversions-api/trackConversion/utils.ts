@@ -6,7 +6,7 @@ import {
   ModifiedResponse,
   APIError
 } from '@segment/actions-core'
-import { processHashing } from '../../../lib/hashing-utils'
+import { processHashing, EmptyValueError } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
 import type {
   EventData,
@@ -32,7 +32,7 @@ import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
  * @param value The string value to validate
  * @returns true if the value is a non-empty string, false otherwise
  */
-export function hasStringValue(value: string | null | undefined): boolean {
+export function hasStringValue(value: string | null | undefined): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
@@ -128,12 +128,27 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
 }
 
 /**
- * Determines whether a match key value is safe to hash. Some values (e.g. "+++")
- * are non-empty but normalize down to an empty string, which would otherwise
- * cause the hashing utility to throw "Cannot hash an empty string".
+ * Hashes a match key value and appends it to matchKeys. Some values (e.g. "+++" for phone)
+ * are non-empty but normalize down to an empty string, which would otherwise cause the
+ * hashing utility to throw "Cannot hash an empty string" - that error is caught here and
+ * the field is skipped instead, without normalizing the value more than once.
  */
-function isHashable(value: string | null | undefined, normalizeFunction: (value: string) => string): value is string {
-  return typeof value === 'string' && normalizeFunction(value).length > 0
+function addHashedMatchKey(
+  matchKeys: MatchKeyV1[],
+  type: MatchKeyTypeV1,
+  value: string | null | undefined,
+  normalizeFunction: (value: string) => string
+): void {
+  if (!hasStringValue(value)) {
+    return
+  }
+  try {
+    matchKeys.push({ type, values: [smartHash(value, normalizeFunction)] })
+  } catch (err) {
+    if (!(err instanceof EmptyValueError)) {
+      throw err
+    }
+  }
 }
 
 /**
@@ -282,69 +297,14 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
   // Process match keys
   let matchKeys: MatchKeyV1[] = []
 
-  if (isHashable(email, normalizeEmail)) {
-    const hashedEmail = smartHash(email, normalizeEmail)
-    matchKeys.push({
-      type: MatchKeyTypeV1.EMAIL,
-      values: [hashedEmail]
-    })
-  }
-
-  if (isHashable(phone, normalizePhone)) {
-    const hashedPhone = smartHash(phone, normalizePhone)
-    matchKeys.push({
-      type: MatchKeyTypeV1.PHONE,
-      values: [hashedPhone]
-    })
-  }
-
-  if (isHashable(firstName, normalizeStandard)) {
-    const hashedFirstName = smartHash(firstName, normalizeStandard)
-    matchKeys.push({
-      type: MatchKeyTypeV1.FIRST_NAME,
-      values: [hashedFirstName]
-    })
-  }
-
-  if (isHashable(lastName, normalizeStandard)) {
-    const hashedLastName = smartHash(lastName, normalizeStandard)
-    matchKeys.push({
-      type: MatchKeyTypeV1.LAST_NAME,
-      values: [hashedLastName]
-    })
-  }
-
-  if (isHashable(address, normalizeStandard)) {
-    const hashedAddress = smartHash(address, normalizeStandard)
-    matchKeys.push({
-      type: MatchKeyTypeV1.ADDRESS,
-      values: [hashedAddress]
-    })
-  }
-
-  if (isHashable(city, normalizeStandard)) {
-    const hashedCity = smartHash(city, normalizeStandard)
-    matchKeys.push({
-      type: MatchKeyTypeV1.CITY,
-      values: [hashedCity]
-    })
-  }
-
-  if (isHashable(state, normalizeStandard)) {
-    const hashedState = smartHash(state, normalizeStandard)
-    matchKeys.push({
-      type: MatchKeyTypeV1.STATE,
-      values: [hashedState]
-    })
-  }
-
-  if (isHashable(postalCode, normalizePostal)) {
-    const hashedPostalCode = smartHash(postalCode, normalizePostal)
-    matchKeys.push({
-      type: MatchKeyTypeV1.POSTAL,
-      values: [hashedPostalCode]
-    })
-  }
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.EMAIL, email, normalizeEmail)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.PHONE, phone, normalizePhone)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.FIRST_NAME, firstName, normalizeStandard)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.LAST_NAME, lastName, normalizeStandard)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.ADDRESS, address, normalizeStandard)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.CITY, city, normalizeStandard)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.STATE, state, normalizeStandard)
+  addHashedMatchKey(matchKeys, MatchKeyTypeV1.POSTAL, postalCode, normalizePostal)
 
   if (maid && typeof maid === 'string') {
     matchKeys.push({

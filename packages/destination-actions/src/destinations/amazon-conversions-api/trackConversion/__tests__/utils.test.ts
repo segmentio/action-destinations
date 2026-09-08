@@ -1,4 +1,5 @@
 import nock from 'nock'
+import * as crypto from 'crypto'
 import {
   hasStringValue,
   validateConsent,
@@ -665,6 +666,28 @@ describe('trackConversion utils', () => {
       const result = prepareEventData(payload, settings)
       expect(result.matchKeys?.length).toBe(1)
       expect(result.matchKeys?.map((mk) => mk.type)).toEqual(['FIRST_NAME'])
+    })
+
+    it('should pass an already-hashed phone value through unchanged instead of normalizing it', () => {
+      // A real hash (hex digest) contains a-f letters. If it were run through normalizePhone
+      // (which strips all non-digit characters) before the already-hashed check, it would be
+      // mangled instead of passed through as-is.
+      const alreadyHashedPhone = crypto.createHash('sha256').update('15551234567').digest('hex')
+      const payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: {
+          phone: alreadyHashedPhone
+        },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+      const phoneKey = result.matchKeys?.find((mk) => mk.type === 'PHONE')
+      expect(phoneKey?.values[0]).toBe(alreadyHashedPhone)
     })
 
     it('should throw "At least one valid match key must be provided" when every hashable field normalizes to empty', () => {
