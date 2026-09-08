@@ -26,7 +26,8 @@ import {
   Features,
   MultiStatusResponse,
   JSONLikeObject,
-  ErrorCodes
+  ErrorCodes,
+  AudienceMembership
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -525,7 +526,8 @@ const extractUserIdentifiers = (
   idType: string,
   syncMode?: string,
   features?: Features | undefined,
-  statsContext?: StatsContext | undefined
+  statsContext?: StatsContext | undefined,
+  audienceMembership?: AudienceMembership
 ) => {
   const removeUserIdentifiers = []
   const addUserIdentifiers = []
@@ -571,13 +573,15 @@ const extractUserIdentifiers = (
     if (
       payload.event_name === 'Audience Entered' ||
       syncMode === 'add' ||
-      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+      audienceMembership === true
     ) {
       addUserIdentifiers.push({ create: { userIdentifiers: identifierFunctions[idType](payload) } })
     } else if (
       payload.event_name === 'Audience Exited' ||
       syncMode === 'delete' ||
-      (syncMode === 'mirror' && payload.event_name === 'deleted')
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      audienceMembership === false
     ) {
       removeUserIdentifiers.push({ remove: { userIdentifiers: identifierFunctions[idType](payload) } })
     }
@@ -695,7 +699,8 @@ export const handleUpdate = async (
   hookListType: string,
   syncMode?: string,
   features?: Features | undefined,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  audienceMembership?: AudienceMembership
 ) => {
   const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -708,7 +713,8 @@ export const handleUpdate = async (
     id_type,
     syncMode,
     features,
-    statsContext
+    statsContext,
+    audienceMembership
   )
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Create an offline user data job
@@ -912,7 +918,8 @@ const extractBatchUserIdentifiers = (
   idType: string,
   multiStatusResponse: MultiStatusResponse,
   syncMode?: string,
-  features?: Features
+  features?: Features,
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
@@ -943,7 +950,7 @@ const extractBatchUserIdentifiers = (
       })
       return
     }
-    const operationType = determineOperationType(payload, syncMode)
+    const operationType = determineOperationType(payload, syncMode, audienceMemberships?.[index])
     if (!operationType) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -965,17 +972,19 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string) => {
+const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
-    (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated'))
+    (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+    audienceMembership === true
   ) {
     return 'add'
   } else if (
     payload.event_name === 'Audience Exited' ||
     syncMode === 'delete' ||
-    (syncMode === 'mirror' && payload.event_name === 'deleted')
+    (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+    audienceMembership === false
   ) {
     return 'remove'
   }
@@ -1005,7 +1014,8 @@ export const processBatchPayload = async (
   hookListType: string,
   syncMode?: string,
   features?: Features | undefined,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  audienceMemberships?: AudienceMembership[]
 ) => {
   const externalAudienceId = hookListId || payloads[0]?.external_audience_id
   if (!externalAudienceId) {
@@ -1019,7 +1029,8 @@ export const processBatchPayload = async (
     id_type,
     multiStatusResponse,
     syncMode,
-    features
+    features,
+    audienceMemberships
   )
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)

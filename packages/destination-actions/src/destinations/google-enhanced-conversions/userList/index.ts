@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   syncMode: {
     description: 'Define how the records will be synced to Google',
     label: 'How to sync records',
-    default: 'add',
+    default: 'mirror',
     choices: [
       { label: 'Adds users to the connected Google Customer Match User List', value: 'add' },
       { label: 'Remove users from the connected Google Customer Match User List', value: 'delete' },
@@ -110,7 +110,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v22/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -123,7 +123,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v22/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -303,7 +303,10 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: async (request, { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }) => {
+  perform: async (
+    request,
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
+  ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     return await handleUpdate(
@@ -315,12 +318,13 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
       features,
-      statsContext
+      statsContext,
+      audienceMembership
     )
   },
   performBatch: async (
     request,
-    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features }
+    { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
     return await processBatchPayload(
@@ -332,7 +336,8 @@ const action: ActionDefinition<Settings, Payload> = {
       hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
       syncMode,
       features,
-      statsContext
+      statsContext,
+      audienceMembership
     )
   }
 }

@@ -15,3 +15,8 @@ export const SALESFORCE_MARKETING_CLOUD_DATA_API_VERSION = 'v1'
  * API reference: https://developer.salesforce.com/docs/marketing/marketing-cloud/references/mc-data_extension_rows_sync?meta=Summary
  */
 export const SALESFORCE_MARKETING_CLOUD_HUB_API_VERSION = 'v1'
+
+/** Feature flag that enables BatchSize on the SOAP DataFolder retrieve call to prevent timeouts
+ * on accounts with large numbers of data-extension folders.
+ */
+export const SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON = 'sfmc-soap-category-batch-size'

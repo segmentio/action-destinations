@@ -166,6 +166,21 @@ function compareProps(prop1: Prop, prop2: Prop): boolean {
       // string:text is OK to match to textarea:string
       return true
     }
+    if (
+      (prop1.type === HSPropType.String &&
+        prop1.fieldType === HSPropFieldType.Text &&
+        prop2.type === HSPropType.DateTime &&
+        prop2.fieldType === HSPropFieldType.Date) ||
+      (prop1.type === HSPropType.DateTime &&
+        prop1.fieldType === HSPropFieldType.Date &&
+        prop2.type === HSPropType.String &&
+        prop2.fieldType === HSPropFieldType.Text)
+    ) {
+      // string values (e.g. Unix epoch strings) are valid for HubSpot datetime fields.
+      // coercion is symmetric to handle cache hits where the cached schema was inferred
+      // from a different string encoding (e.g. epoch string cached, ISO string arrives later)
+      return true
+    }
     throw new IntegrationError(
       `Payload property with name ${prop1.name} has a different type to the property in HubSpot. Expected: type = ${prop1.type} fieldType = ${prop1.fieldType}. Received: type = ${prop2.type} fieldType = ${prop2.fieldType}`,
       'HUBSPOT_PROPERTY_TYPE_MISMATCH',

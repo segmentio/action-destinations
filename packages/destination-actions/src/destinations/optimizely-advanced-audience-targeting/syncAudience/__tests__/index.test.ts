@@ -1,5 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import isEqual from 'lodash/isEqual'
 import Destination from '../../index'
 
 let testDestination = createTestIntegration(Destination)
@@ -12,6 +13,19 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
   })
 
   describe('single request', () => {
+    // Expected request body for trackEvent / trackEventJourneyStep below. segment_computation_action
+    // (populated from computation_class) is only used as a gate on the field's `choices` - it is not
+    // referenced when building the OptimizelyClient request body, so an 'audience' payload and an
+    // otherwise-identical 'journey_step' payload produce an identical request body.
+    const expectedTrackBody = [
+      {
+        audienceId: 'abc',
+        audienceName: 'some_audience_name',
+        timestamp: '2024-01-08T13:52:50.212Z',
+        subscription: true,
+        userId: 'user1234'
+      }
+    ]
     const trackEvent = createTestEvent({
       context: {
         personas: {
@@ -26,7 +40,25 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
       traits: {
         email: 'test.email@test.com',
         some_audience_name: true
-      }
+      },
+      timestamp: '2024-01-08T13:52:50.212Z'
+    })
+    const trackEventJourneyStep = createTestEvent({
+      context: {
+        personas: {
+          computation_class: 'journey_step',
+          computation_key: 'some_audience_name',
+          computation_id: 'abc'
+        },
+        traits: {
+          email: 'test.email@test.com'
+        }
+      },
+      traits: {
+        email: 'test.email@test.com',
+        some_audience_name: true
+      },
+      timestamp: '2024-01-08T13:52:50.212Z'
     })
     const identifyEvent = createTestEvent({
       context: {
@@ -43,14 +75,31 @@ describe('OptimizelyAdvancedAudienceTargeting.syncAudience', () => {
     })
 
     it('should handle traits with track', async () => {
-      nock('https://function.zaius.app/twilio_segment').post('/batch_sync_audience').reply(201)
+      nock('https://function.zaius.app/twilio_segment')
+        .post('/batch_sync_audience', (body) => isEqual(body, expectedTrackBody))
+        .reply(201)
 
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: trackEvent,
-          useDefaultMappings: true
-        })
-      ).resolves.not.toThrowError()
+      const responses = await testDestination.testAction('syncAudience', {
+        event: trackEvent,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+    })
+
+    it('should handle traits with track (journey_step)', async () => {
+      nock('https://function.zaius.app/twilio_segment')
+        .post('/batch_sync_audience', (body) => isEqual(body, expectedTrackBody))
+        .reply(201)
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: trackEventJourneyStep,
+        useDefaultMappings: true
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
     })
 
     it('should handle props with track', async () => {

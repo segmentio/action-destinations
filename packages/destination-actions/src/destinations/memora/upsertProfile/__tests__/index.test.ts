@@ -1,6 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import type { RequestClient, Logger, DynamicFieldResponse } from '@segment/actions-core'
+import type { RequestClient, Logger } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_VERSION } from '../../versioning-info'
 import { BASE_URL } from '../../constants'
@@ -1503,6 +1503,214 @@ describe('Memora.upsertProfile', () => {
     })
   })
 
+  describe('identifier overlap stats', () => {
+    const mockStatsClient = {
+      observe: jest.fn(),
+      _name: jest.fn(),
+      _tags: jest.fn(),
+      incr: jest.fn(),
+      set: jest.fn(),
+      histogram: jest.fn()
+    }
+    const mockStatsContext = { statsClient: mockStatsClient, tags: ['env:test'] }
+    const mockLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      crit: jest.fn(),
+      log: jest.fn(),
+      level: ''
+    }
+
+    const histogramCall = (name: string) =>
+      mockStatsClient.histogram.mock.calls.find((c: any[]) => c[0] === `memora.upsert_profile.${name}`)
+    const histogramValue = (name: string) => histogramCall(name)?.[1]
+
+    const profile = (identifiers: Record<string, unknown>): Payload => ({
+      memora_store: 'test-store-id',
+      profile_identifiers: identifiers,
+      profile_traits: { 'Contact.$.firstName': 'X' }
+    })
+
+    const runBatch = async (payloads: Payload[], statsContext: unknown = mockStatsContext) => {
+      const mockRequestFn = jest.fn().mockResolvedValue({ status: 202, data: {}, headers: { get: () => null } })
+      await Destination.actions.upsertProfile.performBatch!(mockRequestFn as unknown as RequestClient, {
+        payload: payloads,
+        settings: defaultSettings,
+        statsContext: statsContext as never,
+        logger: mockLogger as any
+      })
+      return mockRequestFn
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+      nock.cleanAll()
+    })
+
+    it('should report no overlap when every profile has unique identifiers', async () => {
+      await runBatch([
+        profile({ 'Contact.$.email': 'a@example.com' }),
+        profile({ 'Contact.$.email': 'b@example.com' }),
+        profile({ 'Contact.$.email': 'c@example.com' })
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(0)
+      expect(histogramValue('batch_largest_group')).toBe(1)
+      expect(mockLogger.warn).not.toHaveBeenCalledWith(expect.stringContaining('Overlapping identifiers'))
+
+      // These are the only two overlap metrics emitted
+      expect(mockStatsClient.histogram.mock.calls.map((c: any[]) => c[0])).toEqual([
+        'memora.upsert_profile.batch_overlapping_events',
+        'memora.upsert_profile.batch_largest_group'
+      ])
+    })
+
+    it('should collapse repeated identifier pairs into one distinct profile', async () => {
+      // 3 events all carrying email1 + phone1 -> a single distinct pair
+      const identifiers = { 'Contact.$.email': 'email1@example.com', 'Contact.$.phone': '+15550001' }
+      await runBatch([profile(identifiers), profile(identifiers), profile(identifiers)])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(3)
+      expect(histogramValue('batch_largest_group')).toBe(3)
+      expect(histogramCall('batch_overlapping_events')?.[2]).toEqual(expect.arrayContaining(['env:test']))
+    })
+
+    it('should link profiles transitively through a shared identifier value', async () => {
+      // {email1, phone1} x3 plus {email1} and {phone1} -> still one profile upstream
+      const pair = { 'Contact.$.email': 'email1@example.com', 'Contact.$.phone': '+15550001' }
+      await runBatch([
+        profile(pair),
+        profile(pair),
+        profile(pair),
+        profile({ 'Contact.$.email': 'email1@example.com' }),
+        profile({ 'Contact.$.phone': '+15550001' })
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(5)
+      expect(histogramValue('batch_largest_group')).toBe(5)
+    })
+
+    it('should count overlapping and unique profiles separately in a mixed batch', async () => {
+      await runBatch([
+        profile({ 'Contact.$.email': 'dupe@example.com' }),
+        profile({ 'Contact.$.email': 'dupe@example.com' }),
+        profile({ 'Contact.$.email': 'unique1@example.com' }),
+        profile({ 'Contact.$.email': 'unique2@example.com' })
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(2)
+      expect(histogramValue('batch_largest_group')).toBe(2)
+    })
+
+    it('should not treat the same value under different identifier keys as an overlap', async () => {
+      await runBatch([
+        profile({ 'Contact.$.email': 'shared-value' }),
+        profile({ 'Contact.$.externalId': 'shared-value' })
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(0)
+      expect(histogramValue('batch_largest_group')).toBe(1)
+    })
+
+    it('should match identifier values that differ only by surrounding whitespace', async () => {
+      await runBatch([
+        profile({ 'Contact.$.email': 'dupe@example.com' }),
+        profile({ 'Contact.$.email': '  dupe@example.com  ' })
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(2)
+      expect(histogramValue('batch_largest_group')).toBe(2)
+    })
+
+    it('should ignore blank identifier values when grouping', async () => {
+      await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'a@example.com', 'Contact.$.phone': '   ' },
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: { 'Contact.$.email': 'b@example.com', 'Contact.$.phone': '' },
+          profile_traits: { 'Contact.$.firstName': 'B' }
+        }
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(0)
+      expect(histogramValue('batch_largest_group')).toBe(1)
+    })
+
+    it('should exclude profiles that failed validation from the overlap counts', async () => {
+      await runBatch([
+        profile({ 'Contact.$.email': 'valid@example.com' }),
+        { memora_store: 'test-store-id', profile_identifiers: {}, profile_traits: { 'Contact.$.firstName': 'Bad' } }
+      ])
+
+      expect(histogramValue('batch_overlapping_events')).toBe(0)
+      expect(histogramValue('batch_largest_group')).toBe(1)
+    })
+
+    it('should log a warning with counts but never the identifier values', async () => {
+      await runBatch([
+        profile({ 'Contact.$.email': 'secret@example.com' }),
+        profile({ 'Contact.$.email': 'secret@example.com' })
+      ])
+
+      const warning = mockLogger.warn.mock.calls
+        .map((c: any[]) => String(c[0]))
+        .find((m: string) => m.includes('Overlapping identifiers'))
+      expect(warning).toBeDefined()
+      expect(warning).toContain('2 profile(s) resolve to 1 distinct profile(s)')
+      expect(warning).toContain('largest group is 2')
+      expect(warning).not.toContain('secret@example.com')
+    })
+
+    // Regression: an identifier value of `{ toString: null }` is expressible in plain
+    // JSON and makes String() throw. The metric ran outside the request try/catch, so
+    // one such event rejected the whole batch before the upsert was attempted, with no
+    // status code to mark it non-retryable. Delivery must survive; the batch forfeits
+    // its overlap metrics, which is the accepted tradeoff.
+    it('should still deliver the batch when an identifier value cannot be coerced to a string', async () => {
+      const hostile = JSON.parse('{"toString":null}')
+
+      const mockRequestFn = await runBatch([
+        profile({ 'Contact.$.email': 'ok1@example.com' }),
+        profile({ 'Contact.$.email': hostile }),
+        profile({ 'Contact.$.email': 'ok2@example.com' })
+      ])
+
+      // The bulk upsert must still have been sent, with all three profiles
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(3)
+
+      // Metrics for this batch are forfeited rather than emitted, and the failure is logged
+      expect(mockStatsClient.histogram).not.toHaveBeenCalled()
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to compute identifier overlap'))
+    })
+
+    it('should deliver the batch even if the stats client itself throws', async () => {
+      const throwingStatsContext = {
+        statsClient: {
+          ...mockStatsClient,
+          histogram: jest.fn(() => {
+            throw new Error('statsd exploded')
+          })
+        },
+        tags: ['env:test']
+      }
+
+      const mockRequestFn = await runBatch(
+        [profile({ 'Contact.$.email': 'a@example.com' }), profile({ 'Contact.$.email': 'a@example.com' })],
+        throwingStatsContext
+      )
+
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      expect(mockRequestFn.mock.calls[0][1].json.profiles).toHaveLength(2)
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('Failed to compute identifier overlap'))
+    })
+  })
+
   describe('error handling', () => {
     it('should throw error when API returns error response', async () => {
       const event = createTestEvent({
@@ -1558,10 +1766,10 @@ describe('Memora.upsertProfile', () => {
           .matchHeader('X-Pre-Auth-Context', 'AC1234567890')
           .reply(200, { id: 'store-3', displayName: 'Store Three' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([
@@ -1580,10 +1788,10 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores/store-no-name`)
           .reply(200, { id: 'store-no-name', displayName: '' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([{ label: 'store-no-name', value: 'store-no-name' }])
@@ -1606,10 +1814,10 @@ describe('Memora.upsertProfile', () => {
           .matchHeader('X-Pre-Auth-Context', 'AC9876543210')
           .reply(200, { id: 'store-1', displayName: 'Store One' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: settingsWithTwilio,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([{ label: 'Store One', value: 'store-1' }])
@@ -1623,10 +1831,10 @@ describe('Memora.upsertProfile', () => {
             meta: { pageSize: 100 }
           })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])
@@ -1641,10 +1849,10 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores/store-1`)
           .reply(500, { message: 'Internal server error' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])
@@ -1658,10 +1866,10 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores?pageSize=100&orderBy=ASC`)
           .reply(500, { message: 'Internal server error' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'memora_store', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'memora_store', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])
@@ -1752,10 +1960,10 @@ describe('Memora.upsertProfile', () => {
             ]
           })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         // Should return all traits with idTypePromotion set, regardless of dataType
@@ -1768,10 +1976,10 @@ describe('Memora.upsertProfile', () => {
       })
 
       it('should return error when memora_store is not selected', async () => {
-        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])
@@ -1785,10 +1993,10 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .reply(500, { message: 'Internal server error' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'profile_identifiers.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])
@@ -1886,10 +2094,10 @@ describe('Memora.upsertProfile', () => {
             ]
           })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         // Should exclude identifiers (traits with idTypePromotion) but include all non-identifier traits regardless of dataType
@@ -1918,10 +2126,10 @@ describe('Memora.upsertProfile', () => {
       })
 
       it('should return error when memora_store is not selected', async () => {
-        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])
@@ -1935,10 +2143,10 @@ describe('Memora.upsertProfile', () => {
           .get(`/${API_VERSION}/ControlPlane/Stores/test-store-id/TraitGroups?pageSize=100&includeTraits=true`)
           .reply(500, { message: 'Internal server error' })
 
-        const result = (await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
+        const result = await testDestination.testDynamicField('upsertProfile', 'profile_traits.__keys__', {
           settings: defaultSettings,
           payload: { memora_store: 'test-store-id' }
-        })) as DynamicFieldResponse
+        })
 
         expect(result).toBeDefined()
         expect(result.choices).toEqual([])

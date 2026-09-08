@@ -114,6 +114,23 @@ export interface Payload {
    */
   file_extension: string
   /**
+   * Columns whose values will be normalized and/or hashed before writing to the file.
+   */
+  columns_to_transform?: {
+    /**
+     * The name of the column to hash or normalize.
+     */
+    column_name: string
+    /**
+     * The hashing algorithm to apply. Select 'none' to normalize the value without hashing it.
+     */
+    hash_algorithm: string
+    /**
+     * How to normalize the value before hashing. Values that are already hashed are never re-hashed. Select 'none' to leave the value unchanged.
+     */
+    normalize: string
+  }[]
+  /**
    * The keys to use for batching the events.
    */
   batch_keys?: string[]

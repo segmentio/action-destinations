@@ -68,7 +68,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         settings,
         auth,
         mapping: baseMapping,
-        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: false, 'actions-core-audience-membership': true }
+        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: false }
       })
 
       expect(responses[0].status).toBe(200)
@@ -84,7 +84,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         settings,
         auth,
         mapping: baseMapping,
-        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: true, 'actions-core-audience-membership': true }
+        features: { [FACEBOOK_CUSTOM_AUDIENCE_FLAGON]: true }
       })
 
       expect(responses[0].status).toBe(200)
@@ -101,8 +101,7 @@ describe('Facebook Custom Audiences - canary API version', () => {
         events,
         settings,
         auth,
-        mapping: baseMapping,
-        features: { 'actions-core-audience-membership': true }
+        mapping: baseMapping
       })
 
       expect(responses[0].status).toBe(200)

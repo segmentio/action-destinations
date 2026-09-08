@@ -8,7 +8,7 @@ Object {
   "cascadeCreate": true,
   "itemId": "7(iq3vwM",
   "recommId": "7(iq3vwM",
-  "timestamp": "7(iq3vwM",
+  "timestamp": 1612137600,
   "userId": "7(iq3vwM",
 }
 `;
@@ -30,9 +30,9 @@ Object {
   "amount": 85450379273175.05,
   "cascadeCreate": true,
   "itemId": "fSK%!$(3gz2peZ!&@L@D",
-  "price": 85450379273175.05,
+  "price": 7.301767317929464e+27,
   "recommId": "fSK%!$(3gz2peZ!&@L@D",
-  "timestamp": "fSK%!$(3gz2peZ!&@L@D",
+  "timestamp": 1612137600,
   "userId": "fSK%!$(3gz2peZ!&@L@D",
 }
 `;
@@ -55,7 +55,7 @@ Object {
   "duration": 4043918945550336,
   "itemId": "VhiOfa#s6#B[CQDV",
   "recommId": "VhiOfa#s6#B[CQDV",
-  "timestamp": "VhiOfa#s6#B[CQDV",
+  "timestamp": 1612137600,
   "userId": "VhiOfa#s6#B[CQDV",
 }
 `;
@@ -81,10 +81,10 @@ Object {
         "amount": 3316018504007.68,
         "cascadeCreate": true,
         "itemId": "!D2A1H%v%jv&r",
-        "price": 3316018504007.68,
-        "profit": 3316018504007.68,
+        "price": 1.0995978718921334e+25,
+        "profit": 1.0995978718921334e+25,
         "recommId": "!D2A1H%v%jv&r",
-        "timestamp": "!D2A1H%v%jv&r",
+        "timestamp": 1612137600,
         "userId": "!D2A1H%v%jv&r",
       },
       "path": "/purchases/",
@@ -119,7 +119,7 @@ Object {
   "itemId": "X9m9Urlsqof(&*PN!s",
   "rating": 63040185947914.24,
   "recommId": "X9m9Urlsqof(&*PN!s",
-  "timestamp": "X9m9Urlsqof(&*PN!s",
+  "timestamp": 1612137600,
   "userId": "X9m9Urlsqof(&*PN!s",
 }
 `;
@@ -134,35 +134,13 @@ Object {
 }
 `;
 
-exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - all fields 1`] = `
-Object {
-  "itemId": "Sy@zJ0^",
-  "timestamp": "Sy@zJ0^",
-  "userId": "Sy@zJ0^",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - all fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - required fields 1`] = `
-Object {
-  "itemId": "Sy@zJ0^",
-  "userId": "Sy@zJ0^",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteBookmark action - required fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - all fields 1`] = `
-Object {
-  "itemId": "BGNilpbMGk^JyT",
-  "timestamp": "BGNilpbMGk^JyT",
-  "userId": "BGNilpbMGk^JyT",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - all fields 1`] = `Object {}`;
 
-exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - required fields 1`] = `
-Object {
-  "itemId": "BGNilpbMGk^JyT",
-  "userId": "BGNilpbMGk^JyT",
-}
-`;
+exports[`Testing snapshot for actions-recombee destination: deleteCartAddition action - required fields 1`] = `Object {}`;
 
 exports[`Testing snapshot for actions-recombee destination: mergeUsers action - all fields 1`] = `Object {}`;
 
@@ -178,7 +156,7 @@ Object {
   "portion": 0.2614,
   "recommId": "D9^z[P*Zv",
   "sessionId": "D9^z[P*Zv",
-  "timestamp": "D9^z[P*Zv",
+  "timestamp": 1612137600,
   "userId": "D9^z[P*Zv",
 }
 `;
@@ -203,7 +181,7 @@ Object {
   "portion": 0.9848557610530407,
   "recommId": "gpLV6!FLD#$6^LR77nTN",
   "sessionId": "gpLV6!FLD#$6^LR77nTN",
-  "timestamp": "gpLV6!FLD#$6^LR77nTN",
+  "timestamp": 1612137600,
   "userId": "gpLV6!FLD#$6^LR77nTN",
 }
 `;

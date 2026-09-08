@@ -211,6 +211,58 @@ describe('LinkedinAudiences.updateAudience', () => {
       expect(response).toBeTruthy()
     })
 
+    it('should set action to "ADD" for a Journeys event (computation_class: journey_step) in AUTO mode', async () => {
+      // This destination has no computation_class-aware code: in AUTO mode (the default),
+      // getAction() (functions.ts) decides ADD/REMOVE purely from the literal `event` name
+      // ("Audience Entered"/"Audience Exited"), never from computation_class. This test pins
+      // down that a Journeys-originated event (computation_class: 'journey_step') is handled
+      // identically to a classic Engage one, since only the event name matters here.
+      const journeysEvent = createTestEvent({
+        event: 'Audience Entered',
+        type: 'track',
+        properties: {
+          audience_key: 'personas_test_audience'
+        },
+        context: {
+          device: {
+            advertisingId: '123'
+          },
+          traits: {
+            email: 'testing@testing.com'
+          },
+          personas: {
+            computation_class: 'journey_step',
+            computation_key: 'personas_test_audience'
+          }
+        }
+      })
+
+      nock(`${BASE_URL}/dmpSegments`)
+        .get(/.*/)
+        .query(() => true)
+        .reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`)
+        .post(/.*/, (body) => body.elements[0].action === 'ADD')
+        .reply(200)
+
+      const response = await testDestination.testAction('updateAudience', {
+        event: journeysEvent,
+        settings: {
+          ad_account_id: '123',
+          send_email: true,
+          send_google_advertising_id: true
+        },
+        useDefaultMappings: true,
+        auth,
+        mapping: {
+          personas_audience_key: 'personas_test_audience'
+        }
+      })
+
+      expect(response).toBeTruthy()
+    })
+
     it('Email comes from traits.email', async () => {
       const eventWithTraits = createTestEvent({
         event: 'Audience Entered',

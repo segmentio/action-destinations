@@ -112,7 +112,7 @@ describe('Braze Cloud Mode (Actions)', () => {
           external_id: 'user1234',
           email: 'test@example.com',
           first_name: 'John',
-          subscription_groups: { '@path': '$.traits.subscription_groups'}
+          subscription_groups: { '@path': '$.traits.subscription_groups' }
         }
       })
 
@@ -159,7 +159,7 @@ describe('Braze Cloud Mode (Actions)', () => {
         mapping: {
           external_id: 'user1234',
           email: 'test@example.com',
-          subscription_groups: { '@path': '$.traits.subscription_groups'}
+          subscription_groups: { '@path': '$.traits.subscription_groups' }
         }
       })
 
@@ -650,6 +650,205 @@ describe('Braze Cloud Mode (Actions)', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
+    })
+  })
+
+  describe('presets', () => {
+    it('should route the "Entities Audience Entered" preset through trackEvent with the correct payload', async () => {
+      const preset = Braze.presets?.find((p) => p.name === 'Entities Audience Entered')
+      if (!preset) {
+        throw new Error('Expected to find preset')
+      }
+      expect(preset?.partnerAction).toBe('trackEvent')
+      expect(preset?.type).toBe('specificEvent')
+      expect((preset as { eventSlug?: string })?.eventSlug).toBe('warehouse_audience_entered_track')
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      // This preset has no FQL `subscribe` filter — it's matched purely by eventSlug — so build a
+      // realistic warehouse "audience entered" track event carrying the fields the preset's
+      // (default) mapping reads from.
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Audience Entered',
+        userId: 'user1234',
+        receivedAt,
+        properties: {
+          audience_key: 'sneakers_buyers',
+          audience_name: 'Sneakers Buyers'
+        }
+      })
+
+      const responses = await testDestination.testAction(preset.partnerAction, {
+        event,
+        settings,
+        mapping: preset.mapping,
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        events: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            name: 'Audience Entered',
+            time: receivedAt,
+            properties: {
+              audience_key: 'sneakers_buyers',
+              audience_name: 'Sneakers Buyers'
+            },
+            _update_existing_only: false
+          }
+        ]
+      })
+    })
+
+    it('should route the "Entities Exited" preset through trackEvent with the correct payload', async () => {
+      const preset = Braze.presets?.find((p) => p.name === 'Entities Exited')
+      if (!preset) {
+        throw new Error('Expected to find preset')
+      }
+      expect(preset?.partnerAction).toBe('trackEvent')
+      expect(preset?.type).toBe('specificEvent')
+      expect((preset as { eventSlug?: string })?.eventSlug).toBe('warehouse_audience_exited_track')
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Audience Exited',
+        userId: 'user1234',
+        receivedAt,
+        properties: {
+          audience_key: 'sneakers_buyers',
+          audience_name: 'Sneakers Buyers'
+        }
+      })
+
+      const responses = await testDestination.testAction(preset.partnerAction, {
+        event,
+        settings,
+        mapping: preset.mapping,
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        events: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            name: 'Audience Exited',
+            time: receivedAt,
+            properties: {
+              audience_key: 'sneakers_buyers',
+              audience_name: 'Sneakers Buyers'
+            },
+            _update_existing_only: false
+          }
+        ]
+      })
+    })
+
+    it('should route the "Entities Audience Membership Changed" preset through updateUserProfile with the correct payload', async () => {
+      const preset = Braze.presets?.find((p) => p.name === 'Entities Audience Membership Changed')
+      if (!preset) {
+        throw new Error('Expected to find preset')
+      }
+      expect(preset?.partnerAction).toBe('updateUserProfile')
+      expect(preset?.type).toBe('specificEvent')
+      expect((preset as { eventSlug?: string })?.eventSlug).toBe('warehouse_audience_membership_changed_identify')
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'user1234',
+        receivedAt,
+        traits: {
+          sneakers_buyers: true,
+          loyalty_tier: 'gold'
+        }
+      })
+
+      const responses = await testDestination.testAction(preset.partnerAction, {
+        event,
+        settings,
+        mapping: preset.mapping,
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        attributes: [
+          expect.objectContaining({
+            external_id: 'user1234',
+            sneakers_buyers: true,
+            loyalty_tier: 'gold',
+            _update_existing_only: false
+          })
+        ]
+      })
+    })
+
+    it('should route the "Journeys Step Transition Track" preset through trackEvent with the correct payload', async () => {
+      const preset = Braze.presets?.find((p) => p.name === 'Journeys Step Transition Track')
+      if (!preset) {
+        throw new Error('Expected to find preset')
+      }
+      expect(preset?.partnerAction).toBe('trackEvent')
+      expect(preset?.type).toBe('specificEvent')
+      expect((preset as { eventSlug?: string })?.eventSlug).toBe('journeys_step_entered_track')
+
+      nock('https://rest.iad-01.braze.com').post('/users/track').reply(200, {})
+
+      const event = createTestEvent({
+        type: 'track',
+        event: 'Journey Step Entered',
+        userId: 'user1234',
+        receivedAt,
+        properties: {
+          journey_metadata: {
+            journey_id: 'test-journey-id',
+            journey_name: 'test-journey-name',
+            step_id: 'test-step-id',
+            step_name: 'test-step-name'
+          }
+        }
+      })
+
+      const responses = await testDestination.testAction(preset.partnerAction, {
+        event,
+        settings,
+        mapping: preset.mapping,
+        useDefaultMappings: false
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+      expect(responses[0].options.json).toMatchObject({
+        events: [
+          {
+            external_id: 'user1234',
+            app_id: 'my-app-id',
+            name: 'Journey Step Entered',
+            time: receivedAt,
+            properties: {
+              journey_metadata: {
+                journey_id: 'test-journey-id',
+                journey_name: 'test-journey-name',
+                step_id: 'test-step-id',
+                step_name: 'test-step-name'
+              }
+            },
+            _update_existing_only: false
+          }
+        ]
+      })
     })
   })
 })

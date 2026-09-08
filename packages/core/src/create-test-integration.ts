@@ -7,13 +7,15 @@ import type {
   Logger,
   EngageDestinationCache,
   RequestFn,
-  SubscriptionMetadata
+  SubscriptionMetadata,
+  PollPayload,
+  PollResponse
 } from './destination-kit'
 import type { JSONObject } from './json-object'
 import type { SegmentEvent } from './segment-event'
 import { AuthTokens } from './destination-kit/parse-settings'
 import { Features } from './mapping-kit'
-import { ExecuteDynamicFieldInput } from './destination-kit/action'
+import { ExecuteDynamicFieldInput, AsyncBatchResponse } from './destination-kit/action'
 import { DynamicFieldResponse, Result } from './destination-kit/types'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -175,6 +177,68 @@ class TestDestination<T, AudienceSettings = any> extends Destination<T, Audience
     this.responses = []
 
     return responses
+  }
+
+  async testAsyncBatchAction(
+    action: string,
+    {
+      events,
+      mapping,
+      settings,
+      auth,
+      features,
+      statsContext,
+      logger,
+      engageDestinationCache,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata
+    }: Omit<InputData<T>, 'event'> & { events?: SegmentEvent[] }
+  ): Promise<AsyncBatchResponse> {
+    mapping = mapping ?? {}
+
+    if (!events || !events.length) {
+      events = [{ type: 'track' }]
+    }
+
+    return await super.executeAsyncBatch(action, {
+      events: events.map((event) => createTestEvent(event)),
+      mapping,
+      settings: settings ?? ({} as T),
+      auth,
+      features: features ?? {},
+      statsContext: statsContext ?? ({} as StatsContext),
+      logger: logger ?? ({} as Logger),
+      engageDestinationCache: engageDestinationCache ?? ({} as EngageDestinationCache),
+      transactionContext: transactionContext ?? ({} as TransactionContext),
+      stateContext: stateContext ?? ({} as StateContext),
+      subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
+    })
+  }
+
+  async testAsyncPollAction(
+    action: string,
+    {
+      pollPayload,
+      settings,
+      features,
+      statsContext,
+      logger,
+      transactionContext,
+      stateContext,
+      subscriptionMetadata
+    }: { pollPayload: PollPayload } & Omit<InputData<T>, 'event' | 'mapping' | 'useDefaultMappings'>
+  ): Promise<PollResponse> {
+    return super.executeAsyncPoll(action, {
+      pollPayload,
+      settings: settings ?? ({} as T),
+      features: features ?? {},
+      statsContext: statsContext ?? ({} as StatsContext),
+      logger: logger ?? ({} as Logger),
+      transactionContext: transactionContext ?? ({} as TransactionContext),
+      stateContext: stateContext ?? ({} as StateContext),
+      subscriptionMetadata: subscriptionMetadata ?? ({} as SubscriptionMetadata)
+    })
   }
 }
 

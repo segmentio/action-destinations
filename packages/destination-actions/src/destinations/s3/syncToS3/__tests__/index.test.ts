@@ -1,7 +1,18 @@
-import { generateFile } from '../functions' // Adjust the import path
+import {
+  generateFile,
+  resolveColumnTransforms,
+  getNormalizer,
+  clean,
+  encodeString,
+  getAudienceAction,
+  send
+} from '../functions'
 import { Payload } from '../generated-types'
-import { clean, encodeString, getAudienceAction } from '../functions'
-import { ColumnHeader } from '../types'
+import { Settings } from '../../generated-types'
+import { ColumnHeader, ColumnTransform, RawMapping } from '../types'
+import { PayloadValidationError } from '@segment/actions-core'
+import { S3_HASHING_FEATURE_FLAG } from '../../constants'
+import { processHashing } from '../../../../lib/hashing-utils'
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
@@ -14,6 +25,14 @@ jest.mock('@aws-sdk/client-s3', () => ({
 jest.mock('@aws-sdk/client-sts', () => ({
   STSClient: jest.fn(),
   AssumeRoleCommand: jest.fn()
+}))
+
+// Mock the S3 Client so send() can complete without hitting AWS. The flag guard under test
+// throws before the Client is ever constructed, so this only matters for the non-throwing cases.
+jest.mock('../client', () => ({
+  Client: jest.fn().mockImplementation(() => ({
+    uploadS3: jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
+  }))
 }))
 
 describe('clean', () => {
@@ -158,5 +177,319 @@ describe('generateFile', () => {
   it('should generate a CSV file with correct content', () => {
     const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size')
     expect(result.toString()).toEqual(output)
+  })
+
+  it('should hash specified columns with sha256', () => {
+    const columnsToHash = new Map<string, ColumnTransform>([['email', { algorithm: 'sha256', normalize: 'none' }]])
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size', columnsToHash)
+    const rows = result.toString().split('\n')
+    const headerRow = rows[0].split(',')
+    const dataRow = rows[1].split(',')
+
+    const emailIndex = headerRow.indexOf('email')
+    const expectedHash = processHashing('test@test.com', 'sha256', 'hex')
+    expect(dataRow[emailIndex]).toBe(`"${expectedHash}"`)
+  })
+
+  it('should not hash empty or null values', () => {
+    const payloadWithEmpty: Payload[] = [
+      {
+        columns: { email: '', user_id: 'user_1' },
+        delimiter: ',',
+        enable_batching: true,
+        file_extension: 'csv'
+      }
+    ]
+    const testHeaders: ColumnHeader[] = [
+      { cleanName: 'email', originalName: 'email' },
+      { cleanName: 'user_id', originalName: 'user_id' }
+    ]
+    const columnsToHash = new Map<string, ColumnTransform>([
+      ['email', { algorithm: 'sha256', normalize: 'none' }],
+      ['user_id', { algorithm: 'sha256', normalize: 'none' }]
+    ])
+
+    const result = generateFile(payloadWithEmpty, testHeaders, ',', undefined, undefined, columnsToHash)
+    const rows = result.toString().split('\n')
+    const dataRow = rows[1].split(',')
+
+    expect(dataRow[0]).toBe('""')
+    const expectedHash = processHashing('user_1', 'sha256', 'hex')
+    expect(dataRow[1]).toBe(`"${expectedHash}"`)
+  })
+
+  it('should hash multiple columns independently', () => {
+    const columnsToHash = new Map<string, ColumnTransform>([
+      ['email', { algorithm: 'sha256', normalize: 'none' }],
+      ['user_id', { algorithm: 'sha256', normalize: 'none' }]
+    ])
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size', columnsToHash)
+    const rows = result.toString().split('\n')
+    const headerRow = rows[0].split(',')
+    const dataRow = rows[1].split(',')
+
+    const emailIndex = headerRow.indexOf('email')
+    const userIdIndex = headerRow.indexOf('user_id')
+
+    const expectedEmailHash = processHashing('test@test.com', 'sha256', 'hex')
+    const expectedUserIdHash = processHashing('user_id_1', 'sha256', 'hex')
+
+    expect(dataRow[emailIndex]).toBe(`"${expectedEmailHash}"`)
+    expect(dataRow[userIdIndex]).toBe(`"${expectedUserIdHash}"`)
+  })
+
+  it('should not hash columns not in columnsToHash', () => {
+    const columnsToHash = new Map<string, ColumnTransform>([['email', { algorithm: 'sha256', normalize: 'none' }]])
+    const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size', columnsToHash)
+    const rows = result.toString().split('\n')
+    const headerRow = rows[0].split(',')
+    const dataRow = rows[1].split(',')
+
+    const userIdIndex = headerRow.indexOf('user_id')
+    expect(dataRow[userIdIndex]).toBe('"user_id_1"')
+  })
+
+  const normalizePayloads: Payload[] = [
+    {
+      columns: { email: '  Test@Test.com  ', user_id: 'User_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+  ]
+  const normalizeHeaders: ColumnHeader[] = [
+    { cleanName: 'email', originalName: 'email' },
+    { cleanName: 'user_id', originalName: 'user_id' }
+  ]
+
+  const readColumn = (buffer: Buffer, column: string): string => {
+    const rows = buffer.toString().split('\n')
+    const index = rows[0].split(',').indexOf(column)
+    return rows[1].split(',')[index]
+  }
+
+  it('should normalize (lowercase) without hashing when algorithm is omitted', () => {
+    const transforms = new Map<string, ColumnTransform>([['email', { normalize: 'lowercase' }]])
+    const result = generateFile(normalizePayloads, normalizeHeaders, ',', undefined, undefined, transforms)
+    expect(readColumn(result, 'email')).toBe('"  test@test.com  "')
+  })
+
+  it('should normalize (trim) without hashing', () => {
+    const transforms = new Map<string, ColumnTransform>([['email', { normalize: 'trim' }]])
+    const result = generateFile(normalizePayloads, normalizeHeaders, ',', undefined, undefined, transforms)
+    expect(readColumn(result, 'email')).toBe('"Test@Test.com"')
+  })
+
+  it('should normalize (lowercase_trim) without hashing', () => {
+    const transforms = new Map<string, ColumnTransform>([['email', { normalize: 'lowercase_trim' }]])
+    const result = generateFile(normalizePayloads, normalizeHeaders, ',', undefined, undefined, transforms)
+    expect(readColumn(result, 'email')).toBe('"test@test.com"')
+  })
+
+  it('should leave the value unchanged when normalize is none and no algorithm is set', () => {
+    const transforms = new Map<string, ColumnTransform>([['email', { normalize: 'none' }]])
+    const result = generateFile(normalizePayloads, normalizeHeaders, ',', undefined, undefined, transforms)
+    expect(readColumn(result, 'email')).toBe('"  Test@Test.com  "')
+  })
+
+  it('should normalize before hashing (hash of the normalized value)', () => {
+    const transforms = new Map<string, ColumnTransform>([
+      ['email', { algorithm: 'sha256', normalize: 'lowercase_trim' }]
+    ])
+    const result = generateFile(normalizePayloads, normalizeHeaders, ',', undefined, undefined, transforms)
+    const expectedHash = processHashing('  Test@Test.com  ', 'sha256', 'hex', (v) => v.trim().toLowerCase())
+    expect(readColumn(result, 'email')).toBe(`"${expectedHash}"`)
+    // Sanity: this equals hashing the pre-normalized string directly.
+    expect(expectedHash).toBe(processHashing('test@test.com', 'sha256', 'hex'))
+  })
+
+  it('should hash the raw value (no normalization) when normalize is none', () => {
+    const transforms = new Map<string, ColumnTransform>([['email', { algorithm: 'sha256', normalize: 'none' }]])
+    const result = generateFile(normalizePayloads, normalizeHeaders, ',', undefined, undefined, transforms)
+    // Hash of the untouched value, NOT the lower-cased / trimmed one.
+    const expectedHash = processHashing('  Test@Test.com  ', 'sha256', 'hex')
+    expect(readColumn(result, 'email')).toBe(`"${expectedHash}"`)
+    // Guard against silent normalization: the raw hash must differ from the normalized hash.
+    expect(expectedHash).not.toBe(processHashing('test@test.com', 'sha256', 'hex'))
+  })
+
+  it('should not normalize an already-hashed value when hashing', () => {
+    const alreadyHashed = processHashing('test@test.com', 'sha256', 'hex')
+    const payload: Payload[] = [
+      { columns: { email: alreadyHashed }, delimiter: ',', enable_batching: true, file_extension: 'csv' }
+    ]
+    const transforms = new Map<string, ColumnTransform>([
+      ['email', { algorithm: 'sha256', normalize: 'lowercase_trim' }]
+    ])
+    const result = generateFile(
+      payload,
+      [{ cleanName: 'email', originalName: 'email' }],
+      ',',
+      undefined,
+      undefined,
+      transforms
+    )
+    // The value is passed through untouched (not re-hashed, not lower-cased).
+    expect(readColumn(result, 'email')).toBe(`"${alreadyHashed}"`)
+  })
+})
+
+describe('getNormalizer', () => {
+  it('returns undefined for none / undefined', () => {
+    expect(getNormalizer('none')).toBeUndefined()
+    expect(getNormalizer(undefined)).toBeUndefined()
+  })
+  it('lowercases', () => {
+    const normalize = getNormalizer('lowercase')
+    expect(normalize?.('AbC ')).toBe('abc ')
+  })
+  it('trims', () => {
+    const normalize = getNormalizer('trim')
+    expect(normalize?.('  AbC  ')).toBe('AbC')
+  })
+  it('lowercases and trims', () => {
+    const normalize = getNormalizer('lowercase_trim')
+    expect(normalize?.('  AbC  ')).toBe('abc')
+  })
+})
+
+describe('resolveColumnTransforms', () => {
+  const validColumnNames = new Set(['email', 'user_id', 'anonymous_id', 'event_name'])
+
+  it('should return a valid map when all entries are correct', () => {
+    const entries = [
+      { column_name: 'email', hash_algorithm: 'sha256', normalize: 'none' },
+      { column_name: 'user_id', hash_algorithm: 'sha256', normalize: 'lowercase' }
+    ]
+    const result = resolveColumnTransforms(entries, validColumnNames)
+    expect(result.size).toBe(2)
+    expect(result.get('email')).toEqual({ algorithm: 'sha256', normalize: 'none' })
+    expect(result.get('user_id')).toEqual({ algorithm: 'sha256', normalize: 'lowercase' })
+  })
+
+  it('should treat hash_algorithm "none" as normalize-only (no algorithm)', () => {
+    const entries = [{ column_name: 'email', hash_algorithm: 'none', normalize: 'lowercase_trim' }]
+    const result = resolveColumnTransforms(entries, validColumnNames)
+    expect(result.get('email')).toEqual({ algorithm: undefined, normalize: 'lowercase_trim' })
+  })
+
+  it('should treat an empty hash_algorithm as normalize-only (no algorithm)', () => {
+    const entries = [{ column_name: 'email', hash_algorithm: '', normalize: 'trim' }]
+    const result = resolveColumnTransforms(entries, validColumnNames)
+    expect(result.get('email')).toEqual({ algorithm: undefined, normalize: 'trim' })
+  })
+
+  it('should default a missing normalize to "none"', () => {
+    const entries = [
+      { column_name: 'email', hash_algorithm: 'sha256' } as unknown as {
+        column_name: string
+        hash_algorithm: string
+        normalize: string
+      }
+    ]
+    const result = resolveColumnTransforms(entries, validColumnNames)
+    expect(result.get('email')).toEqual({ algorithm: 'sha256', normalize: 'none' })
+  })
+
+  it('should throw when column_name is empty', () => {
+    const entries = [{ column_name: '', hash_algorithm: 'sha256', normalize: 'none' }]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow('column_name is required')
+  })
+
+  it('should throw when hash_algorithm is unsupported', () => {
+    const entries = [{ column_name: 'email', hash_algorithm: 'md5', normalize: 'none' }]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow('unsupported hash_algorithm "md5"')
+  })
+
+  it('should throw when normalize is unsupported', () => {
+    const entries = [{ column_name: 'email', hash_algorithm: 'none', normalize: 'uppercase' }]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow('unsupported normalize "uppercase"')
+  })
+
+  it('should throw when column_name does not exist in valid columns', () => {
+    const entries = [{ column_name: 'nonexistent_column', hash_algorithm: 'sha256', normalize: 'none' }]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow(
+      'columns_to_transform contains columns that do not exist: nonexistent_column'
+    )
+  })
+
+  it('should list all invalid columns in the error message', () => {
+    const entries = [
+      { column_name: 'bad_col_1', hash_algorithm: 'sha256', normalize: 'none' },
+      { column_name: 'bad_col_2', hash_algorithm: 'sha256', normalize: 'none' }
+    ]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow('bad_col_1, bad_col_2')
+  })
+
+  it('should throw when column_name is duplicated', () => {
+    const entries = [
+      { column_name: 'email', hash_algorithm: 'sha256', normalize: 'none' },
+      { column_name: 'email', hash_algorithm: 'sha256', normalize: 'none' }
+    ]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow(PayloadValidationError)
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow('duplicate column_name "email"')
+  })
+
+  it('should return an empty map when entries is empty', () => {
+    const result = resolveColumnTransforms([], validColumnNames)
+    expect(result.size).toBe(0)
+  })
+})
+
+describe('send with hashing feature flag', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const rawMapping: RawMapping = { columns: { email: 'email', user_id: 'user_id' } }
+
+  const payloadWithHashing: Payload = {
+    columns: { email: 'test@test.com', user_id: 'user_1' },
+    delimiter: ',',
+    enable_batching: true,
+    file_extension: 'csv',
+    columns_to_transform: [{ column_name: 'email', hash_algorithm: 'sha256', normalize: 'none' }]
+  }
+
+  it('should throw when columns_to_transform is configured but the feature flag is off', async () => {
+    await expect(send([payloadWithHashing], settings, rawMapping, {})).rejects.toThrow(PayloadValidationError)
+    await expect(send([payloadWithHashing], settings, rawMapping, undefined)).rejects.toThrow(
+      'Column hashing and normalization is currently not enabled for your Segment workspace. Remove the columns to hash / normalize or contact Segment by emailing friends@segment.com to enable the feature.'
+    )
+  })
+
+  it('should not throw when the feature flag is off and no columns are configured', async () => {
+    const payloadNoHashing: Payload = {
+      columns: { email: 'test@test.com', user_id: 'user_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+    await expect(send([payloadNoHashing], settings, rawMapping, {})).resolves.not.toThrow()
+  })
+
+  it('should not throw when columns_to_transform is configured and the feature flag is on', async () => {
+    await expect(
+      send([payloadWithHashing], settings, rawMapping, { [S3_HASHING_FEATURE_FLAG]: true })
+    ).resolves.not.toThrow()
+  })
+
+  it('should not throw for a normalize-only column when the feature flag is on', async () => {
+    const payloadNormalizeOnly: Payload = {
+      columns: { email: 'Test@Test.com', user_id: 'user_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv',
+      columns_to_transform: [{ column_name: 'email', hash_algorithm: 'none', normalize: 'lowercase_trim' }]
+    }
+    await expect(
+      send([payloadNormalizeOnly], settings, rawMapping, { [S3_HASHING_FEATURE_FLAG]: true })
+    ).resolves.not.toThrow()
   })
 })

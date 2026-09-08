@@ -100,7 +100,6 @@ describe('FacebookCustomAudiences.sync', () => {
         event,
         settings: retlSettings,
         auth,
-        features: { 'actions-core-audience-membership': true },
         mapping: {
           __segment_internal_sync_mode: 'upsert',
           email: { '@path': '$.properties.email' },
@@ -235,7 +234,6 @@ describe('FacebookCustomAudiences.sync', () => {
         event,
         settings: audienceSettings,
         auth,
-        features: { 'actions-core-audience-membership': true },
         mapping: {
           __segment_internal_sync_mode: 'mirror',
           email: { '@path': '$.properties.email' },

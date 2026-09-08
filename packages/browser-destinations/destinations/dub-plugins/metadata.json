@@ -1,0 +1,23 @@
+{
+  "slug": "dub-plugins",
+  "name": "Dub Browser Plugins",
+  "mode": "device",
+  "description": "Enriches all Segment payloads with dub_id cookie value",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "dubPlugin": {
+      "title": "Dub Browser Plugin",
+      "description": "Enriches all Segment payloads with dub_id cookie value",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}

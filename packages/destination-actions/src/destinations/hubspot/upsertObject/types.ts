@@ -124,6 +124,16 @@ export interface UpsertReq {
   }>
 }
 
+export interface UpdateReq {
+  inputs: Array<{
+    // Omitted when the identifier is hs_object_id, which batch/update resolves as the record id.
+    // batch/upsert has the opposite contract - see UpsertReq - so the two must not share a type.
+    idProperty?: string
+    id: string
+    properties: Record<string, string>
+  }>
+}
+
 export interface CreateReq {
   inputs: Array<{
     idProperty: string
@@ -269,9 +279,12 @@ export interface AddRemoveFromListReq {
 
 export type EngageAudiencePayload = Payload & {
   traits_or_props: {
-    [k : string]: unknown
+    [k: string]: unknown
   }
   computation_key: string
 }
 
-export type PayloadListType = 'is_engage_audience_payload' | 'is_non_engage_audience_payload' | 'is_not_audience_payload'
+export type PayloadListType =
+  | 'is_engage_audience_payload'
+  | 'is_non_engage_audience_payload'
+  | 'is_not_audience_payload'

@@ -1,0 +1,1351 @@
+{
+  "slug": "actions-ortto",
+  "name": "Ortto (Actions)",
+  "mode": "cloud",
+  "description": "Send customer data from Segment to Ortto in real time to power campaigns, trigger journeys, and manage audiences with greater flexibility and control.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "api_key": {
+        "label": "API Key",
+        "description": "Ortto API key",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "upsertContactProfile": {
+      "title": "Upsert Contact",
+      "description": "Create or update a Contact in Ortto",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": {
+        "onMappingSave": {
+          "label": "Associate Audience",
+          "description": "Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.",
+          "inputFields": {
+            "audience_name": {
+              "label": "Audience Name",
+              "description": "The name of the Ortto Audience to link the Contact to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "outputFields": {
+            "audience_id": {
+              "label": "ID",
+              "description": "The ID of the Ortto Audience Contacts will be linked to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audience_name": {
+              "label": "Name",
+              "description": "The name of the Ortto Audience contacts will be linkted to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "dynamicFields": null,
+      "fields": {
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "Event timestamp (ISO 8601)",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "date-time",
+          "additionalProperties": false
+        },
+        "message_id": {
+          "label": "Message ID",
+          "description": "Message ID",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "The unique user identifier",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "anonymous_id",
+                "operator": "is"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "Anonymous user identifier",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "user_id",
+                "operator": "is"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch data",
+          "description": "When enabled, events will be sent to Ortto in batches for improved efficiency.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "ip": {
+          "label": "IP Address",
+          "description": "The Contact's IP address",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": "180.1.12.125",
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "ipv4",
+          "additionalProperties": false
+        },
+        "location": {
+          "label": "Location",
+          "description": "The Contact's location. Takes priority over the IP address.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "post_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "country": {
+              "label": "Country",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "state": {
+              "label": "State",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "post_code": {
+              "label": "Postcode",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Custom Contact traits",
+          "description": "An object containing key-value pairs representing custom properties assigned to Contact profile",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audience_update_mode": {
+          "label": "Audience update mode",
+          "description": "Indicates whether the Contact should be added to or removed from the Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "add",
+          "choices": [
+            {
+              "label": "Add",
+              "value": "add"
+            },
+            {
+              "label": "Remove",
+              "value": "remove"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "trackActivity": {
+      "title": "Track Activity",
+      "description": "Track user activity",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": {
+        "onMappingSave": {
+          "label": "Associate Audience",
+          "description": "Link the Contact to an Audience in Ortto. If the Audience does not already exist, it will be created in Ortto.",
+          "inputFields": {
+            "audience_name": {
+              "label": "Audience Name",
+              "description": "The name of the Ortto Audience to link the Contact to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "outputFields": {
+            "audience_id": {
+              "label": "ID",
+              "description": "The ID of the Ortto Audience Contacts will be linked to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audience_name": {
+              "label": "Name",
+              "description": "The name of the Ortto Audience contacts will be linkted to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "dynamicFields": null,
+      "fields": {
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "Event timestamp in ISO 8601 format. Used with the Message ID to uniquely identify an activity in Ortto. If not provided, duplicate activities may occur.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "date-time",
+          "additionalProperties": false
+        },
+        "message_id": {
+          "label": "Message ID",
+          "description": "Message ID. Combined with the event timestamp to uniquely identify an activity in Ortto. If omitted, duplicate activities may occur.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": false,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "The unique user identifier",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "anonymous_id",
+                "operator": "is"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "Anonymous user identifier",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "user_id",
+                "operator": "is"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch data",
+          "description": "When enabled, events will be sent to Ortto in batches for improved efficiency.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "ip": {
+          "label": "IP Address",
+          "description": "The IP address of the location where the activity occurred.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": "180.1.12.125",
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "ipv4",
+          "additionalProperties": false
+        },
+        "location": {
+          "label": "Location",
+          "description": "The location where the activity occurred. Takes priority over the IP address.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.country"
+                }
+              }
+            },
+            "state": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.state"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.city"
+                }
+              }
+            },
+            "post_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "then": {
+                  "@path": "$.traits.address.postal_code"
+                },
+                "else": {
+                  "@path": "$.context.traits.address.postal_code"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "country": {
+              "label": "Country",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "state": {
+              "label": "State",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "post_code": {
+              "label": "Postcode",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": true,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue:only",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Custom Contact traits",
+          "description": "key-value custom property pairs to be assigned to the Contact's profile",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audience_update_mode": {
+          "label": "Audience update mode",
+          "description": "Indicates whether the Contact should be added to or removed from the Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "add",
+          "choices": [
+            {
+              "label": "Add",
+              "value": "add"
+            },
+            {
+              "label": "Remove",
+              "value": "remove"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event": {
+          "label": "Event name",
+          "description": "Event name",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "namespace": {
+          "label": "Namespace",
+          "description": "Event namespace",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.app.namespace"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": true,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Activity properties",
+          "description": "An object containing key-value pairs representing activity attributes",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Upsert Contact",
+      "type": "automatic",
+      "partnerAction": "upsertContactProfile",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "enable_batching": true,
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "location": {
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.country"
+              },
+              "then": {
+                "@path": "$.traits.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.state"
+              },
+              "then": {
+                "@path": "$.traits.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.city"
+              },
+              "then": {
+                "@path": "$.traits.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "post_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          }
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "audience_update_mode": "add",
+        "batch_size": 500
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Track Activity",
+      "type": "automatic",
+      "partnerAction": "trackActivity",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        },
+        "user_id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "enable_batching": true,
+        "ip": {
+          "@path": "$.context.ip"
+        },
+        "location": {
+          "country": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.country"
+              },
+              "then": {
+                "@path": "$.traits.address.country"
+              },
+              "else": {
+                "@path": "$.context.traits.address.country"
+              }
+            }
+          },
+          "state": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.state"
+              },
+              "then": {
+                "@path": "$.traits.address.state"
+              },
+              "else": {
+                "@path": "$.context.traits.address.state"
+              }
+            }
+          },
+          "city": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.city"
+              },
+              "then": {
+                "@path": "$.traits.address.city"
+              },
+              "else": {
+                "@path": "$.context.traits.address.city"
+              }
+            }
+          },
+          "post_code": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "then": {
+                "@path": "$.traits.address.postal_code"
+              },
+              "else": {
+                "@path": "$.context.traits.address.postal_code"
+              }
+            }
+          }
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "audience_update_mode": "add",
+        "batch_size": 500,
+        "event": {
+          "@path": "$.event"
+        },
+        "namespace": {
+          "@path": "$.context.app.namespace"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

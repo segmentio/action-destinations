@@ -5,7 +5,6 @@ import destination from '../../index'
 const testDestination = createTestIntegration(destination)
 
 describe('RoktCapi.send', () => {
-
   beforeEach(() => {
     jest.clearAllMocks()
     nock.cleanAll()
@@ -21,7 +20,7 @@ describe('RoktCapi.send', () => {
         properties: {
           order_id: 'order-123',
           revenue: 99.99,
-          currency: 'USD', 
+          currency: 'USD',
           email: 'test@example.com'
         },
         context: {
@@ -58,9 +57,7 @@ describe('RoktCapi.send', () => {
         ip: '192.168.1.1'
       }
 
-      nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
-        .reply(200, { success: true })
+      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -157,7 +154,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-789',
-          revenue: 150.00,
+          revenue: 150.0,
           currency: 'USD',
           email: 'test@example.com'
         },
@@ -197,7 +194,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-999',
-          revenue: 200.00,
+          revenue: 200.0,
           currency: 'USD',
           email: 'user@example.com',
           first_name: 'John',
@@ -258,7 +255,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-111',
-          revenue: 75.00,
+          revenue: 75.0,
           currency: 'USD',
           email: 'user2@example.com',
           first_name: 'Jane',
@@ -313,7 +310,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-222',
-          revenue: 120.00,
+          revenue: 120.0,
           currency: 'USD'
         },
         context: {
@@ -349,7 +346,7 @@ describe('RoktCapi.send', () => {
               custom_attributes: {
                 conversiontype: 'Order Completed',
                 confirmationref: 'order-222',
-                amount: 120.00,
+                amount: 120.0,
                 currency: 'USD'
               }
             }
@@ -357,9 +354,7 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
-        .reply(200, { success: true })
+      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -378,7 +373,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-333',
-          revenue: 85.00,
+          revenue: 85.0,
           currency: 'USD'
         },
         context: {
@@ -414,7 +409,7 @@ describe('RoktCapi.send', () => {
               custom_attributes: {
                 conversiontype: 'Order Completed',
                 confirmationref: 'order-333',
-                amount: 85.00,
+                amount: 85.0,
                 currency: 'USD'
               }
             }
@@ -422,9 +417,7 @@ describe('RoktCapi.send', () => {
         ]
       }
 
-      nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/events', expectedRoktPayload)
-        .reply(200, { success: true })
+      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
 
       const responses = await testDestination.testAction('send', {
         event,
@@ -480,7 +473,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-555',
-          revenue: 300.00,
+          revenue: 300.0,
           currency: 'USD',
           product_name: 'Widget Pro',
           quantity: 3,
@@ -542,6 +535,7 @@ describe('RoktCapi.send', () => {
           expect(body.events.length).toBe(1)
           expect(body.events[0].data.event_name).toBe('audiencemembershipupdate')
           expect(body.events[0].data.custom_event_type).toBe('other')
+          expect(body.events[0].data.source_message_id).toBe('aud_msg-011')
           expect(body.events[0].data.custom_attributes.audience_name).toBe('premium_users')
           expect(body.events[0].data.custom_attributes.status).toBe('add')
           expect(body.user_attributes.segment_premium_users).toBe(true)
@@ -556,12 +550,67 @@ describe('RoktCapi.send', () => {
           eventDetails: {
             source_message_id: 'msg-011',
             timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
-          },         
+          },
           engageAudienceName: 'premium_users',
           traitsOrProps: {
             premium_users: true
           },
           computationAction: 'audience'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should send audience membership update for Engage Audience when computation_class is journey_step', async () => {
+      // journey_step (Journeys) should be treated identically to 'audience' (classic Engage) since
+      // the code only checks computationAction for truthiness, not for a specific string value.
+      const event = createTestEvent({
+        event: 'Audience Entered',
+        messageId: 'msg-011-journey',
+        timestamp: '2024-01-18T12:00:00.000Z',
+        type: 'track',
+        properties: {
+          premium_users: true,
+          email: 'premium@example.com'
+        },
+        context: {
+          personas: {
+            audience_key: 'premium_users',
+            computation_class: 'journey_step'
+          }
+        },
+        userId: 'user-666'
+      })
+
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', (body) => {
+          expect(body.events).toBeDefined()
+          expect(body.events.length).toBe(1)
+          expect(body.events[0].data.event_name).toBe('audiencemembershipupdate')
+          expect(body.events[0].data.custom_event_type).toBe('other')
+          expect(body.events[0].data.source_message_id).toBe('aud_msg-011-journey')
+          expect(body.events[0].data.custom_attributes.audience_name).toBe('premium_users')
+          expect(body.events[0].data.custom_attributes.status).toBe('add')
+          expect(body.user_attributes.segment_premium_users).toBe(true)
+          return true
+        })
+        .reply(200, { success: true })
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          eventDetails: {
+            source_message_id: 'msg-011-journey',
+            timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
+          },
+          engageAudienceName: 'premium_users',
+          traitsOrProps: {
+            premium_users: true
+          },
+          computationAction: 'journey_step'
         }
       })
 
@@ -577,7 +626,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           audience_name: 'high_value_customers',
-          audience_membership: true, 
+          audience_membership: true,
           email: 'highvalue@example.com'
         },
         userId: 'user-777'
@@ -589,6 +638,7 @@ describe('RoktCapi.send', () => {
           expect(body.events.length).toBe(1)
           expect(body.events[0].data.event_name).toBe('audiencemembershipupdate')
           expect(body.events[0].data.custom_event_type).toBe('other')
+          expect(body.events[0].data.source_message_id).toBe('aud_msg-012')
           expect(body.events[0].data.custom_attributes.audience_name).toBe('high_value_customers')
           expect(body.events[0].data.custom_attributes.status).toBe('add')
           expect(body.user_attributes.segment_high_value_customers).toBe(true)
@@ -611,6 +661,156 @@ describe('RoktCapi.send', () => {
       expect(responses[0].status).toBe(200)
     })
 
+    it('should not send empty or whitespace-only strings as hashed values', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        messageId: 'msg-whitespace',
+        timestamp: '2024-01-18T12:00:00.000Z',
+        type: 'track',
+        properties: {
+          order_id: 'order-ws',
+          revenue: 50.0,
+          currency: 'USD'
+        },
+        userId: 'user-ws'
+      })
+
+      nock('https://inbound.mparticle.com')
+        .post('/s2s/v2/events', (body) => {
+          expect(body.user_identities.email).toBeUndefined()
+          expect(body.user_identities.other).toBeUndefined()
+          expect(body.user_identities.customerid).toBe('user-ws')
+          expect(body.user_attributes.firstname).toBeUndefined()
+          expect(body.user_attributes.firstnamesha256).toBeUndefined()
+          expect(body.user_attributes.lastname).toBeUndefined()
+          expect(body.user_attributes.lastnamesha256).toBeUndefined()
+          expect(body.user_attributes.mobile).toBeUndefined()
+          expect(body.user_attributes.mobilesha256).toBeUndefined()
+          expect(body.user_attributes.billingzipcode).toBeUndefined()
+          expect(body.user_attributes.billingzipsha256).toBeUndefined()
+          expect(body.device_info.http_header_user_agent).toBeUndefined()
+          expect(body.device_info.ios_advertising_id).toBeUndefined()
+          expect(body.ip).toBeUndefined()
+          return true
+        })
+        .reply(200, { success: true })
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          hashingConfiguration: {
+            hashEmail: true,
+            hashFirstName: true,
+            hashLastName: true,
+            hashMobile: true,
+            hashBillingZipcode: true
+          },
+          user_identities: {
+            email: '   ',
+            customerid: 'user-ws'
+          },
+          user_attributes: {
+            firstname: '',
+            lastname: '   ',
+            mobile: ' ',
+            billingzipcode: ''
+          },
+          device_info: {
+            http_header_user_agent: '  ',
+            ios_advertising_id: ''
+          },
+          ip: '   '
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should use distinct source_message_ids when a conversion and an audience event are sent together', async () => {
+      const event = createTestEvent({
+        event: 'Order Completed',
+        messageId: 'msg-combined',
+        timestamp: '2024-01-18T12:00:00.000Z',
+        type: 'track',
+        properties: {
+          order_id: 'order-999',
+          premium_users: true,
+          email: 'combined@example.com'
+        },
+        userId: 'user-combined'
+      })
+
+      // Both an audience membership event and a conversion event are emitted in the same payload.
+      // The conversion keeps the raw source_message_id ('msg-combined'); the audience event's id is
+      // prefixed with 'aud_' so the two events never collide on source_message_id.
+      const expectedRoktPayload = {
+        environment: 'production',
+        device_info: {
+          http_header_user_agent:
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+        },
+        user_attributes: {
+          segment_premium_users: true
+        },
+        user_identities: {
+          email: 'combined@example.com',
+          customerid: 'user-combined'
+        },
+        events: [
+          {
+            event_type: 'custom_event',
+            data: {
+              custom_event_type: 'other',
+              source_message_id: 'aud_msg-combined',
+              timestamp_unixtime_ms: 1705579200000,
+              event_name: 'audiencemembershipupdate',
+              custom_attributes: {
+                audience_name: 'premium_users',
+                status: 'add'
+              }
+            }
+          },
+          {
+            event_type: 'custom_event',
+            data: {
+              custom_event_type: 'transaction',
+              source_message_id: 'msg-combined',
+              timestamp_unixtime_ms: 1705579200000,
+              event_name: 'conversion',
+              custom_attributes: {
+                conversiontype: 'Order Completed'
+              }
+            }
+          }
+        ],
+        ip: '8.8.8.8'
+      }
+
+      nock('https://inbound.mparticle.com').post('/s2s/v2/events', expectedRoktPayload).reply(200, { success: true })
+
+      const responses = await testDestination.testAction('send', {
+        event,
+        useDefaultMappings: true,
+        mapping: {
+          eventDetails: {
+            conversiontype: 'Order Completed',
+            source_message_id: 'msg-combined',
+            timestamp_unixtime_ms: '2024-01-18T12:00:00.000Z'
+          },
+          engageAudienceName: 'premium_users',
+          traitsOrProps: {
+            premium_users: true
+          },
+          computationAction: 'audience'
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
+
     it('should reject event with no identifiers', async () => {
       const event = createTestEvent({
         event: 'Order Completed',
@@ -619,7 +819,7 @@ describe('RoktCapi.send', () => {
         type: 'track',
         properties: {
           order_id: 'order-888',
-          revenue: 50.00,
+          revenue: 50.0,
           currency: 'USD'
         },
         context: {},
@@ -635,7 +835,9 @@ describe('RoktCapi.send', () => {
             device_info: {}
           }
         })
-      ).rejects.toThrow('At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.')
+      ).rejects.toThrow(
+        'At least one of the following is required: iOS Advertising ID, Android Advertising ID, iOS ID for Vendor, Android UUID, Email, Customer ID, RTID.'
+      )
     })
   })
 
@@ -649,7 +851,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'batch-order-001',
-            revenue: 100.00,
+            revenue: 100.0,
             currency: 'USD',
             email: 'batch1@example.com'
           },
@@ -662,7 +864,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'batch-order-002',
-            revenue: 200.00,
+            revenue: 200.0,
             currency: 'USD',
             email: 'batch2@example.com'
           },
@@ -675,7 +877,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'batch-order-003',
-            revenue: 300.00,
+            revenue: 300.0,
             currency: 'USD',
             email: 'batch3@example.com'
           },
@@ -715,7 +917,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-001',
-            revenue: 100.00,
+            revenue: 100.0,
             currency: 'USD',
             email: 'valid1@example.com'
           },
@@ -729,7 +931,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-002',
-            revenue: 200.00,
+            revenue: 200.0,
             currency: 'USD'
           },
           context: {},
@@ -743,7 +945,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-003',
-            revenue: 300.00,
+            revenue: 300.0,
             currency: 'USD',
             email: 'valid2@example.com'
           },
@@ -757,7 +959,7 @@ describe('RoktCapi.send', () => {
           type: 'track',
           properties: {
             order_id: 'mixed-order-004',
-            revenue: 400.00,
+            revenue: 400.0,
             currency: 'USD'
           },
           context: {},
@@ -859,9 +1061,7 @@ describe('RoktCapi.send', () => {
         })
       ]
 
-      nock('https://inbound.mparticle.com')
-        .post('/s2s/v2/bulkevents')
-        .reply(500, { error: 'Internal Server Error' })
+      nock('https://inbound.mparticle.com').post('/s2s/v2/bulkevents').reply(500, { error: 'Internal Server Error' })
 
       const responses = await testDestination.testBatchAction('send', {
         events,

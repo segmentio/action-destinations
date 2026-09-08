@@ -6,6 +6,7 @@ import {
   products,
 } from './fields'
 import { send } from './functions'
+import { SUPPORTED_SYNC_MODES} from './constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Ecommerce Event (multi product)',
@@ -17,10 +18,10 @@ const action: ActionDefinition<Settings, Payload> = {
   syncMode: {
     description: 'Define how the records from your destination will be synced.',
     label: 'How to track events',
-    default: 'add',
+    default: SUPPORTED_SYNC_MODES.ADD,
     choices: [
-      { label: 'Add Profile with Event', value: 'add' },
-      { label: 'Update Profile with Event', value: 'update' }
+      { label: 'Add Profile with Event', value: SUPPORTED_SYNC_MODES.ADD },
+      { label: 'Update Profile with Event', value: SUPPORTED_SYNC_MODES.UPDATE }
     ]
   },
   perform: async (request, {payload, settings, syncMode}) => {

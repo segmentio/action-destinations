@@ -10,6 +10,10 @@ export interface Payload {
    */
   userId?: string
   /**
+   * The new email address to assign to the user. For single event processing, Segment makes a separate API call to set the new email address. Batch updating a profile email address is only supported for Hybrid projects.
+   */
+  newEmail?: string
+  /**
    * Data to store on the user profile.
    */
   dataFields?: {

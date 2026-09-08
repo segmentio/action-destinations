@@ -1912,5 +1912,23 @@ describe('GoogleEnhancedConversions', () => {
         errorreporter: 'DESTINATION'
       })
     })
+
+    describe('retlOnMappingSave hook - performHook validate()', () => {
+      // performHook's very first line calls verifyCustomerId(settings.customerId) *before* the
+      // try/catch blocks that wrap the rest of the hook's create/get-list logic (see
+      // userList/index.ts). Every other failure path inside performHook is caught and returned as
+      // a graceful `{ error: {...} }` value, but a missing customerId causes verifyCustomerId to
+      // throw a PayloadValidationError that escapes performHook uncaught - i.e. executeHook()
+      // rejects instead of resolving with an error object. This test closes that gap.
+      it('rejects with PayloadValidationError when settings.customerId is missing, rather than returning a graceful hook error', async () => {
+        await expect(
+          testDestination.actions.userList.executeHook('retlOnMappingSave', {
+            settings: {},
+            hookInputs: { list_name: 'Test List' },
+            payload: {}
+          })
+        ).rejects.toThrow(PayloadValidationError)
+      })
+    })
   })
 })

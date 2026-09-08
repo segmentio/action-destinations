@@ -25,6 +25,10 @@ export interface Payload {
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
+  /**
+   * The type of subscription. Flag for enabling Async Pipeline.
+   */
+  subscription_type?: string
 }
 // Generated file. DO NOT MODIFY IT BY HAND.
 

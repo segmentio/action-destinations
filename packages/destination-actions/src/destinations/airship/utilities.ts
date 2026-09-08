@@ -1,4 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
+import { RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { Payload as CustomEventsPayload } from './customEvents/generated-types'
 import { Payload as AttributesPayload } from './setAttributes/generated-types'
@@ -194,12 +194,9 @@ export function setBatchCustomEvent(request: RequestClient, settings: Settings, 
 export function setAttribute(request: RequestClient, settings: Settings, payload: AttributesPayload) {
   const endpoint = map_endpoint(settings.endpoint)
   const uri = `${endpoint}/api/channels/attributes`
-  const attributes = _build_attributes_object(payload)
   const airship_payload = {
-    attributes: attributes,
-    audience: {
-      named_user_id: `${payload.named_user_id}`
-    }
+    attributes: _build_attributes_object(payload),
+    audience: _build_audience(payload)
   }
   return do_request(request, uri, airship_payload)
 }
@@ -214,7 +211,8 @@ export function getChannelId(request: RequestClient, settings: Settings, emailAd
 // exported Action function
 export function manageTags(request: RequestClient, settings: Settings, payload: TagsPayload) {
   const endpoint = map_endpoint(settings.endpoint)
-  const uri = `${endpoint}/api/named_users/tags`
+  const path = payload.channel_id ? '/api/channels/tags' : '/api/named_users/tags'
+  const uri = `${endpoint}${path}`
   const airship_payload = _build_tags_object(payload)
   return do_request(request, uri, airship_payload)
 }
@@ -234,6 +232,33 @@ export function map_endpoint(region: string) {
   }
 }
 
+function _channel_type_to_key(channel_type: string): string {
+  const map: Record<string, string> = {
+    ios: 'ios_channel',
+    android: 'android_channel',
+    amazon: 'amazon_channel',
+    web: 'web_channel'
+  }
+  return map[channel_type.toLowerCase()] ?? 'channel'
+}
+
+// Builds the audience identifier object used to target a user, shared across all actions.
+// - named_user_id -> { named_user_id }
+// - channel_id with channel_type -> platform-specific key, e.g. { ios_channel } (Airship resolves
+//   the channel directly)
+// - channel_id without channel_type -> generic { channel } (Airship resolves the type server-side)
+// Used as the `user` object for custom events and the `audience` object for attributes and tags.
+function _build_audience(payload: { named_user_id?: string; channel_id?: string; channel_type?: string }): object {
+  if (payload.channel_id) {
+    const key = payload.channel_type ? _channel_type_to_key(payload.channel_type) : 'channel'
+    return { [key]: payload.channel_id }
+  }
+  if (payload.named_user_id) {
+    return { named_user_id: payload.named_user_id }
+  }
+  throw new PayloadValidationError('Either Named User ID or Channel ID must be provided')
+}
+
 function _build_custom_event_object(payload: CustomEventsPayload): object {
   /*
   This function takes a Track payload and builds a Custom Event payload.
@@ -249,9 +274,7 @@ function _build_custom_event_object(payload: CustomEventsPayload): object {
   }
   const airship_payload = {
     occurred: _validate_timestamp(payload.occurred),
-    user: {
-      named_user_id: payload.named_user_id
-    },
+    user: _build_audience(payload),
     body: {
       name: payload.name.toLowerCase(),
       interaction_type: 'cdp',
@@ -279,6 +302,16 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   /*
   This function builds a single attribute from a key/value.
   */
+  // JSON attributes (object/array values) require a key in the format attribute_name#instance_id.
+  // If the user hasn't included an instance ID, append '#default'.
+  if (
+    attribute_value !== null &&
+    typeof attribute_value === 'object' &&
+    !attribute_key.includes('#')
+  ) {
+    attribute_key = `${attribute_key}#default`
+  }
+
   let adjustedDate = null
   if (typeof attribute_value == 'string') {
     adjustedDate = _parse_date(attribute_value)
@@ -291,7 +324,7 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   const attribute: {
     action: string
     key: string
-    value?: string | number | boolean
+    value?: unknown
     timestamp: string | boolean
   } = {
     action: 'set',
@@ -336,9 +369,7 @@ function _build_tags_object(payload: TagsPayload): object {
     }
   }
   const airship_payload: { audience: {}; add?: {}; remove?: {} } = { audience: {} }
-  airship_payload.audience = {
-    named_user_id: payload.named_user_id
-  }
+  airship_payload.audience = _build_audience(payload)
   if (tags_to_add.length > 0) {
     airship_payload.add = { [tag_group]: tags_to_add }
   }
@@ -418,6 +449,8 @@ function _extract_country_language(locale: string): string[] {
 }
 
 export const _private = {
+  _build_audience,
+  _channel_type_to_key,
   _build_custom_event_object,
   _build_attributes_object,
   _build_attribute,

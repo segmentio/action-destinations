@@ -144,6 +144,36 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     expect(response[0].options.headers).toMatchSnapshot()
   })
 
+  it('Should add user to audience when Event is Audience Entered with journey_step computation_class', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
+      event: {
+        ...event,
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context?.personas,
+            computation_class: 'journey_step'
+          }
+        }
+      },
+      settings,
+      useDefaultMappings: true,
+      features
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0].status).toBe(202)
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].options.body).toBe(
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"CREATE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
+    )
+  })
+
   it('Normalise and Hash personally-identifiable input provided with SHA-256', async () => {
     nock(`https://advertising-api.amazon.com`)
       .post('/amc/audiences/records')
@@ -269,6 +299,38 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
     )
     expect(response[0].options.headers).toMatchSnapshot()
   })
+
+  it('Should delete user from audience when Event is Audience Exited with journey_step computation_class', async () => {
+    nock(`https://advertising-api.amazon.com`)
+      .post('/amc/audiences/records')
+      .matchHeader('content-type', 'application/vnd.amcaudiences.v1+json')
+      .reply(202, { jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+
+    const response = await testDestination.testAction('syncAudiencesToDSP', {
+      event: {
+        ...event,
+        event: 'Audience Exited',
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context?.personas,
+            computation_class: 'journey_step'
+          }
+        }
+      },
+      settings,
+      useDefaultMappings: true,
+      features
+    })
+
+    expect(response.length).toBe(1)
+    expect(response[0].status).toBe(202)
+    expect(response[0].data).toEqual({ jobRequestId: '1155d3e3-b18c-4b2b-a3b2-26173cdaf770' })
+    expect(response[0].options.body).toBe(
+      '{"records":[{"externalUserId":"test-kochar-01","countryCode":"US","action":"DELETE","hashedPII":[{"email":"c551027f06bd3f307ccd6abb61edc500def2680944c010e932ab5b27a3a8f151"}],"userConsent":{"geo":{"countryCode":"US"}}}],"audienceId":379909525712777677}'
+    )
+  })
+
   it('should throw an error when an event has invalid externalUserId', async () => {
     await expect(
       testDestination.testAction('syncAudiencesToDSP', {
@@ -500,9 +562,9 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         context: {
           ...event.context,
           personas: {
-            ...event.context!.personas,
+            ...event.context?.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context?.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -515,9 +577,9 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         context: {
           ...event.context,
           personas: {
-            ...event.context!.personas,
+            ...event.context?.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context?.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -567,9 +629,9 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         context: {
           ...event.context,
           personas: {
-            ...event.context!.personas,
+            ...event.context?.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context?.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -587,9 +649,9 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         context: {
           ...event.context,
           personas: {
-            ...event.context!.personas,
+            ...event.context?.personas,
             audience_settings: {
-              ...event.context!.personas!.audience_settings,
+              ...event.context?.personas.audience_settings,
               countryCode: 'DE'
             }
           }
@@ -630,9 +692,9 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
       context: {
         ...event.context,
         personas: {
-          ...event.context!.personas,
+          ...event.context?.personas,
           audience_settings: {
-            ...event.context!.personas!.audience_settings,
+            ...event.context?.personas.audience_settings,
             countryCode: 'DE'
           }
         }
@@ -645,8 +707,8 @@ describe('AmazonAds.syncAudiencesToDSP', () => {
         useDefaultMappings: true,
         features
       })
-    ).rejects.toThrowError('Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.')
+    ).rejects.toThrowError(
+      'Consent required when sending data with UK and EEA country code DE. Please provide valid consent for amznAdStorage and amznUserData or TCF or GPP.'
+    )
   })
-
-
 })

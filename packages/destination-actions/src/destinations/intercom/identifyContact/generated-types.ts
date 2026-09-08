@@ -26,11 +26,11 @@ export interface Payload {
    */
   avatar?: string
   /**
-   * The time specified for when a contact signed up.
+   * The time specified for when a contact signed up. Accepts ISO 8601 date-time or a UTC Unix timestamp (in seconds). Segment will convert to Unix if not already converted.
    */
   signed_up_at?: string | number
   /**
-   * The time when the contact was last seen.
+   * The time when the contact was last seen. Accepts ISO 8601 date-time or a UTC Unix timestamp (in seconds). Segment will convert to Unix if not already converted.
    */
   last_seen_at?: string | number
   /**

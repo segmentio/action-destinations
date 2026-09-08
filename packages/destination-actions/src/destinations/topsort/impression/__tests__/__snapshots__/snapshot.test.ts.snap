@@ -8,6 +8,9 @@ Object {
         "testType": "13(ufD",
       },
       "channel": "13(ufD",
+      "dsp_metadata": Object {
+        "testType": "13(ufD",
+      },
       "entity": Object {
         "id": "13(ufD",
         "type": "13(ufD",

@@ -15,7 +15,7 @@ const payload = {
   context: {
     personas: {
       computation_class: 'audience',
-      computation_key: 'contact_list_2',
+      computation_key: 'contact_list_2'
     }
   },
   properties: {
@@ -49,6 +49,19 @@ const payload = {
   }
 } as Partial<SegmentEvent>
 
+// Mirrors `payload` above but exercises the Journeys gate value. resolveAudienceMembership()
+// (packages/core/src/audience-membership.ts) and ENGAGE_AUDIENCE_COMPUTATION_CLASSES
+// (hubspot/upsertObject/constants.ts) both treat 'journey_step' identically to 'audience'.
+const journeyStepPayload = {
+  ...payload,
+  context: {
+    personas: {
+      computation_class: 'journey_step',
+      computation_key: 'contact_list_2'
+    }
+  }
+} as Partial<SegmentEvent>
+
 const mapping = {
   __segment_internal_sync_mode: 'upsert',
   object_details: {
@@ -63,10 +76,10 @@ const mapping = {
   associations: [],
   enable_batching: true,
   batch_size: 100,
-  batch_keys:['list_details'],
+  batch_keys: ['list_details'],
   traits_or_props: { '@path': '$.properties' },
   computation_key: { '@path': '$.context.personas.computation_key' },
-  computation_class: { '@path': '$.context.personas.computation_class'},
+  computation_class: { '@path': '$.context.personas.computation_class' },
   list_details: {
     connected_to_engage_audience: true,
     should_create_list: true
@@ -263,17 +276,13 @@ describe('Hubspot.upsertObject', () => {
         })
         .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact')
-        .reply(200, propertiesResp)
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
       nock(HUBSPOT_BASE_URL)
         .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
         .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -288,7 +297,7 @@ describe('Hubspot.upsertObject', () => {
 
     it('should remove a user from an existing Hubspot List.', async () => {
       const modifiedPayload = { ...payload, properties: { ...payload.properties, contact_list_2: false } }
-    
+
       const event = createTestEvent(modifiedPayload)
 
       nock(HUBSPOT_BASE_URL)
@@ -309,17 +318,13 @@ describe('Hubspot.upsertObject', () => {
         })
         .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact')
-        .reply(200, propertiesResp)
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
       nock(HUBSPOT_BASE_URL)
         .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
         .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -335,20 +340,18 @@ describe('Hubspot.upsertObject', () => {
     it('should add a user to an non existing Hubspot List - by creating the List first.', async () => {
       const event = createTestEvent(payload)
 
-      nock(HUBSPOT_BASE_URL)
-        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
-        .reply(400, {
-          status: 'error',
-          message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
-        })
+      nock(HUBSPOT_BASE_URL).get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`).reply(400, {
+        status: 'error',
+        message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
+      })
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/lists', {name: "contact_list_2", objectTypeId: "contact", processingType: "MANUAL"})
+        .post('/crm/v3/lists', { name: 'contact_list_2', objectTypeId: 'contact', processingType: 'MANUAL' })
         .reply(200, {
           list: {
-            listId: "21",
-            objectTypeId: "0-2",
-            name: "contact_list_2"
+            listId: '21',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
           }
         })
 
@@ -359,17 +362,13 @@ describe('Hubspot.upsertObject', () => {
         })
         .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact')
-        .reply(200, propertiesResp)
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
       nock(HUBSPOT_BASE_URL)
         .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
         .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -382,16 +381,98 @@ describe('Hubspot.upsertObject', () => {
       expect(responses.length).toBe(6)
     })
 
+    it('should add a user to an existing Hubspot List. (journey_step computation_class)', async () => {
+      const event = createTestEvent(journeyStepPayload)
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(200, {
+          list: {
+            listId: '21',
+            processingType: 'MANUAL',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: ['62102303560'],
+          recordIdsToRemove: []
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(5)
+    })
+
+    it('should remove a user from an existing Hubspot List. (journey_step computation_class)', async () => {
+      const modifiedPayload = { ...journeyStepPayload, properties: { ...payload.properties, contact_list_2: false } }
+
+      const event = createTestEvent(modifiedPayload)
+
+      nock(HUBSPOT_BASE_URL)
+        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
+        .reply(200, {
+          list: {
+            listId: '21',
+            processingType: 'MANUAL',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
+          }
+        })
+
+      nock(HUBSPOT_BASE_URL)
+        .put(`/crm/v3/lists/21/memberships/add-and-remove`, {
+          recordIdsToAdd: [],
+          recordIdsToRemove: ['62102303560']
+        })
+        .reply(200)
+
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
+
+      nock(HUBSPOT_BASE_URL)
+        .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
+        .reply(200, sensitivePropertiesResp)
+
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
+
+      const responses = await testDestination.testAction('upsertObject', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
+      })
+
+      expect(responses.length).toBe(5)
+    })
+
     it('should not create a List if it is in the LRU Cache.', async () => {
       const subscriptionMetadata = {
         // cache key for testing
         actionConfigId: 'test-cache-key'
       }
-      
+
       // To simplify this test properties and sensitive_properties are excluded
-      const modifiedPayload = { 
-        ...payload, 
-        properties: {    
+      const modifiedPayload = {
+        ...payload,
+        properties: {
           contact_list_2: true,
           email: 'test@test.com'
         }
@@ -416,8 +497,9 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert',
-          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}]})
+        .post('/crm/v3/objects/contact/batch/upsert', {
+          inputs: [{ idProperty: 'email', id: 'test@test.com', properties: { email: 'test@test.com' } }]
+        })
         .reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
@@ -437,8 +519,9 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert',
-          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}]})
+        .post('/crm/v3/objects/contact/batch/upsert', {
+          inputs: [{ idProperty: 'email', id: 'test@test.com', properties: { email: 'test@test.com' } }]
+        })
         .reply(200, upsertObjectResp)
 
       const responses2 = await testDestination.testAction('upsertObject', {
@@ -454,19 +537,19 @@ describe('Hubspot.upsertObject', () => {
       expect(responses2.length).toBe(2)
     })
 
-    it('should batch events together and update Lists correctly (List already exists in Hubspot)', async () => {      
+    it('should batch events together and update Lists correctly (List already exists in Hubspot)', async () => {
       // To simplify this test properties and sensitive_properties are excluded
-      const modifiedPayload = { 
-        ...payload, 
-        properties: {    
+      const modifiedPayload = {
+        ...payload,
+        properties: {
           contact_list_2: true,
           email: 'test@test.com'
         }
       } as SegmentEvent
 
-      const modifiedPayload2 = { 
-        ...payload, 
-        properties: {    
+      const modifiedPayload2 = {
+        ...payload,
+        properties: {
           contact_list_2: false,
           email: 'test2@test.com'
         }
@@ -508,8 +591,12 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert',
-          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}, {idProperty:"email",id:"test2@test.com",properties:{email:"test2@test.com"}}]})
+        .post('/crm/v3/objects/contact/batch/upsert', {
+          inputs: [
+            { idProperty: 'email', id: 'test@test.com', properties: { email: 'test@test.com' } },
+            { idProperty: 'email', id: 'test2@test.com', properties: { email: 'test2@test.com' } }
+          ]
+        })
         .reply(200, modifiedUpsertObjectResp)
 
       const responses = await testDestination.testBatchAction('upsertObject', {
@@ -525,17 +612,17 @@ describe('Hubspot.upsertObject', () => {
 
     it('should batch events together and update Lists correctly (List does not already exist in Hubspot)', async () => {
       // To simplify this test properties and sensitive_properties are excluded
-      const modifiedPayload = { 
-        ...payload, 
-        properties: {    
+      const modifiedPayload = {
+        ...payload,
+        properties: {
           contact_list_2: true,
           email: 'test@test.com'
         }
       } as SegmentEvent
 
-      const modifiedPayload2 = { 
-        ...payload, 
-        properties: {    
+      const modifiedPayload2 = {
+        ...payload,
+        properties: {
           contact_list_2: true,
           email: 'test2@test.com'
         }
@@ -558,20 +645,18 @@ describe('Hubspot.upsertObject', () => {
         ]
       }
 
-      nock(HUBSPOT_BASE_URL)
-        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
-        .reply(400, {
-          status: 'error',
-          message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
-        })
+      nock(HUBSPOT_BASE_URL).get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`).reply(400, {
+        status: 'error',
+        message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
+      })
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/lists', {name: "contact_list_2", objectTypeId: "contact", processingType: "MANUAL"})
+        .post('/crm/v3/lists', { name: 'contact_list_2', objectTypeId: 'contact', processingType: 'MANUAL' })
         .reply(200, {
           list: {
-            listId: "21",
-            objectTypeId: "0-2",
-            name: "contact_list_2"
+            listId: '21',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
           }
         })
 
@@ -583,8 +668,12 @@ describe('Hubspot.upsertObject', () => {
         .reply(200)
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert',
-          {inputs:[{idProperty:"email",id:"test@test.com",properties:{email:"test@test.com"}}, {idProperty:"email",id:"test2@test.com",properties:{email:"test2@test.com"}}]})
+        .post('/crm/v3/objects/contact/batch/upsert', {
+          inputs: [
+            { idProperty: 'email', id: 'test@test.com', properties: { email: 'test@test.com' } },
+            { idProperty: 'email', id: 'test2@test.com', properties: { email: 'test2@test.com' } }
+          ]
+        })
         .reply(200, modifiedUpsertObjectResp)
 
       const responses = await testDestination.testBatchAction('upsertObject', {
@@ -601,11 +690,11 @@ describe('Hubspot.upsertObject', () => {
 
   describe('Not an Engage Audience', () => {
     it('should add a user to an existing Hubspot List.', async () => {
-      const modifiedPayload = { 
-        ...payload, 
-        context: {}, 
-        properties: { 
-          ...payload.properties, 
+      const modifiedPayload = {
+        ...payload,
+        context: {},
+        properties: {
+          ...payload.properties,
           list_details: {
             connected_to_engage_audience: false,
             should_create_list: true,
@@ -648,17 +737,13 @@ describe('Hubspot.upsertObject', () => {
         })
         .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact')
-        .reply(200, propertiesResp)
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
       nock(HUBSPOT_BASE_URL)
         .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
         .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -672,11 +757,11 @@ describe('Hubspot.upsertObject', () => {
     })
 
     it('should remove a user from an existing Hubspot List.', async () => {
-      const modifiedPayload = { 
-        ...payload, 
-        context: {}, 
-        properties: { 
-          ...payload.properties, 
+      const modifiedPayload = {
+        ...payload,
+        context: {},
+        properties: {
+          ...payload.properties,
           list_details: {
             connected_to_engage_audience: false,
             should_create_list: true,
@@ -719,17 +804,13 @@ describe('Hubspot.upsertObject', () => {
         })
         .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact')
-        .reply(200, propertiesResp)
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
       nock(HUBSPOT_BASE_URL)
         .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
         .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -743,12 +824,11 @@ describe('Hubspot.upsertObject', () => {
     })
 
     it('should add a user to an non existing Hubspot List - by creating the List first.', async () => {
-      
-      const modifiedPayload = { 
-        ...payload, 
-        context: {}, 
-        properties: { 
-          ...payload.properties, 
+      const modifiedPayload = {
+        ...payload,
+        context: {},
+        properties: {
+          ...payload.properties,
           list_details: {
             connected_to_engage_audience: false,
             should_create_list: true,
@@ -767,23 +847,21 @@ describe('Hubspot.upsertObject', () => {
           list_action: { '@path': '$.properties.list_details.list_action' }
         }
       }
-      
+
       const event = createTestEvent(modifiedPayload)
 
-      nock(HUBSPOT_BASE_URL)
-        .get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`)
-        .reply(400, {
-          status: 'error',
-          message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
-        })
+      nock(HUBSPOT_BASE_URL).get(`/crm/v3/lists/object-type-id/contact/name/contact_list_2`).reply(400, {
+        status: 'error',
+        message: 'List does not exist with name contact_list_2 and object type ID 0-2.'
+      })
 
       nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/lists', {name: "contact_list_2", objectTypeId: "contact", processingType: "MANUAL"})
+        .post('/crm/v3/lists', { name: 'contact_list_2', objectTypeId: 'contact', processingType: 'MANUAL' })
         .reply(200, {
           list: {
-            listId: "21",
-            objectTypeId: "0-2",
-            name: "contact_list_2"
+            listId: '21',
+            objectTypeId: '0-2',
+            name: 'contact_list_2'
           }
         })
 
@@ -794,17 +872,13 @@ describe('Hubspot.upsertObject', () => {
         })
         .reply(200)
 
-      nock(HUBSPOT_BASE_URL)
-        .get('/crm/v3/properties/contact')
-        .reply(200, propertiesResp)
+      nock(HUBSPOT_BASE_URL).get('/crm/v3/properties/contact').reply(200, propertiesResp)
 
       nock(HUBSPOT_BASE_URL)
         .get('/crm/v3/properties/contact?dataSensitivity=sensitive')
         .reply(200, sensitivePropertiesResp)
 
-      nock(HUBSPOT_BASE_URL)
-        .post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq)
-        .reply(200, upsertObjectResp)
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/contact/batch/upsert', upsertObjectReq).reply(200, upsertObjectResp)
 
       const responses = await testDestination.testAction('upsertObject', {
         event,
@@ -816,13 +890,13 @@ describe('Hubspot.upsertObject', () => {
 
       expect(responses.length).toBe(6)
     })
-    
+
     it('should error if more than 1 list is included in the same batch', async () => {
       // To simplify this test properties and sensitive_properties are excluded
-      const modifiedPayload = { 
-        ...payload, 
-        context: {}, 
-        properties: { 
+      const modifiedPayload = {
+        ...payload,
+        context: {},
+        properties: {
           email: 'test@test.com',
           list_details: {
             connected_to_engage_audience: false,
@@ -833,10 +907,10 @@ describe('Hubspot.upsertObject', () => {
         }
       } as SegmentEvent
 
-      const modifiedPayload2 = { 
-        ...payload, 
-        context: {}, 
-        properties: { 
+      const modifiedPayload2 = {
+        ...payload,
+        context: {},
+        properties: {
           email: 'test2@test.com',
           list_details: {
             connected_to_engage_audience: false,
@@ -847,10 +921,10 @@ describe('Hubspot.upsertObject', () => {
         }
       } as SegmentEvent
 
-      const modifiedPayload3 = { 
-        ...payload, 
-        context: {}, 
-        properties: { 
+      const modifiedPayload3 = {
+        ...payload,
+        context: {},
+        properties: {
           email: 'test3@test.com',
           list_details: {
             connected_to_engage_audience: false,
@@ -860,7 +934,7 @@ describe('Hubspot.upsertObject', () => {
           }
         }
       } as SegmentEvent
-      
+
       const modifiedMapping: JSONObject = {
         ...mapping,
         list_details: {
@@ -871,16 +945,18 @@ describe('Hubspot.upsertObject', () => {
         }
       }
 
-      try{
+      try {
         await testDestination.testBatchAction('upsertObject', {
-            events: [modifiedPayload, modifiedPayload2, modifiedPayload3],
-            settings,
-            useDefaultMappings: true,
-            mapping: modifiedMapping,
-            features: { 'actions-hubspot-lists-association-support': true }
+          events: [modifiedPayload, modifiedPayload2, modifiedPayload3],
+          settings,
+          useDefaultMappings: true,
+          mapping: modifiedMapping,
+          features: { 'actions-hubspot-lists-association-support': true }
         })
       } catch (err) {
-        expect((err as Error).message).toBe('When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: contact_list_2, contact_list_3')
+        expect((err as Error).message).toBe(
+          'When updating List membership, all payloads must reference the same list. Found multiple lists in the batch: contact_list_2, contact_list_3'
+        )
       }
     })
   })

@@ -4,6 +4,7 @@ import type { StatsContext } from '@segment/actions-core'
 import * as shared from '../shared'
 import { syncAudience, validateMembership } from '../shared'
 import syncAudienceAction from '../syncAudience'
+import Destination from '../index'
 import createRequestClient from '../../../../../core/src/create-request-client'
 import { Payload } from '../syncAudience/generated-types'
 const UPLOAD_HOST = 'https://cm.g.doubleclick.net'
@@ -49,13 +50,15 @@ const testDestination = createTestIntegration({
 })
 
 // Engage-style track event. audienceMembership is resolved from these by the framework.
-const makeEngageEvent = (membership: boolean) =>
+// computation_class defaults to 'audience' (classic Engage). Journeys sends 'journey_step' instead,
+// and the framework's resolveAudienceMembership() treats both identically.
+const makeEngageEvent = (membership: boolean, computationClass: 'audience' | 'journey_step' = 'audience') =>
   createTestEvent({
     type: 'track',
     anonymousId: 'my-anon-id-42',
     context: {
       personas: {
-        computation_class: 'audience',
+        computation_class: computationClass,
         computation_key: 'my_audience',
         external_audience_id: EXTERNAL_AUDIENCE_ID
       },
@@ -188,6 +191,91 @@ describe('syncAudience action — perform', () => {
       [true]
     )
   })
+
+  it('calls syncAudience with wrapped payload and membership for a single event (journey_step)', async () => {
+    const event = makeEngageEvent(true, 'journey_step')
+
+    await testDestination.testAction('syncAudience', {
+      event,
+      mapping: baseMapping
+    })
+
+    expect(syncAudienceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      [expect.objectContaining({ external_audience_id: EXTERNAL_AUDIENCE_ID })],
+      expect.anything(),
+      [true]
+    )
+  })
+})
+
+describe('syncAudience action — presets', () => {
+  let syncAudienceSpy: jest.SpyInstance
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    nock.cleanAll()
+    syncAudienceSpy = jest.spyOn(shared, 'syncAudience').mockResolvedValue({ status: 200 })
+  })
+
+  afterEach(() => {
+    syncAudienceSpy.mockRestore()
+  })
+
+  it('should route the "Journey Step All Events" preset through syncAudience with the correct payload', async () => {
+    const preset = Destination.presets?.find((p) => p.name === 'Journey Step All Events')
+    if (!preset) {
+      throw new Error('Expected to find preset')
+    }
+    expect(preset?.partnerAction).toBe('syncAudience')
+    expect(preset?.type).toBe('specificEvent')
+    expect((preset as { eventSlug?: string })?.eventSlug).toBe('journey_step_all_events_track')
+
+    // This preset has no FQL `subscribe` filter — it's matched purely by eventSlug — so build a
+    // realistic Journeys track event carrying the fields the preset's (default) mapping reads from.
+    const event = makeEngageEvent(true, 'journey_step')
+
+    await testDestination.testAction('syncAudience', {
+      event,
+      mapping: preset.mapping,
+      useDefaultMappings: false
+    })
+
+    expect(syncAudienceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      [
+        expect.objectContaining({
+          external_audience_id: EXTERNAL_AUDIENCE_ID,
+          google_gid: 'CAESEHIV8HXNp0pFdHgi2rElMfk',
+          mobile_advertising_id: '3b6e47b3-1437-4ba2-b3c9-446e4d0cd1e5',
+          partner_provided_id: 'my-anon-id-42'
+        })
+      ],
+      expect.anything(),
+      [true]
+    )
+  })
+
+  it('routes the "Journey Step All Events" preset to a removal when audience membership is false', async () => {
+    const preset = Destination.presets?.find((p) => p.name === 'Journey Step All Events')
+    if (!preset) {
+      throw new Error('Expected to find preset')
+    }
+    const event = makeEngageEvent(false, 'journey_step')
+
+    await testDestination.testAction('syncAudience', {
+      event,
+      mapping: preset.mapping,
+      useDefaultMappings: false
+    })
+
+    expect(syncAudienceSpy).toHaveBeenCalledWith(
+      expect.anything(),
+      [expect.objectContaining({ external_audience_id: EXTERNAL_AUDIENCE_ID })],
+      expect.anything(),
+      [false]
+    )
+  })
 })
 
 describe('syncAudience action — performBatch', () => {
@@ -223,6 +311,39 @@ describe('syncAudience action — performBatch', () => {
 
     await testDestination.executeBatch('syncAudience', {
       events: [makeEngageEvent(true), makeEngageEvent(false)],
+      mapping: baseMapping
+    })
+
+    expect(scope.isDone()).toBe(true)
+  })
+
+  it('sends only an add request for an all-true batch (journey_step)', async () => {
+    const scope = nock(UPLOAD_HOST).post(UPLOAD_PATH).once().reply(200)
+
+    await testDestination.executeBatch('syncAudience', {
+      events: [makeEngageEvent(true, 'journey_step'), makeEngageEvent(true, 'journey_step')],
+      mapping: baseMapping
+    })
+
+    expect(scope.isDone()).toBe(true)
+  })
+
+  it('sends only a delete request for an all-false batch (journey_step)', async () => {
+    const scope = nock(UPLOAD_HOST).post(UPLOAD_PATH).once().reply(200)
+
+    await testDestination.executeBatch('syncAudience', {
+      events: [makeEngageEvent(false, 'journey_step'), makeEngageEvent(false, 'journey_step')],
+      mapping: baseMapping
+    })
+
+    expect(scope.isDone()).toBe(true)
+  })
+
+  it('sends both add and delete requests for a mixed batch (journey_step)', async () => {
+    const scope = nock(UPLOAD_HOST).post(UPLOAD_PATH).twice().reply(200)
+
+    await testDestination.executeBatch('syncAudience', {
+      events: [makeEngageEvent(true, 'journey_step'), makeEngageEvent(false, 'journey_step')],
       mapping: baseMapping
     })
 

@@ -1,0 +1,985 @@
+{
+  "slug": "actions-amazon-amc",
+  "name": "Amazon Ads DSP and AMC",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {
+      "region": {
+        "label": "Region",
+        "description": "Region for API Endpoint, either NA, EU, FE.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "North America (NA)",
+            "value": "https://advertising-api.amazon.com"
+          },
+          {
+            "label": "Europe (EU)",
+            "value": "https://advertising-api-eu.amazon.com"
+          },
+          {
+            "label": "Far East (FE)",
+            "value": "https://advertising-api-fe.amazon.com"
+          }
+        ],
+        "default": "https://advertising-api.amazon.com",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "description": {
+        "label": "Description",
+        "description": "The audience description. Must be an alphanumeric, non-null string between 0 to 1000 characters in length.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "countryCode": {
+        "label": "Country Code",
+        "description": "A String value representing ISO 3166-1 alpha-2 country code for the members in this audience.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "externalAudienceId": {
+        "label": "External Audience Id",
+        "description": "The user-defined audience identifier.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "cpmCents": {
+        "label": "CPM Cents",
+        "description": "Cost per thousand impressions (CPM) in cents. For example, $1.00 = 100 cents.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "currency": {
+        "label": "Currency",
+        "description": "Currency code for the CPM value.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "value": "USD",
+            "label": "USD"
+          },
+          {
+            "value": "CAD",
+            "label": "CAD"
+          },
+          {
+            "value": "JPY",
+            "label": "JPY"
+          },
+          {
+            "value": "GBP",
+            "label": "GBP"
+          },
+          {
+            "value": "EUR",
+            "label": "EUR"
+          },
+          {
+            "value": "SAR",
+            "label": "SAR"
+          },
+          {
+            "value": "AUD",
+            "label": "AUD"
+          },
+          {
+            "value": "AED",
+            "label": "AED"
+          },
+          {
+            "value": "CNY",
+            "label": "CNY"
+          },
+          {
+            "value": "MXN",
+            "label": "MXN"
+          },
+          {
+            "value": "INR",
+            "label": "INR"
+          },
+          {
+            "value": "SEK",
+            "label": "SEK"
+          },
+          {
+            "value": "TRY",
+            "label": "TRY"
+          }
+        ],
+        "default": "",
+        "depends_on": null
+      },
+      "ttl": {
+        "label": "Time-to-live",
+        "description": "Time-to-live in seconds. The amount of time the record is associated with the audience.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "advertiserId": {
+        "label": "Advertiser ID",
+        "description": "Advertiser Id",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "syncAudiencesToDSP": {
+      "title": "Sync Audiences to DSP",
+      "description": "Sync audiences from Segment to Amazon Ads Audience.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\" or event = \"Audience Exited\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "event_name": {
+          "label": "Event Name",
+          "description": "The name of the current Segment event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "externalUserId": {
+          "label": "External User ID",
+          "description": "This is an external user identifier defined by data providers.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "User email address.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "firstName": {
+          "label": "First name",
+          "description": "User first name.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.first_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "lastName": {
+          "label": "Last name",
+          "description": "User Last name.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.last_name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "phone": {
+          "label": "Phone",
+          "description": "Phone Number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.phone"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "postal": {
+          "label": "Postal",
+          "description": "Postal Code.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.postal"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "state": {
+          "label": "State",
+          "description": "State Code.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.state"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "city": {
+          "label": "City",
+          "description": "City name.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.city"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "address": {
+          "label": "Address",
+          "description": "Address Code.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.address"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audienceId": {
+          "label": "Audience ID",
+          "description": "A number value representing the Amazon audience identifier. This is the identifier that is returned during audience creation.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "consent": {
+          "label": "Consent",
+          "description": "Describes consent given by the user for advertising purposes. For EU advertisers, it is required to provide one of Geo ipAddress, amazonConsent, tcf, or gpp.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "ipAddress": {
+              "@path": "$.properties.ip"
+            },
+            "amznAdStorage": {
+              "@path": "$.properties.amznAdStorage"
+            },
+            "amznUserData": {
+              "@path": "$.properties.amznUserData"
+            },
+            "tcf": {
+              "@path": "$.properties.tcf"
+            },
+            "gpp": {
+              "@path": "$.properties.gpp"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "ipAddress": {
+              "label": "Geographic Consent: IP Address",
+              "description": "Captures the user's geographic information (IP address) for consent checking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "amznAdStorage": {
+              "label": "Ad Storage Consent",
+              "description": "Amazon Consent Format: Captures whether the user has consented to cookie based tracking.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Granted",
+                  "value": "GRANTED"
+                },
+                {
+                  "label": "Denied",
+                  "value": "DENIED"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "amznUserData": {
+              "label": "User Data Consent",
+              "description": "Amazon Consent Format: Captures whether the user has consented to use personal data for advertising.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Granted",
+                  "value": "GRANTED"
+                },
+                {
+                  "label": "Denied",
+                  "value": "DENIED"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "tcf": {
+              "label": "TCF String",
+              "description": "An encoded Transparency and Consent Framework (TCF) string describing user consent choices.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "gpp": {
+              "label": "GPP String",
+              "description": "An encoded Global Privacy Platform (GPP) string describing user privacy preferences.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "When enabled,segment will send data in batching",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Minimum value is 1500 and maximum is 10000.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 10000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": 1500,
+          "maximum": 10000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Membership Changed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudiencesToDSP",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "warehouse_audience_membership_changed_identify"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "syncAudiencesToDSP",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "syncAudiencesToDSP",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "syncAudiencesToDSP",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "journeys_step_entered_track"
+    }
+  ]
+}
