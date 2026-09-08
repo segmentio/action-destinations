@@ -21,7 +21,14 @@ const isIsoDate = (value: string): boolean => {
 
   const matcher = new RegExp(isoformat)
 
-  return typeof value === 'string' && matcher.test(value) && !isNaN(Date.parse(value))
+  if (typeof value !== 'string' || !matcher.test(value)) {
+    return false
+  }
+
+  // Date.parse rejects >5-digit fractional seconds. truncate to avoid this issue
+  const truncated = value.replace(/\.(\d{1,9})/, (_: string, ms: string) => `.${ms.slice(0, 3)}`)
+
+  return !isNaN(Date.parse(truncated))
 }
 
 export const trackApiEndpoint = ({ accountRegion }: { accountRegion?: string }) => {

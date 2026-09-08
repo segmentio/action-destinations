@@ -1,6 +1,7 @@
 import { ModifiedResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { Client } from '../client'
+import { HS_OBJECT_ID } from '../constants'
 import {
   ObjReqType,
   CreateReq,
@@ -9,6 +10,7 @@ import {
   ReadType,
   BatchObjResp,
   SyncMode,
+  UpdateReq,
   UpsertReq
 } from '../types'
 
@@ -64,12 +66,14 @@ async function updateRecords(client: Client, payloads: Payload[], objectType: st
     inputs: existingRecords.map(({ object_details: { id_field_value }, properties, sensitive_properties }) => {
       const idFieldName = payloads[0].object_details.id_field_name
       return {
-        idProperty: idFieldName,
+        // hs_object_id is the record id rather than a unique property, so batch/update rejects it
+        // as an idProperty. Omitting idProperty makes Hubspot resolve `id` as the record id.
+        ...(idFieldName === HS_OBJECT_ID ? {} : { idProperty: idFieldName }),
         id: id_field_value,
         properties: { ...properties, ...sensitive_properties }
       }
     })
-  } as UpsertReq)
+  } as UpdateReq)
 
   return returnRecordsWithIds(existingRecords, response)
 }

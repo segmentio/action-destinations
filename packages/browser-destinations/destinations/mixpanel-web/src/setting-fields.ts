@@ -13,6 +13,12 @@ export const settingFields: Record<string, GlobalSetting> = {
         description: 'The name for the new mixpanel instance that you want created.',
         type: 'string'
     },
+    sourceName: {
+        label: 'Source Name',
+        description:
+        "This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event, including events Mixpanel captures automatically.",
+        type: 'string'
+    },
     api_host: {
         description: 'The Mixpanel API host to send data to.',
         label: 'API Host',

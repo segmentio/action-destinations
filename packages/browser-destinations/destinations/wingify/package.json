@@ -1,7 +1,12 @@
 {
   "name": "@segment/analytics-browser-actions-wingify",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/wingify"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
