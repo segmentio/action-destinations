@@ -3,8 +3,18 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
-import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
+import {
+  ErrorCodes,
+  IntegrationError,
+  RetryableError,
+  APIError,
+  RequestTimeoutError,
+  PayloadValidationError
+} from '@segment/actions-core'
 import { Credentials } from './types'
+
+// AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
+const MAX_S3_OBJECT_KEY_BYTES = 1024
 
 export class Client {
   roleArn: string
@@ -77,6 +87,21 @@ export class Client {
       : s3_aws_folder_name?.endsWith('/')
       ? s3_aws_folder_name
       : `${s3_aws_folder_name}/`
+    const contentType = fileExtension === 'csv' ? 'text/csv' : 'text/plain'
+    const objectKey = folderName ? `${folderName}${filename_prefix}` : filename_prefix
+
+    // Reject over-long keys up front with a clear, non-retryable validation error, rather than
+    // letting the PUT fail late and opaquely (and storm retries) with a raw AWS error.
+    // Measure bytes, not characters: multi-byte UTF-8 chars count for more than one byte.
+    const objectKeyBytes = Buffer.byteLength(objectKey, 'utf8')
+    if (objectKeyBytes > MAX_S3_OBJECT_KEY_BYTES) {
+      // Do not include the key content in the message — it may contain PII.
+      throw new PayloadValidationError(
+        `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
+          `Shorten the folder name and/or filename prefix.`
+      )
+    }
+
     const credentials = await this.assumeRole()
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
@@ -87,8 +112,6 @@ export class Client {
         sessionToken: credentials.sessionToken
       }
     })
-    const contentType = fileExtension === 'csv' ? 'text/csv' : 'text/plain'
-    const objectKey = folderName ? `${folderName}${filename_prefix}` : filename_prefix
     const uploadParams: PutObjectCommandInput = {
       Bucket: bucketName,
       Key: objectKey,
