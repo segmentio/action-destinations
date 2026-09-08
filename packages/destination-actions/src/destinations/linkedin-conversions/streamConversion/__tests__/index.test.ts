@@ -509,7 +509,7 @@ describe('LinkedinConversions.streamConversion', () => {
         }
       })
     ).rejects.toThrowError(
-      'At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, SHA256 IP Address, or Google Advertising ID).'
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
     )
   })
 
@@ -1654,7 +1654,7 @@ describe('LinkedinConversions.multistatus', () => {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage:
-        'At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, SHA256 IP Address, or Google Advertising ID).',
+        'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).',
       errorreporter: 'INTEGRATIONS'
     })
   })

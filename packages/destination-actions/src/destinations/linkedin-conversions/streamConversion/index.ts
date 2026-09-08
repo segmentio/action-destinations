@@ -295,8 +295,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       description:
         "The user's IPv4 address. Segment will hash this value using SHA256 before sending it to LinkedIn, unless it is already hashed. At least one user identifier is required.",
       type: 'string',
-      required: false,
-      category: 'hashedPII'
+      required: false
     },
     googleAID: {
       label: 'Google Advertising ID',
@@ -445,7 +444,7 @@ function validate(payload: Payload, conversionTime: number) {
     !payload.googleAID
   ) {
     throw new PayloadValidationError(
-      'At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, SHA256 IP Address, or Google Advertising ID).'
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
     )
   }
 }

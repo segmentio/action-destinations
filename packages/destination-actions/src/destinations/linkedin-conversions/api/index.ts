@@ -65,7 +65,7 @@ function validate(payload: Payload, conversionTime: number) {
     !payload.googleAID
   ) {
     throw new PayloadValidationError(
-      'At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, SHA256 IP Address, or Google Advertising ID).'
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
     )
   }
 }
