@@ -282,13 +282,21 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       type: 'string',
       required: false
     },
-    ipAddress: {
-      label: 'IP Address',
+    plaintextIpAddress: {
+      label: 'Plain Text IP Address',
       description:
         "The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.",
       type: 'string',
       format: 'ipv4',
       required: false
+    },
+    sha256IpAddress: {
+      label: 'SHA256 IP Address',
+      description:
+        "The user's IPv4 address. Segment will hash this value using SHA256 before sending it to LinkedIn, unless it is already hashed. At least one user identifier is required.",
+      type: 'string',
+      required: false,
+      category: 'hashedPII'
     },
     googleAID: {
       label: 'Google Advertising ID',
@@ -427,8 +435,18 @@ function validate(payload: Payload, conversionTime: number) {
     throw new PayloadValidationError('Timestamp should be within the past 90 days.')
   }
 
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID && !payload.ipAddress && !payload.googleAID) {
-    throw new PayloadValidationError('At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, or Google Advertising ID).')
+  if (
+    !payload.email &&
+    !payload.linkedInUUID &&
+    !payload.acxiomID &&
+    !payload.oracleID &&
+    !payload.plaintextIpAddress &&
+    !payload.sha256IpAddress &&
+    !payload.googleAID
+  ) {
+    throw new PayloadValidationError(
+      'At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
   }
 }
 

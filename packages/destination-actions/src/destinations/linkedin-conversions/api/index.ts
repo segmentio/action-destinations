@@ -33,7 +33,14 @@ interface ConversionRuleUpdateValues {
 }
 
 interface UserID {
-  idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID' | 'PLAINTEXT_IP_ADDRESS' | 'GOOGLE_AID'
+  idType:
+    | 'SHA256_EMAIL'
+    | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID'
+    | 'ACXIOM_ID'
+    | 'ORACLE_MOAT_ID'
+    | 'PLAINTEXT_IP_ADDRESS'
+    | 'SHA256_IP_ADDRESS'
+    | 'GOOGLE_AID'
   idValue: string
 }
 
@@ -48,8 +55,18 @@ function validate(payload: Payload, conversionTime: number) {
     throw new PayloadValidationError('Timestamp should be within the past 90 days.')
   }
 
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID && !payload.ipAddress && !payload.googleAID) {
-    throw new PayloadValidationError('At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, or Google Advertising ID).')
+  if (
+    !payload.email &&
+    !payload.linkedInUUID &&
+    !payload.acxiomID &&
+    !payload.oracleID &&
+    !payload.plaintextIpAddress &&
+    !payload.sha256IpAddress &&
+    !payload.googleAID
+  ) {
+    throw new PayloadValidationError(
+      'At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
   }
 }
 
@@ -442,7 +459,7 @@ export class LinkedInConversions {
 
     if (payload.acxiomID) {
       userIds.push({
-        idType: 'AXCIOM_ID',
+        idType: 'ACXIOM_ID',
         idValue: payload.acxiomID
       })
     }
@@ -454,11 +471,21 @@ export class LinkedInConversions {
       })
     }
 
-    if (payload.ipAddress) {
+    if (payload.plaintextIpAddress) {
       userIds.push({
         idType: 'PLAINTEXT_IP_ADDRESS',
-        idValue: payload.ipAddress
+        idValue: payload.plaintextIpAddress
       })
+    }
+
+    if (payload.sha256IpAddress) {
+      const hashedIpAddress = processHashing(payload.sha256IpAddress, 'sha256', 'hex')
+      if (hashedIpAddress) {
+        userIds.push({
+          idType: 'SHA256_IP_ADDRESS',
+          idValue: hashedIpAddress
+        })
+      }
     }
 
     if (payload.googleAID) {
