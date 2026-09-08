@@ -183,7 +183,7 @@ describe('trackConversion utils', () => {
         name: 'event1',
         conversionType: ConversionTypeV2.PAGE_VIEW,
         eventSource: 'website',
-        eventIngestionMethod: "SERVER_TO_SERVER",
+        eventIngestionMethod: 'SERVER_TO_SERVER'
       },
       countryCode: 'US',
       eventTime: '2023-01-01T12:00:00Z'
@@ -231,7 +231,10 @@ describe('trackConversion utils', () => {
         data: { success: true }
       })
 
-      const multipleEvents = [eventData, { ...eventData, eventDescription: { ...eventData.eventDescription, name: 'second_event' } }]
+      const multipleEvents = [
+        eventData,
+        { ...eventData, eventDescription: { ...eventData.eventDescription, name: 'second_event' } }
+      ]
 
       const response = await sendEventsRequest<EventMultiStatusResponse>(
         mockRequest as unknown as RequestClient,
@@ -311,7 +314,7 @@ describe('trackConversion utils', () => {
         status: 207,
         data: {
           success: [],
-          error: [{ index: 0, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
+          error: [{ index: 0, errors: [{ code: 'BAD_REQUEST', message: 'Invalid data' }] }]
         }
       } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
@@ -321,7 +324,7 @@ describe('trackConversion utils', () => {
         status: 400,
         data: {
           success: [],
-          error: [{ index: 0, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
+          error: [{ index: 0, errors: [{ code: 'BAD_REQUEST', message: 'Invalid data' }] }]
         }
       })
     })
@@ -363,14 +366,13 @@ describe('trackConversion utils', () => {
     })
 
     it('should process 207 multistatus responses from a performBatch() correctly', () => {
-
       const validPayloads = [
         {
           eventDescription: {
             name: 'event1',
             conversionType: ConversionTypeV2.PAGE_VIEW,
             eventSource: 'website',
-            eventIngestionMethod: "SERVER_TO_SERVER",
+            eventIngestionMethod: 'SERVER_TO_SERVER'
           },
           countryCode: 'US',
           eventTime: '2023-01-01T12:00:00Z'
@@ -380,7 +382,7 @@ describe('trackConversion utils', () => {
             name: 'event2',
             conversionType: ConversionTypeV2.PAGE_VIEW,
             eventSource: 'website',
-            eventIngestionMethod: "SERVER_TO_SERVER",
+            eventIngestionMethod: 'SERVER_TO_SERVER'
           },
           countryCode: 'US',
           eventTime: '2023-01-01T12:00:00Z'
@@ -391,7 +393,7 @@ describe('trackConversion utils', () => {
         status: 207,
         data: {
           success: [{ index: 0, event: validPayloads[0] }],
-          error: [{ index: 1, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
+          error: [{ index: 1, errors: [{ code: 'BAD_REQUEST', message: 'Invalid data' }] }]
         }
       } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
@@ -438,7 +440,7 @@ describe('trackConversion utils', () => {
             name: 'event1',
             conversionType: ConversionTypeV2.PAGE_VIEW,
             eventSource: 'website',
-            eventIngestionMethod: "SERVER_TO_SERVER",
+            eventIngestionMethod: 'SERVER_TO_SERVER'
           },
           countryCode: 'US',
           eventTime: '2023-01-01T12:00:00Z'
@@ -477,7 +479,7 @@ describe('trackConversion utils', () => {
           name: payload.name,
           conversionType: payload.eventType,
           eventSource: payload.eventActionSource,
-          eventIngestionMethod: "SERVER_TO_SERVER",
+          eventIngestionMethod: 'SERVER_TO_SERVER'
         },
         countryCode: payload.countryCode,
         eventTime: payload.timestamp
@@ -578,6 +580,110 @@ describe('trackConversion utils', () => {
         countryCode: 'US',
         timestamp: '2023-01-01T12:00:00Z',
         matchKeys: {},
+        enable_batching: true
+      }
+
+      expect(() => prepareEventData(payload, settings)).toThrow('At least one valid match key must be provided')
+    })
+
+    it('should skip match key fields that normalize down to an empty string instead of throwing', () => {
+      const payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: {
+          email: 'test@example.com',
+          // Non-empty, but strips down to '' once non-digit characters are removed
+          phone: '+++'
+        },
+        enable_batching: true
+      }
+
+      expect(() => prepareEventData(payload, settings)).not.toThrow()
+
+      const result = prepareEventData(payload, settings)
+      expect(result.matchKeys?.length).toBe(1)
+      expect(result.matchKeys?.map((mk) => mk.type)).toEqual(['EMAIL'])
+    })
+
+    it('should skip normalizeStandard fields (e.g. firstName) that normalize down to an empty string', () => {
+      const payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: {
+          email: 'test@example.com',
+          // Non-empty, but strips down to '' once non-alphanumeric characters are removed
+          firstName: '!!!'
+        },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+      expect(result.matchKeys?.length).toBe(1)
+      expect(result.matchKeys?.map((mk) => mk.type)).toEqual(['EMAIL'])
+    })
+
+    it('should skip postalCode when it normalizes down to an empty string', () => {
+      const payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: {
+          email: 'test@example.com',
+          // Whitespace-only, strips down to '' once whitespace is removed
+          postalCode: '   '
+        },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+      expect(result.matchKeys?.length).toBe(1)
+      expect(result.matchKeys?.map((mk) => mk.type)).toEqual(['EMAIL'])
+    })
+
+    it('should skip email when it is whitespace-only', () => {
+      const payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: {
+          email: '   ',
+          firstName: 'John'
+        },
+        enable_batching: true
+      }
+
+      const result = prepareEventData(payload, settings)
+      expect(result.matchKeys?.length).toBe(1)
+      expect(result.matchKeys?.map((mk) => mk.type)).toEqual(['FIRST_NAME'])
+    })
+
+    it('should throw "At least one valid match key must be provided" when every hashable field normalizes to empty', () => {
+      const payload = {
+        name: 'test_event',
+        eventType: ConversionTypeV2.PAGE_VIEW,
+        eventActionSource: 'WEBSITE',
+        countryCode: 'US',
+        timestamp: '2023-01-01T12:00:00Z',
+        matchKeys: {
+          email: '!!!',
+          phone: '+++',
+          firstName: '!!!',
+          lastName: '!!!',
+          address: '!!!',
+          city: '!!!',
+          state: '!!!',
+          postalCode: '   '
+        },
         enable_batching: true
       }
 
@@ -689,7 +795,7 @@ describe('trackConversion utils', () => {
         currencyCode: 'USD',
         unitsSold: 2,
         clientDedupeId: 'dedup-123',
-        dataProcessingOptions: ["LIMITED_DATA_USE"],
+        dataProcessingOptions: ['LIMITED_DATA_USE'],
         matchKeys: {
           email: 'test@example.com'
         },

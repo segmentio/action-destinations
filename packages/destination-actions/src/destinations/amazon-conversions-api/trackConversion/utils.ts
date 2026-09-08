@@ -128,6 +128,15 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
 }
 
 /**
+ * Determines whether a match key value is safe to hash. Some values (e.g. "+++")
+ * are non-empty but normalize down to an empty string, which would otherwise
+ * cause the hashing utility to throw "Cannot hash an empty string".
+ */
+function isHashable(value: string | null | undefined, normalizeFunction: (value: string) => string): value is string {
+  return typeof value === 'string' && normalizeFunction(value).length > 0
+}
+
+/**
  * Sends event data to the Amazon Conversions API
  *
  * @param request The request client
@@ -273,7 +282,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
   // Process match keys
   let matchKeys: MatchKeyV1[] = []
 
-  if (email && typeof email === 'string') {
+  if (isHashable(email, normalizeEmail)) {
     const hashedEmail = smartHash(email, normalizeEmail)
     matchKeys.push({
       type: MatchKeyTypeV1.EMAIL,
@@ -281,7 +290,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (phone && typeof phone === 'string') {
+  if (isHashable(phone, normalizePhone)) {
     const hashedPhone = smartHash(phone, normalizePhone)
     matchKeys.push({
       type: MatchKeyTypeV1.PHONE,
@@ -289,7 +298,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (firstName && typeof firstName === 'string') {
+  if (isHashable(firstName, normalizeStandard)) {
     const hashedFirstName = smartHash(firstName, normalizeStandard)
     matchKeys.push({
       type: MatchKeyTypeV1.FIRST_NAME,
@@ -297,7 +306,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (lastName && typeof lastName === 'string') {
+  if (isHashable(lastName, normalizeStandard)) {
     const hashedLastName = smartHash(lastName, normalizeStandard)
     matchKeys.push({
       type: MatchKeyTypeV1.LAST_NAME,
@@ -305,7 +314,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (address && typeof address === 'string') {
+  if (isHashable(address, normalizeStandard)) {
     const hashedAddress = smartHash(address, normalizeStandard)
     matchKeys.push({
       type: MatchKeyTypeV1.ADDRESS,
@@ -313,7 +322,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (city && typeof city === 'string') {
+  if (isHashable(city, normalizeStandard)) {
     const hashedCity = smartHash(city, normalizeStandard)
     matchKeys.push({
       type: MatchKeyTypeV1.CITY,
@@ -321,7 +330,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (state && typeof state === 'string') {
+  if (isHashable(state, normalizeStandard)) {
     const hashedState = smartHash(state, normalizeStandard)
     matchKeys.push({
       type: MatchKeyTypeV1.STATE,
@@ -329,7 +338,7 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
     })
   }
 
-  if (postalCode && typeof postalCode === 'string') {
+  if (isHashable(postalCode, normalizePostal)) {
     const hashedPostalCode = smartHash(postalCode, normalizePostal)
     matchKeys.push({
       type: MatchKeyTypeV1.POSTAL,
