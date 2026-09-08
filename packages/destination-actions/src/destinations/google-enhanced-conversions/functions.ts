@@ -18,6 +18,7 @@ import {
   DataManagerUserList,
   DataManagerAudienceMember,
   DataManagerIngestResponse,
+  DataManagerErrorResponse,
   PartnerLinkResponse
 } from './types'
 import {
@@ -460,6 +461,60 @@ const UPLOAD_KEY_TYPE_MAP: Record<string, string> = {
 // 540 days expressed as a protobuf Duration string (must be exact multiples of 86400s)
 const MEMBERSHIP_DURATION = `${540 * 86400}s`
 
+// gRPC statuses that Google's Data Manager API docs call out as transient — safe to retry.
+// See: https://developers.google.com/data-manager/api/devguides/concepts/understand-errors
+const RETRYABLE_DATA_MANAGER_GRPC_STATUSES = new Set([
+  'UNAVAILABLE',
+  'DEADLINE_EXCEEDED',
+  'INTERNAL',
+  'UNKNOWN',
+  'ABORTED'
+])
+
+/*
+  Parses a Data Manager API error body (the standard google.rpc.Status shape) and throws the
+  matching Segment error type, so that field-level validation reasons and the request ID Google
+  asks support tickets to include aren't dropped, and so transient (fast-fail) errors like ABORTED
+  get retried. See: https://developers.google.com/data-manager/api/devguides/concepts/understand-errors
+*/
+export function throwDataManagerError(err: unknown): never {
+  const errorBody = (err as { response?: { data?: DataManagerErrorResponse; status?: number } })?.response?.data?.error
+  if (!errorBody) {
+    // Not a parseable Data Manager API error response (e.g. network/timeout error) — rethrow as-is.
+    throw err as Error
+  }
+
+  const details = errorBody.details ?? []
+  const fieldViolations = details.find((detail) => detail['@type']?.endsWith('BadRequest'))?.fieldViolations ?? []
+  const requestId = details.find((detail) => detail['@type']?.endsWith('RequestInfo'))?.requestId
+
+  let message = errorBody.message || 'Data Manager API request failed.'
+  if (fieldViolations.length > 0) {
+    message += ' ' + fieldViolations.map((v) => `${v.field}: ${v.description}`).join('; ')
+  }
+  if (requestId) {
+    message += ` (requestId: ${requestId})`
+  }
+
+  if (RETRYABLE_DATA_MANAGER_GRPC_STATUSES.has(errorBody.status)) {
+    // Rewritten to 500 (rather than the original HTTP status, e.g. 409 for ABORTED) so that
+    // Centrifuge retries it — see handleGoogleAdsError above for the same pattern.
+    throw new RetryableError(message, 500)
+  }
+
+  if (errorBody.status === 'INVALID_ARGUMENT') {
+    throw new PayloadValidationError(message)
+  }
+
+  const httpStatus = errorBody.code ?? (err as { response?: { status?: number } })?.response?.status ?? 500
+
+  if (errorBody.status === 'PERMISSION_DENIED') {
+    throw new IntegrationError(message, 'PERMISSION_DENIED', httpStatus)
+  }
+
+  throw new IntegrationError(message, errorBody.status || 'INTEGRATION_ERROR', httpStatus)
+}
+
 export async function createDataManagerUserList(
   request: RequestClient,
   input: CreateAudienceInput,
@@ -520,11 +575,17 @@ export async function createDataManagerUserList(
     headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
   }
 
-  const response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
-    method: 'post',
-    headers,
-    json: body
-  })
+  let response
+  try {
+    response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
+      method: 'post',
+      headers,
+      json: body
+    })
+  } catch (err) {
+    statsClient?.incr('createDataManagerAudience.error', 1, statsTags)
+    throwDataManagerError(err)
+  }
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
@@ -576,13 +637,19 @@ export async function getDataManagerUserList(
     headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
   }
 
-  const response = await request(
-    `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${externalId}`,
-    {
-      method: 'get',
-      headers
-    }
-  )
+  let response
+  try {
+    response = await request(
+      `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${externalId}`,
+      {
+        method: 'get',
+        headers
+      }
+    )
+  } catch (err) {
+    statsClient?.incr('getDataManagerAudience.error', 1, statsTags)
+    throwDataManagerError(err)
+  }
 
   const userList = response.data as DataManagerUserList
   if (!userList?.id) {
@@ -627,13 +694,15 @@ export async function getDataManagerListIds(
       headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
     }
 
-    const response = await request(
-      `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`,
-      {
+    let response
+    try {
+      response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
         method: 'get',
         headers
-      }
-    )
+      })
+    } catch (err) {
+      throwDataManagerError(err)
+    }
 
     const data = response.data as { userLists?: DataManagerUserList[]; nextPageToken?: string }
     const userLists = data.userLists ?? []
@@ -646,12 +715,13 @@ export async function getDataManagerListIds(
     return { choices, nextPage: data.nextPageToken }
   } catch (err) {
     statsContext?.statsClient?.incr('getDataManagerListIds.error', 1, statsContext?.tags)
+    const typedErr = err as { message?: string; status?: number }
     return {
       choices: [],
       nextPage: '',
       error: {
-        message: (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
-        code: String((err as GoogleAdsError).response?.status ?? 500)
+        message: typedErr.message ?? (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: String(typedErr.status ?? (err as GoogleAdsError).response?.status ?? 500)
       }
     }
   }
@@ -685,7 +755,7 @@ export async function createDataManagerPartnerLink(
     if (err?.response?.status === 409) {
       return err.response.data as PartnerLinkResponse
     }
-    throw err
+    throwDataManagerError(err)
   }
 }
 
@@ -791,20 +861,35 @@ export async function ingestAudienceMembers(
   userListId: string,
   members: DataManagerAudienceMember[],
   loginCustomerId?: string,
-  customerAccessToken?: string
+  customerAccessToken?: string,
+  statsContext?: StatsContext
 ): Promise<DataManagerIngestResponse> {
-  const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
-    method: 'POST',
-    // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
-    ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
-    json: {
-      destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
-      audienceMembers: members,
-      encoding: 'HEX',
-      termsOfService: { customerMatchTermsOfServiceStatus: 'ACCEPTED' }
+  try {
+    const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
+      method: 'POST',
+      // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
+      ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
+      json: {
+        destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
+        audienceMembers: members,
+        encoding: 'HEX',
+        termsOfService: { customerMatchTermsOfServiceStatus: 'ACCEPTED' }
+      }
+    })
+    // A 200 response can still carry warnings for optional fields that failed validation —
+    // surface them via stats since the request itself otherwise looks like a clean success.
+    if (response.data.fieldWarnings?.length) {
+      statsContext?.statsClient?.incr(
+        'dataManagerIngest.fieldWarnings',
+        response.data.fieldWarnings.length,
+        statsContext?.tags
+      )
     }
-  })
-  return response.data
+    return response.data
+  } catch (err) {
+    statsContext?.statsClient?.incr('dataManagerIngest.error', 1, statsContext?.tags)
+    throwDataManagerError(err)
+  }
 }
 
 export async function removeAudienceMembers(
@@ -813,19 +898,32 @@ export async function removeAudienceMembers(
   userListId: string,
   members: DataManagerAudienceMember[],
   loginCustomerId?: string,
-  customerAccessToken?: string
+  customerAccessToken?: string,
+  statsContext?: StatsContext
 ): Promise<DataManagerIngestResponse> {
-  const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
-    method: 'POST',
-    // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
-    ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
-    json: {
-      destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
-      audienceMembers: members,
-      encoding: 'HEX'
+  try {
+    const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
+      method: 'POST',
+      // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
+      ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
+      json: {
+        destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
+        audienceMembers: members,
+        encoding: 'HEX'
+      }
+    })
+    if (response.data.fieldWarnings?.length) {
+      statsContext?.statsClient?.incr(
+        'dataManagerRemove.fieldWarnings',
+        response.data.fieldWarnings.length,
+        statsContext?.tags
+      )
     }
-  })
-  return response.data
+    return response.data
+  } catch (err) {
+    statsContext?.statsClient?.incr('dataManagerRemove.error', 1, statsContext?.tags)
+    throwDataManagerError(err)
+  }
 }
 
 export async function handleDataManagerUpdate(
@@ -847,7 +945,7 @@ export async function handleDataManagerUpdate(
 
   const customerId = settings.customerId!
   const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
-  const idType = hookListType ?? audienceSettings?.external_id_type ?? 'CONTACT_INFO'
+  const idType = hookListType ?? audienceSettings?.external_id_type
 
   // Ensure the partner link exists — covers existing customers when the flag is first enabled.
   // Best-effort: errors are swallowed so member sync can still proceed.
@@ -896,7 +994,8 @@ export async function handleDataManagerUpdate(
       externalAudienceId,
       addMembers,
       loginCustomerId,
-      customerAccessToken
+      customerAccessToken,
+      statsContext
     )
     results.push(r)
   }
@@ -908,7 +1007,8 @@ export async function handleDataManagerUpdate(
       externalAudienceId,
       removeMembers,
       loginCustomerId,
-      customerAccessToken
+      customerAccessToken,
+      statsContext
     )
     results.push(r)
   }

@@ -264,3 +264,21 @@ export interface DataManagerIngestResponse {
   requestId: string
   fieldWarnings?: Array<{ field: string; description: string }>
 }
+
+// https://developers.google.com/data-manager/api/devguides/concepts/understand-errors
+export interface DataManagerErrorDetail {
+  '@type': string
+  // Present when '@type' is '...google.rpc.BadRequest'
+  fieldViolations?: Array<{ field: string; description: string; reason?: string }>
+  // Present when '@type' is '...google.rpc.RequestInfo'
+  requestId?: string
+}
+
+export interface DataManagerErrorResponse {
+  error: {
+    code: number
+    message: string
+    status: string
+    details?: DataManagerErrorDetail[]
+  }
+}
