@@ -37,6 +37,19 @@ describe('Hubspot Web (Actions)', () => {
     expect(window.hbspt).toBeUndefined()
   })
 
+  test('loads hubspot script with id=hs-script-loader to prevent duplicate script injection', async () => {
+    const [event] = await hubspotDestination({
+      portalId: '12345',
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const loaderScripts = Array.from(document.querySelectorAll<HTMLScriptElement>('script#hs-script-loader'))
+    expect(loaderScripts).toHaveLength(1)
+    expect(loaderScripts[0].getAttribute('src')).toBe('https://js.hs-scripts.com/12345.js')
+  })
+
   test('loads hubspot analytics with EU script', async () => {
     const [event] = await hubspotDestination({
       portalId: '12345',

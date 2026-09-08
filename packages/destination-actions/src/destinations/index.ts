@@ -240,6 +240,7 @@ register('6a67497a6423a7a0d95cd427', './quora')
 register('6a61fbcd4a3fcb83e9b57434', './mntn-audiences')
 register('6a6748e14c5666d0bc0d3a66', './vibe-conversions')
 register('6a68baf59e9ffb3aafc3c3c8', './marketo-private')
+register('6a8461f58f98175178f49c3c', './heap-cloud')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires

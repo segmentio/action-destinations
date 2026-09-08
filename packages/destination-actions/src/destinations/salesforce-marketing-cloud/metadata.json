@@ -4573,6 +4573,39 @@
           "displayMode": null,
           "format": null,
           "additionalProperties": false
+        },
+        "subscription_type": {
+          "label": "Subscription Type",
+          "description": "The type of subscription. Flag for enabling Async Pipeline.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "async",
+          "choices": [
+            {
+              "label": "Sync",
+              "value": "sync"
+            },
+            {
+              "label": "Async",
+              "value": "async"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
         }
       }
     }

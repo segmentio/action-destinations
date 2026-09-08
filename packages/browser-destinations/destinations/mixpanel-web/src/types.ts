@@ -25,6 +25,8 @@ export interface Mixpanel {
 
   identify(unique_id?: string): void
 
+  register(properties: { [k: string]: unknown }): void
+
   alias(alias: string, original?: string): void
 
   get_group(group_key: string, group_id: string): Group
