@@ -12,7 +12,7 @@ export const external_id: InputField = {
 
 export const field_value: InputField = {
   label: 'Field Value',
-  description: 'The value cooresponding to the lookup field.',
+  description: 'The value corresponding to the lookup field.',
   type: 'string',
   default: {
     '@if': {
@@ -26,7 +26,7 @@ export const field_value: InputField = {
 
 export const lookup_field: InputField = {
   label: 'Lookup Field',
-  description: `The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.`,
+  description: `The lead field to use for deduplication and filtering. This field must be a part of the Lead Info Fields below.`,
   type: 'string',
   choices: [
     { label: 'Email', value: 'email' },
