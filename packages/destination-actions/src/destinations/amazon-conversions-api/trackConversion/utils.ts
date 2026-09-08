@@ -32,7 +32,7 @@ import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
  * @param value The string value to validate
  * @returns true if the value is a non-empty string, false otherwise
  */
-export function hasStringValue(value: string | null | undefined): boolean {
+export function hasStringValue(value: string | null | undefined): value is string {
   return typeof value === 'string' && value.trim().length > 0
 }
 
