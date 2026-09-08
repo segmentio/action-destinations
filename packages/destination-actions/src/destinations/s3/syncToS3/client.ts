@@ -4,7 +4,8 @@ import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError }
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
 import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
-import { Credentials } from './types'
+import { CachedCredentials, Credentials } from './types'
+import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 
 /**
  * Module-level STS credential cache, shared across every Client instance.
@@ -18,16 +19,7 @@ import { Credentials } from './types'
  *
  * Keyed by region + role ARN + external id, the inputs that determine the returned credentials.
  */
-interface CachedCredentials {
-  credentials: Credentials
-  expiration: number // epoch millis, from STS Credentials.Expiration
-}
-
 const credentialsCache = new Map<string, CachedCredentials>()
-
-// Refresh this long before the STS-reported expiration so we never hand out credentials that
-// would expire mid-upload.
-const CREDENTIALS_EXPIRY_BUFFER_MS = 5 * 60 * 1000
 
 // Exposed for tests to reset the shared cache between cases.
 export function clearCredentialsCache(): void {
