@@ -232,4 +232,62 @@ describe('Mixpanel Web initialization', () => {
 
     expect(mockMixpanelInstance.register).not.toHaveBeenCalled()
   })
+
+  test('passes instanceName as the third argument to mixpanel.init', async () => {
+    const mockSnippetMixpanel: Partial<Mixpanel> = {
+      init: jest.fn().mockImplementation((_token, config, _name) => {
+        setTimeout(() => {
+          if (config?.loaded) {
+            config.loaded({} as Mixpanel)
+          }
+        }, 10)
+      })
+    }
+
+    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
+      ;(window as any).mixpanel = mockSnippetMixpanel
+    })
+
+    const [event] = await MixpanelDestination({
+      ...baseSettings,
+      instanceName: 'My Mixpanel Instance',
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    expect(mockSnippetMixpanel.init).toHaveBeenCalledWith(
+      'test-project-token',
+      expect.objectContaining({ loaded: expect.any(Function) }),
+      'My Mixpanel Instance'
+    )
+  })
+
+  test('omits the instance name argument when instanceName is not set', async () => {
+    const mockSnippetMixpanel: Partial<Mixpanel> = {
+      init: jest.fn().mockImplementation((_token, config, _name) => {
+        setTimeout(() => {
+          if (config?.loaded) {
+            config.loaded({} as Mixpanel)
+          }
+        }, 10)
+      })
+    }
+
+    jest.spyOn(initScriptModule, 'initScript').mockImplementation(async () => {
+      ;(window as any).mixpanel = mockSnippetMixpanel
+    })
+
+    const [event] = await MixpanelDestination({
+      ...baseSettings,
+      subscriptions
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    expect(mockSnippetMixpanel.init).toHaveBeenCalledWith(
+      'test-project-token',
+      expect.objectContaining({ loaded: expect.any(Function) })
+    )
+  })
 })

@@ -14,8 +14,20 @@ import { StateContext } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
-import type { AudienceAction, AudienceJSON, DMPSegment, LinkedInCompanyAudienceElement, ValidCompanyPayload } from './types'
-import { AUDIENCE_ACTION, AUDIENCE_SOURCE, ORGANIZATION_URN_PREFIX, RETRYABLE_STATUSES, SEGMENT_TYPES } from './constants'
+import type {
+  AudienceAction,
+  AudienceJSON,
+  DMPSegment,
+  LinkedInCompanyAudienceElement,
+  ValidCompanyPayload
+} from './types'
+import {
+  AUDIENCE_ACTION,
+  AUDIENCE_SOURCE,
+  ORGANIZATION_URN_PREFIX,
+  RETRYABLE_STATUSES,
+  SEGMENT_TYPES
+} from './constants'
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
   let id = linkedInCompanyId.trim()
