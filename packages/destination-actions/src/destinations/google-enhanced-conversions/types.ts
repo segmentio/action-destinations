@@ -104,14 +104,14 @@ export interface ClickConversionRequestObjectInterface {
 export type KeyValuePairList = Array<KeyValueItem>
 
 export type KeyValueItem = {
-  sessionAttributeKey: 
-    'gad_source' 
-  | 'gad_campaignid' 
-  | 'landing_page_url' 
-  | 'session_start_time_usec' 
-  | 'landing_page_referrer' 
-  | 'landing_page_user_agent'
-  sessionAttributeValue?: string 
+  sessionAttributeKey:
+    | 'gad_source'
+    | 'gad_campaignid'
+    | 'landing_page_url'
+    | 'session_start_time_usec'
+    | 'landing_page_referrer'
+    | 'landing_page_user_agent'
+  sessionAttributeValue?: string
 }
 
 export interface ConversionActionId {
@@ -157,6 +157,7 @@ export interface CreateAudienceInput {
   audienceName: string
   settings: {
     customerId?: string
+    loginCustomerId?: string
     conversionTrackingId?: string
     oauth?: {
       refresh_token?: string
@@ -169,6 +170,31 @@ export interface CreateAudienceInput {
   }
   statsContext?: StatsContext
   features?: Features
+}
+
+export interface DataManagerUserList {
+  name: string
+  id: string
+  displayName?: string
+  membershipDuration?: string
+  membershipStatus?: string
+  ingestedUserListInfo?: {
+    uploadKeyTypes?: string[]
+    mobileIdInfo?: { appId?: string }
+  }
+}
+
+export interface PartnerLinkResponse {
+  name: string
+  partnerLinkId: string
+  owningAccount: {
+    accountId: string
+    accountType: string
+  }
+  partnerAccount: {
+    accountId: string
+    accountType: string
+  }
 }
 
 export interface GetAudienceInput {

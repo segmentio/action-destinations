@@ -14,7 +14,9 @@ import {
   OfflineUserJobPayload,
   AddOperationPayload,
   KeyValuePairList,
-  KeyValueItem
+  KeyValueItem,
+  PartnerLinkResponse,
+  DataManagerUserList
 } from './types'
 import {
   ModifiedResponse,
@@ -46,6 +48,9 @@ import {
 export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
+export const FLAGON_NAME_DATA_MANAGER_API = 'actions-google-ec-data-manager-api'
+export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
+export const PARTNER_ACCOUNT_ID = '262932431'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 
@@ -76,6 +81,14 @@ export class GoogleAdsError extends HTTPError {
     data: GoogleAdsErrorData
   }
 }
+
+export const UPLOAD_KEY_TYPE_MAP: Record<string, string> = {
+  CONTACT_INFO: 'CONTACT_ID',
+  CRM_ID: 'USER_ID',
+  MOBILE_ADVERTISING_ID: 'MOBILE_ID'
+}
+
+const MEMBERSHIP_DURATION = `${540 * 86400}s`
 
 export function formatCustomVariables(
   customVariables: object,
@@ -690,6 +703,134 @@ const processOperations = async (
   }
 }
 
+export async function exchangeForAccessToken(request: RequestClient, refreshToken: string): Promise<string> {
+  if (!process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID || !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET) {
+    throw new PayloadValidationError('OAuth client credentials (client ID / client secret) are not configured.')
+  }
+
+  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: refreshToken,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return res.data.access_token
+}
+
+export async function createDataManagerPartnerLink(
+  request: RequestClient,
+  customerId: string,
+  customerAccessToken: string,
+  loginCustomerId?: string
+): Promise<PartnerLinkResponse> {
+  const owningAccountId = loginCustomerId || customerId
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
+  try {
+    const response = await request<PartnerLinkResponse>(url, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${customerAccessToken}`,
+        'login-account': `accountTypes/GOOGLE_ADS/accounts/${owningAccountId}`
+      },
+      json: {
+        owningAccount: { accountId: owningAccountId, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      }
+    })
+    return response.data
+  } catch (err: any) {
+    // 409 ALREADY_EXISTS means the link is already established — treat as success
+    if (err?.response?.status === 409) {
+      return err.response.data as PartnerLinkResponse
+    }
+    throw err
+  }
+}
+
+export async function createDataManagerAudience(
+  request: RequestClient,
+  input: CreateAudienceInput,
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
+): Promise<string> {
+  if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
+    throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
+  }
+
+  if (
+    !auth?.refresh_token ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+  ) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: auth.refresh_token,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  const accessToken = tokenRes.data.access_token
+
+  const customerId = input.settings.customerId?.replace(/-/g, '')
+  const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
+
+  const uploadKeyType =
+    UPLOAD_KEY_TYPE_MAP[input.audienceSettings.external_id_type ?? ''] ?? input.audienceSettings.external_id_type
+
+  const ingestedUserListInfo: Record<string, unknown> = {
+    uploadKeyTypes: [uploadKeyType]
+  }
+  if (uploadKeyType === 'MOBILE_ID' && input.audienceSettings.app_id) {
+    ingestedUserListInfo.mobileIdInfo = { appId: input.audienceSettings.app_id }
+  }
+
+  const body: Record<string, unknown> = {
+    displayName: input.audienceName,
+    membershipDuration: MEMBERSHIP_DURATION,
+    ingestedUserListInfo
+  }
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${accessToken}`
+  }
+  if (loginCustomerId) {
+    // Equivalent of login-customer-id in Google Ads API — identifies the MCC managing the account
+    headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+  }
+
+  const response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
+    method: 'post',
+    headers,
+    json: body
+  })
+
+  const userList = response.data as DataManagerUserList
+  if (!userList?.id) {
+    statsClient?.incr('createDataManagerAudience.error', 1, statsTags)
+    throw new IntegrationError(
+      'Failed to receive a created user list id from Data Manager API.',
+      'INVALID_RESPONSE',
+      400
+    )
+  }
+
+  statsClient?.incr('createDataManagerAudience.success', 1, statsTags)
+  return userList.id
+}
+
 export const handleUpdate = async (
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
@@ -972,7 +1113,11 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership
+) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||

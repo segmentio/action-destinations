@@ -5,7 +5,15 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
-import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  verifyCustomerId,
+  exchangeForAccessToken,
+  createDataManagerPartnerLink,
+  createDataManagerAudience,
+  FLAGON_NAME_DATA_MANAGER_API
+} from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -151,15 +159,38 @@ const destination: AudienceDestinationDefinition<Settings> = {
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
 
+      const useDataManagerAPI = createAudienceInput.features?.[FLAGON_NAME_DATA_MANAGER_API]
+
+      const customerId = createAudienceInput.settings.customerId
+      const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+
+      // Best-effort partner link creation — errors must not block audience creation
+      if (auth?.refresh_token) {
+        try {
+          const customerDataManagerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+          await createDataManagerPartnerLink(request, customerId, customerDataManagerAccessToken, loginCustomerId)
+        } catch (_) {
+          // intentionally swallowed
+        }
+      }
       let userListId
       try {
-        userListId = await createGoogleAudience(
-          request,
-          createAudienceInput,
-          auth,
-          createAudienceInput.features,
-          createAudienceInput.statsContext
-        )
+        if (useDataManagerAPI) {
+          userListId = await createDataManagerAudience(
+            request,
+            createAudienceInput,
+            auth,
+            createAudienceInput.statsContext
+          )
+        } else {
+          userListId = await createGoogleAudience(
+            request,
+            createAudienceInput,
+            auth,
+            createAudienceInput.features,
+            createAudienceInput.statsContext
+          )
+        }
       } catch (err) {
         let status = err.status || err.code
         if (!status && err.response && err.response.status) {
