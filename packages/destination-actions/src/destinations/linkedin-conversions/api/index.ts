@@ -3,7 +3,6 @@ import {
   ModifiedResponse,
   DynamicFieldResponse,
   ActionHookResponse,
-  PayloadValidationError,
   JSONLikeObject,
   MultiStatusResponse,
   HTTPError
@@ -23,6 +22,7 @@ import type {
 } from '../types'
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from '../streamConversion/generated-types'
 import { processHashing } from '../../../lib/hashing-utils'
+import { validate } from '../functions'
 
 interface ConversionRuleUpdateValues {
   name?: string
@@ -33,24 +33,15 @@ interface ConversionRuleUpdateValues {
 }
 
 interface UserID {
-  idType: 'SHA256_EMAIL' | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID' | 'AXCIOM_ID' | 'ORACLE_MOAT_ID'
+  idType:
+    | 'SHA256_EMAIL'
+    | 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID'
+    | 'ACXIOM_ID'
+    | 'ORACLE_MOAT_ID'
+    | 'PLAINTEXT_IP_ADDRESS'
+    | 'SHA256_IP_ADDRESS'
+    | 'GOOGLE_AID'
   idValue: string
-}
-
-function validate(payload: Payload, conversionTime: number) {
-  if (!Number.isFinite(conversionTime)) {
-    throw new PayloadValidationError('Timestamp is not a valid date.')
-  }
-
-  // Check if the timestamp is within the past 90 days
-  const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
-  if (conversionTime < ninetyDaysAgo) {
-    throw new PayloadValidationError('Timestamp should be within the past 90 days.')
-  }
-
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
-  }
 }
 
 function isNotEpochTimestampInMilliseconds(timestamp: string) {
@@ -442,7 +433,7 @@ export class LinkedInConversions {
 
     if (payload.acxiomID) {
       userIds.push({
-        idType: 'AXCIOM_ID',
+        idType: 'ACXIOM_ID',
         idValue: payload.acxiomID
       })
     }
@@ -451,6 +442,33 @@ export class LinkedInConversions {
       userIds.push({
         idType: 'ORACLE_MOAT_ID',
         idValue: payload.oracleID
+      })
+    }
+
+    const plaintextIpAddress = payload.plaintextIpAddress?.trim()
+    if (plaintextIpAddress) {
+      userIds.push({
+        idType: 'PLAINTEXT_IP_ADDRESS',
+        idValue: plaintextIpAddress
+      })
+    }
+
+    const sha256IpAddress = payload.sha256IpAddress?.trim()
+    if (sha256IpAddress) {
+      const hashedIpAddress = processHashing(sha256IpAddress, 'sha256', 'hex')
+      if (hashedIpAddress) {
+        userIds.push({
+          idType: 'SHA256_IP_ADDRESS',
+          idValue: hashedIpAddress
+        })
+      }
+    }
+
+    const googleAID = payload.googleAID?.trim()
+    if (googleAID) {
+      userIds.push({
+        idType: 'GOOGLE_AID',
+        idValue: googleAID
       })
     }
 
