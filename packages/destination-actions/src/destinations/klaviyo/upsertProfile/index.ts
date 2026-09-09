@@ -116,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
           allowNull: true
         },
         longitude: {
-          label: 'Longitide',
+          label: 'Longitude',
           type: 'string',
           allowNull: true
         },

@@ -1571,7 +1571,7 @@
               "additionalProperties": false
             },
             "longitude": {
-              "label": "Longitide",
+              "label": "Longitude",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1779,7 +1779,7 @@
       "fields": {
         "email": {
           "label": "Email",
-          "description": "The user's email to send to Klavio.",
+          "description": "The user's email to send to Klaviyo.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -2242,7 +2242,7 @@
               "additionalProperties": false
             },
             "longitude": {
-              "label": "Longitide",
+              "label": "Longitude",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -3388,7 +3388,7 @@
       "fields": {
         "email": {
           "label": "Email",
-          "description": "The user's email to send to Klavio.",
+          "description": "The user's email to send to Klaviyo.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -4628,7 +4628,7 @@
           "properties": {
             "email": {
               "label": "Email",
-              "description": "The user's email to send to Klavio.",
+              "description": "The user's email to send to Klaviyo.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -11136,7 +11136,7 @@
       "fields": {
         "email": {
           "label": "Email",
-          "description": "The user's email to send to Klavio.",
+          "description": "The user's email to send to Klaviyo.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -11599,7 +11599,7 @@
               "additionalProperties": false
             },
             "longitude": {
-              "label": "Longitide",
+              "label": "Longitude",
               "type": "string",
               "required": false,
               "multiple": false,
