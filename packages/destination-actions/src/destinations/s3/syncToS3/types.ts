@@ -15,6 +15,12 @@ export interface Credentials {
   sessionToken: string
 }
 
+// A cache entry for STS-assumed credentials, held until shortly before their STS-reported expiry.
+export interface CachedCredentials {
+  credentials: Credentials
+  expiration: number // epoch millis, from STS Credentials.Expiration
+}
+
 export interface Data {
   rawMapping: RawMapping
 }
