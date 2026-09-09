@@ -55,6 +55,7 @@ export async function syncList(
     if (email && !validateEmail(email)) {
       throw new PayloadValidationError('Email must be a valid email address.')
     }
+    validateExternalId(external_id)
 
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
     return await addProfileToList(request, profileId, list_id)
@@ -66,6 +67,9 @@ export async function syncList(
 
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
+    }
+    if (email && !validateEmail(email)) {
+      throw new PayloadValidationError('Email must be a valid email address.')
     }
     validateExternalId(external_id)
 
