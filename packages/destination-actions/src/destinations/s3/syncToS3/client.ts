@@ -37,6 +37,17 @@ export function clearCredentialsCache(): void {
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
 const MAX_S3_OBJECT_KEY_BYTES = 1024
 
+// AWS "safe" object-key characters (0-9 a-z A-Z and ! - _ . * ' ( )), plus '/' as the folder
+// separator. See https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html.
+// We reject keys containing anything outside this set rather than sanitizing — we never mutate
+// customer-provided keys. The `u` flag makes matching operate on Unicode code points so a non-BMP
+// character (e.g. an emoji) is reported as one character, not two surrogate halves.
+const DISALLOWED_S3_OBJECT_KEY_CHARS = /[^A-Za-z0-9!\-_.*'()/]/gu
+
+// Cap how many distinct offending characters we list per part, so a pathological key can't bloat
+// the error message / logs.
+const MAX_REPORTED_DISALLOWED_CHARS = 10
+
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -158,6 +169,34 @@ export class Client {
       throw new PayloadValidationError(
         `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
           `Shorten the folder name and/or filename prefix.`
+      )
+    }
+
+    // Reject keys with characters outside AWS's safe set up front, rather than silently overwriting
+    // a customer's prior files (key collisions) or failing late/opaquely at the PUT. Point at the
+    // specific input(s) at fault and their distinct bad characters, but never echo the full value —
+    // it may contain PII.
+    const offending = (
+      [
+        ['folder name', folderName],
+        ['filename prefix', filename_prefix]
+      ] as const
+    )
+      .map(([label, value]) => {
+        const bad = value.match(DISALLOWED_S3_OBJECT_KEY_CHARS)
+        if (!bad) return null
+        const distinct = [...new Set(bad)]
+        const shown = distinct.slice(0, MAX_REPORTED_DISALLOWED_CHARS).map((c) => JSON.stringify(c))
+        const more = distinct.length - shown.length
+        const list = more > 0 ? `${shown.join(', ')}, …and ${more} more` : shown.join(', ')
+        return `${label} has disallowed character(s): ${list}`
+      })
+      .filter((entry): entry is string => entry !== null)
+
+    if (offending.length > 0) {
+      throw new PayloadValidationError(
+        `S3 object key contains characters outside the allowed set (A-Z a-z 0-9 / ! - _ . * ' ( )). ` +
+          `${offending.join('; ')}.`
       )
     }
 

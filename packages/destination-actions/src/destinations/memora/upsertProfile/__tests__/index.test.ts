@@ -1703,6 +1703,51 @@ describe('Memora.upsertProfile', () => {
       expect(mockLogger.warn).not.toHaveBeenCalledWith(expect.stringContaining('Failed to merge overlapping profiles'))
     })
 
+    // Positive-assertion test for the fallback catch at the top of upsertProfiles: forces
+    // computeIdentifierGroups itself to throw (a getter on profile_identifiers, since its
+    // values are typed `unknown` and mapping-kit can hand back any object shape) and asserts
+    // the batch still delivers, unmerged, with every profile intact -- not just that delivery
+    // doesn't crash, but that the correct unmerged profiles are the ones sent.
+    it('should deliver every profile unmerged when grouping itself throws', async () => {
+      // Both validation (Object.values) and buildTraitGroups (Object.entries) read this
+      // value before grouping ever runs, outside the merge try/catch, so the getter must
+      // survive both and only throw once computeIdentifierGroups reads it afterwards.
+      let reads = 0
+      const throwingIdentifiers = {}
+      Object.defineProperty(throwingIdentifiers, 'Contact.$.email', {
+        enumerable: true,
+        get() {
+          reads += 1
+          if (reads > 2) {
+            throw new Error('boom')
+          }
+          return 'a@example.com'
+        }
+      })
+
+      const mockRequestFn = await runBatch([
+        {
+          memora_store: 'test-store-id',
+          profile_identifiers: throwingIdentifiers as never,
+          profile_traits: { 'Contact.$.firstName': 'A' }
+        },
+        profile({ 'Contact.$.email': 'dupe@example.com' }),
+        profile({ 'Contact.$.email': 'dupe@example.com' })
+      ])
+
+      expect(mockRequestFn).toHaveBeenCalledTimes(1)
+      const sent = mockRequestFn.mock.calls[0][1].json.profiles
+      // Unmerged: 3 events in, 3 profiles out -- including the two that would otherwise
+      // have collapsed to one, since grouping never ran.
+      expect(sent).toHaveLength(3)
+      expect(sent.map((p: any) => p.traits.Contact.firstName)).toEqual(['A', 'X', 'X'])
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to merge overlapping profiles, sending them unmerged')
+      )
+      // Grouping never ran, so there is nothing to report
+      expect(mockStatsClient.histogram).not.toHaveBeenCalled()
+    })
+
     it('should not group on values that cannot identify anyone', async () => {
       // Each case: three DIFFERENT people sharing one unusable identifier value
       const cases: Array<[string, unknown[]]> = [
