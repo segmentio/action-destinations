@@ -109,11 +109,9 @@ export async function syncListBatch(
       return
     }
 
-    if (hookOutputs?.id) {
-      payload.list_id = hookOutputs.id
-    }
+    const effectivePayload = hookOutputs?.id ? { ...payload, list_id: hookOutputs.id } : payload
 
-    if (!payload.list_id) {
+    if (!effectivePayload.list_id) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
@@ -124,10 +122,10 @@ export async function syncListBatch(
 
     if (membership) {
       addIndices.push(index)
-      addPayloads.push(payload)
+      addPayloads.push(effectivePayload)
     } else {
       removeIndices.push(index)
-      removePayloads.push(payload)
+      removePayloads.push(effectivePayload)
     }
   })
 
