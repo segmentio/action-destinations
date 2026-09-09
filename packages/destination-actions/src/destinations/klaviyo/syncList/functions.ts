@@ -100,7 +100,7 @@ export async function syncListBatch(
   payloads.forEach((payload, index) => {
     const membership = audienceMembership[index]
 
-    if (typeof membership != 'boolean') {
+    if (typeof membership !== 'boolean') {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
