@@ -128,6 +128,17 @@ export async function syncListBatch(
       addIndices.push(index)
       addPayloads.push(effectivePayload)
     } else {
+      // sendBatchedProfileImportJobRequest (add path) already validates email format and external_id length
+      // internally. removeBulkProfilesFromList (remove path) already validates external_id length, but not
+      // email format - so we check it here to match syncList()'s single-event remove branch.
+      if (effectivePayload.email && !validateEmail(effectivePayload.email)) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+          errormessage: 'Email must be a valid email address.'
+        })
+        return
+      }
       removeIndices.push(index)
       removePayloads.push(effectivePayload)
     }
@@ -135,11 +146,7 @@ export async function syncListBatch(
 
   const [addResult, removeResult] = await Promise.all([
     addPayloads.length > 0
-      ? sendBatchedProfileImportJobRequest(
-          request,
-          addPayloads as unknown as AddProfileToListPayload[],
-          statsContext
-        )
+      ? sendBatchedProfileImportJobRequest(request, addPayloads as unknown as AddProfileToListPayload[], statsContext)
       : undefined,
     removePayloads.length > 0
       ? removeBulkProfilesFromList(request, removePayloads as unknown as RemoveProfilePayload[], statsContext)

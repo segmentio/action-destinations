@@ -43,7 +43,8 @@ const action: ActionDefinition<Settings, Payload> = {
         value: 'delete'
       },
       {
-        label: 'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
+        label:
+          'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
         value: 'mirror'
       }
     ]
@@ -51,7 +52,12 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     email: { ...email },
     phone_number: { ...phone_number },
-    list_id: { ...list_id, required: false },
+    list_id: {
+      ...list_id,
+      description:
+        'The Klaviyo list to sync the profile to, based on their audience membership status. For Engage/Journeys audiences this is resolved automatically. For a reverse ETL (database) Source, connect this action to a list using the "Connect to a static list in Klaviyo" step when saving the mapping.',
+      required: false
+    },
     external_id: { ...external_id },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size, default: 1000, minimum: 100, maximum: 1000 },
@@ -80,7 +86,13 @@ const action: ActionDefinition<Settings, Payload> = {
     return syncList(request, payload, audienceMembership, hookOutputs?.retlOnMappingSave?.outputs)
   },
   performBatch: async (request, { payload, audienceMembership, statsContext, hookOutputs }) => {
-    return syncListBatch(request, payload, audienceMembership ?? [], statsContext, hookOutputs?.retlOnMappingSave?.outputs)
+    return syncListBatch(
+      request,
+      payload,
+      audienceMembership ?? [],
+      statsContext,
+      hookOutputs?.retlOnMappingSave?.outputs
+    )
   }
 }
 

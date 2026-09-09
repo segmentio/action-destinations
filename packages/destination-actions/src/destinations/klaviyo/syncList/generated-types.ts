@@ -10,7 +10,7 @@ export interface Payload {
    */
   phone_number?: string
   /**
-   * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
+   * The Klaviyo list to sync the profile to, based on their audience membership status. For Engage/Journeys audiences this is resolved automatically. For a reverse ETL (database) Source, connect this action to a list using the "Connect to a static list in Klaviyo" step when saving the mapping.
    */
   list_id?: string
   /**

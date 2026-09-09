@@ -246,6 +246,44 @@ describe('Klaviyo.syncList - batch', () => {
     expect(nock.pendingMocks().length).toBe(0)
   })
 
+  it('sets a per-index error and skips the destination API call when email is invalid for one item in an otherwise valid remove batch', async () => {
+    const events = [
+      membershipEvent('u0@example.com', false),
+      membershipEvent('user@domain.c', false), // fails EMAIL_REGEX (TLD too short)
+      membershipEvent('u2@example.com', false)
+    ]
+
+    const removeEmails = ['u0@example.com', 'u2@example.com']
+    const getProfilesScope = nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(email,["${removeEmails.join('","')}"])`)
+      .reply(200, { data: [{ id: 'P0' }, { id: 'P2' }] })
+
+    const deleteProfilesScope = nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', {
+        data: [
+          { type: 'profile', id: 'P0' },
+          { type: 'profile', id: 'P2' }
+        ]
+      })
+      .reply(200, {})
+
+    const responses = await testDestination.executeBatch('syncList', {
+      events,
+      settings,
+      mapping: { list_id: listId, email: { '@path': '$.properties.email' } }
+    })
+
+    expect(responses[0]).toMatchObject({ status: 200 })
+    expect(responses[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'Email must be a valid email address.'
+    })
+    expect(responses[2]).toMatchObject({ status: 200 })
+    expect(getProfilesScope.isDone()).toBe(true)
+    expect(deleteProfilesScope.isDone()).toBe(true)
+  })
+
   it('applies the hook list id to every payload before bucketing, for both add and remove buckets', async () => {
     const HOOK_LIST_ID = 'HOOK-LIST-ID'
     const events = [membershipEvent('add-user@example.com', true), membershipEvent('remove-user@example.com', false)]
