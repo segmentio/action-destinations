@@ -6,9 +6,9 @@ import {
   RequestClient,
   StatsContext
 } from '@segment/actions-core'
-import { Payload } from './generated-types'
-import { Payload as AddProfileToListPayload } from '../addProfileToList/generated-types'
-import { Payload as RemoveProfilePayload } from '../removeProfile/generated-types'
+import type { Payload } from './generated-types'
+import type { Payload as AddProfileToListPayload } from '../addProfileToList/generated-types'
+import type { Payload as RemoveProfilePayload } from '../removeProfile/generated-types'
 import {
   addProfileToList,
   createProfile,
@@ -21,6 +21,9 @@ import {
   validateExternalId
 } from '../functions'
 
+const NO_LIST_ID_ERROR =
+  'No list ID found in payload. When connecting this action to a reverse ETL (database) Source, Segment cannot infer a list automatically - you must select an existing Klaviyo list or provide a name for a new one in the "Connect to a static list in Klaviyo" step when saving the mapping.'
+
 export async function syncList(
   request: RequestClient,
   payload: Payload,
@@ -29,7 +32,7 @@ export async function syncList(
 ) {
   const list_id = hookOutputs?.id ?? payload.list_id
   if (!list_id) {
-    throw new PayloadValidationError('No list ID found in payload')
+    throw new PayloadValidationError(NO_LIST_ID_ERROR)
   }
 
   if (audienceMembership === true) {
@@ -49,7 +52,7 @@ export async function syncList(
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
     }
-    if (!validateEmail(email)) {
+    if (email && !validateEmail(email)) {
       throw new PayloadValidationError('Email must be a valid email address.')
     }
 
@@ -62,7 +65,7 @@ export async function syncList(
     const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
 
     if (!email && !external_id && !phone_number) {
-      throw new PayloadValidationError('One of External ID, Phone Number and Email is required.')
+      throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
     }
     validateExternalId(external_id)
 
@@ -97,7 +100,7 @@ export async function syncListBatch(
   payloads.forEach((payload, index) => {
     const membership = audienceMembership[index]
 
-    if (membership !== true && membership !== false) {
+    if (typeof membership != 'boolean') {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
@@ -114,7 +117,7 @@ export async function syncListBatch(
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        errormessage: 'No list ID found in payload'
+        errormessage: NO_LIST_ID_ERROR
       })
       return
     }
