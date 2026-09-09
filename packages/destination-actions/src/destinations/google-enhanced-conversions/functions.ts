@@ -660,7 +660,9 @@ const processOperations = async (
   request: RequestClient,
   userIdentifiers: any,
   resourceName: string,
-  validPayloadIndicesBitmap: number[],
+  // The original indices of the events carried by this request only, in the
+  // order they were submitted.
+  operationPayloadIndices: number[],
   failedPayloadIndices: Set<number>,
   multiStatusResponse: MultiStatusResponse,
   features?: Features | undefined,
@@ -671,7 +673,7 @@ const processOperations = async (
   if (!success) {
     handleGoogleAdsAPIErrorResponse(
       error as GoogleAdsError,
-      validPayloadIndicesBitmap,
+      operationPayloadIndices,
       multiStatusResponse,
       operationPayload,
       failedPayloadIndices
@@ -682,7 +684,7 @@ const processOperations = async (
   if (partialFailureError) {
     handlePartialFailureResponse(
       partialFailureError,
-      validPayloadIndicesBitmap,
+      operationPayloadIndices,
       multiStatusResponse,
       userIdentifiers,
       failedPayloadIndices
@@ -768,14 +770,16 @@ export const verifyCustomerId = (customerId: string | undefined) => {
 
 const handleGoogleAdsAPIErrorResponse = (
   error: any,
-  validPayloadIndicesBitmap: number[],
+  // The original indices of the events the failed request carried. A request
+  // failing outright says nothing about events submitted in the other request.
+  operationPayloadIndices: number[],
   multiStatusResponse: MultiStatusResponse,
   payload: JSONLikeObject,
   failedPayloadIndices?: Set<number>
 ) => {
   const errorData = error?.response?.data?.error
   const parsedError = parseGoogleAdsError(errorData)
-  validPayloadIndicesBitmap.forEach((index) => {
+  operationPayloadIndices.forEach((index) => {
     multiStatusResponse.setErrorResponseAtIndex(index, {
       ...parsedError,
       body: error,
@@ -826,7 +830,8 @@ const updateMultiStatusResponseWithSuccess = (
 
 export const handlePartialFailureResponse = (
   partialFailureError: any,
-  validPayloadIndicesBitmap: number[],
+  // The original indices of the events carried by the failing request only.
+  operationPayloadIndices: number[],
   multiStatusResponse: MultiStatusResponse,
   userIdentifiers: any[],
   failedPayloadIndices: Set<number>
@@ -838,7 +843,7 @@ export const handlePartialFailureResponse = (
       )?.index
 
       if (failedIndex >= 0) {
-        const originalIndex = validPayloadIndicesBitmap[failedIndex]
+        const originalIndex = operationPayloadIndices[failedIndex]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
           errormessage: error.message,
@@ -924,6 +929,13 @@ const extractBatchUserIdentifiers = (
   const removeUserIdentifiers: any[] = []
   const addUserIdentifiers: any[] = []
   const validPayloadIndicesBitmap: number[] = []
+  // The add and remove operations are submitted as two separate requests, and
+  // Google reports a failure by its index within the request it failed in. Each
+  // request therefore needs the indices of the events it actually carried;
+  // resolving through the combined map above lands on whichever valid event
+  // happens to sit at that position across both.
+  const addPayloadIndices: number[] = []
+  const removePayloadIndices: number[] = []
 
   //Identify the user identifiers based on the idType
   const extractors = createIdentifierExtractors(features)
@@ -962,13 +974,21 @@ const extractBatchUserIdentifiers = (
 
     validPayloadIndicesBitmap.push(index)
     if (operationType === 'add') {
+      addPayloadIndices.push(index)
       addUserIdentifiers.push({ create: { userIdentifiers } })
     } else {
+      removePayloadIndices.push(index)
       removeUserIdentifiers.push({ remove: { userIdentifiers } })
     }
   })
 
-  return { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap }
+  return {
+    addUserIdentifiers,
+    removeUserIdentifiers,
+    validPayloadIndicesBitmap,
+    addPayloadIndices,
+    removePayloadIndices
+  }
 }
 
 // Helper function to determine operation type
@@ -1024,14 +1044,13 @@ export const processBatchPayload = async (
   const multiStatusResponse = new MultiStatusResponse()
   const id_type = hookListType ?? audienceSettings.external_id_type
   // Extract user identifiers and validPayloadIndicesBitmap from payloads
-  const { addUserIdentifiers, removeUserIdentifiers, validPayloadIndicesBitmap } = extractBatchUserIdentifiers(
-    payloads,
-    id_type,
-    multiStatusResponse,
-    syncMode,
-    features,
-    audienceMemberships
-  )
+  const {
+    addUserIdentifiers,
+    removeUserIdentifiers,
+    validPayloadIndicesBitmap,
+    addPayloadIndices,
+    removePayloadIndices
+  } = extractBatchUserIdentifiers(payloads, id_type, multiStatusResponse, syncMode, features, audienceMemberships)
   // Create offline user data job payload
   const offlineUserJobPayload = createOfflineUserJobPayload(externalAudienceId, payloads[0], settings.customerId)
   // Step1 :- Create an Offline user data job
@@ -1056,7 +1075,7 @@ export const processBatchPayload = async (
       request,
       addUserIdentifiers,
       resourceName,
-      validPayloadIndicesBitmap,
+      addPayloadIndices,
       failedPayloadIndices,
       multiStatusResponse,
       features,
@@ -1069,7 +1088,7 @@ export const processBatchPayload = async (
       request,
       removeUserIdentifiers,
       resourceName,
-      validPayloadIndicesBitmap,
+      removePayloadIndices,
       failedPayloadIndices,
       multiStatusResponse,
       features,

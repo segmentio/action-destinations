@@ -1170,6 +1170,138 @@ describe('GoogleEnhancedConversions', () => {
       })
     })
 
+    it('attributes a partial failure on the remove request to the event that actually failed', async () => {
+      // A mirror-mode batch is submitted as two separate addOperations calls, one
+      // carrying the create operations and one carrying the remove operations.
+      // Google reports a partial failure by its index within the request it
+      // failed in, so an index from the remove call resolves against the removed
+      // events only.
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'new',
+          properties: { email: 'added@gmail.com' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'deleted',
+          properties: { email: 'removed-ok@gmail.com' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'deleted',
+          properties: { email: 'removed-bad@gmail.com' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      // The create operations all succeed.
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`).post(/.*/).reply(200, {})
+
+      // The second remove fails: operations index 1 of the remove request, which
+      // is event index 2 of the batch.
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(200, {
+          partialFailureError: {
+            code: 3,
+            message: 'Mocking Partial Failure Error',
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: { offlineUserDataJobError: 'INVALID_SHA256_FORMAT' },
+                    message: 'The SHA256 encoded value is malformed.',
+                    location: {
+                      fieldPathElements: [
+                        { fieldName: 'operations', index: 1 },
+                        { fieldName: 'remove' },
+                        { fieldName: 'user_identifiers', index: 0 },
+                        { fieldName: 'hashed_email' }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`).post(/.*/).reply(200, { done: true })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping: { ...mapping, __segment_internal_sync_mode: 'mirror' },
+        settings: { customerId }
+      })
+
+      // The added event was never part of the failing request.
+      expect(responses[0]).toMatchObject({ status: 200 })
+      // The first removed event succeeded.
+      expect(responses[1]).toMatchObject({ status: 200 })
+      // The second removed event is the one Google rejected.
+      expect(responses[2]).toMatchObject({
+        status: 400,
+        errormessage: 'The SHA256 encoded value is malformed.'
+      })
+    })
+
+    it('does not fail the added events when only the remove request fails', async () => {
+      // A request failing outright says nothing about the events submitted in the
+      // other request.
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'new',
+          properties: { email: 'added@gmail.com' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'deleted',
+          properties: { email: 'removed-ok@gmail.com' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'deleted',
+          properties: { email: 'removed-bad@gmail.com' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/offlineUserDataJobs:create`)
+        .post(/.*/)
+        .reply(200, { resourceName: 'customers/1234/userLists/1234' })
+
+      // The create operations succeed.
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`).post(/.*/).reply(200, {})
+
+      // The remove request fails outright.
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:addOperations`)
+        .post(/.*/)
+        .reply(400, {
+          error: {
+            code: 400,
+            message: 'Remove operations rejected',
+            details: []
+          }
+        })
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/offlineDataJob:run`).post(/.*/).reply(200, { done: true })
+
+      const responses = await testDestination.executeBatch('userList', {
+        events,
+        mapping: { ...mapping, __segment_internal_sync_mode: 'mirror' },
+        settings: { customerId }
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200 })
+      expect(responses[1]).toMatchObject({ status: 400 })
+      expect(responses[2]).toMatchObject({ status: 400 })
+    })
+
     it('should successfully handle a Partial failure error from  addOperation offlineUserDataJobs API', async () => {
       const events: SegmentEvent[] = [
         // Assume this Payload gets failed in Partial Failure
