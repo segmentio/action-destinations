@@ -14,7 +14,9 @@ import {
   OfflineUserJobPayload,
   AddOperationPayload,
   KeyValuePairList,
-  KeyValueItem
+  KeyValueItem,
+  DataManagerUserList,
+  PartnerLinkResponse
 } from './types'
 import {
   ModifiedResponse,
@@ -48,6 +50,9 @@ export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+export const FLAGON_NAME_DATA_MANAGER_API = 'actions-google-ec-data-manager-api'
+export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
+const PARTNER_ACCOUNT_ID = '262932431'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -308,6 +313,112 @@ export async function getListIds(
         code: (err as GoogleAdsError).response?.status + '' ?? '500'
       }
     }
+  }
+}
+
+export async function getDataManagerAudience(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  externalId: string,
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
+): Promise<DataManagerUserList> {
+  if (
+    !auth?.refresh_token ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
+    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
+  ) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: auth.refresh_token,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  const accessToken = tokenRes.data.access_token
+
+  const customerId = settings.customerId?.replace(/-/g, '')
+  const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${accessToken}`
+  }
+  if (loginCustomerId) {
+    headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+  }
+
+  const response = await request(
+    `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${externalId}`,
+    {
+      method: 'get',
+      headers
+    }
+  )
+
+  const userList = response.data as DataManagerUserList
+  if (!userList?.id) {
+    statsClient?.incr('getDataManagerAudience.error', 1, statsTags)
+    throw new IntegrationError('Failed to retrieve user list from Data Manager.', 'INVALID_RESPONSE', 400)
+  }
+
+  statsClient?.incr('getDataManagerAudience.success', 1, statsTags)
+  return userList
+}
+
+export async function exchangeForAccessToken(request: RequestClient, refreshToken: string): Promise<string> {
+  if (!process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID || !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET) {
+    throw new PayloadValidationError('OAuth client credentials (client ID / client secret) are not configured.')
+  }
+
+  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: refreshToken,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return res.data.access_token
+}
+
+export async function createDataManagerPartnerLink(
+  request: RequestClient,
+  customerId: string,
+  customerAccessToken: string,
+  loginCustomerId?: string
+): Promise<PartnerLinkResponse> {
+  const owningAccountId = loginCustomerId || customerId
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
+  try {
+    const response = await request<PartnerLinkResponse>(url, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${customerAccessToken}`,
+        'login-account': `accountTypes/GOOGLE_ADS/accounts/${owningAccountId}`
+      },
+      json: {
+        owningAccount: { accountId: owningAccountId, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      }
+    })
+    return response.data
+  } catch (err: any) {
+    // 409 ALREADY_EXISTS means the link is already established — treat as success
+    if (err?.response?.status === 409) {
+      return err.response.data as PartnerLinkResponse
+    }
+    throw err
   }
 }
 
@@ -972,7 +1083,11 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership
+) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||

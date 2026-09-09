@@ -70,6 +70,19 @@ export interface CallConversionRequestObjectInterface {
   customVariables?: CustomVariableInterface[]
 }
 
+export interface PartnerLinkResponse {
+  name: string
+  partnerLinkId: string
+  owningAccount: {
+    accountId: string
+    accountType: string
+  }
+  partnerAccount: {
+    accountId: string
+    accountType: string
+  }
+}
+
 export interface ConversionAdjustmentRequestObjectInterface {
   adjustmentType: string
   adjustmentDateTime: string | undefined
@@ -104,14 +117,14 @@ export interface ClickConversionRequestObjectInterface {
 export type KeyValuePairList = Array<KeyValueItem>
 
 export type KeyValueItem = {
-  sessionAttributeKey: 
-    'gad_source' 
-  | 'gad_campaignid' 
-  | 'landing_page_url' 
-  | 'session_start_time_usec' 
-  | 'landing_page_referrer' 
-  | 'landing_page_user_agent'
-  sessionAttributeValue?: string 
+  sessionAttributeKey:
+    | 'gad_source'
+    | 'gad_campaignid'
+    | 'landing_page_url'
+    | 'session_start_time_usec'
+    | 'landing_page_referrer'
+    | 'landing_page_user_agent'
+  sessionAttributeValue?: string
 }
 
 export interface ConversionActionId {
@@ -153,10 +166,23 @@ export interface UserListResponse {
   fieldMask: string
 }
 
+export interface DataManagerUserList {
+  name: string
+  id: string
+  displayName?: string
+  membershipDuration?: string
+  membershipStatus?: string
+  ingestedUserListInfo?: {
+    uploadKeyTypes?: string[]
+    mobileIdInfo?: { appId?: string }
+  }
+}
+
 export interface CreateAudienceInput {
   audienceName: string
   settings: {
     customerId?: string
+    loginCustomerId?: string
     conversionTrackingId?: string
     oauth?: {
       refresh_token?: string
@@ -175,6 +201,7 @@ export interface GetAudienceInput {
   externalId: string
   settings: {
     customerId?: string
+    loginCustomerId?: string
     conversionTrackingId?: string
     oauth?: {
       refresh_token?: string
