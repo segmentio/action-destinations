@@ -19,8 +19,13 @@ const MAX_S3_OBJECT_KEY_BYTES = 1024
 // AWS "safe" object-key characters (0-9 a-z A-Z and ! - _ . * ' ( )), plus '/' as the folder
 // separator. See https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html.
 // We reject keys containing anything outside this set rather than sanitizing — we never mutate
-// customer-provided keys.
-const DISALLOWED_S3_OBJECT_KEY_CHARS = /[^A-Za-z0-9!\-_.*'()/]/g
+// customer-provided keys. The `u` flag makes matching operate on Unicode code points so a non-BMP
+// character (e.g. an emoji) is reported as one character, not two surrogate halves.
+const DISALLOWED_S3_OBJECT_KEY_CHARS = /[^A-Za-z0-9!\-_.*'()/]/gu
+
+// Cap how many distinct offending characters we list per part, so a pathological key can't bloat
+// the error message / logs.
+const MAX_REPORTED_DISALLOWED_CHARS = 10
 
 export class Client {
   roleArn: string
@@ -120,9 +125,12 @@ export class Client {
     )
       .map(([label, value]) => {
         const bad = value.match(DISALLOWED_S3_OBJECT_KEY_CHARS)
-        return bad
-          ? `${label} has disallowed character(s): ${[...new Set(bad)].map((c) => JSON.stringify(c)).join(', ')}`
-          : null
+        if (!bad) return null
+        const distinct = [...new Set(bad)]
+        const shown = distinct.slice(0, MAX_REPORTED_DISALLOWED_CHARS).map((c) => JSON.stringify(c))
+        const more = distinct.length - shown.length
+        const list = more > 0 ? `${shown.join(', ')}, …and ${more} more` : shown.join(', ')
+        return `${label} has disallowed character(s): ${list}`
       })
       .filter((entry): entry is string => entry !== null)
 
