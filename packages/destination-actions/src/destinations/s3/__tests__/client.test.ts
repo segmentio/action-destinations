@@ -202,15 +202,17 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(3)
   })
 
-  it('does not cache when STS omits an expiration', async () => {
+  it('fails fast when STS returns credentials without an expiration', async () => {
+    // STS always returns Expiration in practice; a response missing it is malformed, so we treat
+    // it as an auth failure rather than caching a credential of unknown lifetime.
     mockStsSend.mockResolvedValue({
       Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
     })
 
-    await upload(newClient())
-    await upload(newClient())
+    const err = await upload(newClient()).catch((e: unknown) => e)
 
-    expect(mockStsSend).toHaveBeenCalledTimes(4)
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(403)
   })
 
   describe('DataDog metrics', () => {
@@ -252,19 +254,6 @@ describe('STS credential caching', () => {
     it('does not throw when no statsContext is provided', async () => {
       mockStsSend.mockResolvedValue(stsOk())
       await expect(upload(newClient())).resolves.toBeDefined()
-    })
-
-    it('emits sts_credential_no_expiration (and never sets) when STS omits an expiration', async () => {
-      mockStsSend.mockResolvedValue({
-        Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
-      })
-      const { statsContext, incr } = makeStatsContext()
-
-      await upload(clientWithStats(statsContext))
-
-      const names = incr.mock.calls.map((c: unknown[]) => c[0])
-      expect(names.filter((n: string) => n === 'sts_credential_no_expiration')).toHaveLength(2) // both hops
-      expect(names).not.toContain('sts_credential_cache_set')
     })
   })
 })

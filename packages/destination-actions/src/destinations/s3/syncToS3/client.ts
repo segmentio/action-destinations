@@ -94,11 +94,15 @@ export class Client {
       // failures). Map them to Segment error classes here so classification is correct.
       throw mapAWSError(err, 'Failed to assume AWS role')
     }
+    // STS always returns all four fields on a successful AssumeRole (the SDK types them optional,
+    // but the API contract guarantees them; verified in DataDog that Expiration is always present).
+    // Treat a missing field as a malformed response and fail fast rather than cache blindly.
     if (
       !result.Credentials ||
       !result.Credentials.AccessKeyId ||
       !result.Credentials.SecretAccessKey ||
-      !result.Credentials.SessionToken
+      !result.Credentials.SessionToken ||
+      !result.Credentials.Expiration
     ) {
       // TODO: Add more specific error handling
       throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
@@ -109,19 +113,9 @@ export class Client {
       sessionToken: result.Credentials.SessionToken
     }
 
-    // Cache the freshly minted credentials until shortly before STS says they expire. Only cache
-    // when STS reports an expiration; without it we can't know the safe lifetime, so we re-fetch
-    // every time rather than risk handing out credentials of unknown validity.
-    const expiration = result.Credentials.Expiration
-    if (expiration instanceof Date) {
-      credentialsCache.set(cacheKey, { credentials: creds, expiration: expiration.getTime() })
-      statsClient?.incr('sts_credential_cache_set', 1, tags)
-    } else {
-      // STS should always return an Expiration; if it ever doesn't we can't safely cache (unknown
-      // lifetime), so we fall back to fetching every time. Emit a metric so this is observable in
-      // DataDog rather than surfacing only as a mysteriously high miss rate.
-      statsClient?.incr('sts_credential_no_expiration', 1, tags)
-    }
+    // Cache the freshly minted credentials until shortly before STS says they expire.
+    credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
+    statsClient?.incr('sts_credential_cache_set', 1, tags)
 
     return creds
   }
