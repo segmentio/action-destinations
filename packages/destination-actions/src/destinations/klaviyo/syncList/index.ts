@@ -1,0 +1,87 @@
+import type { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { syncList, syncListBatch } from './functions'
+import {
+  email,
+  external_id,
+  list_id,
+  enable_batching,
+  batch_size,
+  first_name,
+  last_name,
+  organization,
+  title,
+  image,
+  location,
+  properties,
+  phone_number,
+  country_code
+} from '../properties'
+import { retlOnMappingSaveHook } from '../retlOnMappingSaveHook'
+
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Sync List',
+  description: 'Add or remove a profile from a list in Klaviyo, based on their audience membership status',
+  defaultSubscription: 'type = track or type = identify',
+  syncMode: {
+    label: 'Sync Mode',
+    description: 'Specify how Segment should sync data to Klaviyo when connected to a database Source.',
+    default: 'mirror',
+    choices: [
+      { label: 'Add - when connected to a database Source, adding a row will trigger this mapping', value: 'add' },
+      {
+        label: 'Update - when connected to a database Source, updating a row will trigger this mapping',
+        value: 'update'
+      },
+      {
+        label: 'Upsert - when connected to a database Source, adding or updating a row will trigger this mapping',
+        value: 'upsert'
+      },
+      {
+        label: 'Delete - when connected to a database Source, deleting a row will trigger this mapping',
+        value: 'delete'
+      },
+      {
+        label: 'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
+        value: 'mirror'
+      }
+    ]
+  },
+  fields: {
+    email: { ...email },
+    phone_number: { ...phone_number },
+    list_id: { ...list_id, required: false },
+    external_id: { ...external_id },
+    enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size, default: 1000, minimum: 100, maximum: 1000 },
+    first_name: { ...first_name },
+    last_name: { ...last_name },
+    image: { ...image },
+    title: { ...title },
+    organization: { ...organization },
+    location: { ...location },
+    properties: { ...properties },
+    country_code: { ...country_code },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      unsafe_hidden: true,
+      required: false,
+      multiple: true,
+      default: ['list_id']
+    }
+  },
+  hooks: {
+    retlOnMappingSave: retlOnMappingSaveHook<Payload>()
+  },
+  perform: async (request, { payload, audienceMembership, hookOutputs }) => {
+    return syncList(request, payload, audienceMembership, hookOutputs?.retlOnMappingSave?.outputs)
+  },
+  performBatch: async (request, { payload, audienceMembership, statsContext, hookOutputs }) => {
+    return syncListBatch(request, payload, audienceMembership ?? [], statsContext, hookOutputs?.retlOnMappingSave?.outputs)
+  }
+}
+
+export default action

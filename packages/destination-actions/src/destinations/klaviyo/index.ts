@@ -16,6 +16,7 @@ import orderCompleted from './orderCompleted'
 import subscribeProfile from './subscribeProfile'
 import { buildHeaders } from './functions'
 import removeProfile from './removeProfile'
+import syncList from './syncList'
 
 import unsubscribeProfile from './unsubscribeProfile'
 
@@ -152,7 +153,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     orderCompleted,
     subscribeProfile,
     unsubscribeProfile,
-    removeProfile
+    removeProfile,
+    syncList
   },
   presets: [
     {

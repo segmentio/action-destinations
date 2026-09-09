@@ -41,7 +41,11 @@ export interface Payload {
   /**
    * The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.
    */
-  ipAddress?: string
+  plaintextIpAddress?: string
+  /**
+   * The user's IPv4 address. Segment will hash this value using SHA256 before sending it to LinkedIn, unless it is already hashed. At least one user identifier is required.
+   */
+  sha256IpAddress?: string
   /**
    * The Google Advertising ID (GAID) is a unique, user-resettable, anonymous identifier for Android devices. Do not hash this value. iOS advertising IDs (IDFA) are not supported. At least one user identifier is required.
    */
