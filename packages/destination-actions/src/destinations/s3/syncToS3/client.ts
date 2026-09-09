@@ -106,6 +106,11 @@ export class Client {
     if (expiration instanceof Date) {
       credentialsCache.set(cacheKey, { credentials: creds, expiration: expiration.getTime() })
       statsClient?.incr('sts_credential_cache_set', 1, tags)
+    } else {
+      // STS should always return an Expiration; if it ever doesn't we can't safely cache (unknown
+      // lifetime), so we fall back to fetching every time. Emit a metric so this is observable in
+      // DataDog rather than surfacing only as a mysteriously high miss rate.
+      statsClient?.incr('sts_credential_no_expiration', 1, tags)
     }
 
     return creds

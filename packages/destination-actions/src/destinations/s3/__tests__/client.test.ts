@@ -253,5 +253,18 @@ describe('STS credential caching', () => {
       mockStsSend.mockResolvedValue(stsOk())
       await expect(upload(newClient())).resolves.toBeDefined()
     })
+
+    it('emits sts_credential_no_expiration (and never sets) when STS omits an expiration', async () => {
+      mockStsSend.mockResolvedValue({
+        Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      const { statsContext, incr } = makeStatsContext()
+
+      await upload(clientWithStats(statsContext))
+
+      const names = incr.mock.calls.map((c: unknown[]) => c[0])
+      expect(names.filter((n: string) => n === 'sts_credential_no_expiration')).toHaveLength(2) // both hops
+      expect(names).not.toContain('sts_credential_cache_set')
+    })
   })
 })
