@@ -115,8 +115,8 @@ describe('uploadS3 object key character validation', () => {
 
     expect(error).toBeInstanceOf(PayloadValidationError)
     // Points at both parts and lists the distinct bad characters.
-    expect(error.message).toContain('folder name has disallowed character(s): "#"')
-    expect(error.message).toContain('filename prefix has disallowed character(s): "@"')
+    expect(error.message).toContain("folder name has disallowed character(s): '#'")
+    expect(error.message).toContain("filename prefix has disallowed character(s): '@'")
     // The surrounding (potentially PII-laden) values are not echoed.
     expect(error.message).not.toContain('secret-pii')
     expect(error.message).not.toContain('user@example')
@@ -204,25 +204,25 @@ describe('uploadS3 object key — AWS object-keys guideline coverage', () => {
     await reject('launch\u{1F680}') // 🚀
   })
 
-  it('reports a non-BMP character as a single code point, not surrogate halves', async () => {
+  it('reports a non-BMP character as a single code point (U+XXXX), not surrogate halves', async () => {
     const err = await newClient().uploadS3(settings, 'body', 'launch\u{1F680}', '', 'csv').catch((e) => e as Error)
-    // With the regex `u` flag the emoji is one character in the message, not "\ud83d", "\ude00".
-    expect(err.message).toContain('"\u{1F680}"')
+    // With the regex `u` flag the emoji is one code point, rendered U+1F680 — not "\ud83d", "\ude00".
+    expect(err.message).toContain('U+1F680')
     expect(err.message).not.toContain('ud83d')
   })
 
   // --- Reporting completeness ---
   it('de-duplicates repeated disallowed characters within a part', async () => {
     const err = await newClient().uploadS3(settings, 'body', 'a#b#c@d@', '', 'csv').catch((e) => e as Error)
-    expect(err.message).toContain('filename prefix has disallowed character(s): "#", "@"')
+    expect(err.message).toContain("filename prefix has disallowed character(s): '#', '@'")
   })
 
   it('caps the number of distinct disallowed characters listed per part', async () => {
-    // 13 distinct disallowed characters; only the first 10 are listed, then "…and 3 more".
+    // 13 distinct disallowed characters; only the first 10 are listed, then "...and 3 more".
+    // Order of first appearance: # % ^ ~ < > | { } [  (shown)  then  ] " @  (elided).
     const err = await newClient().uploadS3(settings, 'body', 'a#%^~<>|{}[]"@', '', 'csv').catch((e) => e as Error)
-    expect(err.message).toContain('…and 3 more')
-    // Exactly 10 quoted characters precede the summary.
-    const listed = (err.message.match(/"[^"]*"/g) ?? []).length
-    expect(listed).toBe(10)
+    expect(err.message).toContain('...and 3 more')
+    expect(err.message).toContain("'['") // 10th distinct char is listed
+    expect(err.message).not.toContain("']'") // 11th distinct char is elided
   })
 })
