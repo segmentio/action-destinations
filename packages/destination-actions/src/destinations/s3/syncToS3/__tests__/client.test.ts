@@ -131,3 +131,82 @@ describe('uploadS3 object key character validation', () => {
     expect(s3Send).toHaveBeenCalledTimes(1)
   })
 })
+
+// Systematic coverage of the character categories in AWS's object key naming guidelines:
+// https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+// Policy: allow only the "Safe characters" set plus "/" (folder delimiter); reject everything else
+// ("characters that might require special handling" — except "/" — plus "characters to avoid",
+// ASCII control characters, and any non-ASCII / non-printable byte).
+describe('uploadS3 object key — AWS object-keys guideline coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    stsSend.mockResolvedValue(validStsResponse)
+    s3Send.mockResolvedValue({})
+  })
+
+  const reject = async (filenamePrefix: string, folder = '') => {
+    const promise = newClient().uploadS3(settings, 'body', filenamePrefix, folder, 'csv')
+    await expect(promise).rejects.toBeInstanceOf(PayloadValidationError)
+    await expect(promise).rejects.toThrow('outside the allowed set')
+    // Fails fast, before any AWS call.
+    expect(stsSend).not.toHaveBeenCalled()
+    expect(s3Send).not.toHaveBeenCalled()
+  }
+
+  const accept = async (filenamePrefix: string, folder = '') => {
+    const result = await newClient().uploadS3(settings, 'body', filenamePrefix, folder, 'csv')
+    expect(result).toEqual({ statusCode: 200, message: 'Upload successful' })
+    expect(s3Send).toHaveBeenCalledTimes(1)
+  }
+
+  // --- "Safe characters": accepted ---
+  const SAFE_SPECIALS = ['!', '-', '_', '.', '*', "'", '(', ')']
+  it.each(SAFE_SPECIALS)('accepts safe special character %j', async (ch) => {
+    await accept(`file${ch}name`)
+  })
+
+  it('accepts a key mixing letters, digits, and every safe special character', async () => {
+    await accept("aZ09-file_name.v1*(final)!'")
+  })
+
+  it('accepts "/" as the folder path separator (multi-level paths)', async () => {
+    await accept('report', 'team/exports/2026/09')
+  })
+
+  // --- "Characters that might require special handling": rejected (except "/", tested above) ---
+  const SPECIAL_HANDLING = ['&', '$', '@', '=', ';', ':', '+', ' ', ',', '?']
+  it.each(SPECIAL_HANDLING)('rejects special-handling character %j', async (ch) => {
+    await reject(`file${ch}name`)
+  })
+
+  // --- "Characters to avoid": rejected ---
+  const AVOID = ['\\', '{', '^', '}', '%', '`', ']', '"', '>', '[', '~', '<', '#', '|']
+  it.each(AVOID)('rejects avoid character %j', async (ch) => {
+    await reject(`file${ch}name`)
+  })
+
+  // --- ASCII control characters (0x00-0x1F, 0x7F): rejected ---
+  const CONTROL_CODES = [0x00, 0x09, 0x0a, 0x0d, 0x1f, 0x7f] // NUL, TAB, LF, CR, US, DEL
+  it.each(CONTROL_CODES.map((code) => [code.toString(16).padStart(2, '0'), String.fromCharCode(code)] as const))(
+    'rejects ASCII control character 0x%s',
+    async (_hex, ch) => {
+      await reject(`file${ch}name`)
+    }
+  )
+
+  // --- Non-ASCII / non-printable bytes: rejected ---
+  const NON_ASCII = ['\u00E9', '\u20AC', '\u4E2D', '\u00A0'] // accented latin, euro sign, CJK, non-breaking space
+  it.each(NON_ASCII)('rejects non-ASCII character %j', async (ch) => {
+    await reject(`file${ch}name`)
+  })
+
+  it('rejects a multi-code-unit emoji in the key', async () => {
+    await reject('launch\u{1F680}') // 🚀
+  })
+
+  // --- Reporting completeness ---
+  it('de-duplicates repeated disallowed characters within a part', async () => {
+    const err = await newClient().uploadS3(settings, 'body', 'a#b#c@d@', '', 'csv').catch((e) => e as Error)
+    expect(err.message).toContain('filename prefix has disallowed character(s): "#", "@"')
+  })
+})
