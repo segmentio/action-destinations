@@ -1,6 +1,7 @@
 import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
 import { APIError, IntegrationError, RetryableError } from '@segment/actions-core'
+import type { StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 
 // Controllable STS send mock so tests can simulate assume-role failures.
@@ -210,5 +211,47 @@ describe('STS credential caching', () => {
     await upload(newClient())
 
     expect(mockStsSend).toHaveBeenCalledTimes(4)
+  })
+
+  describe('DataDog metrics', () => {
+    const stsOk = () => ({
+      Credentials: {
+        AccessKeyId: 'AKIAEXAMPLE',
+        SecretAccessKey: 'secret',
+        SessionToken: 'token',
+        Expiration: new Date(Date.now() + 60 * 60 * 1000)
+      }
+    })
+
+    const makeStatsContext = () => {
+      const incr = jest.fn()
+      const statsContext = { statsClient: { incr }, tags: ['dest:s3'] } as unknown as StatsContext
+      return { statsContext, incr }
+    }
+    const clientWithStats = (statsContext: StatsContext) =>
+      new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, statsContext)
+
+    it('emits miss + set on first assume-role, hit on the second, tagged per role_type', async () => {
+      mockStsSend.mockResolvedValue(stsOk())
+      const { statsContext, incr } = makeStatsContext()
+
+      // First upload: both hops miss then set. Second upload: both hops hit.
+      await upload(clientWithStats(statsContext))
+      await upload(clientWithStats(statsContext))
+
+      const names = incr.mock.calls.map((c: unknown[]) => c[0])
+      expect(names.filter((n: string) => n === 'sts_credential_cache_miss')).toHaveLength(2)
+      expect(names.filter((n: string) => n === 'sts_credential_cache_set')).toHaveLength(2)
+      expect(names.filter((n: string) => n === 'sts_credential_cache_hit')).toHaveLength(2)
+
+      // Metrics carry the caller's tags plus the role_type of each hop.
+      expect(incr).toHaveBeenCalledWith('sts_credential_cache_miss', 1, ['dest:s3', 'role_type:intermediary'])
+      expect(incr).toHaveBeenCalledWith('sts_credential_cache_hit', 1, ['dest:s3', 'role_type:customer'])
+    })
+
+    it('does not throw when no statsContext is provided', async () => {
+      mockStsSend.mockResolvedValue(stsOk())
+      await expect(upload(newClient())).resolves.toBeDefined()
+    })
   })
 })

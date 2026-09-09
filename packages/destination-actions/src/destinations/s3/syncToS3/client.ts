@@ -4,6 +4,7 @@ import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError }
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
 import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
+import type { StatsContext } from '@segment/actions-core'
 import { CachedCredentials, Credentials } from './types'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 
@@ -31,27 +32,41 @@ export class Client {
   roleSessionName: string
   region: string
   externalId: string
+  statsContext?: StatsContext
 
-  constructor(region: string, roleArn: string, externalId: string) {
+  constructor(region: string, roleArn: string, externalId: string, statsContext?: StatsContext) {
     this.region = region
     this.roleSessionName = uuidv4()
     this.roleArn = roleArn
     this.externalId = externalId
+    this.statsContext = statsContext
   }
 
   async assumeRole(): Promise<Credentials> {
     const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
     const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId)
-    return this.getSTSCredentials(this.roleArn, this.externalId, intermediaryCreds)
+    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId, 'intermediary')
+    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds)
   }
 
-  private async getSTSCredentials(roleId: string, externalId: string, credentials?: Credentials): Promise<Credentials> {
+  private async getSTSCredentials(
+    roleId: string,
+    externalId: string,
+    roleType: 'intermediary' | 'customer',
+    credentials?: Credentials
+  ): Promise<Credentials> {
+    // Tag every metric with the hop (intermediary vs customer role) so DataDog can break the
+    // cache hit/miss/set counts down per hop of the two-hop assume-role chain.
+    const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
+    const statsClient = this.statsContext?.statsClient
+
     const cacheKey = `${this.region}|${roleId}|${externalId ?? ''}`
     const cached = credentialsCache.get(cacheKey)
     if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
+      statsClient?.incr('sts_credential_cache_hit', 1, tags)
       return cached.credentials
     }
+    statsClient?.incr('sts_credential_cache_miss', 1, tags)
 
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
@@ -90,6 +105,7 @@ export class Client {
     const expiration = result.Credentials.Expiration
     if (expiration instanceof Date) {
       credentialsCache.set(cacheKey, { credentials: creds, expiration: expiration.getTime() })
+      statsClient?.incr('sts_credential_cache_set', 1, tags)
     }
 
     return creds
