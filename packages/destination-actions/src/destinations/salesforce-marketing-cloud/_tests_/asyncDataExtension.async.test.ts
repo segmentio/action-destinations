@@ -1171,7 +1171,12 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(itemCount / 2)
       })
 
-      it('should return FAILED when requestStatus is Error', async () => {
+      it('should return RETRYABLE_ERROR (not FAILED) when requestStatus is Error', async () => {
+        // SFMC's requestStatus 'Error' is not reliably terminal -- it can appear mid-flight and
+        // then resolve to Complete/OK (confirmed in production: a job polled ~0.5s before its
+        // completionDateTime showed a transient failure state, yet later reported Complete/OK
+        // with every row upserted). So we must NOT report a terminal FAILED here (that produced
+        // false "message rejected" drops for batches that fully delivered); re-poll instead.
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -1194,19 +1199,15 @@ describe('Salesforce Marketing Cloud - Async', () => {
         })
 
         expect(response.jobId).toBe(jobId)
-        expect(response.jobStatus).toBe('FAILED')
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
         expect(response.status).toBe(200)
-        // resultMessages was empty here, so falls back to a generic message rather than
-        // leaving the caller with no explanation at all -- see the next test for the case
-        // where SFMC actually supplies one.
-        expect(response.multiStatusResponse).toBeDefined()
-        const failure = response.multiStatusResponse?.getResponseAtIndex(0)
-        expect(failure instanceof ActionDestinationErrorResponse && failure.value().errormessage).toEqual(
-          'SFMC reported the request as failed'
-        )
+        // No trustworthy per-record detail at this stage; leave multiStatusResponse unset so an
+        // empty (but truthy) instance isn't mistaken for a real result.
+        expect(response.multiStatusResponse).toBeUndefined()
       })
 
-      it('should surface resultMessages from /status when requestStatus is Error', async () => {
+      it('treats requestStatus Error as RETRYABLE even when resultMessages carries a reason', async () => {
+        // A reason (surfaced in logs) does not make SFMC's Error state terminal -- re-poll.
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -1235,12 +1236,8 @@ describe('Salesforce Marketing Cloud - Async', () => {
           settings
         })
 
-        expect(response.jobStatus).toBe('FAILED')
-        expect(response.multiStatusResponse).toBeDefined()
-        const failure = response.multiStatusResponse?.getResponseAtIndex(0)
-        expect(failure instanceof ActionDestinationErrorResponse && failure.value().errormessage).toEqual(
-          'Invalid request, Items cannot be null or empty.'
-        )
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
       })
 
       it('should return RETRYABLE_ERROR (not FAILED) when status object is missing in response', async () => {

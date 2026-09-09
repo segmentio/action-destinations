@@ -307,25 +307,28 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         return response
       }
 
-      // Return FAILED status if SFMC indicates that the request has failed
+      // Treat requestStatus 'Error' as RETRYABLE, not terminal FAILED.
+      //
+      // SFMC's `requestStatus: 'Error'` is NOT reliably terminal -- it can appear while the job
+      // is still being processed and then resolve to `Complete / OK`. Confirmed in production:
+      // a poll that landed ~0.5s before a job's completionDateTime saw a transient failure state,
+      // yet the same job's /status later reported Complete/OK with every row upserted
+      // (2809/2809), and the rows were present in the data extension. Reporting FAILED here
+      // produced false "message rejected" drops for batches that actually delivered in full.
+      //
+      // So we return RETRYABLE_ERROR and let the caller re-poll: a job that was merely mid-flight
+      // resolves to SUCCEEDED (or Complete + Has Errors, which then yields real per-row detail)
+      // on a subsequent poll, while a genuinely stuck job keeps returning this and is bounded by
+      // the caller's own poll timeout/retry budget rather than being mis-reported as a hard,
+      // undiagnosable drop. We surface SFMC's reason (resultMessages) in a warning for
+      // diagnosis; there is no trustworthy per-record detail to attach at this stage, so we
+      // leave multiStatusResponse unset (an empty one would be a misleading, truthy result).
       if (statusResponse.data.status.requestStatus === 'Error') {
-        response.jobStatus = 'FAILED'
-
-        // SFMC's own documented reason for the failure lives in resultMessages -- surface it
-        // instead of leaving the caller with a bare FAILED and no explanation. There's no
-        // per-row detail at this stage (the job never got far enough for one), so report the
-        // same message across every uploaded record, mirroring the SUCCEEDED-without-/results
-        // branch below.
         const errormessage = statusResponse.data.resultMessages?.[0]?.message ?? 'SFMC reported the request as failed'
-        response.multiStatusResponse = new MultiStatusResponse()
-        for (let i = 0; i < payload.uploadCount; i++) {
-          response.multiStatusResponse.setErrorResponseAtIndex(i, {
-            status: response.status,
-            errormessage,
-            body: {}
-          })
-        }
-
+        logger?.warn?.(
+          `SFMC async /status reported requestStatus 'Error' for job ${payload.jobId}; treating as transient (RETRYABLE_ERROR) because SFMC's Error state is not reliably terminal. Reason: ${errormessage}`
+        )
+        response.jobStatus = 'RETRYABLE_ERROR'
         return response
       }
 
