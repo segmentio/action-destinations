@@ -94,28 +94,30 @@ describe('uploadS3 object key character validation', () => {
   it('rejects an object key with a disallowed character and does not PUT', async () => {
     const client = newClient()
 
-    // A space is outside the AWS "safe" set.
-    const promise = client.uploadS3(settings, 'my file', '', 'folder', 'csv')
+    // A space (in the filename prefix) is outside the AWS "safe" set.
+    const promise = client.uploadS3(settings, 'file,content', 'my file', 'folder', 'csv')
 
     await expect(promise).rejects.toThrow(PayloadValidationError)
     await expect(promise).rejects.toThrow('outside the allowed set')
+    await expect(promise).rejects.toThrow('filename prefix has disallowed character(s)')
     // Fails fast: no role assumption and no PUT are attempted.
     expect(stsSend).not.toHaveBeenCalled()
     expect(s3Send).not.toHaveBeenCalled()
   })
 
-  it('names the distinct offending characters but not the full key', async () => {
+  it('names the offending part(s) and their distinct characters but not the full key', async () => {
     const client = newClient()
 
-    // Two disallowed chars ('#' and '@') plus otherwise-sensitive content.
+    // Disallowed char in each part: '@' in the filename prefix, '#' in the folder name.
     const error = await client
-      .uploadS3(settings, 'user@example', '', 'reports#secret-pii', 'csv')
+      .uploadS3(settings, 'file,content', 'user@example', 'reports#secret-pii', 'csv')
       .catch((e) => e as Error)
 
     expect(error).toBeInstanceOf(PayloadValidationError)
-    expect(error.message).toContain('"#"')
-    expect(error.message).toContain('"@"')
-    // The surrounding (potentially PII-laden) key content is not echoed.
+    // Points at both parts and lists the distinct bad characters.
+    expect(error.message).toContain('folder name has disallowed character(s): "#"')
+    expect(error.message).toContain('filename prefix has disallowed character(s): "@"')
+    // The surrounding (potentially PII-laden) values are not echoed.
     expect(error.message).not.toContain('secret-pii')
     expect(error.message).not.toContain('user@example')
   })

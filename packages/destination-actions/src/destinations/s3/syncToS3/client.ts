@@ -109,14 +109,27 @@ export class Client {
     }
 
     // Reject keys with characters outside AWS's safe set up front, rather than silently overwriting
-    // a customer's prior files (key collisions) or failing late/opaquely at the PUT.
-    const disallowed = objectKey.match(DISALLOWED_S3_OBJECT_KEY_CHARS)
-    if (disallowed) {
-      // Surface only the distinct offending characters, not the full key (it may contain PII).
-      const distinct = [...new Set(disallowed)].map((c) => JSON.stringify(c)).join(', ')
+    // a customer's prior files (key collisions) or failing late/opaquely at the PUT. Point at the
+    // specific input(s) at fault and their distinct bad characters, but never echo the full value —
+    // it may contain PII.
+    const offending = (
+      [
+        ['folder name', folderName],
+        ['filename prefix', filename_prefix]
+      ] as const
+    )
+      .map(([label, value]) => {
+        const bad = value.match(DISALLOWED_S3_OBJECT_KEY_CHARS)
+        return bad
+          ? `${label} has disallowed character(s): ${[...new Set(bad)].map((c) => JSON.stringify(c)).join(', ')}`
+          : null
+      })
+      .filter((entry): entry is string => entry !== null)
+
+    if (offending.length > 0) {
       throw new PayloadValidationError(
         `S3 object key contains characters outside the allowed set (A-Z a-z 0-9 / ! - _ . * ' ( )). ` +
-          `Disallowed character(s): ${distinct}. Adjust the folder name and/or filename prefix.`
+          `${offending.join('; ')}.`
       )
     }
 
