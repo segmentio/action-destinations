@@ -668,6 +668,25 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
+  it('should throw an error if sha256IpAddress is whitespace-only and no other identifier is provided', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '   ',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError(
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
+  })
+
   it('should successfully send the event with only googleAID as identifier', async () => {
     nock(`${BASE_URL}/conversionEvents`)
       .post('', {

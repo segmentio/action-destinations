@@ -440,7 +440,7 @@ function validate(payload: Payload, conversionTime: number) {
     !payload.acxiomID &&
     !payload.oracleID &&
     !payload.plaintextIpAddress &&
-    !payload.sha256IpAddress &&
+    !payload.sha256IpAddress?.trim() &&
     !payload.googleAID
   ) {
     throw new PayloadValidationError(
