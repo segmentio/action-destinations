@@ -83,3 +83,49 @@ describe('uploadS3 object key length guard', () => {
     expect(s3Send).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('uploadS3 object key character validation', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    stsSend.mockResolvedValue(validStsResponse)
+    s3Send.mockResolvedValue({})
+  })
+
+  it('rejects an object key with a disallowed character and does not PUT', async () => {
+    const client = newClient()
+
+    // A space is outside the AWS "safe" set.
+    const promise = client.uploadS3(settings, 'my file', '', 'folder', 'csv')
+
+    await expect(promise).rejects.toThrow(PayloadValidationError)
+    await expect(promise).rejects.toThrow('outside the allowed set')
+    // Fails fast: no role assumption and no PUT are attempted.
+    expect(stsSend).not.toHaveBeenCalled()
+    expect(s3Send).not.toHaveBeenCalled()
+  })
+
+  it('names the distinct offending characters but not the full key', async () => {
+    const client = newClient()
+
+    // Two disallowed chars ('#' and '@') plus otherwise-sensitive content.
+    const error = await client
+      .uploadS3(settings, 'user@example', '', 'reports#secret-pii', 'csv')
+      .catch((e) => e as Error)
+
+    expect(error).toBeInstanceOf(PayloadValidationError)
+    expect(error.message).toContain('"#"')
+    expect(error.message).toContain('"@"')
+    // The surrounding (potentially PII-laden) key content is not echoed.
+    expect(error.message).not.toContain('secret-pii')
+    expect(error.message).not.toContain('user@example')
+  })
+
+  it('accepts a key using the full allowed set (letters, digits, / ! - _ . * \' ( )) and PUTs', async () => {
+    const client = newClient()
+
+    const result = await client.uploadS3(settings, 'file,content', "export-file_v1.2*('ok')", 'my-folder', 'csv')
+
+    expect(result).toEqual({ statusCode: 200, message: 'Upload successful' })
+    expect(s3Send).toHaveBeenCalledTimes(1)
+  })
+})

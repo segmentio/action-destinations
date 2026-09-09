@@ -16,6 +16,12 @@ import { Credentials } from './types'
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
 const MAX_S3_OBJECT_KEY_BYTES = 1024
 
+// AWS "safe" object-key characters (0-9 a-z A-Z and ! - _ . * ' ( )), plus '/' as the folder
+// separator. See https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html.
+// We reject keys containing anything outside this set rather than sanitizing — we never mutate
+// customer-provided keys.
+const DISALLOWED_S3_OBJECT_KEY_CHARS = /[^A-Za-z0-9!\-_.*'()/]/g
+
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -99,6 +105,18 @@ export class Client {
       throw new PayloadValidationError(
         `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
           `Shorten the folder name and/or filename prefix.`
+      )
+    }
+
+    // Reject keys with characters outside AWS's safe set up front, rather than silently overwriting
+    // a customer's prior files (key collisions) or failing late/opaquely at the PUT.
+    const disallowed = objectKey.match(DISALLOWED_S3_OBJECT_KEY_CHARS)
+    if (disallowed) {
+      // Surface only the distinct offending characters, not the full key (it may contain PII).
+      const distinct = [...new Set(disallowed)].map((c) => JSON.stringify(c)).join(', ')
+      throw new PayloadValidationError(
+        `S3 object key contains characters outside the allowed set (A-Z a-z 0-9 / ! - _ . * ' ( )). ` +
+          `Disallowed character(s): ${distinct}. Adjust the folder name and/or filename prefix.`
       )
     }
 
