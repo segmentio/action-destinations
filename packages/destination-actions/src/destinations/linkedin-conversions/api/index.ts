@@ -453,8 +453,9 @@ export class LinkedInConversions {
       })
     }
 
-    if (payload.sha256IpAddress) {
-      const hashedIpAddress = processHashing(payload.sha256IpAddress, 'sha256', 'hex')
+    const sha256IpAddress = payload.sha256IpAddress?.trim()
+    if (sha256IpAddress) {
+      const hashedIpAddress = processHashing(sha256IpAddress, 'sha256', 'hex')
       if (hashedIpAddress) {
         userIds.push({
           idType: 'SHA256_IP_ADDRESS',
