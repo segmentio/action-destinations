@@ -5,6 +5,7 @@ import { LinkedInConversions } from '../api'
 import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
+import { validate } from '../functions'
 
 /**
  * Rendered as the button text for this hook in the mapping editor, and quoted in the error below so the two cannot
@@ -282,12 +283,19 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
       type: 'string',
       required: false
     },
-    ipAddress: {
-      label: 'IP Address',
+    plaintextIpAddress: {
+      label: 'Plain Text IP Address',
       description:
         "The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.",
       type: 'string',
       format: 'ipv4',
+      required: false
+    },
+    sha256IpAddress: {
+      label: 'SHA256 IP Address',
+      description:
+        "The user's IPv4 address. Segment will hash this value using SHA256 before sending it to LinkedIn, unless it is already hashed. At least one user identifier is required.",
+      type: 'string',
       required: false
     },
     googleAID: {
@@ -414,22 +422,6 @@ function handleRequestError(error: unknown) {
   }
 
   return new IntegrationError(asLinkedInError.response.data.message, 'INTEGRATION_ERROR', status)
-}
-
-function validate(payload: Payload, conversionTime: number) {
-  if (!Number.isFinite(conversionTime)) {
-    throw new PayloadValidationError('Timestamp is not a valid date.')
-  }
-
-  // Check if the timestamp is within the past 90 days
-  const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
-  if (conversionTime < ninetyDaysAgo) {
-    throw new PayloadValidationError('Timestamp should be within the past 90 days.')
-  }
-
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID && !payload.ipAddress && !payload.googleAID) {
-    throw new PayloadValidationError('At least one user identifier is required (email, LinkedIn UUID, Acxiom ID, Oracle ID, IP Address, or Google Advertising ID).')
-  }
 }
 
 function isNotEpochTimestampInMilliseconds(timestamp: string) {

@@ -12,7 +12,7 @@ export interface Payload {
   /**
    * 'Insert the ID of the default list that you'd like to subscribe users to when you call .identify().'
    */
-  list_id: string
+  list_id?: string
   /**
    * A unique identifier used by customers to associate Klaviyo profiles with profiles in an external system. One of External ID, Email or Phone Number is required. Must not exceed 255 characters.
    */
@@ -72,4 +72,28 @@ export interface Payload {
    * The keys to use for batching the events.
    */
   batch_keys?: string[]
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveInputs {
+  /**
+   * The ID of the list in Klaviyo that users will be synced to. If defined, we will not create a new list.
+   */
+  list_identifier?: string
+  /**
+   * The name of the list that you would like to create in Klaviyo.
+   */
+  list_name?: string
+}
+// Generated file. DO NOT MODIFY IT BY HAND.
+
+export interface RetlOnMappingSaveOutputs {
+  /**
+   * The ID of the created Klaviyo list that users will be synced to.
+   */
+  id?: string
+  /**
+   * The name of the created Klaviyo list that users will be synced to.
+   */
+  name?: string
 }
