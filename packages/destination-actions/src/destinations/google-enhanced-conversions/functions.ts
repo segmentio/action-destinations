@@ -428,14 +428,19 @@ function buildAudienceMember(
     })
   }
 
-  // Docs require givenName + familyName + regionCode + postalCode in AddressInfo
-  if (payload.first_name && payload.last_name && (payload.country_code || payload.postal_code)) {
+  // None of first_name/last_name/country_code/postal_code are required on their own — a member can
+  // still match on email or phone alone. But Data Manager's AddressInfo requires the full tuple
+  // (givenName + familyName + regionCode + postalCode); sending a partial address would fail
+  // INVALID_ARGUMENT for the whole ingest/remove call (Data Manager has no per-item partial failure),
+  // taking every other member in that call down with it. So only add the address identifier when
+  // all four are present — otherwise omit it and fall back to whatever other identifiers exist.
+  if (payload.first_name && payload.last_name && payload.country_code && payload.postal_code) {
     userIdentifiers.push({
       address: {
         givenName: processHashing(payload.first_name, 'sha256', 'hex'),
         familyName: processHashing(payload.last_name, 'sha256', 'hex'),
-        regionCode: payload.country_code ?? '',
-        postalCode: payload.postal_code ?? ''
+        regionCode: payload.country_code,
+        postalCode: payload.postal_code
       }
     })
   }
