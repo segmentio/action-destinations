@@ -8,7 +8,7 @@ import {
 } from '@segment/actions-core'
 import type { Payload } from './generated-types'
 import type { Payload as AddProfileToListPayload } from '../addProfileToList/generated-types'
-import type { Payload as RemoveProfilePayload } from '../removeProfile/generated-types'
+import type { Payload as RemoveProfileFromListPayload } from '../removeProfileFromList/generated-types'
 import {
   addProfileToList,
   createProfile,
@@ -97,9 +97,9 @@ export async function syncListBatch(
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   const addIndices: number[] = []
-  const addPayloads: Payload[] = []
+  const addPayloads: AddProfileToListPayload[] = []
   const removeIndices: number[] = []
-  const removePayloads: Payload[] = []
+  const removePayloads: RemoveProfileFromListPayload[] = []
 
   payloads.forEach((payload, index) => {
     const membership = audienceMembership[index]
@@ -126,7 +126,7 @@ export async function syncListBatch(
 
     if (membership) {
       addIndices.push(index)
-      addPayloads.push(effectivePayload)
+      addPayloads.push(effectivePayload as AddProfileToListPayload)
     } else {
       // sendBatchedProfileImportJobRequest (add path) already validates email format and external_id length
       // internally. removeBulkProfilesFromList (remove path) already validates external_id length, but not
@@ -140,17 +140,13 @@ export async function syncListBatch(
         return
       }
       removeIndices.push(index)
-      removePayloads.push(effectivePayload)
+      removePayloads.push(effectivePayload as RemoveProfileFromListPayload)
     }
   })
 
   const [addResult, removeResult] = await Promise.all([
-    addPayloads.length > 0
-      ? sendBatchedProfileImportJobRequest(request, addPayloads as unknown as AddProfileToListPayload[], statsContext)
-      : undefined,
-    removePayloads.length > 0
-      ? removeBulkProfilesFromList(request, removePayloads as unknown as RemoveProfilePayload[], statsContext)
-      : undefined
+    addPayloads.length > 0 ? sendBatchedProfileImportJobRequest(request, addPayloads, statsContext) : undefined,
+    removePayloads.length > 0 ? removeBulkProfilesFromList(request, removePayloads, statsContext) : undefined
   ])
 
   if (addResult) {
