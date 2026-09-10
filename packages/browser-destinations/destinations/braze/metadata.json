@@ -61,11 +61,11 @@
             "label": "6.1"
           },
           {
-            "value": "6.10",
-            "label": "6.10"
+            "value": "6.5",
+            "label": "6.5"
           }
         ],
-        "default": "6.10",
+        "default": "6.1",
         "depends_on": null
       },
       "api_key": {
