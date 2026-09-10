@@ -17,4 +17,8 @@ export interface AudienceSettings {
    * A brief description about your audience.
    */
   audienceDescription: string
+  /**
+   * Optionally categorize this audience with one of Meta's predefined labels. Sent to Facebook when the audience is created; does not apply retroactively to existing audiences.
+   */
+  audienceLabel?: string
 }
