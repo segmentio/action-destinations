@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { Region } from '../../types'
+import { FLAGON_THROW_HTTP_ERRORS } from '../utils'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -115,6 +116,7 @@ describe('trackConversion', () => {
             })
 
             expect(responses.length).toBeGreaterThan(0)
+            expect(responses[0].status).toBe(401)
         })
 
         it('should throw on a 401 response when the throw-http-errors flag is on', async () => {
@@ -126,7 +128,7 @@ describe('trackConversion', () => {
                 testDestination.testAction('trackConversion', {
                     event,
                     settings,
-                    features: { 'actions-amazon-conversions-api-throw-http-errors': true },
+                    features: { [FLAGON_THROW_HTTP_ERRORS]: true },
                     mapping: {
                         name: 'test_conversion',
                         eventType: 'ADD_TO_SHOPPING_CART',
