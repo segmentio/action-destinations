@@ -8,6 +8,9 @@ const testDestination = createTestIntegration(Destination)
 describe('trackConversion', () => {
     beforeEach(() => {
         nock.cleanAll()
+        // testAction only drains `responses` on the non-throwing path, so a test that expects
+        // a rejection can leak a stale response into the next test. Reset explicitly.
+        testDestination.responses = []
     })
 
     const event = createTestEvent({
@@ -81,6 +84,57 @@ describe('trackConversion', () => {
                         timestamp: '2023-01-01T12:00:00Z',
                         matchKeys: {
                             email: 'invalid_email'
+                        },
+                        enable_batching: true
+                    }
+                })
+            ).rejects.toThrow()
+        })
+
+        // Documents today's (buggy) default behavior. Remove this test once the
+        // actions-amazon-conversions-api-throw-http-errors flag is fully rolled out and removed.
+        it('should NOT throw on a non-2xx response when the throw-http-errors flag is off (default)', async () => {
+            nock(`${Region.NA}`)
+                .post('/adsApi/v1/create/events')
+                .reply(401, { message: 'Unauthorized exception while handling 3P Request: Invalid token' })
+
+            const responses = await testDestination.testAction('trackConversion', {
+                event,
+                settings,
+                mapping: {
+                    name: 'test_conversion',
+                    eventType: 'ADD_TO_SHOPPING_CART',
+                    eventActionSource: 'website',
+                    countryCode: 'US',
+                    timestamp: '2023-01-01T12:00:00Z',
+                    matchKeys: {
+                        email: 'test@example.com'
+                    },
+                    enable_batching: true
+                }
+            })
+
+            expect(responses.length).toBeGreaterThan(0)
+        })
+
+        it('should throw on a 401 response when the throw-http-errors flag is on', async () => {
+            nock(`${Region.NA}`)
+                .post('/adsApi/v1/create/events')
+                .reply(401, { message: 'Unauthorized exception while handling 3P Request: Invalid token' })
+
+            await expect(
+                testDestination.testAction('trackConversion', {
+                    event,
+                    settings,
+                    features: { 'actions-amazon-conversions-api-throw-http-errors': true },
+                    mapping: {
+                        name: 'test_conversion',
+                        eventType: 'ADD_TO_SHOPPING_CART',
+                        eventActionSource: 'website',
+                        countryCode: 'US',
+                        timestamp: '2023-01-01T12:00:00Z',
+                        matchKeys: {
+                            email: 'test@example.com'
                         },
                         enable_batching: true
                     }

@@ -6,7 +6,7 @@ import {
   ModifiedResponse,
   APIError
 } from '@segment/actions-core'
-import { processHashing, EmptyValueError } from '../../../lib/hashing-utils'
+import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
 import type {
   EventData,
@@ -27,12 +27,19 @@ import type { Payload } from './generated-types'
 import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 
 /**
+ * Feature flag gating the fix for the single-event (`perform`) path silently reporting
+ * HTTP errors (including 401s that should trigger an OAuth re-auth) as successful deliveries.
+ * See STRATCONN-6978. Does not affect `performBatch`, which already throws correctly.
+ */
+export const FLAGON_THROW_HTTP_ERRORS = 'actions-amazon-conversions-api-throw-http-errors'
+
+/**
  * Helper function to validate if a string value exists and is not empty
  *
  * @param value The string value to validate
  * @returns true if the value is a non-empty string, false otherwise
  */
-export function hasStringValue(value: string | null | undefined): value is string {
+export function hasStringValue(value: string | null | undefined): boolean {
   return typeof value === 'string' && value.trim().length > 0
 }
 
@@ -128,30 +135,6 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
 }
 
 /**
- * Hashes a match key value and appends it to matchKeys. Some values (e.g. "+++" for phone)
- * are non-empty but normalize down to an empty string, which would otherwise cause the
- * hashing utility to throw "Cannot hash an empty string" - that error is caught here and
- * the field is skipped instead, without normalizing the value more than once.
- */
-function addHashedMatchKey(
-  matchKeys: MatchKeyV1[],
-  type: MatchKeyTypeV1,
-  value: string | null | undefined,
-  normalizeFunction: (value: string) => string
-): void {
-  if (!hasStringValue(value)) {
-    return
-  }
-  try {
-    matchKeys.push({ type, values: [smartHash(value, normalizeFunction)] })
-  } catch (err) {
-    if (!(err instanceof EmptyValueError)) {
-      throw err
-    }
-  }
-}
-
-/**
  * Sends event data to the Amazon Conversions API
  *
  * @param request The request client
@@ -163,7 +146,8 @@ function addHashedMatchKey(
 export async function sendEventsRequest<ImportConversionEventsResponse>(
   request: RequestClient,
   settings: Settings,
-  eventData: EventData | EventData[]
+  eventData: EventData | EventData[],
+  throwHttpErrors = false
 ): Promise<ModifiedResponse<ImportConversionEventsResponse>> {
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
@@ -179,7 +163,7 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
         'Amazon-Ads-AccountId': settings.advertiserId,
         'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
       },
-      throwHttpErrors: false
+      throwHttpErrors
     }
   )
 }
@@ -297,14 +281,69 @@ export function prepareEventData(payload: Payload, settings: Settings): EventDat
   // Process match keys
   let matchKeys: MatchKeyV1[] = []
 
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.EMAIL, email, normalizeEmail)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.PHONE, phone, normalizePhone)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.FIRST_NAME, firstName, normalizeStandard)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.LAST_NAME, lastName, normalizeStandard)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.ADDRESS, address, normalizeStandard)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.CITY, city, normalizeStandard)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.STATE, state, normalizeStandard)
-  addHashedMatchKey(matchKeys, MatchKeyTypeV1.POSTAL, postalCode, normalizePostal)
+  if (email && typeof email === 'string') {
+    const hashedEmail = smartHash(email, normalizeEmail)
+    matchKeys.push({
+      type: MatchKeyTypeV1.EMAIL,
+      values: [hashedEmail]
+    })
+  }
+
+  if (phone && typeof phone === 'string') {
+    const hashedPhone = smartHash(phone, normalizePhone)
+    matchKeys.push({
+      type: MatchKeyTypeV1.PHONE,
+      values: [hashedPhone]
+    })
+  }
+
+  if (firstName && typeof firstName === 'string') {
+    const hashedFirstName = smartHash(firstName, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.FIRST_NAME,
+      values: [hashedFirstName]
+    })
+  }
+
+  if (lastName && typeof lastName === 'string') {
+    const hashedLastName = smartHash(lastName, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.LAST_NAME,
+      values: [hashedLastName]
+    })
+  }
+
+  if (address && typeof address === 'string') {
+    const hashedAddress = smartHash(address, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.ADDRESS,
+      values: [hashedAddress]
+    })
+  }
+
+  if (city && typeof city === 'string') {
+    const hashedCity = smartHash(city, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.CITY,
+      values: [hashedCity]
+    })
+  }
+
+  if (state && typeof state === 'string') {
+    const hashedState = smartHash(state, normalizeStandard)
+    matchKeys.push({
+      type: MatchKeyTypeV1.STATE,
+      values: [hashedState]
+    })
+  }
+
+  if (postalCode && typeof postalCode === 'string') {
+    const hashedPostalCode = smartHash(postalCode, normalizePostal)
+    matchKeys.push({
+      type: MatchKeyTypeV1.POSTAL,
+      values: [hashedPostalCode]
+    })
+  }
 
   if (maid && typeof maid === 'string') {
     matchKeys.push({
