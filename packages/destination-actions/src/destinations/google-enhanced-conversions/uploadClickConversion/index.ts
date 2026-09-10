@@ -436,7 +436,8 @@ const action: ActionDefinition<Settings, Payload> = {
         json: {
           conversions: [request_object],
           partialFailure: true
-        }
+        },
+        skipResponseCloning: true
       }
     )
 
@@ -553,7 +554,8 @@ const action: ActionDefinition<Settings, Payload> = {
         json: {
           conversions: request_objects,
           partialFailure: true
-        }
+        },
+        skipResponseCloning: true
       }
     )
 
