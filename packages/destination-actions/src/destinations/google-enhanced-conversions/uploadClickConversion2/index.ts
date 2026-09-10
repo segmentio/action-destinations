@@ -4,7 +4,9 @@ import {
   ModifiedResponse,
   RequestClient,
   DynamicFieldResponse,
-  IntegrationError
+  IntegrationError,
+  MultiStatusResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -24,7 +26,8 @@ import {
   getConversionActionDynamicData,
   memoizedGetCustomVariables,
   formatPhone,
-  getSessionAttributesKeyValuePairs
+  getSessionAttributesKeyValuePairs,
+  handlePartialFailureResponse
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -441,6 +444,7 @@ const action: ActionDefinition<Settings, Payload> = {
           headers: {
             'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
           },
+          skipResponseCloning: true,
           json: {
             conversions: [request_object],
             partialFailure: true
@@ -470,8 +474,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const getCustomVariables = memoizedGetCustomVariables()
 
-    const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
-      payload.map(async (payloadItem) => {
+    const multiStatusResponse = new MultiStatusResponse()
+
+    const buildRequestObject = async (payloadItem: Payload): Promise<ClickConversionRequestObjectInterface> => {
+      {
         let cartItems: CartItemInterface[] = []
         if (payloadItem.items && Array.isArray(payloadItem.items)) {
           cartItems = payloadItem.items.map((product) => {
@@ -555,8 +561,41 @@ const action: ActionDefinition<Settings, Payload> = {
         }
 
         return request_object
+      }
+    }
+
+    // Build a request object per payload. Payloads which fail validation are marked as errors in the
+    // multi-status response and excluded from the request sent to Google.
+    const request_objects: ClickConversionRequestObjectInterface[] = []
+    const validPayloadIndicesBitmap: number[] = []
+
+    const builtRequestObjects = await Promise.all(
+      payload.map(async (payloadItem, index) => {
+        try {
+          return { index, request_object: await buildRequestObject(payloadItem) }
+        } catch (error) {
+          return { index, error: error as Error }
+        }
       })
     )
+
+    for (const built of builtRequestObjects) {
+      if ('error' in built && built.error) {
+        multiStatusResponse.setErrorResponseAtIndex(built.index, {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: built.error.message
+        })
+        continue
+      }
+      request_objects.push(built.request_object)
+      validPayloadIndicesBitmap.push(built.index)
+    }
+
+    // Nothing left to send to Google
+    if (request_objects.length === 0) {
+      return multiStatusResponse
+    }
 
     const response: ModifiedResponse<PartialErrorResponse> = await request(
       `https://googleads.googleapis.com/${getApiVersion(
@@ -568,14 +607,40 @@ const action: ActionDefinition<Settings, Payload> = {
         headers: {
           'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
         },
+        skipResponseCloning: true,
         json: {
           conversions: request_objects,
           partialFailure: true
         }
       }
     )
-    handleGoogleErrors(response)
-    return response
+
+    const failedPayloadIndices = new Set<number>()
+    const partialFailureError = response.data?.partialFailureError
+
+    if (partialFailureError) {
+      handlePartialFailureResponse(
+        partialFailureError,
+        validPayloadIndicesBitmap,
+        multiStatusResponse,
+        request_objects as unknown as JSONLikeObject[],
+        failedPayloadIndices,
+        'conversions'
+      )
+    }
+
+    validPayloadIndicesBitmap.forEach((originalIndex, requestIndex) => {
+      if (failedPayloadIndices.has(originalIndex)) {
+        return
+      }
+      multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+        status: 200,
+        sent: request_objects[requestIndex] as unknown as JSONLikeObject,
+        body: (response.data?.results?.[requestIndex] ?? {}) as JSONLikeObject
+      })
+    })
+
+    return multiStatusResponse
   }
 }
 
