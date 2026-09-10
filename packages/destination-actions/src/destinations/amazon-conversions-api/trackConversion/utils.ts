@@ -29,7 +29,9 @@ import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 /**
  * Feature flag gating the fix for the single-event (`perform`) path silently reporting
  * HTTP errors (including 401s that should trigger an OAuth re-auth) as successful deliveries.
- * See STRATCONN-6978. Does not affect `performBatch`, which already throws correctly.
+ * See STRATCONN-6978. Does not affect `performBatch`, which already preserves the real
+ * non-2xx/207 status in the returned `MultiStatusResponse` so core's retry/reauth logic
+ * can act on it.
  */
 export const FLAGON_THROW_HTTP_ERRORS = 'actions-amazon-conversions-api-throw-http-errors'
 
@@ -134,6 +136,30 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
   return processHashing(value, 'sha256', 'hex', normalizeFunction)
 }
 
+// STRATCONN-6978 DEBUG TRACING — TEMPORARY, staging only, DO NOT MERGE.
+// Ships a copy of the raw request sent to Amazon + the raw response (or thrown error)
+// to a separate Segment source as an "Event Traced" track event, for staging visibility
+// while Amazon-side data arrival is being investigated.
+async function postDebugTraceEvent(properties: Record<string, unknown>): Promise<void> {
+  try {
+    await fetch('https://api.segment.io/v1/track', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Basic ' + Buffer.from('gA7Zsxp8cVqJqhHP9bH85WjBBVCnq75Z:').toString('base64')
+      },
+      body: JSON.stringify({
+        userId: 'test-user-979087987987987',
+        event: 'Event Traced',
+        properties,
+        timestamp: new Date().toISOString()
+      })
+    })
+  } catch (e) {
+    // never let tracing break the real request
+  }
+}
+
 /**
  * Sends event data to the Amazon Conversions API
  *
@@ -149,23 +175,56 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
   eventData: EventData | EventData[],
   throwHttpErrors = false
 ): Promise<ModifiedResponse<ImportConversionEventsResponse>> {
+  // STRATCONN-6978 DEBUG TRACING — perform() always calls with a single EventData object,
+  // performBatch() always calls with an array (even a batch of 1) — capture before normalizing.
+  const calledVia = Array.isArray(eventData) ? 'performBatch' : 'perform'
+
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
 
-  return await request<ImportConversionEventsResponse>(
-    `${settings.region}/adsApi/${AMAZON_CONVERSIONS_API_EVENTS_VERSION}/create/events`,
-    {
+  const url = `${settings.region}/adsApi/${AMAZON_CONVERSIONS_API_EVENTS_VERSION}/create/events`
+  const requestBody = { events }
+
+  try {
+    const response = await request<ImportConversionEventsResponse>(url, {
       method: 'POST',
-      json: {
-        events: events
-      },
+      json: requestBody,
       headers: {
         'Amazon-Ads-AccountId': settings.advertiserId,
         'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
       },
       throwHttpErrors
-    }
-  )
+    })
+
+    // STRATCONN-6978 DEBUG TRACING — TEMPORARY, remove before merging
+    void postDebugTraceEvent({
+      calledVia,
+      url,
+      region: settings.region,
+      advertiserId: settings.advertiserId,
+      throwHttpErrors,
+      sent: requestBody,
+      responseStatus: response.status,
+      responseBody: response.data
+    })
+
+    return response
+  } catch (err) {
+    // STRATCONN-6978 DEBUG TRACING — TEMPORARY, remove before merging
+    const httpErr = err as { response?: { status?: number; data?: unknown }; message?: string }
+    void postDebugTraceEvent({
+      calledVia,
+      url,
+      region: settings.region,
+      advertiserId: settings.advertiserId,
+      throwHttpErrors,
+      sent: requestBody,
+      responseStatus: httpErr?.response?.status,
+      responseBody: httpErr?.response?.data ?? httpErr?.message
+    })
+
+    throw err
+  }
 }
 
 /**
