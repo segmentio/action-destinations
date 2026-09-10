@@ -618,6 +618,151 @@ export async function handleDataManagerUpdate(
   return results
 }
 
+/*
+  Batch variant of handleDataManagerUpdate that reports a per-payload MultiStatusResponse instead
+  of a single batch-wide result, so invalid/skipped payloads and API failures are attributed to the
+  correct event rather than the whole batch being reported as delivered.
+
+  The Data Manager API's audienceMembers:ingest/remove calls are all-or-nothing per request: they
+  don't support Google Ads' enablePartialFailure-style per-item results, so every member sent in the
+  same add (or remove) call shares that call's outcome. fieldWarnings on a 200 response are non-fatal
+  (the member was still ingested) and aren't attributed to a specific payload index since Google
+  doesn't document an audienceMembers-specific index convention for them; they're only tracked via
+  stats inside ingestAudienceMembers/removeAudienceMembers.
+*/
+export async function handleDataManagerBatchUpdate(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  audienceSettings: CreateAudienceInput['audienceSettings'],
+  payloads: UserListPayload[],
+  hookListId: string,
+  hookListType: string,
+  syncMode?: string,
+  features?: Features,
+  statsContext?: StatsContext,
+  audienceMemberships?: AudienceMembership[]
+): Promise<MultiStatusResponse> {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
+
+  const customerId = settings.customerId!
+  const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+  const idType = hookListType ?? audienceSettings?.external_id_type
+
+  // Ensure the partner link exists — covers existing customers when the flag is first enabled.
+  // Best-effort: errors are swallowed so member sync can still proceed.
+  let customerAccessToken: string | undefined
+  if (settings.oauth?.refresh_token) {
+    try {
+      customerAccessToken = await exchangeForAccessToken(request, settings.oauth.refresh_token)
+      await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+    } catch (_) {
+      // intentionally swallowed — partner link errors must not block member sync
+    }
+  }
+
+  type IndexedMember = { member: DataManagerAudienceMember; index: number }
+  const addMembers: IndexedMember[] = []
+  const removeMembers: IndexedMember[] = []
+
+  payloads.forEach((payload, index) => {
+    const member = buildAudienceMember(payload, idType, features, statsContext)
+    if (!member) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: `Missing or invalid data for ${idType}.`,
+        sent: payload as unknown as JSONLikeObject
+      })
+      return
+    }
+
+    const membership = audienceMemberships?.[index]
+    if (
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+      membership === true
+    ) {
+      addMembers.push({ member, index })
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      membership === false
+    ) {
+      removeMembers.push({ member, index })
+    } else {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Could not determine Operation Type.',
+        sent: payload as unknown as JSONLikeObject
+      })
+    }
+  })
+
+  const applyBatchCall = async (
+    entries: IndexedMember[],
+    call: (members: DataManagerAudienceMember[]) => Promise<DataManagerIngestResponse>
+  ) => {
+    if (entries.length === 0) return
+
+    try {
+      const response = await call(entries.map(({ member }) => member))
+      entries.forEach(({ index, member }) => {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: member as unknown as JSONLikeObject,
+          body: response as unknown as JSONLikeObject
+        })
+      })
+    } catch (err) {
+      // ingestAudienceMembers/removeAudienceMembers already convert raw errors into
+      // RetryableError/PayloadValidationError/IntegrationError via throwDataManagerError.
+      const typedErr = err as { message?: string; status?: number }
+      entries.forEach(({ index, member }) => {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: typedErr.status ?? 500,
+          errormessage: typedErr.message ?? 'Data Manager API request failed.',
+          sent: member as unknown as JSONLikeObject
+        })
+      })
+    }
+  }
+
+  await applyBatchCall(addMembers, (members) =>
+    ingestAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      members,
+      loginCustomerId,
+      customerAccessToken,
+      statsContext
+    )
+  )
+
+  await applyBatchCall(removeMembers, (members) =>
+    removeAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      members,
+      loginCustomerId,
+      customerAccessToken,
+      statsContext
+    )
+  )
+
+  statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+  return multiStatusResponse
+}
+
 // See: https://developers.google.com/data-manager/api/reference/rest/v1/accountTypes.accounts.userLists/list
 export async function getDataManagerListIds(
   request: RequestClient,

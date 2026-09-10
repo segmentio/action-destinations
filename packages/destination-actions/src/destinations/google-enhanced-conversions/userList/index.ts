@@ -10,6 +10,7 @@ import {
   verifyCustomerId,
   FLAGON_NAME_DATA_MANAGER_API,
   handleDataManagerUpdate,
+  handleDataManagerBatchUpdate,
   getDataManagerListIds,
   exchangeForAccessToken,
   createDataManagerPartnerLink,
@@ -409,7 +410,7 @@ const action: ActionDefinition<Settings, Payload> = {
     settings.customerId = verifyCustomerId(settings.customerId)
 
     if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-      return await handleDataManagerUpdate(
+      return await handleDataManagerBatchUpdate(
         request,
         settings,
         audienceSettings,
