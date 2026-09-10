@@ -1112,7 +1112,7 @@ describe('Async Batching - error handling', () => {
     expect(result.multiStatusResponse.getResponseAtIndex(1).value().status).toBe(401)
   })
 
-  test('rethrows unknown errors thrown from performBatch', async () => {
+  test('rethrows an unclassified error from performBatch', async () => {
     mockPerformBatch.mockRejectedValue(new Error('unexpected failure'))
 
     const destination = new Destination(asyncBatchDestination)
@@ -1123,6 +1123,22 @@ describe('Async Batching - error handling', () => {
         settings: {}
       })
     ).rejects.toThrow('unexpected failure')
+  })
+
+  test('classifies a propagated network error from performBatch as retryable (framework-level)', async () => {
+    mockPerformBatch.mockRejectedValue(Object.assign(new Error('socket hang up'), { code: 'ECONNRESET' }))
+
+    const destination = new Destination(asyncBatchDestination)
+    const result = await destination.executeAsyncBatch('asyncTestAction', {
+      events,
+      mapping: { user_id: { '@path': '$.userId' } },
+      settings: {}
+    })
+
+    expect(result.jobId).toBeUndefined()
+    expect(result.status).toBe(500)
+    expect(result.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(500)
+    expect(result.multiStatusResponse.getResponseAtIndex(1).value().status).toBe(500)
   })
 
   test('invalid payloads are excluded from batch and error handling fills remaining slots', async () => {
@@ -1229,6 +1245,33 @@ describe('Async Poll', () => {
     expect(result.jobId).toBe('poll-job-456')
     expect(result.multiStatusResponse).toBeDefined()
     expect(result.multiStatusResponse?.length()).toBe(2)
+  })
+
+  test('classifies a propagated network error from performPoll as RETRYABLE_ERROR (framework-level)', async () => {
+    mockPerformPoll.mockRejectedValue(Object.assign(new Error('ETIMEDOUT'), { code: 'ETIMEDOUT' }))
+
+    const destination = new Destination(asyncPollDestination)
+    const pollPayload: PollPayload = { jobId: 'poll-job-net', uploadCount: 5 }
+
+    const result = await destination.executeAsyncPoll('asyncPollAction', {
+      pollPayload,
+      settings: {}
+    })
+
+    expect(result.jobStatus).toBe('RETRYABLE_ERROR')
+    expect(result.jobId).toBe('poll-job-net')
+    expect(result.status).toBe(500)
+  })
+
+  test('rethrows a non-network error from performPoll', async () => {
+    mockPerformPoll.mockRejectedValue(new Error('unexpected poll failure'))
+
+    const destination = new Destination(asyncPollDestination)
+    const pollPayload: PollPayload = { jobId: 'poll-job-x', uploadCount: 1 }
+
+    await expect(destination.executeAsyncPoll('asyncPollAction', { pollPayload, settings: {} })).rejects.toThrow(
+      'unexpected poll failure'
+    )
   })
 
   test('poll returns FAILED status with a batch-level error', async () => {
