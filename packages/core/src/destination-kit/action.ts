@@ -20,7 +20,7 @@ import type {
   AudienceMembership
 } from './types'
 import { syncModeTypes } from './types'
-import { HTTPError, NormalizedOptions } from '../request-client'
+import { HTTPError, NormalizedOptions, isRetryableNetworkError } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
@@ -1061,25 +1061,18 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     try {
       performBatchResponse = await this.definition.performBatch(requestClient, data)
     } catch (error) {
-      // Handle action errors and convert them into a multi-status response for the entire batch
-      // If an unhandled error is thrown, it gets propagated to the caller
-      this.parseBatchError(error, {
+      // Classifies the error into per-row responses and returns the same status for the top-level job.
+      const errorStatus = this.parseBatchError(error, {
         multiStatusResponse,
         invalidPayloadIndices,
         batchPayloadLength,
         filteredPayloads: payloads
       })
-
-      const errorStatus = (error as HTTPError)?.response?.status ?? (error as IntegrationError)?.status ?? 500
       return { jobId: undefined, status: errorStatus, multiStatusResponse }
     }
 
     const { jobId, multiStatusResponse: batchMultiStatus } = performBatchResponse
-    // `status` is required by AsyncBatchResponse, but that is a compile-time guarantee only:
-    // performBatch is implemented outside core, so a cast or untyped code path can still
-    // resolve without it. performBatch resolved without throwing, so the batch submission
-    // itself succeeded - default to 200 rather than leaking `status: undefined` to callers.
-    // Per-item outcomes are carried in the multiStatusResponse.
+    // status isn't guaranteed at runtime (performBatch is external); default to 200 on success.
     const status = performBatchResponse.status ?? 200
 
     // Process the multi-status response from performBatch
@@ -1135,7 +1128,15 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     }
 
     const requestClient = this.createRequestClient(dataBundle)
-    return this.definition.performPoll(requestClient, dataBundle)
+    try {
+      return await this.definition.performPoll(requestClient, dataBundle)
+    } catch (error) {
+      // Transient network failure while polling
+      if (isRetryableNetworkError(error)) {
+        return { jobId: bundle.data.jobId, status: 500, jobStatus: 'RETRYABLE_ERROR' }
+      }
+      throw error
+    }
   }
 
   private parseBatchError(
@@ -1146,24 +1147,31 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
       batchPayloadLength: number
       filteredPayloads?: JSONLikeObject[]
     }
-  ): void {
+  ): number {
+    let status: number
+    let errormessage: string
+
     if (error instanceof HTTPError) {
-      this.fillMultiStatusWithErrorResponse({ ...input, status: error.response.status, errormessage: error.message })
-      return
+      status = error.response.status
+      errormessage = error.message
+    } else if (error instanceof IntegrationError) {
+      status = error.status ?? 400
+      errormessage = error.message
+    } else if (error instanceof RetryableError || error instanceof InvalidAuthenticationError) {
+      status = error.status
+      errormessage = error.message
+    } else if (isRetryableNetworkError(error)) {
+      // Transient network failure
+      status = 500
+      errormessage = (error as Error)?.message ?? 'Network error'
+    } else {
+      // Unclassified error: treat as terminal, non-retryable (400)
+      status = 400
+      errormessage = error instanceof Error ? error.message : 'Unexpected error executing async batch'
     }
 
-    if (error instanceof IntegrationError) {
-      this.fillMultiStatusWithErrorResponse({ ...input, status: error.status ?? 400, errormessage: error.message })
-      return
-    }
-
-    if (error instanceof RetryableError || error instanceof InvalidAuthenticationError) {
-      this.fillMultiStatusWithErrorResponse({ ...input, status: error.status, errormessage: error.message })
-      return
-    }
-
-    // Throw unhandled errors to be caught by the caller
-    throw error
+    this.fillMultiStatusWithErrorResponse({ ...input, status, errormessage })
+    return status
   }
 
   private fillMultiStatusWithErrorResponse(input: {

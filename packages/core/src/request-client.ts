@@ -252,22 +252,10 @@ export const RETRYABLE_NETWORK_ERROR_CODES = new Set([
   'ENOTFOUND'
 ])
 
-/**
- * Error thrown when the underlying network connection fails before any response is received,
- * for one of `RETRYABLE_NETWORK_ERROR_CODES`. Thrown by the request client itself so every
- * destination gets this classification automatically instead of each having to hand-roll the
- * same Node error-code list in its own catch block. The original Node error code is preserved
- * on `.code` -- a destination that wants different behavior for a specific code (e.g. treat
- * `ECONNRESET` as non-retryable for its API) can still catch this and re-classify based on it.
- */
-export class NetworkError extends CustomError {
-  code: string
-  status = 500
-
-  constructor(code: string, message: string) {
-    super(message)
-    this.code = code
-  }
+/** True when `err` is a transient network failure (its `.code`/`.cause.code` is in `RETRYABLE_NETWORK_ERROR_CODES`). */
+export function isRetryableNetworkError(err: unknown): boolean {
+  const code = (err as NodeJS.ErrnoException)?.code ?? (err as { cause?: NodeJS.ErrnoException })?.cause?.code
+  return typeof code === 'string' && RETRYABLE_NETWORK_ERROR_CODES.has(code)
 }
 
 /**
@@ -360,11 +348,6 @@ class RequestClient {
           throw new RequestTimeoutError()
         }
         throw new RequestClientError()
-      }
-
-      const code = (err as NodeJS.ErrnoException)?.code
-      if (code && RETRYABLE_NETWORK_ERROR_CODES.has(code)) {
-        throw new NetworkError(code, (err as Error).message)
       }
 
       throw err

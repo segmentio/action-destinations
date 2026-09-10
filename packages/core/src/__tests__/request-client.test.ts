@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import createTestServer from 'create-test-server'
-import createInstance, { NetworkError } from '../request-client'
+import createInstance, { isRetryableNetworkError } from '../request-client'
 import { Response } from '../fetch'
 
 jest.setTimeout(12000)
@@ -503,7 +503,7 @@ describe('request()', () => {
     await server.close()
   })
 
-  it('should throw a NetworkError (not the raw Node error) when the connection is refused', async () => {
+  it('rethrows the raw Node network error (with .code) so shared request-client semantics are unchanged', async () => {
     // Start and immediately close a server so nothing is listening on its port -- guarantees
     // an ECONNREFUSED without depending on any external network access.
     const server = await createTestServer()
@@ -512,14 +512,31 @@ describe('request()', () => {
 
     const request = createInstance()
 
-    await expect(request(url)).rejects.toThrow(NetworkError)
+    // The request client no longer wraps network errors (classification moved to the async
+    // framework via isRetryableNetworkError). The original Node error surfaces with its `.code`,
+    // and the shared helper recognizes it as retryable.
     try {
       await request(url)
       throw new Error('expected request() to reject')
     } catch (error) {
-      expect(error).toBeInstanceOf(NetworkError)
-      expect((error as NetworkError).code).toBe('ECONNREFUSED')
-      expect((error as NetworkError).status).toBe(500)
+      expect((error as NodeJS.ErrnoException).code).toBe('ECONNREFUSED')
+      expect(isRetryableNetworkError(error)).toBe(true)
     }
+  })
+
+  describe('isRetryableNetworkError', () => {
+    it('is true for retryable Node network codes (on the error or its cause)', () => {
+      for (const code of ['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND']) {
+        expect(isRetryableNetworkError(Object.assign(new Error('x'), { code }))).toBe(true)
+        expect(isRetryableNetworkError(Object.assign(new Error('wrap'), { cause: { code } }))).toBe(true)
+      }
+    })
+
+    it('is false for non-network errors and missing codes', () => {
+      expect(isRetryableNetworkError(new Error('boom'))).toBe(false)
+      expect(isRetryableNetworkError(Object.assign(new Error('x'), { code: 'EPERM' }))).toBe(false)
+      expect(isRetryableNetworkError(undefined)).toBe(false)
+      expect(isRetryableNetworkError(null)).toBe(false)
+    })
   })
 })

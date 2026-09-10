@@ -3,11 +3,9 @@ import {
   AsyncActionDefinition,
   AsyncBatchResponse,
   IntegrationError,
-  APIError,
-  RetryableError,
   PollResponse,
   HTTPError,
-  NetworkError,
+  isRetryableNetworkError,
   JSONLikeObject,
   RequestClient
 } from '@segment/actions-core'
@@ -183,71 +181,55 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       throw new IntegrationError('No Data Extension Connected', 'INVALID_CONFIGURATION', 400)
     }
 
-    try {
-      const asyncUpsertResponse = await asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId, false)
+    // No error handling here on purpose: the async framework (executeBatch) classifies anything
+    // thrown from performBatch -- an HTTPError keeps its status, a transient network failure
+    // becomes retryable, and any other unexpected error becomes a terminal, non-retryable 400.
+    // So we just let errors propagate rather than re-classifying them per-destination.
+    const asyncUpsertResponse = await asyncUpsertRowsV2(request, settings.subdomain, payload, dataExtensionId, false)
 
-      // Surface whatever requestId SFMC returns, regardless of HTTP status - SFMC can assign a
-      // requestId even on a rejected submission (e.g. a 400 with row-level validation messages),
-      // and callers rely on seeing it when present.
-      response.jobId = asyncUpsertResponse.data.requestId
-      response.status = asyncUpsertResponse.status
+    // Surface whatever requestId SFMC returns, regardless of HTTP status - SFMC can assign a
+    // requestId even on a rejected submission (e.g. a 400 with row-level validation messages),
+    // and callers rely on seeing it when present.
+    response.jobId = asyncUpsertResponse.data.requestId
+    response.status = asyncUpsertResponse.status
 
-      // No HTTP errors, consider all rows as accepted for processing by SFMC
-      if (asyncUpsertResponse.ok) {
-        // resultMessages is "typically" empty on a 2xx, but SFMC can attach informational
-        // messages/warnings even on an accepted submission. Surface them (they don't change the
-        // outcome -- per-row results still come from the poll's /results call) so they're not
-        // silently dropped.
-        if (asyncUpsertResponse.data.resultMessages && asyncUpsertResponse.data.resultMessages.length > 0) {
-          logger?.warn?.(
-            `SFMC async submit accepted (${asyncUpsertResponse.status}) with resultMessages for requestId ${
-              asyncUpsertResponse.data.requestId ?? 'unknown'
-            }: ${JSON.stringify(asyncUpsertResponse.data.resultMessages)}`
-          )
-        }
-
-        for (let i = 0; i < payload.length; i++) {
-          response.multiStatusResponse.setSuccessResponseAtIndex(i, {
-            status: 200,
-            sent: JSON.stringify(payload[i]),
-            body: {}
-          })
-        }
-        return response
+    // No HTTP errors, consider all rows as accepted for processing by SFMC
+    if (asyncUpsertResponse.ok) {
+      // resultMessages is "typically" empty on a 2xx, but SFMC can attach informational
+      // messages/warnings even on an accepted submission. Surface them (they don't change the
+      // outcome -- per-row results still come from the poll's /results call) so they're not
+      // silently dropped.
+      if (asyncUpsertResponse.data.resultMessages && asyncUpsertResponse.data.resultMessages.length > 0) {
+        logger?.warn?.(
+          `SFMC async submit accepted (${asyncUpsertResponse.status}) with resultMessages for requestId ${
+            asyncUpsertResponse.data.requestId ?? 'unknown'
+          }: ${JSON.stringify(asyncUpsertResponse.data.resultMessages)}`
+        )
       }
 
-      // Every remaining case is a batch-level rejection -- same per-row error treatment, differing
-      // only in the message/body sourced from the response (resolved by shape above).
-      const { errormessage, body } = resolveBatchErrorDetail(asyncUpsertResponse.data)
-
       for (let i = 0; i < payload.length; i++) {
-        response.multiStatusResponse.setErrorResponseAtIndex(i, {
-          status: asyncUpsertResponse.status,
-          errormessage,
+        response.multiStatusResponse.setSuccessResponseAtIndex(i, {
+          status: 200,
           sent: JSON.stringify(payload[i]),
-          body
+          body: {}
         })
       }
       return response
-    } catch (error: unknown) {
-      // Preserve the upstream status so 429/5xx get retried and other 4xx don't.
-      if (error instanceof HTTPError) {
-        const status = error.response?.status ?? 500
-        throw new APIError(`Failed to upsert rows asynchronously: ${error.message}`, status)
-      }
-
-      // Network-level failures (timeouts, connection resets, DNS issues) are transient - retry
-      // them. The request client itself already classifies these into NetworkError, so there's
-      // no Node error-code list to maintain here.
-      if (error instanceof NetworkError) {
-        throw new RetryableError(`Failed to upsert rows asynchronously: ${error.message}`)
-      }
-
-      // Anything else (unexpected/unclassified errors) is treated as non-retryable to avoid
-      // retrying deterministic bugs indefinitely.
-      const message = error instanceof Error ? error.message : 'Unknown error'
-      throw new IntegrationError(`Failed to upsert rows asynchronously: ${message}`, 'BAD_REQUEST', 400)
     }
+
+    // Every remaining case is a batch-level rejection -- same per-row error treatment, differing
+    // only in the message/body sourced from the response (resolved by shape above).
+    const { errormessage, body } = resolveBatchErrorDetail(asyncUpsertResponse.data)
+
+    for (let i = 0; i < payload.length; i++) {
+      response.multiStatusResponse.setErrorResponseAtIndex(i, {
+        status: asyncUpsertResponse.status,
+        errormessage,
+        sent: JSON.stringify(payload[i]),
+        body
+      })
+    }
+    return response
   },
 
   performPoll: async (request, { settings, payload, logger }) => {
@@ -397,14 +379,14 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
       if (!(error instanceof HTTPError)) {
         // Network-level failures (timeouts, connection resets, DNS issues) are transient -- the
         // job itself may be fine (confirmed in production: a poll that hit one of these mid-flight
-        // for a job that had already completed successfully). The request client itself already
-        // classifies these into NetworkError, so there's no Node error-code list to maintain here
-        // -- mirrors the same classification performBatch relies on.
+        // for a job that had already completed successfully). Classification comes from
+        // actions-core's shared isRetryableNetworkError helper, so there's no Node error-code list
+        // to maintain here -- mirrors the same classification performBatch relies on.
         const message = error instanceof Error ? error.message : 'Unknown error'
         logger?.warn?.(`SFMC async poll failed for job ${payload.jobId} with a non-HTTP error: ${message}`)
 
         response.status = 400
-        response.jobStatus = error instanceof NetworkError ? 'RETRYABLE_ERROR' : 'FAILED'
+        response.jobStatus = isRetryableNetworkError(error) ? 'RETRYABLE_ERROR' : 'FAILED'
         return response
       }
 
