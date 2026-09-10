@@ -7,7 +7,13 @@ import {
   getListIds,
   handleUpdate,
   processBatchPayload,
-  verifyCustomerId
+  verifyCustomerId,
+  FLAGON_NAME_DATA_MANAGER_API,
+  handleDataManagerUpdate,
+  getDataManagerListIds,
+  exchangeForAccessToken,
+  createDataManagerPartnerLink,
+  getDataManagerUserList
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
 import { UserListResponse } from '../types'
@@ -175,6 +181,9 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
           dynamic: async (request, { settings, auth, features, statsContext }) => {
+            if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+              return await getDataManagerListIds(request, settings, { refresh_token: auth?.refreshToken }, statsContext)
+            }
             return await getListIds(request, settings, auth, features, statsContext)
           }
         },
@@ -235,6 +244,38 @@ const action: ActionDefinition<Settings, Payload> = {
         settings.customerId = verifyCustomerId(settings.customerId)
         if (hookInputs.list_id) {
           try {
+            if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+              const customerId = settings.customerId
+              const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+
+              // Best-effort partner link creation — errors must not block list creation/lookup
+              if (auth?.refreshToken) {
+                try {
+                  const customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
+                  await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+                } catch (_) {
+                  // intentionally swallowed — partner link errors must not block list creation/lookup
+                }
+              }
+
+              const userList = await getDataManagerUserList(
+                request,
+                settings,
+                hookInputs.list_id,
+                {
+                  refresh_token: auth?.refreshToken
+                },
+                statsContext
+              )
+              return {
+                successMessage: `Using existing list '${userList.id}' (id: ${hookInputs.list_id})`,
+                savedData: {
+                  id: hookInputs.list_id,
+                  name: userList.displayName,
+                  external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
+                }
+              }
+            }
             const response: UserListResponse = await getGoogleAudience(
               request,
               settings,
@@ -309,6 +350,21 @@ const action: ActionDefinition<Settings, Payload> = {
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
+    if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+      return await handleDataManagerUpdate(
+        request,
+        settings,
+        audienceSettings,
+        [payload],
+        hookOutputs?.retlOnMappingSave?.outputs.id,
+        hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+        syncMode,
+        features,
+        statsContext,
+        audienceMembership
+      )
+    }
+
     return await handleUpdate(
       request,
       settings,
@@ -327,6 +383,22 @@ const action: ActionDefinition<Settings, Payload> = {
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
+
+    if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
+      return await handleDataManagerUpdate(
+        request,
+        settings,
+        audienceSettings,
+        payload,
+        hookOutputs?.retlOnMappingSave?.outputs.id,
+        hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
+        syncMode,
+        features,
+        statsContext,
+        audienceMembership
+      )
+    }
+
     return await processBatchPayload(
       request,
       settings,
