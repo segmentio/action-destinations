@@ -2,20 +2,15 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
-  createDataManagerUserList,
-  getDataManagerUserList,
-  getDataManagerListIds,
-  // createGoogleAudience,
-  // getGoogleAudience,
-  // getListIds,
-  verifyCustomerId,
-  handleDataManagerUpdate,
-  createDataManagerPartnerLink,
-  exchangeForAccessToken
-  // FLAGON_NAME_DATA_MANAGER_API
+  createGoogleAudience,
+  getGoogleAudience,
+  getListIds,
+  handleUpdate,
+  processBatchPayload,
+  verifyCustomerId
 } from '../functions'
 import { IntegrationError } from '@segment/actions-core'
-// import { UserListResponse } from '../types'
+import { UserListResponse } from '../types'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Customer Match User List',
@@ -179,9 +174,8 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          dynamic: async (request, { settings, auth, statsContext }) => {
-            return await getDataManagerListIds(request, settings, { refresh_token: auth?.refreshToken }, statsContext)
-            // return await getListIds(request, settings, auth, features, statsContext)
+          dynamic: async (request, { settings, auth, features, statsContext }) => {
+            return await getListIds(request, settings, auth, features, statsContext)
           }
         },
         list_name: {
@@ -237,61 +231,28 @@ const action: ActionDefinition<Settings, Payload> = {
           required: false
         }
       },
-      performHook: async (request, { auth, settings, hookInputs, statsContext }) => {
+      performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
         settings.customerId = verifyCustomerId(settings.customerId)
-        // const useDataManager = features?.[FLAGON_NAME_DATA_MANAGER_API]
-
-        const customerId = settings.customerId
-        const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
-
-        // Best-effort partner link creation — errors must not block list creation/lookup
-        if (auth?.refreshToken) {
-          try {
-            const customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
-            await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
-          } catch (_) {
-            // intentionally swallowed — partner link errors must not block list creation/lookup
-          }
-        }
-
         if (hookInputs.list_id) {
           try {
-            const userList = await getDataManagerUserList(
+            const response: UserListResponse = await getGoogleAudience(
               request,
               settings,
               hookInputs.list_id,
               {
                 refresh_token: auth?.refreshToken
               },
+              features,
               statsContext
             )
             return {
-              successMessage: `Using existing list '${userList.id}' (id: ${hookInputs.list_id})`,
+              successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
                 id: hookInputs.list_id,
-                name: userList.displayName,
+                name: response.results[0].userList.name,
                 external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
               }
             }
-
-            // const response: UserListResponse = await getGoogleAudience(
-            //   request,
-            //   settings,
-            //   hookInputs.list_id,
-            //   {
-            //     refresh_token: auth?.refreshToken
-            //   },
-            //   features,
-            //   statsContext
-            // )
-            // return {
-            //   successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
-            //   savedData: {
-            //     id: hookInputs.list_id,
-            //     name: response.results[0].userList.name,
-            //     external_id_type: hookInputs.external_id_type ?? 'CONTACT_INFO'
-            //   }
-            // }
           } catch (e) {
             const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
             const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
@@ -313,20 +274,13 @@ const action: ActionDefinition<Settings, Payload> = {
               app_id: hookInputs.app_id
             }
           }
-
-          const listId = await createDataManagerUserList(
+          const listId = await createGoogleAudience(
             request,
             input,
             { refresh_token: auth?.refreshToken },
+            features,
             statsContext
           )
-          //  await createGoogleAudience(
-          //     request,
-          //     input,
-          //     { refresh_token: auth?.refreshToken },
-          //     features,
-          //     statsContext
-          //   )
 
           return {
             successMessage: `List '${hookInputs.list_name}' (id: ${listId}) created successfully!`,
@@ -355,7 +309,7 @@ const action: ActionDefinition<Settings, Payload> = {
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
 
-    return await handleDataManagerUpdate(
+    return await handleUpdate(
       request,
       settings,
       audienceSettings,
@@ -367,42 +321,13 @@ const action: ActionDefinition<Settings, Payload> = {
       statsContext,
       audienceMembership
     )
-
-    // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-    //   return await handleDataManagerUpdate(
-    //     request,
-    //     settings,
-    //     audienceSettings,
-    //     [payload],
-    //     hookOutputs?.retlOnMappingSave?.outputs.id,
-    //     hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-    //     syncMode,
-    //     features,
-    //     statsContext,
-    //     audienceMembership
-    //   )
-    // }
-
-    // return await handleUpdate(
-    //   request,
-    //   settings,
-    //   audienceSettings,
-    //   [payload],
-    //   hookOutputs?.retlOnMappingSave?.outputs.id,
-    //   hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-    //   syncMode,
-    //   features,
-    //   statsContext,
-    //   audienceMembership
-    // )
   },
   performBatch: async (
     request,
     { settings, audienceSettings, payload, hookOutputs, statsContext, syncMode, features, audienceMembership }
   ) => {
     settings.customerId = verifyCustomerId(settings.customerId)
-
-    return await handleDataManagerUpdate(
+    return await processBatchPayload(
       request,
       settings,
       audienceSettings,
@@ -414,34 +339,6 @@ const action: ActionDefinition<Settings, Payload> = {
       statsContext,
       audienceMembership
     )
-
-    // if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-    //   return await handleDataManagerUpdate(
-    //     request,
-    //     settings,
-    //     audienceSettings,
-    //     payload,
-    //     hookOutputs?.retlOnMappingSave?.outputs.id,
-    //     hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-    //     syncMode,
-    //     features,
-    //     statsContext,
-    //     audienceMembership
-    //   )
-    // }
-
-    // return await processBatchPayload(
-    //   request,
-    //   settings,
-    //   audienceSettings,
-    //   payload,
-    //   hookOutputs?.retlOnMappingSave?.outputs.id,
-    //   hookOutputs?.retlOnMappingSave?.outputs.external_id_type,
-    //   syncMode,
-    //   features,
-    //   statsContext,
-    //   audienceMembership
-    // )
   }
 }
 
