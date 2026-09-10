@@ -1404,13 +1404,12 @@ export const handlePartialFailureResponse = (
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
   userIdentifiers: any[],
-  failedPayloadIndices: Set<number>
+  failedPayloadIndices: Set<number>,
+  fieldName = 'operations'
 ) => {
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
-      const failedIndex = error.location?.fieldPathElements?.find(
-        (field: any) => field.fieldName === 'operations'
-      )?.index
+      const failedIndex = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)?.index
 
       if (failedIndex >= 0) {
         const originalIndex = validPayloadIndicesBitmap[failedIndex]
