@@ -48,6 +48,24 @@ const DISALLOWED_S3_OBJECT_KEY_CHARS = /[^A-Za-z0-9!\-_.*'()/]/gu
 // the error message / logs.
 const MAX_REPORTED_DISALLOWED_CHARS = 10
 
+/**
+ * Insert a timestamp suffix into the filename, immediately before the extension.
+ *
+ * If the prefix already ends with `.<fileExtension>`, the suffix is inserted just
+ * before that extension; otherwise the suffix and extension are appended. We strip
+ * the trailing extension by length rather than `String.prototype.replace`, because
+ * `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
+ * in the name (e.g. the leading "csv" in "csv_export.csv"), corrupting the filename.
+ */
+export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
+  const ext = `.${fileExtension}`
+  if (filenamePrefix.endsWith(ext)) {
+    const base = filenamePrefix.slice(0, filenamePrefix.length - ext.length)
+    return `${base}_${dateSuffix}${ext}`
+  }
+  return filenamePrefix ? `${filenamePrefix}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
+}
+
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -141,15 +159,7 @@ export class Client {
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
-      // Insert the date suffix before the extension
-      filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
-    } else {
-      // Append the date suffix followed by the extension
-      filename_prefix = filename_prefix
-        ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
-        : `${dateSuffix}.${fileExtension}`
-    }
+    filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
 
     const bucketName = settings.s3_aws_bucket_name
     const folderName = ['', null, undefined].includes(s3_aws_folder_name)
