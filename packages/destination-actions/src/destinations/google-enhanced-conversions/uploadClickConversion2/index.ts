@@ -477,104 +477,102 @@ const action: ActionDefinition<Settings, Payload> = {
     const multiStatusResponse = new MultiStatusResponse()
 
     const buildRequestObject = async (payloadItem: Payload): Promise<ClickConversionRequestObjectInterface> => {
-      {
-        let cartItems: CartItemInterface[] = []
-        if (payloadItem.items && Array.isArray(payloadItem.items)) {
-          cartItems = payloadItem.items.map((product) => {
-            return {
-              productId: product.product_id,
-              quantity: product.quantity,
-              unitPrice: product.price
-            } as CartItemInterface
-          })
-        }
-
-        const { session_attributes_encoded, user_ip_address } = payloadItem
-
-        const request_object: ClickConversionRequestObjectInterface = {
-          conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
-          conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
-          gclid: payloadItem.gclid,
-          gbraid: payloadItem.gbraid,
-          wbraid: payloadItem.wbraid,
-          ...(user_ip_address ? { userIpAddress: user_ip_address } : {}),
-          ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
-          ...(!session_attributes_encoded ? getSessionAttributesKeyValuePairs(payloadItem) : {}),
-          orderId: payloadItem.order_id,
-          conversionValue: payloadItem.value,
-          currencyCode: payloadItem.currency,
-          conversionEnvironment: payloadItem.conversion_environment,
-          cartData: {
-            merchantId: payloadItem.merchant_id,
-            feedCountryCode: payloadItem.merchant_country_code,
-            feedLanguageCode: payloadItem.merchant_language_code,
-            localTransactionCost: payloadItem.local_cost,
-            items: cartItems
-          },
-          userIdentifiers: []
-        }
-        // Add Consent Signals 'adUserData' if it is defined
-        if (payloadItem.ad_user_data_consent_state) {
-          request_object['consent'] = {
-            adUserData: payloadItem.ad_user_data_consent_state
-          }
-        }
-
-        // Add Consent Signals 'adPersonalization' if it is defined
-        if (payloadItem.ad_personalization_consent_state) {
-          request_object['consent'] = {
-            ...request_object['consent'],
-            adPersonalization: payloadItem.ad_personalization_consent_state
-          }
-        }
-
-        // Retrieves all of the custom variables that the customer has created in their Google Ads account
-        if (payloadItem.custom_variables) {
-          const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
-          if (customVariableIds?.data?.length) {
-            request_object.customVariables = formatCustomVariables(
-              payloadItem.custom_variables,
-              customVariableIds.data[0].results
-            )
-          }
-        }
-
-        if (payloadItem.email_address) {
-          const validatedEmail: string = processHashing(
-            payloadItem.email_address,
-            'sha256',
-            'hex',
-            commonEmailValidation
-          )
-
-          request_object.userIdentifiers.push({
-            hashedEmail: validatedEmail
-          } as UserIdentifierInterface)
-        }
-
-        if (payloadItem.phone_number) {
-          request_object.userIdentifiers.push({
-            hashedPhoneNumber: processHashing(payloadItem.phone_number, 'sha256', 'hex', (value) =>
-              formatPhone(value, payloadItem.phone_country_code)
-            )
-          } as UserIdentifierInterface)
-        }
-
-        return request_object
+      let cartItems: CartItemInterface[] = []
+      if (payloadItem.items && Array.isArray(payloadItem.items)) {
+        cartItems = payloadItem.items.map((product) => {
+          return {
+            productId: product.product_id,
+            quantity: product.quantity,
+            unitPrice: product.price
+          } as CartItemInterface
+        })
       }
+
+      const { session_attributes_encoded, user_ip_address } = payloadItem
+
+      const request_object: ClickConversionRequestObjectInterface = {
+        conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
+        conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
+        gclid: payloadItem.gclid,
+        gbraid: payloadItem.gbraid,
+        wbraid: payloadItem.wbraid,
+        ...(user_ip_address ? { userIpAddress: user_ip_address } : {}),
+        ...(session_attributes_encoded ? { sessionAttributesEncoded: session_attributes_encoded } : {}),
+        ...(!session_attributes_encoded ? getSessionAttributesKeyValuePairs(payloadItem) : {}),
+        orderId: payloadItem.order_id,
+        conversionValue: payloadItem.value,
+        currencyCode: payloadItem.currency,
+        conversionEnvironment: payloadItem.conversion_environment,
+        cartData: {
+          merchantId: payloadItem.merchant_id,
+          feedCountryCode: payloadItem.merchant_country_code,
+          feedLanguageCode: payloadItem.merchant_language_code,
+          localTransactionCost: payloadItem.local_cost,
+          items: cartItems
+        },
+        userIdentifiers: []
+      }
+      // Add Consent Signals 'adUserData' if it is defined
+      if (payloadItem.ad_user_data_consent_state) {
+        request_object['consent'] = {
+          adUserData: payloadItem.ad_user_data_consent_state
+        }
+      }
+
+      // Add Consent Signals 'adPersonalization' if it is defined
+      if (payloadItem.ad_personalization_consent_state) {
+        request_object['consent'] = {
+          ...request_object['consent'],
+          adPersonalization: payloadItem.ad_personalization_consent_state
+        }
+      }
+
+      // Retrieves all of the custom variables that the customer has created in their Google Ads account
+      if (payloadItem.custom_variables) {
+        const customVariableIds = await getCustomVariables(customerId, auth, request, features, statsContext)
+        if (customVariableIds?.data?.length) {
+          request_object.customVariables = formatCustomVariables(
+            payloadItem.custom_variables,
+            customVariableIds.data[0].results
+          )
+        }
+      }
+
+      if (payloadItem.email_address) {
+        const validatedEmail: string = processHashing(payloadItem.email_address, 'sha256', 'hex', commonEmailValidation)
+
+        request_object.userIdentifiers.push({
+          hashedEmail: validatedEmail
+        } as UserIdentifierInterface)
+      }
+
+      if (payloadItem.phone_number) {
+        request_object.userIdentifiers.push({
+          hashedPhoneNumber: processHashing(payloadItem.phone_number, 'sha256', 'hex', (value) =>
+            formatPhone(value, payloadItem.phone_country_code)
+          )
+        } as UserIdentifierInterface)
+      }
+
+      return request_object
     }
 
     // Build a request object per payload. Payloads which fail validation are marked as errors in the
     // multi-status response and excluded from the request sent to Google.
     const request_objects: ClickConversionRequestObjectInterface[] = []
-    const validPayloadIndicesBitmap: number[] = []
+    const requestIndexToPayloadIndex: number[] = []
 
     const builtRequestObjects = await Promise.all(
       payload.map(async (payloadItem, index) => {
         try {
           return { index, request_object: await buildRequestObject(payloadItem) }
         } catch (error) {
-          return { index, error: error as Error }
+          // Only per-payload validation failures are reported per event. Anything else (e.g. a failure
+          // while fetching custom variables) is rethrown so the whole batch is retried.
+          if (error instanceof PayloadValidationError) {
+            return { index, error }
+          }
+          throw error
         }
       })
     )
@@ -589,7 +587,7 @@ const action: ActionDefinition<Settings, Payload> = {
         continue
       }
       request_objects.push(built.request_object)
-      validPayloadIndicesBitmap.push(built.index)
+      requestIndexToPayloadIndex.push(built.index)
     }
 
     // Nothing left to send to Google
@@ -621,7 +619,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (partialFailureError) {
       handlePartialFailureResponse(
         partialFailureError,
-        validPayloadIndicesBitmap,
+        requestIndexToPayloadIndex,
         multiStatusResponse,
         request_objects as unknown as JSONLikeObject[],
         failedPayloadIndices,
@@ -629,7 +627,7 @@ const action: ActionDefinition<Settings, Payload> = {
       )
     }
 
-    validPayloadIndicesBitmap.forEach((originalIndex, requestIndex) => {
+    requestIndexToPayloadIndex.forEach((originalIndex, requestIndex) => {
       if (failedPayloadIndices.has(originalIndex)) {
         return
       }
