@@ -1528,6 +1528,73 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1]).toMatchObject({ status: 200, body: { gclid: '54322' } })
     })
 
+    it('reports a non-2xx against every event instead of throwing', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 2',
+          properties: { gclid: '54322', email: 'test2@gmail.com', orderId: '1235', total: '200', currency: 'USD' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(403, {
+          error: {
+            code: 403,
+            message: 'The caller does not have permission',
+            status: 'PERMISSION_DENIED'
+          }
+        })
+
+      const responses = await testDestination.executeBatch('uploadClickConversion', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          conversion_timestamp: { '@path': '$.timestamp' },
+          gclid: { '@path': '$.properties.gclid' },
+          email_address: { '@path': '$.properties.email' }
+        },
+        settings: { customerId }
+      })
+
+      // Every event carries the real status and message, and the batch is not thrown away.
+      expect(responses[0]).toMatchObject({ status: 403, errormessage: 'The caller does not have permission' })
+      expect(responses[1]).toMatchObject({ status: 403, errormessage: 'The caller does not have permission' })
+    })
+
+    it('retryable statuses are reported per event too', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(429, { error: { code: 429, message: 'Resource has been exhausted' } })
+
+      const responses = await testDestination.executeBatch('uploadClickConversion', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          conversion_timestamp: { '@path': '$.timestamp' },
+          gclid: { '@path': '$.properties.gclid' },
+          email_address: { '@path': '$.properties.email' }
+        },
+        settings: { customerId }
+      })
+
+      expect(responses[0]).toMatchObject({ status: 429, errormessage: 'Resource has been exhausted' })
+    })
+
     it('maps a partialFailureError back to the failing event only', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({

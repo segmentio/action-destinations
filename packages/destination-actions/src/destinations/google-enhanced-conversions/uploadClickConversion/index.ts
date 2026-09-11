@@ -593,12 +593,31 @@ const action: ActionDefinition<Settings, Payload> = {
           'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
         },
         skipResponseCloning: true,
+        // The multi-status response is this action's deliverable, so a non-2xx must not throw:
+        // destination-kit rethrows out of the subscription handler, which discards the whole
+        // multi-status response and with it every event's per-event attribution.
+        throwHttpErrors: false,
         json: {
           conversions: request_objects,
           partialFailure: true
         }
       }
     )
+
+    // A non-2xx rejects the entire request, so report it against every conversion we sent.
+    if (!response.ok) {
+      const errormessage = response.data?.error?.message ?? response.statusText
+      requestIndexToPayloadIndex.forEach((originalIndex, requestIndex) => {
+        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+          status: response.status,
+          errormessage,
+          sent: request_objects[requestIndex] as unknown as JSONLikeObject,
+          body: (response.data ?? response.content) as unknown as JSONLikeObject
+        })
+      })
+
+      return multiStatusResponse
+    }
 
     const failedPayloadIndices = new Set<number>()
     const partialFailureError = response.data?.partialFailureError
