@@ -12,6 +12,7 @@ describe('GoogleEnhancedConversions', () => {
   beforeEach(() => {
     // `executeBatch` does not drain the recorded responses the way `testAction`/`testBatchAction` do
     testDestination.responses.length = 0
+    nock.cleanAll()
   })
 
   describe('uploadClickConversion2 Single Event', () => {
@@ -1444,7 +1445,9 @@ describe('GoogleEnhancedConversions', () => {
         })
       ]
 
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+      const uploadScope = nock(
+        `https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`
+      )
         .post('')
         .reply(201, {})
 
@@ -1473,6 +1476,9 @@ describe('GoogleEnhancedConversions', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage: "Email provided doesn't seem to be in a valid format."
       })
+
+      // Every payload failed validation, so the batch must never reach Google.
+      expect(uploadScope.isDone()).toBe(false)
     })
 
     it('returns a success multi-status response for every event when the API reports no failures', async () => {
@@ -1593,6 +1599,55 @@ describe('GoogleEnhancedConversions', () => {
         status: 400,
         errormessage: 'The conversion could not be attributed to the click.'
       })
+    })
+
+    it('fails the whole batch when a partialFailureError cannot be attributed to a conversion', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 2',
+          properties: { gclid: '54322', email: 'test2@gmail.com', orderId: '1235', total: '200', currency: 'USD' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, {
+          partialFailureError: {
+            code: 3,
+            message: 'Request contains an invalid argument.',
+            details: [
+              {
+                errors: [
+                  {
+                    // No `location`, so this error cannot be tied to a single conversion.
+                    message: 'Customer is not enabled for conversion uploads.'
+                  }
+                ]
+              }
+            ]
+          },
+          results: [{}, {}]
+        })
+
+      await expect(
+        testDestination.executeBatch('uploadClickConversion2', {
+          events,
+          mapping: {
+            conversion_action: '12345',
+            __segment_internal_sync_mode: 'add',
+            conversion_timestamp: { '@path': '$.timestamp' },
+            gclid: { '@path': '$.properties.gclid' },
+            email_address: { '@path': '$.properties.email' }
+          },
+          settings: { customerId }
+        })
+      ).rejects.toThrowError('Request contains an invalid argument.')
     })
 
     it('Deny User Data and Personalised Consent State', async () => {
