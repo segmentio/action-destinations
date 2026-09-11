@@ -26,7 +26,8 @@ import {
   getConversionActionDynamicData,
   formatPhone,
   getSessionAttributesKeyValuePairs,
-  handlePartialFailureResponse
+  handlePartialFailureResponse,
+  handleGoogleAdsAPIErrorResponse
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -576,25 +577,41 @@ const action: ActionDefinition<Settings, Payload> = {
       return multiStatusResponse
     }
 
-    const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(
-        features,
-        statsContext
-      )}/customers/${customerId}:uploadClickConversions`,
-      {
-        method: 'post',
-        headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-        },
-        skipResponseCloning: true,
-        json: {
-          conversions: request_objects,
-          partialFailure: true
-        }
-      }
-    )
-
     const failedPayloadIndices = new Set<number>()
+
+    let response: ModifiedResponse<PartialErrorResponse>
+
+    try {
+      response = await request(
+        `https://googleads.googleapis.com/${getApiVersion(
+          features,
+          statsContext
+        )}/customers/${customerId}:uploadClickConversions`,
+        {
+          method: 'post',
+          headers: {
+            'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+          },
+          skipResponseCloning: true,
+          json: {
+            conversions: request_objects,
+            partialFailure: true
+          }
+        }
+      )
+    } catch (error) {
+      // Report the HTTP level failure against every event that was sent, consistent with the user
+      // list path in handleUpdate.
+      handleGoogleAdsAPIErrorResponse(
+        error,
+        requestIndexToPayloadIndex,
+        multiStatusResponse,
+        { conversions: request_objects } as unknown as JSONLikeObject,
+        failedPayloadIndices
+      )
+      return multiStatusResponse
+    }
+
     const partialFailureError = response.data?.partialFailureError
 
     if (partialFailureError) {

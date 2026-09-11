@@ -766,7 +766,7 @@ export const verifyCustomerId = (customerId: string | undefined) => {
   return customerId.replace(/-/g, '')
 }
 
-const handleGoogleAdsAPIErrorResponse = (
+export const handleGoogleAdsAPIErrorResponse = (
   error: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
