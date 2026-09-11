@@ -50,4 +50,15 @@ describe('handlePartialFailureResponse', () => {
     expect(out.unattributedErrorCount).toBe(1)
     expect([...failed]).toEqual([0])
   })
+
+  it('returns the underlying reasons for unattributed errors', () => {
+    const { out } = run([err(), { message: 'developer token not approved' }])
+    expect(out.unattributedErrorMessages).toEqual(['account not enabled', 'developer token not approved'])
+  })
+
+  it('falls back to the serialized error when it carries no message', () => {
+    const { out } = run([{ code: 7 } as any])
+    expect(out.unattributedErrorCount).toBe(1)
+    expect(out.unattributedErrorMessages).toEqual(['{"code":7}'])
+  })
 })

@@ -1627,7 +1627,7 @@ describe('GoogleEnhancedConversions', () => {
           },
           settings: { customerId }
         })
-      ).rejects.toThrowError('Request contains an invalid argument.')
+      ).rejects.toThrowError('Customer is not enabled for conversion uploads.')
     })
 
     it('Deny User Data and Personalised Consent State', async () => {

@@ -834,9 +834,10 @@ export const handlePartialFailureResponse = (
 ) => {
   // Google can report an error without a resolvable `fieldName` index (request-level errors, or a
   // location that does not point at an individual item). Those cannot be attributed to a single
-  // payload, so we count them and let the caller decide - reporting the rest of the batch as sent
-  // would silently drop a real rejection.
-  let unattributedErrorCount = 0
+  // payload, so we hand them back to the caller - reporting the rest of the batch as sent would
+  // silently drop a real rejection, and `partialFailureError.message` alone is usually too generic
+  // ('Request contains an invalid argument.') to act on.
+  const unattributedErrorMessages: string[] = []
 
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
@@ -851,13 +852,15 @@ export const handlePartialFailureResponse = (
           body: error
         })
         failedPayloadIndices.add(originalIndex)
+      } else if (error?.message) {
+        unattributedErrorMessages.push(error.message as string)
       } else {
-        unattributedErrorCount++
+        unattributedErrorMessages.push(JSON.stringify(error))
       }
     })
   })
 
-  return { unattributedErrorCount }
+  return { unattributedErrorCount: unattributedErrorMessages.length, unattributedErrorMessages }
 }
 const runOfflineUserJob = async (
   request: RequestClient,

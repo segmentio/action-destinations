@@ -617,7 +617,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const partialFailureError = response.data?.partialFailureError
 
     if (partialFailureError) {
-      const { unattributedErrorCount } = handlePartialFailureResponse(
+      const { unattributedErrorCount, unattributedErrorMessages } = handlePartialFailureResponse(
         partialFailureError,
         requestIndexToPayloadIndex,
         multiStatusResponse,
@@ -628,9 +628,14 @@ const action: ActionDefinition<Settings, Payload> = {
 
       // Google reported at least one failure we could not tie to a specific conversion. Fail the
       // whole batch - as the pre-refactor handleGoogleErrors() did - rather than reporting the
-      // unattributed events as successfully sent.
+      // unattributed events as successfully sent. Surface the underlying reasons, since
+      // `partialFailureError.message` on its own is usually too generic to act on.
       if (unattributedErrorCount > 0) {
-        handleGoogleErrors(response)
+        throw new IntegrationError(
+          unattributedErrorMessages.join('; ') || partialFailureError.message,
+          'INVALID_ARGUMENT',
+          400
+        )
       }
     }
 
