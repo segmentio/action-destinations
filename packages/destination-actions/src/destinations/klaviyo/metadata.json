@@ -11006,23 +11006,23 @@
         "choices": [
           {
             "value": "add",
-            "label": "Add - when connected to a database Source, adding a row will trigger this mapping"
+            "label": "Add - triggers when a row is added"
           },
           {
             "value": "update",
-            "label": "Update - when connected to a database Source, updating a row will trigger this mapping"
+            "label": "Update - triggers when a row is updated"
           },
           {
             "value": "upsert",
-            "label": "Upsert - when connected to a database Source, adding or updating a row will trigger this mapping"
+            "label": "Upsert - triggers when a row is added or updated"
           },
           {
             "value": "delete",
-            "label": "Delete - when connected to a database Source, deleting a row will trigger this mapping"
+            "label": "Delete - triggers when a row is deleted"
           },
           {
             "value": "mirror",
-            "label": "Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping"
+            "label": "Mirror - triggers when a row is added, updated, or deleted"
           }
         ]
       },
@@ -11143,7 +11143,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.email"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,
@@ -11169,7 +11179,17 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.context.traits.phone"
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.traits.phone"
+              }
+            }
           },
           "choices": null,
           "placeholder": null,

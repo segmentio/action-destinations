@@ -29,29 +29,34 @@ const action: ActionDefinition<Settings, Payload> = {
     description: 'Specify how Segment should sync data to Klaviyo when connected to a database Source.',
     default: 'mirror',
     choices: [
-      { label: 'Add - when connected to a database Source, adding a row will trigger this mapping', value: 'add' },
-      {
-        label: 'Update - when connected to a database Source, updating a row will trigger this mapping',
-        value: 'update'
-      },
-      {
-        label: 'Upsert - when connected to a database Source, adding or updating a row will trigger this mapping',
-        value: 'upsert'
-      },
-      {
-        label: 'Delete - when connected to a database Source, deleting a row will trigger this mapping',
-        value: 'delete'
-      },
-      {
-        label:
-          'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
-        value: 'mirror'
-      }
+      { label: 'Add - triggers when a row is added', value: 'add' },
+      { label: 'Update - triggers when a row is updated', value: 'update' },
+      { label: 'Upsert - triggers when a row is added or updated', value: 'upsert' },
+      { label: 'Delete - triggers when a row is deleted', value: 'delete' },
+      { label: 'Mirror - triggers when a row is added, updated, or deleted', value: 'mirror' }
     ]
   },
   fields: {
-    email: { ...email },
-    phone_number: { ...phone_number },
+    email: {
+      ...email,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.email' },
+          then: { '@path': '$.properties.email' },
+          else: { '@path': '$.traits.email' }
+        }
+      }
+    },
+    phone_number: {
+      ...phone_number,
+      default: {
+        '@if': {
+          exists: { '@path': '$.properties.phone' },
+          then: { '@path': '$.properties.phone' },
+          else: { '@path': '$.traits.phone' }
+        }
+      }
+    },
     list_id: {
       ...list_id,
       description:
