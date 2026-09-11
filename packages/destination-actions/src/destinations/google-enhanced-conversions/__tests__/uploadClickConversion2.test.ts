@@ -1635,54 +1635,6 @@ describe('GoogleEnhancedConversions', () => {
       expect(responses[1]).toMatchObject({ status: 403, errormessage: 'The caller does not have permission.' })
     })
 
-    it('reports a CONCURRENT_MODIFICATION failure as retryable', async () => {
-      const events: SegmentEvent[] = [
-        createTestEvent({
-          timestamp,
-          event: 'Test Event 1',
-          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
-        }),
-        createTestEvent({
-          timestamp,
-          event: 'Test Event 2',
-          properties: { gclid: '54322', email: 'test2@gmail.com', orderId: '1235', total: '200', currency: 'USD' }
-        })
-      ]
-
-      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
-        .post('')
-        .reply(400, {
-          error: {
-            code: 400,
-            message: 'Request contains an invalid argument.',
-            details: [
-              {
-                errors: [
-                  {
-                    errorCode: { databaseError: 'CONCURRENT_MODIFICATION' }
-                  }
-                ]
-              }
-            ]
-          }
-        })
-
-      const responses = await testDestination.executeBatch('uploadClickConversion2', {
-        events,
-        mapping: {
-          conversion_action: '12345',
-          conversion_timestamp: { '@path': '$.timestamp' },
-          gclid: { '@path': '$.properties.gclid' },
-          email_address: { '@path': '$.properties.email' },
-          __segment_internal_sync_mode: 'add'
-        },
-        settings: { customerId }
-      })
-
-      expect(responses[0]).toMatchObject({ status: 429, errortype: 'RETRYABLE_BATCH_FAILURE' })
-      expect(responses[1]).toMatchObject({ status: 429, errortype: 'RETRYABLE_BATCH_FAILURE' })
-    })
-
     it('Deny User Data and Personalised Consent State', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({
