@@ -20,6 +20,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The value corresponding to the lookup field.
+   */
+  field_value: string
+  /**
    * Enable batching of requests.
    */
   enable_batching: boolean
