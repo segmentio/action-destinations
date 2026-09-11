@@ -1018,6 +1018,7 @@ export async function getListIds(
     const choices = response.data.results.map((input: UserList) => {
       return { value: input.userList.id, label: input.userList.name }
     })
+    statsContext?.statsClient?.incr('getGoogleAdsListIds.success', 1, statsContext?.tags)
     return {
       choices
     }
