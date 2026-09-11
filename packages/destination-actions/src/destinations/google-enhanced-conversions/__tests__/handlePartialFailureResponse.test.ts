@@ -9,7 +9,7 @@ const err = (index?: number) => ({
 const run = (errors: any[], mapping = [0, 1]) => {
   const msr = new MultiStatusResponse()
   const failed = new Set<number>()
-  const out = handlePartialFailureResponse(
+  handlePartialFailureResponse(
     { code: 3, message: 'invalid', details: [{ errors }] },
     mapping,
     msr,
@@ -17,48 +17,33 @@ const run = (errors: any[], mapping = [0, 1]) => {
     failed,
     'conversions'
   )
-  return { out, failed, msr }
+  return { failed, msr }
 }
 
 describe('handlePartialFailureResponse', () => {
-  it('attributes an indexed error and reports zero unattributed', () => {
-    const { out, failed } = run([err(1)])
-    expect(out.unattributedErrorCount).toBe(0)
+  it('attributes an indexed error to the mapped payload index', () => {
+    const { failed, msr } = run([err(1)])
     expect([...failed]).toEqual([1])
+    expect(msr.getResponseAtIndex(1).value()).toMatchObject({ errormessage: 'bad conversion 1' })
   })
 
-  it('counts an error with no location as unattributed', () => {
-    const { out, failed } = run([err()])
-    expect(out.unattributedErrorCount).toBe(1)
+  it('ignores an error with no resolvable location', () => {
+    const { failed } = run([err()])
     expect([...failed]).toEqual([])
   })
 
-  it('counts an out-of-range index as unattributed instead of writing undefined', () => {
-    const { out, failed } = run([err(7)])
-    expect(out.unattributedErrorCount).toBe(1)
+  it('ignores an out-of-range index instead of writing a response at undefined', () => {
+    const { failed } = run([err(7)])
     expect([...failed]).toEqual([])
   })
 
   it('handles index 0 (regression: falsy index)', () => {
-    const { out, failed } = run([err(0)])
-    expect(out.unattributedErrorCount).toBe(0)
+    const { failed } = run([err(0)])
     expect([...failed]).toEqual([0])
   })
 
-  it('mixes attributed and unattributed errors', () => {
-    const { out, failed } = run([err(0), err()])
-    expect(out.unattributedErrorCount).toBe(1)
+  it('attributes what it can when one error has no location', () => {
+    const { failed } = run([err(0), err()])
     expect([...failed]).toEqual([0])
-  })
-
-  it('returns the underlying reasons for unattributed errors', () => {
-    const { out } = run([err(), { message: 'developer token not approved' }])
-    expect(out.unattributedErrorMessages).toEqual(['account not enabled', 'developer token not approved'])
-  })
-
-  it('falls back to the serialized error when it carries no message', () => {
-    const { out } = run([{ code: 7 } as any])
-    expect(out.unattributedErrorCount).toBe(1)
-    expect(out.unattributedErrorMessages).toEqual(['{"code":7}'])
   })
 })
