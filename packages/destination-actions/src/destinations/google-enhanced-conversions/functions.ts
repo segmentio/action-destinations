@@ -824,25 +824,55 @@ const updateMultiStatusResponseWithSuccess = (
   })
 }
 
+/* Reports an API level failure against every item that was sent, attributing each event the item it
+   sent rather than the whole request body.
+ */
+export const handleGoogleAdsAPIErrorResponsePerItem = (
+  error: any,
+  requestIndexToPayloadIndex: number[],
+  multiStatusResponse: MultiStatusResponse,
+  sentItems: JSONLikeObject[],
+  failedPayloadIndices?: Set<number>
+) => {
+  // Only an HTTP failure carries a per event verdict. A network or timeout failure says nothing
+  // about the individual conversions, so it is rethrown and the whole batch retries.
+  if (!(error instanceof HTTPError)) {
+    throw error
+  }
+
+  const response = error.response as ModifiedResponse | undefined
+  const parsedError = parseGoogleAdsError((response?.data as any)?.error)
+  requestIndexToPayloadIndex.forEach((originalIndex, itemIndex) => {
+    multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+      ...parsedError,
+      // Google does not always answer with its error envelope, e.g. a proxy responding with HTML.
+      status: parsedError.status ?? response?.status ?? 500,
+      errormessage: parsedError.errormessage ?? error.message,
+      body: error as unknown as JSONLikeObject,
+      sent: sentItems[itemIndex]
+    })
+    failedPayloadIndices?.add(originalIndex)
+  })
+}
+
 export const handlePartialFailureResponse = (
   partialFailureError: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
-  userIdentifiers: any[],
-  failedPayloadIndices: Set<number>
+  sentItems: any[],
+  failedPayloadIndices: Set<number>,
+  fieldName = 'operations'
 ) => {
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
-      const failedIndex = error.location?.fieldPathElements?.find(
-        (field: any) => field.fieldName === 'operations'
-      )?.index
+      const failedIndex = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)?.index
 
       if (failedIndex >= 0) {
         const originalIndex = validPayloadIndicesBitmap[failedIndex]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
           errormessage: error.message,
-          sent: userIdentifiers?.[failedIndex],
+          sent: sentItems?.[failedIndex],
           body: error
         })
         failedPayloadIndices.add(originalIndex)
@@ -972,7 +1002,11 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership
+) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||
