@@ -828,26 +828,36 @@ export const handlePartialFailureResponse = (
   partialFailureError: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
-  userIdentifiers: any[],
+  sentObjects: JSONLikeObject[],
   failedPayloadIndices: Set<number>,
   fieldName = 'operations'
 ) => {
+  // Google can report an error without a resolvable `fieldName` index (request-level errors, or a
+  // location that does not point at an individual item). Those cannot be attributed to a single
+  // payload, so we count them and let the caller decide - reporting the rest of the batch as sent
+  // would silently drop a real rejection.
+  let unattributedErrorCount = 0
+
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
       const failedIndex = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)?.index
 
-      if (failedIndex >= 0) {
+      if (typeof failedIndex === 'number' && failedIndex >= 0 && failedIndex < validPayloadIndicesBitmap.length) {
         const originalIndex = validPayloadIndicesBitmap[failedIndex]
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
           errormessage: error.message,
-          sent: userIdentifiers?.[failedIndex],
+          sent: sentObjects?.[failedIndex],
           body: error
         })
         failedPayloadIndices.add(originalIndex)
+      } else {
+        unattributedErrorCount++
       }
     })
   })
+
+  return { unattributedErrorCount }
 }
 const runOfflineUserJob = async (
   request: RequestClient,

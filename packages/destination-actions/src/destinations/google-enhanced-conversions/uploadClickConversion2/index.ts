@@ -617,7 +617,7 @@ const action: ActionDefinition<Settings, Payload> = {
     const partialFailureError = response.data?.partialFailureError
 
     if (partialFailureError) {
-      handlePartialFailureResponse(
+      const { unattributedErrorCount } = handlePartialFailureResponse(
         partialFailureError,
         requestIndexToPayloadIndex,
         multiStatusResponse,
@@ -625,6 +625,13 @@ const action: ActionDefinition<Settings, Payload> = {
         failedPayloadIndices,
         'conversions'
       )
+
+      // Google reported at least one failure we could not tie to a specific conversion. Fail the
+      // whole batch - as the pre-refactor handleGoogleErrors() did - rather than reporting the
+      // unattributed events as successfully sent.
+      if (unattributedErrorCount > 0) {
+        handleGoogleErrors(response)
+      }
     }
 
     requestIndexToPayloadIndex.forEach((originalIndex, requestIndex) => {
