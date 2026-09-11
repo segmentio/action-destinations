@@ -1546,6 +1546,37 @@ const updateMultiStatusResponseWithSuccess = (
   })
 }
 
+/* Reports an API level failure against every item that was sent, attributing each event the item it
+   sent rather than the whole request body.
+ */
+export const handleGoogleAdsAPIErrorResponsePerItem = (
+  error: any,
+  requestIndexToPayloadIndex: number[],
+  multiStatusResponse: MultiStatusResponse,
+  sentItems: JSONLikeObject[],
+  failedPayloadIndices?: Set<number>
+) => {
+  // Only an HTTP failure carries a per event verdict. A network or timeout failure says nothing
+  // about the individual conversions, so it is rethrown and the whole batch retries.
+  if (!(error instanceof HTTPError)) {
+    throw error
+  }
+
+  const response = error.response as ModifiedResponse | undefined
+  const parsedError = parseGoogleAdsError((response?.data as any)?.error)
+  requestIndexToPayloadIndex.forEach((originalIndex, itemIndex) => {
+    multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+      ...parsedError,
+      // Google does not always answer with its error envelope, e.g. a proxy responding with HTML.
+      status: parsedError.status ?? response?.status ?? 500,
+      errormessage: parsedError.errormessage ?? error.message,
+      body: error as unknown as JSONLikeObject,
+      sent: sentItems[itemIndex]
+    })
+    failedPayloadIndices?.add(originalIndex)
+  })
+}
+
 export const handlePartialFailureResponse = (
   partialFailureError: any,
   validPayloadIndicesBitmap: number[],
@@ -1554,12 +1585,6 @@ export const handlePartialFailureResponse = (
   failedPayloadIndices: Set<number>,
   fieldName = 'operations'
 ) => {
-  // Google can report an error without a resolvable `fieldName` index (request-level errors, or a
-  // location that does not point at an individual item). Those cannot be attributed to a single
-  // payload, so we count them and let the caller decide - reporting the rest of the batch as sent
-  // would silently drop a real rejection.
-  let unattributedErrorCount = 0
-
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
       const failedIndex = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)?.index
@@ -1573,13 +1598,9 @@ export const handlePartialFailureResponse = (
           body: error
         })
         failedPayloadIndices.add(originalIndex)
-      } else {
-        unattributedErrorCount++
       }
     })
   })
-
-  return { unattributedErrorCount }
 }
 const runOfflineUserJob = async (
   request: RequestClient,

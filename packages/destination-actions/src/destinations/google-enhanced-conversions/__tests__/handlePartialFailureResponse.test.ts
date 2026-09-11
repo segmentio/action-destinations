@@ -7,47 +7,37 @@ const err = (index?: number) => ({
 })
 
 const run = (errors: any[], mapping = [0, 1]) => {
-  const msr = new MultiStatusResponse()
+  const multiStatusResponse = new MultiStatusResponse()
   const failed = new Set<number>()
-  const out = handlePartialFailureResponse(
+  handlePartialFailureResponse(
     { code: 3, message: 'invalid', details: [{ errors }] },
     mapping,
-    msr,
+    multiStatusResponse,
     [{ a: 1 }, { a: 2 }] as any,
     failed,
     'conversions'
   )
-  return { out, failed, msr }
+  return { failed, multiStatusResponse }
 }
 
 describe('handlePartialFailureResponse', () => {
-  it('attributes an indexed error and reports zero unattributed', () => {
-    const { out, failed } = run([err(1)])
-    expect(out.unattributedErrorCount).toBe(0)
-    expect([...failed]).toEqual([1])
-  })
-
-  it('counts an error with no location as unattributed', () => {
-    const { out, failed } = run([err()])
-    expect(out.unattributedErrorCount).toBe(1)
-    expect([...failed]).toEqual([])
-  })
-
-  it('counts an out-of-range index as unattributed instead of writing undefined', () => {
-    const { out, failed } = run([err(7)])
-    expect(out.unattributedErrorCount).toBe(1)
-    expect([...failed]).toEqual([])
+  it('attributes an indexed error to that payload only', () => {
+    expect([...run([err(1)]).failed]).toEqual([1])
   })
 
   it('handles index 0 (regression: falsy index)', () => {
-    const { out, failed } = run([err(0)])
-    expect(out.unattributedErrorCount).toBe(0)
-    expect([...failed]).toEqual([0])
+    expect([...run([err(0)]).failed]).toEqual([0])
   })
 
-  it('mixes attributed and unattributed errors', () => {
-    const { out, failed } = run([err(0), err()])
-    expect(out.unattributedErrorCount).toBe(1)
-    expect([...failed]).toEqual([0])
+  it('ignores an error with no resolvable location', () => {
+    expect([...run([err()]).failed]).toEqual([])
+  })
+
+  it('ignores an out-of-range index instead of writing at undefined', () => {
+    expect([...run([err(7)]).failed]).toEqual([])
+  })
+
+  it('attributes only the errors that resolve', () => {
+    expect([...run([err(0), err()]).failed]).toEqual([0])
   })
 })
