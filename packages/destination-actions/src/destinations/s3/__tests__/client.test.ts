@@ -136,6 +136,28 @@ describe('mapAWSError', () => {
     expect((err as IntegrationError).status).toBe(400)
   })
 
+  it('classifies a wrong-region PermanentRedirect (301) as a non-retryable 401, not the raw 3xx', () => {
+    const err = mapAWSError(
+      {
+        Code: 'PermanentRedirect',
+        Message: 'The bucket you are attempting to access must be addressed using the specified endpoint.',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 301 }
+      },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as IntegrationError).status).toBe(401)
+  })
+
+  it('never surfaces a non-4xx status from the generic client-fault branch (clamps to 400)', () => {
+    // A client-fault error carrying a 3xx status must not leak that 3xx as the error status.
+    const err = mapAWSError({ name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(400)
+  })
+
   it('treats unclassified / server-side failures as retryable', () => {
     const err = mapAWSError(new Error('Could not load credentials from any providers'), 'Failed to assume AWS role')
     expect(err).toBeInstanceOf(RetryableError)

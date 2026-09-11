@@ -152,9 +152,17 @@ export function mapAWSError(err: unknown, context: string): Error {
   if (code && throttlingCodes.has(code)) {
     return new APIError(detail, 429)
   }
+  if (code && redirectCodes.has(code)) {
+    // S3 returns a redirect (e.g. PermanentRedirect, HTTP 301) when the bucket lives in a
+    // different region than configured. It's a permanent client misconfiguration, so surface a
+    // non-retryable 401 rather than leaking the raw 3xx redirect status.
+    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, 401)
+  }
   // A client fault (4xx that is not throttling) is permanent - do not retry.
   if (e?.$fault === 'client' || (typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500)) {
-    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, httpStatus ?? 400)
+    // Only ever surface a genuine 4xx as the status; never leak a non-4xx (e.g. a 3xx redirect).
+    const status = typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500 ? httpStatus : 400
+    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, status)
   }
   // Transient / server-side / unclassified failures are safe to retry.
   return new RetryableError(detail)
@@ -177,6 +185,9 @@ const accessDeniedCodes = new Set([
 ])
 
 const throttlingCodes = new Set(['SlowDown', 'Throttling', 'ThrottlingException', 'TooManyRequestsException'])
+
+// Region mismatch: S3 returns a 3xx redirect when the bucket is in a different region than configured.
+const redirectCodes = new Set(['PermanentRedirect', 'TemporaryRedirect'])
 
 // isAWSError validates that the error is an generic AWS error
 export function isAWSError(err: unknown): err is AWSError {
