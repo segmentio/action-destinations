@@ -9,6 +9,11 @@ const timestamp = new Date('Thu Jun 10 2021 11:08:04 GMT-0700 (Pacific Daylight 
 const customerId = '1234'
 
 describe('GoogleEnhancedConversions', () => {
+  beforeEach(() => {
+    // `executeBatch` does not drain the recorded responses the way `testAction`/`testBatchAction` do
+    testDestination.responses.length = 0
+  })
+
   describe('uploadClickConversion2 Single Event', () => {
     it('sends an event with default mappings - basic', async () => {
       const event = createTestEvent({
@@ -1443,23 +1448,151 @@ describe('GoogleEnhancedConversions', () => {
         .post('')
         .reply(201, {})
 
-      try {
-        await testDestination.testBatchAction('uploadClickConversion2', {
+      const responses = await testDestination.executeBatch('uploadClickConversion2', {
+        events,
+        features: { 'google-enhanced-v12': true },
+        mapping: {
+          conversion_action: '12345',
+          conversion_timestamp: { '@path': '$.timestamp' },
+          gclid: { '@path': '$.properties.gclid' },
+          email_address: { '@path': '$.properties.email' },
+          __segment_internal_sync_mode: 'add'
+        },
+        settings: {
+          customerId
+        }
+      })
+
+      expect(responses[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "Email provided doesn't seem to be in a valid format."
+      })
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "Email provided doesn't seem to be in a valid format."
+      })
+    })
+
+    it('returns a success multi-status response for every event when the API reports no failures', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 2',
+          properties: { gclid: '54322', email: 'test2@gmail.com', orderId: '1235', total: '200', currency: 'USD' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, { results: [{ gclid: '54321' }, { gclid: '54322' }] })
+
+      const responses = await testDestination.executeBatch('uploadClickConversion2', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          conversion_timestamp: { '@path': '$.timestamp' },
+          gclid: { '@path': '$.properties.gclid' },
+          email_address: { '@path': '$.properties.email' },
+          __segment_internal_sync_mode: 'add'
+        },
+        settings: { customerId }
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200, body: { gclid: '54321' } })
+      expect(responses[1]).toMatchObject({ status: 200, body: { gclid: '54322' } })
+    })
+
+    it('rethrows non-validation errors raised while building the request objects', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        })
+      ]
+
+      // The custom variables lookup fails, which is not a per-payload validation problem - the whole
+      // batch should fail rather than being reported as a 400 for each event.
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}/googleAds:searchStream`)
+        .post('')
+        .reply(500, {})
+
+      await expect(
+        testDestination.executeBatch('uploadClickConversion2', {
           events,
-          features: { 'google-enhanced-v12': true },
           mapping: {
             conversion_action: '12345',
+            conversion_timestamp: { '@path': '$.timestamp' },
+            gclid: { '@path': '$.properties.gclid' },
+            email_address: { '@path': '$.properties.email' },
+            custom_variables: { my_variable: 'my_value' },
             __segment_internal_sync_mode: 'add'
           },
-          useDefaultMappings: true,
-          settings: {
-            customerId
-          }
+          settings: { customerId }
         })
-        fail('the test should have thrown an error')
-      } catch (e: any) {
-        expect(e.message).toBe("Email provided doesn't seem to be in a valid format.")
-      }
+      ).rejects.toThrowError()
+    })
+
+    it('maps a partialFailureError back to the failing event only', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        }),
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 2',
+          properties: { gclid: '54322', email: 'test2@gmail.com', orderId: '1235', total: '200', currency: 'USD' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .reply(201, {
+          partialFailureError: {
+            code: 3,
+            message: 'Request contains an invalid argument.',
+            details: [
+              {
+                errors: [
+                  {
+                    message: 'The conversion could not be attributed to the click.',
+                    location: {
+                      fieldPathElements: [{ fieldName: 'conversions', index: 1 }]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          results: [{ gclid: '54321' }, {}]
+        })
+
+      const responses = await testDestination.executeBatch('uploadClickConversion2', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          conversion_timestamp: { '@path': '$.timestamp' },
+          gclid: { '@path': '$.properties.gclid' },
+          email_address: { '@path': '$.properties.email' },
+          __segment_internal_sync_mode: 'add'
+        },
+        settings: { customerId }
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200, body: { gclid: '54321' } })
+      expect(responses[1]).toMatchObject({
+        status: 400,
+        errormessage: 'The conversion could not be attributed to the click.'
+      })
     })
 
     it('Deny User Data and Personalised Consent State', async () => {
