@@ -1631,8 +1631,16 @@ describe('GoogleEnhancedConversions', () => {
         settings: { customerId }
       })
 
-      expect(responses[0]).toMatchObject({ status: 403, errormessage: 'The caller does not have permission.' })
-      expect(responses[1]).toMatchObject({ status: 403, errormessage: 'The caller does not have permission.' })
+      expect(responses[0]).toMatchObject({
+        status: 403,
+        errormessage: 'The caller does not have permission.',
+        sent: { gclid: '54321' }
+      })
+      expect(responses[1]).toMatchObject({
+        status: 403,
+        errormessage: 'The caller does not have permission.',
+        sent: { gclid: '54322' }
+      })
     })
 
     it('Deny User Data and Personalised Consent State', async () => {

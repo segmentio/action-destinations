@@ -27,7 +27,7 @@ import {
   formatPhone,
   getSessionAttributesKeyValuePairs,
   handlePartialFailureResponse,
-  handleGoogleAdsAPIErrorResponse
+  handleGoogleAdsAPIErrorResponsePerItem
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -600,13 +600,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       )
     } catch (error) {
-      // Report the HTTP level failure against every event that was sent, consistent with the user
-      // list path in handleUpdate.
-      handleGoogleAdsAPIErrorResponse(
+      // Report the HTTP level failure against every event that was sent, each attributed the
+      // conversion it sent.
+      handleGoogleAdsAPIErrorResponsePerItem(
         error,
         requestIndexToPayloadIndex,
         multiStatusResponse,
-        { conversions: request_objects } as unknown as JSONLikeObject,
+        request_objects as unknown as JSONLikeObject[],
         failedPayloadIndices
       )
       return multiStatusResponse
@@ -619,7 +619,7 @@ const action: ActionDefinition<Settings, Payload> = {
         partialFailureError,
         requestIndexToPayloadIndex,
         multiStatusResponse,
-        request_objects as unknown as JSONLikeObject[],
+        request_objects,
         failedPayloadIndices,
         'conversions'
       )

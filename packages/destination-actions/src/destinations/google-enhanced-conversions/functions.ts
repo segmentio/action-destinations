@@ -766,7 +766,7 @@ export const verifyCustomerId = (customerId: string | undefined) => {
   return customerId.replace(/-/g, '')
 }
 
-export const handleGoogleAdsAPIErrorResponse = (
+const handleGoogleAdsAPIErrorResponse = (
   error: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
@@ -824,11 +824,32 @@ const updateMultiStatusResponseWithSuccess = (
   })
 }
 
+/* Reports an API level failure against every item that was sent, attributing each event the item it
+   sent rather than the whole request body.
+ */
+export const handleGoogleAdsAPIErrorResponsePerItem = (
+  error: any,
+  validPayloadIndicesBitmap: number[],
+  multiStatusResponse: MultiStatusResponse,
+  sentItems: JSONLikeObject[],
+  failedPayloadIndices?: Set<number>
+) => {
+  const parsedError = parseGoogleAdsError(error?.response?.data?.error)
+  validPayloadIndicesBitmap.forEach((originalIndex, itemIndex) => {
+    multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+      ...parsedError,
+      body: error,
+      sent: sentItems[itemIndex]
+    })
+    failedPayloadIndices?.add(originalIndex)
+  })
+}
+
 export const handlePartialFailureResponse = (
   partialFailureError: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
-  userIdentifiers: any[],
+  sentItems: any[],
   failedPayloadIndices: Set<number>,
   fieldName = 'operations'
 ) => {
@@ -841,7 +862,7 @@ export const handlePartialFailureResponse = (
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
           errormessage: error.message,
-          sent: userIdentifiers?.[failedIndex],
+          sent: sentItems?.[failedIndex],
           body: error
         })
         failedPayloadIndices.add(originalIndex)
