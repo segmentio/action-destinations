@@ -1643,6 +1643,34 @@ describe('GoogleEnhancedConversions', () => {
       })
     })
 
+    it('rethrows a network failure so the whole batch retries', async () => {
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: { gclid: '54321', email: 'test@gmail.com', orderId: '1234', total: '200', currency: 'USD' }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`)
+        .post('')
+        .replyWithError('socket hang up')
+
+      await expect(
+        testDestination.executeBatch('uploadClickConversion2', {
+          events,
+          mapping: {
+            conversion_action: '12345',
+            conversion_timestamp: { '@path': '$.timestamp' },
+            gclid: { '@path': '$.properties.gclid' },
+            email_address: { '@path': '$.properties.email' },
+            __segment_internal_sync_mode: 'add'
+          },
+          settings: { customerId }
+        })
+      ).rejects.toThrow()
+    })
+
     it('Deny User Data and Personalised Consent State', async () => {
       const events: SegmentEvent[] = [
         createTestEvent({

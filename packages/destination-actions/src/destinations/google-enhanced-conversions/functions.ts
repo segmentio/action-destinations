@@ -829,16 +829,26 @@ const updateMultiStatusResponseWithSuccess = (
  */
 export const handleGoogleAdsAPIErrorResponsePerItem = (
   error: any,
-  validPayloadIndicesBitmap: number[],
+  requestIndexToPayloadIndex: number[],
   multiStatusResponse: MultiStatusResponse,
   sentItems: JSONLikeObject[],
   failedPayloadIndices?: Set<number>
 ) => {
-  const parsedError = parseGoogleAdsError(error?.response?.data?.error)
-  validPayloadIndicesBitmap.forEach((originalIndex, itemIndex) => {
+  // Only an HTTP failure carries a per event verdict. A network or timeout failure says nothing
+  // about the individual conversions, so it is rethrown and the whole batch retries.
+  if (!(error instanceof HTTPError)) {
+    throw error
+  }
+
+  const response = error.response as ModifiedResponse | undefined
+  const parsedError = parseGoogleAdsError((response?.data as any)?.error)
+  requestIndexToPayloadIndex.forEach((originalIndex, itemIndex) => {
     multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
       ...parsedError,
-      body: error,
+      // Google does not always answer with its error envelope, e.g. a proxy responding with HTML.
+      status: parsedError.status ?? response?.status ?? 500,
+      errormessage: parsedError.errormessage ?? error.message,
+      body: error as unknown as JSONLikeObject,
       sent: sentItems[itemIndex]
     })
     failedPayloadIndices?.add(originalIndex)
