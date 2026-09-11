@@ -11145,10 +11145,10 @@
           "default": {
             "@if": {
               "exists": {
-                "@path": "$.properties.email"
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.properties.email"
+                "@path": "$.context.traits.email"
               },
               "else": {
                 "@path": "$.traits.email"
@@ -11181,10 +11181,10 @@
           "default": {
             "@if": {
               "exists": {
-                "@path": "$.properties.phone"
+                "@path": "$.context.traits.phone"
               },
               "then": {
-                "@path": "$.properties.phone"
+                "@path": "$.context.traits.phone"
               },
               "else": {
                 "@path": "$.traits.phone"

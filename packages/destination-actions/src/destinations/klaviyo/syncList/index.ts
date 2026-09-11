@@ -41,8 +41,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...email,
       default: {
         '@if': {
-          exists: { '@path': '$.properties.email' },
-          then: { '@path': '$.properties.email' },
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.traits.email' }
         }
       }
@@ -51,8 +51,8 @@ const action: ActionDefinition<Settings, Payload> = {
       ...phone_number,
       default: {
         '@if': {
-          exists: { '@path': '$.properties.phone' },
-          then: { '@path': '$.properties.phone' },
+          exists: { '@path': '$.context.traits.phone' },
+          then: { '@path': '$.context.traits.phone' },
           else: { '@path': '$.traits.phone' }
         }
       }
