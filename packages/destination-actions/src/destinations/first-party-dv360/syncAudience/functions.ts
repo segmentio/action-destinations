@@ -314,9 +314,9 @@ export async function send(
   const { audienceId, advertiserId, audienceType } = audienceDetails
 
   // Consent applies to the whole list rather than to each member, and batch_keys pins a batch to
-  // one combination of consent values. Display & Video 360 rejects a request containing denied
-  // consent, so a batch carrying it is failed in full rather than sent.
-  if (payloads.some(isConsentDenied)) {
+  // one combination of consent values, so the first event speaks for the batch. Display & Video
+  // 360 rejects a request containing denied consent, so the batch is failed rather than sent.
+  if (isConsentDenied(payloads[0])) {
     return failAllPayloads(
       msResponse,
       payloads,

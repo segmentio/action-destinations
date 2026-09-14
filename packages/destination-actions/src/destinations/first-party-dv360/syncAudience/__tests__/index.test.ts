@@ -410,10 +410,12 @@ describe('FirstPartyDv360.syncAudience', () => {
   it('fails the whole batch when consent is denied', async () => {
     const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 
+    // batch_keys pins a batch to one combination of consent values, so a batch carrying denied
+    // consent carries it on every event.
     const responses = await testDestination.executeBatch('syncAudience', {
       events: [
-        makeEvent({ membership: true, email: 'granted@example.com' }),
-        makeEvent({ membership: true, email: 'denied@example.com', adUserData: 'CONSENT_STATUS_DENIED' })
+        makeEvent({ membership: true, email: 'a@example.com', adUserData: 'CONSENT_STATUS_DENIED' }),
+        makeEvent({ membership: true, email: 'b@example.com', adUserData: 'CONSENT_STATUS_DENIED' })
       ],
       mapping
     })
