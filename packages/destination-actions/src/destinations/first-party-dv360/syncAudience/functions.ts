@@ -176,8 +176,10 @@ export function validateAudienceDetails(
 export function validatePayload(
   payload: Payload,
   membership: AudienceMembership,
-  { audienceId, advertiserId, audienceType }: AudienceTarget
+  audienceTarget: AudienceTarget
 ): { errortype: keyof typeof ErrorCodes; errormessage: string } | undefined {
+  const { audienceId, advertiserId, audienceType } = audienceTarget
+
   if (typeof membership !== 'boolean') {
     return {
       errortype: ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP,
