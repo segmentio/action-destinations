@@ -17,6 +17,7 @@ import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   AudienceTarget,
+  Member,
   ContactInfo,
   ContactInfoList,
   MobileDeviceIdList,
@@ -85,8 +86,8 @@ export function buildContactInfo(payload: Payload): ContactInfo | undefined {
 export function buildRequestJSON(
   advertiserId: string,
   audienceType: string,
-  addedMembers: (ContactInfo | string)[],
-  removedMembers: (ContactInfo | string)[]
+  addedMembers: Member[],
+  removedMembers: Member[]
 ): EditCustomerMatchMembersRequest {
   const json: EditCustomerMatchMembersRequest = { advertiserId }
 
@@ -226,9 +227,9 @@ export async function send(
   // Member index -> payload index, so responses can be written back against the original batch.
   const addIndices: number[] = []
   const removeIndices: number[] = []
-  const addedMembers: (ContactInfo | string)[] = []
-  const removedMembers: (ContactInfo | string)[] = []
-  const members: Record<number, ContactInfo | string> = {}
+  const addedMembers: Member[] = []
+  const removedMembers: Member[] = []
+  const members: Record<number, Member> = {}
 
   payloads.forEach((payload, index) => {
     const membership = audienceMemberships?.[index]
