@@ -13,9 +13,10 @@ export type Member = ContactInfo | string
 
 export type ConsentStatus = typeof CONSENT_STATUS_GRANTED | typeof CONSENT_STATUS_DENIED
 
+// Each field is independent: an unset one means that dimension is not specified.
 export interface Consent {
-  adUserData: ConsentStatus
-  adPersonalization: ConsentStatus
+  adUserData?: ConsentStatus
+  adPersonalization?: ConsentStatus
 }
 
 export interface ContactInfoList {

@@ -13,12 +13,13 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import { CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   AudienceTarget,
   Consent,
+  ConsentStatus,
   Member,
   ContactInfo,
   ContactInfoList,
@@ -32,8 +33,6 @@ function clean(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
 
-// processHashing returns an already hashed value untouched, and recognises a hash in either
-// case. Google matches on the string itself, so the digest is lowercased before it is sent.
 function hash(value: string): string {
   return processHashing(value, 'sha256', 'hex', clean).toLowerCase()
 }
@@ -50,17 +49,19 @@ export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs
   return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? audienceSettings?.audienceType
 }
 
-// Consent belongs to the list rather than to each member, and batch_keys pins a batch to one
-// combination of consent values, so the whole batch shares the consent of its first event.
-// Nothing is sent when the event carries no consent: Display & Video 360 reads a missing consent
-// object as not specified, which is the truth when the customer has not told us either way.
+// Consent belongs to the list rather than to each member. Each field is passed through as the
+// event carries it, and left unset when the event does not: Display & Video 360 reads a missing
+// field as not specified, which is the truth when the customer has not told us either way.
 // Denied never reaches here, since those events are dropped by buildMember.
 export function buildConsent(payload: Payload): Consent | undefined {
   const { ad_user_data, ad_personalization } = payload
 
-  return ad_user_data === CONSENT_STATUS_GRANTED && ad_personalization === CONSENT_STATUS_GRANTED
-    ? { adUserData: CONSENT_STATUS_GRANTED, adPersonalization: CONSENT_STATUS_GRANTED }
-    : undefined
+  const consent: Consent = {
+    ...(ad_user_data ? { adUserData: ad_user_data as ConsentStatus } : {}),
+    ...(ad_personalization ? { adPersonalization: ad_personalization as ConsentStatus } : {})
+  }
+
+  return Object.keys(consent).length > 0 ? consent : undefined
 }
 
 export function isConsentDenied(payload: Payload): boolean {
@@ -101,9 +102,6 @@ export function buildContactInfo(payload: Payload): ContactInfo | undefined {
   return Object.keys(contactInfo).length > 0 ? contactInfo : undefined
 }
 
-// added_members and removed_members are two independent unions, so a mixed batch is sent
-// as a single request. The union only prevents mixing contact info with mobile device IDs
-// in the same direction.
 export function buildJSON(
   advertiserId: string,
   audienceType: string,
@@ -138,7 +136,6 @@ export function buildJSON(
   }
 }
 
-// Resolves the values the whole batch depends on, or the reason they are unusable.
 export function resolveAudienceDetails(
   payload: Payload,
   audienceSettings?: AudienceSettings,
@@ -161,8 +158,6 @@ export function resolveAudienceDetails(
       }
 }
 
-// Checks everything the whole batch depends on, and reports every problem at once rather
-// than one per attempt. Returns undefined when there is nothing wrong.
 export function validateAudienceDetails(
   audienceId?: string,
   advertiserId?: string,
@@ -187,8 +182,6 @@ export function validateAudienceDetails(
   return problems.length > 0 ? problems.join('. ') : undefined
 }
 
-// Builds the member to send for one event, after checking it against the audience the batch is
-// being sent to. Returns the reason instead when the event cannot be sent.
 export function buildMember(
   payload: Payload,
   membership: AudienceMembership,
@@ -371,7 +364,11 @@ export async function send(
     return msResponse
   }
 
-  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
+  // batch_keys pins a batch to one combination of consent values, so every payload carries the
+  // same consent and the first one speaks for the batch.
+  const consent = buildConsent(payloads[0])
+
+  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
   // throwHttpErrors is off so every HTTP response, including a 5xx, is reported per event in the
