@@ -1,0 +1,85 @@
+import type { ActionDefinition } from '@segment/actions-core'
+import type { AudienceSettings, Settings } from '../generated-types'
+import type { Payload, RetlOnMappingSaveInputs } from './generated-types'
+import {
+  emails,
+  phoneNumbers,
+  zipCodes,
+  firstName,
+  lastName,
+  countryCode,
+  mobileDeviceIds,
+  external_id,
+  advertiser_id,
+  enable_batching,
+  batch_size
+} from '../properties'
+import { audience_type, ad_user_data, ad_personalization, retlHookInputFields, retlHookOutputTypes } from './fields'
+import { performHook } from './hook-functions'
+import { send } from './functions'
+import { HookOutputs } from './types'
+
+const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
+  title: 'Sync Audience [Beta]',
+  description:
+    'Add users to, and remove users from, a Display & Video 360 Customer Match audience in a single Action. Supports both Contact Info and Mobile Device ID audiences. This action is currently in beta.',
+  defaultSubscription: 'type = "track"',
+  hooks: {
+    retlOnMappingSave: {
+      label: 'Select or create an audience in Display & Video 360',
+      description:
+        'When saving this mapping, Segment will either create a new Customer Match audience in Display & Video 360 or connect to an existing one.',
+      inputFields: retlHookInputFields,
+      outputTypes: retlHookOutputTypes,
+      performHook: async (request, { hookInputs, features, statsContext }) => {
+        return await performHook(request, hookInputs as RetlOnMappingSaveInputs, features, statsContext)
+      }
+    }
+  },
+  syncMode: {
+    label: 'Sync Mode',
+    description: 'Define how the records will be synced to Display & Video 360.',
+    default: 'mirror',
+    choices: [
+      { value: 'add', label: 'Add' },
+      { value: 'update', label: 'Update' },
+      { value: 'upsert', label: 'Upsert' },
+      { value: 'delete', label: 'Delete' },
+      { value: 'mirror', label: 'Mirror' }
+    ]
+  },
+  fields: {
+    emails: { ...emails },
+    phoneNumbers: { ...phoneNumbers },
+    zipCodes: { ...zipCodes },
+    firstName: { ...firstName },
+    lastName: { ...lastName },
+    countryCode: { ...countryCode },
+    mobileDeviceIds: { ...mobileDeviceIds },
+    ad_user_data: { ...ad_user_data },
+    ad_personalization: { ...ad_personalization },
+    external_id: { ...external_id },
+    advertiser_id: { ...advertiser_id },
+    audience_type: { ...audience_type },
+    enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size },
+    batch_keys: {
+      label: 'Batch Keys',
+      description: 'The keys to use for batching the events.',
+      type: 'string',
+      multiple: true,
+      default: ['external_id', 'advertiser_id'],
+      unsafe_hidden: true
+    }
+  },
+  perform: async (request, { payload, audienceMembership, hookOutputs, statsContext, features }) => {
+    statsContext?.statsClient?.incr('syncAudience.perform', 1, statsContext?.tags)
+    return send(request, [payload], false, [audienceMembership], hookOutputs as HookOutputs, statsContext, features)
+  },
+  performBatch: async (request, { payload, audienceMembership, hookOutputs, statsContext, features }) => {
+    statsContext?.statsClient?.incr('syncAudience.performBatch', 1, statsContext?.tags)
+    return send(request, payload, true, audienceMembership, hookOutputs as HookOutputs, statsContext, features)
+  }
+}
+
+export default action

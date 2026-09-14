@@ -1,0 +1,165 @@
+import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
+import { InputField, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
+import type { Settings, AudienceSettings } from '../generated-types'
+import type { Payload, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs } from './generated-types'
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from '../constants'
+
+const CREATE_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
+}
+
+const EXISTING_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'existing' }]
+}
+
+const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [
+    { fieldKey: 'operation', operator: 'is', value: 'create' },
+    { fieldKey: 'audienceType', operator: 'is', value: DEVICE_ID }
+  ]
+}
+
+export const audience_type: InputField = {
+  label: 'Audience Type',
+  description: 'The type of the DV360 Audience.',
+  type: 'string',
+  default: {
+    '@path': '$.context.personas.audience_settings.audienceType'
+  },
+  unsafe_hidden: true
+}
+
+export const ad_user_data: InputField = {
+  label: 'Ad User Data Consent',
+  description:
+    'Consent to use the data for advertising purposes. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
+  type: 'string',
+  choices: [
+    { label: 'Granted', value: CONSENT_STATUS_GRANTED },
+    { label: 'Denied', value: CONSENT_STATUS_DENIED }
+  ],
+  default: CONSENT_STATUS_GRANTED
+}
+
+export const ad_personalization: InputField = {
+  label: 'Ad Personalization Consent',
+  description:
+    'Consent to use the data for ad personalization. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
+  type: 'string',
+  choices: [
+    { label: 'Granted', value: CONSENT_STATUS_GRANTED },
+    { label: 'Denied', value: CONSENT_STATUS_DENIED }
+  ],
+  default: CONSENT_STATUS_GRANTED
+}
+
+export const retlHookInputFields: ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  RetlOnMappingSaveInputs,
+  RetlOnMappingSaveOutputs
+>['inputFields'] = {
+  operation: {
+    type: 'string',
+    label: 'Create a new audience or connect to an existing one?',
+    description:
+      'Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.',
+    choices: [
+      { label: 'Create New Audience', value: 'create' },
+      { label: 'Connect to Existing Audience', value: 'existing' }
+    ],
+    default: 'create',
+    required: true
+  },
+  advertiserId: {
+    type: 'string',
+    label: 'Advertiser ID',
+    description:
+      'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.',
+    required: true
+  },
+  audienceName: {
+    type: 'string',
+    label: 'Audience Name',
+    description: 'The display name of the audience to create in Display & Video 360.',
+    depends_on: CREATE_OPERATION,
+    required: CREATE_OPERATION
+  },
+  audienceType: {
+    type: 'string',
+    label: 'Audience Type',
+    description: 'The type of the audience to create.',
+    choices: [
+      { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
+      { label: 'CUSTOMER MATCH DEVICE ID', value: DEVICE_ID }
+    ],
+    depends_on: CREATE_OPERATION,
+    required: CREATE_OPERATION
+  },
+  membershipDurationDays: {
+    type: 'string',
+    label: 'Membership Duration Days',
+    description:
+      'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.',
+    depends_on: CREATE_OPERATION,
+    required: CREATE_OPERATION
+  },
+  description: {
+    type: 'string',
+    label: 'Description',
+    description: 'The description of the audience.',
+    depends_on: CREATE_OPERATION
+  },
+  appId: {
+    type: 'string',
+    label: 'App ID',
+    description:
+      'The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.',
+    depends_on: CREATE_OPERATION,
+    required: CREATE_DEVICE_ID_OPERATION
+  },
+  existingAudienceId: {
+    type: 'string',
+    label: 'Existing Audience ID',
+    description: 'The ID of the audience in Display & Video 360 to connect this mapping to.',
+    depends_on: EXISTING_OPERATION,
+    required: EXISTING_OPERATION
+  }
+}
+
+export const retlHookOutputTypes: ActionHookDefinition<
+  Settings,
+  Payload,
+  AudienceSettings,
+  RetlOnMappingSaveInputs,
+  RetlOnMappingSaveOutputs
+>['outputTypes'] = {
+  audienceId: {
+    type: 'string',
+    label: 'Audience ID',
+    description: 'The ID of the audience in Display & Video 360 this mapping is connected to.',
+    required: true
+  },
+  advertiserId: {
+    type: 'string',
+    label: 'Advertiser ID',
+    description: 'The ID of the advertiser which owns the audience.',
+    required: true
+  },
+  audienceType: {
+    type: 'string',
+    label: 'Audience Type',
+    description: 'The type of the audience in Display & Video 360.',
+    required: true
+  },
+  appId: {
+    type: 'string',
+    label: 'App ID',
+    description: 'The app ID associated with the mobile device IDs in the audience.',
+    required: false
+  }
+}

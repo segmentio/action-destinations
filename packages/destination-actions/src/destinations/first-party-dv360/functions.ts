@@ -84,7 +84,7 @@ export const createAudienceRequest = (
   return request(endpoint, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${token}`,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json; charset=utf-8'
     },
     json: {
@@ -108,9 +108,10 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
   return request(endpoint, {
     method: 'GET',
     headers: {
-      authorization: `Bearer ${token}`,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json; charset=utf-8'
-    }
+    },
+    throwHttpErrors: false
   })
 }
 
