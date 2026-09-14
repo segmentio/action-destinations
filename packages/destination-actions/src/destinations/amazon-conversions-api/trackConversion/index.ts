@@ -2,7 +2,13 @@ import { ActionDefinition, MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { EventData, EventMultiStatusResponse } from '../types'
-import { sendEventsRequest, handleBatchResponse, prepareEventData, handleResponse } from './utils'
+import {
+  sendEventsRequest,
+  handleBatchResponse,
+  prepareEventData,
+  handleResponse,
+  FLAGON_THROW_HTTP_ERRORS
+} from './utils'
 import { fields } from './fields'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -11,9 +17,13 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = "track"',
   fields,
 
-  perform: async (request, { payload, settings }) => {
+  perform: async (request, { payload, settings, features }) => {
     const eventData = prepareEventData(payload, settings)
-    const response = await sendEventsRequest<EventMultiStatusResponse>(request, settings, eventData)
+    // STRATCONN-6978: behind this flag, a non-2xx response throws instead of being silently
+    // reported as a successful delivery, restoring the pre-existing OAuth re-auth/retry path.
+    // performBatch is intentionally unaffected - it already handles this correctly.
+    const throwHttpErrors = Boolean(features?.[FLAGON_THROW_HTTP_ERRORS])
+    const response = await sendEventsRequest<EventMultiStatusResponse>(request, settings, eventData, throwHttpErrors)
     return handleResponse(response)
   },
 
