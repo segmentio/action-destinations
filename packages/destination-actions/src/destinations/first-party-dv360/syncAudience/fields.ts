@@ -123,10 +123,12 @@ export const retlHookInputFields: ActionHookDefinition<
     required: CREATE_OPERATION
   },
   membershipDurationDays: {
-    type: 'string',
+    type: 'number',
     label: 'Membership Duration Days',
     description:
       'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.',
+    minimum: 1,
+    maximum: 540,
     depends_on: CREATE_OPERATION,
     required: CREATE_OPERATION
   },

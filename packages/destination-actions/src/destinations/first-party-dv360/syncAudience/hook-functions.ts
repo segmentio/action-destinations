@@ -72,7 +72,8 @@ export async function performHook(
       advertiserId: advertiserId.trim(),
       audienceName,
       description,
-      membershipDurationDays,
+      // DV360 takes membershipDurationDays as an int64, which is a string over JSON.
+      membershipDurationDays: String(membershipDurationDays),
       audienceType,
       appId,
       features,

@@ -17,7 +17,7 @@ const inputs = (overrides: Partial<RetlOnMappingSaveInputs> = {}): RetlOnMapping
     advertiserId: ADVERTISER_ID,
     audienceName: 'My Audience',
     audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
-    membershipDurationDays: '90',
+    membershipDurationDays: 90,
     ...overrides
   } as RetlOnMappingSaveInputs)
 
@@ -40,6 +40,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     expect(body).toEqual({
       displayName: 'My Audience',
       audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+      // Sent as a string: DV360 types this as an int64.
       membershipDurationDays: '90',
       description: 'A description',
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',

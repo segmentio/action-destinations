@@ -84,7 +84,7 @@ export interface RetlOnMappingSaveInputs {
   /**
    * The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.
    */
-  membershipDurationDays?: string
+  membershipDurationDays?: number
   /**
    * The description of the audience.
    */
