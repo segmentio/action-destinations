@@ -118,6 +118,28 @@ export function buildRequestJSON(
   return json
 }
 
+// Checks everything the whole batch depends on, and reports every problem at once rather
+// than one per attempt. Returns undefined when there is nothing wrong.
+export function validate(audienceId?: string, advertiserId?: string, audienceType?: string): string | undefined {
+  const problems: string[] = []
+
+  if (!audienceId) {
+    problems.push('Missing audience ID')
+  }
+
+  if (!advertiserId) {
+    problems.push('Missing advertiser ID')
+  }
+
+  if (!audienceType) {
+    problems.push('Missing audience type')
+  } else if (![CONTACT_INFO, DEVICE_ID].includes(audienceType)) {
+    problems.push(`Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}`)
+  }
+
+  return problems.length > 0 ? problems.join('. ') : undefined
+}
+
 // A single event has no MultiStatusResponse to report into, so failures must be thrown
 // for Segment to record the event as failed.
 function setError(
@@ -162,15 +184,10 @@ export async function send(
   const advertiserId = getAdvertiserId(payloads[0], hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  if (!audienceId || !advertiserId || !audienceType || ![CONTACT_INFO, DEVICE_ID].includes(audienceType)) {
-    const errormessage = !audienceId
-      ? 'Missing audience ID'
-      : !advertiserId
-      ? 'Missing advertiser ID'
-      : !audienceType
-      ? 'Missing audience type'
-      : `Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}.`
+  const errormessage = validate(audienceId, advertiserId, audienceType)
 
+  // The values are re-checked here so TypeScript narrows them for the code below.
+  if (errormessage || !audienceId || !advertiserId || !audienceType) {
     payloads.forEach((payload, index) => {
       setError(
         msResponse,
@@ -178,7 +195,7 @@ export async function send(
         index,
         400,
         ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        errormessage,
+        errormessage as string,
         payload as unknown as JSONLikeObject
       )
     })

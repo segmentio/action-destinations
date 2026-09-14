@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
+import { validate } from '../functions'
 import { processHashing } from '../../../../lib/hashing-utils'
 
 const testDestination = createTestIntegration(Destination)
@@ -125,6 +126,28 @@ const captureBody = () => {
 
 afterEach(() => {
   nock.cleanAll()
+})
+
+describe('validate', () => {
+  it('returns undefined when everything is present and valid', () => {
+    expect(validate(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
+  })
+
+  it('reports every missing value in one message', () => {
+    expect(validate(undefined, undefined, undefined)).toBe(
+      'Missing audience ID. Missing advertiser ID. Missing audience type'
+    )
+  })
+
+  it('combines a missing value with an invalid one', () => {
+    expect(validate(undefined, ADVERTISER_ID, 'SOMETHING_ELSE')).toBe(
+      `Missing audience ID. Unrecognised audience type: SOMETHING_ELSE. Must be ${CONTACT_INFO} or ${DEVICE_ID}`
+    )
+  })
+
+  it('does not report an unrecognised type when the type is missing', () => {
+    expect(validate(AUDIENCE_ID, ADVERTISER_ID, undefined)).toBe('Missing audience type')
+  })
 })
 
 describe('FirstPartyDv360.syncAudience', () => {
