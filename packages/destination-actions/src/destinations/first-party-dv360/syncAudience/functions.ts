@@ -59,23 +59,19 @@ export function isConsentDenied(payload: Payload): boolean {
 export function buildContactInfo(payload: Payload): ContactInfo | undefined {
   const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = payload
 
-  const contactInfo: ContactInfo = {}
-
-  if (emails) {
-    contactInfo.hashedEmails = [hash(emails)]
-  }
-
-  if (phoneNumbers) {
-    contactInfo.hashedPhoneNumbers = [hash(phoneNumbers)]
-  }
-
-  // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent together.
-  // A partial set is rejected by the API, so it is only included when complete.
-  if (zipCodes && firstName && lastName && countryCode) {
-    contactInfo.zipCodes = [zipCodes]
-    contactInfo.hashedFirstName = hash(firstName)
-    contactInfo.hashedLastName = hash(lastName)
-    contactInfo.countryCode = countryCode
+  const contactInfo: ContactInfo = {
+    ...(emails ? { hashedEmails: [hash(emails)] } : {}),
+    ...(phoneNumbers ? { hashedPhoneNumbers: [hash(phoneNumbers)] } : {}),
+    // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent
+    // together. A partial set is rejected by the API, so they are only included when complete.
+    ...(zipCodes && firstName && lastName && countryCode
+      ? {
+          zipCodes: [zipCodes],
+          hashedFirstName: hash(firstName),
+          hashedLastName: hash(lastName),
+          countryCode
+        }
+      : {})
   }
 
   return Object.keys(contactInfo).length > 0 ? contactInfo : undefined
@@ -90,35 +86,31 @@ export function buildRequestJSON(
   addedMembers: Member[],
   removedMembers: Member[]
 ): EditCustomerMatchMembersRequest {
-  const json: EditCustomerMatchMembersRequest = { advertiserId }
+  const isContactInfo = audienceType === CONTACT_INFO
 
-  if (audienceType === CONTACT_INFO) {
-    if (addedMembers.length > 0) {
-      json.addedContactInfoList = { contactInfos: addedMembers as ContactInfo[], consent: CONSENT } as ContactInfoList
-    }
-    if (removedMembers.length > 0) {
-      json.removedContactInfoList = {
-        contactInfos: removedMembers as ContactInfo[],
-        consent: CONSENT
-      } as ContactInfoList
-    }
-    return json
-  }
+  const contactInfoList = (members: Member[]): ContactInfoList => ({
+    contactInfos: members as ContactInfo[],
+    consent: CONSENT
+  })
 
-  if (addedMembers.length > 0) {
-    json.addedMobileDeviceIdList = {
-      mobileDeviceIds: addedMembers as string[],
-      consent: CONSENT
-    } as MobileDeviceIdList
-  }
-  if (removedMembers.length > 0) {
-    json.removedMobileDeviceIdList = {
-      mobileDeviceIds: removedMembers as string[],
-      consent: CONSENT
-    } as MobileDeviceIdList
-  }
+  const mobileDeviceIdList = (members: Member[]): MobileDeviceIdList => ({
+    mobileDeviceIds: members as string[],
+    consent: CONSENT
+  })
 
-  return json
+  return {
+    advertiserId,
+    ...(addedMembers.length > 0
+      ? isContactInfo
+        ? { addedContactInfoList: contactInfoList(addedMembers) }
+        : { addedMobileDeviceIdList: mobileDeviceIdList(addedMembers) }
+      : {}),
+    ...(removedMembers.length > 0
+      ? isContactInfo
+        ? { removedContactInfoList: contactInfoList(removedMembers) }
+        : { removedMobileDeviceIdList: mobileDeviceIdList(removedMembers) }
+      : {})
+  }
 }
 
 // Resolves the values the whole batch depends on, or the reason they are unusable.
