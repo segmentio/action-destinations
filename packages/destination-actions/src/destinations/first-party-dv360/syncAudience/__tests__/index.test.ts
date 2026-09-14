@@ -159,8 +159,10 @@ describe('validatePayload', () => {
     advertiser_id: ADVERTISER_ID
   } as Payload
 
-  it('returns undefined for a valid member', () => {
-    expect(validatePayload(payload, true, target)).toBeUndefined()
+  const errorOf = (result: ReturnType<typeof validatePayload>) => (result as { errormessage: string }).errormessage
+
+  it('returns the member for a valid payload', () => {
+    expect(validatePayload(payload, true, target)).toEqual({ member: { hashedEmails: [hash('a@example.com')] } })
   })
 
   it('rejects an unresolved membership', () => {
@@ -171,27 +173,23 @@ describe('validatePayload', () => {
   })
 
   it('rejects denied consent', () => {
-    expect(
-      validatePayload({ ...payload, ad_user_data: 'CONSENT_STATUS_DENIED' }, true, target)?.errormessage
-    ).toContain('Consent denied')
+    const result = validatePayload({ ...payload, ad_user_data: 'CONSENT_STATUS_DENIED' }, true, target)
+    expect(errorOf(result)).toContain('Consent denied')
   })
 
   it('rejects an event for a different audience', () => {
-    expect(validatePayload({ ...payload, external_id: 'another-audience' }, true, target)?.errormessage).toContain(
-      'does not belong to the same audience'
-    )
+    const result = validatePayload({ ...payload, external_id: 'another-audience' }, true, target)
+    expect(errorOf(result)).toContain('does not belong to the same audience')
   })
 
   it('rejects an event with no usable identifier', () => {
-    expect(validatePayload({ external_id: AUDIENCE_ID } as Payload, true, target)?.errormessage).toContain(
-      'No usable contact info identifiers'
-    )
+    const result = validatePayload({ external_id: AUDIENCE_ID } as Payload, true, target)
+    expect(errorOf(result)).toContain('No usable contact info identifiers')
   })
 
   it('rejects a device ID audience event with no device ID', () => {
-    expect(validatePayload(payload, true, { ...target, audienceType: DEVICE_ID })?.errormessage).toContain(
-      'No mobile device ID'
-    )
+    const result = validatePayload(payload, true, { ...target, audienceType: DEVICE_ID })
+    expect(errorOf(result)).toContain('No mobile device ID')
   })
 })
 

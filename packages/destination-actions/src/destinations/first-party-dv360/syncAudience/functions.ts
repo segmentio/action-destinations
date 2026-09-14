@@ -171,13 +171,13 @@ export function validateAudienceDetails(
   return problems.length > 0 ? problems.join('. ') : undefined
 }
 
-// Checks one event against the audience the batch is being sent to. Returns undefined when the
-// event can be sent, otherwise the reason it cannot.
+// Checks one event against the audience the batch is being sent to, and returns the member to
+// send, or the reason the event cannot be sent.
 export function validatePayload(
   payload: Payload,
   membership: AudienceMembership,
   audienceTarget: AudienceTarget
-): { errortype: keyof typeof ErrorCodes; errormessage: string } | undefined {
+): { member: Member } | { errortype: keyof typeof ErrorCodes; errormessage: string } {
   const { audienceId, advertiserId, audienceType } = audienceTarget
 
   if (typeof membership !== 'boolean') {
@@ -211,8 +211,9 @@ export function validatePayload(
   }
 
   const isContactInfo = audienceType === CONTACT_INFO
+  const member = isContactInfo ? buildContactInfo(payload) : payload.mobileDeviceIds
 
-  if (!(isContactInfo ? buildContactInfo(payload) : payload.mobileDeviceIds)) {
+  if (!member) {
     return {
       errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
       errormessage: isContactInfo
@@ -221,7 +222,7 @@ export function validatePayload(
     }
   }
 
-  return undefined
+  return { member }
 }
 
 // A single event has no MultiStatusResponse to report into, so failures must be thrown
@@ -299,22 +300,22 @@ export async function send(
   payloads.forEach((payload, index) => {
     const membership = audienceMemberships?.[index]
 
-    const problem = validatePayload(payload, membership, resolved)
+    const validated = validatePayload(payload, membership, resolved)
 
-    if (problem) {
+    if ('errormessage' in validated) {
       setError(
         msResponse,
         isBatch,
         index,
         400,
-        problem.errortype,
-        problem.errormessage,
+        validated.errortype,
+        validated.errormessage,
         payload as unknown as JSONLikeObject
       )
       return
     }
 
-    const member = (audienceType === CONTACT_INFO ? buildContactInfo(payload) : payload.mobileDeviceIds) as Member
+    const { member } = validated
 
     members[index] = member
 
