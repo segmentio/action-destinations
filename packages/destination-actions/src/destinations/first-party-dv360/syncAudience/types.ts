@@ -46,6 +46,14 @@ export interface EditCustomerMatchMembersResponse {
   }
 }
 
+// The shape of the HTTPError the request client throws for a non 2xx response.
+export interface DV360Error {
+  response?: {
+    status?: number
+    data?: EditCustomerMatchMembersResponse
+  }
+}
+
 export interface HookOutputs {
   retlOnMappingSave?: {
     outputs?: {

@@ -5,7 +5,6 @@ import {
   Features,
   JSONLikeObject,
   AudienceMembership,
-  RetryableError,
   IntegrationError,
   InvalidAudienceMembershipError
 } from '@segment/actions-core'
@@ -18,6 +17,7 @@ import type { Payload } from './generated-types'
 import {
   AudienceTarget,
   Consent,
+  DV360Error,
   Member,
   ContactInfo,
   ContactInfoList,
@@ -351,26 +351,34 @@ export async function send(
   const json = buildRequestJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
-  const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    json,
-    throwHttpErrors: false
-  })
+  try {
+    const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      json
+    })
 
-  const body = (response.data ?? {}) as unknown as JSONLikeObject
+    const body = (response.data ?? {}) as unknown as JSONLikeObject
 
-  if (response.status >= 500 || response.status === 429) {
-    // Transient failure. Throwing lets Segment retry the whole batch rather than
-    // discarding every event in it.
-    statsContext?.statsClient?.incr('syncAudience.retryable_error', sentIndices.length, statsContext?.tags)
-    throw new RetryableError(
-      `Display & Video 360 returned a ${response.status} response`,
-      response.status as 429 | 500 | 502 | 503 | 504
-    )
-  }
+    statsContext?.statsClient?.incr('syncAudience.success', sentIndices.length, statsContext?.tags)
 
-  if (!response.ok) {
+    sentIndices.forEach((index) => {
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent: members[index] as unknown as JSONLikeObject,
+        body
+      })
+    })
+  } catch (error) {
+    const { response: { status = 500, data = {} } = {} } = (error ?? {}) as DV360Error
+
+    // Only a client error is reported per event. Anything else is transient, so it is rethrown
+    // for Segment's own retry handling to classify rather than being decided here.
+    if (status >= 500 || status === 429) {
+      statsContext?.statsClient?.incr('syncAudience.retryable_error', sentIndices.length, statsContext?.tags)
+      throw error
+    }
+
     statsContext?.statsClient?.incr('syncAudience.error', sentIndices.length, statsContext?.tags)
 
     sentIndices.forEach((index) => {
@@ -378,26 +386,14 @@ export async function send(
         msResponse,
         isBatch,
         index,
-        response.status,
+        status,
         ErrorCodes.BAD_REQUEST,
-        response.data?.error?.message ?? 'Display & Video 360 rejected the request',
+        data?.error?.message ?? 'Display & Video 360 rejected the request',
         members[index] as unknown as JSONLikeObject,
-        body
+        data as unknown as JSONLikeObject
       )
     })
-
-    return msResponse
   }
-
-  statsContext?.statsClient?.incr('syncAudience.success', sentIndices.length, statsContext?.tags)
-
-  sentIndices.forEach((index) => {
-    msResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: members[index] as unknown as JSONLikeObject,
-      body
-    })
-  })
 
   return msResponse
 }
