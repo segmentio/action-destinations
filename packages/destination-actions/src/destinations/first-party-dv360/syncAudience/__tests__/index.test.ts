@@ -367,6 +367,20 @@ describe('FirstPartyDv360.syncAudience', () => {
     expect((responses[1] as any).errormessage).toContain('does not belong to the same audience')
   })
 
+  it('throws for a single event when a batch level value is missing', async () => {
+    const { advertiser_id, ...mappingWithoutAdvertiser } = mapping
+
+    await expect(
+      testDestination.testAction('syncAudience', {
+        event: makeEvent({ membership: true, email: 'a@example.com' }),
+        mapping: mappingWithoutAdvertiser,
+        useDefaultMappings: false
+      })
+    ).rejects.toThrow('Missing advertiser ID')
+
+    expect(advertiser_id).toBeDefined()
+  })
+
   it('rejects an unrecognised audience type before sending', async () => {
     const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 

@@ -168,6 +168,23 @@ function setError(
   })
 }
 
+// Applies a batch level failure to every payload: an error entry per index for a batch,
+// or a thrown error for a single event, which has no MultiStatusResponse to report into.
+export function failAllPayloads(
+  msResponse: MultiStatusResponse,
+  payloads: Payload[],
+  isBatch: boolean,
+  errormessage: string,
+  errortype: keyof typeof ErrorCodes = ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+  status = 400
+): MultiStatusResponse {
+  payloads.forEach((payload, index) => {
+    setError(msResponse, isBatch, index, status, errortype, errormessage, payload as unknown as JSONLikeObject)
+  })
+
+  return msResponse
+}
+
 export async function send(
   request: RequestClient,
   payloads: Payload[],
@@ -188,19 +205,7 @@ export async function send(
 
   // The values are re-checked here so TypeScript narrows them for the code below.
   if (errormessage || !audienceId || !advertiserId || !audienceType) {
-    payloads.forEach((payload, index) => {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        400,
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        errormessage as string,
-        payload as unknown as JSONLikeObject
-      )
-    })
-
-    return msResponse
+    return failAllPayloads(msResponse, payloads, isBatch, errormessage as string)
   }
 
   // Member index -> payload index, so responses can be written back against the original batch.
