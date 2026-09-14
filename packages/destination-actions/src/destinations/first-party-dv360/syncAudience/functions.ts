@@ -321,7 +321,7 @@ export async function send(
       msResponse,
       payloads,
       isBatch,
-      'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so these events were not sent.'
+      'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
     )
   }
 
