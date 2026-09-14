@@ -1469,7 +1469,7 @@
       "fields": {
         "emails": {
           "label": "Emails",
-          "description": "A list of the user's emails. If not already hashed, the system will hash them before use.",
+          "description": "The user's email address, or several separated by commas. If not already hashed, the system will hash them before use.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -1505,7 +1505,7 @@
         },
         "phoneNumbers": {
           "label": "Phone Numbers",
-          "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use.",
+          "description": "The user's phone number in E.164 format, or several separated by commas. If not already hashed, the system will hash them before use.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -1541,7 +1541,7 @@
         },
         "zipCodes": {
           "label": "ZIP Codes",
-          "description": "A list of the user's zip codes.",
+          "description": "The user's zip code, or several separated by commas.",
           "type": "string",
           "required": false,
           "multiple": false,

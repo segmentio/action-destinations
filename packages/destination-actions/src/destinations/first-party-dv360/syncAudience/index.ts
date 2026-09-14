@@ -2,9 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs } from './generated-types'
 import {
-  emails,
-  phoneNumbers,
-  zipCodes,
   firstName,
   lastName,
   countryCode,
@@ -14,7 +11,16 @@ import {
   enable_batching,
   batch_size
 } from '../properties'
-import { ad_user_data, ad_personalization, batch_keys, retlHookInputFields, retlHookOutputTypes } from './fields'
+import {
+  emails,
+  phoneNumbers,
+  zipCodes,
+  ad_user_data,
+  ad_personalization,
+  batch_keys,
+  retlHookInputFields,
+  retlHookOutputTypes
+} from './fields'
 import { performHook } from './hook-functions'
 import { send } from './functions'
 import { HookOutputs } from './types'

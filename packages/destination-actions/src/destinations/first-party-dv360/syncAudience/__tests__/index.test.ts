@@ -277,6 +277,22 @@ describe('FirstPartyDv360.syncAudience', () => {
     expect(body.addedContactInfoList.contactInfos[0].hashedEmails).toEqual([hashedEmail])
   })
 
+  it('splits a comma separated list into several identifiers', async () => {
+    const { captured } = captureBody()
+
+    await testDestination.testAction('syncAudience', {
+      event: makeEvent({ membership: true, email: 'one@example.com, two@example.com ,three@example.com' }),
+      mapping,
+      useDefaultMappings: false
+    })
+
+    expect(captured.body.addedContactInfoList.contactInfos).toEqual([
+      {
+        hashedEmails: [hash('one@example.com'), hash('two@example.com'), hash('three@example.com')]
+      }
+    ])
+  })
+
   it('only sends the address group when it is complete', async () => {
     let body: any
     nock(DV360_HOST)

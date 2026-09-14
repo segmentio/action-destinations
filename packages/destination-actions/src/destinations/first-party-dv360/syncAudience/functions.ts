@@ -56,17 +56,30 @@ export function isConsentDenied(payload: Payload): boolean {
   return payload.ad_user_data === CONSENT_STATUS_DENIED || payload.ad_personalization === CONSENT_STATUS_DENIED
 }
 
+// Display & Video 360 takes several emails, phone numbers or zip codes for one person, so these
+// fields accept a single value or a comma separated list of them.
+export function toList(value?: string): string[] {
+  return (value ?? '')
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+}
+
 export function buildContactInfo(payload: Payload): ContactInfo | undefined {
   const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = payload
 
+  const hashedEmails = toList(emails).map(hash)
+  const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
+  const zipCodeList = toList(zipCodes)
+
   const contactInfo: ContactInfo = {
-    ...(emails ? { hashedEmails: [hash(emails)] } : {}),
-    ...(phoneNumbers ? { hashedPhoneNumbers: [hash(phoneNumbers)] } : {}),
+    ...(hashedEmails.length > 0 ? { hashedEmails } : {}),
+    ...(hashedPhoneNumbers.length > 0 ? { hashedPhoneNumbers } : {}),
     // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent
     // together. A partial set is rejected by the API, so they are only included when complete.
-    ...(zipCodes && firstName && lastName && countryCode
+    ...(zipCodeList.length > 0 && firstName && lastName && countryCode
       ? {
-          zipCodes: [zipCodes],
+          zipCodes: zipCodeList,
           hashedFirstName: hash(firstName),
           hashedLastName: hash(lastName),
           countryCode
