@@ -2,29 +2,34 @@
 
 export interface Payload {
   /**
-   * A list of the user's emails. If not already hashed, the system will hash them before use.
+   * The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.
    */
-  emails?: string
-  /**
-   * A list of the user's phone numbers. If not already hashed, the system will hash them before use.
-   */
-  phoneNumbers?: string
-  /**
-   * A list of the user's zip codes.
-   */
-  zipCodes?: string
-  /**
-   * The user's first name. If not already hashed, the system will hash it before use.
-   */
-  firstName?: string
-  /**
-   * The user's last name. If not already hashed, the system will hash it before use.
-   */
-  lastName?: string
-  /**
-   * The country code of the user.
-   */
-  countryCode?: string
+  contact_info?: {
+    /**
+     * The user's email address. A single value, or several separated by commas. If not already hashed, the system will hash them before use.
+     */
+    emails?: string
+    /**
+     * The user's phone number in E.164 format. A single value, or several separated by commas. If not already hashed, the system will hash them before use.
+     */
+    phoneNumbers?: string
+    /**
+     * The user's zip code. A single value, or several separated by commas. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.
+     */
+    zipCodes?: string
+    /**
+     * The user's first name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.
+     */
+    firstName?: string
+    /**
+     * The user's last name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.
+     */
+    lastName?: string
+    /**
+     * The user's country code. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.
+     */
+    countryCode?: string
+  }
   /**
    * A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.
    */

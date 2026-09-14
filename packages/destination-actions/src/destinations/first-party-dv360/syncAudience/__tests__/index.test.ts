@@ -78,13 +78,15 @@ const makeEvent = ({
   })
 
 const mapping = {
-  emails: { '@path': '$.context.traits.email' },
-  phoneNumbers: { '@path': '$.context.traits.phone' },
+  contact_info: {
+    emails: { '@path': '$.context.traits.email' },
+    phoneNumbers: { '@path': '$.context.traits.phone' },
+    firstName: { '@path': '$.context.traits.firstName' },
+    lastName: { '@path': '$.context.traits.lastName' },
+    zipCodes: { '@path': '$.context.traits.zipCodes' },
+    countryCode: { '@path': '$.context.traits.countryCode' }
+  },
   mobileDeviceIds: { '@path': '$.context.traits.mobileDeviceIds' },
-  firstName: { '@path': '$.context.traits.firstName' },
-  lastName: { '@path': '$.context.traits.lastName' },
-  zipCodes: { '@path': '$.context.traits.zipCodes' },
-  countryCode: { '@path': '$.context.traits.countryCode' },
   ad_user_data: {
     '@if': {
       exists: { '@path': '$.properties.adUserData' },
@@ -154,7 +156,7 @@ describe('validateAudienceDetails', () => {
 describe('buildMember', () => {
   const target = { audienceId: AUDIENCE_ID, advertiserId: ADVERTISER_ID, audienceType: CONTACT_INFO }
   const payload = {
-    emails: 'a@example.com',
+    contact_info: { emails: 'a@example.com' },
     external_id: AUDIENCE_ID,
     advertiser_id: ADVERTISER_ID
   } as Payload
@@ -627,7 +629,7 @@ describe('FirstPartyDv360.syncAudience', () => {
         errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
         errorreporter: 'DESTINATION',
         errormessage: 'Audience membership could not be resolved to a boolean',
-        sent: expect.objectContaining({ emails: 'nomembership@example.com' })
+        sent: expect.objectContaining({ contact_info: { emails: 'nomembership@example.com' } })
       },
       {
         status: 400,
@@ -640,7 +642,7 @@ describe('FirstPartyDv360.syncAudience', () => {
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errorreporter: 'DESTINATION',
         errormessage: expect.stringContaining('Consent denied'),
-        sent: expect.objectContaining({ emails: 'denied@example.com' })
+        sent: expect.objectContaining({ contact_info: { emails: 'denied@example.com' } })
       },
       success({ hashedEmails: [hash('add3@example.com')] })
     ])

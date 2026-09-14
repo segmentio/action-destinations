@@ -77,7 +77,7 @@ export function toList(value?: string): string[] {
 }
 
 export function buildContactInfo(payload: Payload): ContactInfo | undefined {
-  const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = payload
+  const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = payload.contact_info ?? {}
 
   const hashedEmails = toList(emails).map(hash)
   const hashedPhoneNumbers = toList(phoneNumbers).map(hash)

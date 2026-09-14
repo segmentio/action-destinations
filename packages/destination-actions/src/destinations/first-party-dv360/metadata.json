@@ -1467,217 +1467,249 @@
       },
       "dynamicFields": null,
       "fields": {
-        "emails": {
-          "label": "Emails",
-          "description": "The user's email address, or several separated by commas. If not already hashed, the system will hash them before use.",
-          "type": "string",
+        "contact_info": {
+          "label": "Contact Info Details",
+          "description": "The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.",
+          "type": "object",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.traits.email"
-              },
-              "then": {
-                "@path": "$.context.traits.email"
-              },
-              "else": {
-                "@path": "$.traits.email"
+            "emails": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "phoneNumbers": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "zipCodes": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.zipCodes"
+                },
+                "then": {
+                  "@path": "$.traits.zipCodes"
+                },
+                "else": {
+                  "@path": "$.properties.zipCodes"
+                }
+              }
+            },
+            "firstName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.firstName"
+                },
+                "then": {
+                  "@path": "$.traits.firstName"
+                },
+                "else": {
+                  "@path": "$.properties.firstName"
+                }
+              }
+            },
+            "lastName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.lastName"
+                },
+                "then": {
+                  "@path": "$.traits.lastName"
+                },
+                "else": {
+                  "@path": "$.properties.lastName"
+                }
+              }
+            },
+            "countryCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.countryCode"
+                },
+                "then": {
+                  "@path": "$.traits.countryCode"
+                },
+                "else": {
+                  "@path": "$.properties.countryCode"
+                }
               }
             }
           },
           "choices": null,
           "placeholder": null,
-          "properties": null,
-          "category": "hashedPII",
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "phoneNumbers": {
-          "label": "Phone Numbers",
-          "description": "The user's phone number in E.164 format, or several separated by commas. If not already hashed, the system will hash them before use.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.traits.phone"
-              },
-              "then": {
-                "@path": "$.traits.phone"
-              },
-              "else": {
-                "@path": "$.properties.phone"
-              }
+          "properties": {
+            "emails": {
+              "label": "Emails",
+              "description": "The user's email address. A single value, or several separated by commas. If not already hashed, the system will hash them before use.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phoneNumbers": {
+              "label": "Phone Numbers",
+              "description": "The user's phone number in E.164 format. A single value, or several separated by commas. If not already hashed, the system will hash them before use.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "zipCodes": {
+              "label": "ZIP Codes",
+              "description": "The user's zip code. A single value, or several separated by commas. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "firstName": {
+              "label": "First Name",
+              "description": "The user's first name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "lastName": {
+              "label": "Last Name",
+              "description": "The user's last name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "countryCode": {
+              "label": "Country Code",
+              "description": "The user's country code. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
             }
           },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": "hashedPII",
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "zipCodes": {
-          "label": "ZIP Codes",
-          "description": "The user's zip code, or several separated by commas. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.traits.zipCodes"
-              },
-              "then": {
-                "@path": "$.traits.zipCodes"
-              },
-              "else": {
-                "@path": "$.properties.zipCodes"
-              }
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
           "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "firstName": {
-          "label": "First Name",
-          "description": "The user's first name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.traits.firstName"
-              },
-              "then": {
-                "@path": "$.traits.firstName"
-              },
-              "else": {
-                "@path": "$.properties.firstName"
-              }
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": "hashedPII",
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "lastName": {
-          "label": "Last Name",
-          "description": "The user's last name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.traits.lastName"
-              },
-              "then": {
-                "@path": "$.traits.lastName"
-              },
-              "else": {
-                "@path": "$.properties.lastName"
-              }
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": "hashedPII",
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "countryCode": {
-          "label": "Country Code",
-          "description": "The user's country code. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.traits.countryCode"
-              },
-              "then": {
-                "@path": "$.traits.countryCode"
-              },
-              "else": {
-                "@path": "$.properties.countryCode"
-              }
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
+          "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
@@ -1685,7 +1717,7 @@
         },
         "mobileDeviceIds": {
           "label": "Mobile Device IDs",
-          "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+          "description": "A mobile device ID defining a Customer Match audience member. A single value, or several separated by commas. This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -2383,81 +2415,83 @@
       "type": "specificEvent",
       "partnerAction": "syncAudience",
       "mapping": {
-        "emails": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.traits.email"
-            },
-            "then": {
-              "@path": "$.context.traits.email"
-            },
-            "else": {
-              "@path": "$.traits.email"
+        "contact_info": {
+          "emails": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
             }
-          }
-        },
-        "phoneNumbers": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits.phone"
-            },
-            "then": {
-              "@path": "$.traits.phone"
-            },
-            "else": {
-              "@path": "$.properties.phone"
+          },
+          "phoneNumbers": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
             }
-          }
-        },
-        "zipCodes": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits.zipCodes"
-            },
-            "then": {
-              "@path": "$.traits.zipCodes"
-            },
-            "else": {
-              "@path": "$.properties.zipCodes"
+          },
+          "zipCodes": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.zipCodes"
+              },
+              "then": {
+                "@path": "$.traits.zipCodes"
+              },
+              "else": {
+                "@path": "$.properties.zipCodes"
+              }
             }
-          }
-        },
-        "firstName": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits.firstName"
-            },
-            "then": {
-              "@path": "$.traits.firstName"
-            },
-            "else": {
-              "@path": "$.properties.firstName"
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
             }
-          }
-        },
-        "lastName": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits.lastName"
-            },
-            "then": {
-              "@path": "$.traits.lastName"
-            },
-            "else": {
-              "@path": "$.properties.lastName"
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
             }
-          }
-        },
-        "countryCode": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits.countryCode"
-            },
-            "then": {
-              "@path": "$.traits.countryCode"
-            },
-            "else": {
-              "@path": "$.properties.countryCode"
+          },
+          "countryCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.countryCode"
+              },
+              "then": {
+                "@path": "$.traits.countryCode"
+              },
+              "else": {
+                "@path": "$.properties.countryCode"
+              }
             }
           }
         },

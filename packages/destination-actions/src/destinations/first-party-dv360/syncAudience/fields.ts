@@ -3,19 +3,7 @@ import { InputField, DependsOnConditions } from '@segment/actions-core/destinati
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs } from './generated-types'
 import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
-import {
-  emails as sharedEmails,
-  phoneNumbers as sharedPhoneNumbers,
-  zipCodes as sharedZipCodes,
-  firstName as sharedFirstName,
-  lastName as sharedLastName,
-  countryCode as sharedCountryCode
-} from '../properties'
-
-// Display & Video 360 rejects a partial address, so zip code, first name, last name and country
-// code are only sent when all four are present.
-const ADDRESS_GROUP =
-  'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
+import { mobileDeviceIds as sharedMobileDeviceIds } from '../properties'
 
 const CREATE_OPERATION: DependsOnConditions = {
   match: 'all',
@@ -35,37 +23,110 @@ const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
   ]
 }
 
+const CONTACT_INFO_ONLY =
+  'This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.'
+
 // Display & Video 360 accepts several emails, phone numbers and zip codes for one person, so
-// these fields take either a single value or a comma separated list. A comma separated list is
+// those fields take either a single value or a comma separated list. A comma separated list is
 // mostly useful from Reverse ETL, where a column can hold several values.
-export const emails: InputField = {
-  ...sharedEmails,
-  description: `The user's email address, or several separated by commas. If not already hashed, the system will hash them before use.`
+const SEVERAL = 'A single value, or several separated by commas.'
+
+// Display & Video 360 rejects a partial address, so zip code, first name, last name and country
+// code are only sent when all four are present.
+const ADDRESS_GROUP =
+  'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
+
+export const contact_info: InputField = {
+  label: 'Contact Info Details',
+  description: `The contact details used to match the user in Display & Video 360. ${CONTACT_INFO_ONLY}`,
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false,
+  properties: {
+    emails: {
+      label: 'Emails',
+      description: `The user's email address. ${SEVERAL} If not already hashed, the system will hash them before use.`,
+      type: 'string',
+      category: 'hashedPII'
+    },
+    phoneNumbers: {
+      label: 'Phone Numbers',
+      description: `The user's phone number in E.164 format. ${SEVERAL} If not already hashed, the system will hash them before use.`,
+      type: 'string',
+      category: 'hashedPII'
+    },
+    zipCodes: {
+      label: 'ZIP Codes',
+      description: `The user's zip code. ${SEVERAL} ${ADDRESS_GROUP}`,
+      type: 'string'
+    },
+    firstName: {
+      label: 'First Name',
+      description: `The user's first name. If not already hashed, the system will hash it before use. ${ADDRESS_GROUP}`,
+      type: 'string',
+      category: 'hashedPII'
+    },
+    lastName: {
+      label: 'Last Name',
+      description: `The user's last name. If not already hashed, the system will hash it before use. ${ADDRESS_GROUP}`,
+      type: 'string',
+      category: 'hashedPII'
+    },
+    countryCode: {
+      label: 'Country Code',
+      description: `The user's country code. ${ADDRESS_GROUP}`,
+      type: 'string'
+    }
+  },
+  default: {
+    emails: {
+      '@if': {
+        exists: { '@path': '$.context.traits.email' },
+        then: { '@path': '$.context.traits.email' },
+        else: { '@path': '$.traits.email' }
+      }
+    },
+    phoneNumbers: {
+      '@if': {
+        exists: { '@path': '$.traits.phone' },
+        then: { '@path': '$.traits.phone' },
+        else: { '@path': '$.properties.phone' }
+      }
+    },
+    zipCodes: {
+      '@if': {
+        exists: { '@path': '$.traits.zipCodes' },
+        then: { '@path': '$.traits.zipCodes' },
+        else: { '@path': '$.properties.zipCodes' }
+      }
+    },
+    firstName: {
+      '@if': {
+        exists: { '@path': '$.traits.firstName' },
+        then: { '@path': '$.traits.firstName' },
+        else: { '@path': '$.properties.firstName' }
+      }
+    },
+    lastName: {
+      '@if': {
+        exists: { '@path': '$.traits.lastName' },
+        then: { '@path': '$.traits.lastName' },
+        else: { '@path': '$.properties.lastName' }
+      }
+    },
+    countryCode: {
+      '@if': {
+        exists: { '@path': '$.traits.countryCode' },
+        then: { '@path': '$.traits.countryCode' },
+        else: { '@path': '$.properties.countryCode' }
+      }
+    }
+  }
 }
 
-export const phoneNumbers: InputField = {
-  ...sharedPhoneNumbers,
-  description: `The user's phone number in E.164 format, or several separated by commas. If not already hashed, the system will hash them before use.`
-}
-
-export const zipCodes: InputField = {
-  ...sharedZipCodes,
-  description: `The user's zip code, or several separated by commas. ${ADDRESS_GROUP}`
-}
-
-export const firstName: InputField = {
-  ...sharedFirstName,
-  description: `The user's first name. If not already hashed, the system will hash it before use. ${ADDRESS_GROUP}`
-}
-
-export const lastName: InputField = {
-  ...sharedLastName,
-  description: `The user's last name. If not already hashed, the system will hash it before use. ${ADDRESS_GROUP}`
-}
-
-export const countryCode: InputField = {
-  ...sharedCountryCode,
-  description: `The user's country code. ${ADDRESS_GROUP}`
+export const mobileDeviceIds: InputField = {
+  ...sharedMobileDeviceIds,
+  description: `A mobile device ID defining a Customer Match audience member. ${SEVERAL} This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.`
 }
 
 export const ad_user_data: InputField = {
