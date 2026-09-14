@@ -508,15 +508,32 @@ describe('FirstPartyDv360.syncAudience', () => {
     expect((responses[1] as any).errormessage).toBe('Invalid advertiser')
   })
 
-  it('throws on a 5xx so the whole batch is retried', async () => {
+  it('reports a 5xx as a retryable error against every sent event', async () => {
+    nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
+
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events: [
+        makeEvent({ membership: true, email: 'a@example.com' }),
+        makeEvent({ membership: false, email: 'b@example.com' })
+      ],
+      mapping
+    })
+
+    expect(responses[0].status).toBe(500)
+    expect((responses[0] as any).errortype).toBe('RETRYABLE_ERROR')
+    expect((responses[1] as any).errortype).toBe('RETRYABLE_ERROR')
+  })
+
+  it('throws a retryable error for a single event on a 5xx', async () => {
     nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
 
     await expect(
-      testDestination.executeBatch('syncAudience', {
-        events: [makeEvent({ membership: true, email: 'a@example.com' })],
-        mapping
+      testDestination.testAction('syncAudience', {
+        event: makeEvent({ membership: true, email: 'a@example.com' }),
+        mapping,
+        useDefaultMappings: false
       })
-    ).rejects.toThrow()
+    ).rejects.toThrow('Display & Video 360 rejected the request')
   })
 
   it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {

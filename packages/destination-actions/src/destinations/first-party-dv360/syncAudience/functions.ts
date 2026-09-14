@@ -7,7 +7,8 @@ import {
   AudienceMembership,
   IntegrationError,
   InvalidAudienceMembershipError,
-  ModifiedResponse
+  ModifiedResponse,
+  RetryableError
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -18,7 +19,6 @@ import type { Payload } from './generated-types'
 import {
   AudienceTarget,
   Consent,
-  DV360Error,
   Member,
   ContactInfo,
   ContactInfoList,
@@ -241,6 +241,14 @@ export function buildMember(
   return { member }
 }
 
+const RETRYABLE_STATUSES = [408, 423, 429, 500, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 598, 599] as const
+
+type RetryableStatus = typeof RETRYABLE_STATUSES[number]
+
+export function isRetryableStatus(status: number): boolean {
+  return (RETRYABLE_STATUSES as readonly number[]).includes(status)
+}
+
 // A single event has no MultiStatusResponse to report into, so failures must be thrown
 // for Segment to record the event as failed.
 function setError(
@@ -256,6 +264,11 @@ function setError(
   if (!isBatch) {
     if (errortype === ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP) {
       throw new InvalidAudienceMembershipError(errormessage)
+    }
+    // A single event carries no MultiStatusResponse, so a transient failure has to be thrown as
+    // a RetryableError for it to be retried rather than discarded.
+    if (isRetryableStatus(status)) {
+      throw new RetryableError(errormessage, status as RetryableStatus)
     }
     throw new IntegrationError(errormessage, errortype, status)
   }
@@ -352,35 +365,17 @@ export async function send(
   const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
-  try {
-    const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      json
-    })
+  // throwHttpErrors is off so every HTTP response, including a 5xx, is reported per event in the
+  // MultiStatusResponse. A network failure still rejects and propagates on its own.
+  const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    json,
+    throwHttpErrors: false
+  })
 
-    statsContext?.statsClient?.incr('syncAudience.success', sentIndices.length, statsContext?.tags)
-
-    if (!isBatch) {
-      return response
-    } else {
-      sentIndices.forEach((index) => {
-        msResponse.setSuccessResponseAtIndex(index, {
-          status: 200,
-          sent: members[index] as unknown as JSONLikeObject,
-          body: { success: true }
-        })
-      })
-    }
-  } catch (error) {
-    const { response: { status = 500, data = {} } = {} } = (error ?? {}) as DV360Error
-
-    // Only a client error is reported per event. Anything else is transient, so it is rethrown
-    // for Segment's own retry handling to classify rather than being decided here.
-    if (status >= 500 || status === 429) {
-      statsContext?.statsClient?.incr('syncAudience.retryable_error', sentIndices.length, statsContext?.tags)
-      throw error
-    }
+  if (!response.ok) {
+    const { status, data } = response
 
     statsContext?.statsClient?.incr('syncAudience.error', sentIndices.length, statsContext?.tags)
 
@@ -390,13 +385,29 @@ export async function send(
         isBatch,
         index,
         status,
-        ErrorCodes.BAD_REQUEST,
+        isRetryableStatus(status) ? ErrorCodes.RETRYABLE_ERROR : ErrorCodes.BAD_REQUEST,
         data?.error?.message ?? 'Display & Video 360 rejected the request',
         members[index] as unknown as JSONLikeObject,
-        data as unknown as JSONLikeObject
+        (data ?? {}) as unknown as JSONLikeObject
       )
     })
+
+    return msResponse
   }
+
+  statsContext?.statsClient?.incr('syncAudience.success', sentIndices.length, statsContext?.tags)
+
+  if (!isBatch) {
+    return response
+  }
+
+  sentIndices.forEach((index) => {
+    msResponse.setSuccessResponseAtIndex(index, {
+      status: 200,
+      sent: members[index] as unknown as JSONLikeObject,
+      body: { success: true }
+    })
+  })
 
   return msResponse
 }
