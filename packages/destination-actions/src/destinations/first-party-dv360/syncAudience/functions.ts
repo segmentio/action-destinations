@@ -71,8 +71,6 @@ export function isConsentDenied(payload: Payload): boolean {
   return payload.ad_user_data === CONSENT_STATUS_DENIED || payload.ad_personalization === CONSENT_STATUS_DENIED
 }
 
-// Display & Video 360 takes several emails, phone numbers or zip codes for one person, so these
-// fields accept a single value or a comma separated list of them.
 export function toList(value?: string): string[] {
   return (value ?? '')
     .split(',')
@@ -90,8 +88,7 @@ export function buildContactInfo(payload: Payload): ContactInfo | undefined {
   const contactInfo: ContactInfo = {
     ...(hashedEmails.length > 0 ? { hashedEmails } : {}),
     ...(hashedPhoneNumbers.length > 0 ? { hashedPhoneNumbers } : {}),
-    // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent
-    // together. A partial set is rejected by the API, so they are only included when complete.
+    // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent together.
     ...(zipCodeList.length > 0 && firstName && lastName && countryCode
       ? {
           zipCodes: zipCodeList,
@@ -114,8 +111,6 @@ export function buildJSON(
 ): EditCustomerMatchMembersRequest {
   const isContactInfo = audienceType === CONTACT_INFO
 
-  // An empty consent object means the event specified neither field, which Display & Video 360
-  // reads as not specified only when the object is left out entirely.
   const consentJSON = consent && Object.keys(consent).length > 0 ? { consent } : {}
 
   const contactInfoList = (members: Member[]): ContactInfoList => ({
@@ -147,15 +142,15 @@ export function resolveAudienceDetails(
   payload: Payload,
   audienceSettings?: AudienceSettings,
   hookOutputs?: HookOutputs
-): { audienceDetails?: AudienceTarget; errormessage?: string } {
+): { audienceDetails?: AudienceTarget; audienceErrorMessage?: string } {
   const audienceId = getAudienceId(payload, hookOutputs)
   const advertiserId = getAdvertiserId(payload, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  const errormessage = validateAudienceDetails(audienceId, advertiserId, audienceType)
+  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType)
 
-  return errormessage
-    ? { errormessage }
+  return audienceErrorMessage
+    ? { audienceErrorMessage }
     : {
         audienceDetails: {
           audienceId: audienceId as string,
@@ -233,15 +228,10 @@ export function buildMember(
   return { member }
 }
 
-// Core's RetryableStatusCodes is a type rather than a value, so it cannot be imported. These are
-// the transient statuses Display & Video 360 can realistically return.
 export function isRetryableStatus(status: number): boolean {
   return status === 408 || status === 429 || status >= 500
 }
 
-// A 401 is reported as an authentication error so that it reads correctly in the delivery logs.
-// Core refreshes the token and retries on a 401 either way: from a MultiStatusResponse entry for
-// a batch, and from the status on the thrown error for a single event.
 export function errorTypeForStatus(status: number): keyof typeof ErrorCodes {
   if (status === 401) {
     return ErrorCodes.INVALID_AUTHENTICATION
@@ -250,8 +240,6 @@ export function errorTypeForStatus(status: number): keyof typeof ErrorCodes {
   return isRetryableStatus(status) ? ErrorCodes.RETRYABLE_ERROR : ErrorCodes.BAD_REQUEST
 }
 
-// A single event has no MultiStatusResponse to report into, so failures must be thrown
-// for Segment to record the event as failed.
 function setError(
   msResponse: MultiStatusResponse,
   isBatch: boolean,
@@ -266,8 +254,7 @@ function setError(
     if (errortype === ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP) {
       throw new InvalidAudienceMembershipError(errormessage)
     }
-    // A single event carries no MultiStatusResponse, so a transient failure has to be thrown as
-    // a RetryableError for it to be retried rather than discarded.
+
     if (isRetryableStatus(status)) {
       throw new RetryableError(errormessage)
     }
@@ -312,23 +299,20 @@ export async function send(
 ): Promise<MultiStatusResponse | ModifiedResponse<EditCustomerMatchMembersResponse>> {
   const msResponse = new MultiStatusResponse()
 
-  const { audienceDetails, errormessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
+  const { audienceDetails, audienceErrorMessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
 
   if (!audienceDetails) {
-    return failAllPayloads(msResponse, payloads, isBatch, errormessage as string)
+    return failAllPayloads(msResponse, payloads, isBatch, audienceErrorMessage as string)
   }
 
   const { audienceId, advertiserId, audienceType } = audienceDetails
 
-  // Consent applies to the whole list rather than to each member, and batch_keys pins a batch to
-  // one combination of consent values, so the first event speaks for the batch.
   const { consent, consentErrorMessage } = buildConsent(payloads[0])
 
   if (!consent) {
     return failAllPayloads(msResponse, payloads, isBatch, consentErrorMessage as string)
   }
 
-  // Member index -> payload index, so responses can be written back against the original batch.
   const addIndices: number[] = []
   const removeIndices: number[] = []
   const addedMembers: Member[] = []
@@ -374,8 +358,6 @@ export async function send(
   const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
-  // throwHttpErrors is off so every HTTP response, including a 5xx, is reported per event in the
-  // MultiStatusResponse. A network failure still rejects and propagates on its own.
   const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
