@@ -104,7 +104,7 @@ export function buildContactInfo(payload: Payload): ContactInfo | undefined {
 // added_members and removed_members are two independent unions, so a mixed batch is sent
 // as a single request. The union only prevents mixing contact info with mobile device IDs
 // in the same direction.
-export function buildRequestJSON(
+export function buildJSON(
   advertiserId: string,
   audienceType: string,
   addedMembers: Member[],
@@ -349,18 +349,8 @@ export async function send(
     return msResponse
   }
 
-  const json = buildRequestJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
+  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
-
-  // Marked as delivered up front, then overwritten if the request fails, so an event can only
-  // end up reported as delivered when nothing threw.
-  sentIndices.forEach((index) => {
-    msResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: members[index] as unknown as JSONLikeObject,
-      body: {}
-    })
-  })
 
   try {
     const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
@@ -373,17 +363,15 @@ export async function send(
 
     if (!isBatch) {
       return response
-    }
-
-    const body = (response.data ?? {}) as unknown as JSONLikeObject
-
-    sentIndices.forEach((index) => {
-      msResponse.setSuccessResponseAtIndex(index, {
-        status: 200,
-        sent: members[index] as unknown as JSONLikeObject,
-        body
+    } else {
+      sentIndices.forEach((index) => {
+        msResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: members[index] as unknown as JSONLikeObject,
+          body: { success: true }
+        })
       })
-    })
+    }
   } catch (error) {
     const { response: { status = 500, data = {} } = {} } = (error ?? {}) as DV360Error
 
