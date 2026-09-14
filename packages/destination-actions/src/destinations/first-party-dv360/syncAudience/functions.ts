@@ -142,7 +142,7 @@ export function resolveAudienceDetails(
   payload: Payload,
   audienceSettings?: AudienceSettings,
   hookOutputs?: HookOutputs
-): AudienceTarget | { errormessage: string } {
+): { audienceDetails?: AudienceTarget; errormessage?: string } {
   const audienceId = getAudienceId(payload, hookOutputs)
   const advertiserId = getAdvertiserId(payload, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
@@ -151,7 +151,13 @@ export function resolveAudienceDetails(
 
   return errormessage
     ? { errormessage }
-    : { audienceId: audienceId as string, advertiserId: advertiserId as string, audienceType: audienceType as string }
+    : {
+        audienceDetails: {
+          audienceId: audienceId as string,
+          advertiserId: advertiserId as string,
+          audienceType: audienceType as string
+        }
+      }
 }
 
 // Checks everything the whole batch depends on, and reports every problem at once rather
@@ -291,13 +297,13 @@ export async function send(
 ): Promise<MultiStatusResponse> {
   const msResponse = new MultiStatusResponse()
 
-  const resolved = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
+  const { audienceDetails, errormessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
 
-  if ('errormessage' in resolved) {
-    return failAllPayloads(msResponse, payloads, isBatch, resolved.errormessage)
+  if (!audienceDetails) {
+    return failAllPayloads(msResponse, payloads, isBatch, errormessage as string)
   }
 
-  const { audienceId, advertiserId, audienceType } = resolved
+  const { audienceId, advertiserId, audienceType } = audienceDetails
 
   // Member index -> payload index, so responses can be written back against the original batch.
   const addIndices: number[] = []
@@ -309,7 +315,7 @@ export async function send(
   payloads.forEach((payload, index) => {
     const membership = audienceMemberships?.[index]
 
-    const { member, errortype, errormessage } = buildMember(payload, membership, resolved)
+    const { member, errortype, errormessage } = buildMember(payload, membership, audienceDetails)
 
     if (!member) {
       setError(
