@@ -247,6 +247,17 @@ export function isRetryableStatus(status: number): boolean {
   return status === 408 || status === 429 || status >= 500
 }
 
+// A 401 is reported as an authentication error so that it reads correctly in the delivery logs.
+// Core refreshes the token and retries on a 401 either way: from a MultiStatusResponse entry for
+// a batch, and from the status on the thrown error for a single event.
+export function errorTypeForStatus(status: number): keyof typeof ErrorCodes {
+  if (status === 401) {
+    return ErrorCodes.INVALID_AUTHENTICATION
+  }
+
+  return isRetryableStatus(status) ? ErrorCodes.RETRYABLE_ERROR : ErrorCodes.BAD_REQUEST
+}
+
 // A single event has no MultiStatusResponse to report into, so failures must be thrown
 // for Segment to record the event as failed.
 function setError(
@@ -383,7 +394,7 @@ export async function send(
         isBatch,
         index,
         status,
-        isRetryableStatus(status) ? ErrorCodes.RETRYABLE_ERROR : ErrorCodes.BAD_REQUEST,
+        errorTypeForStatus(status),
         data?.error?.message ?? 'Display & Video 360 rejected the request',
         members[index] as unknown as JSONLikeObject,
         (data ?? {}) as unknown as JSONLikeObject

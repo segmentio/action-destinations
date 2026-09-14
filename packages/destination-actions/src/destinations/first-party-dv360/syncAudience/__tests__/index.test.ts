@@ -508,6 +508,21 @@ describe('FirstPartyDv360.syncAudience', () => {
     expect((responses[1] as any).errormessage).toBe('Invalid advertiser')
   })
 
+  it('reports a 401 so the token is refreshed and the batch retried', async () => {
+    nock(DV360_HOST)
+      .post(EDIT_PATH)
+      .reply(401, { error: { code: 401, message: 'Invalid Credentials' } })
+
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events: [makeEvent({ membership: true, email: 'a@example.com' })],
+      mapping
+    })
+
+    // Core looks for a 401 in the MultiStatusResponse to trigger a token refresh and retry.
+    expect(responses[0].status).toBe(401)
+    expect((responses[0] as any).errortype).toBe('INVALID_AUTHENTICATION')
+  })
+
   it('reports a 5xx as a retryable error against every sent event', async () => {
     nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
 
