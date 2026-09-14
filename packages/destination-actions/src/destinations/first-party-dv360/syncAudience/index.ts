@@ -14,7 +14,14 @@ import {
   enable_batching,
   batch_size
 } from '../properties'
-import { audience_type, ad_user_data, ad_personalization, retlHookInputFields, retlHookOutputTypes } from './fields'
+import {
+  audience_type,
+  ad_user_data,
+  ad_personalization,
+  batch_keys,
+  retlHookInputFields,
+  retlHookOutputTypes
+} from './fields'
 import { performHook } from './hook-functions'
 import { send } from './functions'
 import { HookOutputs } from './types'
@@ -64,14 +71,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     audience_type: { ...audience_type },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size },
-    batch_keys: {
-      label: 'Batch Keys',
-      description: 'The keys to use for batching the events.',
-      type: 'string',
-      multiple: true,
-      default: ['external_id', 'advertiser_id'],
-      unsafe_hidden: true
-    }
+    batch_keys: { ...batch_keys }
   },
   perform: async (request, { payload, audienceMembership, hookOutputs, statsContext, features }) => {
     statsContext?.statsClient?.incr('syncAudience.perform', 1, statsContext?.tags)

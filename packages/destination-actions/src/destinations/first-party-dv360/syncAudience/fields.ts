@@ -56,6 +56,24 @@ export const ad_personalization: InputField = {
   default: CONSENT_STATUS_GRANTED
 }
 
+// batch_keys is a reserved field, and its type is narrower than InputField.
+export const batch_keys: {
+  label: string
+  description: string
+  type: 'string'
+  multiple?: true
+  unsafe_hidden?: true
+  required?: false
+  default?: string[]
+} = {
+  label: 'Batch Keys',
+  description: 'The keys to use for batching the events.',
+  type: 'string',
+  multiple: true,
+  default: ['external_id', 'advertiser_id'],
+  unsafe_hidden: true
+}
+
 export const retlHookInputFields: ActionHookDefinition<
   Settings,
   Payload,
