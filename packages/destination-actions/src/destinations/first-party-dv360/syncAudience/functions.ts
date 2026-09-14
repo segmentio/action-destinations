@@ -261,8 +261,11 @@ export async function send(
       return
     }
 
-    // batch_keys should make this impossible, but a mismatched event would otherwise be
-    // written into the wrong audience, so it is dropped rather than sent.
+    // The whole batch is sent to one audience, taken from the first event. An event belonging
+    // to a different audience would therefore be added to the first event's audience instead
+    // of its own, which for a multi market setup means writing one market's users into another
+    // market's advertiser, silently. batch_keys should prevent a mixed batch ever being built,
+    // so this is a second line of defence: drop the mismatched event rather than misfile it.
     if (
       (payload.external_id && payload.external_id !== audienceId) ||
       (payload.advertiser_id && payload.advertiser_id !== advertiserId)
