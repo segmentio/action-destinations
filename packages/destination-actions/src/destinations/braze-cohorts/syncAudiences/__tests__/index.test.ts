@@ -1,11 +1,19 @@
 import nock from 'nock'
-import { createTestIntegration, SegmentEvent, createTestEvent } from '@segment/actions-core'
+import { createTestIntegration, SegmentEvent, createTestEvent, FLAGS } from '@segment/actions-core'
 import Destination from '../../index'
 const timestamp = '2022-12-01T17:40:04.055Z'
 const testDestination = createTestIntegration(Destination)
+
+const testCases = [
+  { name: 'flag off', features: undefined },
+  { name: 'flag on', features: { [FLAGS.ACTIONS_BRAZE_COHORTS_AUDIENCE_MEMBERSHIP]: true } }
+]
+
 const event = {
+  type: 'track',
   context: {
     personas: {
+      computation_class: 'audience',
       computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
       computation_key: 'j_o_jons__step_1_ns3i7'
     },
@@ -34,6 +42,7 @@ const mapping = {
 }
 
 describe('BrazeCohorts.syncAudiences', () => {
+  describe.each(testCases)('syncAudiences ($name)', ({ features }) => {
   it('should throw an error if `personas_audience_key` field does not match the `personas.computation_key` field', async () => {
     await expect(
       testDestination.testAction('syncAudiences', {
@@ -48,6 +57,7 @@ describe('BrazeCohorts.syncAudiences', () => {
           endpoint: 'https://rest.iad-01.braze.com',
           client_secret: 'valid_client_secret_key'
         },
+        features,
         useDefaultMappings: true,
         mapping: {
           personas_audience_key: 'some_hardcoded_value'
@@ -67,6 +77,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         },
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           }
@@ -77,6 +88,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: false,
       mapping: {
         enable_batching: true,
@@ -111,6 +123,7 @@ describe('BrazeCohorts.syncAudiences', () => {
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
+        type: 'identify',
         traits: {
           j_o_jons__step_1_ns3i7: true
         }
@@ -119,6 +132,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping
     })
@@ -146,6 +160,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       event: {
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -156,6 +171,7 @@ describe('BrazeCohorts.syncAudiences', () => {
             id: '1234567'
           }
         },
+        type: 'identify',
         traits: {
           j_o_jons__step_1_ns3i7: true
         },
@@ -165,6 +181,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: false,
       mapping: {
         enable_batching: true,
@@ -199,6 +216,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         })
       ])
     })
+
     expect(responses[0].options.json).toMatchSnapshot()
     expect(responses[1].options.json).toMatchSnapshot()
   })
@@ -211,6 +229,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       event: {
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -218,6 +237,7 @@ describe('BrazeCohorts.syncAudiences', () => {
             email: 'test@twilio.com'
           }
         },
+        type: 'identify',
         traits: {
           j_o_jons__step_1_ns3i7: true
         },
@@ -227,6 +247,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: false,
       mapping: {
         enable_batching: true,
@@ -286,6 +307,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping
     })
@@ -312,6 +334,7 @@ describe('BrazeCohorts.syncAudiences', () => {
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
+        type: 'identify',
         traits: {
           j_o_jons__step_1_ns3i7: false
         }
@@ -320,6 +343,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping
     })
@@ -391,9 +415,13 @@ describe('BrazeCohorts.syncAudiences', () => {
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
+        properties: {
+          j_o_jons__step_1_ns3i7: true
+        },
         context: {
           cohort_name: 'j_o_jons__step_1_ns3i7',
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -414,6 +442,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping
     })
@@ -430,9 +459,13 @@ describe('BrazeCohorts.syncAudiences', () => {
     const responses = await testDestination.testAction('syncAudiences', {
       event: {
         ...event,
+        properties: {
+          j_o_jons__step_1_ns3i7: true
+        },
         context: {
           cohort_name: 'j_o_jons__step_1_ns3i7',
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -453,6 +486,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping
     })
@@ -477,6 +511,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           }
@@ -495,6 +530,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
@@ -542,6 +578,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           }
@@ -565,6 +602,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
       },
       features: {
+        ...features,
         'dedupe-braze-cohorts-v2': true
       }
     })
@@ -602,6 +640,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           }
@@ -625,6 +664,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
       },
       features: {
+        ...features,
         'dedupe-braze-cohorts-v2': true
       }
     })
@@ -654,6 +694,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -670,6 +711,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -690,6 +732,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7',
@@ -727,6 +770,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -743,6 +787,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -763,6 +808,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7',
@@ -817,6 +863,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           }
@@ -835,6 +882,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7'
@@ -866,6 +914,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -882,6 +931,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -902,6 +952,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7',
@@ -939,6 +990,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -955,6 +1007,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -975,6 +1028,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7',
@@ -1020,6 +1074,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -1036,6 +1091,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       createTestEvent({
         context: {
           personas: {
+            computation_class: 'audience',
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -1056,6 +1112,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7',
@@ -1090,8 +1147,10 @@ describe('BrazeCohorts.syncAudiences', () => {
     timestampWithDelay.setMinutes(timestamp.getMinutes() + 1)
     const events: SegmentEvent[] = [
       createTestEvent({
+        type: 'track',
         context: {
           personas: {
+            computation_class: 'audience', 
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -1106,8 +1165,10 @@ describe('BrazeCohorts.syncAudiences', () => {
         timestamp: timestamp.toISOString()
       }),
       createTestEvent({
+        type: 'track',
         context: {
           personas: {
+            computation_class: 'audience', 
             computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
             computation_key: 'j_o_jons__step_1_ns3i7'
           },
@@ -1128,6 +1189,7 @@ describe('BrazeCohorts.syncAudiences', () => {
         endpoint: 'https://rest.iad-01.braze.com',
         client_secret: 'valid_client_secret_key'
       },
+      features,
       useDefaultMappings: true,
       mapping: {
         personas_audience_key: 'j_o_jons__step_1_ns3i7',
@@ -1161,4 +1223,5 @@ describe('BrazeCohorts.syncAudiences', () => {
       ])
     })
   })
+  }) // end describe.each
 })
