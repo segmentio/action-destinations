@@ -1541,7 +1541,7 @@
         },
         "zipCodes": {
           "label": "ZIP Codes",
-          "description": "The user's zip code, or several separated by commas.",
+          "description": "The user's zip code, or several separated by commas. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -1577,7 +1577,7 @@
         },
         "firstName": {
           "label": "First Name",
-          "description": "The user's first name. If not already hashed, the system will hash it before use.",
+          "description": "The user's first name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -1613,7 +1613,7 @@
         },
         "lastName": {
           "label": "Last Name",
-          "description": "The user's last name. If not already hashed, the system will hash it before use.",
+          "description": "The user's last name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -1649,7 +1649,7 @@
         },
         "countryCode": {
           "label": "Country Code",
-          "description": "The country code of the user.",
+          "description": "The user's country code. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
           "type": "string",
           "required": false,
           "multiple": false,

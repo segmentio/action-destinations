@@ -3,7 +3,19 @@ import { InputField, DependsOnConditions } from '@segment/actions-core/destinati
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs } from './generated-types'
 import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
-import { emails as sharedEmails, phoneNumbers as sharedPhoneNumbers, zipCodes as sharedZipCodes } from '../properties'
+import {
+  emails as sharedEmails,
+  phoneNumbers as sharedPhoneNumbers,
+  zipCodes as sharedZipCodes,
+  firstName as sharedFirstName,
+  lastName as sharedLastName,
+  countryCode as sharedCountryCode
+} from '../properties'
+
+// Display & Video 360 rejects a partial address, so zip code, first name, last name and country
+// code are only sent when all four are present.
+const ADDRESS_GROUP =
+  'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
 
 const CREATE_OPERATION: DependsOnConditions = {
   match: 'all',
@@ -38,7 +50,22 @@ export const phoneNumbers: InputField = {
 
 export const zipCodes: InputField = {
   ...sharedZipCodes,
-  description: `The user's zip code, or several separated by commas.`
+  description: `The user's zip code, or several separated by commas. ${ADDRESS_GROUP}`
+}
+
+export const firstName: InputField = {
+  ...sharedFirstName,
+  description: `The user's first name. If not already hashed, the system will hash it before use. ${ADDRESS_GROUP}`
+}
+
+export const lastName: InputField = {
+  ...sharedLastName,
+  description: `The user's last name. If not already hashed, the system will hash it before use. ${ADDRESS_GROUP}`
+}
+
+export const countryCode: InputField = {
+  ...sharedCountryCode,
+  description: `The user's country code. ${ADDRESS_GROUP}`
 }
 
 export const ad_user_data: InputField = {

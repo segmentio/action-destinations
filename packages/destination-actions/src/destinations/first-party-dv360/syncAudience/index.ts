@@ -1,20 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs } from './generated-types'
-import {
-  firstName,
-  lastName,
-  countryCode,
-  mobileDeviceIds,
-  external_id,
-  advertiser_id,
-  enable_batching,
-  batch_size
-} from '../properties'
+import { mobileDeviceIds, external_id, advertiser_id, enable_batching, batch_size } from '../properties'
 import {
   emails,
   phoneNumbers,
   zipCodes,
+  firstName,
+  lastName,
+  countryCode,
   ad_user_data,
   ad_personalization,
   batch_keys,
