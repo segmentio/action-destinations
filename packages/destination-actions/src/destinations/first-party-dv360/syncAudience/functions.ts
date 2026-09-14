@@ -129,7 +129,7 @@ export function buildRequestJSON(
 }
 
 // Resolves the values the whole batch depends on, or the reason they are unusable.
-export function resolveTarget(
+export function resolveAudienceDetails(
   payload: Payload,
   audienceSettings?: AudienceSettings,
   hookOutputs?: HookOutputs
@@ -282,7 +282,7 @@ export async function send(
 ): Promise<MultiStatusResponse> {
   const msResponse = new MultiStatusResponse()
 
-  const resolved = resolveTarget(payloads[0], audienceSettings, hookOutputs)
+  const resolved = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
 
   if ('errormessage' in resolved) {
     return failAllPayloads(msResponse, payloads, isBatch, resolved.errormessage)
