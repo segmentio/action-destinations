@@ -27,7 +27,7 @@ function getAudienceEndpoint(version: string, advertiserId: string, audienceId?:
   }
 }
 
-function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
+export function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
   return DV360API + `${version}/firstPartyAndPartnerAudiences/` + audienceId + ':editCustomerMatchMembers'
 }
 

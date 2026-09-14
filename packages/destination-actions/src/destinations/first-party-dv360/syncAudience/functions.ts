@@ -11,8 +11,8 @@ import {
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
-import { getApiVersion } from '../functions'
-import { DV360API, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -27,10 +27,6 @@ import {
 const CONSENT: { adUserData: string; adPersonalization: string } = {
   adUserData: CONSENT_STATUS_GRANTED,
   adPersonalization: CONSENT_STATUS_GRANTED
-}
-
-function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
-  return `${DV360API}${version}/firstPartyAndPartnerAudiences/${audienceId}:editCustomerMatchMembers`
 }
 
 function clean(value: string): string {

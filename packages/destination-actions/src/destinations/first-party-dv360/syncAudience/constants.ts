@@ -1,4 +1,3 @@
-export const DV360API = 'https://displayvideo.googleapis.com/'
 export const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED'
 export const CONSENT_STATUS_DENIED = 'CONSENT_STATUS_DENIED'
 export const CONTACT_INFO = 'CUSTOMER_MATCH_CONTACT_INFO'
