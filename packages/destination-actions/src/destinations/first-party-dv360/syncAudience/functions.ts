@@ -17,6 +17,7 @@ import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   AudienceTarget,
+  Consent,
   Member,
   ContactInfo,
   ContactInfoList,
@@ -26,7 +27,7 @@ import {
   HookOutputs
 } from './types'
 
-const CONSENT: { adUserData: string; adPersonalization: string } = {
+const CONSENT: Consent = {
   adUserData: CONSENT_STATUS_GRANTED,
   adPersonalization: CONSENT_STATUS_GRANTED
 }

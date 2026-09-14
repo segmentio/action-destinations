@@ -1,3 +1,5 @@
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED } from './constants'
+
 export interface ContactInfo {
   hashedEmails?: string[]
   hashedPhoneNumbers?: string[]
@@ -9,9 +11,11 @@ export interface ContactInfo {
 
 export type Member = ContactInfo | string
 
+export type ConsentStatus = typeof CONSENT_STATUS_GRANTED | typeof CONSENT_STATUS_DENIED
+
 export interface Consent {
-  adUserData: string
-  adPersonalization: string
+  adUserData: ConsentStatus
+  adPersonalization: ConsentStatus
 }
 
 export interface ContactInfoList {
