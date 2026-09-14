@@ -22,7 +22,7 @@ import { HookOutputs } from './types'
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience [Beta]',
   description:
-    'Add users to, and remove users from, a Display & Video 360 Customer Match audience in a single Action. Supports both Contact Info and Mobile Device ID audiences. This action is currently in beta.',
+    'Add users to, and remove users from, a Display & Video 360 Customer Match audience. Supports both Contact Info and Mobile Device ID audiences. This action is currently in beta.',
   defaultSubscription: 'type = "track"',
   hooks: {
     retlOnMappingSave: {
@@ -38,14 +38,15 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   },
   syncMode: {
     label: 'Sync Mode',
-    description: 'Define how the records will be synced to Display & Video 360.',
+    description:
+      'When syncing from a database source, define the type of database operation which trigger syncs to Display & Video 360.',
     default: 'mirror',
     choices: [
-      { value: 'add', label: 'Add' },
-      { value: 'update', label: 'Update' },
-      { value: 'upsert', label: 'Upsert' },
-      { value: 'delete', label: 'Delete' },
-      { value: 'mirror', label: 'Mirror' }
+      { value: 'add', label: 'Add - triggers when a row is added' },
+      { value: 'update', label: 'Update - triggers when a row is updated' },
+      { value: 'upsert', label: 'Upsert - triggers when a row is added or updated' },
+      { value: 'delete', label: 'Delete - triggers when a row is deleted' },
+      { value: 'mirror', label: 'Mirror - triggers when a row is added, updated or deleted' }
     ]
   },
   fields: {

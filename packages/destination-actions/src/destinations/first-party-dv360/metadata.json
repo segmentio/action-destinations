@@ -1013,7 +1013,7 @@
     },
     "syncAudience": {
       "title": "Sync Audience [Beta]",
-      "description": "Add users to, and remove users from, a Display & Video 360 Customer Match audience in a single Action. Supports both Contact Info and Mobile Device ID audiences. This action is currently in beta.",
+      "description": "Add users to, and remove users from, a Display & Video 360 Customer Match audience. Supports both Contact Info and Mobile Device ID audiences. This action is currently in beta.",
       "platform": "cloud",
       "defaultSubscription": "type = \"track\"",
       "hidden": false,
@@ -1021,27 +1021,27 @@
       "syncMode": {
         "default": "mirror",
         "label": "Sync Mode",
-        "description": "Define how the records will be synced to Display & Video 360.",
+        "description": "When syncing from a database source, define the type of database operation which trigger syncs to Display & Video 360.",
         "choices": [
           {
             "value": "add",
-            "label": "Add"
+            "label": "Add - triggers when a row is added"
           },
           {
             "value": "update",
-            "label": "Update"
+            "label": "Update - triggers when a row is updated"
           },
           {
             "value": "upsert",
-            "label": "Upsert"
+            "label": "Upsert - triggers when a row is added or updated"
           },
           {
             "value": "delete",
-            "label": "Delete"
+            "label": "Delete - triggers when a row is deleted"
           },
           {
             "value": "mirror",
-            "label": "Mirror"
+            "label": "Mirror - triggers when a row is added, updated or deleted"
           }
         ]
       },
