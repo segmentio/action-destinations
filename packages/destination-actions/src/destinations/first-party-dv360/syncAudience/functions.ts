@@ -6,7 +6,8 @@ import {
   JSONLikeObject,
   AudienceMembership,
   IntegrationError,
-  InvalidAudienceMembershipError
+  InvalidAudienceMembershipError,
+  ModifiedResponse
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -294,7 +295,7 @@ export async function send(
   hookOutputs?: HookOutputs,
   statsContext?: StatsContext,
   features?: Features
-): Promise<MultiStatusResponse> {
+): Promise<MultiStatusResponse | ModifiedResponse<EditCustomerMatchMembersResponse>> {
   const msResponse = new MultiStatusResponse()
 
   const { audienceDetails, errormessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
@@ -351,6 +352,16 @@ export async function send(
   const json = buildRequestJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
+  // Marked as delivered up front, then overwritten if the request fails, so an event can only
+  // end up reported as delivered when nothing threw.
+  sentIndices.forEach((index) => {
+    msResponse.setSuccessResponseAtIndex(index, {
+      status: 200,
+      sent: members[index] as unknown as JSONLikeObject,
+      body: {}
+    })
+  })
+
   try {
     const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
       method: 'POST',
@@ -358,9 +369,13 @@ export async function send(
       json
     })
 
-    const body = (response.data ?? {}) as unknown as JSONLikeObject
-
     statsContext?.statsClient?.incr('syncAudience.success', sentIndices.length, statsContext?.tags)
+
+    if (!isBatch) {
+      return response
+    }
+
+    const body = (response.data ?? {}) as unknown as JSONLikeObject
 
     sentIndices.forEach((index) => {
       msResponse.setSuccessResponseAtIndex(index, {
