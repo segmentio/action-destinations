@@ -196,14 +196,6 @@ export function buildMember(
     }
   }
 
-  if (isConsentDenied(payload)) {
-    return {
-      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-      errormessage:
-        'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
-    }
-  }
-
   // The whole batch is sent to one audience, taken from the first event. An event belonging
   // to a different audience would therefore be added to the first event's audience instead
   // of its own, which for a multi market setup means writing one market's users into another
@@ -320,6 +312,18 @@ export async function send(
   }
 
   const { audienceId, advertiserId, audienceType } = audienceDetails
+
+  // Consent applies to the whole list rather than to each member, and batch_keys pins a batch to
+  // one combination of consent values. Display & Video 360 rejects a request containing denied
+  // consent, so a batch carrying it is failed in full rather than sent.
+  if (payloads.some(isConsentDenied)) {
+    return failAllPayloads(
+      msResponse,
+      payloads,
+      isBatch,
+      'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so these events were not sent.'
+    )
+  }
 
   // Member index -> payload index, so responses can be written back against the original batch.
   const addIndices: number[] = []

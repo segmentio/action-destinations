@@ -172,11 +172,6 @@ describe('buildMember', () => {
     })
   })
 
-  it('rejects denied consent', () => {
-    const result = buildMember({ ...payload, ad_user_data: 'CONSENT_STATUS_DENIED' }, true, target)
-    expect(result.errormessage).toContain('Consent denied')
-  })
-
   it('rejects an event for a different audience', () => {
     const result = buildMember({ ...payload, external_id: 'another-audience' }, true, target)
     expect(result.errormessage).toContain('does not belong to the same audience')
@@ -412,8 +407,8 @@ describe('FirstPartyDv360.syncAudience', () => {
     expect(captured.body.addedContactInfoList.consent).toEqual({ adUserData: 'CONSENT_STATUS_GRANTED' })
   })
 
-  it('does not send events with denied consent', async () => {
-    const { captured } = captureBody()
+  it('fails the whole batch when consent is denied', async () => {
+    const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 
     const responses = await testDestination.executeBatch('syncAudience', {
       events: [
@@ -423,9 +418,11 @@ describe('FirstPartyDv360.syncAudience', () => {
       mapping
     })
 
-    expect(captured.body.addedContactInfoList.contactInfos).toEqual([{ hashedEmails: [hash('granted@example.com')] }])
+    // Consent belongs to the list, so a denied event cannot be dropped while the rest are sent.
+    expect(scope.isDone()).toBe(false)
+    expect(responses[0].status).toBe(400)
     expect(responses[1].status).toBe(400)
-    expect((responses[1] as any).errormessage).toContain('Consent denied')
+    expect((responses[0] as any).errormessage).toContain('Consent denied')
   })
 
   it('throws for a single event with no usable identifier', async () => {
@@ -568,6 +565,9 @@ describe('FirstPartyDv360.syncAudience', () => {
   it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {
     const { captured, scope } = captureBody()
 
+    const otherAudienceEvent = makeEvent({ membership: true, email: 'otheraudience@example.com' })
+    ;(otherAudienceEvent.context as any).personas.external_audience_id = 'a-different-audience'
+
     const events = [
       // 0 add, sent
       makeEvent({ membership: true, email: 'add1@example.com' }),
@@ -585,8 +585,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       makeEvent({ membership: null, email: 'nomembership@example.com' }),
       // 7 dropped BEFORE performBatch: enable_batching is required and is not a boolean
       makeEvent({ membership: false, email: 'nobatching2@example.com', enableBatching: 'yes' }),
-      // 8 dropped INSIDE performBatch: consent denied
-      makeEvent({ membership: true, email: 'denied@example.com', adPersonalization: 'CONSENT_STATUS_DENIED' }),
+      // 8 dropped INSIDE performBatch: belongs to a different audience
+      otherAudienceEvent,
       // 9 add, sent
       makeEvent({ membership: true, email: 'add3@example.com' })
     ]
@@ -653,8 +653,8 @@ describe('FirstPartyDv360.syncAudience', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errorreporter: 'DESTINATION',
-        errormessage: expect.stringContaining('Consent denied'),
-        sent: expect.objectContaining({ contact_info: { emails: 'denied@example.com' } })
+        errormessage: expect.stringContaining('does not belong to the same audience'),
+        sent: expect.objectContaining({ contact_info: { emails: 'otheraudience@example.com' } })
       },
       success({ hashedEmails: [hash('add3@example.com')] })
     ])
