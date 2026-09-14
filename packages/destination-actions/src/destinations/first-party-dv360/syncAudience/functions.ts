@@ -241,12 +241,10 @@ export function buildMember(
   return { member }
 }
 
-const RETRYABLE_STATUSES = [408, 423, 429, 500, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 598, 599] as const
-
-type RetryableStatus = typeof RETRYABLE_STATUSES[number]
-
+// Core's RetryableStatusCodes is a type rather than a value, so it cannot be imported. These are
+// the transient statuses Display & Video 360 can realistically return.
 export function isRetryableStatus(status: number): boolean {
-  return (RETRYABLE_STATUSES as readonly number[]).includes(status)
+  return status === 408 || status === 429 || status >= 500
 }
 
 // A single event has no MultiStatusResponse to report into, so failures must be thrown
@@ -268,7 +266,7 @@ function setError(
     // A single event carries no MultiStatusResponse, so a transient failure has to be thrown as
     // a RetryableError for it to be retried rather than discarded.
     if (isRetryableStatus(status)) {
-      throw new RetryableError(errormessage, status as RetryableStatus)
+      throw new RetryableError(errormessage)
     }
     throw new IntegrationError(errormessage, errortype, status)
   }
