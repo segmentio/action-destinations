@@ -138,7 +138,7 @@ export function resolveTarget(
   const advertiserId = getAdvertiserId(payload, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  const errormessage = validate(audienceId, advertiserId, audienceType)
+  const errormessage = validateAudienceDetails(audienceId, advertiserId, audienceType)
 
   return errormessage
     ? { errormessage }
@@ -147,7 +147,11 @@ export function resolveTarget(
 
 // Checks everything the whole batch depends on, and reports every problem at once rather
 // than one per attempt. Returns undefined when there is nothing wrong.
-export function validate(audienceId?: string, advertiserId?: string, audienceType?: string): string | undefined {
+export function validateAudienceDetails(
+  audienceId?: string,
+  advertiserId?: string,
+  audienceType?: string
+): string | undefined {
   const problems: string[] = []
 
   if (!audienceId) {
@@ -165,6 +169,57 @@ export function validate(audienceId?: string, advertiserId?: string, audienceTyp
   }
 
   return problems.length > 0 ? problems.join('. ') : undefined
+}
+
+// Checks one event against the audience the batch is being sent to. Returns undefined when the
+// event can be sent, otherwise the reason it cannot.
+export function validatePayload(
+  payload: Payload,
+  membership: AudienceMembership,
+  { audienceId, advertiserId, audienceType }: AudienceTarget
+): { errortype: keyof typeof ErrorCodes; errormessage: string } | undefined {
+  if (typeof membership !== 'boolean') {
+    return {
+      errortype: ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP,
+      errormessage: 'Audience membership could not be resolved to a boolean'
+    }
+  }
+
+  if (isConsentDenied(payload)) {
+    return {
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+      errormessage:
+        'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
+    }
+  }
+
+  // The whole batch is sent to one audience, taken from the first event. An event belonging
+  // to a different audience would therefore be added to the first event's audience instead
+  // of its own, which for a multi market setup means writing one market's users into another
+  // market's advertiser, silently. batch_keys should prevent a mixed batch ever being built,
+  // so this is a second line of defence: drop the mismatched event rather than misfile it.
+  if (
+    (payload.external_id && payload.external_id !== audienceId) ||
+    (payload.advertiser_id && payload.advertiser_id !== advertiserId)
+  ) {
+    return {
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+      errormessage: 'Event does not belong to the same audience and advertiser as the rest of the batch'
+    }
+  }
+
+  const isContactInfo = audienceType === CONTACT_INFO
+
+  if (!(isContactInfo ? buildContactInfo(payload) : payload.mobileDeviceIds)) {
+    return {
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+      errormessage: isContactInfo
+        ? 'No usable contact info identifiers found. This audience requires an email, a phone number, or a complete first name, last name, zip code and country code.'
+        : 'No mobile device ID found. This audience requires a mobile device ID.'
+    }
+  }
+
+  return undefined
 }
 
 // A single event has no MultiStatusResponse to report into, so failures must be thrown
@@ -242,73 +297,26 @@ export async function send(
   payloads.forEach((payload, index) => {
     const membership = audienceMemberships?.[index]
 
-    if (typeof membership !== 'boolean') {
+    const problem = validatePayload(payload, membership, resolved)
+
+    if (problem) {
       setError(
         msResponse,
         isBatch,
         index,
         400,
-        ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP,
-        'Audience membership could not be resolved to a boolean',
+        problem.errortype,
+        problem.errormessage,
         payload as unknown as JSONLikeObject
       )
       return
     }
 
-    if (isConsentDenied(payload)) {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        400,
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.',
-        payload as unknown as JSONLikeObject
-      )
-      return
-    }
-
-    // The whole batch is sent to one audience, taken from the first event. An event belonging
-    // to a different audience would therefore be added to the first event's audience instead
-    // of its own, which for a multi market setup means writing one market's users into another
-    // market's advertiser, silently. batch_keys should prevent a mixed batch ever being built,
-    // so this is a second line of defence: drop the mismatched event rather than misfile it.
-    if (
-      (payload.external_id && payload.external_id !== audienceId) ||
-      (payload.advertiser_id && payload.advertiser_id !== advertiserId)
-    ) {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        400,
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        'Event does not belong to the same audience and advertiser as the rest of the batch',
-        payload as unknown as JSONLikeObject
-      )
-      return
-    }
-
-    const member = audienceType === CONTACT_INFO ? buildContactInfo(payload) : payload.mobileDeviceIds
-
-    if (!member) {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        400,
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        audienceType === CONTACT_INFO
-          ? 'No usable contact info identifiers found. This audience requires an email, a phone number, or a complete first name, last name, zip code and country code.'
-          : 'No mobile device ID found. This audience requires a mobile device ID.',
-        payload as unknown as JSONLikeObject
-      )
-      return
-    }
+    const member = (audienceType === CONTACT_INFO ? buildContactInfo(payload) : payload.mobileDeviceIds) as Member
 
     members[index] = member
 
-    if (membership) {
+    if (membership === true) {
       addedMembers.push(member)
       addIndices.push(index)
     } else {

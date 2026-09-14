@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { validate } from '../functions'
+import { validateAudienceDetails, validatePayload } from '../functions'
+import type { Payload } from '../generated-types'
 import { processHashing } from '../../../../lib/hashing-utils'
 
 const testDestination = createTestIntegration(Destination)
@@ -128,25 +129,69 @@ afterEach(() => {
   nock.cleanAll()
 })
 
-describe('validate', () => {
+describe('validateAudienceDetails', () => {
   it('returns undefined when everything is present and valid', () => {
-    expect(validate(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
   })
 
   it('reports every missing value in one message', () => {
-    expect(validate(undefined, undefined, undefined)).toBe(
+    expect(validateAudienceDetails(undefined, undefined, undefined)).toBe(
       'Missing audience ID. Missing advertiser ID. Missing audience type'
     )
   })
 
   it('combines a missing value with an invalid one', () => {
-    expect(validate(undefined, ADVERTISER_ID, 'SOMETHING_ELSE')).toBe(
+    expect(validateAudienceDetails(undefined, ADVERTISER_ID, 'SOMETHING_ELSE')).toBe(
       `Missing audience ID. Unrecognised audience type: SOMETHING_ELSE. Must be ${CONTACT_INFO} or ${DEVICE_ID}`
     )
   })
 
   it('does not report an unrecognised type when the type is missing', () => {
-    expect(validate(AUDIENCE_ID, ADVERTISER_ID, undefined)).toBe('Missing audience type')
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, undefined)).toBe('Missing audience type')
+  })
+})
+
+describe('validatePayload', () => {
+  const target = { audienceId: AUDIENCE_ID, advertiserId: ADVERTISER_ID, audienceType: CONTACT_INFO }
+  const payload = {
+    emails: 'a@example.com',
+    external_id: AUDIENCE_ID,
+    advertiser_id: ADVERTISER_ID
+  } as Payload
+
+  it('returns undefined for a valid member', () => {
+    expect(validatePayload(payload, true, target)).toBeUndefined()
+  })
+
+  it('rejects an unresolved membership', () => {
+    expect(validatePayload(payload, undefined, target)).toEqual({
+      errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+      errormessage: 'Audience membership could not be resolved to a boolean'
+    })
+  })
+
+  it('rejects denied consent', () => {
+    expect(
+      validatePayload({ ...payload, ad_user_data: 'CONSENT_STATUS_DENIED' }, true, target)?.errormessage
+    ).toContain('Consent denied')
+  })
+
+  it('rejects an event for a different audience', () => {
+    expect(validatePayload({ ...payload, external_id: 'another-audience' }, true, target)?.errormessage).toContain(
+      'does not belong to the same audience'
+    )
+  })
+
+  it('rejects an event with no usable identifier', () => {
+    expect(validatePayload({ external_id: AUDIENCE_ID } as Payload, true, target)?.errormessage).toContain(
+      'No usable contact info identifiers'
+    )
+  })
+
+  it('rejects a device ID audience event with no device ID', () => {
+    expect(validatePayload(payload, true, { ...target, audienceType: DEVICE_ID })?.errormessage).toContain(
+      'No mobile device ID'
+    )
   })
 })
 
