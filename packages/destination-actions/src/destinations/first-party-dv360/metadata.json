@@ -1838,7 +1838,16 @@
           "default": {
             "@path": "$.context.personas.audience_settings.audienceType"
           },
-          "choices": null,
+          "choices": [
+            {
+              "label": "CUSTOMER MATCH CONTACT INFO",
+              "value": "CUSTOMER_MATCH_CONTACT_INFO"
+            },
+            {
+              "label": "CUSTOMER MATCH DEVICE ID",
+              "value": "CUSTOMER_MATCH_DEVICE_ID"
+            }
+          ],
           "placeholder": null,
           "properties": null,
           "category": null,

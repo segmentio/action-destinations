@@ -26,6 +26,10 @@ export const audience_type: InputField = {
   label: 'Audience Type',
   description: 'The type of the DV360 Audience.',
   type: 'string',
+  choices: [
+    { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
+    { label: 'CUSTOMER MATCH DEVICE ID', value: DEVICE_ID }
+  ],
   default: {
     '@path': '$.context.personas.audience_settings.audienceType'
   },

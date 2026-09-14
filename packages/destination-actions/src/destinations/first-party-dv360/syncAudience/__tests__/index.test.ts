@@ -345,6 +345,19 @@ describe('FirstPartyDv360.syncAudience', () => {
     expect((responses[1] as any).errormessage).toContain('does not belong to the same audience')
   })
 
+  it('rejects an unrecognised audience type before sending', async () => {
+    const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
+
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events: [makeEvent({ membership: true, email: 'a@example.com', audienceType: 'SOMETHING_ELSE' })],
+      mapping
+    })
+
+    expect(scope.isDone()).toBe(false)
+    expect(responses[0].status).toBe(400)
+    expect((responses[0] as any).errortype).toBe('PAYLOAD_VALIDATION_FAILED')
+  })
+
   it('makes no request when every event fails validation', async () => {
     const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 
