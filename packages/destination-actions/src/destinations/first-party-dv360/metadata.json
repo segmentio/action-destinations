@@ -1720,11 +1720,11 @@
           "default": "CONSENT_STATUS_GRANTED",
           "choices": [
             {
-              "label": "Granted",
+              "label": "CONSENT_STATUS_GRANTED",
               "value": "CONSENT_STATUS_GRANTED"
             },
             {
-              "label": "Denied",
+              "label": "CONSENT_STATUS_DENIED",
               "value": "CONSENT_STATUS_DENIED"
             }
           ],
@@ -1753,11 +1753,11 @@
           "default": "CONSENT_STATUS_GRANTED",
           "choices": [
             {
-              "label": "Granted",
+              "label": "CONSENT_STATUS_GRANTED",
               "value": "CONSENT_STATUS_GRANTED"
             },
             {
-              "label": "Denied",
+              "label": "CONSENT_STATUS_DENIED",
               "value": "CONSENT_STATUS_DENIED"
             }
           ],

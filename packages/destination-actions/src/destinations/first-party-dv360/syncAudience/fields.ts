@@ -28,8 +28,8 @@ export const ad_user_data: InputField = {
     'Consent to use the data for advertising purposes. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
   type: 'string',
   choices: [
-    { label: 'Granted', value: CONSENT_STATUS_GRANTED },
-    { label: 'Denied', value: CONSENT_STATUS_DENIED }
+    { label: CONSENT_STATUS_GRANTED, value: CONSENT_STATUS_GRANTED },
+    { label: CONSENT_STATUS_DENIED, value: CONSENT_STATUS_DENIED }
   ],
   default: CONSENT_STATUS_GRANTED
 }
@@ -40,8 +40,8 @@ export const ad_personalization: InputField = {
     'Consent to use the data for ad personalization. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
   type: 'string',
   choices: [
-    { label: 'Granted', value: CONSENT_STATUS_GRANTED },
-    { label: 'Denied', value: CONSENT_STATUS_DENIED }
+    { label: CONSENT_STATUS_GRANTED, value: CONSENT_STATUS_GRANTED },
+    { label: CONSENT_STATUS_DENIED, value: CONSENT_STATUS_DENIED }
   ],
   default: CONSENT_STATUS_GRANTED
 }
