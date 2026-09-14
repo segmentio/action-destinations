@@ -12,7 +12,8 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion } from '../functions'
-import { DV360API, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO } from './constants'
+import { DV360API, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   ContactInfo,
@@ -48,8 +49,8 @@ export function getAdvertiserId(payload: Payload, hookOutputs?: HookOutputs): st
   return hookOutputs?.retlOnMappingSave?.outputs?.advertiserId ?? payload?.advertiser_id
 }
 
-export function getAudienceType(payload: Payload, hookOutputs?: HookOutputs): string | undefined {
-  return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? payload?.audience_type
+export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs?: HookOutputs): string | undefined {
+  return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? audienceSettings?.audienceType
 }
 
 export function isConsentDenied(payload: Payload): boolean {
@@ -154,6 +155,7 @@ export async function send(
   payloads: Payload[],
   isBatch: boolean,
   audienceMemberships: AudienceMembership[] | undefined,
+  audienceSettings?: AudienceSettings,
   hookOutputs?: HookOutputs,
   statsContext?: StatsContext,
   features?: Features
@@ -162,14 +164,16 @@ export async function send(
 
   const audienceId = getAudienceId(payloads[0], hookOutputs)
   const advertiserId = getAdvertiserId(payloads[0], hookOutputs)
-  const audienceType = getAudienceType(payloads[0], hookOutputs)
+  const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  if (!audienceId || !advertiserId || !audienceType) {
+  if (!audienceId || !advertiserId || !audienceType || ![CONTACT_INFO, DEVICE_ID].includes(audienceType)) {
     const errormessage = !audienceId
       ? 'Missing audience ID'
       : !advertiserId
       ? 'Missing advertiser ID'
-      : 'Missing audience type'
+      : !audienceType
+      ? 'Missing audience type'
+      : `Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}.`
 
     payloads.forEach((payload, index) => {
       setError(

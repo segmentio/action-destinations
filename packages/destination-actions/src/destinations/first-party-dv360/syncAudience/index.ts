@@ -14,14 +14,7 @@ import {
   enable_batching,
   batch_size
 } from '../properties'
-import {
-  audience_type,
-  ad_user_data,
-  ad_personalization,
-  batch_keys,
-  retlHookInputFields,
-  retlHookOutputTypes
-} from './fields'
+import { ad_user_data, ad_personalization, batch_keys, retlHookInputFields, retlHookOutputTypes } from './fields'
 import { performHook } from './hook-functions'
 import { send } from './functions'
 import { HookOutputs } from './types'
@@ -68,18 +61,38 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     ad_personalization: { ...ad_personalization },
     external_id: { ...external_id },
     advertiser_id: { ...advertiser_id },
-    audience_type: { ...audience_type },
     enable_batching: { ...enable_batching },
     batch_size: { ...batch_size },
     batch_keys: { ...batch_keys }
   },
-  perform: async (request, { payload, audienceMembership, hookOutputs, statsContext, features }) => {
+  perform: async (request, { payload, audienceMembership, audienceSettings, hookOutputs, statsContext, features }) => {
     statsContext?.statsClient?.incr('syncAudience.perform', 1, statsContext?.tags)
-    return send(request, [payload], false, [audienceMembership], hookOutputs as HookOutputs, statsContext, features)
+    return send(
+      request,
+      [payload],
+      false,
+      [audienceMembership],
+      audienceSettings,
+      hookOutputs as HookOutputs,
+      statsContext,
+      features
+    )
   },
-  performBatch: async (request, { payload, audienceMembership, hookOutputs, statsContext, features }) => {
+  performBatch: async (
+    request,
+    { payload, audienceMembership, audienceSettings, hookOutputs, statsContext, features }
+  ) => {
     statsContext?.statsClient?.incr('syncAudience.performBatch', 1, statsContext?.tags)
-    return send(request, payload, true, audienceMembership, hookOutputs as HookOutputs, statsContext, features)
+    return send(
+      request,
+      payload,
+      true,
+      audienceMembership,
+      audienceSettings,
+      hookOutputs as HookOutputs,
+      statsContext,
+      features
+    )
   }
 }
 

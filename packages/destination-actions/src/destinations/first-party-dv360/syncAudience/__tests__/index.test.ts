@@ -99,7 +99,6 @@ const mapping = {
   },
   external_id: { '@path': '$.context.personas.external_audience_id' },
   advertiser_id: { '@path': '$.context.personas.audience_settings.advertiserId' },
-  audience_type: { '@path': '$.context.personas.audience_settings.audienceType' },
   enable_batching: { '@path': '$.properties.enableBatching' },
   batch_size: 500000
 }
@@ -355,7 +354,7 @@ describe('FirstPartyDv360.syncAudience', () => {
 
     expect(scope.isDone()).toBe(false)
     expect(responses[0].status).toBe(400)
-    expect((responses[0] as any).errortype).toBe('PAYLOAD_VALIDATION_FAILED')
+    expect((responses[0] as any).errormessage).toContain('Unrecognised audience type')
   })
 
   it('makes no request when every event fails validation', async () => {
@@ -442,7 +441,10 @@ describe('FirstPartyDv360.syncAudience', () => {
         consent: GRANTED_CONSENT
       },
       removedContactInfoList: {
-        contactInfos: [{ hashedEmails: [hash('remove1@example.com')] }, { hashedEmails: [hash('remove2@example.com')] }],
+        contactInfos: [
+          { hashedEmails: [hash('remove1@example.com')] },
+          { hashedEmails: [hash('remove2@example.com')] }
+        ],
         consent: GRANTED_CONSENT
       }
     })

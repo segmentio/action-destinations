@@ -46,10 +46,6 @@ export interface Payload {
    */
   advertiser_id?: string
   /**
-   * The type of the DV360 Audience.
-   */
-  audience_type?: string
-  /**
    * Enable batching of requests.
    */
   enable_batching: boolean

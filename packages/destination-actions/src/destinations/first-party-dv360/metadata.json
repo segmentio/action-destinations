@@ -1827,41 +1827,6 @@
           "format": null,
           "additionalProperties": false
         },
-        "audience_type": {
-          "label": "Audience Type",
-          "description": "The type of the DV360 Audience.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.context.personas.audience_settings.audienceType"
-          },
-          "choices": [
-            {
-              "label": "CUSTOMER MATCH CONTACT INFO",
-              "value": "CUSTOMER_MATCH_CONTACT_INFO"
-            },
-            {
-              "label": "CUSTOMER MATCH DEVICE ID",
-              "value": "CUSTOMER_MATCH_DEVICE_ID"
-            }
-          ],
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": true,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
         "enable_batching": {
           "label": "Enable Batching",
           "description": "Enable batching of requests.",
@@ -2504,9 +2469,6 @@
         },
         "advertiser_id": {
           "@path": "$.context.personas.audience_settings.advertiserId"
-        },
-        "audience_type": {
-          "@path": "$.context.personas.audience_settings.audienceType"
         },
         "enable_batching": true,
         "batch_size": 500000,
