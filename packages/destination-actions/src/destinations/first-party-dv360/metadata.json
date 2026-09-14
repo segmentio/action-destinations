@@ -1885,7 +1885,9 @@
           "dynamic": false,
           "default": [
             "external_id",
-            "advertiser_id"
+            "advertiser_id",
+            "ad_user_data",
+            "ad_personalization"
           ],
           "choices": null,
           "placeholder": null,
@@ -2474,7 +2476,9 @@
         "batch_size": 500000,
         "batch_keys": [
           "external_id",
-          "advertiser_id"
+          "advertiser_id",
+          "ad_user_data",
+          "ad_personalization"
         ]
       },
       "eventSlug": "journey_step_all_events_track"

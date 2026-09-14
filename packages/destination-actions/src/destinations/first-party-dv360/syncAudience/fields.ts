@@ -79,7 +79,7 @@ export const batch_keys: {
   description: 'The keys to use for batching the events.',
   type: 'string',
   multiple: true,
-  default: ['external_id', 'advertiser_id'],
+  default: ['external_id', 'advertiser_id', 'ad_user_data', 'ad_personalization'],
   unsafe_hidden: true
 }
 

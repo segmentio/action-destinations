@@ -20,12 +20,13 @@ export interface Consent {
 
 export interface ContactInfoList {
   contactInfos: ContactInfo[]
-  consent: Consent
+  // Omitted when the event carries no consent, which Display & Video 360 reads as not specified.
+  consent?: Consent
 }
 
 export interface MobileDeviceIdList {
   mobileDeviceIds: string[]
-  consent: Consent
+  consent?: Consent
 }
 
 export interface EditCustomerMatchMembersRequest {

@@ -384,6 +384,20 @@ describe('FirstPartyDv360.syncAudience', () => {
     ])
   })
 
+  it('omits consent when the event does not carry it', async () => {
+    const { captured } = captureBody()
+
+    await testDestination.testAction('syncAudience', {
+      event: makeEvent({ membership: true, email: 'a@example.com' }),
+      // ad_user_data and ad_personalization deliberately left unmapped.
+      mapping: { ...mapping, ad_user_data: undefined, ad_personalization: undefined },
+      useDefaultMappings: false
+    })
+
+    expect(captured.body.addedContactInfoList.consent).toBeUndefined()
+    expect(captured.body.addedContactInfoList.contactInfos).toEqual([{ hashedEmails: [hash('a@example.com')] }])
+  })
+
   it('does not send events with denied consent', async () => {
     const { captured } = captureBody()
 

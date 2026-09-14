@@ -27,11 +27,6 @@ import {
   HookOutputs
 } from './types'
 
-const CONSENT: Consent = {
-  adUserData: CONSENT_STATUS_GRANTED,
-  adPersonalization: CONSENT_STATUS_GRANTED
-}
-
 function clean(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
@@ -52,6 +47,19 @@ export function getAdvertiserId(payload: Payload, hookOutputs?: HookOutputs): st
 
 export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs?: HookOutputs): string | undefined {
   return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? audienceSettings?.audienceType
+}
+
+// Consent belongs to the list rather than to each member, and batch_keys pins a batch to one
+// combination of consent values, so the whole batch shares the consent of its first event.
+// Nothing is sent when the event carries no consent: Display & Video 360 reads a missing consent
+// object as not specified, which is the truth when the customer has not told us either way.
+// Denied never reaches here, since those events are dropped by buildMember.
+export function buildConsent(payload: Payload): Consent | undefined {
+  const { ad_user_data, ad_personalization } = payload
+
+  return ad_user_data === CONSENT_STATUS_GRANTED && ad_personalization === CONSENT_STATUS_GRANTED
+    ? { adUserData: CONSENT_STATUS_GRANTED, adPersonalization: CONSENT_STATUS_GRANTED }
+    : undefined
 }
 
 export function isConsentDenied(payload: Payload): boolean {
@@ -99,18 +107,19 @@ export function buildRequestJSON(
   advertiserId: string,
   audienceType: string,
   addedMembers: Member[],
-  removedMembers: Member[]
+  removedMembers: Member[],
+  consent?: Consent
 ): EditCustomerMatchMembersRequest {
   const isContactInfo = audienceType === CONTACT_INFO
 
   const contactInfoList = (members: Member[]): ContactInfoList => ({
     contactInfos: members as ContactInfo[],
-    consent: CONSENT
+    ...(consent ? { consent } : {})
   })
 
   const mobileDeviceIdList = (members: Member[]): MobileDeviceIdList => ({
     mobileDeviceIds: members as string[],
-    consent: CONSENT
+    ...(consent ? { consent } : {})
   })
 
   return {
@@ -333,7 +342,7 @@ export async function send(
     return msResponse
   }
 
-  const json = buildRequestJSON(advertiserId, audienceType, addedMembers, removedMembers)
+  const json = buildRequestJSON(advertiserId, audienceType, addedMembers, removedMembers, buildConsent(payloads[0]))
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
   const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
