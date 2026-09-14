@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { validateAudienceDetails, validatePayload } from '../functions'
+import { validateAudienceDetails, buildMember } from '../functions'
 import type { Payload } from '../generated-types'
 import { processHashing } from '../../../../lib/hashing-utils'
 
@@ -151,7 +151,7 @@ describe('validateAudienceDetails', () => {
   })
 })
 
-describe('validatePayload', () => {
+describe('buildMember', () => {
   const target = { audienceId: AUDIENCE_ID, advertiserId: ADVERTISER_ID, audienceType: CONTACT_INFO }
   const payload = {
     emails: 'a@example.com',
@@ -159,37 +159,35 @@ describe('validatePayload', () => {
     advertiser_id: ADVERTISER_ID
   } as Payload
 
-  const errorOf = (result: ReturnType<typeof validatePayload>) => (result as { errormessage: string }).errormessage
-
   it('returns the member for a valid payload', () => {
-    expect(validatePayload(payload, true, target)).toEqual({ member: { hashedEmails: [hash('a@example.com')] } })
+    expect(buildMember(payload, true, target)).toEqual({ member: { hashedEmails: [hash('a@example.com')] } })
   })
 
   it('rejects an unresolved membership', () => {
-    expect(validatePayload(payload, undefined, target)).toEqual({
+    expect(buildMember(payload, undefined, target)).toEqual({
       errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
       errormessage: 'Audience membership could not be resolved to a boolean'
     })
   })
 
   it('rejects denied consent', () => {
-    const result = validatePayload({ ...payload, ad_user_data: 'CONSENT_STATUS_DENIED' }, true, target)
-    expect(errorOf(result)).toContain('Consent denied')
+    const result = buildMember({ ...payload, ad_user_data: 'CONSENT_STATUS_DENIED' }, true, target)
+    expect(result.errormessage).toContain('Consent denied')
   })
 
   it('rejects an event for a different audience', () => {
-    const result = validatePayload({ ...payload, external_id: 'another-audience' }, true, target)
-    expect(errorOf(result)).toContain('does not belong to the same audience')
+    const result = buildMember({ ...payload, external_id: 'another-audience' }, true, target)
+    expect(result.errormessage).toContain('does not belong to the same audience')
   })
 
   it('rejects an event with no usable identifier', () => {
-    const result = validatePayload({ external_id: AUDIENCE_ID } as Payload, true, target)
-    expect(errorOf(result)).toContain('No usable contact info identifiers')
+    const result = buildMember({ external_id: AUDIENCE_ID } as Payload, true, target)
+    expect(result.errormessage).toContain('No usable contact info identifiers')
   })
 
   it('rejects a device ID audience event with no device ID', () => {
-    const result = validatePayload(payload, true, { ...target, audienceType: DEVICE_ID })
-    expect(errorOf(result)).toContain('No mobile device ID')
+    const result = buildMember(payload, true, { ...target, audienceType: DEVICE_ID })
+    expect(result.errormessage).toContain('No mobile device ID')
   })
 })
 

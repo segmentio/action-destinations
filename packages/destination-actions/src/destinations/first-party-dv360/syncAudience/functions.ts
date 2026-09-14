@@ -171,13 +171,13 @@ export function validateAudienceDetails(
   return problems.length > 0 ? problems.join('. ') : undefined
 }
 
-// Checks one event against the audience the batch is being sent to, and returns the member to
-// send, or the reason the event cannot be sent.
-export function validatePayload(
+// Builds the member to send for one event, after checking it against the audience the batch is
+// being sent to. Returns the reason instead when the event cannot be sent.
+export function buildMember(
   payload: Payload,
   membership: AudienceMembership,
   audienceTarget: AudienceTarget
-): { member: Member } | { errortype: keyof typeof ErrorCodes; errormessage: string } {
+): { member?: Member; errortype?: keyof typeof ErrorCodes; errormessage?: string } {
   const { audienceId, advertiserId, audienceType } = audienceTarget
 
   if (typeof membership !== 'boolean') {
@@ -300,22 +300,20 @@ export async function send(
   payloads.forEach((payload, index) => {
     const membership = audienceMemberships?.[index]
 
-    const validated = validatePayload(payload, membership, resolved)
+    const { member, errortype, errormessage } = buildMember(payload, membership, resolved)
 
-    if ('errormessage' in validated) {
+    if (!member) {
       setError(
         msResponse,
         isBatch,
         index,
         400,
-        validated.errortype,
-        validated.errormessage,
+        errortype as keyof typeof ErrorCodes,
+        errormessage as string,
         payload as unknown as JSONLikeObject
       )
       return
     }
-
-    const { member } = validated
 
     members[index] = member
 
