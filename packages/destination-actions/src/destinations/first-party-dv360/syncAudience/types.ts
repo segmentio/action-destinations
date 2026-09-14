@@ -50,4 +50,10 @@ export interface HookOutputs {
   }
 }
 
+export interface AudienceTarget {
+  audienceId: string
+  advertiserId: string
+  audienceType: string
+}
+
 export type Member = ContactInfo | string

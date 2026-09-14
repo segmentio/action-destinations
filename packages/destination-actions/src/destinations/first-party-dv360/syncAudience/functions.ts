@@ -16,6 +16,7 @@ import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID 
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
+  AudienceTarget,
   ContactInfo,
   ContactInfoList,
   MobileDeviceIdList,
@@ -118,6 +119,23 @@ export function buildRequestJSON(
   return json
 }
 
+// Resolves the values the whole batch depends on, or the reason they are unusable.
+export function resolveTarget(
+  payload: Payload,
+  audienceSettings?: AudienceSettings,
+  hookOutputs?: HookOutputs
+): AudienceTarget | { errormessage: string } {
+  const audienceId = getAudienceId(payload, hookOutputs)
+  const advertiserId = getAdvertiserId(payload, hookOutputs)
+  const audienceType = getAudienceType(audienceSettings, hookOutputs)
+
+  const errormessage = validate(audienceId, advertiserId, audienceType)
+
+  return errormessage
+    ? { errormessage }
+    : { audienceId: audienceId as string, advertiserId: advertiserId as string, audienceType: audienceType as string }
+}
+
 // Checks everything the whole batch depends on, and reports every problem at once rather
 // than one per attempt. Returns undefined when there is nothing wrong.
 export function validate(audienceId?: string, advertiserId?: string, audienceType?: string): string | undefined {
@@ -197,16 +215,13 @@ export async function send(
 ): Promise<MultiStatusResponse> {
   const msResponse = new MultiStatusResponse()
 
-  const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const advertiserId = getAdvertiserId(payloads[0], hookOutputs)
-  const audienceType = getAudienceType(audienceSettings, hookOutputs)
+  const resolved = resolveTarget(payloads[0], audienceSettings, hookOutputs)
 
-  const errormessage = validate(audienceId, advertiserId, audienceType)
-
-  // The values are re-checked here so TypeScript narrows them for the code below.
-  if (errormessage || !audienceId || !advertiserId || !audienceType) {
-    return failAllPayloads(msResponse, payloads, isBatch, errormessage as string)
+  if ('errormessage' in resolved) {
+    return failAllPayloads(msResponse, payloads, isBatch, resolved.errormessage)
   }
+
+  const { audienceId, advertiserId, audienceType } = resolved
 
   // Member index -> payload index, so responses can be written back against the original batch.
   const addIndices: number[] = []
