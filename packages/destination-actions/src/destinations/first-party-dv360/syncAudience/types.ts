@@ -7,6 +7,8 @@ export interface ContactInfo {
   countryCode?: string
 }
 
+export type Member = ContactInfo | string
+
 export interface Consent {
   adUserData: string
   adPersonalization: string
@@ -55,5 +57,3 @@ export interface AudienceTarget {
   advertiserId: string
   audienceType: string
 }
-
-export type Member = ContactInfo | string
