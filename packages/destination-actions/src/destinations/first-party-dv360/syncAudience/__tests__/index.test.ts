@@ -293,6 +293,18 @@ describe('FirstPartyDv360.syncAudience', () => {
     ])
   })
 
+  it('lowercases an already hashed value sent in upper case', async () => {
+    const { captured } = captureBody()
+
+    await testDestination.testAction('syncAudience', {
+      event: makeEvent({ membership: true, email: hash('test@example.com').toUpperCase() }),
+      mapping,
+      useDefaultMappings: false
+    })
+
+    expect(captured.body.addedContactInfoList.contactInfos[0].hashedEmails).toEqual([hash('test@example.com')])
+  })
+
   it('only sends the address group when it is complete', async () => {
     let body: any
     nock(DV360_HOST)

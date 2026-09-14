@@ -36,8 +36,10 @@ function clean(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
 
+// processHashing returns an already hashed value untouched, and recognises a hash in either
+// case. Google matches on the string itself, so the digest is lowercased before it is sent.
 function hash(value: string): string {
-  return processHashing(value, 'sha256', 'hex', clean)
+  return processHashing(value, 'sha256', 'hex', clean).toLowerCase()
 }
 
 export function getAudienceId(payload: Payload, hookOutputs?: HookOutputs): string | undefined {
