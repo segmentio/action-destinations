@@ -2,7 +2,7 @@ import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
 import { InputField, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs } from './generated-types'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from '../constants'
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
 
 const CREATE_OPERATION: DependsOnConditions = {
   match: 'all',

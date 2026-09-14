@@ -1,7 +1,7 @@
 import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createAudienceRequest, getAudienceRequest } from '../functions'
-import { DEVICE_ID } from '../constants'
+import { DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 
 interface DV360Audience {

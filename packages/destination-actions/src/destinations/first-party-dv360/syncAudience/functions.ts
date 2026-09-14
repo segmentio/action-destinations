@@ -12,7 +12,7 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion } from '../functions'
-import { DV360API, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO } from '../constants'
+import { DV360API, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO } from './constants'
 import type { Payload } from './generated-types'
 import {
   ContactInfo,
