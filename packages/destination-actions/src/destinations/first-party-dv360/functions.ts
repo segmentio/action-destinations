@@ -110,8 +110,7 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
     headers: {
       ...(token ? { authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json; charset=utf-8'
-    },
-    throwHttpErrors: false
+    }
   })
 }
 

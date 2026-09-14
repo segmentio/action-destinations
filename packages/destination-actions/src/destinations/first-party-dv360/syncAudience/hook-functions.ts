@@ -109,14 +109,18 @@ export async function performHook(
       }
     }
 
-    const response = await getAudienceRequest(request, {
-      advertiserId: advertiserId.trim(),
-      audienceId: existingAudienceId,
-      features,
-      statsContext
-    })
+    let audience: DV360Audience
 
-    if (!response.ok) {
+    try {
+      const response = await getAudienceRequest(request, {
+        advertiserId: advertiserId.trim(),
+        audienceId: existingAudienceId,
+        features,
+        statsContext
+      })
+
+      audience = (await response.json()) as DV360Audience
+    } catch {
       return {
         error: {
           message: `Failed to retrieve audience ${existingAudienceId} from Display & Video 360`,
@@ -124,8 +128,6 @@ export async function performHook(
         }
       }
     }
-
-    const audience = (await response.json()) as DV360Audience
 
     // The audience type is read back from Display & Video 360 rather than asked for again,
     // so it can never disagree with the audience this mapping is connected to.
