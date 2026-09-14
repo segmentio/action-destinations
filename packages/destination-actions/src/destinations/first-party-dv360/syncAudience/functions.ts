@@ -49,19 +49,22 @@ export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs
   return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? audienceSettings?.audienceType
 }
 
-// Consent belongs to the list rather than to each member. Each field is passed through as the
-// event carries it, and left unset when the event does not: Display & Video 360 reads a missing
-// field as not specified, which is the truth when the customer has not told us either way.
-// Denied never reaches here, since those events are dropped by buildMember.
-export function buildConsent(payload: Payload): Consent | undefined {
+export function buildConsent(payload: Payload): { consent?: Consent; consentErrorMessage?: string } {
   const { ad_user_data, ad_personalization } = payload
 
-  const consent: Consent = {
-    ...(ad_user_data ? { adUserData: ad_user_data as ConsentStatus } : {}),
-    ...(ad_personalization ? { adPersonalization: ad_personalization as ConsentStatus } : {})
+  if (isConsentDenied(payload)) {
+    return {
+      consentErrorMessage:
+        'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
+    }
   }
 
-  return Object.keys(consent).length > 0 ? consent : undefined
+  return {
+    consent: {
+      ...(ad_user_data ? { adUserData: ad_user_data as ConsentStatus } : {}),
+      ...(ad_personalization ? { adPersonalization: ad_personalization as ConsentStatus } : {})
+    }
+  }
 }
 
 export function isConsentDenied(payload: Payload): boolean {
@@ -111,14 +114,18 @@ export function buildJSON(
 ): EditCustomerMatchMembersRequest {
   const isContactInfo = audienceType === CONTACT_INFO
 
+  // An empty consent object means the event specified neither field, which Display & Video 360
+  // reads as not specified only when the object is left out entirely.
+  const consentJSON = consent && Object.keys(consent).length > 0 ? { consent } : {}
+
   const contactInfoList = (members: Member[]): ContactInfoList => ({
     contactInfos: members as ContactInfo[],
-    ...(consent ? { consent } : {})
+    ...consentJSON
   })
 
   const mobileDeviceIdList = (members: Member[]): MobileDeviceIdList => ({
     mobileDeviceIds: members as string[],
-    ...(consent ? { consent } : {})
+    ...consentJSON
   })
 
   return {
@@ -314,15 +321,11 @@ export async function send(
   const { audienceId, advertiserId, audienceType } = audienceDetails
 
   // Consent applies to the whole list rather than to each member, and batch_keys pins a batch to
-  // one combination of consent values, so the first event speaks for the batch. Display & Video
-  // 360 rejects a request containing denied consent, so the batch is failed rather than sent.
-  if (isConsentDenied(payloads[0])) {
-    return failAllPayloads(
-      msResponse,
-      payloads,
-      isBatch,
-      'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
-    )
+  // one combination of consent values, so the first event speaks for the batch.
+  const { consent, consentErrorMessage } = buildConsent(payloads[0])
+
+  if (!consent) {
+    return failAllPayloads(msResponse, payloads, isBatch, consentErrorMessage as string)
   }
 
   // Member index -> payload index, so responses can be written back against the original batch.
@@ -367,10 +370,6 @@ export async function send(
     statsContext?.statsClient?.incr('syncAudience.discard', payloads.length, statsContext?.tags)
     return msResponse
   }
-
-  // batch_keys pins a batch to one combination of consent values, so every payload carries the
-  // same consent and the first one speaks for the batch.
-  const consent = buildConsent(payloads[0])
 
   const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
