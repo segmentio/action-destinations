@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { validateAudienceDetails, buildMember } from '../functions'
+import { validateAudienceDetails, buildMember, getAudienceType, buildConsent } from '../functions'
 import type { Payload } from '../generated-types'
 import { processHashing } from '../../../../lib/hashing-utils'
 
@@ -78,6 +78,7 @@ const makeEvent = ({
   })
 
 const mapping = {
+  audience_type: CONTACT_INFO,
   contact_info: {
     emails: { '@path': '$.context.traits.email' },
     phoneNumbers: { '@path': '$.context.traits.phone' },
@@ -87,22 +88,23 @@ const mapping = {
     countryCode: { '@path': '$.context.traits.countryCode' }
   },
   mobileDeviceIds: { '@path': '$.context.traits.mobileDeviceIds' },
-  ad_user_data: {
-    '@if': {
-      exists: { '@path': '$.properties.adUserData' },
-      then: { '@path': '$.properties.adUserData' },
-      else: 'CONSENT_STATUS_GRANTED'
-    }
-  },
-  ad_personalization: {
-    '@if': {
-      exists: { '@path': '$.properties.adPersonalization' },
-      then: { '@path': '$.properties.adPersonalization' },
-      else: 'CONSENT_STATUS_GRANTED'
+  consent: {
+    adUserData: {
+      '@if': {
+        exists: { '@path': '$.properties.adUserData' },
+        then: { '@path': '$.properties.adUserData' },
+        else: 'CONSENT_STATUS_GRANTED'
+      }
+    },
+    adPersonalization: {
+      '@if': {
+        exists: { '@path': '$.properties.adPersonalization' },
+        then: { '@path': '$.properties.adPersonalization' },
+        else: 'CONSENT_STATUS_GRANTED'
+      }
     }
   },
   external_id: { '@path': '$.context.personas.external_audience_id' },
-  advertiser_id: { '@path': '$.context.personas.audience_settings.advertiserId' },
   enable_batching: { '@path': '$.properties.enableBatching' },
   batch_size: 500000
 }
@@ -137,9 +139,7 @@ describe('validateAudienceDetails', () => {
   })
 
   it('reports every missing value in one message', () => {
-    expect(validateAudienceDetails(undefined, undefined, undefined)).toBe(
-      'Missing audience ID. Missing advertiser ID. Missing audience type'
-    )
+    expect(validateAudienceDetails()).toBe('Missing audience ID. Missing advertiser ID. Missing audience type')
   })
 
   it('combines a missing value with an invalid one', () => {
@@ -149,7 +149,46 @@ describe('validateAudienceDetails', () => {
   })
 
   it('does not report an unrecognised type when the type is missing', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, undefined)).toBe('Missing audience type')
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID)).toBe('Missing audience type')
+  })
+
+  it('reports a mapped audience type that disagrees with the configured one', () => {
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, DEVICE_ID, CONTACT_INFO)).toBe(
+      `Audience Type is set to ${CONTACT_INFO} in this mapping, but the audience in Display & Video 360 is ${DEVICE_ID}. Set Audience Type to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
+    )
+  })
+
+  it('does not compare when there is no resolved audience type to compare against', () => {
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, undefined, CONTACT_INFO)).toBe('Missing audience type')
+  })
+})
+
+describe('getAudienceType', () => {
+  it('prefers the hook output over the audience settings', () => {
+    expect(
+      getAudienceType(
+        { audienceType: CONTACT_INFO } as never,
+        {
+          retlOnMappingSave: { outputs: { audienceType: DEVICE_ID } }
+        } as never
+      )
+    ).toBe(DEVICE_ID)
+  })
+
+  it('falls back to the audience settings', () => {
+    expect(getAudienceType({ audienceType: DEVICE_ID } as never)).toBe(DEVICE_ID)
+  })
+
+  it('never reads the mapped field, which is only there to be validated against', () => {
+    expect(getAudienceType()).toBeUndefined()
+  })
+})
+
+describe('buildConsent', () => {
+  it('rejects a consent value that is neither granted nor denied', () => {
+    expect(buildConsent({ consent: { adUserData: 'MAYBE' } } as unknown as Payload).consentErrorMessage).toBe(
+      'Unrecognised consent value: MAYBE. Must be CONSENT_STATUS_GRANTED or CONSENT_STATUS_DENIED.'
+    )
   })
 })
 
@@ -157,12 +196,20 @@ describe('buildMember', () => {
   const target = { audienceId: AUDIENCE_ID, advertiserId: ADVERTISER_ID, audienceType: CONTACT_INFO }
   const payload = {
     contact_info: { emails: 'a@example.com' },
-    external_id: AUDIENCE_ID,
-    advertiser_id: ADVERTISER_ID
+    external_id: AUDIENCE_ID
   } as Payload
 
   it('returns the member for a valid payload', () => {
-    expect(buildMember(payload, true, target)).toEqual({ member: { hashedEmails: [hash('a@example.com')] } })
+    expect(buildMember(payload, true, target)).toEqual({ members: [{ hashedEmails: [hash('a@example.com')] }] })
+  })
+
+  it('splits a comma separated list of mobile device IDs into one member each', () => {
+    expect(
+      buildMember({ ...payload, mobileDeviceIds: 'device-1, device-2' }, true, {
+        ...target,
+        audienceType: 'CUSTOMER_MATCH_DEVICE_ID'
+      })
+    ).toEqual({ members: ['device-1', 'device-2'] })
   })
 
   it('rejects an unresolved membership', () => {
@@ -286,7 +333,7 @@ describe('FirstPartyDv360.syncAudience', () => {
         makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceId: 'device-1' }),
         makeEvent({ membership: false, audienceType: DEVICE_ID, mobileDeviceId: 'device-2' })
       ],
-      mapping
+      mapping: { ...mapping, audience_type: DEVICE_ID }
     })
 
     expect(captured.body).toEqual({
@@ -386,8 +433,8 @@ describe('FirstPartyDv360.syncAudience', () => {
 
     await testDestination.testAction('syncAudience', {
       event: makeEvent({ membership: true, email: 'a@example.com' }),
-      // ad_user_data and ad_personalization deliberately left unmapped.
-      mapping: { ...mapping, ad_user_data: undefined, ad_personalization: undefined },
+      // The consent field is deliberately left unmapped.
+      mapping: { ...mapping, consent: undefined },
       useDefaultMappings: false
     })
 
@@ -400,7 +447,7 @@ describe('FirstPartyDv360.syncAudience', () => {
 
     await testDestination.testAction('syncAudience', {
       event: makeEvent({ membership: true, email: 'a@example.com' }),
-      mapping: { ...mapping, ad_personalization: undefined },
+      mapping: { ...mapping, consent: { adUserData: mapping.consent.adUserData } },
       useDefaultMappings: false
     })
 
@@ -464,17 +511,45 @@ describe('FirstPartyDv360.syncAudience', () => {
   })
 
   it('throws for a single event when a batch level value is missing', async () => {
-    const { advertiser_id, ...mappingWithoutAdvertiser } = mapping
+    const { external_id, ...mappingWithoutAudience } = mapping
 
     await expect(
       testDestination.testAction('syncAudience', {
         event: makeEvent({ membership: true, email: 'a@example.com' }),
-        mapping: mappingWithoutAdvertiser,
+        mapping: mappingWithoutAudience,
         useDefaultMappings: false
       })
-    ).rejects.toThrow('Missing advertiser ID')
+    ).rejects.toThrow('Missing audience ID')
 
-    expect(advertiser_id).toBeDefined()
+    expect(external_id).toBeDefined()
+  })
+
+  it('takes the advertiser ID from the audience settings, not from a mapped field', async () => {
+    const { captured } = captureBody()
+
+    await testDestination.testAction('syncAudience', {
+      event: makeEvent({ membership: true, email: 'a@example.com' }),
+      mapping,
+      useDefaultMappings: false
+    })
+
+    expect(captured.body.advertiserId).toBe(ADVERTISER_ID)
+  })
+
+  it('fails the batch when the mapped audience type disagrees with the audience', async () => {
+    const responses = await testDestination.executeBatch('syncAudience', {
+      events: [makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceId: 'device-1' })],
+      mapping
+    })
+
+    expect(JSON.parse(JSON.stringify(responses))).toEqual([
+      {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errorreporter: 'INTEGRATIONS',
+        errormessage: `Audience Type is set to ${CONTACT_INFO} in this mapping, but the audience in Display & Video 360 is ${DEVICE_ID}. Set Audience Type to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
+      }
+    ])
   })
 
   it('rejects an unrecognised audience type before sending', async () => {
@@ -617,7 +692,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       }
     })
 
-    const success = (sent: Record<string, unknown>) => ({ status: 200, sent, body: { success: true } })
+    const success = (sent: Record<string, unknown>) => ({ status: 200, sent: [sent], body: { success: true } })
 
     // Every index is asserted, in order, proving index alignment survives both drop points.
     expect(JSON.parse(JSON.stringify(responses))).toEqual([
@@ -633,17 +708,15 @@ describe('FirstPartyDv360.syncAudience', () => {
       {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errorreporter: 'DESTINATION',
-        errormessage: expect.stringContaining('No usable contact info identifiers'),
-        sent: expect.objectContaining({ external_id: AUDIENCE_ID })
+        errorreporter: 'INTEGRATIONS',
+        errormessage: expect.stringContaining('No usable contact info identifiers')
       },
       success({ hashedEmails: [hash('remove2@example.com')] }),
       {
         status: 400,
         errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
-        errorreporter: 'DESTINATION',
-        errormessage: 'Audience membership could not be resolved to a boolean',
-        sent: expect.objectContaining({ contact_info: { emails: 'nomembership@example.com' } })
+        errorreporter: 'INTEGRATIONS',
+        errormessage: 'Audience membership could not be resolved to a boolean'
       },
       {
         status: 400,
@@ -654,9 +727,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errorreporter: 'DESTINATION',
-        errormessage: expect.stringContaining('does not belong to the same audience'),
-        sent: expect.objectContaining({ contact_info: { emails: 'otheraudience@example.com' } })
+        errorreporter: 'INTEGRATIONS',
+        errormessage: expect.stringContaining('does not belong to the same audience')
       },
       success({ hashedEmails: [hash('add3@example.com')] })
     ])

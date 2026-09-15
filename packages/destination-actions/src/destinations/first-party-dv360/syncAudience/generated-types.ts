@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.
+   */
+  audience_type: string
+  /**
    * The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.
    */
   contact_info?: {
@@ -31,25 +35,26 @@ export interface Payload {
     countryCode?: string
   }
   /**
-   * A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.
+   * A mobile device ID defining a Customer Match audience member. A single value, or several separated by commas. This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.
    */
   mobileDeviceIds?: string
   /**
-   * Consent to use the data for advertising purposes. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.
+   * The consent signals to send with this audience sync. A signal which is left unset is sent as not specified. Batches with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.
    */
-  ad_user_data?: string
-  /**
-   * Consent to use the data for ad personalization. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.
-   */
-  ad_personalization?: string
+  consent?: {
+    /**
+     * Consent to use the data for advertising purposes.
+     */
+    adUserData?: string
+    /**
+     * Consent to use the data for ad personalization.
+     */
+    adPersonalization?: string
+  }
   /**
    * The ID of the DV360 Audience.
    */
   external_id?: string
-  /**
-   * The Advertiser ID associated with the DV360 Audience.
-   */
-  advertiser_id?: string
   /**
    * Enable batching of requests.
    */

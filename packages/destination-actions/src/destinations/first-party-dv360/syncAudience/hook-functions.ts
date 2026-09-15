@@ -1,18 +1,9 @@
 import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createAudienceRequest, getAudienceRequest } from '../functions'
-import { DEVICE_ID } from './constants'
+import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
-
-interface DV360Audience {
-  firstPartyAndPartnerAudienceId?: string
-  displayName?: string
-  audienceType?: string
-  appId?: string
-  error?: {
-    message?: string
-  }
-}
+import { DV360Audience } from './types'
 
 export async function performHook(
   request: RequestClient,
@@ -53,9 +44,18 @@ export async function performHook(
       }
     }
 
-    if (!membershipDurationDays) {
+    if (membershipDurationDays === undefined || membershipDurationDays === null) {
       return {
         error: { message: 'Missing membership duration days value', code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED }
+      }
+    }
+
+    if (!Number.isInteger(membershipDurationDays) || membershipDurationDays < 1 || membershipDurationDays > 540) {
+      return {
+        error: {
+          message: 'Membership duration days must be a whole number greater than 0 and less than or equal to 540',
+          code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
+        }
       }
     }
 
@@ -68,19 +68,31 @@ export async function performHook(
       }
     }
 
-    const response = await createAudienceRequest(request, {
-      advertiserId: advertiserId.trim(),
-      audienceName,
-      description,
-      // DV360 takes membershipDurationDays as an int64, which is a string over JSON.
-      membershipDurationDays: String(membershipDurationDays),
-      audienceType,
-      appId,
-      features,
-      statsContext
-    })
+    let audience: DV360Audience
 
-    const audience = (await response.json()) as DV360Audience
+    try {
+      const response = await createAudienceRequest(request, {
+        advertiserId: advertiserId.trim(),
+        audienceName,
+        description,
+        // DV360 takes membershipDurationDays as an int64, which is a string over JSON.
+        membershipDurationDays: String(membershipDurationDays),
+        audienceType,
+        appId,
+        features,
+        statsContext
+      })
+
+      audience = (await response.json()) as DV360Audience
+    } catch {
+      return {
+        error: {
+          message: 'Failed to create audience in Display & Video 360',
+          code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
+        }
+      }
+    }
+
     const audienceId = audience?.firstPartyAndPartnerAudienceId
 
     if (!audienceId) {
@@ -115,7 +127,7 @@ export async function performHook(
     try {
       const response = await getAudienceRequest(request, {
         advertiserId: advertiserId.trim(),
-        audienceId: existingAudienceId,
+        audienceId: existingAudienceId.trim(),
         features,
         statsContext
       })
@@ -124,27 +136,25 @@ export async function performHook(
     } catch {
       return {
         error: {
-          message: `Failed to retrieve audience ${existingAudienceId} from Display & Video 360`,
+          message: `Failed to retrieve audience ${existingAudienceId.trim()} from Display & Video 360`,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
     }
 
-    // The audience type is read back from Display & Video 360 rather than asked for again,
-    // so it can never disagree with the audience this mapping is connected to.
-    if (!audience?.audienceType) {
+    if (!audience?.audienceType || (audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
       return {
         error: {
-          message: `Audience ${existingAudienceId} is not a Customer Match audience`,
+          message: `Audience ${existingAudienceId.trim()} is not a Customer Match Contact Info or Mobile Device ID audience`,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
     }
 
     return {
-      successMessage: `Connected to audience with ID: ${existingAudienceId}`,
+      successMessage: `Connected to audience with ID: ${existingAudienceId.trim()}`,
       savedData: {
-        audienceId: existingAudienceId,
+        audienceId: existingAudienceId.trim(),
         advertiserId: advertiserId.trim(),
         audienceType: audience.audienceType,
         appId: audience.appId

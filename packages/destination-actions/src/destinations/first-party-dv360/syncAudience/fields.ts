@@ -23,23 +23,42 @@ const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
   ]
 }
 
+const CONTACT_INFO_AUDIENCE: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'audience_type', operator: 'is', value: CONTACT_INFO }]
+}
+
+const DEVICE_ID_AUDIENCE: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'audience_type', operator: 'is', value: DEVICE_ID }]
+}
+
 const CONTACT_INFO_ONLY =
   'This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.'
 
-// Display & Video 360 accepts several emails, phone numbers and zip codes for one person, so
-// those fields take either a single value or a comma separated list. A comma separated list is
-// mostly useful from Reverse ETL, where a column can hold several values.
 const SEVERAL = 'A single value, or several separated by commas.'
 
-// Display & Video 360 rejects a partial address, so zip code, first name, last name and country
-// code are only sent when all four are present.
 const ADDRESS_GROUP =
   'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
+
+export const audience_type: InputField = {
+  label: 'Audience Type',
+  description:
+    'The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.',
+  type: 'string',
+  required: true,
+  choices: [
+    { label: 'Contact Info', value: CONTACT_INFO },
+    { label: 'Mobile Device ID', value: DEVICE_ID }
+  ],
+  default: CONTACT_INFO
+}
 
 export const contact_info: InputField = {
   label: 'Contact Info Details',
   description: `The contact details used to match the user in Display & Video 360. ${CONTACT_INFO_ONLY}`,
   type: 'object',
+  depends_on: CONTACT_INFO_AUDIENCE,
   defaultObjectUI: 'keyvalue',
   additionalProperties: false,
   properties: {
@@ -126,34 +145,42 @@ export const contact_info: InputField = {
 
 export const mobileDeviceIds: InputField = {
   ...sharedMobileDeviceIds,
+  depends_on: DEVICE_ID_AUDIENCE,
   description: `A mobile device ID defining a Customer Match audience member. ${SEVERAL} This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.`
 }
 
-export const ad_user_data: InputField = {
-  label: 'Ad User Data Consent',
+const CONSENT_CHOICES = [
+  { label: CONSENT_STATUS_GRANTED, value: CONSENT_STATUS_GRANTED },
+  { label: CONSENT_STATUS_DENIED, value: CONSENT_STATUS_DENIED }
+]
+
+export const consent: InputField = {
+  label: 'Consent',
   description:
-    'Consent to use the data for advertising purposes. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
-  type: 'string',
-  choices: [
-    { label: CONSENT_STATUS_GRANTED, value: CONSENT_STATUS_GRANTED },
-    { label: CONSENT_STATUS_DENIED, value: CONSENT_STATUS_DENIED }
-  ],
-  default: CONSENT_STATUS_GRANTED
+    'The consent signals to send with this audience sync. A signal which is left unset is sent as not specified. Batches with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false,
+  properties: {
+    adUserData: {
+      label: 'Ad User Data Consent',
+      description: 'Consent to use the data for advertising purposes.',
+      type: 'string',
+      choices: CONSENT_CHOICES
+    },
+    adPersonalization: {
+      label: 'Ad Personalization Consent',
+      description: 'Consent to use the data for ad personalization.',
+      type: 'string',
+      choices: CONSENT_CHOICES
+    }
+  },
+  default: {
+    adUserData: CONSENT_STATUS_GRANTED,
+    adPersonalization: CONSENT_STATUS_GRANTED
+  }
 }
 
-export const ad_personalization: InputField = {
-  label: 'Ad Personalization Consent',
-  description:
-    'Consent to use the data for ad personalization. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
-  type: 'string',
-  choices: [
-    { label: CONSENT_STATUS_GRANTED, value: CONSENT_STATUS_GRANTED },
-    { label: CONSENT_STATUS_DENIED, value: CONSENT_STATUS_DENIED }
-  ],
-  default: CONSENT_STATUS_GRANTED
-}
-
-// batch_keys is a reserved field, and its type is narrower than InputField.
 export const batch_keys: {
   label: string
   description: string
@@ -167,7 +194,7 @@ export const batch_keys: {
   description: 'The keys to use for batching the events.',
   type: 'string',
   multiple: true,
-  default: ['external_id', 'advertiser_id', 'ad_user_data', 'ad_personalization'],
+  default: ['external_id', 'audience_type', 'consent'],
   unsafe_hidden: true
 }
 
@@ -236,7 +263,7 @@ export const retlHookInputFields: ActionHookDefinition<
     label: 'App ID',
     description:
       'The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.',
-    depends_on: CREATE_OPERATION,
+    depends_on: CREATE_DEVICE_ID_OPERATION,
     required: CREATE_DEVICE_ID_OPERATION
   },
   existingAudienceId: {

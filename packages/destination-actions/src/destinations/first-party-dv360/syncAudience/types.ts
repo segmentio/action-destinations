@@ -21,7 +21,8 @@ export interface Consent {
 
 export interface ContactInfoList {
   contactInfos: ContactInfo[]
-  // Omitted when the event carries no consent, which Display & Video 360 reads as not specified.
+  // Each signal is omitted when the mapping leaves it unset, which Display & Video 360 reads as
+  // not specified. Both signals default to granted, so this is only empty if the default is cleared.
   consent?: Consent
 }
 
@@ -36,6 +37,16 @@ export interface EditCustomerMatchMembersRequest {
   removedContactInfoList?: ContactInfoList
   addedMobileDeviceIdList?: MobileDeviceIdList
   removedMobileDeviceIdList?: MobileDeviceIdList
+}
+
+export interface DV360Audience {
+  firstPartyAndPartnerAudienceId?: string
+  displayName?: string
+  audienceType?: string
+  appId?: string
+  error?: {
+    message?: string
+  }
 }
 
 export interface EditCustomerMatchMembersResponse {
