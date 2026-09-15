@@ -213,6 +213,8 @@ jobs:
         run: yarn test-browser
 
   snyk:
+    # Segment owns the Snyk account used by this workflow.
+    if: github.repository == 'segmentio/action-destinations'
     name: Snyk
     runs-on: ubuntu-22.04
 
