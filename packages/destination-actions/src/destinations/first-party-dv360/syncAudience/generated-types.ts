@@ -39,7 +39,7 @@ export interface Payload {
    */
   mobileDeviceIds?: string
   /**
-   * The consent signals to send with this audience sync. A signal which is left unset is sent as not specified. Batches with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.
+   * Consent signals for this audience sync. A signal left unset is sent as not specified. Events with consent denied are not sent, as Display & Video 360 rejects any request containing denied consent.
    */
   consent?: {
     /**
