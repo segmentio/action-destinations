@@ -824,29 +824,78 @@ const updateMultiStatusResponseWithSuccess = (
   })
 }
 
+/* Reports an API level failure against every item that was sent, attributing each event the item it
+   sent rather than the whole request body.
+ */
+export const handleGoogleAdsAPIErrorResponsePerItem = (
+  error: any,
+  requestIndexToPayloadIndex: number[],
+  multiStatusResponse: MultiStatusResponse,
+  sentItems: JSONLikeObject[],
+  failedPayloadIndices?: Set<number>
+) => {
+  // Only an HTTP failure carries a per event verdict. A network or timeout failure says nothing
+  // about the individual conversions, so it is rethrown and the whole batch retries.
+  if (!(error instanceof HTTPError)) {
+    throw error
+  }
+
+  const response = error.response as ModifiedResponse | undefined
+  const parsedError = parseGoogleAdsError((response?.data as any)?.error)
+  requestIndexToPayloadIndex.forEach((originalIndex, itemIndex) => {
+    multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+      ...parsedError,
+      // Google does not always answer with its error envelope, e.g. a proxy responding with HTML.
+      status: parsedError.status ?? response?.status ?? 500,
+      errormessage: parsedError.errormessage ?? error.message,
+      body: error as unknown as JSONLikeObject,
+      sent: sentItems[itemIndex]
+    })
+    failedPayloadIndices?.add(originalIndex)
+  })
+}
+
 export const handlePartialFailureResponse = (
   partialFailureError: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
-  userIdentifiers: any[],
-  failedPayloadIndices: Set<number>
+  sentItems: any[],
+  failedPayloadIndices: Set<number>,
+  fieldName = 'operations'
 ) => {
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
-      const failedIndex = error.location?.fieldPathElements?.find(
-        (field: any) => field.fieldName === 'operations'
-      )?.index
+      const failedField = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)
 
-      if (failedIndex >= 0) {
-        const originalIndex = validPayloadIndicesBitmap[failedIndex]
-        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
-          status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
-          errormessage: error.message,
-          sent: userIdentifiers?.[failedIndex],
-          body: error
+      // Google didn't attribute this error to a specific item (e.g. a batch/quota-level error
+      // with no location, or a location that doesn't reference this field) — we can't tell which
+      // event(s) failed, so fail every item in the batch as retryable rather than risk marking an
+      // unknown-status item as delivered.
+      if (!failedField || failedField.index === undefined) {
+        validPayloadIndicesBitmap.forEach((originalIndex, requestIndex) => {
+          multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+            errormessage:
+              error.message ??
+              "This event wasn't delivered because Google reported a partial failure that couldn't be attributed to a specific event. Retry the request.",
+            errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
+            status: 500,
+            sent: sentItems?.[requestIndex],
+            body: error
+          })
+          failedPayloadIndices.add(originalIndex)
         })
-        failedPayloadIndices.add(originalIndex)
+        return
       }
+
+      const failedIndex = failedField.index
+      const originalIndex = validPayloadIndicesBitmap[failedIndex]
+      multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+        status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
+        errormessage: error.message,
+        sent: sentItems?.[failedIndex],
+        body: error
+      })
+      failedPayloadIndices.add(originalIndex)
     })
   })
 }
@@ -972,7 +1021,11 @@ const extractBatchUserIdentifiers = (
 }
 
 // Helper function to determine operation type
-const determineOperationType = (payload: UserListPayload, syncMode?: string, audienceMembership?: AudienceMembership) => {
+const determineOperationType = (
+  payload: UserListPayload,
+  syncMode?: string,
+  audienceMembership?: AudienceMembership
+) => {
   if (
     payload.event_name === 'Audience Entered' ||
     syncMode === 'add' ||

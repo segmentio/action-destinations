@@ -3,7 +3,9 @@ import {
   PayloadValidationError,
   ModifiedResponse,
   RequestClient,
-  DynamicFieldResponse
+  DynamicFieldResponse,
+  MultiStatusResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -23,7 +25,9 @@ import {
   commonEmailValidation,
   getConversionActionDynamicData,
   formatPhone,
-  getSessionAttributesKeyValuePairs
+  getSessionAttributesKeyValuePairs,
+  handlePartialFailureResponse,
+  handleGoogleAdsAPIErrorResponsePerItem
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -433,6 +437,7 @@ const action: ActionDefinition<Settings, Payload> = {
         headers: {
           'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
         },
+        skipResponseCloning: true,
         json: {
           conversions: [request_object],
           partialFailure: true
@@ -456,7 +461,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const getCustomVariables = memoizedGetCustomVariables()
 
-    const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
+    const multiStatusResponse = new MultiStatusResponse()
+
+    const requestObjectResults = await Promise.allSettled(
       payload.map(async (payload) => {
         let cartItems: CartItemInterface[] = []
         if (payload.items) {
@@ -540,25 +547,97 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     )
 
-    const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(
-        features,
-        statsContext
-      )}/customers/${customerId}:uploadClickConversions`,
-      {
-        method: 'post',
-        headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-        },
-        json: {
-          conversions: request_objects,
-          partialFailure: true
-        }
-      }
-    )
+    // Payloads which fail validation are reported as per-event errors and excluded from the request
+    // sent to Google.
+    const request_objects: ClickConversionRequestObjectInterface[] = []
+    const requestIndexToPayloadIndex: number[] = []
 
-    handleGoogleErrors(response)
-    return response
+    requestObjectResults.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        request_objects.push(result.value)
+        requestIndexToPayloadIndex.push(index)
+        return
+      }
+
+      // Only payload validation failures are reported per event. Anything else (e.g. a failure while
+      // fetching custom variables) is rethrown so the whole batch is retried.
+      if (!(result.reason instanceof PayloadValidationError)) {
+        throw result.reason
+      }
+
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: result.reason.message
+      })
+    })
+
+    // Nothing left to send to Google
+    if (request_objects.length === 0) {
+      return multiStatusResponse
+    }
+
+    const failedPayloadIndices = new Set<number>()
+
+    let response: ModifiedResponse<PartialErrorResponse>
+
+    try {
+      response = await request(
+        `https://googleads.googleapis.com/${getApiVersion(
+          features,
+          statsContext
+        )}/customers/${customerId}:uploadClickConversions`,
+        {
+          method: 'post',
+          headers: {
+            'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+          },
+          skipResponseCloning: true,
+          json: {
+            conversions: request_objects,
+            partialFailure: true
+          }
+        }
+      )
+    } catch (error) {
+      // Report the HTTP level failure against every event that was sent, each attributed the
+      // conversion it sent.
+      handleGoogleAdsAPIErrorResponsePerItem(
+        error,
+        requestIndexToPayloadIndex,
+        multiStatusResponse,
+        request_objects as unknown as JSONLikeObject[],
+        failedPayloadIndices
+      )
+      return multiStatusResponse
+    }
+
+    const partialFailureError = response.data?.partialFailureError
+
+    if (partialFailureError) {
+      handlePartialFailureResponse(
+        partialFailureError,
+        requestIndexToPayloadIndex,
+        multiStatusResponse,
+        request_objects,
+        failedPayloadIndices,
+        'conversions'
+      )
+    }
+
+    requestIndexToPayloadIndex.forEach((originalIndex, requestIndex) => {
+      if (failedPayloadIndices.has(originalIndex)) {
+        return
+      }
+
+      multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+        status: 200,
+        sent: request_objects[requestIndex] as unknown as JSONLikeObject,
+        body: (response.data?.results?.[requestIndex] ?? {}) as JSONLikeObject
+      })
+    })
+
+    return multiStatusResponse
   }
 }
 
