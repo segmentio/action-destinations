@@ -44,7 +44,15 @@ export class Client {
       RoleSessionName: this.roleSessionName,
       ExternalId: externalId
     })
-    const result = await stsClient.send(command)
+    let result
+    try {
+      result = await stsClient.send(command)
+    } catch (err) {
+      // STS failures used to escape uploadS3's try/catch entirely, so they reached the platform
+      // with no status/code, were classified type:internal and force-retried (even permanent auth
+      // failures). Map them to Segment error classes here so classification is correct.
+      throw mapAWSError(err, 'Failed to assume AWS role')
+    }
     if (
       !result.Credentials ||
       !result.Credentials.AccessKeyId ||
@@ -130,22 +138,57 @@ export class Client {
         throw new RequestTimeoutError()
       }
 
-      if (isAWSError(err)) {
-        // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-client-s3/Interface/_Error/
-        if (err.Code && accessDeniedCodes.has(err.Code)) {
-          throw new APIError(err.Message || err.Code, 403)
-        } else if (err.Code === 'NoSuchBucket') {
-          throw new APIError(err.Message || err.Code, 404)
-        } else if (err.Code === 'SlowDown') {
-          throw new APIError(err.Message || err.Code, 429)
-        } else {
-          throw new RetryableError(err.Message || err.Code || 'Unknown AWS Put error: ' + err)
-        }
-      } else {
-        throw new APIError('Unknown error during AWS PUT: ' + err, 500)
-      }
+      throw mapAWSError(err, 'AWS PUT failed')
     }
   }
+}
+
+/**
+ * Maps an AWS SDK error (S3 `_Error` shape or an STS/service exception) to the appropriate
+ * Segment error class. Permanent, client-side failures (access denied, invalid config, expired
+ * credentials, missing bucket) are surfaced as non-retryable errors; only transient/server-side
+ * or throttling failures are marked retryable. This prevents the platform from force-retrying
+ * errors that will never succeed.
+ */
+export function mapAWSError(err: unknown, context: string): Error {
+  const e = err as {
+    Code?: string
+    Message?: string
+    name?: string
+    message?: string
+    $fault?: 'client' | 'server'
+    $metadata?: { httpStatusCode?: number }
+  }
+  // S3 `_Error` uses Code/Message; STS/service exceptions use name/message.
+  const code = e?.Code ?? e?.name
+  const message = e?.Message ?? e?.message ?? code ?? String(err)
+  const httpStatus = e?.$metadata?.httpStatusCode
+  const detail = `${context}: ${message}`
+
+  if (code && accessDeniedCodes.has(code)) {
+    // Permanent authentication/authorization failure. Not retryable.
+    return new APIError(detail, 403)
+  }
+  if (code === 'NoSuchBucket') {
+    return new APIError(detail, 404)
+  }
+  if (code && throttlingCodes.has(code)) {
+    return new APIError(detail, 429)
+  }
+  if (code && redirectCodes.has(code)) {
+    // S3 returns a redirect (e.g. PermanentRedirect, HTTP 301) when the bucket lives in a
+    // different region than configured. It's a permanent client misconfiguration, so surface a
+    // non-retryable 401 rather than leaking the raw 3xx redirect status.
+    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, 401)
+  }
+  // A client fault (4xx that is not throttling) is permanent - do not retry.
+  if (e?.$fault === 'client' || (typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500)) {
+    // Only ever surface a genuine 4xx as the status; never leak a non-4xx (e.g. a 3xx redirect).
+    const status = typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500 ? httpStatus : 400
+    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, status)
+  }
+  // Transient / server-side / unclassified failures are safe to retry.
+  return new RetryableError(detail)
 }
 
 const accessDeniedCodes = new Set([
@@ -157,8 +200,17 @@ const accessDeniedCodes = new Set([
   'NotSignedUp',
   'AmbiguousGrantByEmailAddress',
   'AuthorizationHeaderMalformed',
-  'RequestExpired'
+  'RequestExpired',
+  // STS assume-role authorization/credential failures
+  'ExpiredToken',
+  'ExpiredTokenException',
+  'AccessDeniedException'
 ])
+
+const throttlingCodes = new Set(['SlowDown', 'Throttling', 'ThrottlingException', 'TooManyRequestsException'])
+
+// Region mismatch: S3 returns a 3xx redirect when the bucket is in a different region than configured.
+const redirectCodes = new Set(['PermanentRedirect', 'TemporaryRedirect'])
 
 // isAWSError validates that the error is an generic AWS error
 export function isAWSError(err: unknown): err is AWSError {
