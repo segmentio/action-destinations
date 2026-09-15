@@ -2,7 +2,8 @@ import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendCallCompleted from './sendCallCompleted'
-import { SEGMENT_USER_AGENT, VOICEOPS_AUTHENTICATION_ENDPOINT } from './constants'
+import updateCallMetadata from './updateCallMetadata'
+import { DEFAULT_VOICEOPS_BASE_URL, getVoiceopsAuthenticationEndpoint, SEGMENT_USER_AGENT } from './constants'
 
 function buildHeaders(accessToken: string) {
   return {
@@ -38,11 +39,19 @@ const destination: DestinationDefinition<Settings> = {
         description: 'Your Voiceops access token.',
         type: 'password',
         required: true
+      },
+      baseUrl: {
+        label: 'Base URL',
+        description: 'Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted.',
+        type: 'string',
+        format: 'uri',
+        required: false,
+        default: DEFAULT_VOICEOPS_BASE_URL
       }
     },
     testAuthentication: async (request, { settings }) => {
       try {
-        return await request(VOICEOPS_AUTHENTICATION_ENDPOINT, {
+        return await request(getVoiceopsAuthenticationEndpoint(settings.baseUrl), {
           method: 'get',
           headers: buildHeaders(settings.accessToken)
         })
@@ -70,7 +79,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    sendCallCompleted
+    sendCallCompleted,
+    updateCallMetadata
   }
 }
 

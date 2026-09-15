@@ -8,6 +8,8 @@ on:
 
 jobs:
   configure-pr:
+    # Segment team membership and reviewer routing use upstream-only credentials.
+    if: github.repository == 'segmentio/action-destinations'
     runs-on: ubuntu-22.04
     permissions:
       contents: read

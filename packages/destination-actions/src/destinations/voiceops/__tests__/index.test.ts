@@ -2,11 +2,12 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
-import { VOICEOPS_BASE_URL } from '../constants'
+import { DEFAULT_VOICEOPS_BASE_URL } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 const SETTINGS: Settings = {
-  accessToken: 'voiceops-token'
+  accessToken: 'voiceops-token',
+  baseUrl: DEFAULT_VOICEOPS_BASE_URL
 }
 
 describe('Voiceops', () => {
@@ -16,7 +17,7 @@ describe('Voiceops', () => {
     })
 
     it('accepts a valid bearer token', async () => {
-      nock(VOICEOPS_BASE_URL)
+      nock(DEFAULT_VOICEOPS_BASE_URL)
         .get('/frontline-api/integrations/v1/segment/authentication')
         .matchHeader('authorization', 'Bearer voiceops-token')
         .matchHeader('user-agent', 'Segment')
@@ -25,8 +26,19 @@ describe('Voiceops', () => {
       await expect(testDestination.testAuthentication(SETTINGS)).resolves.toBeUndefined()
     })
 
+    it('uses the default base URL when the setting is omitted', async () => {
+      const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+        .get('/frontline-api/integrations/v1/segment/authentication')
+        .matchHeader('authorization', 'Bearer voiceops-token')
+        .reply(200, {})
+
+      const settings: Settings = { accessToken: 'voiceops-token' }
+      await expect(testDestination.testAuthentication(settings)).resolves.toBeUndefined()
+      expect(scope.isDone()).toBe(true)
+    })
+
     it('surfaces invalid bearer tokens as credential failures', async () => {
-      nock(VOICEOPS_BASE_URL)
+      nock(DEFAULT_VOICEOPS_BASE_URL)
         .get('/frontline-api/integrations/v1/segment/authentication')
         .matchHeader('authorization', 'Bearer voiceops-token')
         .reply(401, {
