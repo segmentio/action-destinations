@@ -196,7 +196,7 @@ export const items: InputField = {
     price: {
       label: 'Item Price',
       description: 'The price of the item, after discounts.',
-      type: 'integer'
+      type: 'number'
     },
     quantity: {
       label: 'Item Quantity',
