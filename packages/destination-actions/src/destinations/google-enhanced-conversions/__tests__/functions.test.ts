@@ -131,7 +131,7 @@ describe('.getConversionActionId', () => {
       }
     }
     nock(`https://googleads.googleapis.com`)
-      .post(`/v22/customers/${settings.customerId}/googleAds:searchStream`)
+      .post(`/${CANARY_API_VERSION}/customers/${settings.customerId}/googleAds:searchStream`)
       .reply(401, errorResponse)
 
     const payload = {}

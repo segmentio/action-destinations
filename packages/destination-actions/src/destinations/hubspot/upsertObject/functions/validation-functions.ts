@@ -250,6 +250,7 @@ export function deDuplicateAssociations(associationGroups: AssociationPayload[][
 
     const associationKey = (assoc: AssociationPayload) =>
       JSON.stringify({
+        from_record_id: assoc.object_details.from_record_id,
         object_type: assoc.object_details.object_type,
         association_label: assoc.association_details.association_label,
         id_field_name: assoc.object_details.id_field_name,
