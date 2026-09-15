@@ -248,6 +248,17 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         }
       )
 
+      // SFMC's /status can report hasErrors on a job whose /results page comes back with zero
+      // (or a missing) items array -- a status/results inconsistency, not proof the job
+      // actually failed. Since we have no per-record detail to act on, treat it as retryable
+      // rather than a hard FAILED with no explanation.
+      if (!resultsResponse.data.items || resultsResponse.data.items.length === 0) {
+        logger?.warn?.(`SFMC async /status reported errors for job ${payload.jobId} but /results returned no items`)
+        delete response.multiStatusResponse
+        response.jobStatus = 'RETRYABLE_ERROR'
+        return response
+      }
+
       let successCount = 0
       for (let i = 0; i < resultsResponse.data.items.length; i++) {
         // If an individual record has an 'OK' status, consider it a success, otherwise consider it a failure and set the error message from the API response
@@ -277,6 +288,11 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
 
       return response
     } catch (error) {
+      // The /results call above may have thrown after response.multiStatusResponse was already
+      // initialized to an empty (but truthy) instance -- discard it so callers don't mistake
+      // "we never got any per-record data" for a real, if empty, multi-status result.
+      delete response.multiStatusResponse
+
       if (!(error instanceof HTTPError)) {
         // Network-level failures (timeouts, connection resets, DNS issues) are transient -- the
         // job itself may be fine (confirmed in production: a poll that hit one of these mid-flight
