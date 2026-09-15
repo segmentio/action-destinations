@@ -1,4 +1,4 @@
-import { createTestIntegration, MultiStatusResponse } from '@segment/actions-core'
+import { createTestIntegration, HTTPError, MultiStatusResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
 import {
@@ -7,7 +7,8 @@ import {
   commonEmailValidation,
   convertTimestamp,
   timestampToEpochMicroseconds,
-  handlePartialFailureResponse
+  handlePartialFailureResponse,
+  handleGoogleAdsAPIErrorResponsePerItem
 } from '../functions'
 import destination from '../index'
 
@@ -16,6 +17,21 @@ const testDestination = createTestIntegration(destination)
 const auth = {
   refreshToken: 'xyz321',
   accessToken: 'abc123'
+}
+
+// Bypasses the real HTTPError constructor (which needs Fetch Request/Response instances) while
+// still satisfying `error instanceof HTTPError`. `request`/`options` stand in for the real fields
+// that carry the outgoing `developer-token` auth header - they must never end up in a reported body.
+const buildHttpError = (overrides: { status?: number; data?: unknown; message?: string } = {}) => {
+  const error = Object.create(HTTPError.prototype)
+  error.message = overrides.message ?? 'Bad Request'
+  error.response = {
+    status: overrides.status ?? 400,
+    data: overrides.data
+  }
+  error.request = { headers: { 'developer-token': 'super-secret-token' } }
+  error.options = { headers: { 'developer-token': 'super-secret-token' } }
+  return error
 }
 
 describe('.getConversionActionId', () => {
@@ -380,5 +396,61 @@ describe('handlePartialFailureResponse', () => {
       status: 500,
       errortype: 'RETRYABLE_BATCH_FAILURE'
     })
+  })
+})
+
+describe('handleGoogleAdsAPIErrorResponsePerItem', () => {
+  const requestIndexToPayloadIndex = [1, 4]
+  const sentItems = [{ id: 'sent-1' }, { id: 'sent-4' }]
+
+  it('should rethrow non-HTTP errors so the whole batch retries', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const networkError = new Error('socket hang up')
+
+    expect(() =>
+      handleGoogleAdsAPIErrorResponsePerItem(networkError, requestIndexToPayloadIndex, multiStatusResponse, sentItems)
+    ).toThrow('socket hang up')
+  })
+
+  it('should attribute an HTTP failure to every item without leaking the raw error object', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const error = buildHttpError({
+      status: 401,
+      data: { error: { code: 401, message: 'Request had invalid authentication credentials.' } },
+      message: 'Unauthorized'
+    })
+
+    handleGoogleAdsAPIErrorResponsePerItem(
+      error,
+      requestIndexToPayloadIndex,
+      multiStatusResponse,
+      sentItems,
+      failedPayloadIndices
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([1, 4]))
+
+    const first = multiStatusResponse.getResponseAtIndex(1).value() as Record<string, unknown>
+    expect(first).toMatchObject({ status: 401, sent: sentItems[0] })
+    expect(first.body).toEqual(error.response.data)
+    expect(JSON.stringify(first.body)).not.toContain('super-secret-token')
+
+    const second = multiStatusResponse.getResponseAtIndex(4).value() as Record<string, unknown>
+    expect(second.sent).toEqual(sentItems[1])
+    expect(second.body).toEqual(error.response.data)
+  })
+
+  it('should fall back to a minimal safe body when Google returns no response data at all', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    // e.g. a proxy timeout or malformed response with no body - `response.data` is undefined,
+    // so `body` must fall back to `{ message: error.message }` rather than becoming undefined.
+    const error = buildHttpError({ status: 502, data: undefined, message: 'Bad Gateway' })
+
+    handleGoogleAdsAPIErrorResponsePerItem(error, requestIndexToPayloadIndex, multiStatusResponse, sentItems)
+
+    const response = multiStatusResponse.getResponseAtIndex(1).value() as Record<string, unknown>
+    expect(response.status).toBe(502)
+    expect(response.body).toEqual({ message: 'Bad Gateway' })
   })
 })

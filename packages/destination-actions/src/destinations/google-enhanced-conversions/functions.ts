@@ -848,7 +848,9 @@ export const handleGoogleAdsAPIErrorResponsePerItem = (
       // Google does not always answer with its error envelope, e.g. a proxy responding with HTML.
       status: parsedError.status ?? response?.status ?? 500,
       errormessage: parsedError.errormessage ?? error.message,
-      body: error as unknown as JSONLikeObject,
+      // Avoid attaching the raw HTTPError - its `request`/`response`/`options` carry the
+      // developer-token auth header and aren't guaranteed JSON-serializable (Fetch API objects).
+      body: (response?.data ?? { message: error.message }) as unknown as JSONLikeObject,
       sent: sentItems[itemIndex]
     })
     failedPayloadIndices?.add(originalIndex)
