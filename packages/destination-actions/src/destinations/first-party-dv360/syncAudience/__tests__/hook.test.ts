@@ -57,6 +57,51 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     })
   })
 
+  const hookError = (message: string) => ({ error: { message, code: 'RETL_ON_MAPPING_SAVE_FAILED' } })
+
+  // performHook is the only gate on these: the hook inputs are deliberately not marked
+  // required, so that a missing value fails at mapping save with a message naming it
+  // rather than blocking the mapping form.
+  it.each([undefined, '', '   '])('requires an advertiser ID, whatever the operation (%p)', async (advertiserId) => {
+    for (const operation of ['create', 'existing'] as const) {
+      const result = await performHook(request, inputs({ advertiserId, operation }))
+
+      expect(result).toEqual(hookError('Missing advertiser ID value'))
+    }
+  })
+
+  it('requires an audience type when creating', async () => {
+    const result = await performHook(request, inputs({ audienceType: undefined }))
+
+    expect(result).toEqual(hookError('Missing audience type value'))
+  })
+
+  it('requires a membership duration when creating', async () => {
+    const result = await performHook(request, inputs({ membershipDurationDays: undefined }))
+
+    expect(result).toEqual(hookError('Missing membership duration days value'))
+  })
+
+  it.each([0, -1, 541, 90.5])('rejects a membership duration of %p', async (membershipDurationDays) => {
+    const result = await performHook(request, inputs({ membershipDurationDays }))
+
+    expect(result).toEqual(
+      hookError('Membership duration days must be a whole number greater than 0 and less than or equal to 540')
+    )
+  })
+
+  it('requires an audience ID when connecting to an existing audience', async () => {
+    const result = await performHook(request, inputs({ operation: 'existing', existingAudienceId: undefined }))
+
+    expect(result).toEqual(hookError('Missing audience ID value'))
+  })
+
+  it('rejects a missing operation', async () => {
+    const result = await performHook(request, inputs({ operation: undefined }))
+
+    expect(result).toEqual(hookError('Invalid operation value. Must be create or existing.'))
+  })
+
   it('requires an app ID for a device ID audience', async () => {
     const result = await performHook(request, inputs({ audienceType: 'CUSTOMER_MATCH_DEVICE_ID' }))
 

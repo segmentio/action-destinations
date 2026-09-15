@@ -210,22 +210,19 @@ export const retlHookInputFields: ActionHookDefinition<
       { label: 'Create New Audience', value: 'create' },
       { label: 'Connect to Existing Audience', value: 'existing' }
     ],
-    default: 'create',
-    required: true
+    default: 'create'
   },
   advertiserId: {
     type: 'string',
     label: 'Advertiser ID',
     description:
-      'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.',
-    required: true
+      'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
   },
   audienceName: {
     type: 'string',
     label: 'Audience Name',
     description: 'The display name of the audience to create in Display & Video 360.',
-    depends_on: CREATE_OPERATION,
-    required: CREATE_OPERATION
+    depends_on: CREATE_OPERATION
   },
   audienceType: {
     type: 'string',
@@ -235,8 +232,7 @@ export const retlHookInputFields: ActionHookDefinition<
       { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
       { label: 'CUSTOMER MATCH DEVICE ID', value: DEVICE_ID }
     ],
-    depends_on: CREATE_OPERATION,
-    required: CREATE_OPERATION
+    depends_on: CREATE_OPERATION
   },
   membershipDurationDays: {
     type: 'number',
@@ -245,8 +241,7 @@ export const retlHookInputFields: ActionHookDefinition<
       'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.',
     minimum: 1,
     maximum: 540,
-    depends_on: CREATE_OPERATION,
-    required: CREATE_OPERATION
+    depends_on: CREATE_OPERATION
   },
   description: {
     type: 'string',
@@ -259,15 +254,13 @@ export const retlHookInputFields: ActionHookDefinition<
     label: 'App ID',
     description:
       'The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.',
-    depends_on: CREATE_DEVICE_ID_OPERATION,
-    required: CREATE_DEVICE_ID_OPERATION
+    depends_on: CREATE_DEVICE_ID_OPERATION
   },
   existingAudienceId: {
     type: 'string',
     label: 'Existing Audience ID',
     description: 'The ID of the audience in Display & Video 360 to connect this mapping to.',
-    depends_on: EXISTING_OPERATION,
-    required: EXISTING_OPERATION
+    depends_on: EXISTING_OPERATION
   }
 }
 
