@@ -72,20 +72,6 @@ const destination: DestinationDefinition<Settings> = {
           'Your TikTok Offline Event Set ID. Please see TikTok’s [Events API 2.0 documentation](https://business-api.tiktok.com/portal/docs?id=1771101027431425) for information on how to find this value.',
         required: true
       }
-    },
-    testAuthentication: (request, { settings }) => {
-      return request(
-        `https://business-api.tiktok.com/open_api/${TIKTOK_OFFLINE_CONVERSIONS_API_VERSION}/offline/track/`,
-        {
-          method: 'post',
-          json: {
-            event_set_id: settings.eventSetID,
-            event: 'Test Event',
-            timestamp: '',
-            context: {}
-          }
-        }
-      )
     }
   },
   extendRequest({ settings }) {
