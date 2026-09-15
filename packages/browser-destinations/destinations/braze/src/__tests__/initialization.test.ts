@@ -137,6 +137,66 @@ describe('initialization', () => {
     expect(logCustomEventSpy).toHaveBeenCalledWith('FIFA', { goat: 'deno' })
   })
 
+  test('does not initialize when a userId is only present in persisted storage (no identify this page load)', async () => {
+    const [updateUserProfile, trackEvent] = await brazeDestination({
+      api_key: 'b_123',
+      deferUntilIdentified: true,
+      subscriptions: destination.presets?.map((sub) => ({ ...sub, enabled: true })) as Subscription[],
+      ...settings
+    })
+
+    const initializeSpy = jest.spyOn(destination, 'initialize')
+    const analytics = new Analytics({ writeKey: '123' })
+
+    await analytics.register(updateUserProfile, trackEvent)
+
+    // Simulate a userId persisted from a prior session (ajs_user_id in localStorage).
+    // This must NOT be enough to open a Braze session on its own.
+    jest.spyOn(analytics.user(), 'id').mockReturnValue('stale-user-123')
+
+    const { instance: braze } = await initializeSpy.mock.results[0].value
+    const openSessionSpy = jest.spyOn(braze, 'openSession')
+    const changeUserSpy = jest.spyOn(braze, 'changeUser')
+
+    await analytics.track?.({
+      type: 'track',
+      event: 'UFC',
+      properties: {
+        goat: 'hasbulla'
+      }
+    })
+
+    expect(analytics.user().id()).toBe('stale-user-123')
+    expect(openSessionSpy).not.toHaveBeenCalled()
+    expect(changeUserSpy).not.toHaveBeenCalled()
+  })
+
+  test('changes to the identified user before opening the session', async () => {
+    const [updateUserProfile, trackEvent] = await brazeDestination({
+      api_key: 'b_123',
+      deferUntilIdentified: true,
+      subscriptions: destination.presets?.map((sub) => ({ ...sub, enabled: true })) as Subscription[],
+      ...settings
+    })
+
+    const initializeSpy = jest.spyOn(destination, 'initialize')
+    const analytics = new Analytics({ writeKey: '123' })
+
+    await analytics.register(updateUserProfile, trackEvent)
+
+    const { instance: braze } = await initializeSpy.mock.results[0].value
+    const openSessionSpy = jest.spyOn(braze, 'openSession')
+    const changeUserSpy = jest.spyOn(braze, 'changeUser')
+
+    await analytics.identify('user-42')
+
+    expect(changeUserSpy).toHaveBeenCalledWith('user-42')
+    expect(openSessionSpy).toHaveBeenCalled()
+    // changeUser must run before openSession so the session is attributed to the
+    // known user and Braze does not create a separate anonymous profile.
+    expect(changeUserSpy.mock.invocationCallOrder[0]).toBeLessThan(openSessionSpy.mock.invocationCallOrder[0])
+  })
+
   test('passes devicePropertyAllowlist to Braze SDK initialization', async () => {
     const devicePropertyAllowlist = ['os', 'browser']
     const [event] = await brazeDestination({

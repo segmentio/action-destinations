@@ -92,7 +92,8 @@ const destination: DestinationDefinition<Settings> = {
         Authorization: `Bearer ${settings.access_token}`,
         'X-UA-Appkey': `${settings.app_key}`,
         Accept: 'application/vnd.urbanairship+json; version=3',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': `PartnerIntegrations/Segment (${settings.app_key})`
       }
     }
   },

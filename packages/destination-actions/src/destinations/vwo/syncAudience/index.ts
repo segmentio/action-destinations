@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {hosts} from "../utility";
+import { hosts } from '../utility'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -68,9 +68,9 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     }
-    const region = settings.region || "US"
+    const region = settings.region || 'US'
     const host = hosts[region]
-    const endpoint = `${host}/events/t?en=vwo_integration&a=${settings.vwoAccountId}`
+    const endpoint = `${host}/collect/events/t?en=vwo_integration&a=${settings.vwoAccountId}`
 
     return request(endpoint, {
       method: 'POST',

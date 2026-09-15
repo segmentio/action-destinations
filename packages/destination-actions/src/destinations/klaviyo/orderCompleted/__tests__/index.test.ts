@@ -53,6 +53,23 @@ describe('Order Completed', () => {
     )
   })
 
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      timestamp: '2022-01-01T00:00:00.000Z'
+    })
+
+    const mapping = {
+      profile: { external_id: 'a'.repeat(256) },
+      metric_name: 'Order Completed',
+      properties: { key: 'value' }
+    }
+
+    await expect(testDestination.testAction('orderCompleted', { event, mapping, settings })).rejects.toThrowError(
+      'Length of external_id must be no more than 255 characters.'
+    )
+  })
+
   it('should throw an error for invalid phone number format', async () => {
     const profile = { email: 'test@example.com', phone_number: 'invalid-phone-number', country_code: 'US' }
     const properties = { key: 'value' }

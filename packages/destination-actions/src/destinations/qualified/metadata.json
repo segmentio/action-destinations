@@ -1,0 +1,385 @@
+{
+  "slug": "actions-qualified",
+  "name": "Qualified",
+  "mode": "cloud",
+  "description": "Qualified is a Conversational Marketing platform that helps B2B companies engage and convert website visitors into customers using real-time chat, AI-driven insights, and personalized experiences.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "api_key": {
+        "label": "API Key",
+        "description": "Your Qualified API Key. When creating the API Key in Qualified make sure to select all scopes.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "upsertLead": {
+      "title": "Upsert Lead",
+      "description": "Send a Lead to Qualified, or update an existing Lead",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Lead Updated\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": {
+        "string_fields": [
+          "__keys__"
+        ],
+        "boolean_fields": [
+          "__keys__"
+        ],
+        "number_fields": [
+          "__keys__"
+        ]
+      },
+      "fields": {
+        "email": {
+          "label": "Email",
+          "description": "The email address of the lead to upsert.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "phone": {
+          "label": "Phone",
+          "description": "The phone number of the lead to upsert.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "company": {
+          "label": "Company",
+          "description": "The company name of the lead to upsert.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.company"
+              },
+              "then": {
+                "@path": "$.context.traits.company"
+              },
+              "else": {
+                "@path": "$.properties.company"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Name",
+          "description": "The name of the lead to upsert.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.name"
+              },
+              "then": {
+                "@path": "$.context.traits.name"
+              },
+              "else": {
+                "@path": "$.properties.name"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "string_fields": {
+          "label": "String Fields",
+          "description": "Additional string, text, picklist fields to set on the Lead.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "boolean_fields": {
+          "label": "Boolean Fields",
+          "description": "Additional boolean / checkbox fields to set on the Lead.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "number_fields": {
+          "label": "Number Fields",
+          "description": "Additional numeric / decimal fields to set on the Lead.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "updateCompany": {
+      "title": "Update Company",
+      "description": "Update all Leads withing a Company in Qualified.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Leads In Company Updated\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": {
+        "string_fields": [
+          "__keys__"
+        ],
+        "boolean_fields": [
+          "__keys__"
+        ],
+        "number_fields": [
+          "__keys__"
+        ]
+      },
+      "fields": {
+        "domain": {
+          "label": "Domain",
+          "description": "The domain of the company to update.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.domain"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "string_fields": {
+          "label": "String Fields",
+          "description": "String, text or picklist field values to set on all Leads associated with the Company.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "boolean_fields": {
+          "label": "Boolean Fields",
+          "description": "boolean / checkbox field values to set on all Leads associated with the Company.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "number_fields": {
+          "label": "Number Fields",
+          "description": "Numeric / decimal field values to set on all Leads associated with the Company.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": true,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": []
+}

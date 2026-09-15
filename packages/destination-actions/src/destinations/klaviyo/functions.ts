@@ -10,7 +10,7 @@ import {
   ErrorCodes,
   StatsContext
 } from '@segment/actions-core'
-import { API_URL, REVISION_DATE } from './config'
+import { API_URL, REVISION_DATE, MAX_EXTERNAL_ID_LENGTH } from './config'
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -39,6 +39,31 @@ import { eventBulkCreateRegex } from './properties'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kittypes'
 
 const phoneUtil = PhoneNumberUtil.getInstance()
+
+const EXTERNAL_ID_LENGTH_ERROR: ActionDestinationErrorResponseType = {
+  status: 400,
+  errortype: 'PAYLOAD_VALIDATION_FAILED',
+  errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
+}
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+const INVALID_EMAIL_ERROR: ActionDestinationErrorResponseType = {
+  status: 400,
+  errortype: 'PAYLOAD_VALIDATION_FAILED',
+  errormessage: 'Email must be a valid email address.'
+}
+
+export function validateEmail(email: string | undefined): boolean {
+  if (!email) return true
+  return EMAIL_REGEX.test(email)
+}
+
+export function validateExternalId(externalId: string | undefined): void {
+  if (externalId && externalId.length > MAX_EXTERNAL_ID_LENGTH) {
+    throw new PayloadValidationError(EXTERNAL_ID_LENGTH_ERROR.errormessage)
+  }
+}
 
 export async function getListIdDynamicData(request: RequestClient): Promise<DynamicFieldResponse> {
   try {
@@ -99,6 +124,7 @@ export async function createProfile(
   phone_number: string | undefined,
   additionalAttributes: AdditionalAttributes
 ) {
+  validateExternalId(external_id)
   try {
     const profileData: ProfileData = {
       data: {
@@ -586,6 +612,11 @@ function validateAndConstructRemoveProfilePayloads(payload: RemoveProfilePayload
     return response
   }
 
+  if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = EXTERNAL_ID_LENGTH_ERROR
+    return response
+  }
+
   if (phone_number) {
     const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, payload.country_code as string)
     if (!validPhoneNumber) {
@@ -613,6 +644,16 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
     }
+    return response
+  }
+
+  if (!validateEmail(email)) {
+    response.error = INVALID_EMAIL_ERROR
+    return response
+  }
+
+  if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = EXTERNAL_ID_LENGTH_ERROR
     return response
   }
 
@@ -756,20 +797,22 @@ function validateAndPreparePayloads(payloads: TrackEventPayload[], multiStatusRe
       return
     }
 
+    if (external_id && external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+      multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, EXTERNAL_ID_LENGTH_ERROR)
+      return
+    }
+
     if (phone_number) {
-      // Validate and convert the phone number if present
       const validPhoneNumber = validateAndConvertPhoneNumber(phone_number, country_code as string)
-      // If the phone number is not valid, skip this payload
       if (!validPhoneNumber) {
         multiStatusResponse.setErrorResponseAtIndex(originalBatchIndex, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: 'Phone number could not be converted to E.164 format.'
         })
-        return // Skip this payload
+        return
       }
 
-      // Update the payload's phone number with the validated format
       payload.profile.phone_number = validPhoneNumber
       delete payload?.profile?.country_code
     }
@@ -917,6 +960,11 @@ export function validateProfilePayload(payload: Payload): validateProfilePayload
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
     }
+    return response
+  }
+
+  if (payload.external_id && payload.external_id.length > MAX_EXTERNAL_ID_LENGTH) {
+    response.error = EXTERNAL_ID_LENGTH_ERROR
     return response
   }
 

@@ -1,0 +1,205 @@
+{
+  "slug": "actions-logrocket",
+  "name": "Logrocket",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "appID": {
+        "label": "LogRocket App",
+        "description": "The LogRocket app ID.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "networkSanitization": {
+        "label": "Network Sanitization",
+        "description": "Sanitize all network request and response bodies from session recordings.",
+        "type": "boolean",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      },
+      "inputSanitization": {
+        "label": "Input Sanitization",
+        "description": "Obfuscate all user-input elements (like <input> and <select>) from session recordings.",
+        "type": "boolean",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "track": {
+      "title": "Track",
+      "description": "Send track events to logrocket for filtering and tagging.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "name": {
+          "label": "Name",
+          "description": "The name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "A JSON object containing additional properties that will be associated with the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identify": {
+      "title": "Identify",
+      "description": "Send identification information to logrocket.",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "user id",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "A JSON object containing additional traits that will be associated with the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track",
+      "type": "automatic",
+      "partnerAction": "track",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify",
+      "type": "automatic",
+      "partnerAction": "identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

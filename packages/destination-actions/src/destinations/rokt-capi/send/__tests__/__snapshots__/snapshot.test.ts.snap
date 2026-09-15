@@ -19,7 +19,7 @@ Object {
         },
         "custom_event_type": "other",
         "event_name": "audiencemembershipupdate",
-        "source_message_id": "WKK6WO",
+        "source_message_id": "aud_WKK6WO",
         "timestamp_unixtime_ms": null,
       },
       "event_type": "custom_event",

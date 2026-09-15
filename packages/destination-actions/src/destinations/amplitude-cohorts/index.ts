@@ -1,8 +1,8 @@
-import { AudienceDestinationDefinition, defaultValues } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getEndpointByRegion, createAudience, getAudience } from './functions'
-import { ID_TYPES } from './constants'
+import { ID_TYPES, AUDIENCE_NAME_PREFIX } from './constants'
 import { IDType } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -57,12 +57,28 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           }
         ],
         default: 'north_america'
+      },
+      prefix_audience_names: {
+        label: 'Prefix Audience Names',
+        description:
+          'When enabled, all audience (cohort) names sent to Amplitude are prefixed with "[Segment] ". Turn this off to send audience names without the prefix.',
+        type: 'boolean',
+        required: false,
+        default: true
       }
     },
     testAuthentication: (request, { settings }) => {
       const { endpoint, default_owner_email } = settings
+      const trimmedOwnerEmail = default_owner_email?.trim()
+      if (!trimmedOwnerEmail) {
+        throw new IntegrationError(
+          'Missing required setting: Cohort Owner Email (default_owner_email)',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
+      }
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?user=${default_owner_email}`)
+      return request(`${baseUrl}?user=${encodeURIComponent(trimmedOwnerEmail)}`)
     }
   },
   extendRequest({ settings }) {
@@ -106,6 +122,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'The name of the cohort in Amplitude. This will override the default cohort name which is the snake_case version of the Segment Audience name.',
       type: 'string',
       required: false
+    },
+    user_id: {
+      label: 'User ID',
+      description:
+        'A valid User ID that exists in your Amplitude project. Amplitude requires a temporary seed user to create the cohort; this user will be added during creation and immediately removed. If no value is provided, Segment will attempt to discover a valid User ID automatically. Only provide this field manually if that automatic lookup fails or no users are found.',
+      type: 'string',
+      required: false
     }
   },
   audienceConfig: {
@@ -114,15 +137,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const {
-        audienceName,
+      const { audienceName, settings, audienceSettings, statsContext } = createAudienceInput
+
+      const { owner_email, audience_name, id_type, user_id } = (audienceSettings || {}) as AudienceSettings
+      const baseName = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
+      // `prefix_audience_names` defaults to true; the prefix is applied only when it is explicitly true.
+      const name = settings.prefix_audience_names === true ? `${AUDIENCE_NAME_PREFIX}${baseName}` : baseName
+
+      const externalId = await createAudience(
+        request,
         settings,
-        audienceSettings: { owner_email, audience_name, id_type } = {}
-      } = createAudienceInput
-
-      const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
-
-      const externalId = await createAudience(request, settings, name, id_type as IDType, owner_email)
+        name,
+        id_type as IDType,
+        owner_email,
+        user_id,
+        statsContext
+      )
       return { externalId }
     },
     async getAudience(request, createAudienceInput) {
@@ -135,36 +165,6 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   },
   actions: {
     syncAudience
-  },
-  presets: [
-    {
-      name: 'Entities Audience Membership Changed',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_audience_membership_changed_identify'
-    },
-    {
-      name: 'Associated Entity Added',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_entity_added_track'
-    },
-    {
-      name: 'Associated Entity Removed',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_entity_removed_track'
-    },
-    {
-      name: 'Journeys Step Entered',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'journeys_step_entered_track'
-    }
-  ]
+  }
 }
 export default destination

@@ -172,4 +172,57 @@ describe('Braze IdentifyUser2', () => {
       ).rejects.toThrow()
     })
   })
+
+  describe('syncMode', () => {
+    it('should succeed when a valid syncMode of "upsert" is used', async () => {
+      // identifyUser2's perform() treats 'add' and 'upsert' identically - both are accepted and
+      // produce the exact same request body. There is no branching behavior between them; syncMode
+      // is only used as a validity gate (anything other than 'add'/'upsert' throws). This test closes
+      // the gap that only 'add' had previously been exercised.
+      const mockResponse = {
+        aliases_processed: 1,
+        emails_processed: 0,
+        phone_numbers_processed: 0,
+        message: 'success'
+      }
+
+      nock(settings.endpoint).post('/users/identify').reply(200, mockResponse)
+
+      const event = createTestEvent({
+        type: 'identify',
+        userId: 'test-user-upsert'
+      })
+
+      const responses = await testDestination.testAction('identifyUser2', {
+        event,
+        settings,
+        mapping: {
+          external_id: 'test-user-upsert',
+          user_alias: {
+            alias_name: 'alias-name-1',
+            alias_label: 'alias-label-1'
+          },
+          __segment_internal_sync_mode: 'upsert'
+        }
+      })
+
+      expect(responses).toBeDefined()
+      expect(responses.length).toBeGreaterThanOrEqual(1)
+      // Check the last response in the array (current test's response)
+      const currentResponse = responses[responses.length - 1]
+      expect(currentResponse.status).toBe(200)
+      expect(currentResponse.data).toEqual(mockResponse)
+      expect(currentResponse.options.json).toEqual({
+        aliases_to_identify: [
+          {
+            external_id: 'test-user-upsert',
+            user_alias: {
+              alias_name: 'alias-name-1',
+              alias_label: 'alias-label-1'
+            }
+          }
+        ]
+      })
+    })
+  })
 })

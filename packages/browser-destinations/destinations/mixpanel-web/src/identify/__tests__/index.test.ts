@@ -36,7 +36,6 @@ describe('Mixpanel.identify', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-
       mockGroup = {
         set: jest.fn(),
         set_once: jest.fn(),
@@ -48,6 +47,7 @@ describe('Mixpanel.identify', () => {
         track_pageview: jest.fn(),
         track: jest.fn(),
         identify: jest.fn(),
+        register: jest.fn(),
         alias: jest.fn(),
         get_group: jest.fn().mockReturnValue(mockGroup),
         set_group: jest.fn(),
@@ -69,21 +69,21 @@ describe('Mixpanel.identify', () => {
         enabled: true,
         subscribe: 'type = "identify"',
         mapping: {
-          unique_id:{ '@path': '$.userId' },
-          user_profile_properties_to_set: { 
-              name: { '@path': '$.traits.name' },
-              first_name: { '@path': '$.traits.first_name' },
-              last_name: { '@path': '$.traits.last_name' },
-              email: { '@path': '$.traits.email' },
-              phone: { '@path': '$.traits.phone' },
-              avatar: { '@path': '$.traits.avatar' },
-              created: { '@path': '$.traits.created' }
+          unique_id: { '@path': '$.userId' },
+          user_profile_properties_to_set: {
+            name: { '@path': '$.traits.name' },
+            first_name: { '@path': '$.traits.first_name' },
+            last_name: { '@path': '$.traits.last_name' },
+            email: { '@path': '$.traits.email' },
+            phone: { '@path': '$.traits.phone' },
+            avatar: { '@path': '$.traits.avatar' },
+            created: { '@path': '$.traits.created' }
           },
           user_profile_properties_to_set_once: {
-              set_once_trait: { '@path': '$.traits.set_once_trait_1' },
+            set_once_trait: { '@path': '$.traits.set_once_trait_1' }
           },
           user_profile_properties_to_increment: {
-              increment_property: { '@path': '$.traits.increment_property_1' }
+            increment_property: { '@path': '$.traits.increment_property_1' }
           }
         }
       }
@@ -116,7 +116,7 @@ describe('Mixpanel.identify', () => {
     await event.load(Context.system(), {} as Analytics)
     await event.identify?.(context)
 
-    expect(mockMPP.identify).toHaveBeenCalledWith("userId1")
+    expect(mockMPP.identify).toHaveBeenCalledWith('userId1')
     expect(mockMPP.people.set).toHaveBeenCalledWith({
       $name: 'name1',
       $last_name: 'lastName1',

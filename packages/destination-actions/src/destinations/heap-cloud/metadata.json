@@ -1,0 +1,652 @@
+{
+  "slug": "actions-heap-cloud-server",
+  "name": "Heap Cloud",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "appId": {
+        "label": "App ID",
+        "description": "The app_id corresponding to your Heap project.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "region": {
+        "label": "Data Residency Region",
+        "description": "Select the region for your Heap environment.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "US (Default)",
+            "value": "US"
+          },
+          {
+            "label": "EU",
+            "value": "EU"
+          }
+        ],
+        "default": "US",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendEvent": {
+      "title": "Send Event",
+      "description": "Send a Segment track, page, screen or identify call to Heap. Sends the event to Heap and, when user properties are present, updates the Heap user profile.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"page\" or type = \"screen\" or type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "type": {
+          "label": "Event Type",
+          "description": "The type of Segment call. One of: track, page, screen, identify.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event": {
+          "label": "Event Name",
+          "description": "Name of the event. Present on track calls only, limited to 1024 characters. Page and screen calls are sent as \"Page viewed\" and \"Screen viewed\".",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Page or Screen Name",
+          "description": "Name of the page or screen being viewed. Present on page and screen calls only.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "page"
+              },
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "screen"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "identity": {
+          "label": "Identity",
+          "description": "A string that uniquely identifies a user, such as an email, handle, or username. No two users in one environment may share the same identity. Defaults to the Segment userId.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "The Segment anonymous ID for the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_id": {
+          "label": "User ID",
+          "description": "Heap’s own internal numeric user ID (a numeric string between 0 and 2^53). This is not a Segment userId — map the Segment userId to Identity instead.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "The user’s email address, sent as an additional Heap identifier.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.email"
+              },
+              "then": {
+                "@path": "$.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Event Properties",
+          "description": "An object with key-value properties to associate with the event. Nested objects are flattened and all values are sent to Heap as strings.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "identify"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "User Properties",
+          "description": "An object with key-value properties to associate with the user profile. Must be sent with an identity identifier.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits"
+              },
+              "then": {
+                "@path": "$.context.traits"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "nested_properties_mode": {
+          "label": "Nested Object & Array Handling",
+          "description": "How to handle object and array values in Event Properties and User Properties. \"Flatten\" (default) expands them into dot-delimited keys (e.g. an_obj.color, foods.0). \"Stringify\" sends each object or array as a single JSON string. \"Drop\" removes object and array fields so they are not sent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "flatten",
+          "choices": [
+            {
+              "label": "Flatten (default)",
+              "value": "flatten"
+            },
+            {
+              "label": "Stringify",
+              "value": "stringify"
+            },
+            {
+              "label": "Drop",
+              "value": "drop"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event. Defaults to the current time if not provided.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "message_id": {
+          "label": "Message ID",
+          "description": "Unique event ID generated by Segment, used as the Heap idempotency key.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send Event",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "type": "track",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.email"
+            },
+            "then": {
+              "@path": "$.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.context.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Page",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "type": "page",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.email"
+            },
+            "then": {
+              "@path": "$.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.context.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send Screen",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"screen\"",
+      "mapping": {
+        "type": "screen",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.email"
+            },
+            "then": {
+              "@path": "$.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.context.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send User",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "type": "identify",
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "identity": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.email"
+            },
+            "then": {
+              "@path": "$.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "nested_properties_mode": "flatten",
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "message_id": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

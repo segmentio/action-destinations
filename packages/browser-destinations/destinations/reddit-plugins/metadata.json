@@ -1,0 +1,22 @@
+{
+  "slug": "reddit-plugins",
+  "name": "Reddit Plugins",
+  "mode": "device",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "redditPlugin": {
+      "title": "Reddit Browser Plugin",
+      "description": "Enriches Segment payloads with data from the Reddit Pixel",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}

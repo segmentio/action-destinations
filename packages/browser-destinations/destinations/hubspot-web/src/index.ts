@@ -92,7 +92,7 @@ export const destination: BrowserDestinationDefinition<Settings, Hubspot> = {
       ? 'https://js-eu1.hsforms.net/forms/v2.js'
       : 'https://js.hsforms.net/forms/v2.js'
 
-    await deps.loadScript(scriptPath)
+    await deps.loadScript(scriptPath, { id: 'hs-script-loader' })
     if (settings.loadFormsSDK) {
       await deps.loadScript(formsScriptPath)
     }

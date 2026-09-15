@@ -50,6 +50,44 @@ describe('Upsert Profile', () => {
     )
   })
 
+  it('should throw error if external_id exceeds 255 characters', async () => {
+    const longExternalId = 'a'.repeat(256)
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        email: 'test@example.com'
+      }
+    })
+
+    const mapping = {
+      external_id: longExternalId,
+      email: { '@path': '$.traits.email' }
+    }
+
+    await expect(testDestination.testAction('upsertProfile', { event, settings, mapping })).rejects.toThrowError(
+      'Length of external_id must be no more than 255 characters.'
+    )
+  })
+
+  it('should not throw error if external_id is exactly 255 characters', async () => {
+    const exactExternalId = 'a'.repeat(255)
+    const event = createTestEvent({
+      type: 'identify',
+      traits: {
+        email: 'test@example.com'
+      }
+    })
+
+    const mapping = {
+      external_id: exactExternalId,
+      email: { '@path': '$.traits.email' }
+    }
+
+    nock(`${API_URL}`).post('/profiles/').reply(200, {})
+
+    await expect(testDestination.testAction('upsertProfile', { event, settings, mapping })).resolves.not.toThrowError()
+  })
+
   it('should throw an error for invalid phone number format in perform', async () => {
     const event = createTestEvent({
       type: 'identify',

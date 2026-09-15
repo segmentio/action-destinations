@@ -340,6 +340,51 @@ describe('BrazeCohorts.syncAudiences', () => {
     expect(responses[1].options.json).toMatchSnapshot()
   })
 
+  it('should add user to braze when computation_class is journey_step (Journeys)', async () => {
+    // This destination has no computation_class-aware code at all - add/remove is decided
+    // purely by the event_properties[personas_audience_key] boolean, and computation_class
+    // is never read. Journeys sends the same "Audience Entered"/"Audience Exited" shape (this
+    // destination's defaultSubscription) with computation_class: 'journey_step' instead of
+    // 'audience'. This test pins down that Journeys traffic is handled identically to Engage.
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+
+    const responses = await testDestination.testAction('syncAudiences', {
+      event: {
+        ...event,
+        context: {
+          ...event.context,
+          personas: {
+            ...event.context.personas,
+            computation_class: 'journey_step'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        }
+      },
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: ['w8KWCsdTxe1Ydaf3s62UMc'],
+          device_ids: [],
+          aliases: []
+        })
+      ])
+    })
+  })
+
   it('should not hit create cohort api when cohort_name is available in state context is matching with computation key', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
 

@@ -14,7 +14,7 @@ export interface Settings {
 
 export interface AudienceSettings {
   /**
-   * A name for the Pendo Segment. Leave blank to use the Segment audience name.
+   * The name for the Pendo Segment. Leave blank to use the Segment audience name.
    */
   audienceName?: string
 }

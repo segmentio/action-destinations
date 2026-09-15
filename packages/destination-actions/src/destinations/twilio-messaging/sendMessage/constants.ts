@@ -124,3 +124,5 @@ export const SENDER_TYPE = {
   FACEBOOK_PAGE_ID: 'Facebook Page ID',
   MESSAGING_SERVICE: 'Messaging Service'
 }
+
+export const FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES = 'twilio-messaging-stringify-content-variables'

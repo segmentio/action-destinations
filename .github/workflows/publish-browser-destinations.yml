@@ -1,0 +1,117 @@
+# Short-term workflow for producing browser destination artifacts independently
+# from npm package publishing. Both workflows start concurrently on Release pushes.
+name: Publish Browser Destination Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  detect-browser-destination-changes:
+    if: startsWith(github.event.head_commit.message, 'Release') == true
+    runs-on: ubuntu-latest-large
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Detect Browser Bundle Changes
+        id: changes
+        env:
+          ARTIFACT_ENVIRONMENT: ${{ github.ref_name == 'staging' && 'stage' || 'production' }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous_publish=''
+          while IFS=$'\t' read -r commit subject; do
+            if [[ "$subject" == Release* ]]; then
+              previous_publish="$commit"
+              break
+            fi
+          done < <(git log --first-parent --format='%H%x09%s' HEAD^)
+
+          if [ -z "$previous_publish" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif ! git diff --quiet "$previous_publish" HEAD -- \
+            packages/browser-destinations/ \
+            packages/browser-destination-runtime/ \
+            packages/core/ \
+            packages/actions-shared/ \
+            packages/ajv-human-errors/ \
+            packages/destination-subscriptions/; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            artifact_name="browser-destinations-${ARTIFACT_ENVIRONMENT}-${previous_publish}"
+
+            if artifacts=$(gh api --method GET \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/artifacts" \
+              -f name="$artifact_name" \
+              -f per_page=100) && \
+              artifact_count=$(jq --arg name "$artifact_name" \
+                '[.artifacts[] | select(.name == $name and .expired == false)] | length' \
+                <<< "$artifacts") && \
+              [ "$artifact_count" -gt 0 ]; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+  build-browser-destinations:
+    needs: detect-browser-destination-changes
+    env:
+      HUSKY: 0
+      NX_DISABLE_DB: true
+    if: needs.detect-browser-destination-changes.outputs.changed == 'true'
+    runs-on: ubuntu-latest-large
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Verify Checkout Commit
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22.x
+          cache: yarn
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build Destinations Manifest
+        run: yarn nx build @segment/destinations-manifest
+
+      - name: Build Production Browser Bundles
+        if: github.ref_name == 'main'
+        working-directory: packages/browser-destinations
+        run: yarn build-web
+
+      - name: Build Stage Browser Bundles
+        if: github.ref_name == 'staging'
+        working-directory: packages/browser-destinations
+        run: yarn build-web-stage
+
+      - name: Upload Browser Destinations Artifact
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.6.0
+        with:
+          name: browser-destinations-${{ github.ref_name == 'staging' && 'stage' || 'production' }}-${{ github.sha }}
+          path: packages/browser-destinations/dist/web/
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,303 @@
+{
+  "slug": "actions-blend-ai",
+  "name": "Blend Ai",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Blend API key - found on integration page.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendData": {
+      "title": "[Deprecated] Send Data",
+      "description": "[Deprecated] Send data to Blend AI for product usage insights",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    },
+    "trackEvents": {
+      "title": "Track events",
+      "description": "Send data to Blend AI for product usage insights",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of event, page or screen",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventProperties": {
+          "label": "Event Properties",
+          "description": "Properties of the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userTraits": {
+          "label": "User Traits",
+          "description": "User profile details / traits",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "identifiers": {
+          "label": "Identifiers",
+          "description": "User identifiers",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "anonymousId": {
+              "@path": "$.anonymousId"
+            },
+            "userId": {
+              "@path": "$.userId"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "anonymousId": {
+              "label": "Anonymous ID",
+              "description": "Segment anonymous ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "userId": {
+              "label": "User ID",
+              "description": "User ID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send Data to Blend",
+      "type": "automatic",
+      "partnerAction": "trackEvents",
+      "subscribe": "type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"track\"",
+      "mapping": {
+        "eventName": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "eventType": {
+          "@path": "$.type"
+        },
+        "eventProperties": {
+          "@path": "$.properties"
+        },
+        "userTraits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "identifiers": {
+          "anonymousId": {
+            "@path": "$.anonymousId"
+          },
+          "userId": {
+            "@path": "$.userId"
+          }
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

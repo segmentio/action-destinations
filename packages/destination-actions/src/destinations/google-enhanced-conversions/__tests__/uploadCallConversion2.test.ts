@@ -756,5 +756,47 @@ describe('GoogleEnhancedConversions', () => {
         expect((e as Error).message).toBe('Unsupported Sync Mode "upsert"')
       }
     })
+
+    it('strips hyphens from customerId in batch API URL and conversionAction', async () => {
+      const hyphenatedCustomerId = '123-456-7890'
+      const strippedCustomerId = '1234567890'
+
+      const events: SegmentEvent[] = [
+        createTestEvent({
+          timestamp,
+          event: 'Test Event 1',
+          properties: {
+            email: 'test1@gmail.com',
+            orderId: '1234',
+            total: '200',
+            currency: 'USD'
+          }
+        })
+      ]
+
+      nock(`https://googleads.googleapis.com/${API_VERSION}/customers/${strippedCustomerId}:uploadCallConversions`)
+        .post('')
+        .reply(201, { results: [{}] })
+
+      const responses = await testDestination.testBatchAction('uploadCallConversion2', {
+        events,
+        mapping: {
+          conversion_action: '12345',
+          caller_id: '+1234567890',
+          call_timestamp: timestamp,
+          __segment_internal_sync_mode: 'add'
+        },
+        useDefaultMappings: true,
+        settings: {
+          customerId: hyphenatedCustomerId
+        }
+      })
+
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(201)
+
+      const body = JSON.parse(responses[0].options.body as string)
+      expect(body.conversions[0].conversionAction).toBe(`customers/${strippedCustomerId}/conversionActions/12345`)
+    })
   })
 })

@@ -5,7 +5,8 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
-import { LINKEDIN_API_VERSION } from './constants'
+import updateCompanyAudience from './updateCompanyAudience'
+import { getApiVersion } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
@@ -108,13 +109,32 @@ const destination: DestinationDefinition<Settings> = {
     refreshAccessToken: async (request, { auth }) => {
       let res
 
+      if (!process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_ID) {
+        throw new IntegrationError(`Missing client ID`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
+      }
+
+      if (!process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_SECRET) {
+        throw new IntegrationError(`Missing client secret`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
+      }
+
+      if (!auth?.refreshToken) {
+        throw new IntegrationError(
+          `Missing refresh token. Please re-authenticate to fetch a new refresh token.`,
+          ErrorCodes.OAUTH_REFRESH_FAILED,
+          401
+        )
+      }
+
       try {
         res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
+            client_id: process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_ID,
+            client_secret: process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_SECRET,
             grant_type: 'refresh_token'
           })
         })
@@ -138,7 +158,7 @@ const destination: DestinationDefinition<Settings> = {
       return { accessToken: res?.data?.access_token }
     }
   },
-  extendRequest({ auth }) {
+  extendRequest({ auth, features }) {
     // Repeat calls to the same LinkedIn API endpoint were failing due to a `socket hang up`.
     // This seems to fix it: https://stackoverflow.com/questions/62500011/reuse-tcp-connection-with-node-fetch-in-node-js
     const agent = new https.Agent({ keepAlive: true })
@@ -146,14 +166,15 @@ const destination: DestinationDefinition<Settings> = {
     return {
       headers: {
         authorization: `Bearer ${auth?.accessToken}`,
-        'LinkedIn-Version': LINKEDIN_API_VERSION
+        'LinkedIn-Version': getApiVersion(features)
       },
       agent
     }
   },
 
   actions: {
-    updateAudience
+    updateAudience,
+    updateCompanyAudience
   }
 }
 

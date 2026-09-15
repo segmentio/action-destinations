@@ -27,6 +27,15 @@ import type { Payload } from './generated-types'
 import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 
 /**
+ * Feature flag gating the fix for the single-event (`perform`) path silently reporting
+ * HTTP errors (including 401s that should trigger an OAuth re-auth) as successful deliveries.
+ * See STRATCONN-6978. Does not affect `performBatch`, which already preserves the real
+ * non-2xx/207 status in the returned `MultiStatusResponse` so core's retry/reauth logic
+ * can act on it.
+ */
+export const FLAGON_THROW_HTTP_ERRORS = 'actions-amazon-conversions-api-throw-http-errors'
+
+/**
  * Helper function to validate if a string value exists and is not empty
  *
  * @param value The string value to validate
@@ -139,7 +148,8 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
 export async function sendEventsRequest<ImportConversionEventsResponse>(
   request: RequestClient,
   settings: Settings,
-  eventData: EventData | EventData[]
+  eventData: EventData | EventData[],
+  throwHttpErrors = false
 ): Promise<ModifiedResponse<ImportConversionEventsResponse>> {
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
@@ -155,7 +165,7 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
         'Amazon-Ads-AccountId': settings.advertiserId,
         'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
       },
-      throwHttpErrors: false
+      throwHttpErrors
     }
   )
 }

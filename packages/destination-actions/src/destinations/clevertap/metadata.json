@@ -1,0 +1,227 @@
+{
+  "slug": "actions-clevertap",
+  "name": "CleverTap (Actions)",
+  "mode": "cloud",
+  "description": "CleverTap is a customer engagement and retention platform that provides the functionality to integrate app analytics and marketing. The platform helps customers increase user engagement in three ways: 1) Tracks actions users are taking and analyzes how people use the product. 2) [Segment](https://docs.clevertap.com/docs/segments) users based on their actions and run targeted [campaigns](https://docs.clevertap.com/docs/intro-to-campaigns) to these  segments. 3) [Analyze](https://docs.clevertap.com/docs/intro-to-reports) each campaign to understand its effect on user engagement and business metrics",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "clevertapAccountId": {
+        "label": "CleverTap Account ID",
+        "description": "CleverTap Account Id. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "clevertapPasscode": {
+        "label": "CleverTap Account Passcode",
+        "description": "CleverTap Passcode. This can be found under [Settings Page](https://developer.clevertap.com/docs/authentication#getting-your-account-credentials).",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "clevertapEndpoint": {
+        "label": "REST Endpoint",
+        "description": "Learn More about [Account regions](https://docs.clevertap.com/docs/build-segment-destination#set-up-segment-destination-action).",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "SK",
+            "value": "https://sk1.api.clevertap.com"
+          },
+          {
+            "label": "EU",
+            "value": "https://eu1.api.clevertap.com"
+          },
+          {
+            "label": "US",
+            "value": "https://us1.api.clevertap.com"
+          },
+          {
+            "label": "SG",
+            "value": "https://sg1.api.clevertap.com"
+          },
+          {
+            "label": "IN",
+            "value": "https://in1.api.clevertap.com"
+          }
+        ],
+        "default": "https://sk1.api.clevertap.com",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "userUpload": {
+      "title": "User Upload",
+      "description": "The User Upload Action enables you to create or update user profiles in CleverTap.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "ts": {
+          "label": "Created At",
+          "description": "A timestamp when the person was created",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "profileData": {
+          "label": "Person Attributes",
+          "description": "Optional attributes for the person. When updating a person attributes added or updated, not removed",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "identity": {
+          "label": "Identity",
+          "description": "The Id used to uniquely identify a person in CleverTap",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "userDelete": {
+      "title": "User Delete",
+      "description": "The User Delete Action enables you to remove user profiles in CleverTap.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "identity": {
+          "label": "Identity",
+          "description": "The ID of the profile which you want to delete",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Event Name is Delete User",
+      "type": "automatic",
+      "partnerAction": "userDelete",
+      "subscribe": "event = \"Delete User\"",
+      "mapping": {
+        "identity": {
+          "@path": "$.userId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Event Type is Identify",
+      "type": "automatic",
+      "partnerAction": "userUpload",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "ts": {
+          "@path": "$.timestamp"
+        },
+        "profileData": {
+          "@path": "$.properties"
+        },
+        "identity": {
+          "@path": "$.userId"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

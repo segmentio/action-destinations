@@ -12,10 +12,7 @@ import {
 } from '../types'
 import { Client } from '../client'
 
-export async function getSchemaFromHubspot(
-  client: Client,
-  schema: Schema
-): Promise<CachableSchema | undefined> {
+export async function getSchemaFromHubspot(client: Client, schema: Schema): Promise<CachableSchema | undefined> {
   const response = await client.getEventDefinition(schema.name)
 
   switch (response.status) {
@@ -47,10 +44,17 @@ export async function getSchemaFromHubspot(
               )
             }
 
-            if (['object', 'string', 'boolean'].includes(prop.type) && maybeMatch.type === 'number') {
+            if (['object', 'boolean'].includes(prop.type) && maybeMatch.type === 'number') {
               throw new PayloadValidationError(
                 `Hubspot.CustomEvent.getSchemaFromHubspot: Expected type ${prop.type} for property ${propName} - Hubspot returned type ${maybeMatch.type}`
               )
+            }
+
+            if (prop.type === 'string' && maybeMatch.type === 'number') {
+              props[propName] = {
+                type: 'number'
+              }
+              continue
             }
 
             if (prop.type === 'number' && maybeMatch.type === 'string') {
@@ -58,9 +62,7 @@ export async function getSchemaFromHubspot(
                 type: 'string',
                 stringFormat: 'string'
               }
-            }
-
-            else if (prop.type === 'number' && ['datetime', 'enumeration'].includes(maybeMatch.type)) {
+            } else if (prop.type === 'number' && ['datetime', 'enumeration'].includes(maybeMatch.type)) {
               throw new PayloadValidationError(
                 `Hubspot.CustomEvent.getSchemaFromHubspot: Expected type ${prop.type} for property ${propName} - Hubspot returned type ${maybeMatch.type}`
               )

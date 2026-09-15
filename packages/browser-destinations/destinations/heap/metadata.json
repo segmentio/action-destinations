@@ -1,0 +1,327 @@
+{
+  "slug": "actions-heap-web",
+  "name": "Heap Web (Actions)",
+  "mode": "device",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "appId": {
+        "label": "Heap app ID",
+        "description": "The app ID of the environment to which you want to send data. You can find this ID on the [Projects](https://heapanalytics.com/app/manage/projects) page.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "disableTextCapture": {
+        "label": "Global data redaction via Disabling Text Capture",
+        "description": "Setting to true will redact all target text on your website. For more information visit the Heap [docs page](https://developers.heap.io/docs/web#global-data-redaction-via-disabling-text-capture).",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "secureCookie": {
+        "label": "Secure Cookie",
+        "description": "This option is turned off by default to accommodate websites not served over HTTPS. If your application uses HTTPS, we recommend enabling secure cookies to prevent Heap cookies from being observed by unauthorized parties. For more information visit the Heap [docs page](https://developers.heap.io/docs/web#securecookie).",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "trackingServer": {
+        "label": "Tracking Server (deprecated)",
+        "description": "This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the Heap [docs page](https://developers.heap.io/docs/set-up-first-party-data-collection-in-heap). This field is deprecated in favor of `ingestServer`. If `trackingServer` is set and `ingestServer` is not set, then the Classic SDK will be loaded. If both are set, `ingestServer` will take precedence, and the latest stable version of the Heap SDK will be loaded.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "ingestServer": {
+        "label": "Ingest Server",
+        "description": "This is an optional setting. This is used to set up first-party data collection. For most cased this should not be set. For more information visit the Heap [docs page](https://developers.heap.io/docs/web#ingestserver).",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "hostname": {
+        "label": "Hostname",
+        "description": "This is an optional setting used to set the host that loads the Heap SDK. This setting is used when the Heap SDK is self-hosted. In most cased this should be left unset. The hostname should not contain https or app id. When _both_ `hostname` and `trackingServer` are set, the Classic SDK will be loaded via: `https://${hostname}/js/heap-${appId}.js`. If `hostname` is set and `trackingServer` is not set, then the latest version of the Heap SDK will be loaded via: `https://${settings.hostname}/config/${settings.appId}/heap_config.js`. For more information visit the Heap [docs page](https://developers.heap.io/docs/self-hosting-heapjs).",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "browserArrayLimit": {
+        "label": "Browser Array Limit",
+        "description": "This is an optional setting. When set, nested array items will be sent in as new Heap events. Defaults to 0.",
+        "type": "number",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackEvent": {
+      "title": "Track Event",
+      "description": "Track events",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "name": {
+          "label": "Name",
+          "description": "The name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "A JSON object containing additional information about the event that will be indexed by Heap.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "identity": {
+          "label": "Identity",
+          "description": "a string that uniquely identifies a user, such as an email, handle, or username. This means no two users in one environment may share the same identity. More on identify: https://developers.heap.io/docs/using-identify",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The segment anonymous identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "User Properties",
+          "description": "An object with key-value properties you want associated with the user. Each property must either be a number or string with fewer than 1024 characters.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identifyUser": {
+      "title": "Identify User",
+      "description": "Sets user identity",
+      "platform": "web",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "userId": {
+          "label": "Identity",
+          "description": "The user's identity",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "The Segment traits to be forwarded to Heap",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Event",
+      "type": "automatic",
+      "partnerAction": "trackEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "name": {
+          "@path": "$.event"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "traits": {
+          "@path": "$.context.traits"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify User",
+      "type": "automatic",
+      "partnerAction": "identifyUser",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

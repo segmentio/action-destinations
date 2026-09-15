@@ -10,30 +10,6 @@ export const fields: Record<string, InputField> = {
       '@path': '$.userId'
     }
   },
-  traitsOrProperties: {
-    label: 'Traits or Properties',
-    description: 'Traits or Properties object from the identify() or track() call emitted by Engage.',
-    type: 'object',
-    required: true,
-    unsafe_hidden: true,
-    default: {
-      '@if': {
-        exists: { '@path': '$.traits' },
-        then: { '@path': '$.traits' },
-        else: { '@path': '$.properties' }
-      }
-    }
-  },
-  segmentAudienceKey: {
-    label: 'Segment Audience Key',
-    description: 'Segment Audience Key. Used to determine whether the user is being added to or removed from the Pendo Segment.',
-    type: 'string',
-    required: true,
-    unsafe_hidden: true,
-    default: {
-      '@path': '$.context.personas.computation_key'
-    }
-  },
   segmentAudienceId: {
     label: 'Segment External Audience ID',
     description: 'The External Audience ID from Segment, which maps to the Pendo Segment ID.',
@@ -46,7 +22,8 @@ export const fields: Record<string, InputField> = {
   },
   enable_batching: {
     label: 'Batch events',
-    description: 'When enabled, events are batched and sent to Pendo using the batch patch endpoint (up to 1000 visitors per request).',
+    description:
+      'When enabled, events are batched and sent to Pendo using the batch patch endpoint (up to 1000 visitors per request).',
     type: 'boolean',
     required: true,
     default: true

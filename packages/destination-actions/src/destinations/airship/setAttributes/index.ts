@@ -11,11 +11,27 @@ const action: ActionDefinition<Settings, Payload> = {
   fields: {
     named_user_id: {
       label: 'Airship Named User ID',
-      description: 'The identifier assigned in Airship as the Named User',
+      description: 'The identifier assigned in Airship as the Named User. Provide either this or Channel ID.',
       type: 'string',
-      required: true,
+      required: false,
       default: {
         '@path': '$.userId'
+      }
+    },
+    channel_id: {
+      label: 'Channel ID',
+      description: 'Airship Channel ID. Provide either this or Named User ID.',
+      type: 'string',
+      required: false
+    },
+    channel_type: {
+      label: 'Channel Type',
+      description:
+        'The device type for the Channel ID (e.g. ios, android, amazon, web). Defaults to the device type from the event. If omitted or unrecognized, the generic channel key is used and Airship resolves the type, which may introduce a slight delay.',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.context.device.type'
       }
     },
     occurred: {

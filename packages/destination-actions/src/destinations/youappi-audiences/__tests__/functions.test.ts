@@ -1,6 +1,11 @@
-import { getJSON } from '../sync/functions'
+import nock from 'nock'
+import { getJSON, send } from '../sync/functions'
+import { createTestIntegration, createRequestClient } from '@segment/actions-core'
+import Definition from '../index'
 import { Payload } from '../sync/generated-types'
 import { Settings } from '../generated-types'
+
+const testDestination = createTestIntegration(Definition)
 
 describe('YouAppi Audiences - Helper Functions', () => {
   const mockSettings: Settings = {
@@ -51,7 +56,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(typeof result.audiences[0].audience_id).toBe('number')
 
       // Verify the hash is generated from audience_id
-      const expectedHash = [...'audience-id-123'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
+      const expectedHash = [...'audience-id-123'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
       expect(result.audiences[0].audience_id).toBe(expectedHash)
     })
 
@@ -87,7 +92,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       })
 
       // Verify audience_id hash for this specific audience_id
-      const expectedHash = [...'audience-id-456'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
+      const expectedHash = [...'audience-id-456'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
       expect(result.audiences[0].audience_id).toBe(expectedHash)
     })
 
@@ -178,7 +183,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result1.audiences[0].audience_id).toBe(result2.audiences[0].audience_id)
 
       // Verify it matches the expected hash value
-      const expectedHash = [...'consistent-id'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
+      const expectedHash = [...'consistent-id'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
       expect(result1.audiences[0].audience_id).toBe(expectedHash)
       expect(result2.audiences[0].audience_id).toBe(expectedHash)
     })
@@ -219,8 +224,8 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result1.audiences[0].audience_id).not.toBe(result2.audiences[0].audience_id)
 
       // Verify each hash matches its expected value
-      const expectedHash1 = [...'id-a'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
-      const expectedHash2 = [...'id-b'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
+      const expectedHash1 = [...'id-a'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
+      const expectedHash2 = [...'id-b'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
       expect(result1.audiences[0].audience_id).toBe(expectedHash1)
       expect(result2.audiences[0].audience_id).toBe(expectedHash2)
     })
@@ -257,7 +262,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result.audiences[0].audience_name).toBe('Primary Audience')
 
       // Verify hash is generated from first payload's audience_id
-      const expectedHash = [...'primary-id'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
+      const expectedHash = [...'primary-id'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
       expect(result.audiences[0].audience_id).toBe(expectedHash)
     })
 
@@ -279,8 +284,162 @@ describe('YouAppi Audiences - Helper Functions', () => {
       const result = getJSON(payloads, mockSettings, 'add')
 
       expect(result.device_identities).toHaveLength(2)
-      expect(result.device_identities.some(id => id.type === 'IDFA')).toBe(true)
-      expect(result.device_identities.some(id => id.type === 'GAID')).toBe(true)
+      expect(result.device_identities.some((id) => id.type === 'IDFA')).toBe(true)
+      expect(result.device_identities.some((id) => id.type === 'GAID')).toBe(true)
+    })
+  })
+
+  describe('send - missing IDFA and GAID validation', () => {
+    beforeEach(() => {
+      nock.cleanAll()
+    })
+
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('should throw PayloadValidationError for perform when both IDFA and GAID are missing', async () => {
+      await expect(
+        testDestination.testAction('sync', {
+          event: {
+            type: 'identify',
+            userId: 'user-no-ids',
+            traits: {
+              'Test Audience': true
+            },
+            context: {
+              personas: {
+                computation_id: 'aud_test_123',
+                computation_key: 'Test Audience'
+              }
+            }
+          } as any,
+          mapping: {
+            audience_name: { '@path': '$.context.personas.computation_key' },
+            audience_id: { '@path': '$.context.personas.computation_id' },
+            traits_or_props: { '@path': '$.traits' },
+            enable_batching: true,
+            batch_size: 1000,
+            batch_keys: ['audience_id', 'audience_name']
+          },
+          settings: mockSettings
+        })
+      ).rejects.toThrow('Payload must include either an IDFA or GAID.')
+    })
+
+    it('should set error in multistatus response for batch payloads missing both IDFA and GAID', async () => {
+      nock('https://audiences.youappi.com').post('/segment/AudienceMembership').reply(200, { success: true })
+
+      const request = createRequestClient()
+
+      const payloads: Payload[] = [
+        {
+          idfa: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          audience_name: 'Test Audience',
+          audience_id: 'aud_test_123',
+          traits_or_props: { 'Test Audience': true },
+          enable_batching: true,
+          batch_size: 1000
+        },
+        {
+          audience_name: 'Test Audience',
+          audience_id: 'aud_test_123',
+          traits_or_props: { 'Test Audience': true },
+          enable_batching: true,
+          batch_size: 1000
+        },
+        {
+          gaid: '38400000-8cf0-11bd-b23e-10b96e40000d',
+          audience_name: 'Test Audience',
+          audience_id: 'aud_test_123',
+          traits_or_props: { 'Test Audience': true },
+          enable_batching: true,
+          batch_size: 1000
+        }
+      ]
+
+      const msResponse = await send(request, payloads, mockSettings, true)
+
+      expect(msResponse).toBeDefined()
+      expect(msResponse!.isErrorResponseAtIndex(1)).toBe(true)
+      const errorResponse = msResponse!.getResponseAtIndex(1)
+      expect(errorResponse).toMatchObject({
+        data: {
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: 'Payload must include either an IDFA or GAID.'
+        }
+      })
+      expect(msResponse!.isSuccessResponseAtIndex(0)).toBe(true)
+      expect(msResponse!.isSuccessResponseAtIndex(2)).toBe(true)
+    })
+
+    it('should succeed for perform when only IDFA is present', async () => {
+      nock('https://audiences.youappi.com').post('/segment/AudienceMembership').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('sync', {
+        event: {
+          type: 'identify',
+          userId: 'user-idfa-only',
+          traits: {
+            idfa: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        } as any,
+        mapping: {
+          idfa: { '@path': '$.traits.idfa' },
+          audience_name: { '@path': '$.context.personas.computation_key' },
+          audience_id: { '@path': '$.context.personas.computation_id' },
+          traits_or_props: { '@path': '$.traits' },
+          enable_batching: true,
+          batch_size: 1000,
+          batch_keys: ['audience_id', 'audience_name']
+        },
+        settings: mockSettings
+      })
+
+      expect(responses).toHaveLength(1)
+      expect(responses[0].status).toBe(200)
+    })
+
+    it('should succeed for perform when only GAID is present', async () => {
+      nock('https://audiences.youappi.com').post('/segment/AudienceMembership').reply(200, { success: true })
+
+      const responses = await testDestination.testAction('sync', {
+        event: {
+          type: 'identify',
+          userId: 'user-gaid-only',
+          traits: {
+            gaid: '38400000-8cf0-11bd-b23e-10b96e40000d',
+            'Test Audience': true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_test_123',
+              computation_key: 'Test Audience'
+            }
+          }
+        } as any,
+        mapping: {
+          gaid: { '@path': '$.traits.gaid' },
+          audience_name: { '@path': '$.context.personas.computation_key' },
+          audience_id: { '@path': '$.context.personas.computation_id' },
+          traits_or_props: { '@path': '$.traits' },
+          enable_batching: true,
+          batch_size: 1000,
+          batch_keys: ['audience_id', 'audience_name']
+        },
+        settings: mockSettings
+      })
+
+      expect(responses).toHaveLength(1)
+      expect(responses[0].status).toBe(200)
     })
   })
 })

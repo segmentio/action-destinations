@@ -1,6 +1,7 @@
 import { RequestClient } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { getCategories } from '../sfmc-operations'
+import { SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON } from '../versioning-info'
 import { xml2js } from 'xml-js'
 
 jest.mock('xml-js', () => ({
@@ -88,6 +89,74 @@ describe('Salesforce Marketing Cloud Category List Operations', () => {
       expect(response.choices?.[1].description).toBe('ContentType: dataextension')
     })
 
+    it('should include BatchSize in SOAP request body when feature flag is enabled', async () => {
+      ;(xml2js as jest.Mock).mockImplementation(() => {
+        return {
+          'soap:Envelope': {
+            'soap:Body': {
+              RetrieveResponseMsg: {
+                Results: []
+              }
+            }
+          }
+        }
+      })
+
+      let soapRequestBody = ''
+      const requestSpy = jest.fn().mockImplementation((url, options) => {
+        if (url.includes('auth.marketingcloudapis.com/v2/token')) {
+          return Promise.resolve({
+            data: {
+              access_token: 'mock-access-token',
+              soap_instance_url: 'https://mock-instance.soap.marketingcloudapis.com'
+            }
+          })
+        } else if (url.includes('soap.marketingcloudapis.com/Service.asmx')) {
+          soapRequestBody = options?.body || ''
+          return Promise.resolve({ content: 'mock-xml-content' })
+        }
+        return Promise.resolve({ data: {} })
+      }) as unknown as RequestClient
+
+      await getCategories(requestSpy, settings, { [SFMC_SOAP_CATEGORY_BATCH_SIZE_FLAGON]: true })
+
+      expect(soapRequestBody).toContain('<BatchSize>200</BatchSize>')
+    })
+
+    it('should NOT include BatchSize in SOAP request body when feature flag is disabled', async () => {
+      ;(xml2js as jest.Mock).mockImplementation(() => {
+        return {
+          'soap:Envelope': {
+            'soap:Body': {
+              RetrieveResponseMsg: {
+                Results: []
+              }
+            }
+          }
+        }
+      })
+
+      let soapRequestBody = ''
+      const requestSpy = jest.fn().mockImplementation((url, options) => {
+        if (url.includes('auth.marketingcloudapis.com/v2/token')) {
+          return Promise.resolve({
+            data: {
+              access_token: 'mock-access-token',
+              soap_instance_url: 'https://mock-instance.soap.marketingcloudapis.com'
+            }
+          })
+        } else if (url.includes('soap.marketingcloudapis.com/Service.asmx')) {
+          soapRequestBody = options?.body || ''
+          return Promise.resolve({ content: 'mock-xml-content' })
+        }
+        return Promise.resolve({ data: {} })
+      }) as unknown as RequestClient
+
+      await getCategories(requestSpy, settings)
+
+      expect(soapRequestBody).not.toContain('<BatchSize>')
+    })
+
     it('should handle error when getting categories', async () => {
       ;(xml2js as jest.Mock).mockClear()
 
@@ -123,6 +192,32 @@ describe('Salesforce Marketing Cloud Category List Operations', () => {
 
       expect(response).toBeDefined()
       expect(response.choices).toHaveLength(0)
+    })
+
+    it('should handle timeout/network error where err.response is undefined', async () => {
+      ;(xml2js as jest.Mock).mockClear()
+
+      const requestSpy = jest.fn().mockImplementation((url) => {
+        if (url.includes('auth.marketingcloudapis.com/v2/token')) {
+          return Promise.resolve({
+            data: {
+              access_token: 'mock-access-token',
+              soap_instance_url: 'https://mock-instance.soap.marketingcloudapis.com'
+            }
+          })
+        } else if (url.includes('soap.marketingcloudapis.com/Service.asmx')) {
+          // Simulate a timeout: error has no .response property
+          throw new Error('Request timed out')
+        }
+        return Promise.resolve({ data: {} })
+      }) as unknown as RequestClient
+
+      const response = await getCategories(requestSpy, settings)
+
+      expect(response.choices).toHaveLength(0)
+      expect(response.error).toBeDefined()
+      expect(response.error?.message).toBe('Request timed out')
+      expect(response.error?.code).toBe('BAD_REQUEST')
     })
   })
 })

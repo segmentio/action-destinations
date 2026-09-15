@@ -52,8 +52,8 @@ const mapping = {
   time: { '@path': '$.timestamp' },
   enable_batching: true,
   batch_size: 10,
-  onMappingSave: { outputs: { sourceId: 'sourceId1'} },
-  retlOnMappingSave: { outputs: { sourceId: 'sourceId1'} }
+  onMappingSave: { outputs: { sourceId: 'sourceId1' } },
+  retlOnMappingSave: { outputs: { sourceId: 'sourceId1' } }
 }
 
 const settings: Settings = {
@@ -144,7 +144,96 @@ describe('AWS EventBridge Integration', () => {
           useDefaultMappings: true,
           mapping: mappingNoHook
         })
-      ).rejects.toThrowError(new Error("Partner Event Source ID not found. Create a Partner Event Source using the 'Create Partner Source' button in the Action Mapping, then try again."))
+      ).rejects.toThrowError(
+        new Error(
+          "Partner Event Source ID not found. Create a Partner Event Source using the 'Create Partner Source' button in the Action Mapping, then try again."
+        )
+      )
+    })
+  })
+
+  describe('retlOnMappingSave hook - performHook validate()', () => {
+    // The tests above stub the hook's *output* directly in the mapping (onMappingSave/
+    // retlOnMappingSave.outputs), and hook.test.ts unit-tests ensurePartnerSource() directly.
+    // Neither exercises performHook's own validate() step (hooks.ts), which runs before
+    // ensurePartnerSource() and short-circuits with a graceful `{ error }` value - never a thrown
+    // exception - when subscriptionMetadata.sourceId, settings.region, or settings.accountId is
+    // missing. These tests call the hook end-to-end via executeHook() to close that gap.
+    it('returns an error when subscriptionMetadata.sourceId is missing', async () => {
+      const response = await testDestination.actions.send.executeHook('retlOnMappingSave', {
+        settings,
+        payload: {},
+        hookInputs: {},
+        subscriptionMetadata: {}
+      })
+
+      expect(response).toMatchObject({
+        error: {
+          message:
+            "Partner Event Source ID not found. Create a Partner Event Source using the 'Create Partner Source' button in the Action Mapping, then try again.",
+          code: 'ERROR'
+        }
+      })
+      expect(mockSend).not.toHaveBeenCalled()
+    })
+
+    it('returns an error when settings.region is missing', async () => {
+      const response = await testDestination.actions.send.executeHook('retlOnMappingSave', {
+        settings: { accountId: settings.accountId } as Settings,
+        payload: {},
+        hookInputs: {},
+        subscriptionMetadata: { sourceId: 'sourceId1' }
+      })
+
+      expect(response).toMatchObject({
+        error: {
+          message:
+            "Failed to create Partner Source ID. Region required. Ensure 'AWS Region' Settings field is populated.",
+          code: 'ERROR'
+        }
+      })
+      expect(mockSend).not.toHaveBeenCalled()
+    })
+
+    it('returns an error when settings.accountId is missing', async () => {
+      const response = await testDestination.actions.send.executeHook('retlOnMappingSave', {
+        settings: { region: settings.region } as Settings,
+        payload: {},
+        hookInputs: {},
+        subscriptionMetadata: { sourceId: 'sourceId1' }
+      })
+
+      expect(response).toMatchObject({
+        error: {
+          message:
+            "Failed to create Partner Source ID failed. Account ID required. Ensure 'AWS Account ID' Settings field is populated.",
+          code: 'ERROR'
+        }
+      })
+      expect(mockSend).not.toHaveBeenCalled()
+    })
+
+    it('returns success and savedData.sourceId end-to-end when validation passes', async () => {
+      // mockReset (not just clearAllMocks from beforeEach) to drop any leftover queued
+      // mockResolvedValueOnce from earlier tests in this file that were never consumed (e.g. a
+      // preceding test that throws before its own mocked send() call is reached).
+      mockSend.mockReset()
+      mockSend.mockResolvedValueOnce({
+        PartnerEventSources: [{ SourceId: 'sourceId1' }]
+      })
+
+      const response = await testDestination.actions.send.executeHook('retlOnMappingSave', {
+        settings,
+        payload: {},
+        hookInputs: {},
+        subscriptionMetadata: { sourceId: 'sourceId1' }
+      })
+
+      expect(response).toMatchObject({
+        successMessage: 'SourceId found',
+        savedData: { sourceId: 'sourceId1' }
+      })
+      expect(mockSend).toHaveBeenCalledTimes(1)
     })
   })
 })

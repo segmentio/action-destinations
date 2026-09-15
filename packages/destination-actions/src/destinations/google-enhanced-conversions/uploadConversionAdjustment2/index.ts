@@ -392,7 +392,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const request_object: ConversionAdjustmentRequestObjectInterface = {
-        conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+        conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
         adjustmentType: payloadItem.adjustment_type,
         adjustmentDateTime: convertTimestamp(payloadItem.adjustment_timestamp),
         orderId: payloadItem.order_id,

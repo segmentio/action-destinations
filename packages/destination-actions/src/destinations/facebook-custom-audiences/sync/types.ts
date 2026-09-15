@@ -1,7 +1,7 @@
 import { SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
 
-export type PayloadMap = Map<number, Payload> 
+export type PayloadMap = Map<number, Payload>
 
 export interface GetAllAudienceResponse {
   data: {

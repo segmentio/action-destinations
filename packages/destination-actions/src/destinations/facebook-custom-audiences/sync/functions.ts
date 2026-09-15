@@ -1,29 +1,36 @@
 import { US_STATE_CODES, SCHEMA_PROPERTIES } from './constants'
 import { Payload } from './generated-types'
-import { RequestClient, PayloadValidationError, IntegrationError, MultiStatusResponse, ErrorCodes, Features } from '@segment/actions-core'
+import {
+  RequestClient,
+  InvalidAudienceMembershipError,
+  IntegrationError,
+  MultiStatusResponse,
+  ErrorCodes,
+  Features
+} from '@segment/actions-core'
 import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { processHashing } from '../../../lib/hashing-utils'
+import { processHashing, isAlreadyHashed } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
-import { BASE_URL } from '../constants'
+import { BASE_URL, FLAGON_NAME_BATCH_DISCARD_FIX } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
 export async function send(
-  request: RequestClient, 
-  payloads: Payload[], 
-  isBatch: boolean, 
+  request: RequestClient,
+  payloads: Payload[],
+  isBatch: boolean,
   audienceMemberships?: AudienceMembership[],
-  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }, 
-  features?: Features, 
+  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } },
+  features?: Features,
   statsContext?: StatsContext
 ): Promise<MultiStatusResponse | void> {
   const msResponse = new MultiStatusResponse()
   const audienceId = getAudienceId(payloads[0], hookOutputs)
-  const errorMessage = validate(payloads, audienceId, audienceMemberships)
+  const errorMessage = validate(audienceId)
 
   if (errorMessage) {
-    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    return returnErrorResponse(msResponse, payloads, isBatch, errorMessage, ErrorCodes.BAD_REQUEST)
   }
 
   const addMap: PayloadMap = new Map<number, Payload>()
@@ -31,14 +38,20 @@ export async function send(
 
   payloads.forEach((payload, index) => {
     const audienceMembership = audienceMemberships?.[index]
-    if(audienceMembership === false){
+    if (audienceMembership === false) {
       deleteMap.set(index, payload)
-    } 
-    else if (audienceMembership === true){
+    } else if (audienceMembership === true) {
       addMap.set(index, payload)
-    } 
-    else if (audienceMembership === undefined){
-      setErrorResponse(msResponse, payload, 400, index, isBatch, "Audience membership details missing", ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    } else if (audienceMembership === undefined) {
+      setErrorResponse(
+        msResponse,
+        payload,
+        400,
+        index,
+        isBatch,
+        'Audience membership details missing',
+        ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP
+      )
     }
   })
 
@@ -59,10 +72,19 @@ export async function send(
   }
 }
 
-export async function sendRequest(request: RequestClient, audienceId: string, map: PayloadMap, msResponse: MultiStatusResponse, method: 'POST' | 'DELETE', isBatch: boolean, features?: Features, statsContext?: StatsContext): Promise<void> {
+export async function sendRequest(
+  request: RequestClient,
+  audienceId: string,
+  map: PayloadMap,
+  msResponse: MultiStatusResponse,
+  method: 'POST' | 'DELETE',
+  isBatch: boolean,
+  features?: Features,
+  statsContext?: StatsContext
+): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
-  const json = getJSON(payloads)
+  const json = getJSON(payloads, features)
 
   try {
     await request(`${BASE_URL}/${getApiVersion(features, statsContext)}/${audienceId}/users`, {
@@ -81,8 +103,7 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
         }
       })
     }
-  } 
-  catch (error) {
+  } catch (error) {
     const { message, code, status } = parseFacebookError(error as FacebookResponseError)
 
     for (let i = 0; i < indices.length; i++) {
@@ -96,10 +117,19 @@ export async function sendRequest(request: RequestClient, audienceId: string, ma
   }
 }
 
-export function setErrorResponse(msResponse: MultiStatusResponse, payload: Payload, status: number, index: number, isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes | string, sent?: JSONLikeObject){
+export function setErrorResponse(
+  msResponse: MultiStatusResponse,
+  payload: Payload,
+  status: number,
+  index: number,
+  isBatch: boolean,
+  errormessage: string,
+  errortype: keyof typeof ErrorCodes | string,
+  sent?: JSONLikeObject
+) {
   if (!isBatch) {
-    if(errortype === ErrorCodes.PAYLOAD_VALIDATION_FAILED) {
-      throw new PayloadValidationError(errormessage)
+    if (errortype === ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP) {
+      throw new InvalidAudienceMembershipError(errormessage)
     }
     throw new IntegrationError(errormessage, errortype, status)
   }
@@ -110,23 +140,32 @@ export function setErrorResponse(msResponse: MultiStatusResponse, payload: Paylo
     body: payload as unknown as JSONLikeObject,
     ...(sent ? { sent } : {})
   })
-} 
+}
 
-export function returnErrorResponse(msResponse: MultiStatusResponse, payloads: Payload[], isBatch: boolean, errormessage: string, errortype: keyof typeof ErrorCodes): MultiStatusResponse {
+export function returnErrorResponse(
+  msResponse: MultiStatusResponse,
+  payloads: Payload[],
+  isBatch: boolean,
+  errormessage: string,
+  errortype: keyof typeof ErrorCodes
+): MultiStatusResponse {
   payloads.forEach((payload, i) => {
     setErrorResponse(msResponse, payload, 400, i, isBatch, errormessage, errortype)
   })
   return msResponse
 }
 
-export function getAudienceId(payload: Payload, hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }): string {
+export function getAudienceId(
+  payload: Payload,
+  hookOutputs?: { retlOnMappingSave?: { outputs?: { audienceId?: string } } }
+): string {
   const { retlOnMappingSave: { outputs: { audienceId: hookAudienceId = undefined } = {} } = {} } = hookOutputs ?? {}
   const { external_audience_id: payloadAudienceId } = payload
   return (hookAudienceId ?? payloadAudienceId) as string
 }
 
-export function getJSON(payloads: Payload[]): AudienceJSON {
-  const data = getData(payloads)
+export function getJSON(payloads: Payload[], features?: Features): AudienceJSON {
+  const data = getData(payloads, features)
   const app_ids: string[] = []
   const page_ids: string[] = []
   const ig_account_ids: string[] = []
@@ -149,22 +188,13 @@ export function getJSON(payloads: Payload[]): AudienceJSON {
   }
 }
 
-export function validate(payloads: Payload[], audienceId: unknown, audienceMemberships?: AudienceMembership[]): string | undefined {
-  
-  if(!Array.isArray(audienceMemberships)){
-    return 'Audience membership details for batch missing.'
-  }
-
-  if(Array.isArray(audienceMemberships) && audienceMemberships.length !== payloads.length){
-    return 'Audience membership details count does not match batch payload count.'
-  }
-
+export function validate(audienceId: unknown): string | undefined {
   if (!audienceId || typeof audienceId !== 'string') {
     return 'Missing audience ID.'
   }
 }
 
-export function getData(payloads: Payload[]): FacebookDataRow[] {
+export function getData(payloads: Payload[], features?: Features): FacebookDataRow[] {
   const data: FacebookDataRow[] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -185,7 +215,7 @@ export function getData(payloads: Payload[]): FacebookDataRow[] {
     const row: FacebookDataRow = [
       externalId ?? '',
       email ? processHashing(email.trim().toLowerCase(), 'sha256', 'hex') : '',
-      phone ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : '',
+      getHashedPhone(phone, features),
       year ? processHashing(year.trim(), 'sha256', 'hex') ?? '' : '',
       month ? processHashing(normalizeMonth(month), 'sha256', 'hex') ?? '' : '',
       day ? processHashing(day.trim(), 'sha256', 'hex') ?? '' : '',
@@ -210,6 +240,34 @@ export function normalizePhone(value: string): string {
   const removedNonNumveric = value.replace(/\D/g, '')
 
   return removedNonNumveric.replace(/^0+/, '')
+}
+
+/**
+ * Resolves the hashed phone value for a row, choosing behavior based on the
+ * `fb-custom-audience-batch-discard-fix` feature flag.
+ * - Flag ON: hashPhone() discards a phone that normalizes to empty (e.g. '+0000000000') to '',
+ *   so one bad phone no longer fails the whole batch.
+ * - Flag OFF: the original behavior, which throws 'Cannot hash an empty string' for such values.
+ */
+export function getHashedPhone(phone: string | undefined, features?: Features): string {
+  if (features?.[FLAGON_NAME_BATCH_DISCARD_FIX]) {
+    return hashPhone(phone)
+  }
+  return phone ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : ''
+}
+
+/**
+ * Hashes a phone number for Facebook Custom Audiences (fixed behavior).
+ * - Pre-hashed values (valid sha256/hex) are passed through unchanged.
+ * - Otherwise the value is normalized; if normalization leaves an empty string
+ *   (e.g. '+0000000000'), it is discarded to '' instead of letting SmartHashing.hash()
+ *   throw 'Cannot hash an empty string' and fail the whole batch.
+ */
+export function hashPhone(phone?: string): string {
+  if (!phone) return ''
+  if (isAlreadyHashed(phone, 'sha256', 'hex')) return phone
+  const normalized = normalizePhone(phone)
+  return normalized ? processHashing(normalized, 'sha256', 'hex') : ''
 }
 
 export function normalizeGender(value: string): string {

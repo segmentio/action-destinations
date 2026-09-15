@@ -23,6 +23,7 @@ For more detailed instruction, see the following READMEs:
 
 ## Table of Contents:
 
+- [Generate a Destination with Claude Code](#generate-a-destination-with-claude-code)
 - [Get Started](#get-started)
 - [Actions CLI](#actions-cli)
 - [Example Destination](#example-destination)
@@ -35,6 +36,32 @@ For more detailed instruction, see the following READMEs:
 - [Action Hooks](#action-hooks)
 - [HTTP Requests](#http-requests)
 - [Support](#support)
+
+## Generate a Destination with Claude Code
+
+If you use [Claude Code](https://claude.com/claude-code), this repo ships skills that scaffold a full destination for you — from API docs to working code and tests.
+
+The simplest way is the one-command pipeline. Just run:
+
+```
+/orchestrate <Destination Name>
+```
+
+Then provide your **API source** (a docs URL, an OpenAPI spec, or a PRD) when prompted. It walks through every step — analyzing the API, mapping actions to endpoints, writing the code, and generating tests — pausing for your review along the way.
+
+Prefer to run one step at a time? These skills also work on their own:
+
+| Command                 | What it does                                                          |
+| ----------------------- | --------------------------------------------------------------------- |
+| `/refined-actions`      | Turn a PRD or API docs into a list of actions                         |
+| `/endpoint-mapping`     | Map those actions to API endpoints and fields                         |
+| `/spec-generator`       | Produce a full destination spec document                              |
+| `/generate-destination` | Generate the destination code, types, and tests                       |
+| `/test-destination-e2e` | Generate a Jest e2e test suite that runs against a local serve server |
+
+📖 See [`.claude/skills/README.md`](./.claude/skills/README.md) and [`.claude/skills/QUICK_START.md`](./.claude/skills/QUICK_START.md) for details.
+
+> These skills accelerate the boilerplate — always review the generated code and follow the [Contributing Guide](./CONTRIBUTING.md) before opening a PR.
 
 ## Get started
 
@@ -709,6 +736,7 @@ The `perform` method accepts two arguments, (1) the request client instance (ext
 - `auth` - The data needed in OAuth requests. This is useful if fetching an updated OAuth `access_token` using a `refresh_token`. The `refresh_token` is available in `auth.refreshToken`.
 - `features` - The features available in the request based on the customer's sourceID. Features can only be enabled and/or used by internal Twilio/Segment employees. Features cannot be used for Partner builds.
 - `statsContext` - An object, containing a `statsClient` and `tags`. Stats can only be used by internal Twilio/Segment employees. Stats cannot be used for Partner builds.
+- `personasContext` - An object containing Personas/Engage metadata extracted from the event's `context.personas` field. Available fields: `computation_key`, `computation_id`, `namespace`, and any additional keys present on the personas context. This is populated automatically by the runtime when the event originates from a Personas/Engage source — no field mapping required. For non-Personas events the value is `undefined`. For internal Twilio/Segment use only.
 - `logger` - Logger can only be used by internal Twilio/Segment employees. Logger cannot be used for Partner builds.
 - `engageDestinationCache` - EngageDestinationCache can only be used by internal Twilio/Segment employees. EngageDestinationCache should not be used for Partner builds.
 - `transactionContext` - An object, containing transaction variables and a method to update transaction variables which are required for few segment developed actions. Transaction Context cannot be used for Partner builds.

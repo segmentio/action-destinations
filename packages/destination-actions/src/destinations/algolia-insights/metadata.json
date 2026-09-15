@@ -1,0 +1,2416 @@
+{
+  "slug": "actions-algolia-insights",
+  "name": "Algolia Insights (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "appId": {
+        "label": "appId",
+        "description": "Your Algolia Application ID.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "apiKey": {
+        "label": "apiKey",
+        "description": "An API key which has write permissions to the Algolia Insights API",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "queryIdQueryStringName": {
+        "label": "QueryID QueryString Name",
+        "description": "QueryString name you use for when storing the Algolia QueryID in a page URL.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": "queryID",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "productClickedEvents": {
+      "title": "Product Clicked Events",
+      "description": "When a product is clicked within an Algolia Search, Recommend or Predict result",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Clicked\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "objectID": {
+          "label": "Product ID",
+          "description": "Populates the ObjectIds field in the Algolia Insights API. Product ID of the clicked item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.product_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "index": {
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.search_index"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "queryID": {
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was clicked.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "position": {
+          "label": "Position",
+          "description": "Position of the click in the list of Algolia search results. Positions should start from 1, not 0.",
+          "type": "integer",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.position"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userToken": {
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "authenticatedUserToken": {
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraProperties": {
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product Clicked'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Product Clicked",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'click'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "click",
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "conversionEvents": {
+      "title": "Conversion Events",
+      "description": "In ecommerce, conversions are purchase or add-to-cart events often but not always involving multiple products. Outside of ecommerce, a conversion can be any positive signal associated with an index record. Query ID is optional and indicates that the event is the result of a search query.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Order Completed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "eventSubtype": {
+          "label": "Event Subtype",
+          "description": "Sub-type of the event, \"purchase\" or \"addToCart\".",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "purchase",
+          "choices": [
+            {
+              "value": "purchase",
+              "label": "Purchase"
+            },
+            {
+              "value": "addToCart",
+              "label": "Add To Cart"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "products": {
+          "label": "Product Details",
+          "description": "Populates the ObjectIDs field in the Algolia Insights API. An array of objects representing the purchased items. Each object must contain a product_id field.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "discount": {
+                  "@path": "$.discount"
+                },
+                "queryID": {
+                  "@path": "$.queryID"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "product_id": {
+              "label": "product_id",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "price": {
+              "label": "price",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "quantity",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "discount": {
+              "label": "discount",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "queryID": {
+              "label": "queryID",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "index": {
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.search_index"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "queryID": {
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was purchased.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userToken": {
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "authenticatedUserToken": {
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "value": {
+          "label": "Value",
+          "description": "The value of the cart that is being converted.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.value"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "currency": {
+          "label": "Currency",
+          "description": "Currency of the objects associated with the event in 3-letter ISO 4217 format. Required when `value` or `price` is set.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraProperties": {
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of the event to send to Algolia. Defaults to 'Conversion Event'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Conversion Event",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'conversion'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "conversion",
+          "choices": [
+            {
+              "label": "View",
+              "value": "view"
+            },
+            {
+              "label": "Conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "Click",
+              "value": "click"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "productViewedEvents": {
+      "title": "Product Viewed Events",
+      "description": "Product view events act as a positive signal for associated record objects — the associated Product ID. Query ID is optional and indicates that the view event is the result of a search query.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Viewed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "objectID": {
+          "label": "Product ID",
+          "description": "Product ID of the viewed item.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.product_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "index": {
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.search_index"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "queryID": {
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was viewed.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userToken": {
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "authenticatedUserToken": {
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraProperties": {
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product Viewed'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Product Viewed",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'view'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "view",
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "productAddedEvents": {
+      "title": "Product Added Events",
+      "description": "Product added events for ecommerce use cases for a customer adding an item to their cart. Query ID is optional and indicates that the event was the result of a search query.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product Added\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "product": {
+          "label": "Product ID",
+          "description": "Populates the ObjectIds field in the Algolia Insights API with a single ObjectId (productId) of the product added.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.product_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "index": {
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.search_index"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "queryID": {
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was purchased.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userToken": {
+          "label": "User Token",
+          "description": "The ID associated with the user.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.userId"
+              },
+              "then": {
+                "@path": "$.userId"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "authenticatedUserToken": {
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraProperties": {
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Add to cart'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Add to cart",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'conversion'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "conversion",
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "productListFilteredEvents": {
+      "title": "Product List Filtered Events",
+      "description": "When a product list is filtered within an Algolia Search",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product List Filtered\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "filters": {
+          "label": "Filters",
+          "description": "Populates the filters field in the Algolia Insights API, a list of up to 10 facet filters. Field should be an array of strings with format ${attribute}:${value}.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.filters",
+              {
+                "attribute": {
+                  "@path": "$.attribute"
+                },
+                "value": {
+                  "@path": "$.value"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "attribute": {
+              "label": "Filter name",
+              "description": "The name of the Filter",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "value": {
+              "label": "Filter value",
+              "description": "The value of the Filter",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "index": {
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.search_index"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "queryID": {
+          "label": "Query ID",
+          "description": "Query ID of the list on which the item was clicked.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userToken": {
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "authenticatedUserToken": {
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraProperties": {
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product List Filtered'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Product List Filtered",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'click'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "click",
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "productListViewedEvents": {
+      "title": "Product List Viewed Events",
+      "description": "Product list viewed events act as a positive signal for associated record objects — the associated Product IDs. Query ID is optional and indicates that the view events are the result of a search query.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"Product List Viewed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "products": {
+          "label": "Product Details",
+          "description": "The viewed products. Populates the ObjectIDs field in the Algolia Insights API. Each object must contain a product_id field.",
+          "type": "object",
+          "required": true,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "product_id": {
+                  "@path": "$.product_id"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "product_id": {
+              "label": "product_id",
+              "description": "The unique ID of the product.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "index": {
+          "label": "Index",
+          "description": "Name of the targeted search index.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.search_index"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "queryID": {
+          "label": "Query ID",
+          "description": "Query ID of the list on which the items were viewed.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.query_id"
+              },
+              "then": {
+                "@path": "$.properties.query_id"
+              },
+              "else": {
+                "@path": "$.integrations.Algolia Insights (Actions).query_id"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userToken": {
+          "label": "User Token",
+          "description": "The ID associated with the user. If a user is authenticated, this should be set to the same value as the Authenticated User Token",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.anonymousId"
+              },
+              "then": {
+                "@path": "$.anonymousId"
+              },
+              "else": {
+                "@path": "$.userId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "authenticatedUserToken": {
+          "label": "Authenticated User Token",
+          "description": "The authenticated ID associated with the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraProperties": {
+          "label": "Extra Properties",
+          "description": "Additional fields for this event. This field may be useful for Algolia Insights fields which are not mapped in Segment.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventName": {
+          "label": "Event Name",
+          "description": "The name of the event to be send to Algolia. Defaults to 'Product List Viewed'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "Product List Viewed",
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "eventType": {
+          "label": "Event Type",
+          "description": "The type of event to send to Algolia. Defaults to 'view'",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "view",
+          "choices": [
+            {
+              "label": "view",
+              "value": "view"
+            },
+            {
+              "label": "conversion",
+              "value": "conversion"
+            },
+            {
+              "label": "click",
+              "value": "click"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "algoliaPlugin": {
+      "title": "Algolia Browser Plugin",
+      "description": "Enriches all Segment payloads with the Algolia query_id value",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": [
+    {
+      "name": "Algolia Plugin",
+      "type": "automatic",
+      "partnerAction": "algoliaPlugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "eventSlug": null
+    },
+    {
+      "name": "Send product clicked events to Algolia",
+      "type": "automatic",
+      "partnerAction": "productClickedEvents",
+      "subscribe": "type = \"track\" and event = \"Product Clicked\"",
+      "mapping": {
+        "objectID": {
+          "@path": "$.properties.product_id"
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "position": {
+          "@path": "$.properties.position"
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product Clicked",
+        "eventType": "click"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send purchase events to Algolia",
+      "type": "automatic",
+      "partnerAction": "conversionEvents",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "eventSubtype": "purchase",
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "discount": {
+                "@path": "$.discount"
+              },
+              "queryID": {
+                "@path": "$.queryID"
+              }
+            }
+          ]
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Conversion Event",
+        "eventType": "conversion"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send an add-to-cart event to Algolia",
+      "type": "automatic",
+      "partnerAction": "productAddedEvents",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "product": {
+          "@path": "$.properties.product_id"
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.userId"
+            },
+            "then": {
+              "@path": "$.userId"
+            },
+            "else": {
+              "@path": "$.anonymousId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Add to cart",
+        "eventType": "conversion"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send product viewed events to Algolia",
+      "type": "automatic",
+      "partnerAction": "productViewedEvents",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "objectID": {
+          "@path": "$.properties.product_id"
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product Viewed",
+        "eventType": "view"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send product list filtered events to Algolia",
+      "type": "automatic",
+      "partnerAction": "productListFilteredEvents",
+      "subscribe": "type = \"track\" and event = \"Product List Filtered\"",
+      "mapping": {
+        "filters": {
+          "@arrayPath": [
+            "$.properties.filters",
+            {
+              "attribute": {
+                "@path": "$.attribute"
+              },
+              "value": {
+                "@path": "$.value"
+              }
+            }
+          ]
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product List Filtered",
+        "eventType": "click"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Send product list viewed events to Algolia",
+      "type": "automatic",
+      "partnerAction": "productListViewedEvents",
+      "subscribe": "type = \"track\" and event = \"Product List Viewed\"",
+      "mapping": {
+        "products": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "product_id": {
+                "@path": "$.product_id"
+              }
+            }
+          ]
+        },
+        "index": {
+          "@path": "$.properties.search_index"
+        },
+        "queryID": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.query_id"
+            },
+            "then": {
+              "@path": "$.properties.query_id"
+            },
+            "else": {
+              "@path": "$.integrations.Algolia Insights (Actions).query_id"
+            }
+          }
+        },
+        "userToken": {
+          "@if": {
+            "exists": {
+              "@path": "$.anonymousId"
+            },
+            "then": {
+              "@path": "$.anonymousId"
+            },
+            "else": {
+              "@path": "$.userId"
+            }
+          }
+        },
+        "authenticatedUserToken": {
+          "@path": "$.userId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "extraProperties": {
+          "@path": "$.properties"
+        },
+        "eventName": "Product List Viewed",
+        "eventType": "view"
+      },
+      "eventSlug": null
+    }
+  ]
+}

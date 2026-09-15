@@ -1,1 +1,8 @@
 **/*/generated-types.ts linguist-generated=true
+
+# Keep the committed yarn.lock pointed at the public registry.yarnpkg.com while
+# letting Twilio/Artifactory machines carry proxied URLs in the working tree.
+# The filter is registered per-clone by manually running
+# `sh scripts/setup-yarnlock-filter.sh` once (before the first `yarn install`)
+# and is a no-op where it isn't registered (external contributors, CI).
+yarn.lock filter=yarnlock-registry

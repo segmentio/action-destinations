@@ -21,7 +21,8 @@ const payload: Payload = {
       key1: 'value1',
       key2: 'value2'
     },
-    custom_prop_arr: ['value1', 'value2']
+    custom_prop_arr: ['value1', 'value2'],
+    custom_prop_phone: '+61400000000'
   }
 }
 
@@ -42,7 +43,8 @@ const expectedValidatedPayload: Payload = {
     custom_prop_datetime: '2024-01-08T13:52:50.212Z',
     custom_prop_date: '2024-01-08',
     custom_prop_obj: '{"key1":"value1","key2":"value2"}',
-    custom_prop_arr: '["value1","value2"]'
+    custom_prop_arr: '["value1","value2"]',
+    custom_prop_phone: '+61400000000'
   }
 }
 
@@ -50,5 +52,85 @@ describe('Hubspot.customEvent', () => {
   it('validate function should ensure no leading or trailing spaces in properties sent to Hubspot', async () => {
     const validatedPayload = validate(payload)
     expect(validatedPayload).toEqual(expectedValidatedPayload)
+  })
+
+  describe('empty string handling', () => {
+    it('should keep empty strings as strings instead of coercing to 0', () => {
+      const payloadWithEmptyString: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          some_prop: ''
+        }
+      }
+
+      const result = validate(payloadWithEmptyString)
+
+      expect(result.properties?.some_prop).toBe('')
+    })
+
+    it('should keep multiple empty strings as strings', () => {
+      const payloadWithMultipleEmpty: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          prop_a: '',
+          prop_b: '',
+          prop_c: 'hello'
+        }
+      }
+
+      const result = validate(payloadWithMultipleEmpty)
+
+      expect(result.properties?.prop_a).toBe('')
+      expect(result.properties?.prop_b).toBe('')
+      expect(result.properties?.prop_c).toBe('hello')
+    })
+
+    it('should keep whitespace-only strings as empty strings instead of coercing to 0', () => {
+      const payloadWithWhitespace: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          space_only: '   ',
+          tab_only: '\t'
+        }
+      }
+
+      const result = validate(payloadWithWhitespace)
+
+      expect(result.properties?.space_only).toBe('')
+      expect(result.properties?.tab_only).toBe('')
+    })
+
+    it('should still coerce non-empty numeric strings to numbers', () => {
+      const payloadWithNumericStrings: Payload = {
+        event_name: 'Test Event',
+        record_details: {
+          object_type: 'contact',
+          email: 'test@example.com'
+        },
+        properties: {
+          num_str: '42',
+          float_str: '3.14',
+          empty_str: ''
+        }
+      }
+
+      const result = validate(payloadWithNumericStrings)
+
+      expect(result.properties?.num_str).toBe(42)
+      expect(result.properties?.float_str).toBe(3.14)
+      expect(result.properties?.empty_str).toBe('')
+    })
   })
 })

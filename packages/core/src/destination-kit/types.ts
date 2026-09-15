@@ -6,7 +6,8 @@ import {
   EngageDestinationCache,
   ActionHookType,
   SubscriptionMetadata,
-  RequestFn
+  RequestFn,
+  Personas
 } from './index'
 import type { RequestOptions } from '../request-client'
 import type { JSONLikeObject, JSONObject } from '../json-object'
@@ -22,7 +23,8 @@ export type MaybePromise<T> = T | Promise<T>
 /*
   Note: The Cloud Event object that we receive from Centrifuge contains an array of subscriptions,
   the result object below is the result of execution of each subscription.
-*/ export interface Result {
+*/
+export interface Result {
   output?: JSONObject | string | null | undefined
   error?: JSONObject | null
   // Data to be returned from action
@@ -76,10 +78,11 @@ export interface ExecuteInput<
   readonly auth?: AuthTokens
   /**
    * The features available in the request based on the customer's sourceID;
-   * `features`,`stats`, `logger` , `transactionContext` and `stateContext` are for internal Twilio/Segment use only.
+   * `features`, `statsContext`, `logger`, `transactionContext`, `stateContext`, and `personasContext` are for internal Twilio/Segment use only.
    */
   readonly features?: Features
   readonly statsContext?: StatsContext
+  readonly personasContext?: Personas
   readonly logger?: Logger
   /** Engage internal use only. DO NOT USE. */
   readonly engageDestinationCache?: EngageDestinationCache

@@ -1,0 +1,29 @@
+{
+  "name": "@segment/analytics-browser-actions-wingify",
+  "version": "1.2.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/segmentio/action-destinations",
+    "directory": "packages/browser-destinations/destinations/wingify"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "scripts": {
+    "build": "yarn build:esm && yarn build:cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:esm": "tsc --outDir ./dist/esm"
+  },
+  "typings": "./dist/esm",
+  "dependencies": {
+    "@segment/actions-core": "^3.168.0",
+    "@segment/browser-destination-runtime": "^1.97.0"
+  },
+  "peerDependencies": {
+    "@segment/analytics-next": ">=1.55.0"
+  }
+}

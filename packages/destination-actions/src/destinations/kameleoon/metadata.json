@@ -1,0 +1,1141 @@
+{
+  "slug": "actions-kameleoon",
+  "name": "Kameleoon (Actions)",
+  "mode": "cloud",
+  "description": "Send Segment events to Kameleoon",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Kameleoon API key. You can generate one using the link in the help doc (https://help.kameleoon.com/setting-up-segment/).",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "sitecode": {
+        "label": "Sitecode",
+        "description": "Kameleoon project sitecode. You can find this project dashboard (https://help.kameleoon.com/question/how-do-i-find-my-site-id/).",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "logEvent": {
+      "title": "Log Event",
+      "description": "Send a track event to Kameleoon",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event": {
+          "label": "Event Name",
+          "description": "The event name",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.event"
+              },
+              "then": {
+                "@path": "$.event"
+              },
+              "else": {
+                "@path": "$.name"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Type",
+          "description": "The type of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Event properties or user traits",
+          "description": "Additional event Properties or user Traits to send with the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties"
+              },
+              "then": {
+                "@path": "$.properties"
+              },
+              "else": {
+                "@path": "$.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "kameleoonVisitorCode": {
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.kameleoonVisitorCode"
+              },
+              "then": {
+                "@path": "$.properties.kameleoonVisitorCode"
+              },
+              "else": {
+                "@path": "$.traits.kameleoonVisitorCode"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "date-time",
+          "additionalProperties": false
+        },
+        "context": {
+          "label": "Context properties",
+          "description": "Context properties to send with the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identify": {
+      "title": "Identify Event",
+      "description": "Send user traits to Kameleoon",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Type",
+          "description": "The type of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "User Traits",
+          "description": "Traits to send with the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "kameleoonVisitorCode": {
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.kameleoonVisitorCode"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "date-time",
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "group": {
+      "title": "Group Event",
+      "description": "Send group traits to Kameleoon",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Type",
+          "description": "The type of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "groupId": {
+          "label": "Group ID",
+          "description": "The group id",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "User Traits",
+          "description": "Traits to send with the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "kameleoonVisitorCode": {
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.kameleoonVisitorCode"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "date-time",
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "page": {
+      "title": "Page Event",
+      "description": "Send a page event to Kameleoon",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "Anonymous id",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "The ID associated with the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Type",
+          "description": "The type of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "Page properties",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "kameleoonVisitorCode": {
+          "label": "Kameleoon Visitor Code",
+          "description": "Kameleoon Visitor Code - a unique identifier for the user",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.kameleoonVisitorCode"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Page Name",
+          "description": "The name of the page",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "context": {
+          "label": "Context properties",
+          "description": "Context properties to send with the event",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "date-time",
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "MessageId",
+          "description": "The Segment messageId",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track Calls",
+      "type": "automatic",
+      "partnerAction": "logEvent",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "event": {
+          "@if": {
+            "exists": {
+              "@path": "$.event"
+            },
+            "then": {
+              "@path": "$.event"
+            },
+            "else": {
+              "@path": "$.name"
+            }
+          }
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "properties": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties"
+            },
+            "then": {
+              "@path": "$.properties"
+            },
+            "else": {
+              "@path": "$.traits"
+            }
+          }
+        },
+        "kameleoonVisitorCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.kameleoonVisitorCode"
+            },
+            "then": {
+              "@path": "$.properties.kameleoonVisitorCode"
+            },
+            "else": {
+              "@path": "$.traits.kameleoonVisitorCode"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Calls",
+      "type": "automatic",
+      "partnerAction": "page",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "kameleoonVisitorCode": {
+          "@path": "$.properties.kameleoonVisitorCode"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "context": {
+          "@path": "$.context"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Group Calls",
+      "type": "automatic",
+      "partnerAction": "group",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "properties": {
+          "@path": "$.traits"
+        },
+        "kameleoonVisitorCode": {
+          "@path": "$.traits.kameleoonVisitorCode"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify Calls",
+      "type": "automatic",
+      "partnerAction": "identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "properties": {
+          "@path": "$.traits"
+        },
+        "kameleoonVisitorCode": {
+          "@path": "$.traits.kameleoonVisitorCode"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

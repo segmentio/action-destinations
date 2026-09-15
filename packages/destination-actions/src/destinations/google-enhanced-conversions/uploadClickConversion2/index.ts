@@ -4,7 +4,9 @@ import {
   ModifiedResponse,
   RequestClient,
   DynamicFieldResponse,
-  IntegrationError
+  IntegrationError,
+  MultiStatusResponse,
+  JSONLikeObject
 } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
@@ -24,7 +26,9 @@ import {
   getConversionActionDynamicData,
   memoizedGetCustomVariables,
   formatPhone,
-  getSessionAttributesKeyValuePairs
+  getSessionAttributesKeyValuePairs,
+  handlePartialFailureResponse,
+  handleGoogleAdsAPIErrorResponsePerItem
 } from '../functions'
 import { GOOGLE_ENHANCED_CONVERSIONS_BATCH_SIZE } from '../constants'
 import { processHashing } from '../../../lib/hashing-utils'
@@ -109,7 +113,7 @@ const action: ActionDefinition<Settings, Payload> = {
         session_start_time_usec: {
           label: 'Session Start Time',
           description:
-            "The timestamp of when the user's session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example \"2025-11-18T08:52:17.023Z\".",
+            'The timestamp of when the user\'s session began on your website. This helps track the duration of user visits. The format should be a full ISO 8601 string. For example "2025-11-18T08:52:17.023Z".',
           type: 'string',
           format: 'date-time'
         },
@@ -300,7 +304,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ad_user_data_consent_state: {
       label: 'Ad User Data Consent State',
       description:
-        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
+        'This represents consent for ad user data.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v22/Consent).',
       type: 'string',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
@@ -312,7 +316,7 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Ad Personalization Consent State',
       type: 'string',
       description:
-        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v21/Consent).',
+        'This represents consent for ad personalization. This can only be set for OfflineUserDataJobService and UserDataService.For more information on consent, refer to [Google Ads API Consent](https://developers.google.com/google-ads/api/rest/reference/rest/v22/Consent).',
       choices: [
         { label: 'GRANTED', value: 'GRANTED' },
         { label: 'DENIED', value: 'DENIED' },
@@ -367,7 +371,7 @@ const action: ActionDefinition<Settings, Payload> = {
       }
 
       const { session_attributes_encoded, user_ip_address } = payload
-      
+
       const request_object: ClickConversionRequestObjectInterface = {
         conversionAction: `customers/${settings.customerId}/conversionActions/${payload.conversion_action}`,
         conversionDateTime: convertTimestamp(payload.conversion_timestamp),
@@ -441,6 +445,7 @@ const action: ActionDefinition<Settings, Payload> = {
           headers: {
             'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
           },
+          skipResponseCloning: true,
           json: {
             conversions: [request_object],
             partialFailure: true
@@ -470,7 +475,9 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const getCustomVariables = memoizedGetCustomVariables()
 
-    const request_objects: ClickConversionRequestObjectInterface[] = await Promise.all(
+    const multiStatusResponse = new MultiStatusResponse()
+
+    const requestObjectResults = await Promise.allSettled(
       payload.map(async (payloadItem) => {
         let cartItems: CartItemInterface[] = []
         if (payloadItem.items && Array.isArray(payloadItem.items)) {
@@ -486,7 +493,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const { session_attributes_encoded, user_ip_address } = payloadItem
 
         const request_object: ClickConversionRequestObjectInterface = {
-          conversionAction: `customers/${settings.customerId}/conversionActions/${payloadItem.conversion_action}`,
+          conversionAction: `customers/${customerId}/conversionActions/${payloadItem.conversion_action}`,
           conversionDateTime: convertTimestamp(payloadItem.conversion_timestamp),
           gclid: payloadItem.gclid,
           gbraid: payloadItem.gbraid,
@@ -558,23 +565,96 @@ const action: ActionDefinition<Settings, Payload> = {
       })
     )
 
-    const response: ModifiedResponse<PartialErrorResponse> = await request(
-      `https://googleads.googleapis.com/${getApiVersion(features, statsContext)}/customers/${
-        settings.customerId
-      }:uploadClickConversions`,
-      {
-        method: 'post',
-        headers: {
-          'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
-        },
-        json: {
-          conversions: request_objects,
-          partialFailure: true
-        }
+    // Payloads which fail validation are reported as per-event errors and excluded from the request
+    // sent to Google.
+    const request_objects: ClickConversionRequestObjectInterface[] = []
+    const requestIndexToPayloadIndex: number[] = []
+
+    requestObjectResults.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        request_objects.push(result.value)
+        requestIndexToPayloadIndex.push(index)
+        return
       }
-    )
-    handleGoogleErrors(response)
-    return response
+
+      // Only payload validation failures are reported per event. Anything else (e.g. a failure while
+      // fetching custom variables) is rethrown so the whole batch is retried.
+      if (!(result.reason instanceof PayloadValidationError)) {
+        throw result.reason
+      }
+
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: result.reason.message
+      })
+    })
+
+    // Nothing left to send to Google
+    if (request_objects.length === 0) {
+      return multiStatusResponse
+    }
+
+    const failedPayloadIndices = new Set<number>()
+
+    let response: ModifiedResponse<PartialErrorResponse>
+
+    try {
+      response = await request(
+        `https://googleads.googleapis.com/${getApiVersion(
+          features,
+          statsContext
+        )}/customers/${customerId}:uploadClickConversions`,
+        {
+          method: 'post',
+          headers: {
+            'developer-token': `${process.env.ADWORDS_DEVELOPER_TOKEN}`
+          },
+          skipResponseCloning: true,
+          json: {
+            conversions: request_objects,
+            partialFailure: true
+          }
+        }
+      )
+    } catch (error) {
+      // Report the HTTP level failure against every event that was sent, each attributed the
+      // conversion it sent.
+      handleGoogleAdsAPIErrorResponsePerItem(
+        error,
+        requestIndexToPayloadIndex,
+        multiStatusResponse,
+        request_objects as unknown as JSONLikeObject[],
+        failedPayloadIndices
+      )
+      return multiStatusResponse
+    }
+    const partialFailureError = response.data?.partialFailureError
+
+    if (partialFailureError) {
+      handlePartialFailureResponse(
+        partialFailureError,
+        requestIndexToPayloadIndex,
+        multiStatusResponse,
+        request_objects,
+        failedPayloadIndices,
+        'conversions'
+      )
+    }
+
+    requestIndexToPayloadIndex.forEach((originalIndex, requestIndex) => {
+      if (failedPayloadIndices.has(originalIndex)) {
+        return
+      }
+
+      multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
+        status: 200,
+        sent: request_objects[requestIndex] as unknown as JSONLikeObject,
+        body: (response.data?.results?.[requestIndex] ?? {}) as JSONLikeObject
+      })
+    })
+
+    return multiStatusResponse
   }
 }
 

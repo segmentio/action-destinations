@@ -13,7 +13,7 @@ Array [
     },
     "occurred": false,
     "user": Object {
-      "named_user_id": "5C5XZ3fWrH)z48",
+      "channel": "5C5XZ3fWrH)z48",
     },
   },
 ]
@@ -31,7 +31,7 @@ Array [
     },
     "occurred": false,
     "user": Object {
-      "named_user_id": "5C5XZ3fWrH)z48",
+      "channel": "5C5XZ3fWrH)z48",
     },
   },
 ]

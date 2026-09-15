@@ -1,26 +1,37 @@
-import { RequestClient, MultiStatusResponse, JSONLikeObject, IntegrationError } from '@segment/actions-core'
+import {
+  RequestClient,
+  MultiStatusResponse,
+  JSONLikeObject,
+  IntegrationError,
+  PayloadValidationError
+} from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { URL } from '../constants'
 import { RequestJSON } from './types'
 
-export async function send(
-  request: RequestClient,
-  payloads: Payload[],
-  settings: Settings,
-  isBatch: boolean
-) {
+export async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
   const msResponse = new MultiStatusResponse()
   const addMap = new Map<number, Payload>()
   const deleteMap = new Map<number, Payload>()
 
   payloads.forEach((payload, index) => {
-    const { 
-      traits_or_props, 
-      audience_name 
-    } = payload
+    if (!payload.idfa && !payload.gaid) {
+      if (!isBatch) {
+        throw new PayloadValidationError('Payload must include either an IDFA or GAID.')
+      }
+      msResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Payload must include either an IDFA or GAID.'
+      })
+      return
+    }
 
-    const isAudienceMember = traits_or_props && typeof audience_name === 'string' && traits_or_props[audience_name] === true
+    const { traits_or_props, audience_name } = payload
+
+    const isAudienceMember =
+      traits_or_props && typeof audience_name === 'string' && traits_or_props[audience_name] === true
 
     if (isAudienceMember) {
       addMap.set(index, payload)
@@ -44,7 +55,6 @@ export async function send(
   if (isBatch) {
     return msResponse
   }
-
 }
 
 export async function sendRequest(
@@ -52,7 +62,7 @@ export async function sendRequest(
   map: Map<number, Payload>,
   settings: Settings,
   msResponse: MultiStatusResponse,
-  isBatch: boolean, 
+  isBatch: boolean,
   action: 'add' | 'remove'
 ): Promise<void> {
   const indices = Array.from(map.keys())
@@ -71,18 +81,21 @@ export async function sendRequest(
       msResponse.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
         body: payloads[i] as unknown as JSONLikeObject,
-        sent: { 
+        sent: {
           device_identities: getIds(payloads[i]),
-          audiences:getAudiences(audience_id, audience_name, action)
+          audiences: getAudiences(audience_id, audience_name, action)
         }
       })
     }
-  } 
-  catch (error) {
+  } catch (error) {
     const { message, code, status } = error
-    
+
     if (!isBatch) {
-      throw new IntegrationError((message || 'Unknown error') as string, (code || "Error") as string, (status|| 400) as number)
+      throw new IntegrationError(
+        (message || 'Unknown error') as string,
+        (code || 'Error') as string,
+        (status || 400) as number
+      )
     }
 
     for (let i = 0; i < indices.length; i++) {
@@ -93,9 +106,9 @@ export async function sendRequest(
         errortype: code,
         errormessage: message,
         body: payloads[i] as unknown as JSONLikeObject,
-        sent: { 
+        sent: {
           device_identities: getIds(payloads[i]),
-          audiences:getAudiences(audience_id, audience_name, action)
+          audiences: getAudiences(audience_id, audience_name, action)
         }
       })
     }
@@ -105,7 +118,7 @@ export async function sendRequest(
 export function getJSON(payloads: Payload[], settings: Settings, action: 'add' | 'remove'): RequestJSON {
   const { api_key } = settings
   const { audience_id, audience_name } = payloads[0]
-  
+
   const json: RequestJSON = {
     api_key,
     device_identities: payloads.flatMap((payload) => {
@@ -116,18 +129,20 @@ export function getJSON(payloads: Payload[], settings: Settings, action: 'add' |
   return json
 }
 
-function getIds (payload: Payload): RequestJSON['device_identities'] {
+function getIds(payload: Payload): RequestJSON['device_identities'] {
   const { idfa, gaid } = payload
-  const identities: Array<{ type: 'IDFA' | 'GAID', value: string }> = []
+  const identities: Array<{ type: 'IDFA' | 'GAID'; value: string }> = []
   if (idfa) identities.push({ type: 'IDFA', value: idfa })
   if (gaid) identities.push({ type: 'GAID', value: gaid })
   return identities
 }
 
-function getAudiences(audience_id: string, audience_name: string, action: 'add' | 'remove'): RequestJSON['audiences']{
-  return [{
-    audience_id: [...audience_id].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0),
-    audience_name,
-    action
-  }]
+function getAudiences(audience_id: string, audience_name: string, action: 'add' | 'remove'): RequestJSON['audiences'] {
+  return [
+    {
+      audience_id: [...audience_id].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0),
+      audience_name,
+      action
+    }
+  ]
 }

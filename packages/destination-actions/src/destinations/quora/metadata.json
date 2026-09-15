@@ -1,0 +1,1335 @@
+{
+  "slug": "quora-actions",
+  "name": "Quora Conversions API",
+  "mode": "cloud",
+  "description": "Send Segment events to the Quora Conversions API.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "api_token": {
+        "label": "API Token",
+        "description": "The Conversion API token generated for your account in Quora Ads Manager. Sent as a Bearer token.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "account_id": {
+        "label": "Account ID",
+        "description": "Your Quora ad account ID. Conversion data is attributed to this account.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "trackConversion": {
+      "title": "Send Conversion",
+      "description": "Send a conversion event to Quora. Supports all standard Quora conversion types, plus Generic pass-through of the Segment event name.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "event_name": {
+          "label": "Event Name",
+          "description": "The conversion event name sent to Quora.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Generic",
+              "value": "Generic"
+            },
+            {
+              "label": "AppInstall",
+              "value": "AppInstall"
+            },
+            {
+              "label": "Purchase",
+              "value": "Purchase"
+            },
+            {
+              "label": "GenerateLead",
+              "value": "GenerateLead"
+            },
+            {
+              "label": "CompleteRegistration",
+              "value": "CompleteRegistration"
+            },
+            {
+              "label": "AddPaymentInfo",
+              "value": "AddPaymentInfo"
+            },
+            {
+              "label": "AddToCart",
+              "value": "AddToCart"
+            },
+            {
+              "label": "AddToWishlist",
+              "value": "AddToWishlist"
+            },
+            {
+              "label": "InitiateCheckout",
+              "value": "InitiateCheckout"
+            },
+            {
+              "label": "Search",
+              "value": "Search"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Event Timestamp",
+          "description": "The time the conversion occurred. Sent to Quora as epoch microseconds.",
+          "type": "datetime",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "click_id": {
+          "label": "Click ID (qclid)",
+          "description": "The Quora click ID (`qclid`), used to attribute the conversion to a specific ad click. Required by Quora for attribution.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.qclid"
+              },
+              "then": {
+                "@path": "$.properties.qclid"
+              },
+              "else": {
+                "@path": "$.integrations.Quora Conversions API.qclid"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "value": {
+          "label": "Value",
+          "description": "The monetary value associated with the conversion, in your account currency. Sent to Quora as a number, for example `99.99`. Do not include currency symbols or codes.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.revenue"
+              },
+              "then": {
+                "@path": "$.properties.revenue"
+              },
+              "else": {
+                "@path": "$.properties.total"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_id": {
+          "label": "Event ID",
+          "description": "A unique identifier for the event, used to deduplicate events sent via both the Conversions API and the Quora pixel.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user": {
+          "label": "User",
+          "description": "User identifiers and attributes. Sent to Quora as plaintext (not hashed).",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "email": {
+              "@path": "$.context.traits.email"
+            },
+            "name": {
+              "@path": "$.context.traits.name"
+            },
+            "phone_number": {
+              "@path": "$.context.traits.phone"
+            },
+            "date_of_birth": {
+              "@path": "$.context.traits.birthday"
+            },
+            "ip": {
+              "@path": "$.context.ip"
+            },
+            "country": {
+              "@path": "$.context.traits.address.country"
+            },
+            "region": {
+              "@path": "$.context.traits.address.state"
+            },
+            "city": {
+              "@path": "$.context.traits.address.city"
+            },
+            "postal_code": {
+              "@path": "$.context.traits.address.postalCode"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email": {
+              "label": "Email",
+              "description": "The user's email address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Name",
+              "description": "The user's full name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phone_number": {
+              "label": "Phone Number",
+              "description": "The user's phone number. E.164 format is preferred but not enforced.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "date_of_birth": {
+              "label": "Date of Birth",
+              "description": "The user's date of birth in ISO8601 format, for example, 2001-11-24.",
+              "type": "datetime",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "ip": {
+              "label": "IP Address",
+              "description": "The user's IP address.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "country": {
+              "label": "Country",
+              "description": "The user's country as an ISO 3166-1 alpha-2 code (e.g. US).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "region": {
+              "label": "Region",
+              "description": "The user's state or region (e.g. California).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "description": "The user's city.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "postal_code": {
+              "label": "Postal Code",
+              "description": "The user's postal code.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "device": {
+          "label": "Device",
+          "description": "Device identifiers and attributes.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "mobile_device_id": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "language": {
+              "@path": "$.context.locale"
+            },
+            "referrer": {
+              "@path": "$.context.page.referrer"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "mobile_device_id": {
+              "label": "Mobile Device ID",
+              "description": "The advertising ID (IDFA on iOS, AAID on Android).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "user_agent": {
+              "label": "User Agent",
+              "description": "The device user agent string.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "language": {
+              "label": "Language",
+              "description": "The device locale string (e.g. en-US).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "referrer": {
+              "label": "Referrer",
+              "description": "The referring URL.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Data",
+          "description": "When enabled, Segment sends events to Quora in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": 1000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "App Install",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Application Installed\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "AppInstall"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Purchase",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.revenue"
+            },
+            "then": {
+              "@path": "$.properties.revenue"
+            },
+            "else": {
+              "@path": "$.properties.total"
+            }
+          }
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "Purchase"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Complete Registration",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "CompleteRegistration"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add Payment Info",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Payment Info Entered\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.revenue"
+            },
+            "then": {
+              "@path": "$.properties.revenue"
+            },
+            "else": {
+              "@path": "$.properties.total"
+            }
+          }
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "AddPaymentInfo"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Cart",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@path": "$.properties.price"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "AddToCart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Wishlist",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@path": "$.properties.price"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "AddToWishlist"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Initiate Checkout",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Checkout Started\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.revenue"
+            },
+            "then": {
+              "@path": "$.properties.revenue"
+            },
+            "else": {
+              "@path": "$.properties.total"
+            }
+          }
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "InitiateCheckout"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Search",
+      "type": "automatic",
+      "partnerAction": "trackConversion",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
+      "mapping": {
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "click_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.qclid"
+            },
+            "then": {
+              "@path": "$.properties.qclid"
+            },
+            "else": {
+              "@path": "$.integrations.Quora Conversions API.qclid"
+            }
+          }
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "event_id": {
+          "@path": "$.messageId"
+        },
+        "user": {
+          "email": {
+            "@path": "$.context.traits.email"
+          },
+          "name": {
+            "@path": "$.context.traits.name"
+          },
+          "phone_number": {
+            "@path": "$.context.traits.phone"
+          },
+          "date_of_birth": {
+            "@path": "$.context.traits.birthday"
+          },
+          "ip": {
+            "@path": "$.context.ip"
+          },
+          "country": {
+            "@path": "$.context.traits.address.country"
+          },
+          "region": {
+            "@path": "$.context.traits.address.state"
+          },
+          "city": {
+            "@path": "$.context.traits.address.city"
+          },
+          "postal_code": {
+            "@path": "$.context.traits.address.postalCode"
+          }
+        },
+        "device": {
+          "mobile_device_id": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "language": {
+            "@path": "$.context.locale"
+          },
+          "referrer": {
+            "@path": "$.context.page.referrer"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "event_name": "Search"
+      },
+      "eventSlug": null
+    }
+  ]
+}

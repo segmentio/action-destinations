@@ -16,6 +16,7 @@ Object {
   },
   "event": "[3(wtAyZqr",
   "properties": Object {
+    "moe_project_name": "[3(wtAyZqr",
     "testType": "[3(wtAyZqr",
   },
   "timestamp": "2021-02-01T00:00:00.000Z",

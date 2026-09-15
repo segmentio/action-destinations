@@ -15,13 +15,13 @@ describe('Survicate Cloud Mode', () => {
     }
 
     it('should validate authentication inputs', async () => {
-      nock('https://integrations.survicate.com').get('/endpoint/segment/check').reply(200, {})
+      nock('https://hv.survicate.com').get('/integrations/partners/segment/check').reply(200, {})
 
       await expect(testDestination.testAuthentication(authData)).resolves.not.toThrowError()
     })
 
     it('should fail on authentication failure', async () => {
-      nock('https://integrations.survicate.com').get('/endpoint/segment/check').reply(401, {})
+      nock('https://hv.survicate.com').get('/integrations/partners/segment/check').reply(401, {})
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError()
     })

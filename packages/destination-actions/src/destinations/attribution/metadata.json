@@ -1,0 +1,524 @@
+{
+  "slug": "actions-attribution",
+  "name": "Attribution (Actions)",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "projectID": {
+        "label": "Project ID",
+        "description": "Your Attribution project ID.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "send": {
+      "title": "Send",
+      "description": "Send Segment events to Attribution",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"page\" or type = \"screen\" or type = \"identify\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "messageId": {
+          "label": "Message ID",
+          "description": "The unique identifier for the event message.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event. If not provided, the current time will be used.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "type": {
+          "label": "Event Type",
+          "description": "The type of event to send to Attribution.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.type"
+          },
+          "choices": [
+            {
+              "label": "Track",
+              "value": "track"
+            },
+            {
+              "label": "Page",
+              "value": "page"
+            },
+            {
+              "label": "Screen",
+              "value": "screen"
+            },
+            {
+              "label": "Identify",
+              "value": "identify"
+            },
+            {
+              "label": "Group",
+              "value": "group"
+            },
+            {
+              "label": "Alias",
+              "value": "alias"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event": {
+          "label": "Event Name",
+          "description": "The name of the event to send to Attribution. Required for track events.",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "name": {
+          "label": "Name",
+          "description": "The name of the page or screen.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "page"
+              },
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "screen"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "The properties of the event to send to Attribution.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "track"
+              },
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "page"
+              },
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "screen"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "The traits of the user to send to Attribution.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits"
+              },
+              "then": {
+                "@path": "$.traits"
+              },
+              "else": {
+                "@path": "$.context.traits"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is_not",
+                "value": "alias"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "userId": {
+          "label": "User ID",
+          "description": "The ID of the user to send to Attribution.",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "alias"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The anonymous ID of the user to send to Attribution.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "groupId": {
+          "label": "Group ID",
+          "description": "The ID of the group to send to Attribution.",
+          "type": "string",
+          "required": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "group"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "group"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "context": {
+          "label": "Context",
+          "description": "The context of the event to send to Attribution.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "previousId": {
+          "label": "Previous ID",
+          "description": "The previous ID of the user to send to Attribution.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "type",
+                "operator": "is",
+                "value": "alias"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Send Events",
+      "type": "automatic",
+      "partnerAction": "send",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"screen\" or type = \"group\" or type = \"alias\"",
+      "mapping": {
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "type": {
+          "@path": "$.type"
+        },
+        "event": {
+          "@path": "$.event"
+        },
+        "name": {
+          "@path": "$.name"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "traits": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits"
+            },
+            "then": {
+              "@path": "$.traits"
+            },
+            "else": {
+              "@path": "$.context.traits"
+            }
+          }
+        },
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "context": {
+          "@path": "$.context"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}

@@ -6,15 +6,33 @@ import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
 
+/**
+ * Rendered as the button text for this hook in the mapping editor, and quoted in the error below so the two cannot
+ * drift apart. Update this constant rather than either usage.
+ */
+const CONVERSION_RULE_HOOK_LABEL = 'Link or Create a Conversion Rule'
+
+/**
+ * Entering an ID in the 'Existing Conversion Rule ID' field is not enough on its own: the conversion rule is only
+ * linked to the mapping once the hook runs and stores its output. Saving the mapping does not run the hook, so the
+ * field can look correctly filled in while no rule is actually linked.
+ */
+const NO_CONVERSION_RULE_LINKED_ERROR =
+  `No conversion rule is linked to this mapping. Open the mapping and click "${CONVERSION_RULE_HOOK_LABEL}" to link one. ` +
+  'If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
+
 const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs, OnMappingSaveOutputs> = {
   title: 'Stream Conversion Event',
   description: 'Directly streams conversion events to a specific conversion rule.',
   defaultSubscription: 'type = "track"',
   hooks: {
     onMappingSave: {
-      label: 'Create a Conversion Rule',
+      label: CONVERSION_RULE_HOOK_LABEL,
       description:
-        'When saving this mapping, we will create a conversion rule in LinkedIn using the fields you provided.\n To configure: either provide an existing conversion rule ID or fill in the fields below to create a new conversion rule.',
+        'Links this mapping to a LinkedIn conversion rule. Events cannot be delivered until this step completes. ' +
+        'If you already have a conversion rule, enter its ID in "Existing Conversion Rule ID" and we will use that ' +
+        'rule — this will not create a duplicate in LinkedIn. Otherwise, leave that field blank and fill in the ' +
+        'details below, and we will create a new rule for you.',
       inputFields: {
         adAccountId: {
           label: 'Ad Account',
@@ -237,7 +255,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     email: {
       label: 'Email',
       description:
-        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false,
       default: { '@path': '$.traits.email' },
@@ -246,21 +264,21 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
       description:
-        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false
     },
     acxiomID: {
       label: 'Acxiom ID',
       description:
-        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false
     },
     oracleID: {
       label: 'Oracle ID',
       description:
-        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.',
+        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
       type: 'string',
       required: false
     },
@@ -334,7 +352,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     }
 
     if (!conversionRuleId) {
-      throw new PayloadValidationError('Conversion Rule ID is required.')
+      throw new PayloadValidationError(NO_CONVERSION_RULE_LINKED_ERROR)
     }
 
     const linkedinApiClient: LinkedInConversions = new LinkedInConversions(request)
@@ -351,16 +369,11 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     const conversionRuleId = hookOutputs?.onMappingSave?.outputs?.id
 
     if (!conversionRuleId) {
-      throw new PayloadValidationError('Conversion Rule ID is required.')
+      throw new PayloadValidationError(NO_CONVERSION_RULE_LINKED_ERROR)
     }
 
     linkedinApiClient.setConversionRuleId(conversionRuleId)
-
-    try {
-      return linkedinApiClient.batchConversionAdd(payloads)
-    } catch (error) {
-      throw handleRequestError(error)
-    }
+    return linkedinApiClient.batchConversionAdd(payloads)
   }
 }
 
@@ -389,6 +402,10 @@ function handleRequestError(error: unknown) {
 }
 
 function validate(payload: Payload, conversionTime: number) {
+  if (!Number.isFinite(conversionTime)) {
+    throw new PayloadValidationError('Timestamp is not a valid date.')
+  }
+
   // Check if the timestamp is within the past 90 days
   const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
   if (conversionTime < ninetyDaysAgo) {
@@ -396,7 +413,7 @@ function validate(payload: Payload, conversionTime: number) {
   }
 
   if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+    throw new PayloadValidationError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
   }
 }
 
