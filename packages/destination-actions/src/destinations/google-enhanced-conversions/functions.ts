@@ -865,18 +865,37 @@ export const handlePartialFailureResponse = (
 ) => {
   partialFailureError?.details?.forEach((detail: any) => {
     detail.errors?.forEach((error: any) => {
-      const failedIndex = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)?.index
+      const failedField = error.location?.fieldPathElements?.find((field: any) => field.fieldName === fieldName)
 
-      if (failedIndex >= 0) {
-        const originalIndex = validPayloadIndicesBitmap[failedIndex]
-        multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
-          status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
-          errormessage: error.message,
-          sent: sentItems?.[failedIndex],
-          body: error
+      // Google didn't attribute this error to a specific item (e.g. a batch/quota-level error
+      // with no location, or a location that doesn't reference this field) — we can't tell which
+      // event(s) failed, so fail every item in the batch as retryable rather than risk marking an
+      // unknown-status item as delivered.
+      if (!failedField || failedField.index === undefined) {
+        validPayloadIndicesBitmap.forEach((originalIndex, requestIndex) => {
+          multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+            errormessage:
+              error.message ??
+              "This event wasn't delivered because Google reported a partial failure that couldn't be attributed to a specific event. Retry the request.",
+            errortype: 'RETRYABLE_BATCH_FAILURE' as keyof typeof ErrorCodes,
+            status: 500,
+            sent: sentItems?.[requestIndex],
+            body: error
+          })
+          failedPayloadIndices.add(originalIndex)
         })
-        failedPayloadIndices.add(originalIndex)
+        return
       }
+
+      const failedIndex = failedField.index
+      const originalIndex = validPayloadIndicesBitmap[failedIndex]
+      multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
+        status: STATUS_CODE_MAPPING?.[partialFailureError.code as keyof typeof STATUS_CODE_MAPPING]?.status ?? 500, // error code
+        errormessage: error.message,
+        sent: sentItems?.[failedIndex],
+        body: error
+      })
+      failedPayloadIndices.add(originalIndex)
     })
   })
 }
