@@ -269,6 +269,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 },
                 statsContext
               )
+              statsContext?.statsClient?.incr('getDataManagerPerformHook.success', 1, statsContext?.tags)
               return {
                 successMessage: `Using existing list '${userList.id}' (id: ${hookInputs.list_id})`,
                 savedData: {
@@ -288,6 +289,7 @@ const action: ActionDefinition<Settings, Payload> = {
               features,
               statsContext
             )
+            statsContext?.statsClient?.incr('getGoogleAudiencePerformHook.success', 1, statsContext?.tags)
             return {
               successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
@@ -297,6 +299,7 @@ const action: ActionDefinition<Settings, Payload> = {
               }
             }
           } catch (e) {
+            statsContext?.statsClient?.incr('getGoogleAudiencePerformHook.error', 1, statsContext?.tags)
             const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
             const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
             return {
@@ -338,6 +341,7 @@ const action: ActionDefinition<Settings, Payload> = {
               { refresh_token: auth?.refreshToken },
               statsContext
             )
+            statsContext?.statsClient?.incr('createDataManagerPerformHook.success', 1, statsContext?.tags)
           } else {
             listId = await createGoogleAudience(
               request,
@@ -346,6 +350,7 @@ const action: ActionDefinition<Settings, Payload> = {
               features,
               statsContext
             )
+            statsContext?.statsClient?.incr('createGoogleAudiencePerformHook.success', 1, statsContext?.tags)
           }
 
           return {
@@ -357,6 +362,7 @@ const action: ActionDefinition<Settings, Payload> = {
             }
           }
         } catch (e) {
+          statsContext?.statsClient?.incr('createAudiencePerformHook.error', 1, statsContext?.tags)
           const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
           const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
           return {

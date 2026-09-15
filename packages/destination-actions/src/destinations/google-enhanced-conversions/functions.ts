@@ -1023,6 +1023,7 @@ export async function getListIds(
       choices
     }
   } catch (err) {
+    statsContext?.statsClient?.incr('getGoogleAdsListIds.error', 1, statsContext?.tags)
     return {
       choices: [],
       nextPage: '',
