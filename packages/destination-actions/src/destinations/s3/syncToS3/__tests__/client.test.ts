@@ -32,7 +32,9 @@ const validStsResponse = {
   Credentials: {
     AccessKeyId: 'AKIA_TEST',
     SecretAccessKey: 'secret',
-    SessionToken: 'token'
+    SessionToken: 'token',
+    // STS always returns an Expiration on a successful AssumeRole; the client caches against it.
+    Expiration: new Date(Date.now() + 60 * 60 * 1000)
   }
 }
 
