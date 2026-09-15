@@ -301,6 +301,47 @@ describe('handlePartialFailureResponse', () => {
     })
   })
 
+  it('should fail the entire batch as retryable when the matching field path element has no index', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const partialFailureError = {
+      code: 3,
+      details: [
+        {
+          errors: [
+            {
+              message: 'Malformed error location from Google.',
+              location: {
+                // The 'conversions' element matches, but is missing its `index` entirely -
+                // distinct from a legitimate `index: 0`.
+                fieldPathElements: [{ fieldName: 'conversions' }]
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    handlePartialFailureResponse(
+      partialFailureError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      sentItems,
+      failedPayloadIndices,
+      'conversions'
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([2, 3]))
+    expect(multiStatusResponse.getResponseAtIndex(2).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE'
+    })
+    expect(multiStatusResponse.getResponseAtIndex(3).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE'
+    })
+  })
+
   it('should fail the entire batch as retryable when the location does not reference the expected field', () => {
     const multiStatusResponse = new MultiStatusResponse()
     const failedPayloadIndices = new Set<number>()
