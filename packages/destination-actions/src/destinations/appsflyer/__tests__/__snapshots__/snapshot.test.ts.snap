@@ -1,0 +1,122 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-appsflyer destination: applicationInstalled action - all fields 1`] = `
+Object {
+  "af_deeplink": "Zu7OIi#I*0G",
+  "aie": "true",
+  "appsflyer_id": "Zu7OIi#I*0G",
+  "asa_data": "Zu7OIi#I*0G",
+  "att": -16050440466595.84,
+  "bundle_id": "Zu7OIi#I*0G",
+  "cid": "Zu7OIi#I*0G",
+  "counter": 1,
+  "custom_data": Object {
+    "testType": "Zu7OIi#I*0G",
+  },
+  "existing_user": "false",
+  "fb_cookie": "Zu7OIi#I*0G",
+  "idfa": "Zu7OIi#I*0G",
+  "inst_date": "2021-02-01T00:00:00.000",
+  "ip": "Zu7OIi#I*0G",
+  "lang": "Zu7OIi#I*0G",
+  "os": "Zu7OIi#I*0G",
+  "timestamp": "2021-02-01T00:00:00.000",
+  "type": "Zu7OIi#I*0G",
+  "ua": "Zu7OIi#I*0G",
+  "uid": "Zu7OIi#I*0G",
+}
+`;
+
+exports[`Testing snapshot for actions-appsflyer destination: applicationInstalled action - required fields 1`] = `
+Object {
+  "aie": "true",
+  "appsflyer_id": "Zu7OIi#I*0G",
+  "bundle_id": "Zu7OIi#I*0G",
+  "cid": "Zu7OIi#I*0G",
+  "counter": 1,
+  "existing_user": "false",
+  "idfa": "Zu7OIi#I*0G",
+  "inst_date": "2021-02-01T00:00:00.000",
+  "ip": "Zu7OIi#I*0G",
+  "lang": "Zu7OIi#I*0G",
+  "timestamp": "2021-02-01T00:00:00.000",
+  "uid": "Zu7OIi#I*0G",
+}
+`;
+
+exports[`Testing snapshot for actions-appsflyer destination: applicationOpened action - all fields 1`] = `
+Object {
+  "af_deeplink": "R]G7)xGEyCHIwVupSn&T",
+  "aie": "false",
+  "appsflyer_id": "R]G7)xGEyCHIwVupSn&T",
+  "att": 85284170581934.08,
+  "bundle_id": "R]G7)xGEyCHIwVupSn&T",
+  "cid": "R]G7)xGEyCHIwVupSn&T",
+  "counter": 85284170581934.08,
+  "existing_user": "true",
+  "fb_cookie": "R]G7)xGEyCHIwVupSn&T",
+  "idfa": "R]G7)xGEyCHIwVupSn&T",
+  "inst_date": "2021-02-01T00:00:00.000",
+  "ip": "R]G7)xGEyCHIwVupSn&T",
+  "lang": "R]G7)xGEyCHIwVupSn&T",
+  "os": "R]G7)xGEyCHIwVupSn&T",
+  "timestamp": "2021-02-01T00:00:00.000",
+  "type": "R]G7)xGEyCHIwVupSn&T",
+  "ua": "R]G7)xGEyCHIwVupSn&T",
+  "uid": "R]G7)xGEyCHIwVupSn&T",
+}
+`;
+
+exports[`Testing snapshot for actions-appsflyer destination: applicationOpened action - required fields 1`] = `
+Object {
+  "aie": "true",
+  "appsflyer_id": "R]G7)xGEyCHIwVupSn&T",
+  "bundle_id": "R]G7)xGEyCHIwVupSn&T",
+  "cid": "R]G7)xGEyCHIwVupSn&T",
+  "counter": 85284170581934.08,
+  "existing_user": "true",
+  "idfa": "R]G7)xGEyCHIwVupSn&T",
+  "inst_date": "2021-02-01T00:00:00.000",
+  "ip": "R]G7)xGEyCHIwVupSn&T",
+  "lang": "R]G7)xGEyCHIwVupSn&T",
+  "timestamp": "2021-02-01T00:00:00.000",
+  "uid": "R]G7)xGEyCHIwVupSn&T",
+}
+`;
+
+exports[`Testing snapshot for actions-appsflyer destination: trackEvent action - all fields 1`] = `
+Object {
+  "af_events_api": "true",
+  "appsflyer_id": "cC9o$^v5",
+  "att": -45711040981237.76,
+  "bundle_id": "cC9o$^v5",
+  "consent_data": Object {
+    "testType": "cC9o$^v5",
+  },
+  "counter": -45711040981237.76,
+  "eventCurrency": "cC9o$^v5",
+  "eventName": "cC9o$^v5",
+  "eventTime": "2021-02-01 00:00:00.000",
+  "eventValue": "{\\"testType\\":\\"cC9o$^v5\\"}",
+  "idfa": "cC9o$^v5",
+  "ip": "cC9o$^v5",
+  "os": "cC9o$^v5",
+  "uid": "cC9o$^v5",
+}
+`;
+
+exports[`Testing snapshot for actions-appsflyer destination: trackEvent action - required fields 1`] = `
+Object {
+  "af_events_api": "true",
+  "appsflyer_id": "cC9o$^v5",
+  "bundle_id": "cC9o$^v5",
+  "consent_data": Object {
+    "testType": "cC9o$^v5",
+  },
+  "eventCurrency": "USD",
+  "eventName": "cC9o$^v5",
+  "eventValue": "",
+  "idfa": "cC9o$^v5",
+  "uid": "cC9o$^v5",
+}
+`;
