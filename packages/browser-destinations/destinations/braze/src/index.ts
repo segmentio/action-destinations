@@ -319,7 +319,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings, analytics }, dependencies) => {
+  initialize: async ({ settings }, dependencies) => {
     try {
       const {
         endpoint,
@@ -354,6 +354,10 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
       }
 
       let initialized = false
+      // userId captured from an identify seen during the current page load (set via
+      // `setDeferredUser` from the updateUserProfile action). Undefined until an
+      // identify actually fires this load.
+      let deferredUserId: string | undefined
 
       const client: BrazeDestinationClient = {
         instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
@@ -362,7 +366,12 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             return true
           }
 
-          if (deferUntilIdentified && typeof analytics.user().id() !== 'string') {
+          // When deferring, only initialize once an identify with a userId has been
+          // observed in the current page load. We intentionally do NOT read
+          // analytics.user().id() here: that resolves from the persisted ajs_user_id
+          // in localStorage, which stays set across sessions and would let the SDK
+          // open an anonymous session on page loads where no identify actually fired.
+          if (deferUntilIdentified && deferredUserId === undefined) {
             return false
           }
 
@@ -387,9 +396,21 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             }
           }
 
+          // Attribute the session to the identified user before opening it so Braze
+          // does not create a separate, un-mergeable anonymous profile for this device.
+          // Gated on `deferUntilIdentified` so behavior is provably unchanged when the
+          // setting is off: in that path attribution is handled by updateUserProfile's
+          // own changeUser() on identify, and the session opens as before.
+          if (deferUntilIdentified && deferredUserId !== undefined) {
+            client.instance.changeUser(deferredUserId)
+          }
+
           client.instance.openSession()
 
           return (initialized = true)
+        },
+        setDeferredUser: (userId: string) => {
+          deferredUserId = userId
         }
       }
 
