@@ -125,27 +125,7 @@ describe('VibeConversions.trackConversion', () => {
     ).rejects.toThrowError('`ip` (IP Address) must be a valid IPv4 address.')
   })
 
-  it('uses email when IP is not present', async () => {
-    nock(BASE_URL).post('/s2s-conversion/events/segment').reply(200, {})
-
-    const event = createTestEvent({
-      timestamp: RECENT_ISO,
-      context: { traits: { email: 'joe@gmail.com' } }
-    })
-
-    const responses = await testDestination.testAction('trackConversion', {
-      event,
-      settings,
-      useDefaultMappings: true,
-      mapping: { a: 'signup', ip: undefined }
-    })
-
-    const body = JSON.parse(responses[0].options.body as string)
-    expect(body.em).toBe('joe@gmail.com')
-    expect(body.ip).toBeUndefined()
-  })
-
-  it('throws a PayloadValidationError when both IP and email are missing', async () => {
+  it('throws a PayloadValidationError when IP is missing', async () => {
     const event = createTestEvent({
       timestamp: RECENT_ISO,
       context: {}
@@ -156,9 +136,22 @@ describe('VibeConversions.trackConversion', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: { a: 'lead', ip: undefined, em: undefined }
+        mapping: { a: 'lead', ip: undefined }
       })
-    ).rejects.toThrowError('Either `ip` (IP Address) or `em` (Email) is required.')
+    ).rejects.toThrowError()
+  })
+
+  it('throws a PayloadValidationError when timestamp is missing', async () => {
+    const event = createTestEvent({ context: {} })
+
+    await expect(
+      testDestination.testAction('trackConversion', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: { a: 'purchase', ts: undefined }
+      })
+    ).rejects.toThrowError()
   })
 
   it('throws a PayloadValidationError when the timestamp is older than 7 days', async () => {

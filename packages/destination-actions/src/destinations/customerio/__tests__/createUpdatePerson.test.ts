@@ -256,6 +256,66 @@ describe('CustomerIO', () => {
         })
       })
 
+      it('should convert a 7-digit fractional second timestamp in the request sent to Customer.io, even when Date.parse rejects long fractions (prod runtime, STRATCONN-4121)', async () => {
+        // Locally, Date.parse accepts fractional seconds of any length, so this test would
+        // pass even without the fix. In Segment's prod runtime, Date.parse returns NaN once
+        // there are more than 5 fractional digits, which is what caused the customer's bug.
+        // Mock it to behave like prod here so the test actually exercises that condition.
+        const realParse = Date.parse
+        jest.spyOn(Date, 'parse').mockImplementation((value: string) => {
+          const fraction = /\.(\d+)/.exec(value)
+          return fraction && fraction[1].length > 5 ? NaN : realParse(value)
+        })
+
+        try {
+          const userId = 'abc123'
+          const anonymousId = 'unknown_123'
+          const timestamp = '2024-08-14T20:36:48.652Z'
+          const traits = {
+            full_name: 'Test User',
+            email: 'test@example.com',
+            createdat: '2024-08-14T20:36:48.6527521Z',
+            address: {
+              updatedat: '2024-08-14T20:36:48.6527521Z',
+              city: 'New York',
+              zip: 10001
+            }
+          }
+          const event = createTestEvent({
+            userId,
+            anonymousId,
+            timestamp,
+            traits
+          })
+          const response = await action('createUpdatePerson', {
+            event,
+            settings,
+            useDefaultMappings: true
+          })
+
+          expect(response).toEqual({
+            action: 'identify',
+            attributes: {
+              ...traits,
+              anonymous_id: anonymousId,
+              email: traits.email,
+              createdat: 1723667808,
+              address: {
+                ...traits.address,
+                updatedat: 1723667808
+              }
+            },
+            identifiers: {
+              id: userId
+            },
+            timestamp: 1723667808,
+            type: 'person'
+          })
+        } finally {
+          jest.restoreAllMocks()
+        }
+      })
+
       it("should not convert created_at if it's invalid", async () => {
         const userId = 'abc123'
         const timestamp = dayjs.utc().toISOString()

@@ -1,5 +1,5 @@
 import { PayloadValidationError } from '@segment/actions-core'
-import type { Features } from '@segment/actions-core'
+import type { Features, StatsContext } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
@@ -13,6 +13,7 @@ export async function send(
   settings: Settings,
   rawMapping: RawMapping,
   features?: Features,
+  statsContext?: StatsContext,
   signal?: AbortSignal
 ) {
   const delimiter = payloads[0]?.delimiter
@@ -48,7 +49,7 @@ export async function send(
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnTransforms)
 
-  const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
+  const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, statsContext)
 
   await s3Client.uploadS3(
     settings,
