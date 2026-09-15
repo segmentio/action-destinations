@@ -692,7 +692,11 @@ describe('FirstPartyDv360.syncAudience', () => {
       }
     })
 
-    const success = (sent: Record<string, unknown>) => ({ status: 200, sent: [sent], body: { success: true } })
+    const success = (member: Record<string, unknown>) => ({
+      status: 200,
+      sent: { members: [member] },
+      body: { success: true }
+    })
 
     // Every index is asserted, in order, proving index alignment survives both drop points.
     expect(JSON.parse(JSON.stringify(responses))).toEqual([

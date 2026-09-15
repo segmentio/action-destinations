@@ -21,8 +21,8 @@ export interface Consent {
 
 export interface ContactInfoList {
   contactInfos: ContactInfo[]
-  // Each signal is omitted when the mapping leaves it unset, which Display & Video 360 reads as
-  // not specified. Both signals default to granted, so this is only empty if the default is cleared.
+  // Omitted when the mapping carries no consent signals, which Display & Video 360 reads as
+  // not specified.
   consent?: Consent
 }
 
@@ -68,6 +68,10 @@ export interface HookOutputs {
     }
   }
 }
+
+export type ResolvedAudience =
+  | { audienceDetails: AudienceTarget; audienceErrorMessage?: undefined }
+  | { audienceDetails?: undefined; audienceErrorMessage: string }
 
 export interface AudienceTarget {
   audienceId: string
