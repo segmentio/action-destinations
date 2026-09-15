@@ -14,7 +14,7 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
-import { AUDIENCE_TYPES, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -294,7 +294,7 @@ export function validateAudienceDetails(
 
   if (!audienceType) {
     problems.push('Missing audience type')
-  } else if (!AUDIENCE_TYPES.includes(audienceType)) {
+  } else if (audienceType !== CONTACT_INFO && audienceType !== DEVICE_ID) {
     problems.push(`Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}`)
   }
 

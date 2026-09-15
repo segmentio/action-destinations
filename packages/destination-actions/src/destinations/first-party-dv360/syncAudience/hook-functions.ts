@@ -1,7 +1,7 @@
 import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createAudienceRequest, getAudienceRequest } from '../functions'
-import { AUDIENCE_TYPES, DEVICE_ID } from './constants'
+import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 import { DV360Audience } from './types'
 
@@ -142,9 +142,7 @@ export async function performHook(
       }
     }
 
-    // The audience type is read back from Display & Video 360 rather than asked for again,
-    // so it can never disagree with the audience this mapping is connected to.
-    if (!audience?.audienceType || !AUDIENCE_TYPES.includes(audience.audienceType)) {
+    if (!audience?.audienceType || (audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
       return {
         error: {
           message: `Audience ${existingAudienceId.trim()} is not a Customer Match Contact Info or Mobile Device ID audience`,
