@@ -1150,7 +1150,8 @@ describe('Salesforce', () => {
         usernamePasswordOnly.username as string, // tells typescript that these are defined
         usernamePasswordOnly.auth_password as string,
         usernamePasswordOnly.security_token,
-        usernamePasswordOnly.isSandbox
+        usernamePasswordOnly.isSandbox,
+        usernamePasswordOnly.instanceUrl
       )
 
       expect(res.accessToken).toEqual('abc')
@@ -1173,7 +1174,38 @@ describe('Salesforce', () => {
         usernamePasswordAndToken.username as string, // tells typescript that these are defined
         usernamePasswordAndToken.auth_password as string,
         usernamePasswordAndToken.security_token,
-        usernamePasswordAndToken.isSandbox
+        usernamePasswordAndToken.isSandbox,
+        usernamePasswordAndToken.instanceUrl
+      )
+
+      expect(res.accessToken).toEqual('abc')
+    })
+
+    it('should authenticate against the org My Domain host when instanceUrl is one', async () => {
+      // STRATCONN-6580: Salesforce is retiring the generic login URLs for Enhanced Domain orgs.
+      const myDomainOrg: Settings = {
+        ...usernamePasswordOnly,
+        instanceUrl: 'https://acme--dev.sandbox.my.salesforce.com/'
+      }
+
+      nock('https://acme--dev.sandbox.my.salesforce.com/services/oauth2/token')
+        .post('', {
+          grant_type: 'password',
+          client_id: 'id',
+          client_secret: 'secret',
+          username: myDomainOrg.username,
+          password: myDomainOrg.auth_password
+        })
+        .reply(201, {
+          access_token: 'abc'
+        })
+
+      const res = await authenticateWithPassword(
+        myDomainOrg.username as string,
+        myDomainOrg.auth_password as string,
+        myDomainOrg.security_token,
+        myDomainOrg.isSandbox,
+        myDomainOrg.instanceUrl
       )
 
       expect(res.accessToken).toEqual('abc')
