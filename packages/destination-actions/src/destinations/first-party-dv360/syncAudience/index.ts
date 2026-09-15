@@ -1,12 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs } from './generated-types'
-import { external_id, advertiser_id, enable_batching, batch_size } from '../properties'
+import { external_id, enable_batching, batch_size } from '../properties'
 import {
+  audience_type,
   contact_info,
   mobileDeviceIds,
-  ad_user_data,
-  ad_personalization,
+  consent,
   batch_keys,
   retlHookInputFields,
   retlHookOutputTypes
@@ -35,29 +35,27 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   syncMode: {
     label: 'Sync Mode',
     description:
-      'When syncing from a database source, define the type of database operation which trigger syncs to Display & Video 360.',
+      'When syncing from a database source, define the type of database operation that triggers syncs to Display & Video 360.',
     default: 'mirror',
     choices: [
-      { value: 'add', label: 'Add - triggers when a row is added' },
-      { value: 'update', label: 'Update - triggers when a row is updated' },
-      { value: 'upsert', label: 'Upsert - triggers when a row is added or updated' },
-      { value: 'delete', label: 'Delete - triggers when a row is deleted' },
-      { value: 'mirror', label: 'Mirror - triggers when a row is added, updated or deleted' }
+      { value: 'add', label: 'Row added' },
+      { value: 'update', label: 'Row updated' },
+      { value: 'upsert', label: 'Row added or updated' },
+      { value: 'delete', label: 'Row deleted' },
+      { value: 'mirror', label: 'Row added, updated or deleted' }
     ]
   },
   fields: {
-    contact_info: { ...contact_info },
-    mobileDeviceIds: { ...mobileDeviceIds },
-    ad_user_data: { ...ad_user_data },
-    ad_personalization: { ...ad_personalization },
-    external_id: { ...external_id },
-    advertiser_id: { ...advertiser_id },
-    enable_batching: { ...enable_batching },
-    batch_size: { ...batch_size },
-    batch_keys: { ...batch_keys }
+    audience_type,
+    contact_info,
+    mobileDeviceIds,
+    consent,
+    external_id,
+    enable_batching,
+    batch_size,
+    batch_keys
   },
   perform: async (request, { payload, audienceMembership, audienceSettings, hookOutputs, statsContext, features }) => {
-    statsContext?.statsClient?.incr('syncAudience.perform', 1, statsContext?.tags)
     return send(
       request,
       [payload],
@@ -73,7 +71,6 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     request,
     { payload, audienceMembership, audienceSettings, hookOutputs, statsContext, features }
   ) => {
-    statsContext?.statsClient?.incr('syncAudience.performBatch', 1, statsContext?.tags)
     return send(
       request,
       payload,

@@ -125,7 +125,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
 
     expect(result).toEqual({
       error: {
-        message: `Audience ${AUDIENCE_ID} is not a Customer Match audience`,
+        message: `Audience ${AUDIENCE_ID} is not a Customer Match Contact Info or Mobile Device ID audience`,
         code: 'RETL_ON_MAPPING_SAVE_FAILED'
       }
     })

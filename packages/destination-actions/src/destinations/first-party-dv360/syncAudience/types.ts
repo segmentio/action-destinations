@@ -38,6 +38,16 @@ export interface EditCustomerMatchMembersRequest {
   removedMobileDeviceIdList?: MobileDeviceIdList
 }
 
+export interface DV360Audience {
+  firstPartyAndPartnerAudienceId?: string
+  displayName?: string
+  audienceType?: string
+  appId?: string
+  error?: {
+    message?: string
+  }
+}
+
 export interface EditCustomerMatchMembersResponse {
   firstPartyAndPartnerAudienceId?: string
   error?: {

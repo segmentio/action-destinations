@@ -1021,27 +1021,27 @@
       "syncMode": {
         "default": "mirror",
         "label": "Sync Mode",
-        "description": "When syncing from a database source, define the type of database operation which trigger syncs to Display & Video 360.",
+        "description": "When syncing from a database source, define the type of database operation that triggers syncs to Display & Video 360.",
         "choices": [
           {
             "value": "add",
-            "label": "Add - triggers when a row is added"
+            "label": "Row added"
           },
           {
             "value": "update",
-            "label": "Update - triggers when a row is updated"
+            "label": "Row updated"
           },
           {
             "value": "upsert",
-            "label": "Upsert - triggers when a row is added or updated"
+            "label": "Row added or updated"
           },
           {
             "value": "delete",
-            "label": "Delete - triggers when a row is deleted"
+            "label": "Row deleted"
           },
           {
             "value": "mirror",
-            "label": "Mirror - triggers when a row is added, updated or deleted"
+            "label": "Row added, updated or deleted"
           }
         ]
       },
@@ -1309,6 +1309,11 @@
                     "fieldKey": "operation",
                     "operator": "is",
                     "value": "create"
+                  },
+                  {
+                    "fieldKey": "audienceType",
+                    "operator": "is",
+                    "value": "CUSTOMER_MATCH_DEVICE_ID"
                   }
                 ]
               },
@@ -1467,6 +1472,39 @@
       },
       "dynamicFields": null,
       "fields": {
+        "audience_type": {
+          "label": "Audience Type",
+          "description": "The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "CUSTOMER_MATCH_CONTACT_INFO",
+          "choices": [
+            {
+              "label": "Contact Info",
+              "value": "CUSTOMER_MATCH_CONTACT_INFO"
+            },
+            {
+              "label": "Mobile Device ID",
+              "value": "CUSTOMER_MATCH_DEVICE_ID"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "contact_info": {
           "label": "Contact Info Details",
           "description": "The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.",
@@ -1704,7 +1742,16 @@
             }
           },
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "audience_type",
+                "operator": "is",
+                "value": "CUSTOMER_MATCH_CONTACT_INFO"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -1730,7 +1777,16 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "audience_type",
+                "operator": "is",
+                "value": "CUSTOMER_MATCH_DEVICE_ID"
+              }
+            ]
+          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -1741,67 +1797,95 @@
           "format": null,
           "additionalProperties": false
         },
-        "ad_user_data": {
-          "label": "Ad User Data Consent",
-          "description": "Consent to use the data for advertising purposes. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.",
-          "type": "string",
+        "consent": {
+          "label": "Consent",
+          "description": "The consent signals to send with this audience sync. A signal which is left unset is sent as not specified. Batches with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.",
+          "type": "object",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": "CONSENT_STATUS_GRANTED",
-          "choices": [
-            {
-              "label": "CONSENT_STATUS_GRANTED",
-              "value": "CONSENT_STATUS_GRANTED"
-            },
-            {
-              "label": "CONSENT_STATUS_DENIED",
-              "value": "CONSENT_STATUS_DENIED"
-            }
-          ],
+          "default": {
+            "adUserData": "CONSENT_STATUS_GRANTED",
+            "adPersonalization": "CONSENT_STATUS_GRANTED"
+          },
+          "choices": null,
           "placeholder": null,
-          "properties": null,
+          "properties": {
+            "adUserData": {
+              "label": "Ad User Data Consent",
+              "description": "Consent to use the data for advertising purposes.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "CONSENT_STATUS_GRANTED",
+                  "value": "CONSENT_STATUS_GRANTED"
+                },
+                {
+                  "label": "CONSENT_STATUS_DENIED",
+                  "value": "CONSENT_STATUS_DENIED"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "adPersonalization": {
+              "label": "Ad Personalization Consent",
+              "description": "Consent to use the data for ad personalization.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "CONSENT_STATUS_GRANTED",
+                  "value": "CONSENT_STATUS_GRANTED"
+                },
+                {
+                  "label": "CONSENT_STATUS_DENIED",
+                  "value": "CONSENT_STATUS_DENIED"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
           "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "ad_personalization": {
-          "label": "Ad Personalization Consent",
-          "description": "Consent to use the data for ad personalization. Events with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": "CONSENT_STATUS_GRANTED",
-          "choices": [
-            {
-              "label": "CONSENT_STATUS_GRANTED",
-              "value": "CONSENT_STATUS_GRANTED"
-            },
-            {
-              "label": "CONSENT_STATUS_DENIED",
-              "value": "CONSENT_STATUS_DENIED"
-            }
-          ],
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
+          "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
@@ -1817,32 +1901,6 @@
           "dynamic": false,
           "default": {
             "@path": "$.context.personas.external_audience_id"
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": true,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "advertiser_id": {
-          "label": "Advertiser ID",
-          "description": "The Advertiser ID associated with the DV360 Audience.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.context.personas.audience_settings.advertiserId"
           },
           "choices": null,
           "placeholder": null,
@@ -1917,9 +1975,8 @@
           "dynamic": false,
           "default": [
             "external_id",
-            "advertiser_id",
-            "ad_user_data",
-            "ad_personalization"
+            "audience_type",
+            "consent"
           ],
           "choices": null,
           "placeholder": null,
@@ -2415,6 +2472,7 @@
       "type": "specificEvent",
       "partnerAction": "syncAudience",
       "mapping": {
+        "audience_type": "CUSTOMER_MATCH_CONTACT_INFO",
         "contact_info": {
           "emails": {
             "@if": {
@@ -2498,21 +2556,19 @@
         "mobileDeviceIds": {
           "@path": "$.context.traits.mobileDeviceIds"
         },
-        "ad_user_data": "CONSENT_STATUS_GRANTED",
-        "ad_personalization": "CONSENT_STATUS_GRANTED",
+        "consent": {
+          "adUserData": "CONSENT_STATUS_GRANTED",
+          "adPersonalization": "CONSENT_STATUS_GRANTED"
+        },
         "external_id": {
           "@path": "$.context.personas.external_audience_id"
-        },
-        "advertiser_id": {
-          "@path": "$.context.personas.audience_settings.advertiserId"
         },
         "enable_batching": true,
         "batch_size": 500000,
         "batch_keys": [
           "external_id",
-          "advertiser_id",
-          "ad_user_data",
-          "ad_personalization"
+          "audience_type",
+          "consent"
         ]
       },
       "eventSlug": "journey_step_all_events_track"

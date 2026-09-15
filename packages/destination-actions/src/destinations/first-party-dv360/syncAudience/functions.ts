@@ -8,12 +8,13 @@ import {
   IntegrationError,
   InvalidAudienceMembershipError,
   ModifiedResponse,
-  RetryableError
+  RetryableError,
+  isRetryableStatus
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
-import { CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -29,6 +30,117 @@ import {
   HookOutputs
 } from './types'
 
+export async function send(
+  request: RequestClient,
+  payloads: Payload[],
+  isBatch: boolean,
+  audienceMemberships: AudienceMembership[] | undefined,
+  audienceSettings?: AudienceSettings,
+  hookOutputs?: HookOutputs,
+  statsContext?: StatsContext,
+  features?: Features
+): Promise<MultiStatusResponse | ModifiedResponse<EditCustomerMatchMembersResponse>> {
+  const msResponse = new MultiStatusResponse()
+
+  const { audienceDetails, audienceErrorMessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
+
+  if (!audienceDetails) {
+    return failAllPayloads(msResponse, payloads, isBatch, audienceErrorMessage as string)
+  }
+
+  const { audienceId, advertiserId, audienceType } = audienceDetails
+
+  const { consent, consentErrorMessage } = buildConsent(payloads[0])
+
+  if (!consent) {
+    return failAllPayloads(msResponse, payloads, isBatch, consentErrorMessage as string)
+  }
+
+  const addIndices: number[] = []
+  const removeIndices: number[] = []
+  const addedMembers: Member[] = []
+  const removedMembers: Member[] = []
+  const membersByIndex: Record<number, Member[]> = {}
+
+  payloads.forEach((payload, index) => {
+    const membership = audienceMemberships?.[index]
+
+    const { members, errortype, errormessage } = buildMember(payload, membership, audienceDetails)
+
+    if (!members) {
+      setError(
+        msResponse,
+        isBatch,
+        index,
+        400,
+        errortype as keyof typeof ErrorCodes,
+        errormessage as string,
+        payload as unknown as JSONLikeObject
+      )
+      return
+    }
+
+    membersByIndex[index] = members
+
+    if (membership === true) {
+      addedMembers.push(...members)
+      addIndices.push(index)
+    } else {
+      removedMembers.push(...members)
+      removeIndices.push(index)
+    }
+  })
+
+  const sentIndices = [...addIndices, ...removeIndices]
+
+  if (sentIndices.length === 0) {
+    return msResponse
+  }
+
+  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
+  const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
+
+  const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    json,
+    throwHttpErrors: false
+  })
+
+  if (!response.ok) {
+    const { status, data } = response
+
+    sentIndices.forEach((index) => {
+      setError(
+        msResponse,
+        isBatch,
+        index,
+        status,
+        errorTypeForStatus(status),
+        data?.error?.message ?? 'Display & Video 360 rejected the request',
+        membersByIndex[index] as unknown as JSONLikeObject,
+        (data ?? {}) as unknown as JSONLikeObject
+      )
+    })
+
+    return msResponse
+  }
+
+  if (!isBatch) {
+    return response
+  }
+
+  sentIndices.forEach((index) => {
+    msResponse.setSuccessResponseAtIndex(index, {
+      status: 200,
+      sent: membersByIndex[index] as unknown as JSONLikeObject,
+      body: { success: true }
+    })
+  })
+
+  return msResponse
+}
+
 function clean(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
@@ -41,8 +153,8 @@ export function getAudienceId(payload: Payload, hookOutputs?: HookOutputs): stri
   return hookOutputs?.retlOnMappingSave?.outputs?.audienceId ?? payload?.external_id
 }
 
-export function getAdvertiserId(payload: Payload, hookOutputs?: HookOutputs): string | undefined {
-  return hookOutputs?.retlOnMappingSave?.outputs?.advertiserId ?? payload?.advertiser_id
+export function getAdvertiserId(audienceSettings?: AudienceSettings, hookOutputs?: HookOutputs): string | undefined {
+  return hookOutputs?.retlOnMappingSave?.outputs?.advertiserId ?? audienceSettings?.advertiserId
 }
 
 export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs?: HookOutputs): string | undefined {
@@ -50,7 +162,17 @@ export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs
 }
 
 export function buildConsent(payload: Payload): { consent?: Consent; consentErrorMessage?: string } {
-  const { ad_user_data, ad_personalization } = payload
+  const { adUserData, adPersonalization } = payload.consent ?? {}
+
+  const unrecognised = [adUserData, adPersonalization].find(
+    (value) => value && value !== CONSENT_STATUS_GRANTED && value !== CONSENT_STATUS_DENIED
+  )
+
+  if (unrecognised) {
+    return {
+      consentErrorMessage: `Unrecognised consent value: ${unrecognised}. Must be ${CONSENT_STATUS_GRANTED} or ${CONSENT_STATUS_DENIED}.`
+    }
+  }
 
   if (isConsentDenied(payload)) {
     return {
@@ -61,14 +183,16 @@ export function buildConsent(payload: Payload): { consent?: Consent; consentErro
 
   return {
     consent: {
-      ...(ad_user_data ? { adUserData: ad_user_data as ConsentStatus } : {}),
-      ...(ad_personalization ? { adPersonalization: ad_personalization as ConsentStatus } : {})
+      ...(adUserData ? { adUserData: adUserData as ConsentStatus } : {}),
+      ...(adPersonalization ? { adPersonalization: adPersonalization as ConsentStatus } : {})
     }
   }
 }
 
 export function isConsentDenied(payload: Payload): boolean {
-  return payload.ad_user_data === CONSENT_STATUS_DENIED || payload.ad_personalization === CONSENT_STATUS_DENIED
+  const { adUserData, adPersonalization } = payload.consent ?? {}
+
+  return adUserData === CONSENT_STATUS_DENIED || adPersonalization === CONSENT_STATUS_DENIED
 }
 
 export function toList(value?: string): string[] {
@@ -144,10 +268,10 @@ export function resolveAudienceDetails(
   hookOutputs?: HookOutputs
 ): { audienceDetails?: AudienceTarget; audienceErrorMessage?: string } {
   const audienceId = getAudienceId(payload, hookOutputs)
-  const advertiserId = getAdvertiserId(payload, hookOutputs)
+  const advertiserId = getAdvertiserId(audienceSettings, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType)
+  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType, payload?.audience_type)
 
   return audienceErrorMessage
     ? { audienceErrorMessage }
@@ -163,7 +287,8 @@ export function resolveAudienceDetails(
 export function validateAudienceDetails(
   audienceId?: string,
   advertiserId?: string,
-  audienceType?: string
+  audienceType?: string,
+  mappedAudienceType?: string
 ): string | undefined {
   const problems: string[] = []
 
@@ -181,6 +306,12 @@ export function validateAudienceDetails(
     problems.push(`Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}`)
   }
 
+  if (mappedAudienceType && audienceType && mappedAudienceType !== audienceType) {
+    problems.push(
+      `Audience Type is set to ${mappedAudienceType} in this mapping, but the audience in Display & Video 360 is ${audienceType}. Set Audience Type to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
+    )
+  }
+
   return problems.length > 0 ? problems.join('. ') : undefined
 }
 
@@ -188,8 +319,8 @@ export function buildMember(
   payload: Payload,
   membership: AudienceMembership,
   audienceTarget: AudienceTarget
-): { member?: Member; errortype?: keyof typeof ErrorCodes; errormessage?: string } {
-  const { audienceId, advertiserId, audienceType } = audienceTarget
+): { members?: Member[]; errortype?: keyof typeof ErrorCodes; errormessage?: string } {
+  const { audienceId, audienceType } = audienceTarget
 
   if (typeof membership !== 'boolean') {
     return {
@@ -198,25 +329,18 @@ export function buildMember(
     }
   }
 
-  // The whole batch is sent to one audience, taken from the first event. An event belonging
-  // to a different audience would therefore be added to the first event's audience instead
-  // of its own, which for a multi market setup means writing one market's users into another
-  // market's advertiser, silently. batch_keys should prevent a mixed batch ever being built,
-  // so this is a second line of defence: drop the mismatched event rather than misfile it.
-  if (
-    (payload.external_id && payload.external_id !== audienceId) ||
-    (payload.advertiser_id && payload.advertiser_id !== advertiserId)
-  ) {
+  if (payload.external_id && payload.external_id !== audienceId) {
     return {
       errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-      errormessage: 'Event does not belong to the same audience and advertiser as the rest of the batch'
+      errormessage: 'Event does not belong to the same audience as the rest of the batch'
     }
   }
 
   const isContactInfo = audienceType === CONTACT_INFO
-  const member = isContactInfo ? buildContactInfo(payload) : payload.mobileDeviceIds
+  const contactInfo = isContactInfo ? buildContactInfo(payload) : undefined
+  const members: Member[] = isContactInfo ? (contactInfo ? [contactInfo] : []) : toList(payload.mobileDeviceIds)
 
-  if (!member) {
+  if (members.length === 0) {
     return {
       errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
       errormessage: isContactInfo
@@ -225,11 +349,7 @@ export function buildMember(
     }
   }
 
-  return { member }
-}
-
-export function isRetryableStatus(status: number): boolean {
-  return status === 408 || status === 429 || status >= 500
+  return { members }
 }
 
 export function errorTypeForStatus(status: number): keyof typeof ErrorCodes {
@@ -256,7 +376,7 @@ function setError(
     }
 
     if (isRetryableStatus(status)) {
-      throw new RetryableError(errormessage)
+      throw new RetryableError(errormessage, status)
     }
     throw new IntegrationError(errormessage, errortype, status)
   }
@@ -270,8 +390,6 @@ function setError(
   })
 }
 
-// Applies a batch level failure to every payload: an error entry per index for a batch,
-// or a thrown error for a single event, which has no MultiStatusResponse to report into.
 export function failAllPayloads(
   msResponse: MultiStatusResponse,
   payloads: Payload[],
@@ -282,122 +400,6 @@ export function failAllPayloads(
 ): MultiStatusResponse {
   payloads.forEach((payload, index) => {
     setError(msResponse, isBatch, index, status, errortype, errormessage, payload as unknown as JSONLikeObject)
-  })
-
-  return msResponse
-}
-
-export async function send(
-  request: RequestClient,
-  payloads: Payload[],
-  isBatch: boolean,
-  audienceMemberships: AudienceMembership[] | undefined,
-  audienceSettings?: AudienceSettings,
-  hookOutputs?: HookOutputs,
-  statsContext?: StatsContext,
-  features?: Features
-): Promise<MultiStatusResponse | ModifiedResponse<EditCustomerMatchMembersResponse>> {
-  const msResponse = new MultiStatusResponse()
-
-  const { audienceDetails, audienceErrorMessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
-
-  if (!audienceDetails) {
-    return failAllPayloads(msResponse, payloads, isBatch, audienceErrorMessage as string)
-  }
-
-  const { audienceId, advertiserId, audienceType } = audienceDetails
-
-  const { consent, consentErrorMessage } = buildConsent(payloads[0])
-
-  if (!consent) {
-    return failAllPayloads(msResponse, payloads, isBatch, consentErrorMessage as string)
-  }
-
-  const addIndices: number[] = []
-  const removeIndices: number[] = []
-  const addedMembers: Member[] = []
-  const removedMembers: Member[] = []
-  const members: Record<number, Member> = {}
-
-  payloads.forEach((payload, index) => {
-    const membership = audienceMemberships?.[index]
-
-    const { member, errortype, errormessage } = buildMember(payload, membership, audienceDetails)
-
-    if (!member) {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        400,
-        errortype as keyof typeof ErrorCodes,
-        errormessage as string,
-        payload as unknown as JSONLikeObject
-      )
-      return
-    }
-
-    members[index] = member
-
-    if (membership === true) {
-      addedMembers.push(member)
-      addIndices.push(index)
-    } else {
-      removedMembers.push(member)
-      removeIndices.push(index)
-    }
-  })
-
-  const sentIndices = [...addIndices, ...removeIndices]
-
-  if (sentIndices.length === 0) {
-    statsContext?.statsClient?.incr('syncAudience.discard', payloads.length, statsContext?.tags)
-    return msResponse
-  }
-
-  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
-  const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
-
-  const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    json,
-    throwHttpErrors: false
-  })
-
-  if (!response.ok) {
-    const { status, data } = response
-
-    statsContext?.statsClient?.incr('syncAudience.error', sentIndices.length, statsContext?.tags)
-
-    sentIndices.forEach((index) => {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        status,
-        errorTypeForStatus(status),
-        data?.error?.message ?? 'Display & Video 360 rejected the request',
-        members[index] as unknown as JSONLikeObject,
-        (data ?? {}) as unknown as JSONLikeObject
-      )
-    })
-
-    return msResponse
-  }
-
-  statsContext?.statsClient?.incr('syncAudience.success', sentIndices.length, statsContext?.tags)
-
-  if (!isBatch) {
-    return response
-  }
-
-  sentIndices.forEach((index) => {
-    msResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: members[index] as unknown as JSONLikeObject,
-      body: { success: true }
-    })
   })
 
   return msResponse
