@@ -19,6 +19,7 @@ import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   AudienceTarget,
+  ResolvedAudience,
   Consent,
   ConsentStatus,
   Member,
@@ -45,7 +46,7 @@ export async function send(
   const { audienceDetails, audienceErrorMessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
 
   if (!audienceDetails) {
-    return failAllPayloads(msResponse, payloads, isBatch, audienceErrorMessage as string)
+    return failAllPayloads(msResponse, payloads, isBatch, audienceErrorMessage)
   }
 
   const { audienceId, advertiserId, audienceType } = audienceDetails
@@ -110,7 +111,7 @@ export async function send(
         status,
         errorTypeForStatus(status),
         data?.error?.message ?? 'Display & Video 360 rejected the request',
-        membersByIndex[index] as unknown as JSONLikeObject,
+        { members: membersByIndex[index] } as unknown as JSONLikeObject,
         (data ?? {}) as unknown as JSONLikeObject
       )
     })
@@ -125,7 +126,7 @@ export async function send(
   sentIndices.forEach((index) => {
     msResponse.setSuccessResponseAtIndex(index, {
       status: 200,
-      sent: membersByIndex[index] as unknown as JSONLikeObject,
+      sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
       body: { success: true }
     })
   })
@@ -258,7 +259,7 @@ export function resolveAudienceDetails(
   payload: Payload,
   audienceSettings?: AudienceSettings,
   hookOutputs?: HookOutputs
-): { audienceDetails?: AudienceTarget; audienceErrorMessage?: string } {
+): ResolvedAudience {
   const audienceId = getAudienceId(payload, hookOutputs)
   const advertiserId = getAdvertiserId(audienceSettings, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
@@ -267,13 +268,7 @@ export function resolveAudienceDetails(
 
   return audienceErrorMessage
     ? { audienceErrorMessage }
-    : {
-        audienceDetails: {
-          audienceId: audienceId as string,
-          advertiserId: advertiserId as string,
-          audienceType: audienceType as string
-        }
-      }
+    : { audienceDetails: { audienceId, advertiserId, audienceType } as AudienceTarget }
 }
 
 export function validateAudienceDetails(

@@ -19,14 +19,17 @@ export async function performHook(
 ) {
   const {
     operation,
-    advertiserId,
+    advertiserId: rawAdvertiserId,
     audienceName,
     audienceType,
     membershipDurationDays,
     description,
     appId,
-    existingAudienceId
+    existingAudienceId: rawExistingAudienceId
   } = hookInputs
+
+  const advertiserId = rawAdvertiserId?.trim()
+  const existingAudienceId = rawExistingAudienceId?.trim()
 
   if (!advertiserId) {
     return {
@@ -78,7 +81,7 @@ export async function performHook(
 
     try {
       const response = await createAudienceRequest(request, {
-        advertiserId: advertiserId.trim(),
+        advertiserId,
         audienceName,
         description,
         // DV360 takes membershipDurationDays as an int64, which is a string over JSON.
@@ -114,7 +117,7 @@ export async function performHook(
       successMessage: `Audience created with ID: ${audienceId}`,
       savedData: {
         audienceId,
-        advertiserId: advertiserId.trim(),
+        advertiserId,
         audienceType,
         appId
       }
@@ -132,8 +135,8 @@ export async function performHook(
 
     try {
       const response = await getAudienceRequest(request, {
-        advertiserId: advertiserId.trim(),
-        audienceId: existingAudienceId.trim(),
+        advertiserId,
+        audienceId: existingAudienceId,
         features,
         statsContext
       })
@@ -142,9 +145,7 @@ export async function performHook(
     } catch (error) {
       return {
         error: {
-          message: `Failed to retrieve audience ${existingAudienceId.trim()} from Display & Video 360${errorDetail(
-            error
-          )}`,
+          message: `Failed to retrieve audience ${existingAudienceId} from Display & Video 360${errorDetail(error)}`,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
@@ -153,17 +154,17 @@ export async function performHook(
     if (!audience?.audienceType || (audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
       return {
         error: {
-          message: `Audience ${existingAudienceId.trim()} is not a Customer Match Contact Info or Mobile Device ID audience`,
+          message: `Audience ${existingAudienceId} is not a Customer Match Contact Info or Mobile Device ID audience`,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
     }
 
     return {
-      successMessage: `Connected to audience with ID: ${existingAudienceId.trim()}`,
+      successMessage: `Connected to audience with ID: ${existingAudienceId}`,
       savedData: {
-        audienceId: existingAudienceId.trim(),
-        advertiserId: advertiserId.trim(),
+        audienceId: existingAudienceId,
+        advertiserId,
         audienceType: audience.audienceType,
         appId: audience.appId
       }
