@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import destination from '../../index'
 import { DEFAULT_VOICEOPS_BASE_URL } from '../../constants'
+import type { Settings } from '../../generated-types'
 
 const testDestination = createTestIntegration(destination)
 const settings = { accessToken: 'voiceops-token', baseUrl: DEFAULT_VOICEOPS_BASE_URL }
@@ -145,6 +146,26 @@ describe('Voiceops.updateCallMetadata', () => {
       }
     })
 
+    expect(scope.isDone()).toBe(true)
+  })
+
+  it('uses the default base URL when the setting is omitted', async () => {
+    const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+      .post(endpoint)
+      .matchHeader('authorization', 'Bearer voiceops-token')
+      .reply(200, {})
+
+    const legacySettings: Settings = { accessToken: 'voiceops-token' }
+    const responses = await testDestination.testAction('updateCallMetadata', {
+      settings: legacySettings,
+      mapping: {
+        call_id: 'call-123',
+        call_completed_at: '1789394517',
+        extraMetadata: { disposition: 'Answered' }
+      }
+    })
+
+    expect(responses[0].status).toBe(200)
     expect(scope.isDone()).toBe(true)
   })
 

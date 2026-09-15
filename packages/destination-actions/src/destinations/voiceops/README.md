@@ -4,6 +4,8 @@
 
 Create two mappings using the same Voiceops destination credentials and base URL:
 
+Base URL is optional and defaults to `https://projectfrontline.net`. Existing destinations can omit it; set it only when using a different Voiceops host.
+
 | Segment event              | Voiceops action                             | Purpose                                                             |
 | -------------------------- | ------------------------------------------- | ------------------------------------------------------------------- |
 | `call.recording.available` | Send Call Completed (`sendCallCompleted`)   | Ingest the recording.                                               |

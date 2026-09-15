@@ -18,9 +18,9 @@
       },
       "baseUrl": {
         "label": "Base URL",
-        "description": "Your Voiceops base URL.",
+        "description": "Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted.",
         "type": "string",
-        "required": true,
+        "required": false,
         "multiple": false,
         "choices": null,
         "default": "https://projectfrontline.net",
