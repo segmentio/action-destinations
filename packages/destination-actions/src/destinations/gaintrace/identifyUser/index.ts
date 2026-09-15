@@ -1,16 +1,14 @@
 import type { ActionDefinition } from '@segment/actions-core'
-import { PayloadValidationError } from '@segment/actions-core'
+import { omit, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { API_BASE, safeObject } from '../api'
+import { safeObject } from '../api'
+import { API_BASE } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify User',
   description:
     'Create or update a person in GainTrace and attach them to a company. Safe to call repeatedly: GainTrace matches on external ID, then email, and updates rather than duplicating.',
-  // Narrowed on purpose. A person in GainTrace always belongs to a company, so
-  // an identify with no group association cannot be stored. Filtering here means
-  // those calls are reported as filtered rather than failing delivery.
   defaultSubscription: 'type = "identify" and context.groupId != null',
   fields: {
     userId: {
@@ -18,9 +16,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         "The customer's own identifier for this person, used as the stable match key in GainTrace. Required unless an Email is provided.",
       type: 'string',
-      // Preferred, because an email address can change while an id does not.
-      // Conditionally required rather than always required so an identify call
-      // carrying only an email still works, which is how Planhat matches too.
       required: {
         conditions: [{ fieldKey: 'email', operator: 'is', value: undefined }]
       },
@@ -64,7 +59,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'All other traits to store on the person. Segment Engage computed traits and audience membership arrive here and are merged with existing traits rather than replacing them.',
       type: 'object',
-      additionalProperties: true,
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.traits' }
     }
@@ -73,6 +67,8 @@ const action: ActionDefinition<Settings, Payload> = {
     if (!payload.userId && !payload.email) {
       throw new PayloadValidationError('Either a User ID or an email address is required to identify a person.')
     }
+    const traits = safeObject(omit(payload.traits, ['email', 'name', 'phone', 'title']))
+
     return request(`${API_BASE}/contacts`, {
       method: 'POST',
       json: {
@@ -83,7 +79,7 @@ const action: ActionDefinition<Settings, Payload> = {
         ...(payload.name ? { name: payload.name } : {}),
         ...(payload.phone ? { phone: payload.phone } : {}),
         ...(payload.role ? { role: payload.role } : {}),
-        ...(safeObject(payload.traits) ? { traits: safeObject(payload.traits) } : {})
+        ...(traits ? { traits } : {})
       }
     })
   }

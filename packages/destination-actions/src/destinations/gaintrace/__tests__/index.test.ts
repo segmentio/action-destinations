@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { API_BASE } from '../api'
+import { API_BASE } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 const settings = { apiKey: 'gt_live_testkey' }
@@ -79,8 +79,6 @@ describe('GainTrace', () => {
 
     it('narrows the identify subscription so required fields are always present', () => {
       const identify = (Definition.presets ?? []).find((p) => p.name === 'Identify Calls')
-      // accountExternalId is required, so an identify without a group would fail
-      // delivery. Filtering it at subscription level reports it as filtered.
       expect(identify && 'subscribe' in identify && identify.subscribe).toContain('context.groupId != null')
     })
   })

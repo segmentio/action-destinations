@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
-import { API_BASE, MAX_EVENTS_PER_REQUEST } from '../../api'
+import { API_BASE, MAX_EVENTS_PER_REQUEST } from '../../constants'
 
 const testDestination = createTestIntegration(Definition)
 const settings = { apiKey: 'gt_live_testkey' }
@@ -50,8 +50,6 @@ describe('GainTrace.trackEvent', () => {
       })
       .reply(201, { data: { results: [{ status: 'inserted' }] } })
 
-    // A replay delivers events months old. Sending "now" would put a customer's
-    // whole history on today's date and destroy every trend.
     await testDestination.testAction('trackEvent', {
       settings,
       mapping: mapping({ timestamp: '2025-11-02T08:30:00.000Z' })
@@ -74,10 +72,6 @@ describe('GainTrace.trackEvent', () => {
   })
 
   it('rejects an event with no identifier', async () => {
-    // userId and anonymousId are conditionally required on each other, so the
-    // framework rejects this while the customer is still configuring the
-    // mapping rather than at delivery time. `validateEvent` keeps the same rule
-    // as a backstop for any other call site; that is covered in api.test.ts.
     await expect(
       testDestination.testAction('trackEvent', {
         settings,
@@ -144,7 +138,6 @@ describe('GainTrace.trackEvent', () => {
       })
 
       expect(body.events).toHaveLength(2)
-      // A duplicate is a successful delivery: GainTrace already has the event.
       expect(response).toBeDefined()
     })
 
@@ -173,8 +166,6 @@ describe('GainTrace.trackEvent', () => {
         }
       })
 
-      // MultiStatus results are surfaced in the UI and stored, so they must not
-      // carry personal data lifted from event properties.
       const entry = JSON.stringify(response[0])
       expect(entry).not.toContain('person@example.com')
       expect(entry).not.toContain('secret')

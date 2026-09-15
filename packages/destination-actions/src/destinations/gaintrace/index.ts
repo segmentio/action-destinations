@@ -1,7 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { API_BASE, REQUEST_TIMEOUT_MS } from './api'
+import { API_BASE, REQUEST_TIMEOUT_MS } from './constants'
 
 import trackEvent from './trackEvent'
 import identifyUser from './identifyUser'
@@ -26,9 +26,6 @@ const destination: DestinationDefinition<Settings> = {
         required: true
       }
     },
-    // A real authenticated request. Checking that a required field is present
-    // would prove nothing, because the framework already enforces that before
-    // the destination can be enabled.
     testAuthentication: async (request) => {
       try {
         await request(`${API_BASE}/companies?limit=1`, { method: 'GET' })
@@ -41,22 +38,15 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   extendRequest: ({ settings }) => ({
-    // The key travels in the Authorization header only. It is never placed in a
-    // request body, where it could be persisted or surfaced downstream.
     headers: { Authorization: `Bearer ${settings.apiKey}` },
     timeout: REQUEST_TIMEOUT_MS
   }),
 
-  // Privacy deletion. Segment supplies the Spec userId, which GainTrace resolves
-  // to a person by external ID. Deleting a subject GainTrace has never seen is
-  // treated as success, so a deletion request is never reported as a failure.
   onDelete: async (request, { payload }) =>
     request(`${API_BASE}/contacts?externalId=${encodeURIComponent(String(payload.userId))}`, {
       method: 'DELETE'
     }),
 
-  // No preset for Page View: page traffic is high volume and adds little to
-  // account health, so it ships available but off. Customers opt in.
   presets: [
     {
       name: 'Track Calls',

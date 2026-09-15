@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
-import { API_BASE } from '../../api'
+import { API_BASE } from '../../constants'
 
 const testDestination = createTestIntegration(Definition)
 const settings = { apiKey: 'gt_live_testkey' }
@@ -77,6 +77,43 @@ describe('GainTrace.identifyUser', () => {
     expect(body).not.toHaveProperty('phone')
     expect(body).not.toHaveProperty('traits')
   })
+
+  it('does not duplicate dedicated contact fields inside traits', async () => {
+    let body: any
+    nock(API_BASE)
+      .post('/contacts', (b) => {
+        body = b
+        return true
+      })
+      .reply(200, {})
+
+    await testDestination.testAction('identifyUser', {
+      settings,
+      mapping: {
+        userId: 'u',
+        accountExternalId: 'acme',
+        email: 'jane@acme.com',
+        name: 'Jane Doe',
+        phone: '+15550123',
+        role: 'Founder',
+        traits: {
+          email: 'jane@acme.com',
+          name: 'Jane Doe',
+          phone: '+15550123',
+          title: 'Founder',
+          plan: 'enterprise'
+        }
+      }
+    })
+
+    expect(body).toMatchObject({
+      email: 'jane@acme.com',
+      name: 'Jane Doe',
+      phone: '+15550123',
+      role: 'Founder'
+    })
+    expect(body.traits).toEqual({ plan: 'enterprise' })
+  })
 })
 
 describe('GainTrace.identifyUser guards', () => {
@@ -85,9 +122,6 @@ describe('GainTrace.identifyUser guards', () => {
     const neverCalled = jest.fn(() => {
       throw new Error('no HTTP request should be made')
     })
-    // perform throws synchronously, before any request is built. userId is a
-    // required field so the framework normally rejects this first; the guard
-    // keeps the action safe if it is ever invoked from another call site.
     expect(() =>
       (action.perform as unknown as (r: unknown, d: unknown) => unknown)(neverCalled, {
         payload: { accountExternalId: 'acme' },

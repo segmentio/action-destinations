@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../../index'
-import { API_BASE } from '../../api'
+import { API_BASE } from '../../constants'
 
 const testDestination = createTestIntegration(Definition)
 const settings = { apiKey: 'gt_live_testkey' }

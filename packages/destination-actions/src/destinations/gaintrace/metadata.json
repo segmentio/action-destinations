@@ -256,7 +256,7 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to GainTrace",
@@ -506,7 +506,7 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": true
+          "additionalProperties": false
         }
       }
     },
@@ -915,7 +915,7 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "enable_batching": {
           "label": "Batch Data to GainTrace",

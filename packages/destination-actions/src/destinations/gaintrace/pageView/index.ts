@@ -1,14 +1,12 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { MAX_EVENTS_PER_REQUEST, sendEvents } from '../api'
+import { sendEvents } from '../api'
+import { EVENT_CATEGORIES, MAX_EVENTS_PER_REQUEST } from '../constants'
 
-/** Page calls often carry no name; a stable fallback keeps them attributable. */
 function withPageName(payload: Payload): Payload {
   return payload.eventName ? payload : { ...payload, eventName: 'Page Viewed' }
 }
-
-const EVENT_CATEGORIES = ['feature_usage', 'navigation', 'api', 'billing', 'support', 'auth', 'integration', 'admin']
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Page View',
@@ -44,9 +42,6 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'The identifier for the person who performed the event. Matched against a GainTrace person by external ID or email. Required unless an Anonymous ID is provided.',
       type: 'string',
-      // An event needs at least one identifier or it cannot be attributed to a
-      // person or a company. Expressed conditionally so the mapping UI catches
-      // it while the customer is configuring, rather than at delivery time.
       required: {
         conditions: [{ fieldKey: 'anonymousId', operator: 'is', value: undefined }]
       },
@@ -73,7 +68,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Event Properties',
       description: 'Properties to store alongside the event.',
       type: 'object',
-      additionalProperties: true,
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.properties' }
     },

@@ -1,17 +1,12 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import destination from '../index'
-import { API_BASE } from '../api'
+import { API_BASE } from '../constants'
 import { generateTestData } from '../../../lib/test-data'
 
 const testDestination = createTestIntegration(destination)
-// The catalog slug, not the display name, so seeded data stays stable and
-// matches the destination's identity.
 const destinationSlug = 'actions-gaintrace'
 
-// nock is scoped to the GainTrace host rather than a catch-all, and cleaned up
-// after every test, so a persisted interceptor cannot leak into another suite or
-// silently swallow an unexpected outbound call.
 afterEach(() => {
   nock.cleanAll()
 })
@@ -30,11 +25,6 @@ async function snapshotAction(actionSlug: string, requiredOnly: boolean) {
 
   const event = createTestEvent({ properties: eventData })
 
-  // userId and anonymousId are individually optional, but the event actions
-  // require at least ONE of them: an event with neither cannot be attributed to
-  // a person or a company, and sending it would inflate usage counts while
-  // teaching the customer nothing. In "required fields" mode the generator
-  // supplies neither, so seed one here rather than weakening the rule.
   const mapping: Record<string, unknown> = { ...(event.properties as Record<string, unknown>) }
   if ('userId' in action.fields && mapping.userId == null && mapping.anonymousId == null) {
     mapping.userId = 'snapshot-user-id'
@@ -56,9 +46,6 @@ async function snapshotAction(actionSlug: string, requiredOnly: boolean) {
     expect(rawBody).toMatchSnapshot()
   }
 
-  // Deliberately outside the try/catch and after both branches: the widely
-  // copied version of this template returns early on the JSON path, so headers
-  // are never actually snapshotted.
   expect(request.headers).toMatchSnapshot()
 }
 

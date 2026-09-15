@@ -1,7 +1,8 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
-import { API_BASE, MAX_EVENTS_PER_REQUEST, safeObject, sendEvents, toIso, validateEvent } from '../api'
+import { safeObject, sendEvents, toIso, validateEvent } from '../api'
+import { API_BASE, MAX_EVENTS_PER_REQUEST } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 const settings = { apiKey: 'gt_live_testkey' }
@@ -17,7 +18,6 @@ describe('toIso', () => {
   })
 
   it('preserves the unix epoch rather than treating 0 as absent', () => {
-    // A truthy check here would silently drop a legitimate value.
     expect(toIso(0)).toBe('1970-01-01T00:00:00.000Z')
   })
 
@@ -81,17 +81,12 @@ describe('batch index mapping', () => {
         sent = b
         return true
       })
-      // Only two events reach the API (index 1 fails local validation), and the
-      // API reports positionally against what it actually received.
       .reply(201, { data: { results: [{ status: 'inserted' }, { status: 'error', reason: 'boom' }] } })
 
     const response = await testDestination.executeBatch('trackEvent', {
       settings,
       events: [
         createTestEvent({ type: 'track', event: 'good-0', timestamp: '2026-01-01T00:00:00.000Z', userId: 'u0' }),
-        // No userId and no anonymousId, so it cannot be attributed and is
-        // rejected before we send. Note messageId cannot be used for this case:
-        // Segment's framework auto-populates it.
         createTestEvent({
           type: 'track',
           event: 'bad-1',
@@ -113,15 +108,11 @@ describe('batch index mapping', () => {
     expect(sent.events).toHaveLength(2)
     expect(sent.events.map((e: any) => e.event_name)).toEqual(['good-0', 'good-2'])
 
-    // Original index 0 succeeded; 1 failed local validation; 2 carries the API
-    // error that arrived at SENT index 1. Without the index map, "boom" would
-    // have been reported against the wrong event.
     expect(response[0]).toMatchObject({ status: 200 })
     expect(response[1]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED'
     })
-    // Rejected by the conditionally-required rule before we ever build a request.
     expect((response[1] as any).errormessage).toMatch(/userId|anonymousId/i)
     expect(response[2]).toMatchObject({ status: 400 })
     expect((response[2] as any).errormessage).toBe('boom')
@@ -143,14 +134,11 @@ describe('batch index mapping', () => {
       }
     })
 
-    // GainTrace already holds the event: the delivery succeeded, and reporting
-    // it as an error would make every replay look like a failure.
     expect(response[0]).toMatchObject({ status: 200 })
   })
 })
 
 describe('sendEvents guards', () => {
-  // A stub request client: these paths must fail before any HTTP call is made.
   const neverCalled = jest.fn(() => {
     throw new Error('no HTTP request should be made')
   }) as unknown as Parameters<typeof sendEvents>[0]
@@ -169,12 +157,10 @@ describe('sendEvents guards', () => {
       messageId: `m-${i}`,
       eventName: 'E',
       timestamp: '2026-01-01T00:00:00.000Z',
-      userId: 'u'
+      ...(i === 0 ? {} : { userId: 'u' })
     }))
-    // Enforced in code, not only declared via batch_size, so a misconfigured
-    // batch never reaches the API to be rejected wholesale.
     await expect(sendEvents(neverCalled, oversized, 'feature_usage', true)).rejects.toThrowError(
-      new RegExp(`at most ${MAX_EVENTS_PER_REQUEST} events`)
+      new RegExp(`at most ${MAX_EVENTS_PER_REQUEST} events per request; received ${MAX_EVENTS_PER_REQUEST + 1}`)
     )
   })
 
@@ -185,7 +171,6 @@ describe('sendEvents guards', () => {
       'feature_usage',
       true
     )
-    // No HTTP call was attempted, and the single event is reported as failed.
     expect((result as { length(): number }).length()).toBe(1)
   })
 })

@@ -1,67 +1,8 @@
 import type { JSONLikeObject, RequestClient } from '@segment/actions-core'
 import { MultiStatusResponse, PayloadValidationError } from '@segment/actions-core'
-import { GAINTRACE_API_VERSION } from './versioning-info'
+import { API_BASE, MAX_EVENTS_PER_REQUEST } from './constants'
+import type { EventsApiResponse, EventSource, GainTraceEvent } from './types'
 
-/**
- * GainTrace's public API. Hardcoded rather than a setting: the base URL is a
- * published contract (`docs/api-design.openapi.json`), and a user-supplied host
- * would be an SSRF surface for no benefit.
- */
-export const API_BASE = `https://app.gaintrace.com/api/${GAINTRACE_API_VERSION}`
-
-/** Explicit ceiling so a slow response cannot pin a delivery worker. */
-export const REQUEST_TIMEOUT_MS = 30_000
-
-/**
- * Hard cap documented by POST /api/v1/events, which rejects a larger array
- * outright. Enforced in code as well as declared in `batch_size`, so a
- * misconfigured or future batching change cannot silently fail a whole batch.
- */
-export const MAX_EVENTS_PER_REQUEST = 1000
-
-/** Per-item outcome returned by POST /api/v1/events, aligned to the sent array. */
-export type ItemStatus = 'inserted' | 'duplicate' | 'error' | 'rejected'
-
-export interface EventsApiResponse {
-  data?: {
-    inserted?: number
-    duplicates?: number
-    errors?: number
-    results?: Array<{ status: ItemStatus; reason?: string }>
-  }
-  validation_errors?: Array<{ index: number; error: string }>
-}
-
-export interface GainTraceEvent extends JSONLikeObject {
-  event_name: string
-  event_category: string
-  source: 'segment'
-  source_event_id: string
-  timestamp: string
-  user_id?: string
-  anonymous_id?: string
-  properties?: JSONLikeObject
-}
-
-/** Shape shared by trackEvent and pageView before it becomes a GainTraceEvent. */
-export interface EventSource {
-  messageId?: string
-  timestamp?: string | number
-  eventName?: string
-  eventCategory?: string
-  userId?: string
-  anonymousId?: string
-  properties?: Record<string, unknown>
-}
-
-/**
- * Copy own enumerable keys into a null-prototype object.
- *
- * Payload objects come from customer event data, so iterating with `for...in`
- * would pick up inherited keys and a `__proto__` key could pollute the
- * accumulator. Returns undefined for an empty result so callers omit the field
- * entirely rather than sending `{}`.
- */
 export function safeObject(input?: Record<string, unknown>): JSONLikeObject | undefined {
   if (!input) return undefined
   const out = Object.create(null) as Record<string, unknown>
@@ -76,13 +17,6 @@ export function safeObject(input?: Record<string, unknown>): JSONLikeObject | un
   return count > 0 ? (out as JSONLikeObject) : undefined
 }
 
-/**
- * Normalise a Segment timestamp to ISO-8601.
- *
- * No clock validation of any kind. Segment replays historical data into newly
- * connected destinations, so backdated timestamps are the normal case, not an
- * anomaly, and a sending client's clock may legitimately run ahead of Segment's.
- */
 export function toIso(value?: string | number): string | undefined {
   if (value == null) return undefined
   const date = new Date(value)
@@ -91,7 +25,6 @@ export function toIso(value?: string | number): string | undefined {
   return date.toISOString()
 }
 
-/** Validate one event, returning a human message when it cannot be sent. */
 export function validateEvent(payload: EventSource): string | undefined {
   if (!payload.messageId) {
     return 'messageId is required. GainTrace deduplicates on it, so without it a Segment replay would count the same event more than once.'
@@ -105,6 +38,8 @@ export function validateEvent(payload: EventSource): string | undefined {
 }
 
 function toApiEvent(payload: EventSource, defaultCategory: string): GainTraceEvent {
+  const properties = safeObject(payload.properties)
+
   return {
     event_name: payload.eventName as string,
     event_category: payload.eventCategory || defaultCategory,
@@ -113,18 +48,10 @@ function toApiEvent(payload: EventSource, defaultCategory: string): GainTraceEve
     timestamp: toIso(payload.timestamp) as string,
     ...(payload.userId ? { user_id: payload.userId } : {}),
     ...(payload.anonymousId ? { anonymous_id: payload.anonymousId } : {}),
-    ...(safeObject(payload.properties) ? { properties: safeObject(payload.properties) } : {})
+    ...(properties ? { properties } : {})
   }
 }
 
-/**
- * The one code path for both single and batch sends.
- *
- * `perform` wraps its single payload in an array and calls this, so there is no
- * second implementation to drift. The only branch is the return value: a batch
- * gets a MultiStatusResponse with per-event outcomes, a single send gets the raw
- * response so ordinary error handling applies.
- */
 export async function sendEvents(
   request: RequestClient,
   payloads: EventSource[],
@@ -138,9 +65,12 @@ export async function sendEvents(
     throw new PayloadValidationError('No event to send.')
   }
 
-  // Filtered-index -> original-index map. Per-item results from the API are
-  // positional against what we SENT, so without this a single invalid event
-  // shifts every subsequent result onto the wrong original event.
+  if (isBatch && payloads.length > MAX_EVENTS_PER_REQUEST) {
+    throw new PayloadValidationError(
+      `GainTrace accepts at most ${MAX_EVENTS_PER_REQUEST} events per request; received ${payloads.length}.`
+    )
+  }
+
   const originalIndexes: number[] = []
   const events: GainTraceEvent[] = []
 
@@ -161,12 +91,6 @@ export async function sendEvents(
 
   if (events.length === 0) return multiStatus
 
-  if (events.length > MAX_EVENTS_PER_REQUEST) {
-    throw new PayloadValidationError(
-      `GainTrace accepts at most ${MAX_EVENTS_PER_REQUEST} events per request; received ${events.length}.`
-    )
-  }
-
   const response = await request<EventsApiResponse>(`${API_BASE}/events`, {
     method: 'POST',
     json: { events }
@@ -177,13 +101,9 @@ export async function sendEvents(
   const results = response.data?.data?.results
   originalIndexes.forEach((originalIndex, sentIndex) => {
     const result = results?.[sentIndex]
-    // No per-item result means the API accepted the batch without detail; the
-    // request itself succeeded, so report success rather than inventing failure.
     if (!result || result.status === 'inserted' || result.status === 'duplicate') {
       multiStatus.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
-        // Deliberately NOT echoing the sent payload: MultiStatus bodies are
-        // surfaced and stored, and event properties can carry personal data.
         sent: { source_event_id: events[sentIndex].source_event_id } as JSONLikeObject,
         body: { status: result?.status ?? 'accepted' }
       })
