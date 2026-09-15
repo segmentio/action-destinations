@@ -1054,7 +1054,7 @@
               "label": "Create a new audience or connect to an existing one?",
               "description": "Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.",
               "type": "string",
-              "required": true,
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1087,7 +1087,7 @@
               "label": "Advertiser ID",
               "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
               "type": "string",
-              "required": true,
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1111,16 +1111,7 @@
               "label": "Audience Name",
               "description": "The display name of the audience to create in Display & Video 360.",
               "type": "string",
-              "required": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
-                  }
-                ]
-              },
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1153,16 +1144,7 @@
               "label": "Audience Type",
               "description": "The type of the audience to create.",
               "type": "string",
-              "required": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
-                  }
-                ]
-              },
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1204,16 +1186,7 @@
               "label": "Membership Duration Days",
               "description": "The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.",
               "type": "number",
-              "required": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
-                  }
-                ]
-              },
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1279,21 +1252,7 @@
               "label": "App ID",
               "description": "The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.",
               "type": "string",
-              "required": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
-                  },
-                  {
-                    "fieldKey": "audienceType",
-                    "operator": "is",
-                    "value": "CUSTOMER_MATCH_DEVICE_ID"
-                  }
-                ]
-              },
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -1331,16 +1290,7 @@
               "label": "Existing Audience ID",
               "description": "The ID of the audience in Display & Video 360 to connect this mapping to.",
               "type": "string",
-              "required": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "existing"
-                  }
-                ]
-              },
+              "required": false,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,

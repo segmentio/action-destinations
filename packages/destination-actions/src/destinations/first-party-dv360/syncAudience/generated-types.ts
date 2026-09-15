@@ -74,11 +74,11 @@ export interface RetlOnMappingSaveInputs {
   /**
    * Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.
    */
-  operation: string
+  operation?: string
   /**
    * The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.
    */
-  advertiserId: string
+  advertiserId?: string
   /**
    * The display name of the audience to create in Display & Video 360.
    */
