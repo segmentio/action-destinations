@@ -157,7 +157,7 @@ const CONSENT_CHOICES = [
 export const consent: InputField = {
   label: 'Consent',
   description:
-    'The consent signals to send with this audience sync. A signal which is left unset is sent as not specified. Batches with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
+    'The consent signals to send with this audience sync. These are deliberately not defaulted: a signal which is left unset is sent as not specified, rather than Segment asserting a consent signal it does not have. Batches with consent denied are not sent to Display & Video 360, as the API rejects any request containing denied consent.',
   type: 'object',
   defaultObjectUI: 'keyvalue',
   additionalProperties: false,
@@ -174,10 +174,6 @@ export const consent: InputField = {
       type: 'string',
       choices: CONSENT_CHOICES
     }
-  },
-  default: {
-    adUserData: CONSENT_STATUS_GRANTED,
-    adPersonalization: CONSENT_STATUS_GRANTED
   }
 }
 

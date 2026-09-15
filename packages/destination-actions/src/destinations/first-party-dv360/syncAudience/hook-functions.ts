@@ -5,6 +5,12 @@ import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 import { DV360Audience } from './types'
 
+function errorDetail(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error ?? '')
+
+  return message ? `: ${message}` : ''
+}
+
 export async function performHook(
   request: RequestClient,
   hookInputs: RetlOnMappingSaveInputs,
@@ -84,10 +90,10 @@ export async function performHook(
       })
 
       audience = (await response.json()) as DV360Audience
-    } catch {
+    } catch (error) {
       return {
         error: {
-          message: 'Failed to create audience in Display & Video 360',
+          message: `Failed to create audience in Display & Video 360${errorDetail(error)}`,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
@@ -133,10 +139,12 @@ export async function performHook(
       })
 
       audience = (await response.json()) as DV360Audience
-    } catch {
+    } catch (error) {
       return {
         error: {
-          message: `Failed to retrieve audience ${existingAudienceId.trim()} from Display & Video 360`,
+          message: `Failed to retrieve audience ${existingAudienceId.trim()} from Display & Video 360${errorDetail(
+            error
+          )}`,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }

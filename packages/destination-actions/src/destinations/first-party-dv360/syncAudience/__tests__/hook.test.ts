@@ -109,7 +109,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
 
     expect(result).toEqual({
       error: {
-        message: `Failed to retrieve audience ${AUDIENCE_ID} from Display & Video 360`,
+        message: expect.stringContaining(`Failed to retrieve audience ${AUDIENCE_ID} from Display & Video 360:`),
         code: 'RETL_ON_MAPPING_SAVE_FAILED'
       }
     })
