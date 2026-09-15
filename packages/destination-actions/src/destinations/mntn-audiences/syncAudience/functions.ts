@@ -133,17 +133,15 @@ export async function syncAudience(
   const encodedSegmentId = encodeURIComponent(segment_id)
 
   if (adds.length > 0) {
-    const json =
-      adds.length === 1 ? { identity: adds[0].identity } : { identities: adds.map(({ identity }) => identity) }
+    const json = adds.length === 1
+      ? { identity: adds[0].identity }
+      : { identities: adds.map(({ identity }) => identity) }
 
     try {
-      const response = await request(
-        `${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments/${encodedSegmentId}/identities`,
-        {
-          method: 'POST',
-          json
-        }
-      )
+      const response = await request(`${MNTN_API_BASE}/${MNTN_API_VERSION}/audience/segments/${encodedSegmentId}/identities`, {
+        method: 'POST',
+        json
+      })
       if (!isBatch) {
         return response
       }

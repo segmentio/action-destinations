@@ -25,7 +25,6 @@ If either is missing, ask the user before proceeding.
 ### 1. FEATURE EXTRACTION
 
 Read the PRD and identify **every unique data-sending capability**:
-
 - Explicit actions (e.g., "Send sign-up data," "Update user subscription")
 - Implicit actions (e.g., "sync contacts" implies upsert, "remove from list" implies delete)
 - Event-triggered operations, CRUD operations, batch/bulk operations
@@ -35,17 +34,16 @@ Read the PRD and identify **every unique data-sending capability**:
 
 Map each feature to Segment event types:
 
-| Segment Event | When to Use                                                       |
-| ------------- | ----------------------------------------------------------------- |
-| **Identify**  | User profile creation/updates, trait syncing, audience membership |
-| **Track**     | Event logging, activity tracking, triggered operations            |
-| **Group**     | Company/account-level data syncing                                |
-| **Page**      | Page view tracking                                                |
-| **Alias**     | Identity merging                                                  |
-| **Delete**    | GDPR deletion, user removal                                       |
+| Segment Event | When to Use |
+|---|---|
+| **Identify** | User profile creation/updates, trait syncing, audience membership |
+| **Track** | Event logging, activity tracking, triggered operations |
+| **Group** | Company/account-level data syncing |
+| **Page** | Page view tracking |
+| **Alias** | Identity merging |
+| **Delete** | GDPR deletion, user removal |
 
 Rules:
-
 - One feature = one action (do not merge distinct operations)
 - Upsert operations default to `Identify`
 - Event creation defaults to `Track`
@@ -54,7 +52,6 @@ Rules:
 ### 3. FIELD DISCOVERY
 
 For each action, extract:
-
 - **Mandatory fields** — required by the destination API
 - **Optional fields** — enhance the data but aren't required
 - **Computed fields** — derived from transformation (hashing, normalization)
@@ -138,7 +135,9 @@ Machine-readable format:
   "generatedAt": "<ISO date>",
   "configuration": {
     "authType": "<oauth2|api-key|basic>",
-    "settings": [{ "name": "settingName", "type": "string", "required": true, "description": "Description" }]
+    "settings": [
+      { "name": "settingName", "type": "string", "required": true, "description": "Description" }
+    ]
   },
   "actions": [
     {
@@ -170,7 +169,9 @@ Machine-readable format:
       "errorHandling": { "404": "create new", "429": "backoff and retry" }
     }
   ],
-  "implementationOrder": [{ "order": 1, "action": "actionName", "reason": "Core action" }],
+  "implementationOrder": [
+    { "order": 1, "action": "actionName", "reason": "Core action" }
+  ],
   "openQuestions": []
 }
 ```

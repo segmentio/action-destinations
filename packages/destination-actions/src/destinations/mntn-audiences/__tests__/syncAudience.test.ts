@@ -55,7 +55,9 @@ afterAll(() => {
 
 describe('syncAudience — perform: add', () => {
   it('sends POST when audienceMembership is true', async () => {
-    const scope = nock(MNTN_BASE).post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`).reply(202, {})
+    const scope = nock(MNTN_BASE)
+      .post(`/${MNTN_API_VERSION}/audience/segments/${SEGMENT_ID}/identities`)
+      .reply(202, {})
 
     await testDestination.testAction('syncAudience', {
       event: createTestEvent({
@@ -480,9 +482,9 @@ describe('syncAudience — performBatch: mixed', () => {
   })
 
   it('returns error responses in MultiStatusResponse when API fails', async () => {
-    const mockRequest = jest
-      .fn()
-      .mockRejectedValue(Object.assign(new Error('Service Unavailable'), { response: { status: 503 } }))
+    const mockRequest = jest.fn().mockRejectedValue(
+      Object.assign(new Error('Service Unavailable'), { response: { status: 503 } })
+    )
 
     const result = await syncAudienceAction.performBatch(mockRequest, {
       payload: [

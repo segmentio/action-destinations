@@ -1,10 +1,6 @@
 import { createTestIntegration } from '../create-test-integration'
 import { createTestEvent } from '../create-test-event'
-import {
-  engageAudienceMembership,
-  retlAudienceMembership,
-  legacyJourneysAudienceMembership
-} from '../audience-membership'
+import { engageAudienceMembership, retlAudienceMembership, legacyJourneysAudienceMembership } from '../audience-membership'
 import { FLAGS } from '../flags'
 import { DestinationDefinition } from '../destination-kit'
 import { ExecuteInput } from '../destination-kit/types'

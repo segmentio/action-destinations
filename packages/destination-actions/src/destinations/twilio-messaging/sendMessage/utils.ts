@@ -16,12 +16,25 @@ import {
   MAX_SCHEDULE_TIME_MS,
   FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES
 } from './constants'
-import { TwilioPayload, Sender, Content, Schedule } from './types'
+import { 
+  TwilioPayload, 
+  Sender, 
+  Content, 
+  Schedule,
+} from './types'
 
 export async function send(request: RequestClient, payload: Payload, settings: Settings, features?: Features) {
-  let { toPhoneNumber, contentSid, toMessengerUserId } = payload
+  let { toPhoneNumber, contentSid, toMessengerUserId} = payload
 
-  const { channel, contentVariables, validityPeriod, inlineMediaUrls, inlineBody, contentTemplateType, tags } = payload
+  const {
+    channel,
+    contentVariables,
+    validityPeriod,
+    inlineMediaUrls,
+    inlineBody,
+    contentTemplateType,
+    tags
+  } = payload
 
   const getTo = (): string => {
     switch (channel) {
@@ -53,7 +66,10 @@ export async function send(request: RequestClient, payload: Payload, settings: S
     }
   }
 
+
+
   const getValidityPeriod = () => (validityPeriod ? { ValidityPeriod: validityPeriod } : {})
+
 
   const getContent = (): Content => {
     if (contentTemplateType === ALL_CONTENT_TYPES.INLINE.friendly_name) {
@@ -82,7 +98,9 @@ export async function send(request: RequestClient, payload: Payload, settings: S
 
     if (Object.keys(contentVariables ?? {}).length > 0) {
       if (features && features[FLAGON_NAME_STRINGIFY_CONTENT_VARIABLES]) {
-        const stringified = Object.fromEntries(Object.entries(contentVariables ?? {}).map(([k, v]) => [k, String(v)]))
+        const stringified = Object.fromEntries(
+          Object.entries(contentVariables ?? {}).map(([k, v]) => [k, String(v)])
+        )
         contentTemplate.ContentVariables = JSON.stringify(stringified)
       } else {
         contentTemplate.ContentVariables = JSON.stringify(contentVariables)
@@ -180,7 +198,7 @@ export async function send(request: RequestClient, payload: Payload, settings: S
   }))()
 
   const encodedBody = encode(twilioPayload)
-
+  
   return await request(SEND_SMS_URL.replace(ACCOUNT_SID_TOKEN, settings.accountSID), {
     method: 'post',
     body: encodedBody
@@ -249,9 +267,9 @@ export function getSender(payload: Payload): Sender {
         "'Messaging Service SID' field value should start with 'MG' followed by 32 hexadecimal characters, totaling 34 characters."
       )
     }
-    return {
+    return { 
       MessagingServiceSid: messagingServiceSid,
-      ...getSendAt(sendAt)
+      ...getSendAt(sendAt) 
     }
   }
   throw new PayloadValidationError('Unsupported Sender Type')
@@ -262,10 +280,9 @@ export function getSendAt(sendAt: string | undefined): Schedule | {} {
     const t = new Date(sendAt).getTime() - new Date().getTime()
     if (t >= MIN_SCHEDULE_TIME_MS && t <= MAX_SCHEDULE_TIME_MS) {
       return { SendAt: sendAt, ScheduleType: 'fixed' }
-    } else {
-      throw new PayloadValidationError(
-        `'Send At' time of ${sendAt} is invalid. It must be at least 15 minutes and at most 35 days in the future.`
-      )
+    } 
+    else {
+      throw new PayloadValidationError(`'Send At' time of ${sendAt} is invalid. It must be at least 15 minutes and at most 35 days in the future.`) 
     }
   }
   return {}

@@ -43,7 +43,9 @@ describe('Amplitude Cohorts functions', () => {
     })
 
     it('should return usersearch endpoint for europe', () => {
-      expect(getEndpointByRegion('usersearch', 'europe')).toBe('https://analytics.eu.amplitude.com/api/2/usersearch')
+      expect(getEndpointByRegion('usersearch', 'europe')).toBe(
+        'https://analytics.eu.amplitude.com/api/2/usersearch'
+      )
     })
 
     it('should return cohorts_get_one endpoint for north america', () => {
@@ -70,13 +72,19 @@ describe('Amplitude Cohorts functions', () => {
           matches: [{ user_id: 'found_user_1', amplitude_id: 12345 }]
         })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, {
-        matches: []
-      })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '2' })
+        .reply(200, {
+          matches: []
+        })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, {
-        matches: []
-      })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '3' })
+        .reply(200, {
+          matches: []
+        })
 
       const result = await fetchSeedUserId(request, 'north_america')
       expect(result).toBe('found_user_1')
@@ -114,11 +122,20 @@ describe('Amplitude Cohorts functions', () => {
       const request = requestClient
 
       // First batch returns no user_ids
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '1' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '1' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '2' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '3' })
+        .reply(200, { matches: [] })
 
       // Second batch has a match
       nock('https://amplitude.com')
@@ -128,9 +145,15 @@ describe('Amplitude Cohorts functions', () => {
           matches: [{ user_id: 'batch2_user', amplitude_id: 444 }]
         })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '5' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '5' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '6' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '6' })
+        .reply(200, { matches: [] })
 
       const result = await fetchSeedUserId(request, 'north_america')
       expect(result).toBe('batch2_user')
@@ -141,7 +164,10 @@ describe('Amplitude Cohorts functions', () => {
 
       // All 9 searches return empty
       for (const prefix of ['1', '2', '3', '4', '5', '6', '7', '8', '9']) {
-        nock('https://amplitude.com').get('/api/2/usersearch').query({ user: prefix }).reply(200, { matches: [] })
+        nock('https://amplitude.com')
+          .get('/api/2/usersearch')
+          .query({ user: prefix })
+          .reply(200, { matches: [] })
       }
 
       await expect(fetchSeedUserId(request, 'north_america')).rejects.toThrowError(
@@ -181,13 +207,11 @@ describe('Amplitude Cohorts functions', () => {
       const expectedBody = {
         cohort_id: 'cohort_abc',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['seed_user_1'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }
-        ]
+        memberships: [{
+          ids: ['seed_user_1'],
+          id_type: 'BY_NAME',
+          operation: 'REMOVE'
+        }]
       }
 
       nock('https://amplitude.com')
@@ -197,15 +221,21 @@ describe('Amplitude Cohorts functions', () => {
           memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
         })
 
-      await expect(removeSeedUser(request, 'cohort_abc', 'north_america', 'seed_user_1')).resolves.not.toThrow()
+      await expect(
+        removeSeedUser(request, 'cohort_abc', 'north_america', 'seed_user_1')
+      ).resolves.not.toThrow()
     })
 
     it('should not throw when removal request fails', async () => {
       const request = requestClient
 
-      nock('https://amplitude.com').post('/api/3/cohorts/membership').reply(500, { error: 'Internal Server Error' })
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/membership')
+        .reply(500, { error: 'Internal Server Error' })
 
-      await expect(removeSeedUser(request, 'cohort_abc', 'north_america', 'seed_user_1')).resolves.not.toThrow()
+      await expect(
+        removeSeedUser(request, 'cohort_abc', 'north_america', 'seed_user_1')
+      ).resolves.not.toThrow()
     })
 
     it('should use europe endpoint when configured', async () => {
@@ -214,13 +244,11 @@ describe('Amplitude Cohorts functions', () => {
       const expectedBody = {
         cohort_id: 'cohort_eu',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['eu_seed_user'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }
-        ]
+        memberships: [{
+          ids: ['eu_seed_user'],
+          id_type: 'BY_NAME',
+          operation: 'REMOVE'
+        }]
       }
 
       nock('https://analytics.eu.amplitude.com')
@@ -230,7 +258,9 @@ describe('Amplitude Cohorts functions', () => {
           memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
         })
 
-      await expect(removeSeedUser(request, 'cohort_eu', 'europe', 'eu_seed_user')).resolves.not.toThrow()
+      await expect(
+        removeSeedUser(request, 'cohort_eu', 'europe', 'eu_seed_user')
+      ).resolves.not.toThrow()
     })
   })
 
@@ -246,9 +276,15 @@ describe('Amplitude Cohorts functions', () => {
           matches: [{ user_id: 'seed_user_1', amplitude_id: 12345 }]
         })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '2' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '3' })
+        .reply(200, { matches: [] })
 
       // Cohort creation
       const expectedUploadBody = {
@@ -268,13 +304,11 @@ describe('Amplitude Cohorts functions', () => {
       const expectedRemovalBody = {
         cohort_id: 'new_cohort_id',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['seed_user_1'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }
-        ]
+        memberships: [{
+          ids: ['seed_user_1'],
+          id_type: 'BY_NAME',
+          operation: 'REMOVE'
+        }]
       }
 
       nock('https://amplitude.com')
@@ -284,7 +318,13 @@ describe('Amplitude Cohorts functions', () => {
           memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
         })
 
-      const result = await createAudience(request, settings, 'My Cohort', 'BY_USER_ID', 'custom@example.com')
+      const result = await createAudience(
+        request,
+        settings,
+        'My Cohort',
+        'BY_USER_ID',
+        'custom@example.com'
+      )
 
       expect(result).toBe('new_cohort_id')
     })
@@ -309,13 +349,11 @@ describe('Amplitude Cohorts functions', () => {
       const expectedRemovalBody = {
         cohort_id: 'override_cohort_id',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['provided_user'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }
-        ]
+        memberships: [{
+          ids: ['provided_user'],
+          id_type: 'BY_NAME',
+          operation: 'REMOVE'
+        }]
       }
 
       nock('https://amplitude.com')
@@ -375,17 +413,17 @@ describe('Amplitude Cohorts functions', () => {
     it('should throw IntegrationError when name is missing', async () => {
       const request = requestClient
 
-      await expect(createAudience(request, settings, '', 'BY_USER_ID', 'owner@example.com')).rejects.toThrowError(
-        'Missing audience name value'
-      )
+      await expect(
+        createAudience(request, settings, '', 'BY_USER_ID', 'owner@example.com')
+      ).rejects.toThrowError('Missing audience name value')
     })
 
     it('should throw IntegrationError when id_type is missing', async () => {
       const request = requestClient
 
-      await expect(createAudience(request, settings, 'My Cohort', '' as any, 'owner@example.com')).rejects.toThrowError(
-        'Missing id_type value'
-      )
+      await expect(
+        createAudience(request, settings, 'My Cohort', '' as any, 'owner@example.com')
+      ).rejects.toThrowError('Missing id_type value')
     })
 
     it('should throw IntegrationError when Amplitude returns no cohortId', async () => {
@@ -398,11 +436,19 @@ describe('Amplitude Cohorts functions', () => {
           matches: [{ user_id: 'seed_user', amplitude_id: 100 }]
         })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '2' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '3' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').post('/api/3/cohorts/upload').reply(200, {})
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/upload')
+        .reply(200, {})
 
       await expect(
         createAudience(request, settings, 'My Cohort', 'BY_USER_ID', 'owner@example.com')
@@ -421,11 +467,19 @@ describe('Amplitude Cohorts functions', () => {
           matches: [{ user_id: 'seed_user', amplitude_id: 100 }]
         })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '2' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '2' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').get('/api/2/usersearch').query({ user: '3' }).reply(200, { matches: [] })
+      nock('https://amplitude.com')
+        .get('/api/2/usersearch')
+        .query({ user: '3' })
+        .reply(200, { matches: [] })
 
-      nock('https://amplitude.com').post('/api/3/cohorts/upload').reply(400, { error: 'Bad Request' })
+      nock('https://amplitude.com')
+        .post('/api/3/cohorts/upload')
+        .reply(400, { error: 'Bad Request' })
 
       await expect(
         createAudience(request, settings, 'My Cohort', 'BY_USER_ID', 'owner@example.com')
@@ -469,13 +523,11 @@ describe('Amplitude Cohorts functions', () => {
       const expectedRemovalBody = {
         cohort_id: 'eu_cohort_id',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['eu_seed'],
-            id_type: 'BY_NAME',
-            operation: 'REMOVE'
-          }
-        ]
+        memberships: [{
+          ids: ['eu_seed'],
+          id_type: 'BY_NAME',
+          operation: 'REMOVE'
+        }]
       }
 
       nock('https://analytics.eu.amplitude.com')
@@ -485,7 +537,14 @@ describe('Amplitude Cohorts functions', () => {
           memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
         })
 
-      const result = await createAudience(request, euSettings, 'EU Cohort', 'BY_USER_ID', undefined, undefined)
+      const result = await createAudience(
+        request,
+        euSettings,
+        'EU Cohort',
+        'BY_USER_ID',
+        undefined,
+        undefined
+      )
 
       expect(result).toBe('eu_cohort_id')
     })
@@ -517,7 +576,9 @@ describe('Amplitude Cohorts functions', () => {
     it('should throw when API returns no cohort_id', async () => {
       const request = requestClient
 
-      nock('https://amplitude.com').get('/api/5/cohorts/request/missing_id').reply(200, {})
+      nock('https://amplitude.com')
+        .get('/api/5/cohorts/request/missing_id')
+        .reply(200, {})
 
       await expect(getAudience(request, settings, 'missing_id')).rejects.toThrowError(
         'Invalid response from Amplitude Cohorts API when attempting to get Cohort: Missing cohort_id'

@@ -183,7 +183,7 @@ describe('trackConversion utils', () => {
         name: 'event1',
         conversionType: ConversionTypeV2.PAGE_VIEW,
         eventSource: 'website',
-        eventIngestionMethod: 'SERVER_TO_SERVER'
+        eventIngestionMethod: "SERVER_TO_SERVER",
       },
       countryCode: 'US',
       eventTime: '2023-01-01T12:00:00Z'
@@ -231,10 +231,7 @@ describe('trackConversion utils', () => {
         data: { success: true }
       })
 
-      const multipleEvents = [
-        eventData,
-        { ...eventData, eventDescription: { ...eventData.eventDescription, name: 'second_event' } }
-      ]
+      const multipleEvents = [eventData, { ...eventData, eventDescription: { ...eventData.eventDescription, name: 'second_event' } }]
 
       const response = await sendEventsRequest<EventMultiStatusResponse>(
         mockRequest as unknown as RequestClient,
@@ -332,7 +329,7 @@ describe('trackConversion utils', () => {
         status: 207,
         data: {
           success: [],
-          error: [{ index: 0, errors: [{ code: 'BAD_REQUEST', message: 'Invalid data' }] }]
+          error: [{ index: 0, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
         }
       } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
@@ -342,7 +339,7 @@ describe('trackConversion utils', () => {
         status: 400,
         data: {
           success: [],
-          error: [{ index: 0, errors: [{ code: 'BAD_REQUEST', message: 'Invalid data' }] }]
+          error: [{ index: 0, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
         }
       })
     })
@@ -384,13 +381,14 @@ describe('trackConversion utils', () => {
     })
 
     it('should process 207 multistatus responses from a performBatch() correctly', () => {
+
       const validPayloads = [
         {
           eventDescription: {
             name: 'event1',
             conversionType: ConversionTypeV2.PAGE_VIEW,
             eventSource: 'website',
-            eventIngestionMethod: 'SERVER_TO_SERVER'
+            eventIngestionMethod: "SERVER_TO_SERVER",
           },
           countryCode: 'US',
           eventTime: '2023-01-01T12:00:00Z'
@@ -400,7 +398,7 @@ describe('trackConversion utils', () => {
             name: 'event2',
             conversionType: ConversionTypeV2.PAGE_VIEW,
             eventSource: 'website',
-            eventIngestionMethod: 'SERVER_TO_SERVER'
+            eventIngestionMethod: "SERVER_TO_SERVER",
           },
           countryCode: 'US',
           eventTime: '2023-01-01T12:00:00Z'
@@ -411,7 +409,7 @@ describe('trackConversion utils', () => {
         status: 207,
         data: {
           success: [{ index: 0, event: validPayloads[0] }],
-          error: [{ index: 1, errors: [{ code: 'BAD_REQUEST', message: 'Invalid data' }] }]
+          error: [{ index: 1, errors: [{ code: "BAD_REQUEST", message: 'Invalid data' }] }]
         }
       } as unknown as ModifiedResponse<EventMultiStatusResponse>
 
@@ -458,7 +456,7 @@ describe('trackConversion utils', () => {
             name: 'event1',
             conversionType: ConversionTypeV2.PAGE_VIEW,
             eventSource: 'website',
-            eventIngestionMethod: 'SERVER_TO_SERVER'
+            eventIngestionMethod: "SERVER_TO_SERVER",
           },
           countryCode: 'US',
           eventTime: '2023-01-01T12:00:00Z'
@@ -497,7 +495,7 @@ describe('trackConversion utils', () => {
           name: payload.name,
           conversionType: payload.eventType,
           eventSource: payload.eventActionSource,
-          eventIngestionMethod: 'SERVER_TO_SERVER'
+          eventIngestionMethod: "SERVER_TO_SERVER",
         },
         countryCode: payload.countryCode,
         eventTime: payload.timestamp
@@ -709,7 +707,7 @@ describe('trackConversion utils', () => {
         currencyCode: 'USD',
         unitsSold: 2,
         clientDedupeId: 'dedup-123',
-        dataProcessingOptions: ['LIMITED_DATA_USE'],
+        dataProcessingOptions: ["LIMITED_DATA_USE"],
         matchKeys: {
           email: 'test@example.com'
         },

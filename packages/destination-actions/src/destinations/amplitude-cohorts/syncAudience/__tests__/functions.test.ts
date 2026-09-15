@@ -90,13 +90,11 @@ describe('syncAudience functions', () => {
       expect(result).toEqual({
         cohort_id: 'cohort_1',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['user1', 'user2'],
-            id_type: 'BY_NAME',
-            operation: 'ADD'
-          }
-        ]
+        memberships: [{
+          ids: ['user1', 'user2'],
+          id_type: 'BY_NAME',
+          operation: 'ADD'
+        }]
       })
     })
 
@@ -113,13 +111,11 @@ describe('syncAudience functions', () => {
       expect(result).toEqual({
         cohort_id: 'cohort_2',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['amp1', 'amp2'],
-            id_type: 'BY_AMP_ID',
-            operation: 'REMOVE'
-          }
-        ]
+        memberships: [{
+          ids: ['amp1', 'amp2'],
+          id_type: 'BY_AMP_ID',
+          operation: 'REMOVE'
+        }]
       })
     })
 
@@ -150,21 +146,18 @@ describe('syncAudience functions', () => {
       expect(result).toEqual({
         cohort_id: 'cohort_1',
         skip_invalid_ids: true,
-        memberships: [
-          {
-            ids: ['user1', 'user2'],
-            id_type: 'BY_NAME',
-            operation: 'ADD'
-          }
-        ]
+        memberships: [{
+          ids: ['user1', 'user2'],
+          id_type: 'BY_NAME',
+          operation: 'ADD'
+        }]
       })
 
       expect(msResponse.getResponseAtIndex(1)).toMatchObject({
         data: {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage:
-            'Duplicate ID user1 of type User ID found in payload batch. The duplicate payload has been rejected. Each payload must have a unique ID for the specified ID Type.',
+          errormessage: 'Duplicate ID user1 of type User ID found in payload batch. The duplicate payload has been rejected. Each payload must have a unique ID for the specified ID Type.',
           body: { user_id: 'user1', segment_external_audience_id: 'cohort_1', batch_size: 100 }
         }
       })
@@ -247,7 +240,9 @@ describe('syncAudience functions', () => {
 
     it('should throw PayloadValidationError in non-batch mode', () => {
       const msResponse = new MultiStatusResponse()
-      const payloads: Payload[] = [{ user_id: 'user1', segment_external_audience_id: 'cohort_1', batch_size: 100 }]
+      const payloads: Payload[] = [
+        { user_id: 'user1', segment_external_audience_id: 'cohort_1', batch_size: 100 }
+      ]
 
       expect(() => {
         failAllPayloads(payloads, msResponse, false, 'All failed')

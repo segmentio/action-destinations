@@ -181,10 +181,7 @@ describe('mapAWSError', () => {
 
   it('never surfaces a non-4xx status from the generic client-fault branch (clamps to 400)', () => {
     // A client-fault error carrying a 3xx status must not leak that 3xx as the error status.
-    const err = mapAWSError(
-      { name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } },
-      'AWS PUT failed'
-    )
+    const err = mapAWSError({ name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } }, 'AWS PUT failed')
     expect(err).toBeInstanceOf(IntegrationError)
     expect((err as IntegrationError).status).toBe(400)
   })

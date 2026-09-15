@@ -33,17 +33,10 @@ export async function send(
   const { advertiserId } = audienceSettings || {}
 
   if (!audienceSettings) {
-    return returnAllErrors(
-      multiStatusResponse,
-      payloads,
-      400,
-      'Bad Request: no audienceSettings found.',
-      isBatch,
-      statsContext
-    )
+    return returnAllErrors(multiStatusResponse, payloads, 400, 'Bad Request: no audienceSettings found.', isBatch, statsContext)
   }
 
-  if (!advertiserId) {
+  if(!advertiserId) {
     return returnAllErrors(
       multiStatusResponse,
       payloads,
@@ -292,6 +285,7 @@ export function validate(
   isBatch?: boolean,
   statsContext?: StatsContext
 ): boolean {
+
   const { email, phone, advertising_id, send_email, send_phone, send_advertising_id, external_audience_id } = payload
 
   if (!external_audience_id) {

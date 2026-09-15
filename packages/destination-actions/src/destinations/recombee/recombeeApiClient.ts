@@ -87,7 +87,7 @@ function createAddInteractionData<T extends AddInteractionParams & InternalAddit
 }
 
 function datetimeToEpochSeconds(datetime: string | number): number {
-  const numValue = datetime === '' ? NaN : Number(datetime)
+  const numValue = datetime === "" ? NaN : Number(datetime)
 
   if (!isNaN(numValue)) {
     if (numValue < 0) {

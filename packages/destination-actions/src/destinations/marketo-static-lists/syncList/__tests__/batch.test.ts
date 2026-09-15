@@ -145,16 +145,8 @@ describe('MarketoStaticLists.syncList - mixed batch MultiStatus correctness', ()
     expect(responses[8]).toMatchObject({ status: 200, sent: 'id=8', body: { success: true } })
 
     // --- Schema-invalid (rejected before performBatch, by the framework itself): 1, 6 ---
-    expect(responses[1]).toMatchObject({
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errorreporter: 'INTEGRATIONS'
-    })
-    expect(responses[6]).toMatchObject({
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errorreporter: 'INTEGRATIONS'
-    })
+    expect(responses[1]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errorreporter: 'INTEGRATIONS' })
+    expect(responses[6]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errorreporter: 'INTEGRATIONS' })
     expect(responses[1].errormessage).toBe("The root value is missing the required field 'field_value'.")
     expect(responses[6].errormessage).toBe("The root value is missing the required field 'field_value'.")
 

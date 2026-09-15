@@ -223,9 +223,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
             user_id: undefined
           }
         })
-      ).rejects.toThrowError(
-        'No User Identifier of type User ID found in payload. Each payload must have a unique ID for the specified ID Type.'
-      )
+      ).rejects.toThrowError("No User Identifier of type User ID found in payload. Each payload must have a unique ID for the specified ID Type.")
     })
   })
 
@@ -707,19 +705,15 @@ describe('Amplitude Cohorts - syncAudience', () => {
         memberships: [{ ids: ['remove_user1'], id_type: 'BY_NAME', operation: 'REMOVE' }]
       }
 
-      nock('https://amplitude.com')
-        .post('/api/3/cohorts/membership', expectedAddJson)
-        .reply(200, {
-          cohort_id: 'cohort_123',
-          memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
-        })
+      nock('https://amplitude.com').post('/api/3/cohorts/membership', expectedAddJson).reply(200, {
+        cohort_id: 'cohort_123',
+        memberships_result: [{ skipped_ids: [], operation: 'ADD' }]
+      })
 
-      nock('https://amplitude.com')
-        .post('/api/3/cohorts/membership', expectedRemoveJson)
-        .reply(200, {
-          cohort_id: 'cohort_123',
-          memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
-        })
+      nock('https://amplitude.com').post('/api/3/cohorts/membership', expectedRemoveJson).reply(200, {
+        cohort_id: 'cohort_123',
+        memberships_result: [{ skipped_ids: [], operation: 'REMOVE' }]
+      })
 
       const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
 
@@ -744,10 +738,7 @@ describe('Amplitude Cohorts - syncAudience', () => {
       })
       expect(responses[2]).toMatchObject({
         status: 200,
-        sent: {
-          ...expectedRemoveJson,
-          memberships: [{ ids: ['remove_user1'], id_type: 'BY_NAME', operation: 'REMOVE' }]
-        },
+        sent: { ...expectedRemoveJson, memberships: [{ ids: ['remove_user1'], id_type: 'BY_NAME', operation: 'REMOVE' }] },
         body: {
           user_id: 'remove_user1',
           segment_external_audience_id: 'cohort_123',

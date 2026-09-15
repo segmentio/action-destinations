@@ -2,12 +2,7 @@ import { ActionDefinition, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { MixpanelEvent } from '../mixpanel-types'
-import {
-  getApiServerUrl,
-  getImportApiCredential,
-  MixpanelTrackApiResponseType,
-  handleMixPanelApiResponse
-} from '../common/utils'
+import { getApiServerUrl, getImportApiCredential, MixpanelTrackApiResponseType, handleMixPanelApiResponse } from '../common/utils'
 import { getEventProperties } from './functions'
 import { eventProperties } from '../mixpanel-properties'
 import { Features } from '@segment/actions-core/mapping-kit'

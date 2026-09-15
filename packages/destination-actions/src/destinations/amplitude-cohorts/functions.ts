@@ -1,11 +1,4 @@
-import {
-  Region,
-  CreateAudienceJSON,
-  CreateAudienceResponse,
-  GetAudienceResponse,
-  IDType,
-  UserSearchResponse
-} from './types'
+import { Region, CreateAudienceJSON, CreateAudienceResponse, GetAudienceResponse, IDType, UserSearchResponse } from './types'
 import { RequestClient, IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Settings } from './generated-types'
@@ -114,11 +107,7 @@ export async function createAudience(
  */
 export async function fetchSeedUserId(request: RequestClient, endpoint: string): Promise<string> {
   const url = getEndpointByRegion('usersearch', endpoint)
-  const batches = [
-    ['1', '2', '3'],
-    ['4', '5', '6'],
-    ['7', '8', '9']
-  ]
+  const batches = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']]
 
   for (const batch of batches) {
     const results = await Promise.all(
@@ -147,13 +136,7 @@ export async function fetchSeedUserId(request: RequestClient, endpoint: string):
   )
 }
 
-export async function removeSeedUser(
-  request: RequestClient,
-  cohortId: string,
-  endpoint: string,
-  seedUserId: string,
-  statsContext?: StatsContext
-): Promise<void> {
+export async function removeSeedUser(request: RequestClient, cohortId: string, endpoint: string, seedUserId: string, statsContext?: StatsContext): Promise<void> {
   const { statsClient, tags } = statsContext || {}
   const statsName = 'actions_amplitude_cohorts'
   const url = getEndpointByRegion('cohorts_membership', endpoint)
@@ -161,13 +144,11 @@ export async function removeSeedUser(
   const json = {
     cohort_id: cohortId,
     skip_invalid_ids: true,
-    memberships: [
-      {
-        ids: [seedUserId],
-        id_type: 'BY_NAME',
-        operation: 'REMOVE'
-      }
-    ]
+    memberships: [{
+      ids: [seedUserId],
+      id_type: 'BY_NAME',
+      operation: 'REMOVE'
+    }]
   }
 
   try {

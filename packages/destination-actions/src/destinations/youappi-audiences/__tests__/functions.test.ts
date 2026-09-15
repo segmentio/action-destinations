@@ -56,7 +56,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(typeof result.audiences[0].audience_id).toBe('number')
 
       // Verify the hash is generated from audience_id
-      const expectedHash = [...'audience-id-123'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
+      const expectedHash = [...'audience-id-123'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
       expect(result.audiences[0].audience_id).toBe(expectedHash)
     })
 
@@ -92,7 +92,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       })
 
       // Verify audience_id hash for this specific audience_id
-      const expectedHash = [...'audience-id-456'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
+      const expectedHash = [...'audience-id-456'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
       expect(result.audiences[0].audience_id).toBe(expectedHash)
     })
 
@@ -183,7 +183,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result1.audiences[0].audience_id).toBe(result2.audiences[0].audience_id)
 
       // Verify it matches the expected hash value
-      const expectedHash = [...'consistent-id'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
+      const expectedHash = [...'consistent-id'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
       expect(result1.audiences[0].audience_id).toBe(expectedHash)
       expect(result2.audiences[0].audience_id).toBe(expectedHash)
     })
@@ -224,8 +224,8 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result1.audiences[0].audience_id).not.toBe(result2.audiences[0].audience_id)
 
       // Verify each hash matches its expected value
-      const expectedHash1 = [...'id-a'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
-      const expectedHash2 = [...'id-b'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
+      const expectedHash1 = [...'id-a'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
+      const expectedHash2 = [...'id-b'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
       expect(result1.audiences[0].audience_id).toBe(expectedHash1)
       expect(result2.audiences[0].audience_id).toBe(expectedHash2)
     })
@@ -262,7 +262,7 @@ describe('YouAppi Audiences - Helper Functions', () => {
       expect(result.audiences[0].audience_name).toBe('Primary Audience')
 
       // Verify hash is generated from first payload's audience_id
-      const expectedHash = [...'primary-id'].reduce((h, c) => (h = ((h << 5) - h + c.charCodeAt(0)) | 0), 0)
+      const expectedHash = [...'primary-id'].reduce((h, c) => (h = (h << 5) - h + c.charCodeAt(0) | 0), 0)
       expect(result.audiences[0].audience_id).toBe(expectedHash)
     })
 
@@ -284,8 +284,8 @@ describe('YouAppi Audiences - Helper Functions', () => {
       const result = getJSON(payloads, mockSettings, 'add')
 
       expect(result.device_identities).toHaveLength(2)
-      expect(result.device_identities.some((id) => id.type === 'IDFA')).toBe(true)
-      expect(result.device_identities.some((id) => id.type === 'GAID')).toBe(true)
+      expect(result.device_identities.some(id => id.type === 'IDFA')).toBe(true)
+      expect(result.device_identities.some(id => id.type === 'GAID')).toBe(true)
     })
   })
 
@@ -328,7 +328,9 @@ describe('YouAppi Audiences - Helper Functions', () => {
     })
 
     it('should set error in multistatus response for batch payloads missing both IDFA and GAID', async () => {
-      nock('https://audiences.youappi.com').post('/segment/AudienceMembership').reply(200, { success: true })
+      nock('https://audiences.youappi.com')
+        .post('/segment/AudienceMembership')
+        .reply(200, { success: true })
 
       const request = createRequestClient()
 
@@ -375,7 +377,9 @@ describe('YouAppi Audiences - Helper Functions', () => {
     })
 
     it('should succeed for perform when only IDFA is present', async () => {
-      nock('https://audiences.youappi.com').post('/segment/AudienceMembership').reply(200, { success: true })
+      nock('https://audiences.youappi.com')
+        .post('/segment/AudienceMembership')
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('sync', {
         event: {
@@ -409,7 +413,9 @@ describe('YouAppi Audiences - Helper Functions', () => {
     })
 
     it('should succeed for perform when only GAID is present', async () => {
-      nock('https://audiences.youappi.com').post('/segment/AudienceMembership').reply(200, { success: true })
+      nock('https://audiences.youappi.com')
+        .post('/segment/AudienceMembership')
+        .reply(200, { success: true })
 
       const responses = await testDestination.testAction('sync', {
         event: {

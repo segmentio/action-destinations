@@ -304,7 +304,11 @@ function _build_attribute(attribute_key: string, attribute_value: any, occurred:
   */
   // JSON attributes (object/array values) require a key in the format attribute_name#instance_id.
   // If the user hasn't included an instance ID, append '#default'.
-  if (attribute_value !== null && typeof attribute_value === 'object' && !attribute_key.includes('#')) {
+  if (
+    attribute_value !== null &&
+    typeof attribute_value === 'object' &&
+    !attribute_key.includes('#')
+  ) {
     attribute_key = `${attribute_key}#default`
   }
 
@@ -413,8 +417,7 @@ function _parse_date(attribute_value: unknown): Date | null {
   // Require the string to contain date-like patterns to avoid false positives
   // Common date separators: dashes, slashes, colons, spaces with numbers
   // ISO format patterns: YYYY-MM-DD, YYYY-MM-DDTHH:mm:ss, etc.
-  const dateLikePattern =
-    /(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})|(\d{1,2}\/\d{1,2}\/\d{4})/
+  const dateLikePattern = /(\d{4}[-/]\d{1,2}[-/]\d{1,2})|(\d{1,2}[-/]\d{1,2}[-/]\d{4})|(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})|(\d{1,2}\/\d{1,2}\/\d{4})/
 
   // If the string doesn't contain date-like patterns, don't parse it as a date
   if (!dateLikePattern.test(attribute_value)) {

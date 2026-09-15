@@ -20,8 +20,7 @@ import {
 function removeEmpty(obj: Record<string, unknown>): Record<string, string | number | boolean> {
   return Object.fromEntries(
     Object.entries(obj).filter(
-      ([, v]) =>
-        v !== null && v !== undefined && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
+      ([, v]) => v !== null && v !== undefined && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')
     )
   ) as Record<string, string | number | boolean>
 }

@@ -65,7 +65,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    return send('pageView', false, request, payload, settings)
+   return send('pageView', false, request, payload, settings)
   }
 }
 

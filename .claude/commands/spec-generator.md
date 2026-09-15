@@ -36,11 +36,11 @@ Review History: [To be filled after review]
 
 ## Segment Ecosystem Support
 
-| Feature                   | Supported                                |
-| ------------------------- | ---------------------------------------- |
-| Supports Engage           | Yes / No (Add to list, Remove from list) |
-| Supports RETL             | Yes / No                                 |
-| Supports Trait Enrichment | Yes / No                                 |
+| Feature | Supported |
+|---------|-----------|
+| Supports Engage | Yes / No (Add to list, Remove from list) |
+| Supports RETL | Yes / No |
+| Supports Trait Enrichment | Yes / No |
 
 Work Breakdown Structure: [EPIC link and estimated engineering days]
 
@@ -49,7 +49,6 @@ Work Breakdown Structure: [EPIC link and estimated engineering days]
 ## Global Settings
 
 ### Authentication
-
 [Authentication method: OAuth 2.0 / API Key / Basic Auth]
 
 Note whether Segment needs to create an OAuth application, and whether the destination partner enforces quotas (e.g., limits number of new access_tokens Segment can request globally over a specified time period, etc.).
@@ -57,9 +56,8 @@ Note whether Segment needs to create an OAuth application, and whether the desti
 We discourage use of AWS credentials (accessKey and secret key) in favour of IAM role-based authentication.
 
 ### Other Settings
-
-| Setting        | Type   | Required | Description   |
-| -------------- | ------ | -------- | ------------- |
+| Setting | Type | Required | Description |
+|---------|------|----------|-------------|
 | [Setting Name] | [Type] | [Yes/No] | [Description] |
 
 ---
@@ -68,8 +66,8 @@ We discourage use of AWS credentials (accessKey and secret key) in favour of IAM
 
 List all the endpoints we'll need to use as part of this destination. For each, determine whether there is a quota, rate limit, or other special limitations.
 
-| Method                  | Endpoint        | Description    | Rate Limit     |
-| ----------------------- | --------------- | -------------- | -------------- |
+| Method | Endpoint | Description | Rate Limit |
+|--------|----------|-------------|------------|
 | [POST/GET/PATCH/DELETE] | [/path/{param}] | [What it does] | [Limit or TBD] |
 
 If engineering work is required to address any specific constraints, these constraints should be addressed in detail in an SDD.
@@ -81,7 +79,6 @@ If engineering work is required to address any specific constraints, these const
 We recommend that the default event value be an event in the Segment Spec, for example an Identify, Track, or Page call. Note you can use triggers to specify additional criteria, for example a Track call with event name "Order Completed."
 
 ### Action: [Action Name]
-
 - **Description:** [What this action does]
 - **Default Segment Event:** [identify / track / group / page]
 - **Default Subscription:** [FQL trigger expression]
@@ -100,16 +97,15 @@ Note: the destination may have multiple Actions, each with its own set of field 
 
 ### [Action Name] Field Mappings
 
-| Destination Field | Segment Field           | Type   | Description          |
-| ----------------- | ----------------------- | ------ | -------------------- |
-| [API field name]  | [Segment property path] | [Type] | [What this field is] |
+| Destination Field | Segment Field | Type | Description |
+|-------------------|---------------|------|-------------|
+| [API field name] | [Segment property path] | [Type] | [What this field is] |
 
 ---
 
 ## Error Handling
 
 [Describe error handling strategy for:
-
 - 4xx errors (client errors)
 - 5xx errors (server errors)
 - Rate limiting (429)
@@ -122,10 +118,10 @@ Note: the destination may have multiple Actions, each with its own set of field 
 
 Link to your testing documents and Jira Tickets. A team member from product and another from engineering should sign off. Testing guides shall live within the Runbook of a destination.
 
-| Role        | Name   | Sign Off | Date   |
-| ----------- | ------ | -------- | ------ |
-| Product     | [Name] | [ ]      | [Date] |
-| Engineering | [Name] | [ ]      | [Date] |
+| Role | Name | Sign Off | Date |
+|------|------|----------|------|
+| Product | [Name] | [ ] | [Date] |
+| Engineering | [Name] | [ ] | [Date] |
 
 ---
 
@@ -145,7 +141,6 @@ Link to your testing documents and Jira Tickets. A team member from product and 
 ## Documentation Notes
 
 Details to include in the documentation when the time comes:
-
 - Setup instructions (OAuth configuration, API key generation, etc.)
 - Purpose and use case for each supported action
 - Mapping between Segment events/properties and destination fields
@@ -157,47 +152,36 @@ Details to include in the documentation when the time comes:
 ## How to Fill Each Section
 
 ### Segment Ecosystem Support
-
 Check if any action has audience/list operations (Engage), RETL support, or trait enrichment.
 
 ### Global Settings — Authentication
-
 Describe the auth method fully. If OAuth: note OAuth app needs, token refresh, env vars, quotas. If API Key: describe where the user finds it.
 
 ### Global Settings — Other Settings
-
 List every setting with type, required flag, description.
 
 ### Endpoints
-
 List every unique endpoint (deduplicated) with method, full URI, description, rate limit. If rate limits are unknown, write `[To be confirmed with <Destination>]`.
 
 ### Supported Actions
-
 For each action: name, description, default event/subscription, considerations (edge cases, transformations, error handling).
 
 ### Field Mappings
-
 **One table per action.** List each field with destination field name, Segment source path, type, description. Note any transformations in the Description column. Add system-provided mandatory params if applicable.
 
 ### Error Handling
-
 General strategy plus per-action specifics. Cover 4xx, 5xx, 429, retries, backoff.
 
 ### Testing Sign Off
-
 Leave as placeholders — filled by humans.
 
 ### Checklists
-
 Generate destination-specific: one checkbox per action, plus auth, rate limiting, field mappings, error handling, documentation.
 
 ### Documentation Notes
-
 Specific guidance: auth setup, action purposes, field mapping examples, common use cases, troubleshooting.
 
 ### Final Pass
-
 Replace any `[TBD]` with best info or mark as **OPEN QUESTION**. Ensure consistency of names across sections. No empty sections.
 
 ## Output

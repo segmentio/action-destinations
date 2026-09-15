@@ -7,11 +7,7 @@ import type { DynamicFieldContext, ChannelsResponse, MessageTypesResponse, Lists
 
 export async function getSubscriptionGroupId(
   request: RequestClient,
-  {
-    payload,
-    dynamicFieldContext,
-    settings
-  }: { payload: Payload; dynamicFieldContext?: DynamicFieldContext; settings: Settings }
+  { payload, dynamicFieldContext, settings }: { payload: Payload; dynamicFieldContext?: DynamicFieldContext; settings: Settings }
 ): Promise<DynamicFieldResponse> {
   const { selectedArrayIndex: index = 0 } = dynamicFieldContext ?? {}
   const groupType = payload?.subscriptions?.[index]?.subscription_group_type

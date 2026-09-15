@@ -76,11 +76,10 @@ describe('getIds function', () => {
           body: {
             batch_size: 100,
             segment_external_audience_id: 'cohort123',
-            user_id: 'user1'
+            user_id: "user1"
           },
-          errormessage:
-            'Duplicate ID user1 of type User ID found in payload batch. The duplicate payload has been rejected. Each payload must have a unique ID for the specified ID Type.',
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: "Duplicate ID user1 of type User ID found in payload batch. The duplicate payload has been rejected. Each payload must have a unique ID for the specified ID Type.",
+          errortype: "PAYLOAD_VALIDATION_FAILED",
           status: 400
         }
       })

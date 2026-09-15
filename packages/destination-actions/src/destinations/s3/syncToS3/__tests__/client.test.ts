@@ -124,7 +124,7 @@ describe('uploadS3 object key character validation', () => {
     expect(error.message).not.toContain('user@example')
   })
 
-  it("accepts a key using the full allowed set (letters, digits, / ! - _ . * ' ( )) and PUTs", async () => {
+  it('accepts a key using the full allowed set (letters, digits, / ! - _ . * \' ( )) and PUTs', async () => {
     const client = newClient()
 
     const result = await client.uploadS3(settings, 'file,content', "export-file_v1.2*('ok')", 'my-folder', 'csv')
@@ -207,9 +207,7 @@ describe('uploadS3 object key — AWS object-keys guideline coverage', () => {
   })
 
   it('reports a non-BMP character as a single code point (U+XXXX), not surrogate halves', async () => {
-    const err = await newClient()
-      .uploadS3(settings, 'body', 'launch\u{1F680}', '', 'csv')
-      .catch((e) => e as Error)
+    const err = await newClient().uploadS3(settings, 'body', 'launch\u{1F680}', '', 'csv').catch((e) => e as Error)
     // With the regex `u` flag the emoji is one code point, rendered U+1F680 — not "\ud83d", "\ude00".
     expect(err.message).toContain('U+1F680')
     expect(err.message).not.toContain('ud83d')
@@ -217,18 +215,14 @@ describe('uploadS3 object key — AWS object-keys guideline coverage', () => {
 
   // --- Reporting completeness ---
   it('de-duplicates repeated disallowed characters within a part', async () => {
-    const err = await newClient()
-      .uploadS3(settings, 'body', 'a#b#c@d@', '', 'csv')
-      .catch((e) => e as Error)
+    const err = await newClient().uploadS3(settings, 'body', 'a#b#c@d@', '', 'csv').catch((e) => e as Error)
     expect(err.message).toContain("filename prefix has disallowed character(s): '#', '@'")
   })
 
   it('caps the number of distinct disallowed characters listed per part', async () => {
     // 13 distinct disallowed characters; only the first 10 are listed, then "...and 3 more".
     // Order of first appearance: # % ^ ~ < > | { } [  (shown)  then  ] " @  (elided).
-    const err = await newClient()
-      .uploadS3(settings, 'body', 'a#%^~<>|{}[]"@', '', 'csv')
-      .catch((e) => e as Error)
+    const err = await newClient().uploadS3(settings, 'body', 'a#%^~<>|{}[]"@', '', 'csv').catch((e) => e as Error)
     expect(err.message).toContain('...and 3 more')
     expect(err.message).toContain("'['") // 10th distinct char is listed
     expect(err.message).not.toContain("']'") // 11th distinct char is elided

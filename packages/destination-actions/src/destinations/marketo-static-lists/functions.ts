@@ -189,7 +189,8 @@ export async function removeFromList(
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
-  const deleteLeadsUrl = api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
+  const deleteLeadsUrl =
+    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -254,7 +255,8 @@ export async function removeFromListBatch(
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
-  const deleteLeadsUrl = api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
+  const deleteLeadsUrl =
+    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {

@@ -1,11 +1,4 @@
-import {
-  IntegrationError,
-  RequestClient,
-  StatsContext,
-  HTTPError,
-  AudienceMembership,
-  PayloadValidationError
-} from '@segment/actions-core'
+import { IntegrationError, RequestClient, StatsContext, HTTPError, AudienceMembership, PayloadValidationError } from '@segment/actions-core'
 import { OAUTH_URL, USER_UPLOAD_ENDPOINT, SEGMENT_DMP_ID } from './constants'
 import type { RefreshTokenResponse } from './types'
 import { create, fromBinary, toBinary } from '@bufbuild/protobuf'
@@ -236,6 +229,7 @@ export const handleUpdate = async (
     status: 200
   }
 }
+
 
 export const syncAudience = async (
   request: RequestClient,

@@ -47,7 +47,12 @@ export function engageAudienceMembership(rawData: InputData | undefined): Audien
   if (!rawData) return undefined
 
   const {
-    context: { personas: { computation_class = '', computation_key = '' } = {} } = {},
+    context: {
+      personas: {
+        computation_class = '',
+        computation_key = ''
+      } = {}
+    } = {},
     properties = {},
     traits = {},
     type = ''
@@ -65,7 +70,8 @@ export function engageAudienceMembership(rawData: InputData | undefined): Audien
 
   if (type === 'identify' && typeof traits?.[computation_key] === 'boolean') {
     membershipValue = traits[computation_key]
-  } else if (type === 'track' && typeof properties?.[computation_key] === 'boolean') {
+  } 
+  else if (type === 'track' && typeof properties?.[computation_key] === 'boolean') {
     membershipValue = properties[computation_key]
   }
 
@@ -80,24 +86,28 @@ export function engageAudienceMembership(rawData: InputData | undefined): Audien
 export function retlAudienceMembership(rawData: InputData | undefined, syncMode?: SyncMode): AudienceMembership {
   if (!rawData || !syncMode) return undefined
 
-  const { event = '', type = '' } = rawData as {
+  const {
+    event = '',
+    type = ''
+  } = rawData as {
     event?: string
     type?: string
   }
-
+  
   if (type !== 'track') return undefined
 
-  if (
-    (syncMode === 'add' && ['new'].includes(event)) ||
-    (syncMode === 'update' && ['updated'].includes(event)) ||
-    (syncMode === 'upsert' && ['new', 'updated'].includes(event)) ||
+  if(
+    (syncMode === 'add' && ['new'].includes(event)) || 
+    (syncMode === 'update' && ['updated'].includes(event)) || 
+    (syncMode === 'upsert' && ['new', 'updated'].includes(event)) || 
     (syncMode === 'mirror' && ['new', 'updated'].includes(event))
-  ) {
+  ){
     return true
-  } else if (
-    (syncMode === 'delete' && ['deleted'].includes(event)) ||
+  } 
+  else if (
+    (syncMode === 'delete' && ['deleted'].includes(event)) || 
     (syncMode === 'mirror' && ['deleted'].includes(event))
-  ) {
+  ){
     return false
   }
 
@@ -113,7 +123,12 @@ export function legacyJourneysAudienceMembership(rawData: InputData | undefined)
   if (!rawData) return undefined
 
   const {
-    context: { personas: { computation_class = '', computation_key = '' } = {} } = {},
+    context: {
+      personas: {
+        computation_class = '',
+        computation_key = ''
+      } = {}
+    } = {},
     properties = {},
     traits = {},
     type = ''

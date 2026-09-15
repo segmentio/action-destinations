@@ -97,9 +97,7 @@ describe('getAudience', () => {
   it('GETs the segment by externalId and returns it', async () => {
     const segmentId = 'existing-seg-abc'
 
-    nock(MNTN_BASE)
-      .get(`/${MNTN_API_VERSION}/audience/segments/${segmentId}`)
-      .reply(200, { segment: { id: segmentId } })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/${segmentId}`).reply(200, { segment: { id: segmentId } })
 
     const result = await testDestination.getAudience({
       externalId: segmentId,
@@ -113,9 +111,7 @@ describe('getAudience', () => {
   it('prefers audienceSettings.segment_id over externalId', async () => {
     const overrideId = 'override-seg-999'
 
-    nock(MNTN_BASE)
-      .get(`/${MNTN_API_VERSION}/audience/segments/${overrideId}`)
-      .reply(200, { segment: { id: overrideId } })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/${overrideId}`).reply(200, { segment: { id: overrideId } })
 
     const result = await testDestination.getAudience({
       externalId: 'stale-id',
@@ -137,9 +133,7 @@ describe('getAudience', () => {
   })
 
   it('throws when the API responds 404', async () => {
-    nock(MNTN_BASE)
-      .get(`/${MNTN_API_VERSION}/audience/segments/does-not-exist`)
-      .reply(404, { error: { code: 'NotFound' } })
+    nock(MNTN_BASE).get(`/${MNTN_API_VERSION}/audience/segments/does-not-exist`).reply(404, { error: { code: 'NotFound' } })
 
     await expect(
       testDestination.getAudience({
