@@ -28,7 +28,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       inputFields: retlHookInputFields,
       outputTypes: retlHookOutputTypes,
       performHook: async (request, { hookInputs, features, statsContext }) => {
-        return await performHook(request, hookInputs as RetlOnMappingSaveInputs, features, statsContext)
+        return performHook(request, hookInputs as RetlOnMappingSaveInputs, features, statsContext)
       }
     }
   },

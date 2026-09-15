@@ -1,7 +1,7 @@
 import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createAudienceRequest, getAudienceRequest } from '../functions'
-import { CONTACT_INFO, DEVICE_ID } from './constants'
+import { AUDIENCE_TYPES, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 import { DV360Audience } from './types'
 
@@ -44,7 +44,7 @@ export async function performHook(
       }
     }
 
-    if (!membershipDurationDays) {
+    if (membershipDurationDays === undefined || membershipDurationDays === null) {
       return {
         error: { message: 'Missing membership duration days value', code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED }
       }
@@ -144,7 +144,7 @@ export async function performHook(
 
     // The audience type is read back from Display & Video 360 rather than asked for again,
     // so it can never disagree with the audience this mapping is connected to.
-    if (!audience?.audienceType || ![CONTACT_INFO, DEVICE_ID].includes(audience.audienceType)) {
+    if (!audience?.audienceType || !AUDIENCE_TYPES.includes(audience.audienceType)) {
       return {
         error: {
           message: `Audience ${existingAudienceId.trim()} is not a Customer Match Contact Info or Mobile Device ID audience`,

@@ -14,7 +14,7 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import { AUDIENCE_TYPES, CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -68,15 +68,7 @@ export async function send(
     const { members, errortype, errormessage } = buildMember(payload, membership, audienceDetails)
 
     if (!members) {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        400,
-        errortype as keyof typeof ErrorCodes,
-        errormessage as string,
-        payload as unknown as JSONLikeObject
-      )
+      setError(msResponse, isBatch, index, 400, errortype as keyof typeof ErrorCodes, errormessage as string)
       return
     }
 
@@ -302,7 +294,7 @@ export function validateAudienceDetails(
 
   if (!audienceType) {
     problems.push('Missing audience type')
-  } else if (![CONTACT_INFO, DEVICE_ID].includes(audienceType)) {
+  } else if (!AUDIENCE_TYPES.includes(audienceType)) {
     problems.push(`Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}`)
   }
 
@@ -398,8 +390,8 @@ export function failAllPayloads(
   errortype: keyof typeof ErrorCodes = ErrorCodes.PAYLOAD_VALIDATION_FAILED,
   status = 400
 ): MultiStatusResponse {
-  payloads.forEach((payload, index) => {
-    setError(msResponse, isBatch, index, status, errortype, errormessage, payload as unknown as JSONLikeObject)
+  payloads.forEach((_, index) => {
+    setError(msResponse, isBatch, index, status, errortype, errormessage)
   })
 
   return msResponse

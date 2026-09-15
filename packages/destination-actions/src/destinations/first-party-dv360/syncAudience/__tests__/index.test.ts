@@ -546,9 +546,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errorreporter: 'DESTINATION',
-        errormessage: `Audience Type is set to ${CONTACT_INFO} in this mapping, but the audience in Display & Video 360 is ${DEVICE_ID}. Set Audience Type to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`,
-        sent: expect.any(Object)
+        errorreporter: 'INTEGRATIONS',
+        errormessage: `Audience Type is set to ${CONTACT_INFO} in this mapping, but the audience in Display & Video 360 is ${DEVICE_ID}. Set Audience Type to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
       }
     ])
   })
@@ -709,17 +708,15 @@ describe('FirstPartyDv360.syncAudience', () => {
       {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errorreporter: 'DESTINATION',
-        errormessage: expect.stringContaining('No usable contact info identifiers'),
-        sent: expect.objectContaining({ external_id: AUDIENCE_ID })
+        errorreporter: 'INTEGRATIONS',
+        errormessage: expect.stringContaining('No usable contact info identifiers')
       },
       success({ hashedEmails: [hash('remove2@example.com')] }),
       {
         status: 400,
         errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
-        errorreporter: 'DESTINATION',
-        errormessage: 'Audience membership could not be resolved to a boolean',
-        sent: expect.objectContaining({ contact_info: { emails: 'nomembership@example.com' } })
+        errorreporter: 'INTEGRATIONS',
+        errormessage: 'Audience membership could not be resolved to a boolean'
       },
       {
         status: 400,
@@ -730,9 +727,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errorreporter: 'DESTINATION',
-        errormessage: expect.stringContaining('does not belong to the same audience'),
-        sent: expect.objectContaining({ contact_info: { emails: 'otheraudience@example.com' } })
+        errorreporter: 'INTEGRATIONS',
+        errormessage: expect.stringContaining('does not belong to the same audience')
       },
       success({ hashedEmails: [hash('add3@example.com')] })
     ])
