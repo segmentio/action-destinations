@@ -12,4 +12,8 @@ export function getVoiceopsCallsEndpoint(baseUrl?: string): string {
   return `${normalizeVoiceopsBaseUrl(baseUrl)}/frontline-api/integrations/v1/segment/calls`
 }
 
+export function getVoiceopsMetadataEndpoint(baseUrl?: string): string {
+  return `${normalizeVoiceopsBaseUrl(baseUrl)}/frontline-api/integrations/v1/segment/metadata`
+}
+
 export const SEGMENT_USER_AGENT = 'Segment'

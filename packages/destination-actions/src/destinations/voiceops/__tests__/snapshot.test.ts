@@ -84,6 +84,22 @@ function normalizeWarmTransferFields(eventData: Record<string, unknown>) {
   }
 }
 
+function normalizeActionFields(actionSlug: string, eventData: Record<string, unknown>) {
+  if (actionSlug === 'updateCallMetadata') {
+    return {
+      ...eventData,
+      call_id: 'call-123',
+      call_completed_at: '1789394517',
+      extraMetadata: { disposition: 'Answered' }
+    }
+  }
+
+  return {
+    ...normalizeWarmTransferFields(eventData),
+    recording_url: 'https://example.com/audio.wav'
+  }
+}
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
@@ -97,10 +113,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const event = createTestEvent({
         event: 'Call Completed',
-        properties: {
-          ...normalizeWarmTransferFields(eventData as Record<string, unknown>),
-          recording_url: 'https://example.com/audio.wav'
-        }
+        properties: normalizeActionFields(actionSlug, eventData as Record<string, unknown>)
       })
 
       const responses = await testDestination.testAction(actionSlug, {
@@ -117,7 +130,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         const json = JSON.parse(rawBody)
         stripTimestamps(json)
         expect(json).toMatchSnapshot({
-          call_started_at: expect.any(String)
+          [actionSlug === 'updateCallMetadata' ? 'call_completed_at' : 'call_started_at']: expect.any(String)
         })
         return
       } catch (err) {
@@ -138,10 +151,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
 
       const event = createTestEvent({
         event: 'Call Completed',
-        properties: {
-          ...normalizeWarmTransferFields(eventData as Record<string, unknown>),
-          recording_url: 'https://example.com/audio.wav'
-        }
+        properties: normalizeActionFields(actionSlug, eventData as Record<string, unknown>)
       })
 
       const responses = await testDestination.testAction(actionSlug, {
@@ -158,7 +168,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
         const json = JSON.parse(rawBody)
         stripTimestamps(json)
         expect(json).toMatchSnapshot({
-          call_started_at: expect.any(String)
+          [actionSlug === 'updateCallMetadata' ? 'call_completed_at' : 'call_started_at']: expect.any(String)
         })
         return
       } catch (err) {

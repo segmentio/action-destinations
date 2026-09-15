@@ -2,6 +2,7 @@ import { defaultValues, InvalidAuthenticationError } from '@segment/actions-core
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendCallCompleted from './sendCallCompleted'
+import updateCallMetadata from './updateCallMetadata'
 import { DEFAULT_VOICEOPS_BASE_URL, getVoiceopsAuthenticationEndpoint, SEGMENT_USER_AGENT } from './constants'
 
 function buildHeaders(accessToken: string) {
@@ -78,7 +79,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    sendCallCompleted
+    sendCallCompleted,
+    updateCallMetadata
   }
 }
 
