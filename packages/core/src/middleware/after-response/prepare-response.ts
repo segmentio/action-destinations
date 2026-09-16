@@ -2,26 +2,25 @@ import type { AfterResponseHook, NormalizedOptions } from '../../request-client'
 import type { ModifiedResponse } from '../../types'
 
 const prepareResponse: AfterResponseHook = async (_request, _options, response) => {
-  const statsClient = _options.statsContext?.statsClient
-
   const modifiedResponse = response as ModifiedResponse
 
-  let content: string
-  if (_options.skipResponseCloning) {
-    // Skip cloning the response to avoid a Node crash in case the response payload is larger than 16KB
-    // TODO STRATCONN-1396: Move all action-destinations to follow this code path instead of cloning the response
-    content = await response.text()
-  } else {
-    // stat before and after the response.clone() to see how frequently we are hitting this issue:
-    // https://segment.atlassian.net/browse/ACT-242
-    // exclude tags for now - we can add them if they're needed
-    statsClient?.incr('before-response-clone', 1)
-    // Clone the response before reading the body to avoid
-    // `TypeError: body used already` elsewhere
-    const clone = response.clone()
-    content = await clone.text()
-    statsClient?.incr('after-response-clone', 1)
-  }
+  // Read the body exactly once, without cloning.
+  //
+  // node-fetch@2's `response.clone()` tees the body into two PassThrough streams (`p1` on the
+  // original, `p2` on the clone). We used to read only `p2`; nothing drained `p1`, so on payloads
+  // larger than ~16KB (the default PassThrough highWaterMark) backpressure paused the socket, `p2`
+  // stalled, and the read hung indefinitely (STRATCONN-7032). Reading the single stream once as a
+  // buffer avoids the tee entirely — no clone, no deadlock — and is binary-safe.
+  const arrayBuffer = await response.arrayBuffer()
+  const content = new TextDecoder().decode(arrayBuffer)
+
+  // We consumed the body, so re-expose the standard body accessors backed by the buffer. This keeps
+  // destinations that read the raw response (`.text()` / `.json()` / `.arrayBuffer()`) working —
+  // previously they relied on the clone leaving the original stream intact.
+  modifiedResponse.text = async () => content
+  modifiedResponse.json = async () => JSON.parse(content)
+  // Return a fresh copy each call so callers can't mutate the shared buffer.
+  modifiedResponse.arrayBuffer = async () => arrayBuffer.slice(0)
 
   const agent: NormalizedOptions['agent'] = _options.agent
   if (agent) {
