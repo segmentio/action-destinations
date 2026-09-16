@@ -4,7 +4,7 @@ import { isObject } from './real-type-of'
 import type https from 'https'
 import { StatsContext } from './destination-kit'
 
-const defaultRequestTimeout = 10_000
+let defaultRequestTimeout = 10_000
 // making this configurable will allow some environments to support a longer/shorter timeout
 if (
   globalThis.process != null &&
@@ -13,7 +13,7 @@ if (
 ) {
   const parsedDefaultTimeout = parseInt(globalThis.process.env.DEFAULT_REQUEST_TIMEOUT, 10)
   if (!Number.isNaN(parsedDefaultTimeout) && parsedDefaultTimeout > 0) {
-    defaultRequestTimeout
+    defaultRequestTimeout = parsedDefaultTimeout
   }
 }
 export const DEFAULT_REQUEST_TIMEOUT = defaultRequestTimeout
@@ -332,18 +332,58 @@ class RequestClient {
       }
       throw err
     }
-    for (const hook of this.options.afterResponse ?? []) {
-      const modifiedResponse = await hook(this.request, this.options, response)
-      if (modifiedResponse instanceof Response) {
-        response = modifiedResponse
-      }
-    }
+    // afterResponse hooks (e.g. prepareResponse reading/cloning the body) run outside the fetch
+    // timeout, so bound them too — otherwise a slow or large body read hangs indefinitely.
+    response = await this.runAfterResponseHooks(response)
 
     if (!response.ok && this.options.throwHttpErrors) {
       throw new HTTPError(response, this.request, this.options)
     }
 
     return response as T
+  }
+
+  /**
+   * Runs the afterResponse hooks, bounded by the same request timeout that guards the fetch.
+   *
+   * The hooks execute after `fetch()` resolves (i.e. after headers are received) and read the
+   * response body — for a large or slow body this can hang unbounded because the fetch timeout has
+   * already been cleared. Wrapping the hooks in a timeout converts that hang into a
+   * `RequestTimeoutError` and aborts the underlying socket so the body read is torn down.
+   */
+  private async runAfterResponseHooks(response: Response): Promise<Response> {
+    const runHooks = async (): Promise<Response> => {
+      let current = response
+      for (const hook of this.options.afterResponse ?? []) {
+        const modifiedResponse = await hook(this.request, this.options, current)
+        if (modifiedResponse instanceof Response) {
+          current = modifiedResponse
+        }
+      }
+      return current
+    }
+
+    // When timeouts are disabled, don't bound post-processing either.
+    if (this.options.timeout === false) {
+      return runHooks()
+    }
+
+    return new Promise<Response>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        // Aborting rejects the in-flight body read(s). The un-consumed original body stream has no
+        // reader of its own, so attach a no-op error handler first to avoid an unhandled 'error'.
+        const body = (response as { body?: { on?: (event: string, cb: () => void) => void } }).body
+        body?.on?.('error', () => undefined)
+        // Tear down the socket / any pending body read so we don't leak the hung request.
+        this.abortController.abort()
+        reject(new RequestTimeoutError('Request timed out while processing the response'))
+      }, this.options.timeout as number)
+
+      void runHooks()
+        // Swallow a late rejection (e.g. AbortError) once the timeout has already settled us.
+        .then(resolve, reject)
+        .then(() => clearTimeout(timer))
+    })
   }
 
   /**
