@@ -278,6 +278,32 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
       })
 
+      it('still accepts all rows on a 2xx submit that carries informational resultMessages', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // A 2xx with a non-empty resultMessages is surfaced via a warning log but must NOT
+        // change the outcome -- the rows are still accepted (per-row results come from poll).
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(202, {
+            requestId: 'test-job-id',
+            resultMessages: [{ resultType: 'Info', resultClass: 'Warning', resultCode: 'X', message: 'heads up' }]
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBe('test-job-id')
+        expect(response.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
+      })
+
       it('should handle non-OK errors with resultMessages', async () => {
         const events: SegmentEvent[] = [
           createTestEvent({
@@ -687,6 +713,30 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.errorCount).toBe(0)
       })
 
+      it('treats a /status requestId mismatch as warn-only (outcome unchanged)', async () => {
+        // The nested status.requestId does not match the polled jobId. The destination logs a
+        // warning but must NOT alter the outcome -- it still reports the job's real status.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              requestStatus: 'Complete',
+              resultStatus: 'OK',
+              requestId: 'a-different-request-id'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(pollPayload.uploadCount)
+      })
+
       it('should return SUCCEEDED with multiStatusResponse when Complete but Has Errors', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
@@ -698,10 +748,11 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 50,
-            count: 5,
+            count: 4,
             items: [
               {
                 errorCode: 2,
@@ -754,7 +805,57 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(2)
       })
 
-      it('should flag a deadlocked row as retryable (429) while other errorCode 2 failures stay non-retryable (400)', async () => {
+      it('should fetch every /results page instead of only the first when count exceeds pageSize', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        // 3 total results, pageSize of 2 -- page 1 has 2 items, page 2 has the remaining 1.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '1' })
+          .reply(200, {
+            page: 1,
+            pageSize: 2,
+            count: 3,
+            items: [
+              { message: 'Upserted DataExtensionObject', status: 'OK' },
+              { message: 'Upserted DataExtensionObject', status: 'OK' }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '2' })
+          .reply(200, {
+            page: 2,
+            pageSize: 2,
+            count: 3,
+            items: [{ message: 'Cannot locate the existing record. Required keys are missing.', status: 'Error' }],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Without pagination handling, only page 1's 2 successes would be seen and the
+        // real error on page 2 would be silently dropped.
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(2)
+        expect(response.multiStatusResponse?.errorCount).toBe(1)
+        expect(response.multiStatusResponse?.isErrorResponseAtIndex(2)).toBe(true)
+      })
+
+      it('counts a deadlocked row as delivered while a permanent errorCode-2 failure stays a 400', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -765,6 +866,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 50,
@@ -791,23 +893,107 @@ describe('Salesforce Marketing Cloud - Async', () => {
           settings
         })
 
-        expect(response.jobStatus).toBe('FAILED')
+        // At least one row delivered (the recovered deadlock) -> SUCCEEDED, not FAILED.
+        expect(response.jobStatus).toBe('SUCCEEDED')
         expect(response.multiStatusResponse).toBeDefined()
 
-        const deadlockResponse = response.multiStatusResponse?.getResponseAtIndex(0)
-        expect(deadlockResponse?.value().status).toBe(429)
-        expect(
-          deadlockResponse instanceof ActionDestinationErrorResponse && deadlockResponse.value().errormessage
-        ).toEqual(
-          'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.'
-        )
+        // Deadlock row: counted as a delivered success (SFMC lands these on internal retry),
+        // NOT folded into the failure count.
+        expect(response.multiStatusResponse?.isSuccessResponseAtIndex(0)).toBe(true)
+        expect(response.multiStatusResponse?.getResponseAtIndex(0)?.value().status).toBe(200)
 
+        // Genuine permanent failure stays a terminal 400 error.
         const validationErrorResponse = response.multiStatusResponse?.getResponseAtIndex(1)
+        expect(response.multiStatusResponse?.isErrorResponseAtIndex(1)).toBe(true)
         expect(validationErrorResponse?.value().status).toBe(400)
         expect(
           validationErrorResponse instanceof ActionDestinationErrorResponse &&
             validationErrorResponse.value().errormessage
         ).toEqual('Cannot locate the existing record. Required keys are missing.')
+
+        expect(response.multiStatusResponse?.successCount).toBe(1)
+        expect(response.multiStatusResponse?.errorCount).toBe(1)
+      })
+
+      it('recognizes a deadlocked row (counts it as delivered) even with trailing whitespace on the message', async () => {
+        // The tolerant .trim().includes() match must still catch a deadlock message with
+        // trailing whitespace / minor variation after "Rerun the transaction."
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 1,
+            items: [
+              {
+                errorCode: 2,
+                message:
+                  'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. \n',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Recognized as a transient deadlock -> counted as delivered (success), leg SUCCEEDED.
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.isSuccessResponseAtIndex(0)).toBe(true)
+        expect(response.multiStatusResponse?.getResponseAtIndex(0)?.value().status).toBe(200)
+      })
+
+      it('reports SUCCEEDED with zero failures when every errored row is a transient deadlock (prod over-report fix)', async () => {
+        // The production symptom: a leg whose /results is all deadlock rows. SFMC lands them on
+        // internal retry (all present in the DE), so they must NOT be reported as failures --
+        // otherwise granobs emits them as REASON_MESSAGE_REJECTED drops for delivered rows.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        const deadlock =
+          'Transaction (Process ID 42) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.'
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 3,
+            items: [
+              { errorCode: 2, message: deadlock, status: 'Error' },
+              { errorCode: 2, message: deadlock, status: 'Error' },
+              { errorCode: 2, message: deadlock, status: 'Error' }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(3)
+        expect(response.multiStatusResponse?.errorCount).toBe(0)
       })
 
       it('should return FAILED (not SUCCEEDED) when Complete but every record errored', async () => {
@@ -821,6 +1007,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: 50,
@@ -867,6 +1054,67 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(0)
       })
 
+      it('should return RETRYABLE_ERROR (not FAILED) when /status reports errors but /results returns zero items', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 2500,
+            count: 0,
+            items: [],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // /status vs /results inconsistency -- treat as retryable rather than a hard FAILED
+        // with no per-record detail, and don't leave a misleading empty multiStatusResponse.
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) when /status reports errors but /results is missing the items array', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 2500,
+            count: 0,
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
       // Regression test for the response-clone deadlock. The results payload carries one item
       // per record, so a realistically-sized batch pushes it past the 16KB highWaterMark of the
       // tee that response.clone() sets up in prepare-response. Without skipResponseCloning on
@@ -903,6 +1151,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
 
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
           .reply(200, {
             page: 1,
             pageSize: itemCount,
@@ -922,7 +1171,12 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.successCount).toBe(itemCount / 2)
       })
 
-      it('should return FAILED when requestStatus is Error', async () => {
+      it('should return RETRYABLE_ERROR (not FAILED) when requestStatus is Error', async () => {
+        // SFMC's requestStatus 'Error' is not reliably terminal -- it can appear mid-flight and
+        // then resolve to Complete/OK (confirmed in production: a job polled ~0.5s before its
+        // completionDateTime showed a transient failure state, yet later reported Complete/OK
+        // with every row upserted). So we must NOT report a terminal FAILED here (that produced
+        // false "message rejected" drops for batches that fully delivered); re-poll instead.
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
           .reply(200, {
@@ -945,8 +1199,45 @@ describe('Salesforce Marketing Cloud - Async', () => {
         })
 
         expect(response.jobId).toBe(jobId)
-        expect(response.jobStatus).toBe('FAILED')
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
         expect(response.status).toBe(200)
+        // No trustworthy per-record detail at this stage; leave multiStatusResponse unset so an
+        // empty (but truthy) instance isn't mistaken for a real result.
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('treats requestStatus Error as RETRYABLE even when resultMessages carries a reason', async () => {
+        // A reason (surfaced in logs) does not make SFMC's Error state terminal -- re-poll.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              callDateTime: '2024-07-11T22:19:02.04',
+              completionDateTime: '2024-07-11T22:19:03.97',
+              hasErrors: true,
+              pickupDateTime: '2024-07-11T22:19:03.567',
+              requestStatus: 'Error',
+              resultStatus: 'OK',
+              requestId: '12260e92-b8cb-41ec-8c5a-116fb9d23eb4'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: [
+              {
+                resultType: 'Validation',
+                resultClass: 'Error',
+                resultCode: 'NullOrEmptyRows',
+                message: 'Invalid request, Items cannot be null or empty.'
+              }
+            ]
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
       })
 
       it('should return RETRYABLE_ERROR (not FAILED) when status object is missing in response', async () => {
