@@ -35,6 +35,19 @@ export interface Payload {
     countryCode?: string
   }
   /**
+   * Google rejects phone numbers which do not start with an international country code. For example, +1 for the US or +44 for GB. Segment can add default country codes to phone numbers which are missing a country code. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.
+   */
+  phone_number_settings?: {
+    /**
+     * The default country to assume for phone numbers. Numbers which already have an international country code are unaffected. This field accepts a two letter code such as US or GB (which would result in +1 or +44 being prefixed).
+     */
+    defaultCountryCode?: string
+    /**
+     * Use each user's own Country Code, from Contact Info Details, to work out which country their phone number belongs to. Numbers which already have an international country code are unaffected.
+     */
+    useContactInfoCountryCode?: boolean
+  }
+  /**
    * A mobile device ID defining a Customer Match audience member. A single value, or several separated by commas. This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.
    */
   mobileDeviceIds?: string

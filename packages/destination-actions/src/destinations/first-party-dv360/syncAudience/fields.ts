@@ -2,7 +2,13 @@ import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
 import { InputField, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs } from './generated-types'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import {
+  AUDIENCE_TYPE_LABEL,
+  CONSENT_STATUS_GRANTED,
+  CONSENT_STATUS_DENIED,
+  CONTACT_INFO,
+  DEVICE_ID
+} from './constants'
 import { mobileDeviceIds as sharedMobileDeviceIds } from '../properties'
 
 const CREATE_OPERATION: DependsOnConditions = {
@@ -42,7 +48,7 @@ const ADDRESS_GROUP =
   'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
 
 export const audience_type: InputField = {
-  label: 'Audience Type',
+  label: AUDIENCE_TYPE_LABEL,
   description:
     'The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.',
   type: 'string',
@@ -143,6 +149,31 @@ export const contact_info: InputField = {
   }
 }
 
+export const phone_number_settings: InputField = {
+  label: 'Phone Number Settings',
+  description: `Google rejects phone numbers which do not start with an international country code. For example, +1 for the US or +44 for GB. Segment can add default country codes to phone numbers which are missing a country code. ${CONTACT_INFO_ONLY}`,
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false,
+  properties: {
+    defaultCountryCode: {
+      label: 'Default Country Code',
+      description:
+        'The default country to assume for phone numbers. Numbers which already have an international country code are unaffected. This field accepts a two letter code such as US or GB (which would result in +1 or +44 being prefixed).',
+      type: 'string'
+    },
+    useContactInfoCountryCode: {
+      label: 'Infer from Contact Info > Country Code',
+      description:
+        "Use each user's own Country Code, from Contact Info Details, to work out which country their phone number belongs to. Numbers which already have an international country code are unaffected.",
+      type: 'boolean'
+    }
+  },
+  default: {
+    useContactInfoCountryCode: false
+  }
+}
+
 export const mobileDeviceIds: InputField = {
   ...sharedMobileDeviceIds,
   depends_on: DEVICE_ID_AUDIENCE,
@@ -226,7 +257,7 @@ export const retlHookInputFields: ActionHookDefinition<
   },
   audienceType: {
     type: 'string',
-    label: 'Audience Type',
+    label: AUDIENCE_TYPE_LABEL,
     description: 'The type of the audience to create.',
     choices: [
       { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
@@ -285,7 +316,7 @@ export const retlHookOutputTypes: ActionHookDefinition<
   },
   audienceType: {
     type: 'string',
-    label: 'Audience Type',
+    label: AUDIENCE_TYPE_LABEL,
     description: 'The type of the audience in Display & Video 360.',
     required: true
   },

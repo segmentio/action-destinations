@@ -12,9 +12,17 @@ import {
   isRetryableStatus
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { processHashing } from '../../../lib/hashing-utils'
+import { PhoneNumberFormat, PhoneNumberUtil } from 'google-libphonenumber'
+import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import {
+  AUDIENCE_TYPE_LABEL,
+  CONSENT_STATUS_GRANTED,
+  CONSENT_STATUS_DENIED,
+  CONTACT_INFO,
+  DEVICE_ID,
+  RETL_HOOK_LABEL
+} from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -51,7 +59,7 @@ export async function send(
 
   const { audienceId, advertiserId, audienceType } = audienceDetails
 
-  const { consent, consentErrorMessage } = buildConsent(payloads[0])
+  const { consent, consentErrorMessage } = buildConsent(payloads[0].consent)
 
   if (!consent) {
     return failAllPayloads(msResponse, payloads, isBatch, consentErrorMessage as string)
@@ -134,6 +142,10 @@ export async function send(
   return msResponse
 }
 
+function isPresent(value: string | undefined): value is string {
+  return value !== undefined
+}
+
 function clean(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
@@ -154,8 +166,11 @@ export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs
   return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? audienceSettings?.audienceType
 }
 
-export function buildConsent(payload: Payload): { consent?: Consent; consentErrorMessage?: string } {
-  const { adUserData, adPersonalization } = payload.consent ?? {}
+export function buildConsent(mappedConsent: Payload['consent']): {
+  consent?: Consent
+  consentErrorMessage?: string
+} {
+  const { adUserData, adPersonalization } = mappedConsent ?? {}
 
   const unrecognised = [adUserData, adPersonalization].find(
     (value) => value && value !== CONSENT_STATUS_GRANTED && value !== CONSENT_STATUS_DENIED
@@ -167,7 +182,7 @@ export function buildConsent(payload: Payload): { consent?: Consent; consentErro
     }
   }
 
-  if (isConsentDenied(payload)) {
+  if (isConsentDenied(mappedConsent)) {
     return {
       consentErrorMessage:
         'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
@@ -182,10 +197,76 @@ export function buildConsent(payload: Payload): { consent?: Consent; consentErro
   }
 }
 
-export function isConsentDenied(payload: Payload): boolean {
-  const { adUserData, adPersonalization } = payload.consent ?? {}
+export function isConsentDenied(mappedConsent: Payload['consent']): boolean {
+  const { adUserData, adPersonalization } = mappedConsent ?? {}
 
   return adUserData === CONSENT_STATUS_DENIED || adPersonalization === CONSENT_STATUS_DENIED
+}
+
+const phoneUtil = PhoneNumberUtil.getInstance()
+
+// getSupportedRegions() returns upper case only. e.g. US, GB, FR
+const SUPPORTED_REGIONS = new Set(phoneUtil.getSupportedRegions())
+
+// A country is only usable for reading a phone number if the parser knows it. Anything else,
+// such as USA or a country name, is ignored rather than guessed at.
+function toRegion(value?: string): string | undefined {
+  const region = value?.trim().toUpperCase()
+
+  return region && SUPPORTED_REGIONS.has(region) ? region : undefined
+}
+
+// Email validation - this catches the values worth catching: no @, no domain,
+// no dot, or whitespace inside.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isHashed(value: string): boolean {
+  return isAlreadyHashed(value, 'sha256', 'hex')
+}
+
+export function normaliseEmail(value: string): string | undefined {
+  if (isHashed(value)) {
+    return value
+  }
+
+  const email = value.trim().toLowerCase()
+
+  return EMAIL_PATTERN.test(email) ? email : undefined
+}
+
+// Display & Video 360 matches on E.164, so a number has to be resolved to one country before
+// it is hashed. A number which already carries a country code needs no region; one which does
+// not is read against the user's own country code, then the mapping's fallback. Without either
+// the country is unknowable, and a guess would hash to something which silently never matches.
+export function normalisePhone(
+  value: string,
+  userCountryCode?: string,
+  fallbackCountryCode?: string
+): string | undefined {
+  if (isHashed(value)) {
+    return value
+  }
+
+  const phone = value.trim()
+  const carriesCountryCode = phone.startsWith('+')
+
+  // A number which already carries its country code needs no region: the country is read out
+  // of the number. Otherwise the user's own country is used, then the mapping's fallback.
+  const region = carriesCountryCode ? undefined : toRegion(userCountryCode) ?? toRegion(fallbackCountryCode)
+
+  if (!carriesCountryCode && !region) {
+    return undefined
+  }
+
+  try {
+    // parse throws on a value which is not phone like at all. isValidNumber is a separate
+    // question: +15555555555 parses, but 555 is not a real area code.
+    const parsed = phoneUtil.parse(phone, region)
+
+    return phoneUtil.isValidNumber(parsed) ? phoneUtil.format(parsed, PhoneNumberFormat.E164) : undefined
+  } catch {
+    return undefined
+  }
 }
 
 export function toList(value?: string): string[] {
@@ -195,11 +276,21 @@ export function toList(value?: string): string[] {
     .filter(Boolean)
 }
 
-export function buildContactInfo(payload: Payload): ContactInfo | undefined {
-  const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = payload.contact_info ?? {}
+export function buildContactInfo(
+  mappedContactInfo: Payload['contact_info'],
+  phoneNumberSettings?: Payload['phone_number_settings']
+): ContactInfo | undefined {
+  const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = mappedContactInfo ?? {}
+  const { defaultCountryCode, useContactInfoCountryCode } = phoneNumberSettings ?? {}
 
-  const hashedEmails = toList(emails).map(hash)
-  const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
+  // An identifier which cannot be valid is dropped rather than hashed and sent, since Google
+  // can only report it as an unmatched member. A user is still synced on whatever is left, and
+  // an event with nothing left over fails as having no usable identifier.
+  const hashedEmails = toList(emails).map(normaliseEmail).filter(isPresent).map(hash)
+  const hashedPhoneNumbers = toList(phoneNumbers)
+    .map((phone) => normalisePhone(phone, useContactInfoCountryCode ? countryCode : undefined, defaultCountryCode))
+    .filter(isPresent)
+    .map(hash)
   const zipCodeList = toList(zipCodes)
 
   const contactInfo: ContactInfo = {
@@ -211,7 +302,7 @@ export function buildContactInfo(payload: Payload): ContactInfo | undefined {
           zipCodes: zipCodeList,
           hashedFirstName: hash(firstName),
           hashedLastName: hash(lastName),
-          countryCode
+          countryCode: countryCode.trim().toUpperCase()
         }
       : {})
   }
@@ -287,15 +378,22 @@ export function validateAudienceDetails(
     problems.push('Missing advertiser ID')
   }
 
+  // The audience's own type, from the audience settings or the mapping save hook.
   if (!audienceType) {
-    problems.push('Missing audience type')
+    problems.push(
+      `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
+    )
   } else if (audienceType !== CONTACT_INFO && audienceType !== DEVICE_ID) {
-    problems.push(`Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}`)
+    problems.push(`Unrecognised audience type: ${audienceType}. The audience must be ${CONTACT_INFO} or ${DEVICE_ID}`)
   }
 
-  if (mappedAudienceType && audienceType && mappedAudienceType !== audienceType) {
+  // The type the customer picked in the mapping, which only decides which identifier fields
+  // are shown. It is checked against the audience's own type above.
+  if (!mappedAudienceType) {
+    problems.push(`Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`)
+  } else if (audienceType && mappedAudienceType !== audienceType) {
     problems.push(
-      `Audience Type is set to ${mappedAudienceType} in this mapping, but the audience in Display & Video 360 is ${audienceType}. Set Audience Type to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
+      `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${mappedAudienceType}, but the audience in Display & Video 360 is ${audienceType}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
     )
   }
 
@@ -324,7 +422,7 @@ export function buildMember(
   }
 
   const isContactInfo = audienceType === CONTACT_INFO
-  const contactInfo = isContactInfo ? buildContactInfo(payload) : undefined
+  const contactInfo = isContactInfo ? buildContactInfo(payload.contact_info, payload.phone_number_settings) : undefined
   const members: Member[] = isContactInfo ? (contactInfo ? [contactInfo] : []) : toList(payload.mobileDeviceIds)
 
   if (members.length === 0) {
