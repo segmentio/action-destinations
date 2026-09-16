@@ -200,51 +200,150 @@ describe('buildConsent', () => {
 
 describe('normaliseEmail', () => {
   it.each([
-    ['Test@Example.com ', 'test@example.com'],
-    ['  someone@sub.domain.co.uk', 'someone@sub.domain.co.uk']
-  ])('normalises %p', (value: string, expected: string) => {
+    ['jane@example.com', 'jane@example.com'],
+    // Google matches on a lowercased, trimmed address.
+    ['JANE@EXAMPLE.COM', 'jane@example.com'],
+    ['  jane@example.com  ', 'jane@example.com'],
+    ['jane.doe@example.com', 'jane.doe@example.com'],
+    // Plus addressing is a real address and is kept as it is.
+    ['jane+promo@example.com', 'jane+promo@example.com'],
+    ['jane_doe@example.co.uk', 'jane_doe@example.co.uk'],
+    ['jane@sub.domain.example.com', 'jane@sub.domain.example.com'],
+    ['jane@example.museum', 'jane@example.museum'],
+    ["o'brien@example.com", "o'brien@example.com"],
+    ['jané@example.com', 'jané@example.com'],
+    ['1@2.co', '1@2.co']
+  ])('keeps %p as %p', (value: string, expected: string) => {
     expect(normaliseEmail(value)).toBe(expected)
   })
 
-  it.each(['jane', 'jane@', '@example.com', 'jane@example', 'jane doe@example.com', 'jane@exa mple.com'])(
-    'drops %p',
-    (value: string) => {
-      expect(normaliseEmail(value)).toBeUndefined()
-    }
-  )
+  it.each([
+    ['jane', 'no domain at all'],
+    ['jane@', 'nothing after the @'],
+    ['@example.com', 'nothing before the @'],
+    ['jane@example', 'no dot in the domain'],
+    ['jane@.com', 'nothing before the dot'],
+    ['jane@example.', 'nothing after the dot'],
+    ['jane doe@example.com', 'a space in the local part'],
+    ['jane@exa mple.com', 'a space in the domain'],
+    ['jane@@example.com', 'two @ signs'],
+    ['jane@example.com extra', 'trailing text'],
+    ['', 'empty'],
+    ['   ', 'only whitespace']
+  ])('drops %p, which has %s', (value: string) => {
+    expect(normaliseEmail(value)).toBeUndefined()
+  })
+
+  // A shape check, not RFC 5322: this one gets through, and Google simply will not match it.
+  // Rejecting everything malformed would mean rejecting valid addresses too.
+  it('does not claim to catch every malformed address', () => {
+    expect(normaliseEmail('jane@example..com')).toBe('jane@example..com')
+  })
 
   // A digest is not email shaped, so validating one would drop every pre hashed value.
-  it('passes an already hashed value through untouched', () => {
-    const hashed = hash('jane@example.com')
-
-    expect(normaliseEmail(hashed)).toBe(hashed)
+  it.each([
+    ['a digest', hash('jane@example.com')],
+    ['an uppercase digest', hash('jane@example.com').toUpperCase()]
+  ])('passes %s through untouched', (_case: string, value: string) => {
+    expect(normaliseEmail(value)).toBe(value)
   })
 })
 
 describe('normalisePhone', () => {
-  it('keeps a number which already carries its country code', () => {
-    expect(normalisePhone('+12125650000')).toBe('+12125650000')
+  // Already international: the country comes from the number, so no region is needed and the
+  // punctuation people type is stripped.
+  it.each([
+    ['+12125650000', '+12125650000'],
+    ['+1 (212) 565-0000', '+12125650000'],
+    ['+1-212-565-0000', '+12125650000'],
+    ['  +1 212 565 0000  ', '+12125650000'],
+    ['+44 20 7031 3000', '+442070313000'],
+    ['+81 3 1234 5678', '+81312345678'],
+    ['+33 1 42 68 53 00', '+33142685300'],
+    ['+61 2 9374 4000', '+61293744000'],
+    // The extension cannot help a match and is dropped.
+    ['+1 212-565-0000 ext. 123', '+12125650000']
+  ])('keeps %p as %p without needing a country', (value: string, expected: string) => {
+    expect(normalisePhone(value)).toBe(expected)
   })
 
   it.each([
-    ['(212) 565-0000', 'US'],
-    ['212-565-0000', 'US'],
-    ['2125650000', 'US']
-  ])('reads %p against %p and formats it to E.164', (value: string, region: string) => {
-    expect(normalisePhone(value, region)).toBe('+12125650000')
+    ['2125650000', 'US', '+12125650000'],
+    ['(212) 565-0000', 'US', '+12125650000'],
+    ['212-565-0000', 'US', '+12125650000'],
+    ['212.565.0000', 'US', '+12125650000'],
+    ['  212 565 0000  ', 'US', '+12125650000'],
+    // A national number drops its trunk prefix rather than simply gaining a dialling code.
+    ['020 7031 3000', 'GB', '+442070313000'],
+    // Dialled internationally from within the given country.
+    ['00 44 20 7031 3000', 'GB', '+442070313000'],
+    ['011 44 20 7031 3000', 'US', '+442070313000'],
+    // Letters are read as the digits they sit on.
+    ['1-800-FLOWERS', 'US', '+18003569377']
+  ])('reads %p against %p as %p', (value: string, region: string, expected: string) => {
+    expect(normalisePhone(value, region)).toBe(expected)
   })
 
-  it('reads a national number against the country it is given', () => {
-    expect(normalisePhone('02070313000', 'GB')).toBe('+442070313000')
+  // A national number and its own country, one per country. Several of these drop a leading
+  // digit which is only used for dialling inside that country (IE, DE, NL, RU, TR), while
+  // others have no such digit to drop (ES, DK, NO, SE). Every number here is libphonenumber's
+  // own example for that country, so these assert the library's view of valid, not ours.
+  it.each([
+    ['(022) 12345', 'IE', '+3532212345'],
+    ['01 23 45 67 89', 'FR', '+33123456789'],
+    ['030 123456', 'DE', '+4930123456'],
+    ['810 12 34 56', 'ES', '+34810123456'],
+    ['02 1234 5678', 'IT', '+390212345678'],
+    ['010 123 4567', 'NL', '+31101234567'],
+    ['12 345 67 89', 'PL', '+48123456789'],
+    ['08-12 34 56', 'SE', '+468123456'],
+    ['21 234 5678', 'PT', '+351212345678'],
+    ['021 234 56 78', 'CH', '+41212345678'],
+    ['012 34 56 78', 'BE', '+3212345678'],
+    ['32 12 34 56', 'DK', '+4532123456'],
+    ['21 23 45 67', 'NO', '+4721234567'],
+    ['013 1234567', 'FI', '+358131234567'],
+    ['21 2345 6789', 'GR', '+302123456789'],
+    ['074104 10123', 'IN', '+917410410123'],
+    ['(11) 2345-6789', 'BR', '+551123456789'],
+    ['200 123 4567', 'MX', '+522001234567'],
+    ['(021) 8350123', 'ID', '+62218350123'],
+    ['01 804 0123', 'NG', '+23418040123'],
+    ['010 123 4567', 'ZA', '+27101234567'],
+    // Most countries drop a leading 0 when the number is written internationally. Russia drops
+    // a leading 8 instead, so the result is +73011234567 and not +783011234567. Sticking a
+    // dialling code on the front would produce a different, unmatchable number.
+    ['8 (301) 123-45-67', 'RU', '+73011234567'],
+    ['(0212) 345 67 89', 'TR', '+902123456789'],
+    ['02-212-3456', 'KR', '+8222123456'],
+    // Canada shares the +1 calling code with the US, so the country cannot be read from it.
+    ['(506) 234-5678', 'CA', '+15062345678']
+  ])('reads the national number %p against %p as %p', (value: string, region: string, expected: string) => {
+    expect(normalisePhone(value, region)).toBe(expected)
   })
 
-  // The user's own country code is preferred over the mapping's fallback.
-  it('prefers the first country it is given', () => {
-    expect(normalisePhone('02070313000', 'GB', 'US')).toBe('+442070313000')
+  // The same numbers written in international form, which need no country at all.
+  it.each([
+    ['+353 22 12345', '+3532212345'],
+    ['+49 30 123456', '+4930123456'],
+    ['+34 810 12 34 56', '+34810123456'],
+    ['+39 02 1234 5678', '+390212345678'],
+    ['+48 12 345 67 89', '+48123456789'],
+    ['+55 11 2345-6789', '+551123456789'],
+    ['+91 74104 10123', '+917410410123'],
+    ['+7 301 123-45-67', '+73011234567']
+  ])('keeps the international number %p as %p', (value: string, expected: string) => {
+    expect(normalisePhone(value)).toBe(expected)
   })
 
-  it('falls back to the next country when the first is not set', () => {
-    expect(normalisePhone('2125650000', undefined, 'US')).toBe('+12125650000')
+  // A number which is perfectly valid at home but not in the country it is read against.
+  it.each([
+    ['01 23 45 67 89', 'DE'],
+    ['030 123456', 'FR'],
+    ['(11) 2345-6789', 'IE'],
+    ['074104 10123', 'ZA']
+  ])('drops %p when read against %p, where it is not a valid number', (value: string, region: string) => {
+    expect(normalisePhone(value, region)).toBeUndefined()
   })
 
   it.each(['us', ' US ', 'Us'])('accepts %p as a country, whatever the case or spacing', (region: string) => {
@@ -253,27 +352,43 @@ describe('normalisePhone', () => {
 
   // Ignored rather than guessed at, so the number is dropped instead of being read against the
   // wrong country.
-  it.each(['USA', 'UK', 'United States', 'ZZ', ''])('ignores %p as a country', (region: string) => {
+  it.each(['USA', 'UK', 'United States', 'ZZ', '', '  '])('ignores %p as a country', (region: string) => {
     expect(normalisePhone('2125650000', region)).toBeUndefined()
   })
 
-  it('falls back to the mapping country when the user country is not recognised', () => {
+  it('falls back to the second country when the first is not recognised', () => {
     expect(normalisePhone('2125650000', 'USA', 'US')).toBe('+12125650000')
   })
 
-  // Guessing the country would hash to a number which silently never matches.
+  it('prefers the first country when both are recognised', () => {
+    expect(normalisePhone('020 7031 3000', 'GB', 'US')).toBe('+442070313000')
+  })
+
+  // Guessing the country would produce a number which silently never matches.
   it('drops a national number when no country is known', () => {
     expect(normalisePhone('2125650000')).toBeUndefined()
   })
 
-  it.each(['+15555555555', 'notaphone', '+1', '12345'])('drops %p as not a valid number', (value: string) => {
-    expect(normalisePhone(value, 'US')).toBeUndefined()
+  it.each([
+    ['555', 'US', 'too short to be a number'],
+    ['12345', 'US', 'too short to be a number'],
+    ['+15555555555', undefined, 'a 555 area code, which is not real'],
+    ['2125650000', 'GB', 'valid in another country but not this one'],
+    ['+9991234567', undefined, 'a country calling code which does not exist'],
+    ['+1', undefined, 'a country code and nothing else'],
+    ['abc', 'US', 'not a number at all'],
+    ['', 'US', 'empty'],
+    ['   ', 'US', 'only whitespace'],
+    ['+++', undefined, 'only punctuation']
+  ])('drops %p read against %p, which is %s', (value: string, region: string | undefined, _reason: string) => {
+    expect(normalisePhone(value, region)).toBeUndefined()
   })
 
-  it('passes an already hashed value through untouched', () => {
-    const hashed = hash('+12125650000')
-
-    expect(normalisePhone(hashed)).toBe(hashed)
+  it.each([
+    ['a digest', hash('+12125650000')],
+    ['an uppercase digest', hash('+12125650000').toUpperCase()]
+  ])('passes %s through untouched', (_case: string, value: string) => {
+    expect(normalisePhone(value)).toBe(value)
   })
 })
 
@@ -400,9 +515,67 @@ describe('buildContactInfo', () => {
     })
   })
 
+  // The hash helper in this file mirrors the implementation, so these anchor the digests
+  // against SHA-256 of the normalised value. Without them a change to how values are
+  // normalised before hashing would move both sides at once and go unnoticed.
+  it('hashes each identifier as SHA-256 of its normalised value', () => {
+    expect(
+      buildContactInfo({
+        emails: ' Test@Example.COM ',
+        phoneNumbers: '+1 (212) 565-0000',
+        zipCodes: '90210',
+        firstName: ' Jane ',
+        lastName: 'DOE',
+        countryCode: 'US'
+      })
+    ).toEqual({
+      hashedEmails: ['973dfe463ec85785f5f95af5ba3906eedb2d931c24e69824a89ea65dba4e813b'],
+      hashedPhoneNumbers: ['d360a79e746532a6a1e7b8164440b04cdd8797e23126f7a4de7a4b67fdcdba98'],
+      zipCodes: ['90210'],
+      hashedFirstName: '81f8f6dde88365f3928796ec7aa53f72820b06db8664f5fe76a7eb13e24546a2',
+      hashedLastName: '799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f',
+      countryCode: 'US'
+    })
+  })
+
+  // Every hashed field accepts a value which the customer has already hashed. Hashing one a
+  // second time would produce a digest of a digest, which can never match.
+  it('does not hash any identifier which is already hashed', () => {
+    expect(
+      buildContactInfo({
+        emails: hash('test@example.com'),
+        phoneNumbers: hash('+12125650000'),
+        zipCodes: '90210',
+        firstName: hash('jane'),
+        lastName: hash('doe'),
+        countryCode: 'US'
+      })
+    ).toEqual({
+      hashedEmails: [hash('test@example.com')],
+      hashedPhoneNumbers: [hash('+12125650000')],
+      zipCodes: ['90210'],
+      hashedFirstName: hash('jane'),
+      hashedLastName: hash('doe'),
+      countryCode: 'US'
+    })
+  })
+
   it('does not hash a value which is already hashed, and lowercases the digest', () => {
     expect(buildContactInfo({ emails: hash('test@example.com').toUpperCase() })).toEqual({
       hashedEmails: [hash('test@example.com')]
+    })
+  })
+
+  // A list can hold both, so the decision is made per value rather than per field.
+  it('hashes the plain values of a list and leaves the hashed ones alone', () => {
+    expect(
+      buildContactInfo({
+        emails: `one@example.com, ${hash('two@example.com')}`,
+        phoneNumbers: `+12125650000, ${hash('+442070313000')}`
+      })
+    ).toEqual({
+      hashedEmails: [hash('one@example.com'), hash('two@example.com')],
+      hashedPhoneNumbers: [hash('+12125650000'), hash('+442070313000')]
     })
   })
 
