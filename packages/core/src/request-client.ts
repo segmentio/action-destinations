@@ -62,7 +62,8 @@ export interface RequestOptions extends Omit<RequestInit, 'headers'> {
    */
   username?: string
   /**
-   * If enabled, will not clone the response as part of post-request processing
+   * @deprecated No-op. The response is no longer cloned during post-request processing — the body
+   * is read once and re-exposed — so this option has no effect and is kept only for compatibility.
    */
   skipResponseCloning?: boolean
   /**
