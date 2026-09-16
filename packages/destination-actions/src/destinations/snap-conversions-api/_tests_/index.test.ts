@@ -199,6 +199,54 @@ describe('Snap Conversions API ', () => {
       expect(app_data).toBeUndefined()
     })
 
+    it('should send the Snap-native action_source value as-is when explicitly selected', async () => {
+      const { data } = await reportConversionEvent({
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          action_source: { '@literal': 'WEB' }
+        }
+      })
+
+      const { action_source } = data
+
+      expect(action_source).toBe('WEB')
+    })
+
+    it('should route to the pixel_id endpoint when action_source is the native WEB alias', async () => {
+      const { url, data } = await reportConversionEvent({
+        event: {
+          ...testEvent,
+          properties: {}
+        },
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'WEB',
+          action_source: { '@literal': 'WEB' }
+        }
+      })
+
+      expect(url).toBe('https://tr.snapchat.com/v3/pixel123/events?access_token=access123')
+      expect(data.action_source).toBe('WEB')
+    })
+
+    it('should route to the snap_app_id endpoint when action_source is the native MOBILE_APP alias', async () => {
+      const { url, data } = await reportConversionEvent({
+        event: {
+          ...testEvent,
+          properties: {}
+        },
+        mapping: {
+          event_type: 'PURCHASE',
+          event_conversion_type: 'MOBILE_APP',
+          action_source: { '@literal': 'MOBILE_APP' }
+        }
+      })
+
+      expect(url).toBe('https://tr.snapchat.com/v3/test123/events?access_token=access123')
+      expect(data.action_source).toBe('MOBILE_APP')
+    })
+
     it('should handle a mobile app event conversion type', async () => {
       const { data } = await reportConversionEvent({
         mapping: {
