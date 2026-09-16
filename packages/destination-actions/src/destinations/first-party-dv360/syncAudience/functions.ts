@@ -12,7 +12,8 @@ import {
   isRetryableStatus
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { processHashing } from '../../../lib/hashing-utils'
+import { PhoneNumberFormat, PhoneNumberUtil } from 'google-libphonenumber'
+import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
 import {
   AUDIENCE_TYPE_LABEL,
@@ -141,6 +142,10 @@ export async function send(
   return msResponse
 }
 
+function isPresent(value: string | undefined): value is string {
+  return value !== undefined
+}
+
 function clean(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
@@ -198,6 +203,72 @@ export function isConsentDenied(mappedConsent: Payload['consent']): boolean {
   return adUserData === CONSENT_STATUS_DENIED || adPersonalization === CONSENT_STATUS_DENIED
 }
 
+const phoneUtil = PhoneNumberUtil.getInstance()
+
+// getSupportedRegions() returns upper case only. e.g. US, GB, FR
+const SUPPORTED_REGIONS = new Set(phoneUtil.getSupportedRegions())
+
+// A country is only usable for reading a phone number if the parser knows it. Anything else,
+// such as USA or a country name, is ignored rather than guessed at.
+function toRegion(value?: string): string | undefined {
+  const region = value?.trim().toUpperCase()
+
+  return region && SUPPORTED_REGIONS.has(region) ? region : undefined
+}
+
+// Email validation - this catches the values worth catching: no @, no domain,
+// no dot, or whitespace inside.
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isHashed(value: string): boolean {
+  return isAlreadyHashed(value, 'sha256', 'hex')
+}
+
+export function normaliseEmail(value: string): string | undefined {
+  if (isHashed(value)) {
+    return value
+  }
+
+  const email = value.trim().toLowerCase()
+
+  return EMAIL_PATTERN.test(email) ? email : undefined
+}
+
+// Display & Video 360 matches on E.164, so a number has to be resolved to one country before
+// it is hashed. A number which already carries a country code needs no region; one which does
+// not is read against the user's own country code, then the mapping's fallback. Without either
+// the country is unknowable, and a guess would hash to something which silently never matches.
+export function normalisePhone(
+  value: string,
+  userCountryCode?: string,
+  fallbackCountryCode?: string
+): string | undefined {
+  if (isHashed(value)) {
+    return value
+  }
+
+  const phone = value.trim()
+  const carriesCountryCode = phone.startsWith('+')
+
+  // A number which already carries its country code needs no region: the country is read out
+  // of the number. Otherwise the user's own country is used, then the mapping's fallback.
+  const region = carriesCountryCode ? undefined : toRegion(userCountryCode) ?? toRegion(fallbackCountryCode)
+
+  if (!carriesCountryCode && !region) {
+    return undefined
+  }
+
+  try {
+    // parse throws on a value which is not phone like at all. isValidNumber is a separate
+    // question: +15555555555 parses, but 555 is not a real area code.
+    const parsed = phoneUtil.parse(phone, region)
+
+    return phoneUtil.isValidNumber(parsed) ? phoneUtil.format(parsed, PhoneNumberFormat.E164) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export function toList(value?: string): string[] {
   return (value ?? '')
     .split(',')
@@ -205,11 +276,21 @@ export function toList(value?: string): string[] {
     .filter(Boolean)
 }
 
-export function buildContactInfo(mappedContactInfo: Payload['contact_info']): ContactInfo | undefined {
+export function buildContactInfo(
+  mappedContactInfo: Payload['contact_info'],
+  phoneNumberSettings?: Payload['phone_number_settings']
+): ContactInfo | undefined {
   const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = mappedContactInfo ?? {}
+  const { defaultCountryCode, useContactInfoCountryCode } = phoneNumberSettings ?? {}
 
-  const hashedEmails = toList(emails).map(hash)
-  const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
+  // An identifier which cannot be valid is dropped rather than hashed and sent, since Google
+  // can only report it as an unmatched member. A user is still synced on whatever is left, and
+  // an event with nothing left over fails as having no usable identifier.
+  const hashedEmails = toList(emails).map(normaliseEmail).filter(isPresent).map(hash)
+  const hashedPhoneNumbers = toList(phoneNumbers)
+    .map((phone) => normalisePhone(phone, useContactInfoCountryCode ? countryCode : undefined, defaultCountryCode))
+    .filter(isPresent)
+    .map(hash)
   const zipCodeList = toList(zipCodes)
 
   const contactInfo: ContactInfo = {
@@ -221,7 +302,7 @@ export function buildContactInfo(mappedContactInfo: Payload['contact_info']): Co
           zipCodes: zipCodeList,
           hashedFirstName: hash(firstName),
           hashedLastName: hash(lastName),
-          countryCode
+          countryCode: countryCode.trim().toUpperCase()
         }
       : {})
   }
@@ -341,7 +422,7 @@ export function buildMember(
   }
 
   const isContactInfo = audienceType === CONTACT_INFO
-  const contactInfo = isContactInfo ? buildContactInfo(payload.contact_info) : undefined
+  const contactInfo = isContactInfo ? buildContactInfo(payload.contact_info, payload.phone_number_settings) : undefined
   const members: Member[] = isContactInfo ? (contactInfo ? [contactInfo] : []) : toList(payload.mobileDeviceIds)
 
   if (members.length === 0) {

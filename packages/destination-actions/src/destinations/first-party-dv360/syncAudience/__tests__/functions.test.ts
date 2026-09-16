@@ -6,6 +6,8 @@ import {
   buildJSON,
   buildMember,
   errorTypeForStatus,
+  normaliseEmail,
+  normalisePhone,
   failAllPayloads,
   getAdvertiserId,
   getAudienceId,
@@ -196,10 +198,89 @@ describe('buildConsent', () => {
   })
 })
 
+describe('normaliseEmail', () => {
+  it.each([
+    ['Test@Example.com ', 'test@example.com'],
+    ['  someone@sub.domain.co.uk', 'someone@sub.domain.co.uk']
+  ])('normalises %p', (value: string, expected: string) => {
+    expect(normaliseEmail(value)).toBe(expected)
+  })
+
+  it.each(['jane', 'jane@', '@example.com', 'jane@example', 'jane doe@example.com', 'jane@exa mple.com'])(
+    'drops %p',
+    (value: string) => {
+      expect(normaliseEmail(value)).toBeUndefined()
+    }
+  )
+
+  // A digest is not email shaped, so validating one would drop every pre hashed value.
+  it('passes an already hashed value through untouched', () => {
+    const hashed = hash('jane@example.com')
+
+    expect(normaliseEmail(hashed)).toBe(hashed)
+  })
+})
+
+describe('normalisePhone', () => {
+  it('keeps a number which already carries its country code', () => {
+    expect(normalisePhone('+12125650000')).toBe('+12125650000')
+  })
+
+  it.each([
+    ['(212) 565-0000', 'US'],
+    ['212-565-0000', 'US'],
+    ['2125650000', 'US']
+  ])('reads %p against %p and formats it to E.164', (value: string, region: string) => {
+    expect(normalisePhone(value, region)).toBe('+12125650000')
+  })
+
+  it('reads a national number against the country it is given', () => {
+    expect(normalisePhone('02070313000', 'GB')).toBe('+442070313000')
+  })
+
+  // The user's own country code is preferred over the mapping's fallback.
+  it('prefers the first country it is given', () => {
+    expect(normalisePhone('02070313000', 'GB', 'US')).toBe('+442070313000')
+  })
+
+  it('falls back to the next country when the first is not set', () => {
+    expect(normalisePhone('2125650000', undefined, 'US')).toBe('+12125650000')
+  })
+
+  it.each(['us', ' US ', 'Us'])('accepts %p as a country, whatever the case or spacing', (region: string) => {
+    expect(normalisePhone('2125650000', region)).toBe('+12125650000')
+  })
+
+  // Ignored rather than guessed at, so the number is dropped instead of being read against the
+  // wrong country.
+  it.each(['USA', 'UK', 'United States', 'ZZ', ''])('ignores %p as a country', (region: string) => {
+    expect(normalisePhone('2125650000', region)).toBeUndefined()
+  })
+
+  it('falls back to the mapping country when the user country is not recognised', () => {
+    expect(normalisePhone('2125650000', 'USA', 'US')).toBe('+12125650000')
+  })
+
+  // Guessing the country would hash to a number which silently never matches.
+  it('drops a national number when no country is known', () => {
+    expect(normalisePhone('2125650000')).toBeUndefined()
+  })
+
+  it.each(['+15555555555', 'notaphone', '+1', '12345'])('drops %p as not a valid number', (value: string) => {
+    expect(normalisePhone(value, 'US')).toBeUndefined()
+  })
+
+  it('passes an already hashed value through untouched', () => {
+    const hashed = hash('+12125650000')
+
+    expect(normalisePhone(hashed)).toBe(hashed)
+  })
+})
+
 describe('buildContactInfo', () => {
   const complete = {
     emails: 'Test@Example.com ',
-    phoneNumbers: '+15555555555',
+    phoneNumbers: '+12125650000',
     zipCodes: '90210',
     firstName: 'Jane',
     lastName: 'Doe',
@@ -209,7 +290,7 @@ describe('buildContactInfo', () => {
   it('builds every contact info detail a Contact Info audience accepts', () => {
     expect(buildContactInfo(complete)).toEqual({
       hashedEmails: [hash('test@example.com')],
-      hashedPhoneNumbers: [hash('+15555555555')],
+      hashedPhoneNumbers: [hash('+12125650000')],
       zipCodes: ['90210'],
       hashedFirstName: hash('jane'),
       hashedLastName: hash('doe'),
@@ -219,9 +300,11 @@ describe('buildContactInfo', () => {
   })
 
   it('hashes every value of a comma separated list', () => {
-    expect(buildContactInfo({ emails: 'one@example.com, two@example.com', phoneNumbers: '+1555,+1666' })).toEqual({
+    expect(
+      buildContactInfo({ emails: 'one@example.com, two@example.com', phoneNumbers: '+12125650000, +442070313000' })
+    ).toEqual({
       hashedEmails: [hash('one@example.com'), hash('two@example.com')],
-      hashedPhoneNumbers: [hash('+1555'), hash('+1666')]
+      hashedPhoneNumbers: [hash('+12125650000'), hash('+442070313000')]
     })
   })
 
@@ -233,7 +316,7 @@ describe('buildContactInfo', () => {
 
       expect(buildContactInfo(partial)).toEqual({
         hashedEmails: [hash('test@example.com')],
-        hashedPhoneNumbers: [hash('+15555555555')]
+        hashedPhoneNumbers: [hash('+12125650000')]
       })
     }
   )
@@ -242,6 +325,74 @@ describe('buildContactInfo', () => {
     const { emails: _emails, phoneNumbers: _phoneNumbers, ...address } = complete
 
     expect(buildContactInfo(address)).toEqual({
+      zipCodes: ['90210'],
+      hashedFirstName: hash('jane'),
+      hashedLastName: hash('doe'),
+      countryCode: 'US'
+    })
+  })
+
+  // The user is still synced on whatever survives validation.
+  it('drops the invalid identifiers and keeps the valid ones', () => {
+    expect(
+      buildContactInfo({
+        emails: 'jane@example.com, not-an-email, jane@',
+        phoneNumbers: '+12125650000, notaphone, 2125650000'
+      })
+    ).toEqual({
+      hashedEmails: [hash('jane@example.com')],
+      hashedPhoneNumbers: [hash('+12125650000')]
+    })
+  })
+
+  it('uses the default country for a number which carries none', () => {
+    expect(buildContactInfo({ phoneNumbers: '(212) 565-0000' }, { defaultCountryCode: 'US' })).toEqual({
+      hashedPhoneNumbers: [hash('+12125650000')]
+    })
+  })
+
+  const britishUser = {
+    phoneNumbers: '02070313000',
+    zipCodes: 'SW1A 1AA',
+    firstName: 'Jane',
+    lastName: 'Doe',
+    countryCode: 'GB'
+  }
+
+  const address = {
+    zipCodes: ['SW1A 1AA'],
+    hashedFirstName: hash('jane'),
+    hashedLastName: hash('doe'),
+    countryCode: 'GB'
+  }
+
+  // Opted in, the user's own country code is preferred over the default.
+  it("prefers the user's country code when the mapping opts in", () => {
+    expect(buildContactInfo(britishUser, { defaultCountryCode: 'US', useContactInfoCountryCode: true })).toEqual({
+      hashedPhoneNumbers: [hash('+442070313000')],
+      ...address
+    })
+  })
+
+  // Off by default, so the country code is only sent in the address group and never used to
+  // read a phone number. Here the default country cannot make sense of a British number.
+  it("ignores the user's country code unless the mapping opts in", () => {
+    expect(buildContactInfo(britishUser, { defaultCountryCode: 'US' })).toEqual(address)
+  })
+
+  it("ignores the user's country code when no phone settings are mapped at all", () => {
+    expect(buildContactInfo(britishUser)).toEqual(address)
+  })
+
+  // Nothing survives validation, so the event has no usable identifier and buildMember fails it.
+  it('returns undefined when every identifier is invalid', () => {
+    expect(buildContactInfo({ emails: 'not-an-email', phoneNumbers: 'notaphone' })).toBeUndefined()
+  })
+
+  // The country code is the one address detail sent unhashed, so it is tidied on the way out
+  // rather than relying on the mapping to be clean.
+  it('trims and uppercases the country code it sends', () => {
+    expect(buildContactInfo({ zipCodes: '90210', firstName: 'Jane', lastName: 'Doe', countryCode: ' us ' })).toEqual({
       zipCodes: ['90210'],
       hashedFirstName: hash('jane'),
       hashedLastName: hash('doe'),
@@ -279,7 +430,7 @@ describe('buildMember', () => {
       ...payload,
       contact_info: {
         emails: 'jane@example.com',
-        phoneNumbers: '+15555555555',
+        phoneNumbers: '+12125650000',
         zipCodes: '90210',
         firstName: 'Jane',
         lastName: 'Doe',
@@ -291,7 +442,7 @@ describe('buildMember', () => {
       members: [
         {
           hashedEmails: [hash('jane@example.com')],
-          hashedPhoneNumbers: [hash('+15555555555')],
+          hashedPhoneNumbers: [hash('+12125650000')],
           zipCodes: ['90210'],
           hashedFirstName: hash('jane'),
           hashedLastName: hash('doe'),

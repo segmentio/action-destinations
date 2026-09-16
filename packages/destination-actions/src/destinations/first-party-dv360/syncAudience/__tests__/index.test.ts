@@ -598,7 +598,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       // 2 dropped BEFORE performBatch: enable_batching is required and is not a boolean
       makeEvent({ membership: true, emails: 'nobatching1@example.com', enableBatching: 'yes' }),
       // 3 add, sent
-      makeEvent({ membership: true, phoneNumbers: '+15555555555' }),
+      makeEvent({ membership: true, phoneNumbers: '+12125650000' }),
       // 4 dropped INSIDE performBatch: no usable identifier
       makeEvent({ membership: true }),
       // 5 remove, sent
@@ -627,7 +627,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       addedContactInfoList: {
         contactInfos: [
           { hashedEmails: [hash('add1@example.com')] },
-          { hashedPhoneNumbers: [hash('+15555555555')] },
+          { hashedPhoneNumbers: [hash('+12125650000')] },
           { hashedEmails: [hash('add3@example.com')] }
         ],
         consent: GRANTED_CONSENT
@@ -657,7 +657,7 @@ describe('FirstPartyDv360.syncAudience', () => {
         errorreporter: 'INTEGRATIONS',
         errormessage: 'Enable Batching must be a boolean but it was a string.'
       },
-      success({ hashedPhoneNumbers: [hash('+15555555555')] }),
+      success({ hashedPhoneNumbers: [hash('+12125650000')] }),
       {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
