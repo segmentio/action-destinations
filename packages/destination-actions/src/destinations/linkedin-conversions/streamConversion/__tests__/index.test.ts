@@ -508,7 +508,372 @@ describe('LinkedinConversions.streamConversion', () => {
           batch_size: 5000
         }
       })
-    ).rejects.toThrowError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
+    ).rejects.toThrowError(
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
+  })
+
+  it('should successfully send the event with only plaintextIpAddress as identifier', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'PLAINTEXT_IP_ADDRESS',
+              idValue: '192.168.1.1'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          plaintextIpAddress: '192.168.1.1',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with only sha256IpAddress as identifier', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_IP_ADDRESS',
+              idValue: '7d7d65fc14ac5321b5e63a10fbb4bcd72c4c43445d9a9d2f6c1e9368d019165e'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '103.20.92.13',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should not re-hash sha256IpAddress if it is already a SHA256 hash', async () => {
+    const preHashedIp = '7d7d65fc14ac5321b5e63a10fbb4bcd72c4c43445d9a9d2f6c1e9368d019165e'
+
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_IP_ADDRESS',
+              idValue: preHashedIp
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: preHashedIp,
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should omit sha256IpAddress rather than send an empty idValue if it normalizes to an empty string', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'GOOGLE_AID',
+              idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '   ',
+          googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should throw an error if sha256IpAddress is whitespace-only and no other identifier is provided', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '   ',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError(
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
+  })
+
+  it('should successfully send the event with only googleAID as identifier', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'GOOGLE_AID',
+              idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with all identifier types', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            },
+            {
+              idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
+              idValue: 'li-uuid-123'
+            },
+            {
+              idType: 'ACXIOM_ID',
+              idValue: 'axciom-456'
+            },
+            {
+              idType: 'ORACLE_MOAT_ID',
+              idValue: 'oracle-789'
+            },
+            {
+              idType: 'PLAINTEXT_IP_ADDRESS',
+              idValue: '103.20.92.12'
+            },
+            {
+              idType: 'SHA256_IP_ADDRESS',
+              idValue: '7d7d65fc14ac5321b5e63a10fbb4bcd72c4c43445d9a9d2f6c1e9368d019165e'
+            },
+            {
+              idType: 'GOOGLE_AID',
+              idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          linkedInUUID: 'li-uuid-123',
+          acxiomID: 'axciom-456',
+          oracleID: 'oracle-789',
+          plaintextIpAddress: '103.20.92.12',
+          sha256IpAddress: '103.20.92.13',
+          googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send a batch request with plaintextIpAddress and googleAID', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: 'urn:lla:llaPartnerConversion:789123',
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                {
+                  idType: 'PLAINTEXT_IP_ADDRESS',
+                  idValue: '10.0.0.1'
+                },
+                {
+                  idType: 'GOOGLE_AID',
+                  idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+                }
+              ]
+            }
+          },
+          {
+            conversion: 'urn:lla:llaPartnerConversion:789123',
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                {
+                  idType: 'PLAINTEXT_IP_ADDRESS',
+                  idValue: '10.0.0.2'
+                },
+                {
+                  idType: 'GOOGLE_AID',
+                  idValue: 'BFBF63F8-14FF-566B-C4D5-F68394077340'
+                }
+              ]
+            }
+          }
+        ]
+      })
+      .reply(201)
+
+    const eventWithIp1 = createTestEvent({
+      event: 'Example Event',
+      type: 'track',
+      timestamp: currentTimestamp.toString(),
+      context: {
+        ip: '10.0.0.1',
+        device: { advertisingId: 'AEBE52E7-03EE-455A-B3C4-E57283966239' }
+      }
+    })
+
+    const eventWithIp2 = createTestEvent({
+      event: 'Example Event',
+      type: 'track',
+      timestamp: currentTimestamp.toString(),
+      context: {
+        ip: '10.0.0.2',
+        device: { advertisingId: 'BFBF63F8-14FF-566B-C4D5-F68394077340' }
+      }
+    })
+
+    await expect(
+      testDestination.testBatchAction('streamConversion', {
+        events: [eventWithIp1, eventWithIp2],
+        settings,
+        mapping: {
+          plaintextIpAddress: { '@path': '$.context.ip' },
+          googleAID: { '@path': '$.context.device.advertisingId' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
   })
 
   it('should throw an actionable error when no conversion rule is linked to the mapping', async () => {
@@ -1307,7 +1672,8 @@ describe('LinkedinConversions.multistatus', () => {
     expect(response[1]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
+      errormessage:
+        'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).',
       errorreporter: 'INTEGRATIONS'
     })
   })
