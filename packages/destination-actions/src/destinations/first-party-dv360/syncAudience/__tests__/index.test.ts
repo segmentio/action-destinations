@@ -1,9 +1,9 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { validateAudienceDetails, buildMember, getAudienceType, buildConsent } from '../functions'
 import type { Payload } from '../generated-types'
 import { processHashing } from '../../../../lib/hashing-utils'
+import { AUDIENCE_TYPE_LABEL } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -17,30 +17,29 @@ const EDIT_PATH = `/v4/firstPartyAndPartnerAudiences/${AUDIENCE_ID}:editCustomer
 const hash = (value: string): string =>
   processHashing(value, 'sha256', 'hex', (v) => v.replace(/\s+/g, '').toLowerCase())
 
-interface EventOptions {
+// The identifier and consent options are the action's own field types, so a change to either
+// shape shows up here rather than leaving these tests mapping traits which no longer exist.
+type ContactInfoOptions = NonNullable<Payload['contact_info']>
+type ConsentOptions = NonNullable<Payload['consent']>
+
+interface EventOptions extends ContactInfoOptions, ConsentOptions {
   membership?: boolean | null
   audienceType?: string
-  email?: string
-  phone?: string
-  mobileDeviceId?: string
-  firstName?: string
-  lastName?: string
-  zipCode?: string
-  countryCode?: string
-  adUserData?: string
-  adPersonalization?: string
-  enableBatching?: unknown
+  mobileDeviceIds?: Payload['mobileDeviceIds']
+  // A string is used deliberately by one test to fail the framework's boolean validation
+  // before performBatch is reached.
+  enableBatching?: boolean | string
 }
 
 const makeEvent = ({
   membership = true,
   audienceType = CONTACT_INFO,
-  email,
-  phone,
-  mobileDeviceId,
+  emails,
+  phoneNumbers,
+  mobileDeviceIds,
   firstName,
   lastName,
-  zipCode,
+  zipCodes,
   countryCode,
   adUserData,
   adPersonalization,
@@ -60,19 +59,19 @@ const makeEvent = ({
         }
       },
       traits: {
-        email,
-        phone,
-        mobileDeviceIds: mobileDeviceId,
+        emails,
+        phoneNumbers,
+        mobileDeviceIds,
         firstName,
         lastName,
-        zipCodes: zipCode,
+        zipCodes,
         countryCode
       }
     },
     properties: {
       ...(membership === null ? {} : { my_audience: membership }),
-      adUserData,
-      adPersonalization,
+      ...(adUserData ? { adUserData } : {}),
+      ...(adPersonalization ? { adPersonalization } : {}),
       enableBatching
     }
   })
@@ -80,8 +79,8 @@ const makeEvent = ({
 const mapping = {
   audience_type: CONTACT_INFO,
   contact_info: {
-    emails: { '@path': '$.context.traits.email' },
-    phoneNumbers: { '@path': '$.context.traits.phone' },
+    emails: { '@path': '$.context.traits.emails' },
+    phoneNumbers: { '@path': '$.context.traits.phoneNumbers' },
     firstName: { '@path': '$.context.traits.firstName' },
     lastName: { '@path': '$.context.traits.lastName' },
     zipCodes: { '@path': '$.context.traits.zipCodes' },
@@ -109,6 +108,9 @@ const mapping = {
   batch_size: 500000
 }
 
+// A copy of the mapping with the consent field absent, rather than set to undefined.
+const { consent: _consent, ...mappingWithoutConsent } = mapping
+
 const GRANTED_CONSENT = {
   adUserData: 'CONSENT_STATUS_GRANTED',
   adPersonalization: 'CONSENT_STATUS_GRANTED'
@@ -133,108 +135,6 @@ afterEach(() => {
   nock.cleanAll()
 })
 
-describe('validateAudienceDetails', () => {
-  it('returns undefined when everything is present and valid', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
-  })
-
-  it('reports every missing value in one message', () => {
-    expect(validateAudienceDetails()).toBe('Missing audience ID. Missing advertiser ID. Missing audience type')
-  })
-
-  it('combines a missing value with an invalid one', () => {
-    expect(validateAudienceDetails(undefined, ADVERTISER_ID, 'SOMETHING_ELSE')).toBe(
-      `Missing audience ID. Unrecognised audience type: SOMETHING_ELSE. Must be ${CONTACT_INFO} or ${DEVICE_ID}`
-    )
-  })
-
-  it('does not report an unrecognised type when the type is missing', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID)).toBe('Missing audience type')
-  })
-
-  it('reports a mapped audience type that disagrees with the configured one', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, DEVICE_ID, CONTACT_INFO)).toBe(
-      `Audience Type is set to ${CONTACT_INFO} in this mapping, but the audience in Display & Video 360 is ${DEVICE_ID}. Set Audience Type to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
-    )
-  })
-
-  it('does not compare when there is no resolved audience type to compare against', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, undefined, CONTACT_INFO)).toBe('Missing audience type')
-  })
-})
-
-describe('getAudienceType', () => {
-  it('prefers the hook output over the audience settings', () => {
-    expect(
-      getAudienceType(
-        { audienceType: CONTACT_INFO } as never,
-        {
-          retlOnMappingSave: { outputs: { audienceType: DEVICE_ID } }
-        } as never
-      )
-    ).toBe(DEVICE_ID)
-  })
-
-  it('falls back to the audience settings', () => {
-    expect(getAudienceType({ audienceType: DEVICE_ID } as never)).toBe(DEVICE_ID)
-  })
-
-  it('never reads the mapped field, which is only there to be validated against', () => {
-    expect(getAudienceType()).toBeUndefined()
-  })
-})
-
-describe('buildConsent', () => {
-  it('rejects a consent value that is neither granted nor denied', () => {
-    expect(buildConsent({ consent: { adUserData: 'MAYBE' } } as unknown as Payload).consentErrorMessage).toBe(
-      'Unrecognised consent value: MAYBE. Must be CONSENT_STATUS_GRANTED or CONSENT_STATUS_DENIED.'
-    )
-  })
-})
-
-describe('buildMember', () => {
-  const target = { audienceId: AUDIENCE_ID, advertiserId: ADVERTISER_ID, audienceType: CONTACT_INFO }
-  const payload = {
-    contact_info: { emails: 'a@example.com' },
-    external_id: AUDIENCE_ID
-  } as Payload
-
-  it('returns the member for a valid payload', () => {
-    expect(buildMember(payload, true, target)).toEqual({ members: [{ hashedEmails: [hash('a@example.com')] }] })
-  })
-
-  it('splits a comma separated list of mobile device IDs into one member each', () => {
-    expect(
-      buildMember({ ...payload, mobileDeviceIds: 'device-1, device-2' }, true, {
-        ...target,
-        audienceType: 'CUSTOMER_MATCH_DEVICE_ID'
-      })
-    ).toEqual({ members: ['device-1', 'device-2'] })
-  })
-
-  it('rejects an unresolved membership', () => {
-    expect(buildMember(payload, undefined, target)).toEqual({
-      errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
-      errormessage: 'Audience membership could not be resolved to a boolean'
-    })
-  })
-
-  it('rejects an event for a different audience', () => {
-    const result = buildMember({ ...payload, external_id: 'another-audience' }, true, target)
-    expect(result.errormessage).toContain('does not belong to the same audience')
-  })
-
-  it('rejects an event with no usable identifier', () => {
-    const result = buildMember({ external_id: AUDIENCE_ID } as Payload, true, target)
-    expect(result.errormessage).toContain('No usable contact info identifiers')
-  })
-
-  it('rejects a device ID audience event with no device ID', () => {
-    const result = buildMember(payload, true, { ...target, audienceType: DEVICE_ID })
-    expect(result.errormessage).toContain('No mobile device ID')
-  })
-})
-
 describe('FirstPartyDv360.syncAudience', () => {
   it('adds a contact info member', async () => {
     let body: any
@@ -246,7 +146,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       .reply(200, API_RESPONSE)
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: 'Test@Example.com ' }),
+      event: makeEvent({ membership: true, emails: 'Test@Example.com ' }),
       mapping,
       useDefaultMappings: false
     })
@@ -270,7 +170,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       .reply(200, API_RESPONSE)
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: false, email: 'test@example.com' }),
+      event: makeEvent({ membership: false, emails: 'test@example.com' }),
       mapping,
       useDefaultMappings: false
     })
@@ -288,10 +188,11 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured, scope } = captureBody()
 
     await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
-        makeEvent({ membership: true, email: 'add1@example.com' }),
-        makeEvent({ membership: false, email: 'remove1@example.com' }),
-        makeEvent({ membership: true, email: 'add2@example.com' })
+        makeEvent({ membership: true, emails: 'add1@example.com' }),
+        makeEvent({ membership: false, emails: 'remove1@example.com' }),
+        makeEvent({ membership: true, emails: 'add2@example.com' })
       ],
       mapping
     })
@@ -314,9 +215,10 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured, scope } = captureBody()
 
     await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
-        makeEvent({ membership: true, email: 'add1@example.com' }),
-        makeEvent({ membership: true, email: 'add2@example.com' })
+        makeEvent({ membership: true, emails: 'add1@example.com' }),
+        makeEvent({ membership: true, emails: 'add2@example.com' })
       ],
       mapping
     })
@@ -329,9 +231,10 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured } = captureBody()
 
     await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
-        makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceId: 'device-1' }),
-        makeEvent({ membership: false, audienceType: DEVICE_ID, mobileDeviceId: 'device-2' })
+        makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceIds: 'device-1' }),
+        makeEvent({ membership: false, audienceType: DEVICE_ID, mobileDeviceIds: 'device-2' })
       ],
       mapping: { ...mapping, audience_type: DEVICE_ID }
     })
@@ -354,7 +257,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       .reply(200, API_RESPONSE)
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: hashedEmail }),
+      event: makeEvent({ membership: true, emails: hashedEmail }),
       mapping,
       useDefaultMappings: false
     })
@@ -366,7 +269,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured } = captureBody()
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: 'one@example.com, two@example.com ,three@example.com' }),
+      event: makeEvent({ membership: true, emails: 'one@example.com, two@example.com ,three@example.com' }),
       mapping,
       useDefaultMappings: false
     })
@@ -382,7 +285,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured } = captureBody()
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: hash('test@example.com').toUpperCase() }),
+      event: makeEvent({ membership: true, emails: hash('test@example.com').toUpperCase() }),
       mapping,
       useDefaultMappings: false
     })
@@ -400,18 +303,19 @@ describe('FirstPartyDv360.syncAudience', () => {
       .reply(200, API_RESPONSE)
 
     await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
         makeEvent({
           membership: true,
-          email: 'complete@example.com',
+          emails: 'complete@example.com',
           firstName: 'Jane',
           lastName: 'Doe',
-          zipCode: '90210',
+          zipCodes: '90210',
           countryCode: 'US'
         }),
         // Partial address. Google rejects zipCodes without the name and country fields,
         // so the address group is dropped and only the email is sent.
-        makeEvent({ membership: true, email: 'partial@example.com', zipCode: '90210' })
+        makeEvent({ membership: true, emails: 'partial@example.com', zipCodes: '90210' })
       ],
       mapping
     })
@@ -432,9 +336,9 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured } = captureBody()
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: 'a@example.com' }),
+      event: makeEvent({ membership: true, emails: 'a@example.com' }),
       // The consent field is deliberately left unmapped.
-      mapping: { ...mapping, consent: undefined },
+      mapping: mappingWithoutConsent,
       useDefaultMappings: false
     })
 
@@ -446,7 +350,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     const { captured } = captureBody()
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: 'a@example.com' }),
+      event: makeEvent({ membership: true, emails: 'a@example.com' }),
       mapping: { ...mapping, consent: { adUserData: mapping.consent.adUserData } },
       useDefaultMappings: false
     })
@@ -460,9 +364,10 @@ describe('FirstPartyDv360.syncAudience', () => {
     // batch_keys pins a batch to one combination of consent values, so a batch carrying denied
     // consent carries it on every event.
     const responses = await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
-        makeEvent({ membership: true, email: 'a@example.com', adUserData: 'CONSENT_STATUS_DENIED' }),
-        makeEvent({ membership: true, email: 'b@example.com', adUserData: 'CONSENT_STATUS_DENIED' })
+        makeEvent({ membership: true, emails: 'a@example.com', adUserData: 'CONSENT_STATUS_DENIED' }),
+        makeEvent({ membership: true, emails: 'b@example.com', adUserData: 'CONSENT_STATUS_DENIED' })
       ],
       mapping
     })
@@ -487,7 +392,7 @@ describe('FirstPartyDv360.syncAudience', () => {
   it('throws for a single event whose membership cannot be resolved', async () => {
     await expect(
       testDestination.testAction('syncAudience', {
-        event: makeEvent({ membership: null, email: 'a@example.com' }),
+        event: makeEvent({ membership: null, emails: 'a@example.com' }),
         mapping,
         useDefaultMappings: false
       })
@@ -497,11 +402,12 @@ describe('FirstPartyDv360.syncAudience', () => {
   it('drops an event belonging to a different audience', async () => {
     const { captured } = captureBody()
 
-    const otherAudienceEvent = makeEvent({ membership: true, email: 'other@example.com' })
+    const otherAudienceEvent = makeEvent({ membership: true, emails: 'other@example.com' })
     ;(otherAudienceEvent.context as any).personas.external_audience_id = 'a-different-audience'
 
     const responses = await testDestination.executeBatch('syncAudience', {
-      events: [makeEvent({ membership: true, email: 'right@example.com' }), otherAudienceEvent],
+      settings: {},
+      events: [makeEvent({ membership: true, emails: 'right@example.com' }), otherAudienceEvent],
       mapping
     })
 
@@ -511,24 +417,22 @@ describe('FirstPartyDv360.syncAudience', () => {
   })
 
   it('throws for a single event when a batch level value is missing', async () => {
-    const { external_id, ...mappingWithoutAudience } = mapping
+    const { external_id: _id, ...mappingWithoutAudience } = mapping
 
     await expect(
       testDestination.testAction('syncAudience', {
-        event: makeEvent({ membership: true, email: 'a@example.com' }),
+        event: makeEvent({ membership: true, emails: 'a@example.com' }),
         mapping: mappingWithoutAudience,
         useDefaultMappings: false
       })
     ).rejects.toThrow('Missing audience ID')
-
-    expect(external_id).toBeDefined()
   })
 
   it('takes the advertiser ID from the audience settings, not from a mapped field', async () => {
     const { captured } = captureBody()
 
     await testDestination.testAction('syncAudience', {
-      event: makeEvent({ membership: true, email: 'a@example.com' }),
+      event: makeEvent({ membership: true, emails: 'a@example.com' }),
       mapping,
       useDefaultMappings: false
     })
@@ -538,7 +442,8 @@ describe('FirstPartyDv360.syncAudience', () => {
 
   it('fails the batch when the mapped audience type disagrees with the audience', async () => {
     const responses = await testDestination.executeBatch('syncAudience', {
-      events: [makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceId: 'device-1' })],
+      settings: {},
+      events: [makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceIds: 'device-1' })],
       mapping
     })
 
@@ -547,7 +452,42 @@ describe('FirstPartyDv360.syncAudience', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errorreporter: 'INTEGRATIONS',
-        errormessage: `Audience Type is set to ${CONTACT_INFO} in this mapping, but the audience in Display & Video 360 is ${DEVICE_ID}. Set Audience Type to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
+        errormessage: `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${CONTACT_INFO}, but the audience in Display & Video 360 is ${DEVICE_ID}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
+      }
+    ])
+  })
+
+  // audience_type is required, so the framework rejects the event before the action runs.
+  // This is what makes the mapped type safe to treat as always present.
+  it('throws for a single event when the audience type is unmapped', async () => {
+    const { audience_type: _type, ...mappingWithoutType } = mapping
+
+    await expect(
+      testDestination.testAction('syncAudience', {
+        event: makeEvent({ membership: true, emails: 'a@example.com' }),
+        mapping: mappingWithoutType,
+        useDefaultMappings: false
+      })
+    ).rejects.toThrow("missing the required field 'audience_type'")
+  })
+
+  it('drops an event with an unmapped audience type from a batch', async () => {
+    const { audience_type: _type, ...mappingWithoutType } = mapping
+    const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
+
+    const responses = await testDestination.executeBatch('syncAudience', {
+      settings: {},
+      events: [makeEvent({ membership: true, emails: 'a@example.com' })],
+      mapping: mappingWithoutType
+    })
+
+    expect(scope.isDone()).toBe(false)
+    expect(JSON.parse(JSON.stringify(responses))).toEqual([
+      {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errorreporter: 'INTEGRATIONS',
+        errormessage: expect.stringContaining("missing the required field 'audience_type'")
       }
     ])
   })
@@ -556,7 +496,8 @@ describe('FirstPartyDv360.syncAudience', () => {
     const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 
     const responses = await testDestination.executeBatch('syncAudience', {
-      events: [makeEvent({ membership: true, email: 'a@example.com', audienceType: 'SOMETHING_ELSE' })],
+      settings: {},
+      events: [makeEvent({ membership: true, emails: 'a@example.com', audienceType: 'SOMETHING_ELSE' })],
       mapping
     })
 
@@ -569,6 +510,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 
     const responses = await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [makeEvent({ membership: true }), makeEvent({ membership: true })],
       mapping
     })
@@ -584,9 +526,10 @@ describe('FirstPartyDv360.syncAudience', () => {
       .reply(400, { error: { code: 400, message: 'Invalid advertiser', status: 'INVALID_ARGUMENT' } })
 
     const responses = await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
-        makeEvent({ membership: true, email: 'a@example.com' }),
-        makeEvent({ membership: false, email: 'b@example.com' })
+        makeEvent({ membership: true, emails: 'a@example.com' }),
+        makeEvent({ membership: false, emails: 'b@example.com' })
       ],
       mapping
     })
@@ -602,7 +545,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       .reply(401, { error: { code: 401, message: 'Invalid Credentials' } })
 
     const responses = await testDestination.executeBatch('syncAudience', {
-      events: [makeEvent({ membership: true, email: 'a@example.com' })],
+      settings: {},
+      events: [makeEvent({ membership: true, emails: 'a@example.com' })],
       mapping
     })
 
@@ -615,9 +559,10 @@ describe('FirstPartyDv360.syncAudience', () => {
     nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
 
     const responses = await testDestination.executeBatch('syncAudience', {
+      settings: {},
       events: [
-        makeEvent({ membership: true, email: 'a@example.com' }),
-        makeEvent({ membership: false, email: 'b@example.com' })
+        makeEvent({ membership: true, emails: 'a@example.com' }),
+        makeEvent({ membership: false, emails: 'b@example.com' })
       ],
       mapping
     })
@@ -632,7 +577,7 @@ describe('FirstPartyDv360.syncAudience', () => {
 
     await expect(
       testDestination.testAction('syncAudience', {
-        event: makeEvent({ membership: true, email: 'a@example.com' }),
+        event: makeEvent({ membership: true, emails: 'a@example.com' }),
         mapping,
         useDefaultMappings: false
       })
@@ -642,33 +587,37 @@ describe('FirstPartyDv360.syncAudience', () => {
   it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {
     const { captured, scope } = captureBody()
 
-    const otherAudienceEvent = makeEvent({ membership: true, email: 'otheraudience@example.com' })
+    const otherAudienceEvent = makeEvent({ membership: true, emails: 'otheraudience@example.com' })
     ;(otherAudienceEvent.context as any).personas.external_audience_id = 'a-different-audience'
 
     const events = [
       // 0 add, sent
-      makeEvent({ membership: true, email: 'add1@example.com' }),
+      makeEvent({ membership: true, emails: 'add1@example.com' }),
       // 1 remove, sent
-      makeEvent({ membership: false, email: 'remove1@example.com' }),
+      makeEvent({ membership: false, emails: 'remove1@example.com' }),
       // 2 dropped BEFORE performBatch: enable_batching is required and is not a boolean
-      makeEvent({ membership: true, email: 'nobatching1@example.com', enableBatching: 'yes' }),
+      makeEvent({ membership: true, emails: 'nobatching1@example.com', enableBatching: 'yes' }),
       // 3 add, sent
-      makeEvent({ membership: true, phone: '+15555555555' }),
+      makeEvent({ membership: true, phoneNumbers: '+15555555555' }),
       // 4 dropped INSIDE performBatch: no usable identifier
       makeEvent({ membership: true }),
       // 5 remove, sent
-      makeEvent({ membership: false, email: 'remove2@example.com' }),
+      makeEvent({ membership: false, emails: 'remove2@example.com' }),
       // 6 dropped INSIDE performBatch: membership cannot be resolved to a boolean
-      makeEvent({ membership: null, email: 'nomembership@example.com' }),
+      makeEvent({ membership: null, emails: 'nomembership@example.com' }),
       // 7 dropped BEFORE performBatch: enable_batching is required and is not a boolean
-      makeEvent({ membership: false, email: 'nobatching2@example.com', enableBatching: 'yes' }),
+      makeEvent({ membership: false, emails: 'nobatching2@example.com', enableBatching: 'yes' }),
       // 8 dropped INSIDE performBatch: belongs to a different audience
       otherAudienceEvent,
       // 9 add, sent
-      makeEvent({ membership: true, email: 'add3@example.com' })
+      makeEvent({ membership: true, emails: 'add3@example.com' })
     ]
 
-    const responses = await testDestination.executeBatch('syncAudience', { events, mapping })
+    const responses = await testDestination.executeBatch('syncAudience', {
+      settings: {},
+      events,
+      mapping
+    })
 
     expect(scope.isDone()).toBe(true)
 

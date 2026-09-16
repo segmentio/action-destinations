@@ -2,7 +2,13 @@ import { ActionHookDefinition } from '@segment/actions-core/destination-kit'
 import { InputField, DependsOnConditions } from '@segment/actions-core/destination-kit/types'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs, RetlOnMappingSaveOutputs } from './generated-types'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import {
+  AUDIENCE_TYPE_LABEL,
+  CONSENT_STATUS_GRANTED,
+  CONSENT_STATUS_DENIED,
+  CONTACT_INFO,
+  DEVICE_ID
+} from './constants'
 import { mobileDeviceIds as sharedMobileDeviceIds } from '../properties'
 
 const CREATE_OPERATION: DependsOnConditions = {
@@ -42,7 +48,7 @@ const ADDRESS_GROUP =
   'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
 
 export const audience_type: InputField = {
-  label: 'Audience Type',
+  label: AUDIENCE_TYPE_LABEL,
   description:
     'The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.',
   type: 'string',
@@ -226,7 +232,7 @@ export const retlHookInputFields: ActionHookDefinition<
   },
   audienceType: {
     type: 'string',
-    label: 'Audience Type',
+    label: AUDIENCE_TYPE_LABEL,
     description: 'The type of the audience to create.',
     choices: [
       { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
@@ -285,7 +291,7 @@ export const retlHookOutputTypes: ActionHookDefinition<
   },
   audienceType: {
     type: 'string',
-    label: 'Audience Type',
+    label: AUDIENCE_TYPE_LABEL,
     description: 'The type of the audience in Display & Video 360.',
     required: true
   },

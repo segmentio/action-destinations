@@ -14,7 +14,14 @@ import {
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, CONTACT_INFO, DEVICE_ID } from './constants'
+import {
+  AUDIENCE_TYPE_LABEL,
+  CONSENT_STATUS_GRANTED,
+  CONSENT_STATUS_DENIED,
+  CONTACT_INFO,
+  DEVICE_ID,
+  RETL_HOOK_LABEL
+} from './constants'
 import type { AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -51,7 +58,7 @@ export async function send(
 
   const { audienceId, advertiserId, audienceType } = audienceDetails
 
-  const { consent, consentErrorMessage } = buildConsent(payloads[0])
+  const { consent, consentErrorMessage } = buildConsent(payloads[0].consent)
 
   if (!consent) {
     return failAllPayloads(msResponse, payloads, isBatch, consentErrorMessage as string)
@@ -154,8 +161,11 @@ export function getAudienceType(audienceSettings?: AudienceSettings, hookOutputs
   return hookOutputs?.retlOnMappingSave?.outputs?.audienceType ?? audienceSettings?.audienceType
 }
 
-export function buildConsent(payload: Payload): { consent?: Consent; consentErrorMessage?: string } {
-  const { adUserData, adPersonalization } = payload.consent ?? {}
+export function buildConsent(mappedConsent: Payload['consent']): {
+  consent?: Consent
+  consentErrorMessage?: string
+} {
+  const { adUserData, adPersonalization } = mappedConsent ?? {}
 
   const unrecognised = [adUserData, adPersonalization].find(
     (value) => value && value !== CONSENT_STATUS_GRANTED && value !== CONSENT_STATUS_DENIED
@@ -167,7 +177,7 @@ export function buildConsent(payload: Payload): { consent?: Consent; consentErro
     }
   }
 
-  if (isConsentDenied(payload)) {
+  if (isConsentDenied(mappedConsent)) {
     return {
       consentErrorMessage:
         'Consent denied for ad user data or ad personalization. Display & Video 360 rejects any request containing denied consent, so this event was not sent.'
@@ -182,8 +192,8 @@ export function buildConsent(payload: Payload): { consent?: Consent; consentErro
   }
 }
 
-export function isConsentDenied(payload: Payload): boolean {
-  const { adUserData, adPersonalization } = payload.consent ?? {}
+export function isConsentDenied(mappedConsent: Payload['consent']): boolean {
+  const { adUserData, adPersonalization } = mappedConsent ?? {}
 
   return adUserData === CONSENT_STATUS_DENIED || adPersonalization === CONSENT_STATUS_DENIED
 }
@@ -195,8 +205,8 @@ export function toList(value?: string): string[] {
     .filter(Boolean)
 }
 
-export function buildContactInfo(payload: Payload): ContactInfo | undefined {
-  const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = payload.contact_info ?? {}
+export function buildContactInfo(mappedContactInfo: Payload['contact_info']): ContactInfo | undefined {
+  const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = mappedContactInfo ?? {}
 
   const hashedEmails = toList(emails).map(hash)
   const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
@@ -287,15 +297,22 @@ export function validateAudienceDetails(
     problems.push('Missing advertiser ID')
   }
 
+  // The audience's own type, from the audience settings or the mapping save hook.
   if (!audienceType) {
-    problems.push('Missing audience type')
+    problems.push(
+      `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
+    )
   } else if (audienceType !== CONTACT_INFO && audienceType !== DEVICE_ID) {
-    problems.push(`Unrecognised audience type: ${audienceType}. Must be ${CONTACT_INFO} or ${DEVICE_ID}`)
+    problems.push(`Unrecognised audience type: ${audienceType}. The audience must be ${CONTACT_INFO} or ${DEVICE_ID}`)
   }
 
-  if (mappedAudienceType && audienceType && mappedAudienceType !== audienceType) {
+  // The type the customer picked in the mapping, which only decides which identifier fields
+  // are shown. It is checked against the audience's own type above.
+  if (!mappedAudienceType) {
+    problems.push(`Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`)
+  } else if (audienceType && mappedAudienceType !== audienceType) {
     problems.push(
-      `Audience Type is set to ${mappedAudienceType} in this mapping, but the audience in Display & Video 360 is ${audienceType}. Set Audience Type to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
+      `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${mappedAudienceType}, but the audience in Display & Video 360 is ${audienceType}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
     )
   }
 
@@ -324,7 +341,7 @@ export function buildMember(
   }
 
   const isContactInfo = audienceType === CONTACT_INFO
-  const contactInfo = isContactInfo ? buildContactInfo(payload) : undefined
+  const contactInfo = isContactInfo ? buildContactInfo(payload.contact_info) : undefined
   const members: Member[] = isContactInfo ? (contactInfo ? [contactInfo] : []) : toList(payload.mobileDeviceIds)
 
   if (members.length === 0) {

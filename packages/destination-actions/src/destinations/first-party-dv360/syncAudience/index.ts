@@ -14,6 +14,7 @@ import {
 import { performHook } from './hook-functions'
 import { send } from './functions'
 import { HookOutputs } from './types'
+import { RETL_HOOK_LABEL } from './constants'
 
 const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   title: 'Sync Audience [Beta]',
@@ -22,7 +23,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   defaultSubscription: 'type = "track"',
   hooks: {
     retlOnMappingSave: {
-      label: 'Select or create an audience in Display & Video 360',
+      label: RETL_HOOK_LABEL,
       description:
         'When saving this mapping, Segment will either create a new Customer Match audience in Display & Video 360 or connect to an existing one.',
       inputFields: retlHookInputFields,
