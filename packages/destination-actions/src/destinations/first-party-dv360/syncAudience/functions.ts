@@ -133,7 +133,7 @@ export async function send(
 
   sentIndices.forEach((index) => {
     msResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
+      status: response.status,
       sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
       body: { success: true }
     })

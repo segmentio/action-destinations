@@ -174,6 +174,18 @@ describe('FirstPartyDv360.syncAudience', () => {
   // A single event goes through perform, which has no MultiStatusResponse to report into:
   // it either returns the response or throws.
   describe('perform, a single event', () => {
+    it('reports the status Display & Video 360 returned, rather than assuming 200', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).reply(201, API_RESPONSE)
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        settings: {},
+        events: [makeEvent({ membership: true, emails: 'a@example.com' })],
+        mapping
+      })
+
+      expect(responses[0].status).toBe(201)
+    })
+
     it('adds a contact info member', async () => {
       let body: any
       nock(DV360_HOST)

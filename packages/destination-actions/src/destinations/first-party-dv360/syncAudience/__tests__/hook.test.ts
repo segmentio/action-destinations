@@ -113,6 +113,28 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     })
   })
 
+  it.each([undefined, '', '   '])('requires an audience name when creating (%p)', async (audienceName) => {
+    const result = await performHook(request, inputs({ audienceName }))
+
+    expect(result).toEqual(hookError('Missing audience name value'))
+  })
+
+  // Sent to DV360 as the audience's display name, so stray whitespace is the customer's to see.
+  it('trims the audience name and description before creating', async () => {
+    let body: any
+    nock(DV360_HOST)
+      .post(CREATE_PATH, (b) => {
+        body = b
+        return true
+      })
+      .reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+
+    await performHook(request, inputs({ audienceName: '  My Audience  ', description: '  A description  ' }))
+
+    expect(body.displayName).toBe('My Audience')
+    expect(body.description).toBe('A description')
+  })
+
   it('requires an audience name when creating', async () => {
     const result = await performHook(request, inputs({ audienceName: undefined }))
 
