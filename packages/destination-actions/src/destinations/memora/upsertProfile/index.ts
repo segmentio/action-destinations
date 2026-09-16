@@ -6,6 +6,12 @@ import type { Logger, StatsContext, Personas } from '@segment/actions-core/desti
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
 
+// GAMEDAY FAULT INJECTION — TEMPORARY, REMOVE AFTER EXERCISE.
+// When true, Bulk Upsert Profiles returns a simulated HTTP 400 for otherwise-valid
+// requests, to drive the Memora Sync game-day outage drill. Staging only — do NOT
+// merge or promote to production. See: Memora Sync GameDay SEV Guide.
+const GAME_DAY_SIMULATION = true
+
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
   description:
@@ -240,14 +246,12 @@ async function upsertProfiles(
     // the throw flows through the catch below, which logs the error, increments
     // the failure stat, and rethrows — exactly as a genuine 400 from Memora would.
     //
-    // Safety: double-gated. Hard-limited to non-production (never fires when
-    // ACTIONS_MEMORA_ENV === 'production'), and off unless MEMORA_GAMEDAY_FORCE_400
-    // is explicitly set to 'true'. Flip the flag on at kickoff, unset at end of
-    // the window. Affects both actions-memora and actions-memora-internal (they
-    // share this action). See: Memora Sync GameDay SEV Guide.
-    if (process.env.ACTIONS_MEMORA_ENV !== 'production' && process.env.MEMORA_GAMEDAY_FORCE_400 === 'true') {
+    // Flip GAME_DAY_SIMULATION to false to disable. Affects both actions-memora
+    // and actions-memora-internal (they share this action). Staging deploy only —
+    // do NOT merge or promote to production. See: Memora Sync GameDay SEV Guide.
+    if (GAME_DAY_SIMULATION) {
       logger?.error?.(
-        `[GAMEDAY] Injecting simulated HTTP 400 fault on Bulk Upsert Profiles for ${profilesToSend.length} valid profile(s) (staging only). ${tagStr}`
+        `[GAMEDAY] Injecting simulated HTTP 400 fault on Bulk Upsert Profiles for ${profilesToSend.length} valid profile(s). ${tagStr}`
       )
       throw new APIError('[GAMEDAY] Simulated Memora outage: Bulk Upsert Profiles returned HTTP 400', 400)
     }
