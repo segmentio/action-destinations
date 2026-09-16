@@ -271,7 +271,7 @@ const action: ActionDefinition<Settings, Payload> = {
               )
               statsContext?.statsClient?.incr('getDataManagerPerformHook.success', 1, statsContext?.tags)
               return {
-                successMessage: `Using existing list '${userList.id}' (id: ${hookInputs.list_id})`,
+                successMessage: `Using existing list data manager '${userList.id}' (id: ${hookInputs.list_id})`,
                 savedData: {
                   id: hookInputs.list_id,
                   name: userList.displayName,
@@ -291,7 +291,7 @@ const action: ActionDefinition<Settings, Payload> = {
             )
             statsContext?.statsClient?.incr('getGoogleAudiencePerformHook.success', 1, statsContext?.tags)
             return {
-              successMessage: `Using existing list '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
+              successMessage: `Using existing list google ads '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
               savedData: {
                 id: hookInputs.list_id,
                 name: response.results[0].userList.name,
