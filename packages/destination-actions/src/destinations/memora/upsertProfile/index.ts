@@ -1,7 +1,7 @@
 import type { ActionDefinition, RequestClient, ModifiedResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { IntegrationError, PayloadValidationError, MultiStatusResponse } from '@segment/actions-core'
+import { IntegrationError, PayloadValidationError, MultiStatusResponse, APIError } from '@segment/actions-core'
 import type { Logger, StatsContext, Personas } from '@segment/actions-core/destination-kit'
 import { API_VERSION } from '../versioning-info'
 import { BASE_URL } from '../constants'
@@ -232,6 +232,27 @@ async function upsertProfiles(
   }
 
   try {
+    // ------------------------------------------------------------------------
+    // GAMEDAY FAULT INJECTION — TEMPORARY, REMOVE AFTER EXERCISE
+    // Simulates a Memora-side outage by returning HTTP 400 on the Bulk Upsert
+    // Profiles call for requests that are otherwise genuinely valid (validation
+    // has already passed at this point). Faithfully mimics the real HTTP path:
+    // the throw flows through the catch below, which logs the error, increments
+    // the failure stat, and rethrows — exactly as a genuine 400 from Memora would.
+    //
+    // Safety: double-gated. Hard-limited to non-production (never fires when
+    // ACTIONS_MEMORA_ENV === 'production'), and off unless MEMORA_GAMEDAY_FORCE_400
+    // is explicitly set to 'true'. Flip the flag on at kickoff, unset at end of
+    // the window. Affects both actions-memora and actions-memora-internal (they
+    // share this action). See: Memora Sync GameDay SEV Guide.
+    if (process.env.ACTIONS_MEMORA_ENV !== 'production' && process.env.MEMORA_GAMEDAY_FORCE_400 === 'true') {
+      logger?.error?.(
+        `[GAMEDAY] Injecting simulated HTTP 400 fault on Bulk Upsert Profiles for ${profilesToSend.length} valid profile(s) (staging only). ${tagStr}`
+      )
+      throw new APIError('[GAMEDAY] Simulated Memora outage: Bulk Upsert Profiles returned HTTP 400', 400)
+    }
+    // ------------------------------------------------------------------------
+
     const response = await request(`${BASE_URL}/${API_VERSION}/Stores/${storeId}/Profiles/Bulk`, {
       method: 'PUT',
       headers: {
