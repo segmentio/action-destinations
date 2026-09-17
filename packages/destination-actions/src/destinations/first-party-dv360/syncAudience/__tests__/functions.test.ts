@@ -320,6 +320,38 @@ describe('buildContactInfo', () => {
     })
   })
 
+  // A value of only spaces is truthy, so without trimming first it counts as present: the names
+  // hash to the digest of an empty string and the country code is sent as ''. Display & Video 360
+  // reads that as an address which is only partly there and rejects the entire request, which
+  // fails every other event travelling in the same direction, not only this one.
+  it.each(['firstName', 'lastName', 'countryCode'] as const)(
+    'drops the address group when %s is only whitespace',
+    (field) => {
+      const contactInfo = buildContactInfo({
+        emails: 'jane@example.com',
+        zipCodes: '90210',
+        firstName: 'Jane',
+        lastName: 'Doe',
+        countryCode: 'US',
+        [field]: '   '
+      })
+
+      // The email still syncs the user: only the address group is dropped.
+      expect(contactInfo).toEqual({ hashedEmails: [hash('jane@example.com')] })
+    }
+  )
+
+  it('trims the names it hashes, so a padded name matches an unpadded one', () => {
+    expect(
+      buildContactInfo({ zipCodes: '90210', firstName: '  Jane  ', lastName: '  Doe  ', countryCode: 'US' })
+    ).toEqual({
+      zipCodes: ['90210'],
+      hashedFirstName: hash('jane'),
+      hashedLastName: hash('doe'),
+      countryCode: 'US'
+    })
+  })
+
   // The hash helper in this file mirrors the implementation, so these anchor the digests
   // against SHA-256 of the normalised value. Without them a change to how values are
   // normalised before hashing would move both sides at once and go unnoticed.

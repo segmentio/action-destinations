@@ -254,17 +254,20 @@ export function buildContactInfo(mappedContactInfo: Payload['contact_info']): Co
   const hashedEmails = toList(emails).map(normaliseEmail).filter(isPresent).map(hash)
   const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
   const zipCodeList = toList(zipCodes)
+  const trimmedFirstName = firstName?.trim()
+  const trimmedLastName = lastName?.trim()
+  const trimmedCountryCode = countryCode?.trim()
 
   const contactInfo: ContactInfo = {
     ...(hashedEmails.length > 0 ? { hashedEmails } : {}),
     ...(hashedPhoneNumbers.length > 0 ? { hashedPhoneNumbers } : {}),
     // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent together.
-    ...(zipCodeList.length > 0 && firstName && lastName && countryCode
+    ...(zipCodeList.length > 0 && trimmedFirstName && trimmedLastName && trimmedCountryCode
       ? {
           zipCodes: zipCodeList,
-          hashedFirstName: hash(firstName),
-          hashedLastName: hash(lastName),
-          countryCode: countryCode.trim().toUpperCase()
+          hashedFirstName: hash(trimmedFirstName),
+          hashedLastName: hash(trimmedLastName),
+          countryCode: trimmedCountryCode.toUpperCase()
         }
       : {})
   }
