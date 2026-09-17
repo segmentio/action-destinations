@@ -22,7 +22,6 @@ const AUDIENCE = { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactI
 // none of these can pass unless the hook output is used.
 const mapping = {
   ...defaultValues(syncAudience.fields),
-  audience_type: CONTACT_INFO,
   retlOnMappingSave: {
     outputs: {
       audienceId: '$externalAudienceId:contactInfo',

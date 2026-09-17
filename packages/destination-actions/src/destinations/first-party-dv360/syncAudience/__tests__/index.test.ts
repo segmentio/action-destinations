@@ -10,7 +10,6 @@ import {
 import Destination from '../../index'
 import type { Payload } from '../generated-types'
 import { processHashing } from '../../../../lib/hashing-utils'
-import { AUDIENCE_TYPE_LABEL } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -94,7 +93,6 @@ const makeEvent = ({
   })
 
 const mapping = {
-  audience_type: CONTACT_INFO,
   contact_info: {
     emails: { '@path': '$.context.traits.emails' },
     phoneNumbers: { '@path': '$.context.traits.phoneNumbers' },
@@ -377,20 +375,6 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(captured.body.advertiserId).toBe('advertiser-from-audience-settings')
     })
 
-    // audience_type is required, so the framework rejects the event before the action runs.
-    // This is what makes the mapped type safe to treat as always present.
-    it('throws for a single event when the audience type is unmapped', async () => {
-      const { audience_type: _type, ...mappingWithoutType } = mapping
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent({ membership: true, emails: 'a@example.com' }),
-          mapping: mappingWithoutType,
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow("missing the required field 'audience_type'")
-    })
-
     it('throws a retryable error for a single event on a 5xx', async () => {
       nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
 
@@ -507,7 +491,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceIds: 'device-1' }),
           makeEvent({ membership: false, audienceType: DEVICE_ID, mobileDeviceIds: 'device-2' })
         ],
-        mapping: { ...mapping, audience_type: DEVICE_ID }
+        mapping
       })
 
       expect(bodies).toEqual([
@@ -597,44 +581,6 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(captured.body.addedContactInfoList.contactInfos).toEqual([{ hashedEmails: [hash('right@example.com')] }])
       expect(responses[1].status).toBe(400)
       expect((responses[1] as any).errormessage).toContain('does not belong to the same audience')
-    })
-
-    it('fails the batch when the mapped audience type disagrees with the audience', async () => {
-      const responses = await testDestination.executeBatch('syncAudience', {
-        settings: {},
-        events: [makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceIds: 'device-1' })],
-        mapping
-      })
-
-      expect(responses).toEqual([
-        {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errorreporter: 'INTEGRATIONS',
-          errormessage: `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${CONTACT_INFO}, but the audience in Display & Video 360 is ${DEVICE_ID}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
-        }
-      ])
-    })
-
-    it('drops an event with an unmapped audience type from a batch', async () => {
-      const { audience_type: _type, ...mappingWithoutType } = mapping
-      const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
-
-      const responses = await testDestination.executeBatch('syncAudience', {
-        settings: {},
-        events: [makeEvent({ membership: true, emails: 'a@example.com' })],
-        mapping: mappingWithoutType
-      })
-
-      expect(scope.isDone()).toBe(false)
-      expect(responses).toEqual([
-        {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errorreporter: 'INTEGRATIONS',
-          errormessage: expect.stringContaining("missing the required field 'audience_type'")
-        }
-      ])
     })
 
     it('rejects an unrecognised audience type before sending', async () => {

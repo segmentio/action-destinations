@@ -14,7 +14,7 @@ const FAILURE_HINT =
 
 const ADVERTISER_ID = process.env.E2E_FIRST_PARTY_DV360_ADVERTISER_ID ?? ''
 
-const mapping = { ...defaultValues(syncAudience.fields), audience_type: CONTACT_INFO }
+const mapping = defaultValues(syncAudience.fields)
 
 // An audience id which is well formed but belongs to nobody, so the request is built and sent and
 // only Display & Video 360 can reject it.

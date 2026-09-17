@@ -2,10 +2,6 @@
 
 export interface Payload {
   /**
-   * The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.
-   */
-  audience_type: string
-  /**
    * The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.
    */
   contact_info?: {

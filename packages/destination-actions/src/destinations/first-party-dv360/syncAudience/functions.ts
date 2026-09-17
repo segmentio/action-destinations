@@ -304,7 +304,7 @@ export function resolveAudienceDetails(
   const advertiserId = getAdvertiserId(audienceSettings, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType, payload?.audience_type)
+  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType)
 
   return audienceErrorMessage
     ? { audienceErrorMessage }
@@ -314,8 +314,7 @@ export function resolveAudienceDetails(
 export function validateAudienceDetails(
   audienceId?: string,
   advertiserId?: string,
-  audienceType?: string,
-  mappedAudienceType?: string
+  audienceType?: string
 ): string | undefined {
   const problems: string[] = []
 
@@ -327,23 +326,14 @@ export function validateAudienceDetails(
     problems.push('Missing advertiser ID')
   }
 
-  // The audience's own type, from the audience settings or the mapping save hook.
+  // The audience's type comes from the audience settings or the mapping save hook. It is what
+  // decides which identifiers are sent, so the mapping does not restate it.
   if (!audienceType) {
     problems.push(
       `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
     )
   } else if (audienceType !== CONTACT_INFO && audienceType !== DEVICE_ID) {
     problems.push(`Unrecognised audience type: ${audienceType}. The audience must be ${CONTACT_INFO} or ${DEVICE_ID}`)
-  }
-
-  // The type the customer picked in the mapping, which only decides which identifier fields
-  // are shown. It is checked against the audience's own type above.
-  if (!mappedAudienceType) {
-    problems.push(`Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`)
-  } else if (audienceType && mappedAudienceType !== audienceType) {
-    problems.push(
-      `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${mappedAudienceType}, but the audience in Display & Video 360 is ${audienceType}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
-    )
   }
 
   return problems.length > 0 ? problems.join('. ') : undefined

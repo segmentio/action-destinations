@@ -1,7 +1,6 @@
 import type { E2EFixture } from '@segment/actions-core'
 import { defaultValues, createE2EEngageAudienceEvent } from '@segment/actions-core'
 import syncAudience from '../index'
-import { CONTACT_INFO } from '../constants'
 
 const COMPUTATION_KEY = 'e2e_test_dv360_engage'
 const COMPUTATION_ID = 'aud_e2e_dv360_engage_001'
@@ -12,7 +11,7 @@ const FAILURE_HINT =
   'scope and reach the advertiser: the copy in the secret store has expired, so read a live one from ' +
   'the oauth row of a staging destination instance.'
 
-const mapping = { ...defaultValues(syncAudience.fields), audience_type: CONTACT_INFO }
+const mapping = defaultValues(syncAudience.fields)
 
 // Display & Video 360 answers with nothing but the id of the audience it wrote to, so this says the
 // request was accepted and reached the right audience. It says nothing about whether the members

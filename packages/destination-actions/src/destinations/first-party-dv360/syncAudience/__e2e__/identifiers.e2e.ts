@@ -1,7 +1,6 @@
 import type { E2EFixture } from '@segment/actions-core'
 import { defaultValues, createE2EEngageAudienceEvent } from '@segment/actions-core'
 import syncAudience from '../index'
-import { CONTACT_INFO, DEVICE_ID } from '../constants'
 
 const COMPUTATION_KEY = 'e2e_test_dv360_identifiers'
 const COMPUTATION_ID = 'aud_e2e_dv360_identifiers_001'
@@ -14,13 +13,12 @@ const FAILURE_HINT =
 
 const ADVERTISER_ID = process.env.E2E_FIRST_PARTY_DV360_ADVERTISER_ID ?? ''
 
-const contactInfoMapping = { ...defaultValues(syncAudience.fields), audience_type: CONTACT_INFO }
+const contactInfoMapping = defaultValues(syncAudience.fields)
 
 // mobileDeviceIds defaults to context.traits.mobileDeviceIds, which no event helper populates, so
 // the device ID fixtures map it from the enriched traits instead.
 const deviceIdMapping = {
   ...defaultValues(syncAudience.fields),
-  audience_type: DEVICE_ID,
   mobileDeviceIds: { '@path': '$.properties.mobileDeviceIds' }
 }
 

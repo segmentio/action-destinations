@@ -31,41 +31,26 @@ const hash = (value: string): string =>
 
 describe('validateAudienceDetails', () => {
   it('returns undefined when everything is present and valid', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO, CONTACT_INFO)).toBeUndefined()
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
   })
 
   it('reports every missing value in one message', () => {
     expect(validateAudienceDetails()).toBe(
-      `Missing audience ID. Missing advertiser ID. Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse. Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`
+      `Missing audience ID. Missing advertiser ID. Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
     )
   })
 
   it('combines a missing value with an invalid one', () => {
-    expect(validateAudienceDetails(undefined, ADVERTISER_ID, 'SOMETHING_ELSE', 'SOMETHING_ELSE')).toBe(
+    expect(validateAudienceDetails(undefined, ADVERTISER_ID, 'SOMETHING_ELSE')).toBe(
       `Missing audience ID. Unrecognised audience type: SOMETHING_ELSE. The audience must be ${CONTACT_INFO} or ${DEVICE_ID}`
     )
   })
 
-  // The audience's own type and the mapping field are both labelled Audience Type, so the
-  // message names where the value comes from. Asserted in full: it is the only thing keeping
-  // this distinguishable from the mapping field message below.
-  it('reports a missing audience type, naming the audience setting and the hook step', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, undefined, CONTACT_INFO)).toBe(
+  // The audience's type reaches the action from the audience settings or the mapping save hook,
+  // and the message names both places so a customer knows where to set it.
+  it("reports a missing audience type, naming the audience setting and the hook step", () => {
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID)).toBe(
       `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
-    )
-  })
-
-  // The mapped type is what the customer picked in the mapping. It is required with a default,
-  // so an absent one means something is wrong rather than nothing to check.
-  it('reports a mapped audience type which is not set', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBe(
-      `Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`
-    )
-  })
-
-  it('reports a mapped audience type that disagrees with the configured one', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, DEVICE_ID, CONTACT_INFO)).toBe(
-      `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${CONTACT_INFO}, but the audience in Display & Video 360 is ${DEVICE_ID}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
     )
   })
 })

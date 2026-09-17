@@ -29,16 +29,6 @@ const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
   ]
 }
 
-const CONTACT_INFO_AUDIENCE: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'audience_type', operator: 'is', value: CONTACT_INFO }]
-}
-
-const DEVICE_ID_AUDIENCE: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'audience_type', operator: 'is', value: DEVICE_ID }]
-}
-
 const CONTACT_INFO_ONLY =
   'This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.'
 
@@ -47,24 +37,10 @@ const SEVERAL = 'A single value, or several separated by commas.'
 const ADDRESS_GROUP =
   'Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.'
 
-export const audience_type: InputField = {
-  label: AUDIENCE_TYPE_LABEL,
-  description:
-    'The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.',
-  type: 'string',
-  required: true,
-  choices: [
-    { label: 'Contact Info', value: CONTACT_INFO },
-    { label: 'Mobile Device ID', value: DEVICE_ID }
-  ],
-  default: CONTACT_INFO
-}
-
 export const contact_info: InputField = {
   label: 'Contact Info Details',
   description: `The contact details used to match the user in Display & Video 360. ${CONTACT_INFO_ONLY}`,
   type: 'object',
-  depends_on: CONTACT_INFO_AUDIENCE,
   defaultObjectUI: 'keyvalue',
   additionalProperties: false,
   properties: {
@@ -151,7 +127,6 @@ export const contact_info: InputField = {
 
 export const mobileDeviceIds: InputField = {
   ...sharedMobileDeviceIds,
-  depends_on: DEVICE_ID_AUDIENCE,
   description: `A mobile device ID defining a Customer Match audience member. ${SEVERAL} This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.`
 }
 
@@ -196,7 +171,7 @@ export const batch_keys: {
   description: 'The keys to use for batching the events.',
   type: 'string',
   multiple: true,
-  default: ['external_id', 'audience_type', 'consent'],
+  default: ['external_id', 'consent'],
   unsafe_hidden: true
 }
 

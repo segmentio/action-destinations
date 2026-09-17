@@ -1,7 +1,6 @@
 import type { E2EFixture } from '@segment/actions-core'
 import { defaultValues, createE2EJourneysV2AudienceEvent } from '@segment/actions-core'
 import syncAudience from '../index'
-import { CONTACT_INFO } from '../constants'
 
 const COMPUTATION_KEY = 'e2e_test_dv360_journeys_v2'
 const COMPUTATION_ID = 'aud_e2e_dv360_journeys_v2_001'
@@ -12,7 +11,7 @@ const FAILURE_HINT =
   'scope and reach the advertiser: the copy in the secret store has expired, so read a live one from ' +
   'the oauth row of a staging destination instance.'
 
-const mapping = { ...defaultValues(syncAudience.fields), audience_type: CONTACT_INFO }
+const mapping = defaultValues(syncAudience.fields)
 
 const AUDIENCE = { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
 
