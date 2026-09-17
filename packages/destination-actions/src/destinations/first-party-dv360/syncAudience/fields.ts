@@ -149,31 +149,6 @@ export const contact_info: InputField = {
   }
 }
 
-export const phone_number_settings: InputField = {
-  label: 'Phone Number Settings',
-  description: `Google rejects phone numbers which do not start with an international country code. For example, +1 for the US or +44 for GB. Segment can add default country codes to phone numbers which are missing a country code. ${CONTACT_INFO_ONLY}`,
-  type: 'object',
-  defaultObjectUI: 'keyvalue',
-  additionalProperties: false,
-  properties: {
-    defaultCountryCode: {
-      label: 'Default Country Code',
-      description:
-        'The default country to assume for phone numbers. Numbers which already have an international country code are unaffected. This field accepts a two letter code such as US or GB (which would result in +1 or +44 being prefixed).',
-      type: 'string'
-    },
-    useContactInfoCountryCode: {
-      label: 'Infer from Contact Info > Country Code',
-      description:
-        "Use each user's own Country Code, from Contact Info Details, to work out which country their phone number belongs to. Numbers which already have an international country code are unaffected.",
-      type: 'boolean'
-    }
-  },
-  default: {
-    useContactInfoCountryCode: false
-  }
-}
-
 export const mobileDeviceIds: InputField = {
   ...sharedMobileDeviceIds,
   depends_on: DEVICE_ID_AUDIENCE,

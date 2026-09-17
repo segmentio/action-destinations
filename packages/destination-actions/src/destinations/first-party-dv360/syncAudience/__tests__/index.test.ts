@@ -38,8 +38,6 @@ interface EventOptions extends ContactInfoOptions, ConsentOptions {
   computationClass?: string
   type?: 'track' | 'identify'
   advertiserId?: string
-  defaultCountryCode?: string
-  useContactInfoCountryCode?: boolean
   mobileDeviceIds?: Payload['mobileDeviceIds']
   // A string is used deliberately by one test to fail the framework's boolean validation
   // before performBatch is reached.
@@ -61,10 +59,6 @@ const makeEvent = ({
   countryCode,
   adUserData = GRANTED,
   adPersonalization = GRANTED,
-  // Both are unset by default, as the field itself is: a number with no country code is
-  // dropped rather than read against a guessed country.
-  defaultCountryCode,
-  useContactInfoCountryCode,
   enableBatching = true
 }: EventOptions = {}) =>
   createTestEvent({
@@ -95,8 +89,6 @@ const makeEvent = ({
       ...(membership === null || type === 'identify' ? {} : { my_audience: membership }),
       ...(adUserData ? { adUserData } : {}),
       ...(adPersonalization ? { adPersonalization } : {}),
-      ...(defaultCountryCode ? { defaultCountryCode } : {}),
-      ...(useContactInfoCountryCode === undefined ? {} : { useContactInfoCountryCode }),
       enableBatching
     }
   })
@@ -112,10 +104,6 @@ const mapping = {
     countryCode: { '@path': '$.context.traits.countryCode' }
   },
   mobileDeviceIds: { '@path': '$.context.traits.mobileDeviceIds' },
-  phone_number_settings: {
-    defaultCountryCode: { '@path': '$.properties.defaultCountryCode' },
-    useContactInfoCountryCode: { '@path': '$.properties.useContactInfoCountryCode' }
-  },
   // The consent field has no default, so it is mapped straight from the event.
   consent: {
     adUserData: { '@path': '$.properties.adUserData' },
@@ -321,48 +309,19 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(captured.body.addedContactInfoList.consent).toEqual({ adUserData: 'CONSENT_STATUS_GRANTED' })
     })
 
-    // A national number needs a country before it can be sent. These cover the field end to
-    // end: the unit tests cover normalisePhone itself.
-    it('sends a national number using the default country', async () => {
+    // Phone numbers are not validated, so whatever the customer maps is hashed and sent.
+    it('sends a phone number exactly as it was given', async () => {
       const { captured } = captureBody()
 
       await testDestination.testAction('syncAudience', {
-        event: makeEvent({ phoneNumbers: '(212) 565-0000', defaultCountryCode: 'US' }),
+        event: makeEvent({ phoneNumbers: '(212) 565-0000' }),
         mapping,
         useDefaultMappings: false
       })
 
-      expect(captured.body.addedContactInfoList.contactInfos).toEqual([{ hashedPhoneNumbers: [hash('+12125650000')] }])
-    })
-
-    it("sends a national number using the user's own country code when the mapping opts in", async () => {
-      const { captured } = captureBody()
-
-      await testDestination.testAction('syncAudience', {
-        event: makeEvent({
-          phoneNumbers: '020 7031 3000',
-          zipCodes: 'SW1A 1AA',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          countryCode: 'GB',
-          useContactInfoCountryCode: true
-        }),
-        mapping,
-        useDefaultMappings: false
-      })
-
-      expect(captured.body.addedContactInfoList.contactInfos[0].hashedPhoneNumbers).toEqual([hash('+442070313000')])
-    })
-
-    // Neither setting applies, so the number cannot be read and this event has nothing else.
-    it('throws for a single event whose only identifier is a number with no country', async () => {
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent({ phoneNumbers: '(212) 565-0000' }),
-          mapping,
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('No usable contact info identifiers')
+      expect(captured.body.addedContactInfoList.contactInfos).toEqual([
+        { hashedPhoneNumbers: [hash('(212) 565-0000')] }
+      ])
     })
 
     it('throws for a single event with no usable identifier', async () => {

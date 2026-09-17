@@ -68,7 +68,7 @@ const fixtures: E2EFixture[] = [
     verboseFailureHint: FAILURE_HINT
   },
   {
-    description: 'Identifiers: a phone number only, normalised to E.164 before hashing',
+    description: 'Identifiers: a phone number only, sent as it was given',
     subscribe: 'type = "track"',
     mapping: contactInfoMapping,
     mode: 'batchWithMultistatus',
@@ -82,7 +82,7 @@ const fixtures: E2EFixture[] = [
         computationId: COMPUTATION_ID,
         externalAudienceId: '$externalAudienceId:contactInfo',
         userId: 'e2e-dv360-id-phone',
-        enrichedTraits: { phone: '+1 (415) 555-0123' }
+        enrichedTraits: { phone: '+14155550123' }
       })
     ],
     expect: {
@@ -165,7 +165,7 @@ const fixtures: E2EFixture[] = [
         userId: 'e2e-dv360-id-combined',
         email: 'e2e-dv360-combined@segment.com',
         enrichedTraits: {
-          phone: '+44 20 7946 0958',
+          phone: '+442079460958',
           zipCodes: '94105',
           firstName: 'Jane',
           lastName: 'Doe',
@@ -271,172 +271,6 @@ const fixtures: E2EFixture[] = [
             }
           },
           body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:deviceId' }
-        }
-      ]
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    // The same number as the E.164 fixture above, written the way a US customer would store it.
-    // Asserting the identical digest proves the country code was put back before hashing: a number
-    // hashed in any other form would never match anyone.
-    description: 'Phone numbers: a national number is read against the default country code',
-    subscribe: 'type = "track"',
-    mapping: {
-      ...contactInfoMapping,
-      phone_number_settings: { defaultCountryCode: 'US', useContactInfoCountryCode: false }
-    },
-    mode: 'batchWithMultistatus',
-    audience: 'contactInfo',
-    events: [
-      createE2EEngageAudienceEvent({
-        type: 'track',
-        action: 'add',
-        eventName: 'Audience Entered',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        externalAudienceId: '$externalAudienceId:contactInfo',
-        userId: 'e2e-dv360-phone-default',
-        enrichedTraits: { phone: '(415) 555-0123' }
-      })
-    ],
-    expect: {
-      status: 'success',
-      jsonContains: [
-        {
-          status: 200,
-          sent: {
-            advertiserId: ADVERTISER_ID,
-            addedContactInfoList: {
-              contactInfos: [
-                { hashedPhoneNumbers: ['36a2cef4ff9bf7a1abd2a93359136b870393be4106e6c5d19b72ff564f9deca4'] }
-              ]
-            }
-          },
-          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
-        }
-      ]
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    description: "Phone numbers: a national number is read against the user's own country code",
-    subscribe: 'type = "track"',
-    mapping: {
-      ...contactInfoMapping,
-      phone_number_settings: { useContactInfoCountryCode: true }
-    },
-    mode: 'batchWithMultistatus',
-    audience: 'contactInfo',
-    events: [
-      createE2EEngageAudienceEvent({
-        type: 'track',
-        action: 'add',
-        eventName: 'Audience Entered',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        externalAudienceId: '$externalAudienceId:contactInfo',
-        userId: 'e2e-dv360-phone-user-country',
-        // The country code reaches the number without completing an address group, which needs a
-        // zip and a name too, so nothing but the phone is sent.
-        enrichedTraits: { phone: '020 7946 0958', countryCode: 'GB' }
-      })
-    ],
-    expect: {
-      status: 'success',
-      jsonContains: [
-        {
-          status: 200,
-          sent: {
-            advertiserId: ADVERTISER_ID,
-            addedContactInfoList: {
-              contactInfos: [
-                { hashedPhoneNumbers: ['f0bf0228144d9fe2bdf1da2d8ca698f17bf1410ee688b075c27062e47b6f0b6d'] }
-              ]
-            }
-          },
-          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
-        }
-      ]
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    // The user is in GB but the setting is off, so the mapping's default decides, and the number is
-    // read as the US number it looks like rather than as a GB one.
-    description: "Phone numbers: the user's own country code is ignored while the setting is off",
-    subscribe: 'type = "track"',
-    mapping: {
-      ...contactInfoMapping,
-      phone_number_settings: { defaultCountryCode: 'US', useContactInfoCountryCode: false }
-    },
-    mode: 'batchWithMultistatus',
-    audience: 'contactInfo',
-    events: [
-      createE2EEngageAudienceEvent({
-        type: 'track',
-        action: 'add',
-        eventName: 'Audience Entered',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        externalAudienceId: '$externalAudienceId:contactInfo',
-        userId: 'e2e-dv360-phone-ignored-country',
-        enrichedTraits: { phone: '415 555 0123', countryCode: 'GB' }
-      })
-    ],
-    expect: {
-      status: 'success',
-      jsonContains: [
-        {
-          status: 200,
-          sent: {
-            advertiserId: ADVERTISER_ID,
-            addedContactInfoList: {
-              contactInfos: [
-                { hashedPhoneNumbers: ['36a2cef4ff9bf7a1abd2a93359136b870393be4106e6c5d19b72ff564f9deca4'] }
-              ]
-            }
-          },
-          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
-        }
-      ]
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    // With no country code on the number and no country to read it against, the country is
-    // unknowable. The number is dropped rather than guessed at, and the user still syncs on the
-    // email: only the email reaches the request.
-    description: 'Phone numbers: a national number with no country to read it against is dropped',
-    subscribe: 'type = "track"',
-    mapping: contactInfoMapping,
-    mode: 'batchWithMultistatus',
-    audience: 'contactInfo',
-    events: [
-      createE2EEngageAudienceEvent({
-        type: 'track',
-        action: 'add',
-        eventName: 'Audience Entered',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        externalAudienceId: '$externalAudienceId:contactInfo',
-        userId: 'e2e-dv360-phone-dropped',
-        email: 'e2e-dv360-phone-dropped@segment.com',
-        enrichedTraits: { phone: '415 555 0123' }
-      })
-    ],
-    expect: {
-      status: 'success',
-      jsonContains: [
-        {
-          status: 200,
-          sent: {
-            advertiserId: ADVERTISER_ID,
-            addedContactInfoList: {
-              contactInfos: [{ hashedEmails: ['022ed32f28c0bf6d803bc76cbca25fab82acebe37c79e135ad45cd156e027cdf'] }]
-            }
-          },
-          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
         }
       ]
     },
