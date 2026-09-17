@@ -44,9 +44,17 @@ export interface E2EErrorExpectation {
  * - '$guid'                 → fresh UUID v4, unique each occurrence
  * - '$guid:<name>'          → UUID v4, consistent within a single fixture execution.
  *                             All occurrences of the same name resolve to the same value.
- * - '$externalAudienceId'   → resolved after createAudience step returns the destination's audience ID
+ * - '$externalAudienceId'   → resolved after createAudience step returns the destination's audience ID.
+ *                             With several audiences configured, this is the first one.
+ * - '$externalAudienceId:<key>' → the id of the audience declared with that `key`, for destinations
+ *                             which configure more than one (e.g. one per audience type).
  */
-export type E2EDynamicValue = '$now' | '$guid' | `$guid:${string}` | '$externalAudienceId'
+export type E2EDynamicValue =
+  | '$now'
+  | '$guid'
+  | `$guid:${string}`
+  | '$externalAudienceId'
+  | `$externalAudienceId:${string}`
 
 export type E2EExecutionMode = 'single' | 'batch' | 'batchWithMultistatus'
 
@@ -65,6 +73,11 @@ export interface E2EBaseFixture {
   verboseFailureHint?: string
   /** Feature flags passed to the action, to exercise flag-gated code branches end-to-end. */
   features?: Record<string, boolean>
+  /**
+   * Which configured audience this fixture runs against, by `key`. Selects the audienceSettings
+   * injected into each event's context.personas.audience_settings. Defaults to the first audience.
+   */
+  audience?: string
   /**
    * Max times the runner re-runs this fixture if it fails, with exponential backoff between attempts.
    * Overrides the run-level retry default. Useful for destinations with eventual consistency
@@ -287,6 +300,12 @@ export interface E2ETeardownAudienceContext extends E2ETeardownContext {
 }
 
 export interface E2EAudienceConfig {
+  /**
+   * Identifies this audience when a destination declares more than one, for example one per
+   * audience type. Fixtures select it with `audience`, and reference its id with
+   * '$externalAudienceId:<key>'. Optional when there is only one audience.
+   */
+  key?: string
   /** Name of the audience to create/test against. Used as the audienceName param for createAudience. */
   audienceName: string
   /** Audience-level settings passed to createAudience and getAudience (e.g., id_type, owner_email). */
@@ -300,7 +319,8 @@ export interface E2EAudienceConfig {
 }
 
 export interface E2EAudienceDestinationConfig extends E2EDestinationConfig {
-  audience: E2EAudienceConfig
+  /** A single audience, or several when the destination supports more than one audience type. */
+  audience: E2EAudienceConfig | E2EAudienceConfig[]
 }
 
 export type E2EHttpSuccessCode = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
