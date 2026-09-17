@@ -113,6 +113,11 @@ export async function send(
       throwHttpErrors: false
     })
 
+    // The request as it would have been had it carried this event alone, so that what is reported
+    // against an event is the shape which was really sent, down to which list it travelled in.
+    const sentFor = (index: number) =>
+      buildJSON(advertiserId, audienceType, membersByIndex[index], isAdd, consent) as unknown as JSONLikeObject
+
     if (!response.ok) {
       const { status, data } = response
 
@@ -124,7 +129,7 @@ export async function send(
           status,
           errorTypeForStatus(status),
           data?.error?.message ?? 'Display & Video 360 rejected the request',
-          { members: membersByIndex[index] } as unknown as JSONLikeObject,
+          sentFor(index),
           (data ?? {}) as unknown as JSONLikeObject
         )
       })
@@ -143,7 +148,7 @@ export async function send(
     indices.forEach((index) => {
       msResponse.setSuccessResponseAtIndex(index, {
         status: response.status,
-        sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
+        sent: sentFor(index),
         body
       })
     })

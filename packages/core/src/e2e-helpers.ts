@@ -234,8 +234,7 @@ export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
 export function createE2ERetlAudienceEvent<ComputationKey extends string>(
   options: E2ERetlAudienceEventOptions<ComputationKey>
 ): E2ERetlAudienceTrackEvent<ComputationKey> {
-  const { eventName, computationKey, enrichedTraits } = options
-  const membership = eventName !== 'deleted'
+  const { eventName, enrichedTraits } = options
   const base = buildAudienceEventBase(options)
 
   const event = {
@@ -243,7 +242,6 @@ export function createE2ERetlAudienceEvent<ComputationKey extends string>(
     type: 'track',
     event: eventName,
     properties: {
-      [computationKey]: membership,
       ...(enrichedTraits as { [k: string]: JSONValue })
     }
   }

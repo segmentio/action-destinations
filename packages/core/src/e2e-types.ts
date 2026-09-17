@@ -198,7 +198,9 @@ export interface E2ERetlAudienceTrackEvent<ComputationKey extends string = strin
     traits?: { email?: string }
     audienceFields?: Record<string, unknown>
   }
-  properties: { [key in ComputationKey]: boolean } & { [k: string]: JSONValue }
+  // A warehouse row carries no membership boolean at properties[computation_key]: add and remove
+  // are derived from the sync mode and the event name instead.
+  properties: { [k: string]: JSONValue }
 }
 
 export interface E2EJourneysV1AudienceTrackEvent<ComputationKey extends string = string> extends SegmentEvent {

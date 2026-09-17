@@ -847,30 +847,41 @@ describe('FirstPartyDv360.syncAudience', () => {
         }
       ])
 
-      const success = (member: Record<string, unknown>) => ({
+      // What is reported against an event is the request as it would have been had it carried that
+      // event alone, so the list it travelled in is visible per index.
+      const added = (member: Record<string, unknown>) => ({
         status: 200,
-        sent: { members: [member] },
+        sent: { advertiserId: ADVERTISER_ID, addedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT } },
+        body: API_RESPONSE
+      })
+
+      const removed = (member: Record<string, unknown>) => ({
+        status: 200,
+        sent: {
+          advertiserId: ADVERTISER_ID,
+          removedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT }
+        },
         body: API_RESPONSE
       })
 
       // Every index is asserted, in order, proving index alignment survives both drop points.
       expect(responses).toEqual([
-        success({ hashedEmails: [hash('add1@example.com')] }),
-        success({ hashedEmails: [hash('remove1@example.com')] }),
+        added({ hashedEmails: [hash('add1@example.com')] }),
+        removed({ hashedEmails: [hash('remove1@example.com')] }),
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'INTEGRATIONS',
           errormessage: 'Enable Batching must be a boolean but it was a string.'
         },
-        success({ hashedPhoneNumbers: [hash('+12125650000')] }),
+        added({ hashedPhoneNumbers: [hash('+12125650000')] }),
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'INTEGRATIONS',
           errormessage: expect.stringContaining('No usable contact info identifiers')
         },
-        success({ hashedEmails: [hash('remove2@example.com')] }),
+        removed({ hashedEmails: [hash('remove2@example.com')] }),
         {
           status: 400,
           errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
@@ -889,7 +900,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           errorreporter: 'INTEGRATIONS',
           errormessage: expect.stringContaining('does not belong to the same audience')
         },
-        success({ hashedEmails: [hash('add3@example.com')] })
+        added({ hashedEmails: [hash('add3@example.com')] })
       ])
     })
   })
