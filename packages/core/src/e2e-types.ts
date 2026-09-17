@@ -35,6 +35,12 @@ export interface E2EErrorExpectation {
   status: 'error'
   errorType: string
   errorMessage?: string
+  /**
+   * The status carried by the thrown error, where it has one. Segment's error classes take a status
+   * which decides whether the event is retried, so this asserts that choice: a 400 is discarded
+   * where a 500 is retried.
+   */
+  httpStatus?: number
 }
 
 /**
