@@ -3,9 +3,7 @@ import type { AudienceSettings, Settings } from '../generated-types'
 import type { Payload, RetlOnMappingSaveInputs } from './generated-types'
 import { external_id, enable_batching, batch_size } from '../properties'
 import {
-  audience_type,
   contact_info,
-  phone_number_settings,
   mobileDeviceIds,
   consent,
   batch_keys,
@@ -48,9 +46,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
     ]
   },
   fields: {
-    audience_type,
     contact_info,
-    phone_number_settings,
     mobileDeviceIds,
     consent,
     external_id,

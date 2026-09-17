@@ -1422,39 +1422,6 @@
       },
       "dynamicFields": null,
       "fields": {
-        "audience_type": {
-          "label": "Audience Type",
-          "description": "The type of Customer Match audience this mapping syncs to. This must match the type of the audience in Display & Video 360, and controls which identifier fields are shown below.",
-          "type": "string",
-          "required": true,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": "CUSTOMER_MATCH_CONTACT_INFO",
-          "choices": [
-            {
-              "label": "Contact Info",
-              "value": "CUSTOMER_MATCH_CONTACT_INFO"
-            },
-            {
-              "label": "Mobile Device ID",
-              "value": "CUSTOMER_MATCH_DEVICE_ID"
-            }
-          ],
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
         "contact_info": {
           "label": "Contact Info Details",
           "description": "The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.",
@@ -1692,90 +1659,6 @@
             }
           },
           "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "audience_type",
-                "operator": "is",
-                "value": "CUSTOMER_MATCH_CONTACT_INFO"
-              }
-            ]
-          },
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "phone_number_settings": {
-          "label": "Phone Number Settings",
-          "description": "Google rejects phone numbers which do not start with an international country code. For example, +1 for the US or +44 for GB. Segment can add default country codes to phone numbers which are missing a country code. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.",
-          "type": "object",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "useContactInfoCountryCode": false
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": {
-            "defaultCountryCode": {
-              "label": "Default Country Code",
-              "description": "The default country to assume for phone numbers. Numbers which already have an international country code are unaffected. This field accepts a two letter code such as US or GB (which would result in +1 or +44 being prefixed).",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
-            "useContactInfoCountryCode": {
-              "label": "Infer from Contact Info > Country Code",
-              "description": "Use each user's own Country Code, from Contact Info Details, to work out which country their phone number belongs to. Numbers which already have an international country code are unaffected.",
-              "type": "boolean",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            }
-          },
-          "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
@@ -1802,16 +1685,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "audience_type",
-                "operator": "is",
-                "value": "CUSTOMER_MATCH_DEVICE_ID"
-              }
-            ]
-          },
+          "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -1997,7 +1871,6 @@
           "dynamic": false,
           "default": [
             "external_id",
-            "audience_type",
             "consent"
           ],
           "choices": null,
@@ -2494,7 +2367,6 @@
       "type": "specificEvent",
       "partnerAction": "syncAudience",
       "mapping": {
-        "audience_type": "CUSTOMER_MATCH_CONTACT_INFO",
         "contact_info": {
           "emails": {
             "@if": {
@@ -2575,9 +2447,6 @@
             }
           }
         },
-        "phone_number_settings": {
-          "useContactInfoCountryCode": false
-        },
         "mobileDeviceIds": {
           "@path": "$.context.traits.mobileDeviceIds"
         },
@@ -2588,7 +2457,6 @@
         "batch_size": 500000,
         "batch_keys": [
           "external_id",
-          "audience_type",
           "consent"
         ]
       },

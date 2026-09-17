@@ -20,16 +20,18 @@ export async function performHook(
   const {
     operation,
     advertiserId: rawAdvertiserId,
-    audienceName,
+    audienceName: rawAudienceName,
     audienceType,
     membershipDurationDays,
-    description,
+    description: rawDescription,
     appId,
     existingAudienceId: rawExistingAudienceId
   } = hookInputs
 
   const advertiserId = rawAdvertiserId?.trim()
   const existingAudienceId = rawExistingAudienceId?.trim()
+  const audienceName = rawAudienceName?.trim()
+  const description = rawDescription?.trim()
 
   if (!advertiserId) {
     return {
