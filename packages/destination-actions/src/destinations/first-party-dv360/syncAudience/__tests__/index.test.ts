@@ -166,6 +166,20 @@ const captureBody = () => {
   return { captured, scope }
 }
 
+// Display & Video 360 rejects a request carrying both an added and a removed list, so a batch
+// holding both makes two requests: the adds first, then the removes.
+const captureBodies = (times = 2) => {
+  const bodies: any[] = []
+  const scope = nock(DV360_HOST)
+    .post(EDIT_PATH, (b) => {
+      bodies.push(b)
+      return true
+    })
+    .times(times)
+    .reply(200, API_RESPONSE)
+  return { bodies, scope }
+}
+
 afterEach(() => {
   nock.cleanAll()
 })
@@ -476,8 +490,8 @@ describe('FirstPartyDv360.syncAudience', () => {
 
   // A batch goes through performBatch, which reports the outcome of every event by index.
   describe('performBatch, a batch of events', () => {
-    it('sends adds and removes in a single request for a mixed batch', async () => {
-      const { captured, scope } = captureBody()
+    it('sends adds and removes as separate requests for a mixed batch', async () => {
+      const { bodies, scope } = captureBodies()
 
       await testDestination.executeBatch('syncAudience', {
         settings: {},
@@ -490,19 +504,25 @@ describe('FirstPartyDv360.syncAudience', () => {
       })
 
       expect(scope.isDone()).toBe(true)
-      expect(captured.body).toEqual({
-        advertiserId: ADVERTISER_ID,
-        addedContactInfoList: {
-          contactInfos: [{ hashedEmails: [hash('add1@example.com')] }, { hashedEmails: [hash('add2@example.com')] }],
-          consent: GRANTED_CONSENT
+      expect(bodies).toEqual([
+        {
+          advertiserId: ADVERTISER_ID,
+          addedContactInfoList: {
+            contactInfos: [{ hashedEmails: [hash('add1@example.com')] }, { hashedEmails: [hash('add2@example.com')] }],
+            consent: GRANTED_CONSENT
+          }
         },
-        removedContactInfoList: {
-          contactInfos: [{ hashedEmails: [hash('remove1@example.com')] }],
-          consent: GRANTED_CONSENT
+        {
+          advertiserId: ADVERTISER_ID,
+          removedContactInfoList: {
+            contactInfos: [{ hashedEmails: [hash('remove1@example.com')] }],
+            consent: GRANTED_CONSENT
+          }
         }
-      })
+      ])
     })
 
+    // captureBody allows a single request, so this also proves an all-adds batch makes only one.
     it('omits the removed list when a batch is all adds', async () => {
       const { captured, scope } = captureBody()
 
@@ -520,7 +540,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     })
 
     it('sends mobile device IDs for a device ID audience', async () => {
-      const { captured } = captureBody()
+      const { bodies } = captureBodies()
 
       await testDestination.executeBatch('syncAudience', {
         settings: {},
@@ -531,11 +551,16 @@ describe('FirstPartyDv360.syncAudience', () => {
         mapping: { ...mapping, audience_type: DEVICE_ID }
       })
 
-      expect(captured.body).toEqual({
-        advertiserId: ADVERTISER_ID,
-        addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent: GRANTED_CONSENT },
-        removedMobileDeviceIdList: { mobileDeviceIds: ['device-2'], consent: GRANTED_CONSENT }
-      })
+      expect(bodies).toEqual([
+        {
+          advertiserId: ADVERTISER_ID,
+          addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent: GRANTED_CONSENT }
+        },
+        {
+          advertiserId: ADVERTISER_ID,
+          removedMobileDeviceIdList: { mobileDeviceIds: ['device-2'], consent: GRANTED_CONSENT }
+        }
+      ])
     })
 
     it('only sends the address group when it is complete', async () => {
@@ -684,6 +709,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     it('reports a 4xx from Display & Video 360 against every sent event', async () => {
       nock(DV360_HOST)
         .post(EDIT_PATH)
+        .times(2)
         .reply(400, { error: { code: 400, message: 'Invalid advertiser', status: 'INVALID_ARGUMENT' } })
 
       const responses = await testDestination.executeBatch('syncAudience', {
@@ -717,7 +743,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     })
 
     it('reports a 5xx as a retryable error against every sent event', async () => {
-      nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
+      nock(DV360_HOST).post(EDIT_PATH).times(2).reply(500, {})
 
       const responses = await testDestination.executeBatch('syncAudience', {
         settings: {},
@@ -733,8 +759,33 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect((responses[1] as any).errortype).toBe('RETRYABLE_ERROR')
     })
 
+    // Adds and removes travel separately, so one direction failing leaves the other's events
+    // successful rather than failing the whole batch.
+    it('fails only the removed events when the remove request is rejected', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).once().reply(200, API_RESPONSE)
+      nock(DV360_HOST)
+        .post(EDIT_PATH)
+        .once()
+        .reply(400, { error: { code: 400, message: 'Cannot remove', status: 'INVALID_ARGUMENT' } })
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        settings: {},
+        events: [
+          makeEvent({ membership: true, emails: 'a@example.com' }),
+          makeEvent({ membership: false, emails: 'b@example.com' }),
+          makeEvent({ membership: true, emails: 'c@example.com' })
+        ],
+        mapping
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[2].status).toBe(200)
+      expect(responses[1].status).toBe(400)
+      expect((responses[1] as any).errormessage).toBe('Cannot remove')
+    })
+
     it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {
-      const { captured, scope } = captureBody()
+      const { bodies, scope } = captureBodies()
 
       const otherAudienceEvent = makeEvent({ membership: true, emails: 'otheraudience@example.com' })
       ;(otherAudienceEvent.context as any).personas.external_audience_id = 'a-different-audience'
@@ -770,25 +821,31 @@ describe('FirstPartyDv360.syncAudience', () => {
 
       expect(scope.isDone()).toBe(true)
 
-      // Only the valid events reached the API, in one request, adds first then removes.
-      expect(captured.body).toEqual({
-        advertiserId: ADVERTISER_ID,
-        addedContactInfoList: {
-          contactInfos: [
-            { hashedEmails: [hash('add1@example.com')] },
-            { hashedPhoneNumbers: [hash('+12125650000')] },
-            { hashedEmails: [hash('add3@example.com')] }
-          ],
-          consent: GRANTED_CONSENT
+      // Only the valid events reached the API: the adds in the first request, the removes in the
+      // second, each keeping the order they had in the batch.
+      expect(bodies).toEqual([
+        {
+          advertiserId: ADVERTISER_ID,
+          addedContactInfoList: {
+            contactInfos: [
+              { hashedEmails: [hash('add1@example.com')] },
+              { hashedPhoneNumbers: [hash('+12125650000')] },
+              { hashedEmails: [hash('add3@example.com')] }
+            ],
+            consent: GRANTED_CONSENT
+          }
         },
-        removedContactInfoList: {
-          contactInfos: [
-            { hashedEmails: [hash('remove1@example.com')] },
-            { hashedEmails: [hash('remove2@example.com')] }
-          ],
-          consent: GRANTED_CONSENT
+        {
+          advertiserId: ADVERTISER_ID,
+          removedContactInfoList: {
+            contactInfos: [
+              { hashedEmails: [hash('remove1@example.com')] },
+              { hashedEmails: [hash('remove2@example.com')] }
+            ],
+            consent: GRANTED_CONSENT
+          }
         }
-      })
+      ])
 
       const success = (member: Record<string, unknown>) => ({
         status: 200,

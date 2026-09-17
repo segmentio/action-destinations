@@ -669,25 +669,31 @@ describe('buildJSON', () => {
   const john = { hashedEmails: ['john'] }
   const consent = { adUserData: GRANTED, adPersonalization: GRANTED } as const
 
-  it('puts adds and removes in one contact info request', () => {
-    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane], [john], consent)).toEqual({
+  it('builds an added contact info list', () => {
+    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane, john], true, consent)).toEqual({
       advertiserId: ADVERTISER_ID,
-      addedContactInfoList: { contactInfos: [jane], consent },
+      addedContactInfoList: { contactInfos: [jane, john], consent }
+    })
+  })
+
+  // Display & Video 360 rejects a request carrying both lists, so only ever one is built.
+  it('builds a removed contact info list', () => {
+    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [john], false, consent)).toEqual({
+      advertiserId: ADVERTISER_ID,
       removedContactInfoList: { contactInfos: [john], consent }
     })
   })
 
-  it('omits the list which has no members', () => {
-    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [], [john], consent)).toEqual({
+  it('builds an added mobile device ID list for a device ID audience', () => {
+    expect(buildJSON(ADVERTISER_ID, DEVICE_ID, ['device-1'], true, consent)).toEqual({
       advertiserId: ADVERTISER_ID,
-      removedContactInfoList: { contactInfos: [john], consent }
+      addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent }
     })
   })
 
-  it('builds the mobile device ID lists for a device ID audience', () => {
-    expect(buildJSON(ADVERTISER_ID, DEVICE_ID, ['device-1'], ['device-2'], consent)).toEqual({
+  it('builds a removed mobile device ID list for a device ID audience', () => {
+    expect(buildJSON(ADVERTISER_ID, DEVICE_ID, ['device-2'], false, consent)).toEqual({
       advertiserId: ADVERTISER_ID,
-      addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent },
       removedMobileDeviceIdList: { mobileDeviceIds: ['device-2'], consent }
     })
   })
@@ -695,7 +701,7 @@ describe('buildJSON', () => {
   // An empty consent is what an unmapped consent field produces. Leaving the key off is how
   // Display & Video 360 is told the signals are not specified.
   it.each([{}, undefined])('leaves the consent key off the request for %p', (empty?: Consent) => {
-    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane], [], empty)).toEqual({
+    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane], true, empty)).toEqual({
       advertiserId: ADVERTISER_ID,
       addedContactInfoList: { contactInfos: [jane] }
     })

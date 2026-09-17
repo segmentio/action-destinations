@@ -67,6 +67,56 @@ const fixtures: E2EFixture[] = [
     verboseFailureHint: FAILURE_HINT
   },
   {
+    // Display & Video 360 rejects a request carrying both an added and a removed list, and
+    // membership is not a batch key, so a batch mixing the two is the ordinary Engage case.
+    // The action splits them into one request per direction.
+    description: 'Contact Info audience: a batch mixing an add and a remove is split into two requests',
+    subscribe: 'type = "track"',
+    mapping: contactInfoMapping,
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-mixed-add',
+        email: 'e2e-dv360-mixed-add@segment.com'
+      }),
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'remove',
+        eventName: 'Audience Exited',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-mixed-remove',
+        email: 'e2e-dv360-mixed-remove@segment.com'
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            members: [{ hashedEmails: ['8b8870e006c914e930a96269ba26d8632691d1375f66260c4a72fd4db9f46527'] }]
+          }
+        },
+        {
+          status: 200,
+          sent: {
+            members: [{ hashedEmails: ['fed4c757608b4c16251f3f8a697ba5800b6b3981c3464d3668d056f4df43d406'] }]
+          }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
     description: 'Mobile Device ID audience: add a user',
     subscribe: 'type = "track"',
     mapping: deviceIdMapping,

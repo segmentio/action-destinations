@@ -92,52 +92,58 @@ export async function send(
     }
   })
 
-  const sentIndices = [...addIndices, ...removeIndices]
+  // Adds and removes cannot travel in the same request, so each direction is sent on its own and
+  // reports back only against the payloads it carried. 
+  const operations = [
+    { indices: addIndices, members: addedMembers, isAdd: true },
+    { indices: removeIndices, members: removedMembers, isAdd: false }
+  ].filter(({ indices }) => indices.length > 0)
 
-  if (sentIndices.length === 0) {
+  if (operations.length === 0) {
     return msResponse
   }
 
-  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
-  const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    json,
-    throwHttpErrors: false
-  })
-
-  if (!response.ok) {
-    const { status, data } = response
-
-    sentIndices.forEach((index) => {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        status,
-        errorTypeForStatus(status),
-        data?.error?.message ?? 'Display & Video 360 rejected the request',
-        { members: membersByIndex[index] } as unknown as JSONLikeObject,
-        (data ?? {}) as unknown as JSONLikeObject
-      )
+  for (const { indices, members, isAdd } of operations) {
+    const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
+      throwHttpErrors: false
     })
 
-    return msResponse
-  }
+    if (!response.ok) {
+      const { status, data } = response
 
-  if (!isBatch) {
-    return response
-  }
+      indices.forEach((index) => {
+        setError(
+          msResponse,
+          isBatch,
+          index,
+          status,
+          errorTypeForStatus(status),
+          data?.error?.message ?? 'Display & Video 360 rejected the request',
+          { members: membersByIndex[index] } as unknown as JSONLikeObject,
+          (data ?? {}) as unknown as JSONLikeObject
+        )
+      })
 
-  sentIndices.forEach((index) => {
-    msResponse.setSuccessResponseAtIndex(index, {
-      status: response.status,
-      sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
-      body: { success: true }
+      continue
+    }
+
+    if (!isBatch) {
+      return response
+    }
+
+    indices.forEach((index) => {
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: response.status,
+        sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
+        body: { success: true }
+      })
     })
-  })
+  }
 
   return msResponse
 }
@@ -310,40 +316,27 @@ export function buildContactInfo(
   return Object.keys(contactInfo).length > 0 ? contactInfo : undefined
 }
 
+// Display & Video 360 rejects a request carrying both an added and a removed list: "An edit
+// customer match request can either add or remove customers. It cannot do both." One call
+// therefore builds one list, and adds and removes are sent as separate requests.
 export function buildJSON(
   advertiserId: string,
   audienceType: string,
-  addedMembers: Member[],
-  removedMembers: Member[],
+  members: Member[],
+  isAdd: boolean,
   consent?: Consent
 ): EditCustomerMatchMembersRequest {
-  const isContactInfo = audienceType === CONTACT_INFO
-
   const consentJSON = consent && Object.keys(consent).length > 0 ? { consent } : {}
 
-  const contactInfoList = (members: Member[]): ContactInfoList => ({
-    contactInfos: members as ContactInfo[],
-    ...consentJSON
-  })
+  if (audienceType === CONTACT_INFO) {
+    const list: ContactInfoList = { contactInfos: members as ContactInfo[], ...consentJSON }
 
-  const mobileDeviceIdList = (members: Member[]): MobileDeviceIdList => ({
-    mobileDeviceIds: members as string[],
-    ...consentJSON
-  })
-
-  return {
-    advertiserId,
-    ...(addedMembers.length > 0
-      ? isContactInfo
-        ? { addedContactInfoList: contactInfoList(addedMembers) }
-        : { addedMobileDeviceIdList: mobileDeviceIdList(addedMembers) }
-      : {}),
-    ...(removedMembers.length > 0
-      ? isContactInfo
-        ? { removedContactInfoList: contactInfoList(removedMembers) }
-        : { removedMobileDeviceIdList: mobileDeviceIdList(removedMembers) }
-      : {})
+    return { advertiserId, ...(isAdd ? { addedContactInfoList: list } : { removedContactInfoList: list }) }
   }
+
+  const list: MobileDeviceIdList = { mobileDeviceIds: members as string[], ...consentJSON }
+
+  return { advertiserId, ...(isAdd ? { addedMobileDeviceIdList: list } : { removedMobileDeviceIdList: list }) }
 }
 
 export function resolveAudienceDetails(
