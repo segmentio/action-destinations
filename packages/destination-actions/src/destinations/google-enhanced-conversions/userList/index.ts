@@ -183,6 +183,7 @@ const action: ActionDefinition<Settings, Payload> = {
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
           dynamic: async (request, { settings, auth, features, statsContext }) => {
+            console.log(features?.[FLAGON_NAME_DATA_MANAGER_API], 'features in retlOnMappingSave dynamic list_id')
             if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
               return await getDataManagerListIds(request, settings, { refresh_token: auth?.refreshToken }, statsContext)
             }
@@ -244,8 +245,10 @@ const action: ActionDefinition<Settings, Payload> = {
       },
       performHook: async (request, { auth, settings, hookInputs, features, statsContext }) => {
         settings.customerId = verifyCustomerId(settings.customerId)
+        console.log(features?.[FLAGON_NAME_DATA_MANAGER_API], 'features in performHook dynamic list_id')
         if (hookInputs.list_id) {
           try {
+            console.log(features?.[FLAGON_NAME_DATA_MANAGER_API], 'features in performHook dynamic list_id inside try')
             if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
               const customerId = settings.customerId
               const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
