@@ -1,5 +1,5 @@
 import { validate, parseFql, ErrorCondition } from '@segment/destination-subscriptions'
-import { EventEmitterSlug } from '@segment/action-emitters'
+import { EventEmitterSlug } from './event-emitter-types'
 import type { JSONSchema4 } from 'json-schema'
 import {
   Action,
