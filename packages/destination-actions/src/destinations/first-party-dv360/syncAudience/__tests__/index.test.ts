@@ -10,7 +10,6 @@ import {
 import Destination from '../../index'
 import type { Payload } from '../generated-types'
 import { processHashing } from '../../../../lib/hashing-utils'
-import { AUDIENCE_TYPE_LABEL } from '../constants'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -38,8 +37,6 @@ interface EventOptions extends ContactInfoOptions, ConsentOptions {
   computationClass?: string
   type?: 'track' | 'identify'
   advertiserId?: string
-  defaultCountryCode?: string
-  useContactInfoCountryCode?: boolean
   mobileDeviceIds?: Payload['mobileDeviceIds']
   // A string is used deliberately by one test to fail the framework's boolean validation
   // before performBatch is reached.
@@ -61,10 +58,6 @@ const makeEvent = ({
   countryCode,
   adUserData = GRANTED,
   adPersonalization = GRANTED,
-  // Both are unset by default, as the field itself is: a number with no country code is
-  // dropped rather than read against a guessed country.
-  defaultCountryCode,
-  useContactInfoCountryCode,
   enableBatching = true
 }: EventOptions = {}) =>
   createTestEvent({
@@ -95,14 +88,11 @@ const makeEvent = ({
       ...(membership === null || type === 'identify' ? {} : { my_audience: membership }),
       ...(adUserData ? { adUserData } : {}),
       ...(adPersonalization ? { adPersonalization } : {}),
-      ...(defaultCountryCode ? { defaultCountryCode } : {}),
-      ...(useContactInfoCountryCode === undefined ? {} : { useContactInfoCountryCode }),
       enableBatching
     }
   })
 
 const mapping = {
-  audience_type: CONTACT_INFO,
   contact_info: {
     emails: { '@path': '$.context.traits.emails' },
     phoneNumbers: { '@path': '$.context.traits.phoneNumbers' },
@@ -112,10 +102,6 @@ const mapping = {
     countryCode: { '@path': '$.context.traits.countryCode' }
   },
   mobileDeviceIds: { '@path': '$.context.traits.mobileDeviceIds' },
-  phone_number_settings: {
-    defaultCountryCode: { '@path': '$.properties.defaultCountryCode' },
-    useContactInfoCountryCode: { '@path': '$.properties.useContactInfoCountryCode' }
-  },
   // The consent field has no default, so it is mapped straight from the event.
   consent: {
     adUserData: { '@path': '$.properties.adUserData' },
@@ -164,6 +150,20 @@ const captureBody = () => {
     .once()
     .reply(200, API_RESPONSE)
   return { captured, scope }
+}
+
+// Display & Video 360 rejects a request carrying both an added and a removed list, so a batch
+// holding both makes two requests: the adds first, then the removes.
+const captureBodies = (times = 2) => {
+  const bodies: any[] = []
+  const scope = nock(DV360_HOST)
+    .post(EDIT_PATH, (b) => {
+      bodies.push(b)
+      return true
+    })
+    .times(times)
+    .reply(200, API_RESPONSE)
+  return { bodies, scope }
 }
 
 afterEach(() => {
@@ -307,48 +307,19 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(captured.body.addedContactInfoList.consent).toEqual({ adUserData: 'CONSENT_STATUS_GRANTED' })
     })
 
-    // A national number needs a country before it can be sent. These cover the field end to
-    // end: the unit tests cover normalisePhone itself.
-    it('sends a national number using the default country', async () => {
+    // Phone numbers are not validated, so whatever the customer maps is hashed and sent.
+    it('sends a phone number exactly as it was given', async () => {
       const { captured } = captureBody()
 
       await testDestination.testAction('syncAudience', {
-        event: makeEvent({ phoneNumbers: '(212) 565-0000', defaultCountryCode: 'US' }),
+        event: makeEvent({ phoneNumbers: '(212) 565-0000' }),
         mapping,
         useDefaultMappings: false
       })
 
-      expect(captured.body.addedContactInfoList.contactInfos).toEqual([{ hashedPhoneNumbers: [hash('+12125650000')] }])
-    })
-
-    it("sends a national number using the user's own country code when the mapping opts in", async () => {
-      const { captured } = captureBody()
-
-      await testDestination.testAction('syncAudience', {
-        event: makeEvent({
-          phoneNumbers: '020 7031 3000',
-          zipCodes: 'SW1A 1AA',
-          firstName: 'Jane',
-          lastName: 'Doe',
-          countryCode: 'GB',
-          useContactInfoCountryCode: true
-        }),
-        mapping,
-        useDefaultMappings: false
-      })
-
-      expect(captured.body.addedContactInfoList.contactInfos[0].hashedPhoneNumbers).toEqual([hash('+442070313000')])
-    })
-
-    // Neither setting applies, so the number cannot be read and this event has nothing else.
-    it('throws for a single event whose only identifier is a number with no country', async () => {
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent({ phoneNumbers: '(212) 565-0000' }),
-          mapping,
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow('No usable contact info identifiers')
+      expect(captured.body.addedContactInfoList.contactInfos).toEqual([
+        { hashedPhoneNumbers: [hash('(212) 565-0000')] }
+      ])
     })
 
     it('throws for a single event with no usable identifier', async () => {
@@ -402,20 +373,6 @@ describe('FirstPartyDv360.syncAudience', () => {
       })
 
       expect(captured.body.advertiserId).toBe('advertiser-from-audience-settings')
-    })
-
-    // audience_type is required, so the framework rejects the event before the action runs.
-    // This is what makes the mapped type safe to treat as always present.
-    it('throws for a single event when the audience type is unmapped', async () => {
-      const { audience_type: _type, ...mappingWithoutType } = mapping
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: makeEvent({ membership: true, emails: 'a@example.com' }),
-          mapping: mappingWithoutType,
-          useDefaultMappings: false
-        })
-      ).rejects.toThrow("missing the required field 'audience_type'")
     })
 
     it('throws a retryable error for a single event on a 5xx', async () => {
@@ -476,8 +433,8 @@ describe('FirstPartyDv360.syncAudience', () => {
 
   // A batch goes through performBatch, which reports the outcome of every event by index.
   describe('performBatch, a batch of events', () => {
-    it('sends adds and removes in a single request for a mixed batch', async () => {
-      const { captured, scope } = captureBody()
+    it('sends adds and removes as separate requests for a mixed batch', async () => {
+      const { bodies, scope } = captureBodies()
 
       await testDestination.executeBatch('syncAudience', {
         settings: {},
@@ -490,19 +447,25 @@ describe('FirstPartyDv360.syncAudience', () => {
       })
 
       expect(scope.isDone()).toBe(true)
-      expect(captured.body).toEqual({
-        advertiserId: ADVERTISER_ID,
-        addedContactInfoList: {
-          contactInfos: [{ hashedEmails: [hash('add1@example.com')] }, { hashedEmails: [hash('add2@example.com')] }],
-          consent: GRANTED_CONSENT
+      expect(bodies).toEqual([
+        {
+          advertiserId: ADVERTISER_ID,
+          addedContactInfoList: {
+            contactInfos: [{ hashedEmails: [hash('add1@example.com')] }, { hashedEmails: [hash('add2@example.com')] }],
+            consent: GRANTED_CONSENT
+          }
         },
-        removedContactInfoList: {
-          contactInfos: [{ hashedEmails: [hash('remove1@example.com')] }],
-          consent: GRANTED_CONSENT
+        {
+          advertiserId: ADVERTISER_ID,
+          removedContactInfoList: {
+            contactInfos: [{ hashedEmails: [hash('remove1@example.com')] }],
+            consent: GRANTED_CONSENT
+          }
         }
-      })
+      ])
     })
 
+    // captureBody allows a single request, so this also proves an all-adds batch makes only one.
     it('omits the removed list when a batch is all adds', async () => {
       const { captured, scope } = captureBody()
 
@@ -520,7 +483,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     })
 
     it('sends mobile device IDs for a device ID audience', async () => {
-      const { captured } = captureBody()
+      const { bodies } = captureBodies()
 
       await testDestination.executeBatch('syncAudience', {
         settings: {},
@@ -528,14 +491,19 @@ describe('FirstPartyDv360.syncAudience', () => {
           makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceIds: 'device-1' }),
           makeEvent({ membership: false, audienceType: DEVICE_ID, mobileDeviceIds: 'device-2' })
         ],
-        mapping: { ...mapping, audience_type: DEVICE_ID }
+        mapping
       })
 
-      expect(captured.body).toEqual({
-        advertiserId: ADVERTISER_ID,
-        addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent: GRANTED_CONSENT },
-        removedMobileDeviceIdList: { mobileDeviceIds: ['device-2'], consent: GRANTED_CONSENT }
-      })
+      expect(bodies).toEqual([
+        {
+          advertiserId: ADVERTISER_ID,
+          addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent: GRANTED_CONSENT }
+        },
+        {
+          advertiserId: ADVERTISER_ID,
+          removedMobileDeviceIdList: { mobileDeviceIds: ['device-2'], consent: GRANTED_CONSENT }
+        }
+      ])
     })
 
     it('only sends the address group when it is complete', async () => {
@@ -615,44 +583,6 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect((responses[1] as any).errormessage).toContain('does not belong to the same audience')
     })
 
-    it('fails the batch when the mapped audience type disagrees with the audience', async () => {
-      const responses = await testDestination.executeBatch('syncAudience', {
-        settings: {},
-        events: [makeEvent({ membership: true, audienceType: DEVICE_ID, mobileDeviceIds: 'device-1' })],
-        mapping
-      })
-
-      expect(responses).toEqual([
-        {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errorreporter: 'INTEGRATIONS',
-          errormessage: `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${CONTACT_INFO}, but the audience in Display & Video 360 is ${DEVICE_ID}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
-        }
-      ])
-    })
-
-    it('drops an event with an unmapped audience type from a batch', async () => {
-      const { audience_type: _type, ...mappingWithoutType } = mapping
-      const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
-
-      const responses = await testDestination.executeBatch('syncAudience', {
-        settings: {},
-        events: [makeEvent({ membership: true, emails: 'a@example.com' })],
-        mapping: mappingWithoutType
-      })
-
-      expect(scope.isDone()).toBe(false)
-      expect(responses).toEqual([
-        {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errorreporter: 'INTEGRATIONS',
-          errormessage: expect.stringContaining("missing the required field 'audience_type'")
-        }
-      ])
-    })
-
     it('rejects an unrecognised audience type before sending', async () => {
       const scope = nock(DV360_HOST).post(EDIT_PATH).reply(200, API_RESPONSE)
 
@@ -684,6 +614,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     it('reports a 4xx from Display & Video 360 against every sent event', async () => {
       nock(DV360_HOST)
         .post(EDIT_PATH)
+        .times(2)
         .reply(400, { error: { code: 400, message: 'Invalid advertiser', status: 'INVALID_ARGUMENT' } })
 
       const responses = await testDestination.executeBatch('syncAudience', {
@@ -717,7 +648,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     })
 
     it('reports a 5xx as a retryable error against every sent event', async () => {
-      nock(DV360_HOST).post(EDIT_PATH).reply(500, {})
+      nock(DV360_HOST).post(EDIT_PATH).times(2).reply(500, {})
 
       const responses = await testDestination.executeBatch('syncAudience', {
         settings: {},
@@ -733,8 +664,33 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect((responses[1] as any).errortype).toBe('RETRYABLE_ERROR')
     })
 
+    // Adds and removes travel separately, so one direction failing leaves the other's events
+    // successful rather than failing the whole batch.
+    it('fails only the removed events when the remove request is rejected', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).once().reply(200, API_RESPONSE)
+      nock(DV360_HOST)
+        .post(EDIT_PATH)
+        .once()
+        .reply(400, { error: { code: 400, message: 'Cannot remove', status: 'INVALID_ARGUMENT' } })
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        settings: {},
+        events: [
+          makeEvent({ membership: true, emails: 'a@example.com' }),
+          makeEvent({ membership: false, emails: 'b@example.com' }),
+          makeEvent({ membership: true, emails: 'c@example.com' })
+        ],
+        mapping
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[2].status).toBe(200)
+      expect(responses[1].status).toBe(400)
+      expect((responses[1] as any).errormessage).toBe('Cannot remove')
+    })
+
     it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {
-      const { captured, scope } = captureBody()
+      const { bodies, scope } = captureBodies()
 
       const otherAudienceEvent = makeEvent({ membership: true, emails: 'otheraudience@example.com' })
       ;(otherAudienceEvent.context as any).personas.external_audience_id = 'a-different-audience'
@@ -770,50 +726,67 @@ describe('FirstPartyDv360.syncAudience', () => {
 
       expect(scope.isDone()).toBe(true)
 
-      // Only the valid events reached the API, in one request, adds first then removes.
-      expect(captured.body).toEqual({
-        advertiserId: ADVERTISER_ID,
-        addedContactInfoList: {
-          contactInfos: [
-            { hashedEmails: [hash('add1@example.com')] },
-            { hashedPhoneNumbers: [hash('+12125650000')] },
-            { hashedEmails: [hash('add3@example.com')] }
-          ],
-          consent: GRANTED_CONSENT
+      // Only the valid events reached the API: the adds in the first request, the removes in the
+      // second, each keeping the order they had in the batch.
+      expect(bodies).toEqual([
+        {
+          advertiserId: ADVERTISER_ID,
+          addedContactInfoList: {
+            contactInfos: [
+              { hashedEmails: [hash('add1@example.com')] },
+              { hashedPhoneNumbers: [hash('+12125650000')] },
+              { hashedEmails: [hash('add3@example.com')] }
+            ],
+            consent: GRANTED_CONSENT
+          }
         },
-        removedContactInfoList: {
-          contactInfos: [
-            { hashedEmails: [hash('remove1@example.com')] },
-            { hashedEmails: [hash('remove2@example.com')] }
-          ],
-          consent: GRANTED_CONSENT
+        {
+          advertiserId: ADVERTISER_ID,
+          removedContactInfoList: {
+            contactInfos: [
+              { hashedEmails: [hash('remove1@example.com')] },
+              { hashedEmails: [hash('remove2@example.com')] }
+            ],
+            consent: GRANTED_CONSENT
+          }
         }
+      ])
+
+      // What is reported against an event is the request as it would have been had it carried that
+      // event alone, so the list it travelled in is visible per index.
+      const added = (member: Record<string, unknown>) => ({
+        status: 200,
+        sent: { advertiserId: ADVERTISER_ID, addedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT } },
+        body: API_RESPONSE
       })
 
-      const success = (member: Record<string, unknown>) => ({
+      const removed = (member: Record<string, unknown>) => ({
         status: 200,
-        sent: { members: [member] },
-        body: { success: true }
+        sent: {
+          advertiserId: ADVERTISER_ID,
+          removedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT }
+        },
+        body: API_RESPONSE
       })
 
       // Every index is asserted, in order, proving index alignment survives both drop points.
       expect(responses).toEqual([
-        success({ hashedEmails: [hash('add1@example.com')] }),
-        success({ hashedEmails: [hash('remove1@example.com')] }),
+        added({ hashedEmails: [hash('add1@example.com')] }),
+        removed({ hashedEmails: [hash('remove1@example.com')] }),
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'INTEGRATIONS',
           errormessage: 'Enable Batching must be a boolean but it was a string.'
         },
-        success({ hashedPhoneNumbers: [hash('+12125650000')] }),
+        added({ hashedPhoneNumbers: [hash('+12125650000')] }),
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
           errorreporter: 'INTEGRATIONS',
           errormessage: expect.stringContaining('No usable contact info identifiers')
         },
-        success({ hashedEmails: [hash('remove2@example.com')] }),
+        removed({ hashedEmails: [hash('remove2@example.com')] }),
         {
           status: 400,
           errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
@@ -832,7 +805,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           errorreporter: 'INTEGRATIONS',
           errormessage: expect.stringContaining('does not belong to the same audience')
         },
-        success({ hashedEmails: [hash('add3@example.com')] })
+        added({ hashedEmails: [hash('add3@example.com')] })
       ])
     })
   })

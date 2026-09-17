@@ -31,13 +31,19 @@ export interface MobileDeviceIdList {
   consent?: Consent
 }
 
-export interface EditCustomerMatchMembersRequest {
-  advertiserId: string
-  addedContactInfoList?: ContactInfoList
-  removedContactInfoList?: ContactInfoList
-  addedMobileDeviceIdList?: MobileDeviceIdList
-  removedMobileDeviceIdList?: MobileDeviceIdList
-}
+// Every key but one is optional and typed never, so setting a second list is a compile error.
+type ExactlyOne<T> = {
+  [K in keyof T]: { [P in K]: T[P] } & { [P in Exclude<keyof T, K>]?: never }
+}[keyof T]
+
+// Display & Video 360 rejects a request carrying more than one list: "An edit customer match
+// request can either add or remove customers. It cannot do both."
+export type EditCustomerMatchMembersRequest = { advertiserId: string } & ExactlyOne<{
+  addedContactInfoList: ContactInfoList
+  removedContactInfoList: ContactInfoList
+  addedMobileDeviceIdList: MobileDeviceIdList
+  removedMobileDeviceIdList: MobileDeviceIdList
+}>
 
 export interface DV360Audience {
   firstPartyAndPartnerAudienceId?: string

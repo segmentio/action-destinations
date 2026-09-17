@@ -7,7 +7,6 @@ import {
   buildMember,
   errorTypeForStatus,
   normaliseEmail,
-  normalisePhone,
   failAllPayloads,
   getAdvertiserId,
   getAudienceId,
@@ -32,41 +31,26 @@ const hash = (value: string): string =>
 
 describe('validateAudienceDetails', () => {
   it('returns undefined when everything is present and valid', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO, CONTACT_INFO)).toBeUndefined()
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
   })
 
   it('reports every missing value in one message', () => {
     expect(validateAudienceDetails()).toBe(
-      `Missing audience ID. Missing advertiser ID. Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse. Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`
+      `Missing audience ID. Missing advertiser ID. Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
     )
   })
 
   it('combines a missing value with an invalid one', () => {
-    expect(validateAudienceDetails(undefined, ADVERTISER_ID, 'SOMETHING_ELSE', 'SOMETHING_ELSE')).toBe(
+    expect(validateAudienceDetails(undefined, ADVERTISER_ID, 'SOMETHING_ELSE')).toBe(
       `Missing audience ID. Unrecognised audience type: SOMETHING_ELSE. The audience must be ${CONTACT_INFO} or ${DEVICE_ID}`
     )
   })
 
-  // The audience's own type and the mapping field are both labelled Audience Type, so the
-  // message names where the value comes from. Asserted in full: it is the only thing keeping
-  // this distinguishable from the mapping field message below.
-  it('reports a missing audience type, naming the audience setting and the hook step', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, undefined, CONTACT_INFO)).toBe(
+  // The audience's type reaches the action from the audience settings or the mapping save hook,
+  // and the message names both places so a customer knows where to set it.
+  it("reports a missing audience type, naming the audience setting and the hook step", () => {
+    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID)).toBe(
       `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
-    )
-  })
-
-  // The mapped type is what the customer picked in the mapping. It is required with a default,
-  // so an absent one means something is wrong rather than nothing to check.
-  it('reports a mapped audience type which is not set', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBe(
-      `Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`
-    )
-  })
-
-  it('reports a mapped audience type that disagrees with the configured one', () => {
-    expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, DEVICE_ID, CONTACT_INFO)).toBe(
-      `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${CONTACT_INFO}, but the audience in Display & Video 360 is ${DEVICE_ID}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${DEVICE_ID} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${CONTACT_INFO} audience`
     )
   })
 })
@@ -249,156 +233,6 @@ describe('normaliseEmail', () => {
   })
 })
 
-describe('normalisePhone', () => {
-  // Already international: the country comes from the number, so no region is needed and the
-  // punctuation people type is stripped.
-  it.each([
-    ['+12125650000', '+12125650000'],
-    ['+1 (212) 565-0000', '+12125650000'],
-    ['+1-212-565-0000', '+12125650000'],
-    ['  +1 212 565 0000  ', '+12125650000'],
-    ['+44 20 7031 3000', '+442070313000'],
-    ['+81 3 1234 5678', '+81312345678'],
-    ['+33 1 42 68 53 00', '+33142685300'],
-    ['+61 2 9374 4000', '+61293744000'],
-    // The extension cannot help a match and is dropped.
-    ['+1 212-565-0000 ext. 123', '+12125650000']
-  ])('keeps %p as %p without needing a country', (value: string, expected: string) => {
-    expect(normalisePhone(value)).toBe(expected)
-  })
-
-  it.each([
-    ['2125650000', 'US', '+12125650000'],
-    ['(212) 565-0000', 'US', '+12125650000'],
-    ['212-565-0000', 'US', '+12125650000'],
-    ['212.565.0000', 'US', '+12125650000'],
-    ['  212 565 0000  ', 'US', '+12125650000'],
-    // A national number drops its trunk prefix rather than simply gaining a dialling code.
-    ['020 7031 3000', 'GB', '+442070313000'],
-    // Dialled internationally from within the given country.
-    ['00 44 20 7031 3000', 'GB', '+442070313000'],
-    ['011 44 20 7031 3000', 'US', '+442070313000'],
-    // Letters are read as the digits they sit on.
-    ['1-800-FLOWERS', 'US', '+18003569377']
-  ])('reads %p against %p as %p', (value: string, region: string, expected: string) => {
-    expect(normalisePhone(value, region)).toBe(expected)
-  })
-
-  // A national number and its own country, one per country. Several of these drop a leading
-  // digit which is only used for dialling inside that country (IE, DE, NL, RU, TR), while
-  // others have no such digit to drop (ES, DK, NO, SE). Every number here is libphonenumber's
-  // own example for that country, so these assert the library's view of valid, not ours.
-  it.each([
-    ['(022) 12345', 'IE', '+3532212345'],
-    ['01 23 45 67 89', 'FR', '+33123456789'],
-    ['030 123456', 'DE', '+4930123456'],
-    ['810 12 34 56', 'ES', '+34810123456'],
-    ['02 1234 5678', 'IT', '+390212345678'],
-    ['010 123 4567', 'NL', '+31101234567'],
-    ['12 345 67 89', 'PL', '+48123456789'],
-    ['08-12 34 56', 'SE', '+468123456'],
-    ['21 234 5678', 'PT', '+351212345678'],
-    ['021 234 56 78', 'CH', '+41212345678'],
-    ['012 34 56 78', 'BE', '+3212345678'],
-    ['32 12 34 56', 'DK', '+4532123456'],
-    ['21 23 45 67', 'NO', '+4721234567'],
-    ['013 1234567', 'FI', '+358131234567'],
-    ['21 2345 6789', 'GR', '+302123456789'],
-    ['074104 10123', 'IN', '+917410410123'],
-    ['(11) 2345-6789', 'BR', '+551123456789'],
-    ['200 123 4567', 'MX', '+522001234567'],
-    ['(021) 8350123', 'ID', '+62218350123'],
-    ['01 804 0123', 'NG', '+23418040123'],
-    ['010 123 4567', 'ZA', '+27101234567'],
-    // Most countries drop a leading 0 when the number is written internationally. Russia drops
-    // a leading 8 instead, so the result is +73011234567 and not +783011234567. Sticking a
-    // dialling code on the front would produce a different, unmatchable number.
-    ['8 (301) 123-45-67', 'RU', '+73011234567'],
-    ['(0212) 345 67 89', 'TR', '+902123456789'],
-    ['02-212-3456', 'KR', '+8222123456'],
-    // Canada shares the +1 calling code with the US, so the country cannot be read from it.
-    ['(506) 234-5678', 'CA', '+15062345678']
-  ])('reads the national number %p against %p as %p', (value: string, region: string, expected: string) => {
-    expect(normalisePhone(value, region)).toBe(expected)
-  })
-
-  // The same numbers written in international form, which need no country at all.
-  it.each([
-    ['+353 22 12345', '+3532212345'],
-    ['+49 30 123456', '+4930123456'],
-    ['+34 810 12 34 56', '+34810123456'],
-    ['+39 02 1234 5678', '+390212345678'],
-    ['+48 12 345 67 89', '+48123456789'],
-    ['+55 11 2345-6789', '+551123456789'],
-    ['+91 74104 10123', '+917410410123'],
-    ['+7 301 123-45-67', '+73011234567']
-  ])('keeps the international number %p as %p', (value: string, expected: string) => {
-    expect(normalisePhone(value)).toBe(expected)
-  })
-
-  // Only the length is checked, not whether the country has assigned the range, so a number
-  // read against the wrong country is accepted and sent. Display & Video 360 then fails to
-  // match it, quietly. The stricter check would reject these, but would also reject a real
-  // number in a range opened after the library's metadata snapshot.
-  it.each([
-    ['01 23 45 67 89', 'DE', '+49123456789'],
-    ['030 123456', 'FR', '+33030123456'],
-    ['(11) 2345-6789', 'IE', '+3531123456789'],
-    ['074104 10123', 'ZA', '+277410410123'],
-    ['2125650000', 'GB', '+442125650000'],
-    // 555 is not a real US area code.
-    ['+15555555555', undefined, '+15555555555']
-  ])(
-    'accepts %p against %p as %p, without checking the range exists',
-    (value: string, region: string | undefined, expected: string) => {
-      expect(normalisePhone(value, region)).toBe(expected)
-    }
-  )
-
-  it.each(['us', ' US ', 'Us'])('accepts %p as a country, whatever the case or spacing', (region: string) => {
-    expect(normalisePhone('2125650000', region)).toBe('+12125650000')
-  })
-
-  // Ignored rather than guessed at, so the number is dropped instead of being read against the
-  // wrong country.
-  it.each(['USA', 'UK', 'United States', 'ZZ', '', '  '])('ignores %p as a country', (region: string) => {
-    expect(normalisePhone('2125650000', region)).toBeUndefined()
-  })
-
-  it('falls back to the second country when the first is not recognised', () => {
-    expect(normalisePhone('2125650000', 'USA', 'US')).toBe('+12125650000')
-  })
-
-  it('prefers the first country when both are recognised', () => {
-    expect(normalisePhone('020 7031 3000', 'GB', 'US')).toBe('+442070313000')
-  })
-
-  // Guessing the country would produce a number which silently never matches.
-  it('drops a national number when no country is known', () => {
-    expect(normalisePhone('2125650000')).toBeUndefined()
-  })
-
-  it.each([
-    ['555', 'US', 'too short for any US number'],
-    ['12345', 'US', 'too short for any US number'],
-    ['+9991234567', undefined, 'a country calling code which does not exist'],
-    ['+1', undefined, 'a country code and nothing else'],
-    ['abc', 'US', 'not a number at all'],
-    ['', 'US', 'empty'],
-    ['   ', 'US', 'only whitespace'],
-    ['+++', undefined, 'only punctuation']
-  ])('drops %p read against %p, which is %s', (value: string, region: string | undefined, _reason: string) => {
-    expect(normalisePhone(value, region)).toBeUndefined()
-  })
-
-  it.each([
-    ['a digest', hash('+12125650000')],
-    ['an uppercase digest', hash('+12125650000').toUpperCase()]
-  ])('passes %s through untouched', (_case: string, value: string) => {
-    expect(normalisePhone(value)).toBe(value)
-  })
-})
-
 describe('buildContactInfo', () => {
   const complete = {
     emails: 'Test@Example.com ',
@@ -454,61 +288,25 @@ describe('buildContactInfo', () => {
     })
   })
 
-  // The user is still synced on whatever survives validation.
-  it('drops the invalid identifiers and keeps the valid ones', () => {
-    expect(
-      buildContactInfo({
-        emails: 'jane@example.com, not-an-email, jane@',
-        phoneNumbers: '+12125650000, notaphone, 2125650000'
-      })
-    ).toEqual({
-      hashedEmails: [hash('jane@example.com')],
-      hashedPhoneNumbers: [hash('+12125650000')]
+  // An unusable email is dropped, and the user is still synced on whatever survives.
+  it('drops the invalid emails and keeps the valid ones', () => {
+    expect(buildContactInfo({ emails: 'jane@example.com, not-an-email, jane@' })).toEqual({
+      hashedEmails: [hash('jane@example.com')]
     })
   })
 
-  it('uses the default country for a number which carries none', () => {
-    expect(buildContactInfo({ phoneNumbers: '(212) 565-0000' }, { defaultCountryCode: 'US' })).toEqual({
-      hashedPhoneNumbers: [hash('+12125650000')]
+  // Phone numbers are not validated at all: the field asks for E.164 and whatever arrives is
+  // hashed and sent. A number Display & Video 360 cannot match is accepted by it and then
+  // matches nobody, which is invisible either way.
+  it('sends a phone number exactly as it was given', () => {
+    expect(buildContactInfo({ phoneNumbers: '(212) 565-0000, notaphone' })).toEqual({
+      hashedPhoneNumbers: [hash('(212) 565-0000'), hash('notaphone')]
     })
   })
 
-  const britishUser = {
-    phoneNumbers: '02070313000',
-    zipCodes: 'SW1A 1AA',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    countryCode: 'GB'
-  }
-
-  const address = {
-    zipCodes: ['SW1A 1AA'],
-    hashedFirstName: hash('jane'),
-    hashedLastName: hash('doe'),
-    countryCode: 'GB'
-  }
-
-  // Opted in, the user's own country code is preferred over the default.
-  it("prefers the user's country code when the mapping opts in", () => {
-    expect(buildContactInfo(britishUser, { defaultCountryCode: 'US', useContactInfoCountryCode: true })).toEqual({
-      hashedPhoneNumbers: [hash('+442070313000')],
-      ...address
-    })
-  })
-
-  // Off by default, so the country code is only sent in the address group and never used to
-  // read a phone number. Here the default country cannot make sense of a British number.
-  it("ignores the user's country code unless the mapping opts in", () => {
-    expect(buildContactInfo(britishUser, { defaultCountryCode: 'US' })).toEqual(address)
-  })
-
-  it("ignores the user's country code when no phone settings are mapped at all", () => {
-    expect(buildContactInfo(britishUser)).toEqual(address)
-  })
-
-  // Nothing survives validation, so the event has no usable identifier and buildMember fails it.
-  it('returns undefined when every identifier is invalid', () => {
-    expect(buildContactInfo({ emails: 'not-an-email', phoneNumbers: 'notaphone' })).toBeUndefined()
+  // Nothing survives, so the event has no usable identifier and buildMember fails it.
+  it('returns undefined when the only email is invalid', () => {
+    expect(buildContactInfo({ emails: 'not-an-email' })).toBeUndefined()
   })
 
   // The country code is the one address detail sent unhashed, so it is tidied on the way out
@@ -529,7 +327,7 @@ describe('buildContactInfo', () => {
     expect(
       buildContactInfo({
         emails: ' Test@Example.COM ',
-        phoneNumbers: '+1 (212) 565-0000',
+        phoneNumbers: '+12125650000',
         zipCodes: '90210',
         firstName: ' Jane ',
         lastName: 'DOE',
@@ -669,25 +467,31 @@ describe('buildJSON', () => {
   const john = { hashedEmails: ['john'] }
   const consent = { adUserData: GRANTED, adPersonalization: GRANTED } as const
 
-  it('puts adds and removes in one contact info request', () => {
-    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane], [john], consent)).toEqual({
+  it('builds an added contact info list', () => {
+    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane, john], true, consent)).toEqual({
       advertiserId: ADVERTISER_ID,
-      addedContactInfoList: { contactInfos: [jane], consent },
+      addedContactInfoList: { contactInfos: [jane, john], consent }
+    })
+  })
+
+  // Display & Video 360 rejects a request carrying both lists, so only ever one is built.
+  it('builds a removed contact info list', () => {
+    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [john], false, consent)).toEqual({
+      advertiserId: ADVERTISER_ID,
       removedContactInfoList: { contactInfos: [john], consent }
     })
   })
 
-  it('omits the list which has no members', () => {
-    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [], [john], consent)).toEqual({
+  it('builds an added mobile device ID list for a device ID audience', () => {
+    expect(buildJSON(ADVERTISER_ID, DEVICE_ID, ['device-1'], true, consent)).toEqual({
       advertiserId: ADVERTISER_ID,
-      removedContactInfoList: { contactInfos: [john], consent }
+      addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent }
     })
   })
 
-  it('builds the mobile device ID lists for a device ID audience', () => {
-    expect(buildJSON(ADVERTISER_ID, DEVICE_ID, ['device-1'], ['device-2'], consent)).toEqual({
+  it('builds a removed mobile device ID list for a device ID audience', () => {
+    expect(buildJSON(ADVERTISER_ID, DEVICE_ID, ['device-2'], false, consent)).toEqual({
       advertiserId: ADVERTISER_ID,
-      addedMobileDeviceIdList: { mobileDeviceIds: ['device-1'], consent },
       removedMobileDeviceIdList: { mobileDeviceIds: ['device-2'], consent }
     })
   })
@@ -695,7 +499,7 @@ describe('buildJSON', () => {
   // An empty consent is what an unmapped consent field produces. Leaving the key off is how
   // Display & Video 360 is told the signals are not specified.
   it.each([{}, undefined])('leaves the consent key off the request for %p', (empty?: Consent) => {
-    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane], [], empty)).toEqual({
+    expect(buildJSON(ADVERTISER_ID, CONTACT_INFO, [jane], true, empty)).toEqual({
       advertiserId: ADVERTISER_ID,
       addedContactInfoList: { contactInfos: [jane] }
     })

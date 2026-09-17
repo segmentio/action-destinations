@@ -12,7 +12,6 @@ import {
   isRetryableStatus
 } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { PhoneNumberFormat, PhoneNumberUtil } from 'google-libphonenumber'
 import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 import { getApiVersion, getEditCustomerMatchMembersEndpoint } from '../functions'
 import {
@@ -92,52 +91,67 @@ export async function send(
     }
   })
 
-  const sentIndices = [...addIndices, ...removeIndices]
+  // Adds and removes cannot travel in the same request, so each direction is sent on its own and
+  // reports back only against the payloads it carried. 
+  const operations = [
+    { indices: addIndices, members: addedMembers, isAdd: true },
+    { indices: removeIndices, members: removedMembers, isAdd: false }
+  ].filter(({ indices }) => indices.length > 0)
 
-  if (sentIndices.length === 0) {
+  if (operations.length === 0) {
     return msResponse
   }
 
-  const json = buildJSON(advertiserId, audienceType, addedMembers, removedMembers, consent)
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
-  const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    json,
-    throwHttpErrors: false
-  })
-
-  if (!response.ok) {
-    const { status, data } = response
-
-    sentIndices.forEach((index) => {
-      setError(
-        msResponse,
-        isBatch,
-        index,
-        status,
-        errorTypeForStatus(status),
-        data?.error?.message ?? 'Display & Video 360 rejected the request',
-        { members: membersByIndex[index] } as unknown as JSONLikeObject,
-        (data ?? {}) as unknown as JSONLikeObject
-      )
+  for (const { indices, members, isAdd } of operations) {
+    const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
+      throwHttpErrors: false
     })
 
-    return msResponse
-  }
+    // The request as it would have been had it carried this event alone, so that what is reported
+    // against an event is the shape which was really sent, down to which list it travelled in.
+    const sentFor = (index: number) =>
+      buildJSON(advertiserId, audienceType, membersByIndex[index], isAdd, consent) as unknown as JSONLikeObject
 
-  if (!isBatch) {
-    return response
-  }
+    if (!response.ok) {
+      const { status, data } = response
 
-  sentIndices.forEach((index) => {
-    msResponse.setSuccessResponseAtIndex(index, {
-      status: response.status,
-      sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
-      body: { success: true }
+      indices.forEach((index) => {
+        setError(
+          msResponse,
+          isBatch,
+          index,
+          status,
+          errorTypeForStatus(status),
+          data?.error?.message ?? 'Display & Video 360 rejected the request',
+          sentFor(index),
+          (data ?? {}) as unknown as JSONLikeObject
+        )
+      })
+
+      continue
+    }
+
+    if (!isBatch) {
+      return response
+    }
+
+    // Display & Video 360 answers with nothing but the audience id, so the whole response is
+    // reported rather than a stand in for it.
+    const body = (response.data ?? {}) as unknown as JSONLikeObject
+
+    indices.forEach((index) => {
+      msResponse.setSuccessResponseAtIndex(index, {
+        status: response.status,
+        sent: sentFor(index),
+        body
+      })
     })
-  })
+  }
 
   return msResponse
 }
@@ -203,19 +217,6 @@ export function isConsentDenied(mappedConsent: Payload['consent']): boolean {
   return adUserData === CONSENT_STATUS_DENIED || adPersonalization === CONSENT_STATUS_DENIED
 }
 
-const phoneUtil = PhoneNumberUtil.getInstance()
-
-// getSupportedRegions() returns upper case only. e.g. US, GB, FR
-const SUPPORTED_REGIONS = new Set(phoneUtil.getSupportedRegions())
-
-// A country is only usable for reading a phone number if the parser knows it. Anything else,
-// such as USA or a country name, is ignored rather than guessed at.
-function toRegion(value?: string): string | undefined {
-  const region = value?.trim().toUpperCase()
-
-  return region && SUPPORTED_REGIONS.has(region) ? region : undefined
-}
-
 // Email validation - this catches the values worth catching: no @, no domain,
 // no dot, or whitespace inside.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -234,41 +235,6 @@ export function normaliseEmail(value: string): string | undefined {
   return EMAIL_PATTERN.test(email) ? email : undefined
 }
 
-// Display & Video 360 matches on E.164, so a number has to be resolved to one country before
-// it is hashed. A number which already carries a country code needs no region; one which does
-// not is read against the user's own country code, then the mapping's fallback. Without either
-// the country is unknowable, and a guess would hash to something which silently never matches.
-export function normalisePhone(
-  value: string,
-  userCountryCode?: string,
-  fallbackCountryCode?: string
-): string | undefined {
-  if (isHashed(value)) {
-    return value
-  }
-
-  const phone = value.trim()
-  const carriesCountryCode = phone.startsWith('+')
-
-  // A number which already carries its country code needs no region: the country is read out
-  // of the number. Otherwise the user's own country is used, then the mapping's fallback.
-  const region = carriesCountryCode ? undefined : toRegion(userCountryCode) ?? toRegion(fallbackCountryCode)
-
-  if (!carriesCountryCode && !region) {
-    return undefined
-  }
-
-  try {
-    // parse throws on a value which is not phone like at all.
-    const parsed = phoneUtil.parse(phone, region)
-
-    // isPossibleNumber checks the number is a length the country uses.
-    return phoneUtil.isPossibleNumber(parsed) ? phoneUtil.format(parsed, PhoneNumberFormat.E164) : undefined
-  } catch {
-    return undefined
-  }
-}
-
 export function toList(value?: string): string[] {
   return (value ?? '')
     .split(',')
@@ -276,21 +242,17 @@ export function toList(value?: string): string[] {
     .filter(Boolean)
 }
 
-export function buildContactInfo(
-  mappedContactInfo: Payload['contact_info'],
-  phoneNumberSettings?: Payload['phone_number_settings']
-): ContactInfo | undefined {
+export function buildContactInfo(mappedContactInfo: Payload['contact_info']): ContactInfo | undefined {
   const { emails, phoneNumbers, zipCodes, firstName, lastName, countryCode } = mappedContactInfo ?? {}
-  const { defaultCountryCode, useContactInfoCountryCode } = phoneNumberSettings ?? {}
 
-  // An identifier which cannot be valid is dropped rather than hashed and sent, since Google
-  // can only report it as an unmatched member. A user is still synced on whatever is left, and
-  // an event with nothing left over fails as having no usable identifier.
+  // An email which cannot be valid is dropped rather than hashed and sent, since Google can only
+  // report it as an unmatched member. A user is still synced on whatever is left, and an event
+  // with nothing left over fails as having no usable identifier.
+  //
+  // Phone numbers are sent as they are given. The field asks for E.164, and a number is taken at
+  // its word rather than read and rewritten.
   const hashedEmails = toList(emails).map(normaliseEmail).filter(isPresent).map(hash)
-  const hashedPhoneNumbers = toList(phoneNumbers)
-    .map((phone) => normalisePhone(phone, useContactInfoCountryCode ? countryCode : undefined, defaultCountryCode))
-    .filter(isPresent)
-    .map(hash)
+  const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
   const zipCodeList = toList(zipCodes)
 
   const contactInfo: ContactInfo = {
@@ -310,40 +272,27 @@ export function buildContactInfo(
   return Object.keys(contactInfo).length > 0 ? contactInfo : undefined
 }
 
+// Display & Video 360 rejects a request carrying both an added and a removed list: "An edit
+// customer match request can either add or remove customers. It cannot do both." One call
+// therefore builds one list, and adds and removes are sent as separate requests.
 export function buildJSON(
   advertiserId: string,
   audienceType: string,
-  addedMembers: Member[],
-  removedMembers: Member[],
+  members: Member[],
+  isAdd: boolean,
   consent?: Consent
 ): EditCustomerMatchMembersRequest {
-  const isContactInfo = audienceType === CONTACT_INFO
-
   const consentJSON = consent && Object.keys(consent).length > 0 ? { consent } : {}
 
-  const contactInfoList = (members: Member[]): ContactInfoList => ({
-    contactInfos: members as ContactInfo[],
-    ...consentJSON
-  })
+  if (audienceType === CONTACT_INFO) {
+    const list: ContactInfoList = { contactInfos: members as ContactInfo[], ...consentJSON }
 
-  const mobileDeviceIdList = (members: Member[]): MobileDeviceIdList => ({
-    mobileDeviceIds: members as string[],
-    ...consentJSON
-  })
-
-  return {
-    advertiserId,
-    ...(addedMembers.length > 0
-      ? isContactInfo
-        ? { addedContactInfoList: contactInfoList(addedMembers) }
-        : { addedMobileDeviceIdList: mobileDeviceIdList(addedMembers) }
-      : {}),
-    ...(removedMembers.length > 0
-      ? isContactInfo
-        ? { removedContactInfoList: contactInfoList(removedMembers) }
-        : { removedMobileDeviceIdList: mobileDeviceIdList(removedMembers) }
-      : {})
+    return { advertiserId, ...(isAdd ? { addedContactInfoList: list } : { removedContactInfoList: list }) }
   }
+
+  const list: MobileDeviceIdList = { mobileDeviceIds: members as string[], ...consentJSON }
+
+  return { advertiserId, ...(isAdd ? { addedMobileDeviceIdList: list } : { removedMobileDeviceIdList: list }) }
 }
 
 export function resolveAudienceDetails(
@@ -355,7 +304,7 @@ export function resolveAudienceDetails(
   const advertiserId = getAdvertiserId(audienceSettings, hookOutputs)
   const audienceType = getAudienceType(audienceSettings, hookOutputs)
 
-  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType, payload?.audience_type)
+  const audienceErrorMessage = validateAudienceDetails(audienceId, advertiserId, audienceType)
 
   return audienceErrorMessage
     ? { audienceErrorMessage }
@@ -365,8 +314,7 @@ export function resolveAudienceDetails(
 export function validateAudienceDetails(
   audienceId?: string,
   advertiserId?: string,
-  audienceType?: string,
-  mappedAudienceType?: string
+  audienceType?: string
 ): string | undefined {
   const problems: string[] = []
 
@@ -378,23 +326,14 @@ export function validateAudienceDetails(
     problems.push('Missing advertiser ID')
   }
 
-  // The audience's own type, from the audience settings or the mapping save hook.
+  // The audience's type comes from the audience settings or the mapping save hook. It is what
+  // decides which identifiers are sent, so the mapping does not restate it.
   if (!audienceType) {
     problems.push(
       `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
     )
   } else if (audienceType !== CONTACT_INFO && audienceType !== DEVICE_ID) {
     problems.push(`Unrecognised audience type: ${audienceType}. The audience must be ${CONTACT_INFO} or ${DEVICE_ID}`)
-  }
-
-  // The type the customer picked in the mapping, which only decides which identifier fields
-  // are shown. It is checked against the audience's own type above.
-  if (!mappedAudienceType) {
-    problems.push(`Missing the '${AUDIENCE_TYPE_LABEL}' mapping field`)
-  } else if (audienceType && mappedAudienceType !== audienceType) {
-    problems.push(
-      `The '${AUDIENCE_TYPE_LABEL}' mapping field is set to ${mappedAudienceType}, but the audience in Display & Video 360 is ${audienceType}. Set the '${AUDIENCE_TYPE_LABEL}' mapping field to ${audienceType} so that the mapping shows the identifier fields that audience accepts, or connect this mapping to a ${mappedAudienceType} audience`
-    )
   }
 
   return problems.length > 0 ? problems.join('. ') : undefined
@@ -422,7 +361,7 @@ export function buildMember(
   }
 
   const isContactInfo = audienceType === CONTACT_INFO
-  const contactInfo = isContactInfo ? buildContactInfo(payload.contact_info, payload.phone_number_settings) : undefined
+  const contactInfo = isContactInfo ? buildContactInfo(payload.contact_info) : undefined
   const members: Member[] = isContactInfo ? (contactInfo ? [contactInfo] : []) : toList(payload.mobileDeviceIds)
 
   if (members.length === 0) {
