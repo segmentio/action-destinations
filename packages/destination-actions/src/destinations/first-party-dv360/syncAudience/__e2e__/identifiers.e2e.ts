@@ -275,6 +275,353 @@ const fixtures: E2EFixture[] = [
       ]
     },
     verboseFailureHint: FAILURE_HINT
+  },
+  {
+    // The same number as the E.164 fixture above, written the way a US customer would store it.
+    // Asserting the identical digest proves the country code was put back before hashing: a number
+    // hashed in any other form would never match anyone.
+    description: 'Phone numbers: a national number is read against the default country code',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...contactInfoMapping,
+      phone_number_settings: { defaultCountryCode: 'US', useContactInfoCountryCode: false }
+    },
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-phone-default',
+        enrichedTraits: { phone: '(415) 555-0123' }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [
+                { hashedPhoneNumbers: ['36a2cef4ff9bf7a1abd2a93359136b870393be4106e6c5d19b72ff564f9deca4'] }
+              ]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    description: "Phone numbers: a national number is read against the user's own country code",
+    subscribe: 'type = "track"',
+    mapping: {
+      ...contactInfoMapping,
+      phone_number_settings: { useContactInfoCountryCode: true }
+    },
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-phone-user-country',
+        // The country code reaches the number without completing an address group, which needs a
+        // zip and a name too, so nothing but the phone is sent.
+        enrichedTraits: { phone: '020 7946 0958', countryCode: 'GB' }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [
+                { hashedPhoneNumbers: ['f0bf0228144d9fe2bdf1da2d8ca698f17bf1410ee688b075c27062e47b6f0b6d'] }
+              ]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    // The user is in GB but the setting is off, so the mapping's default decides, and the number is
+    // read as the US number it looks like rather than as a GB one.
+    description: "Phone numbers: the user's own country code is ignored while the setting is off",
+    subscribe: 'type = "track"',
+    mapping: {
+      ...contactInfoMapping,
+      phone_number_settings: { defaultCountryCode: 'US', useContactInfoCountryCode: false }
+    },
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-phone-ignored-country',
+        enrichedTraits: { phone: '415 555 0123', countryCode: 'GB' }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [
+                { hashedPhoneNumbers: ['36a2cef4ff9bf7a1abd2a93359136b870393be4106e6c5d19b72ff564f9deca4'] }
+              ]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    // With no country code on the number and no country to read it against, the country is
+    // unknowable. The number is dropped rather than guessed at, and the user still syncs on the
+    // email: only the email reaches the request.
+    description: 'Phone numbers: a national number with no country to read it against is dropped',
+    subscribe: 'type = "track"',
+    mapping: contactInfoMapping,
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-phone-dropped',
+        email: 'e2e-dv360-phone-dropped@segment.com',
+        enrichedTraits: { phone: '415 555 0123' }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [{ hashedEmails: ['022ed32f28c0bf6d803bc76cbca25fab82acebe37c79e135ad45cd156e027cdf'] }]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    // A value which is already a digest is passed through untouched. The digest below is the one
+    // the E.164 fixture produces, so hashing it again would show up as a different value.
+    description: 'Phone numbers: a number which is already hashed is not hashed again',
+    subscribe: 'type = "track"',
+    mapping: contactInfoMapping,
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-phone-prehashed',
+        enrichedTraits: { phone: '36a2cef4ff9bf7a1abd2a93359136b870393be4106e6c5d19b72ff564f9deca4' }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [
+                { hashedPhoneNumbers: ['36a2cef4ff9bf7a1abd2a93359136b870393be4106e6c5d19b72ff564f9deca4'] }
+              ]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    description: 'Batches: three users are added and each reports its own member',
+    subscribe: 'type = "track"',
+    mapping: contactInfoMapping,
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-batch-1',
+        email: 'e2e-dv360-batch-1@segment.com'
+      }),
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-batch-2',
+        email: 'e2e-dv360-batch-2@segment.com'
+      }),
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-batch-3',
+        email: 'e2e-dv360-batch-3@segment.com'
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [{ hashedEmails: ['9f4471f96e5b18495111739665fa1c2099057e0676783a05a18d2fdaf3da1cb6'] }]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        },
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [{ hashedEmails: ['5d135dc19f5543fdda993db1001b090b788f073520be46205b231865e53931de'] }]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        },
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [{ hashedEmails: ['bbce0058bf82bab33c51f011dc78111d20725dc97fe82e736eb584542185df1d'] }]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
+  },
+  {
+    // The middle event has nothing to identify the user by, so it never leaves. The events either
+    // side of it still sync, and all three keep the position they arrived in.
+    description: 'Batches: an event with no usable identifier fails without disturbing the others',
+    subscribe: 'type = "track"',
+    mapping: contactInfoMapping,
+    mode: 'batchWithMultistatus',
+    audience: 'contactInfo',
+    events: [
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-batch-ok',
+        email: 'e2e-dv360-batch-ok@segment.com'
+      }),
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-batch-empty'
+      }),
+      createE2EEngageAudienceEvent({
+        type: 'track',
+        action: 'add',
+        eventName: 'Audience Entered',
+        computationKey: COMPUTATION_KEY,
+        computationId: COMPUTATION_ID,
+        externalAudienceId: '$externalAudienceId:contactInfo',
+        userId: 'e2e-dv360-batch-3',
+        email: 'e2e-dv360-batch-3@segment.com'
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [{ hashedEmails: ['5deec69341f4d359dc765a9646fee0639d1334090106ffd680580f1de0200694'] }]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        },
+        { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED', errorreporter: 'INTEGRATIONS' },
+        {
+          status: 200,
+          sent: {
+            advertiserId: ADVERTISER_ID,
+            addedContactInfoList: {
+              contactInfos: [{ hashedEmails: ['bbce0058bf82bab33c51f011dc78111d20725dc97fe82e736eb584542185df1d'] }]
+            }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
+        }
+      ]
+    },
+    verboseFailureHint: FAILURE_HINT
   }
 ]
 
