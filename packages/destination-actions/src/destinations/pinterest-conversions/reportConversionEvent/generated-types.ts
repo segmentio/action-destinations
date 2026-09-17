@@ -323,7 +323,7 @@ export interface Payload {
      */
     app_version?: string
     /**
-     * App install time. Will be converted to Unix timestamp in seconds before sending.
+     * App install time. Accepts ISO 8601 format or Unix timestamp in seconds (10 digit).
      */
     install_time?: string | number
     /**
@@ -376,7 +376,7 @@ export interface Payload {
      */
     kernel_version?: string
     /**
-     * List of user installed languages. ISO 639-1 format.
+     * List of user installed languages. ISO 639-1 format. For example, ["en", "fr", "es"].
      */
     languages?: string[]
     /**
