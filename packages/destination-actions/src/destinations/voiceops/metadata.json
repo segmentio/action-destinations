@@ -672,7 +672,7 @@
         },
         "extraMetadata": {
           "label": "Extra Metadata",
-          "description": "A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include call_id, call_started_at, recording_url, agent_email, channels, agentLegs, voiceops_segment_source_call_id, or source.",
+          "description": "A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include call_id, call_started_at, recording_url, agent_email, channels, agentLegs, voiceops_segment_source_call_id, source.",
           "type": "object",
           "required": true,
           "multiple": false,

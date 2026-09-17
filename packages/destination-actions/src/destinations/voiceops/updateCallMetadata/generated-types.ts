@@ -10,7 +10,7 @@ export interface Payload {
    */
   call_completed_at: string
   /**
-   * A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include call_id, call_started_at, recording_url, agent_email, channels, agentLegs, voiceops_segment_source_call_id, or source.
+   * A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include call_id, call_started_at, recording_url, agent_email, channels, agentLegs, voiceops_segment_source_call_id, source.
    */
   extraMetadata: {
     [k: string]: unknown

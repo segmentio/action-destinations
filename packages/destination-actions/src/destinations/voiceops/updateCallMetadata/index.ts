@@ -4,7 +4,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { getVoiceopsMetadataEndpoint } from '../constants'
 
-const RESERVED_METADATA_FIELDS = [
+const RESERVED_METADATA_FIELDS = new Set([
   'call_id',
   'call_started_at',
   'recording_url',
@@ -13,7 +13,7 @@ const RESERVED_METADATA_FIELDS = [
   'agentLegs',
   'voiceops_segment_source_call_id',
   'source'
-]
+])
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Call Metadata',
@@ -45,8 +45,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     extraMetadata: {
       label: 'Extra Metadata',
-      description:
-        'A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include call_id, call_started_at, recording_url, agent_email, channels, agentLegs, voiceops_segment_source_call_id, or source.',
+      description: `A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include ${Array.from(
+        RESERVED_METADATA_FIELDS
+      ).join(', ')}.`,
       type: 'object',
       additionalProperties: true,
       required: true,
@@ -66,9 +67,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError('extraMetadata must contain at least one metadata field.')
     }
 
-    const reservedField = RESERVED_METADATA_FIELDS.find((field) =>
-      Object.prototype.hasOwnProperty.call(payload.extraMetadata, field)
-    )
+    const reservedField = Object.keys(payload.extraMetadata).find((field) => RESERVED_METADATA_FIELDS.has(field))
     if (reservedField) {
       throw new PayloadValidationError(`extraMetadata must not contain the reserved field '${reservedField}'.`)
     }

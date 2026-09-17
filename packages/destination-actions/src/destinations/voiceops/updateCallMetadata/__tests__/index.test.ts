@@ -149,25 +149,28 @@ describe('Voiceops.updateCallMetadata', () => {
     expect(scope.isDone()).toBe(true)
   })
 
-  it('uses the default base URL when the setting is omitted', async () => {
-    const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
-      .post(endpoint)
-      .matchHeader('authorization', 'Bearer voiceops-token')
-      .reply(200, {})
+  it.each([undefined, '', ' \t\n '])(
+    'uses the default base URL for an omitted or blank setting %p',
+    async (baseUrl) => {
+      const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+        .post(endpoint)
+        .matchHeader('authorization', 'Bearer voiceops-token')
+        .reply(200, {})
 
-    const legacySettings: Settings = { accessToken: 'voiceops-token' }
-    const responses = await testDestination.testAction('updateCallMetadata', {
-      settings: legacySettings,
-      mapping: {
-        call_id: 'call-123',
-        call_completed_at: '1789394517',
-        extraMetadata: { disposition: 'Answered' }
-      }
-    })
+      const legacySettings: Settings = { accessToken: 'voiceops-token', baseUrl }
+      const responses = await testDestination.testAction('updateCallMetadata', {
+        settings: legacySettings,
+        mapping: {
+          call_id: 'call-123',
+          call_completed_at: '1789394517',
+          extraMetadata: { disposition: 'Answered' }
+        }
+      })
 
-    expect(responses[0].status).toBe(200)
-    expect(scope.isDone()).toBe(true)
-  })
+      expect(responses[0].status).toBe(200)
+      expect(scope.isDone()).toBe(true)
+    }
+  )
 
   it.each([400, 401, 429, 500])('propagates HTTP %s for standard error handling', async (status: number) => {
     const scope = nock(DEFAULT_VOICEOPS_BASE_URL).post(endpoint).reply(status, { error: 'Request failed' })
