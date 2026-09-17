@@ -43,8 +43,10 @@ export {
   ErrorCodes,
   HttpErrorCodes,
   CustomErrorCodes,
-  getErrorCodeFromHttpStatus
+  getErrorCodeFromHttpStatus,
+  isRetryableStatus
 } from './errors'
+export type { RetryableStatusCodes } from './errors'
 export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
