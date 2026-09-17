@@ -259,11 +259,11 @@ export function normalisePhone(
   }
 
   try {
-    // parse throws on a value which is not phone like at all. isValidNumber is a separate
-    // question: +15555555555 parses, but 555 is not a real area code.
+    // parse throws on a value which is not phone like at all.
     const parsed = phoneUtil.parse(phone, region)
 
-    return phoneUtil.isValidNumber(parsed) ? phoneUtil.format(parsed, PhoneNumberFormat.E164) : undefined
+    // isPossibleNumber checks the number is a length the country uses.
+    return phoneUtil.isPossibleNumber(parsed) ? phoneUtil.format(parsed, PhoneNumberFormat.E164) : undefined
   } catch {
     return undefined
   }

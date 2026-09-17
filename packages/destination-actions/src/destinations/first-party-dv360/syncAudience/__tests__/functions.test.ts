@@ -336,15 +336,24 @@ describe('normalisePhone', () => {
     expect(normalisePhone(value)).toBe(expected)
   })
 
-  // A number which is perfectly valid at home but not in the country it is read against.
+  // Only the length is checked, not whether the country has assigned the range, so a number
+  // read against the wrong country is accepted and sent. Display & Video 360 then fails to
+  // match it, quietly. The stricter check would reject these, but would also reject a real
+  // number in a range opened after the library's metadata snapshot.
   it.each([
-    ['01 23 45 67 89', 'DE'],
-    ['030 123456', 'FR'],
-    ['(11) 2345-6789', 'IE'],
-    ['074104 10123', 'ZA']
-  ])('drops %p when read against %p, where it is not a valid number', (value: string, region: string) => {
-    expect(normalisePhone(value, region)).toBeUndefined()
-  })
+    ['01 23 45 67 89', 'DE', '+49123456789'],
+    ['030 123456', 'FR', '+33030123456'],
+    ['(11) 2345-6789', 'IE', '+3531123456789'],
+    ['074104 10123', 'ZA', '+277410410123'],
+    ['2125650000', 'GB', '+442125650000'],
+    // 555 is not a real US area code.
+    ['+15555555555', undefined, '+15555555555']
+  ])(
+    'accepts %p against %p as %p, without checking the range exists',
+    (value: string, region: string | undefined, expected: string) => {
+      expect(normalisePhone(value, region)).toBe(expected)
+    }
+  )
 
   it.each(['us', ' US ', 'Us'])('accepts %p as a country, whatever the case or spacing', (region: string) => {
     expect(normalisePhone('2125650000', region)).toBe('+12125650000')
@@ -370,10 +379,8 @@ describe('normalisePhone', () => {
   })
 
   it.each([
-    ['555', 'US', 'too short to be a number'],
-    ['12345', 'US', 'too short to be a number'],
-    ['+15555555555', undefined, 'a 555 area code, which is not real'],
-    ['2125650000', 'GB', 'valid in another country but not this one'],
+    ['555', 'US', 'too short for any US number'],
+    ['12345', 'US', 'too short for any US number'],
     ['+9991234567', undefined, 'a country calling code which does not exist'],
     ['+1', undefined, 'a country code and nothing else'],
     ['abc', 'US', 'not a number at all'],
