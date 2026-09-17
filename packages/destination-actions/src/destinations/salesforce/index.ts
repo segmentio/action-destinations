@@ -8,6 +8,7 @@ import customObject from './customObject'
 import contact from './contact'
 import account from './account'
 import { authenticateWithPassword } from './sf-operations'
+import { resolveLoginUrl } from './sf-utils'
 
 import lead2 from './lead2'
 import contact2 from './contact2'
@@ -70,14 +71,15 @@ const destination: DestinationDefinition<Settings> = {
           settings.username,
           settings.auth_password,
           settings.security_token,
-          settings.isSandbox
+          settings.isSandbox,
+          settings.instanceUrl
         )
 
         return { accessToken }
       }
 
       // Return a request that refreshes the access_token if the API supports it
-      const baseUrl = settings.isSandbox ? 'https://test.salesforce.com' : 'https://login.salesforce.com'
+      const baseUrl = resolveLoginUrl(settings.instanceUrl, settings.isSandbox)
       const res = await request<RefreshTokenResponse>(`${baseUrl}/services/oauth2/token`, {
         method: 'POST',
         body: new URLSearchParams({
