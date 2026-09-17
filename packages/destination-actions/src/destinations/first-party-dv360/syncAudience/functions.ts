@@ -136,11 +136,15 @@ export async function send(
       return response
     }
 
+    // Display & Video 360 answers with nothing but the audience id, so the whole response is
+    // reported rather than a stand in for it.
+    const body = (response.data ?? {}) as unknown as JSONLikeObject
+
     indices.forEach((index) => {
       msResponse.setSuccessResponseAtIndex(index, {
         status: response.status,
         sent: { members: membersByIndex[index] } as unknown as JSONLikeObject,
-        body: { success: true }
+        body
       })
     })
   }

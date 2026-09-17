@@ -850,7 +850,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       const success = (member: Record<string, unknown>) => ({
         status: 200,
         sent: { members: [member] },
-        body: { success: true }
+        body: API_RESPONSE
       })
 
       // Every index is asserted, in order, proving index alignment survives both drop points.

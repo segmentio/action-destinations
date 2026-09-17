@@ -23,9 +23,15 @@ const deviceIdMapping = {
   mobileDeviceIds: { '@path': '$.properties.mobileDeviceIds' }
 }
 
-// Display & Video 360 only echoes the audience id back, so a 200 says the request was accepted and
-// nothing about whether the members matched anyone.
-const ACCEPTED = { status: 'success', httpStatus: 200 } as const
+// Display & Video 360 answers with nothing but the id of the audience it wrote to, so this says
+// the request was accepted and it reached the right audience. It says nothing about whether the
+// members matched anyone.
+const accepted = (audienceKey: string) =>
+  ({
+    status: 'success',
+    httpStatus: 200,
+    jsonContains: { firstPartyAndPartnerAudienceId: `$externalAudienceId:${audienceKey}` }
+  } as const)
 
 const fixtures: E2EFixture[] = [
   {
@@ -44,7 +50,7 @@ const fixtures: E2EFixture[] = [
       userId: 'e2e-dv360-user-001',
       email: 'e2e-dv360-test-001@segment.com'
     }),
-    expect: ACCEPTED,
+    expect: accepted('contactInfo'),
     verboseFailureHint: FAILURE_HINT
   },
   {
@@ -63,7 +69,7 @@ const fixtures: E2EFixture[] = [
       userId: 'e2e-dv360-user-001',
       email: 'e2e-dv360-test-001@segment.com'
     }),
-    expect: ACCEPTED,
+    expect: accepted('contactInfo'),
     verboseFailureHint: FAILURE_HINT
   },
   {
@@ -104,13 +110,15 @@ const fixtures: E2EFixture[] = [
           status: 200,
           sent: {
             members: [{ hashedEmails: ['8b8870e006c914e930a96269ba26d8632691d1375f66260c4a72fd4db9f46527'] }]
-          }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
         },
         {
           status: 200,
           sent: {
             members: [{ hashedEmails: ['fed4c757608b4c16251f3f8a697ba5800b6b3981c3464d3668d056f4df43d406'] }]
-          }
+          },
+          body: { firstPartyAndPartnerAudienceId: '$externalAudienceId:contactInfo' }
         }
       ]
     },
@@ -132,7 +140,7 @@ const fixtures: E2EFixture[] = [
       userId: 'e2e-dv360-device-001',
       enrichedTraits: { mobileDeviceIds: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeee0001' }
     }),
-    expect: ACCEPTED,
+    expect: accepted('deviceId'),
     verboseFailureHint: FAILURE_HINT
   },
   {
@@ -151,7 +159,7 @@ const fixtures: E2EFixture[] = [
       userId: 'e2e-dv360-device-001',
       enrichedTraits: { mobileDeviceIds: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeee0001' }
     }),
-    expect: ACCEPTED,
+    expect: accepted('deviceId'),
     verboseFailureHint: FAILURE_HINT
   }
 ]
