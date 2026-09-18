@@ -105,17 +105,37 @@ export async function send(
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
   for (const { indices, members, isAdd } of operations) {
-    const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
-      throwHttpErrors: false
-    })
-
     // The request as it would have been had it carried this event alone, so that what is reported
     // against an event is the shape which was really sent, down to which list it travelled in.
     const sentFor = (index: number) =>
       buildJSON(advertiserId, audienceType, membersByIndex[index], isAdd, consent) as unknown as JSONLikeObject
+
+    let response: ModifiedResponse<EditCustomerMatchMembersResponse>
+
+    try {
+      response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
+        throwHttpErrors: false
+      })
+    } catch (error) {
+      // A transport failure answers with no status, so only the payloads this request carried are
+      // failed - anything already recorded for the other direction survives.
+      indices.forEach((index) => {
+        setError(
+          msResponse,
+          isBatch,
+          index,
+          500,
+          ErrorCodes.RETRYABLE_ERROR,
+          (error as Error)?.message ?? 'Request to Display & Video 360 failed',
+          sentFor(index)
+        )
+      })
+
+      continue
+    }
 
     if (!response.ok) {
       const { status, data } = response

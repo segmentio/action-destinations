@@ -433,6 +433,21 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(error.code).toBe('INVALID_AUTHENTICATION')
       expect(error.status).toBe(401)
     })
+
+    it('throws a retryable error for a single event when the request never answers', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).replyWithError('socket hang up')
+
+      const error = await rejectionOf(
+        testDestination.testAction('syncAudience', {
+          event: makeEvent({ membership: true, emails: 'a@example.com' }),
+          mapping,
+          useDefaultMappings: false
+        })
+      )
+
+      expect(error).toBeInstanceOf(RetryableError)
+      expect(error.status).toBe(500)
+    })
   })
 
   // A batch goes through performBatch, which reports the outcome of every event by index.
@@ -691,6 +706,35 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(responses[2].status).toBe(200)
       expect(responses[1].status).toBe(400)
       expect((responses[1] as any).errormessage).toBe('Cannot remove')
+    })
+
+    // A transport failure throws rather than answering with a status, so it has to be scoped to the
+    // request which failed too. Escaping send would discard the adds already recorded as delivered.
+    it('fails only the removed events when the remove request never answers', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).once().reply(200, API_RESPONSE)
+      nock(DV360_HOST).post(EDIT_PATH).once().replyWithError('socket hang up')
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        settings: {},
+        events: [
+          makeEvent({ membership: true, emails: 'a@example.com' }),
+          makeEvent({ membership: false, emails: 'b@example.com' }),
+          makeEvent({ membership: true, emails: 'c@example.com' })
+        ],
+        mapping
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[2].status).toBe(200)
+      expect(responses[1].status).toBe(500)
+      expect((responses[1] as any).errortype).toBe('RETRYABLE_ERROR')
+      expect((responses[1] as any).sent).toEqual({
+        advertiserId: ADVERTISER_ID,
+        removedContactInfoList: {
+          contactInfos: [{ hashedEmails: [hash('b@example.com')] }],
+          consent: GRANTED_CONSENT
+        }
+      })
     })
 
     it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {
