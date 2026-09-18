@@ -27,15 +27,6 @@ import type { Payload } from './generated-types'
 import { AMAZON_CONVERSIONS_API_EVENTS_VERSION } from '../versioning-info'
 
 /**
- * Feature flag gating the fix for the single-event (`perform`) path silently reporting
- * HTTP errors (including 401s that should trigger an OAuth re-auth) as successful deliveries.
- * See STRATCONN-6978. Does not affect `performBatch`, which already preserves the real
- * non-2xx/207 status in the returned `MultiStatusResponse` so core's retry/reauth logic
- * can act on it.
- */
-export const FLAGON_THROW_HTTP_ERRORS = 'actions-amazon-conversions-api-throw-http-errors'
-
-/**
  * Helper function to validate if a string value exists and is not empty
  *
  * @param value The string value to validate
