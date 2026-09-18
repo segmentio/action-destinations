@@ -29,6 +29,10 @@ const DENIED = 'CONSENT_STATUS_DENIED'
 const hash = (value: string): string =>
   processHashing(value, 'sha256', 'hex', (v) => v.replace(/\s+/g, '').toLowerCase())
 
+const hashName = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim().toLowerCase())
+
+const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim())
+
 describe('validateAudienceDetails', () => {
   it('returns undefined when everything is present and valid', () => {
     expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID, CONTACT_INFO)).toBeUndefined()
@@ -48,7 +52,7 @@ describe('validateAudienceDetails', () => {
 
   // The audience's type reaches the action from the audience settings or the mapping save hook,
   // and the message names both places so a customer knows where to set it.
-  it("reports a missing audience type, naming the audience setting and the hook step", () => {
+  it('reports a missing audience type, naming the audience setting and the hook step', () => {
     expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID)).toBe(
       `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
     )
@@ -246,10 +250,10 @@ describe('buildContactInfo', () => {
   it('builds every contact info detail a Contact Info audience accepts', () => {
     expect(buildContactInfo(complete)).toEqual({
       hashedEmails: [hash('test@example.com')],
-      hashedPhoneNumbers: [hash('+12125650000')],
+      hashedPhoneNumbers: [hashPhone('+12125650000')],
       zipCodes: ['90210'],
-      hashedFirstName: hash('jane'),
-      hashedLastName: hash('doe'),
+      hashedFirstName: hashName('jane'),
+      hashedLastName: hashName('doe'),
       // The country code is the one detail Google does not want hashed.
       countryCode: 'US'
     })
@@ -260,7 +264,7 @@ describe('buildContactInfo', () => {
       buildContactInfo({ emails: 'one@example.com, two@example.com', phoneNumbers: '+12125650000, +442070313000' })
     ).toEqual({
       hashedEmails: [hash('one@example.com'), hash('two@example.com')],
-      hashedPhoneNumbers: [hash('+12125650000'), hash('+442070313000')]
+      hashedPhoneNumbers: [hashPhone('+12125650000'), hashPhone('+442070313000')]
     })
   })
 
@@ -272,7 +276,7 @@ describe('buildContactInfo', () => {
 
       expect(buildContactInfo(partial)).toEqual({
         hashedEmails: [hash('test@example.com')],
-        hashedPhoneNumbers: [hash('+12125650000')]
+        hashedPhoneNumbers: [hashPhone('+12125650000')]
       })
     }
   )
@@ -282,8 +286,8 @@ describe('buildContactInfo', () => {
 
     expect(buildContactInfo(address)).toEqual({
       zipCodes: ['90210'],
-      hashedFirstName: hash('jane'),
-      hashedLastName: hash('doe'),
+      hashedFirstName: hashName('jane'),
+      hashedLastName: hashName('doe'),
       countryCode: 'US'
     })
   })
@@ -298,9 +302,20 @@ describe('buildContactInfo', () => {
   // Phone numbers are not validated at all: the field asks for E.164 and whatever arrives is
   // hashed and sent. A number Display & Video 360 cannot match is accepted by it and then
   // matches nobody, which is invisible either way.
-  it('sends a phone number exactly as it was given', () => {
+  it('sends a phone number without reformatting it', () => {
     expect(buildContactInfo({ phoneNumbers: '(212) 565-0000, notaphone' })).toEqual({
-      hashedPhoneNumbers: [hash('(212) 565-0000'), hash('notaphone')]
+      hashedPhoneNumbers: [hashPhone('(212) 565-0000'), hashPhone('notaphone')]
+    })
+  })
+
+  // Only the ends are trimmed. Spaces inside the number are left where they are, so a number
+  // written with them hashes differently from the same number without them.
+  it('trims a phone number before hashing but leaves the spacing inside it', () => {
+    expect(buildContactInfo({ phoneNumbers: ' +12125650000 ' })).toEqual({
+      hashedPhoneNumbers: [hashPhone('+12125650000')]
+    })
+    expect(buildContactInfo({ phoneNumbers: '+1 212 565 0000' })).toEqual({
+      hashedPhoneNumbers: [hashPhone('+1 212 565 0000')]
     })
   })
 
@@ -314,10 +329,63 @@ describe('buildContactInfo', () => {
   it('trims and uppercases the country code it sends', () => {
     expect(buildContactInfo({ zipCodes: '90210', firstName: 'Jane', lastName: 'Doe', countryCode: ' us ' })).toEqual({
       zipCodes: ['90210'],
-      hashedFirstName: hash('jane'),
-      hashedLastName: hash('doe'),
+      hashedFirstName: hashName('jane'),
+      hashedLastName: hashName('doe'),
       countryCode: 'US'
     })
+  })
+
+  // A value of only spaces is truthy, so without trimming first it counts as present: the names
+  // hash to the digest of an empty string and the country code is sent as ''. Display & Video 360
+  // reads that as an address which is only partly there and rejects the entire request, which
+  // fails every other event travelling in the same direction, not only this one.
+  it.each(['firstName', 'lastName', 'countryCode'] as const)(
+    'drops the address group when %s is only whitespace',
+    (field) => {
+      const contactInfo = buildContactInfo({
+        emails: 'jane@example.com',
+        zipCodes: '90210',
+        firstName: 'Jane',
+        lastName: 'Doe',
+        countryCode: 'US',
+        [field]: '   '
+      })
+
+      // The email still syncs the user: only the address group is dropped.
+      expect(contactInfo).toEqual({ hashedEmails: [hash('jane@example.com')] })
+    }
+  )
+
+  it('trims the names it hashes, so a padded name matches an unpadded one', () => {
+    expect(
+      buildContactInfo({ zipCodes: '90210', firstName: '  Jane  ', lastName: '  Doe  ', countryCode: 'US' })
+    ).toEqual({
+      zipCodes: ['90210'],
+      hashedFirstName: hashName('jane'),
+      hashedLastName: hashName('doe'),
+      countryCode: 'US'
+    })
+  })
+
+  // The destination's other four actions trim names rather than stripping every space, and they
+  // write to the same audiences. A name hashed without its spacing here would not match one added
+  // there, and Display & Video 360 reports an unmatched member as a success.
+  it('keeps the spacing inside a name, matching the destination other actions', () => {
+    const contactInfo = buildContactInfo({
+      zipCodes: '90210',
+      firstName: 'Mary Jane',
+      lastName: 'Van Dyke',
+      countryCode: 'US'
+    })
+
+    expect(contactInfo).toEqual({
+      zipCodes: ['90210'],
+      hashedFirstName: hashName('mary jane'),
+      hashedLastName: hashName('van dyke'),
+      countryCode: 'US'
+    })
+
+    expect(contactInfo?.hashedFirstName).not.toEqual(hash('mary jane'))
   })
 
   // The hash helper in this file mirrors the implementation, so these anchor the digests
@@ -349,18 +417,18 @@ describe('buildContactInfo', () => {
     expect(
       buildContactInfo({
         emails: hash('test@example.com'),
-        phoneNumbers: hash('+12125650000'),
+        phoneNumbers: hashPhone('+12125650000'),
         zipCodes: '90210',
-        firstName: hash('jane'),
-        lastName: hash('doe'),
+        firstName: hashName('jane'),
+        lastName: hashName('doe'),
         countryCode: 'US'
       })
     ).toEqual({
       hashedEmails: [hash('test@example.com')],
-      hashedPhoneNumbers: [hash('+12125650000')],
+      hashedPhoneNumbers: [hashPhone('+12125650000')],
       zipCodes: ['90210'],
-      hashedFirstName: hash('jane'),
-      hashedLastName: hash('doe'),
+      hashedFirstName: hashName('jane'),
+      hashedLastName: hashName('doe'),
       countryCode: 'US'
     })
   })
@@ -376,11 +444,11 @@ describe('buildContactInfo', () => {
     expect(
       buildContactInfo({
         emails: `one@example.com, ${hash('two@example.com')}`,
-        phoneNumbers: `+12125650000, ${hash('+442070313000')}`
+        phoneNumbers: `+12125650000, ${hashPhone('+442070313000')}`
       })
     ).toEqual({
       hashedEmails: [hash('one@example.com'), hash('two@example.com')],
-      hashedPhoneNumbers: [hash('+12125650000'), hash('+442070313000')]
+      hashedPhoneNumbers: [hashPhone('+12125650000'), hashPhone('+442070313000')]
     })
   })
 
@@ -420,10 +488,10 @@ describe('buildMember', () => {
       members: [
         {
           hashedEmails: [hash('jane@example.com')],
-          hashedPhoneNumbers: [hash('+12125650000')],
+          hashedPhoneNumbers: [hashPhone('+12125650000')],
           zipCodes: ['90210'],
-          hashedFirstName: hash('jane'),
-          hashedLastName: hash('doe'),
+          hashedFirstName: hashName('jane'),
+          hashedLastName: hashName('doe'),
           countryCode: 'US'
         }
       ]

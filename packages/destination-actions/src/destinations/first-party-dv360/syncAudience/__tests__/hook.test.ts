@@ -1,5 +1,7 @@
 import nock from 'nock'
+import { createTestIntegration } from '@segment/actions-core'
 import createRequestClient from '../../../../../../core/src/create-request-client'
+import Destination from '../../index'
 import { performHook } from '../hook-functions'
 import type { RetlOnMappingSaveInputs } from '../generated-types'
 
@@ -11,6 +13,8 @@ const GET_PATH = `/v4/firstPartyAndPartnerAudiences/${AUDIENCE_ID}?advertiserId=
 
 const request = createRequestClient()
 
+const testDestination = createTestIntegration(Destination)
+
 const inputs = (overrides: Partial<RetlOnMappingSaveInputs> = {}): RetlOnMappingSaveInputs =>
   ({
     operation: 'create',
@@ -20,6 +24,8 @@ const inputs = (overrides: Partial<RetlOnMappingSaveInputs> = {}): RetlOnMapping
     membershipDurationDays: 90,
     ...overrides
   } as RetlOnMappingSaveInputs)
+
+const hookError = (message: string) => ({ error: { message, code: 'RETL_ON_MAPPING_SAVE_FAILED' } })
 
 afterEach(() => {
   nock.cleanAll()
@@ -56,8 +62,6 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
       }
     })
   })
-
-  const hookError = (message: string) => ({ error: { message, code: 'RETL_ON_MAPPING_SAVE_FAILED' } })
 
   // performHook is the only gate on these: the hook inputs are deliberately not marked
   // required, so that a missing value fails at mapping save with a message naming it
@@ -204,5 +208,81 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     expect(result).toEqual({
       error: { message: 'Invalid operation value. Must be create or existing.', code: 'RETL_ON_MAPPING_SAVE_FAILED' }
     })
+  })
+})
+
+// The tests above call performHook with a bare request client, which cannot see the
+// Authorization header the hook depends on: createAudienceRequest and getAudienceRequest are
+// called with no token, so the header comes from the destination's extendRequest instead.
+// executeHook builds the client the way core does, so these tests prove the token really
+// reaches Display & Video 360 on the hook's own path.
+describe('FirstPartyDv360.syncAudience retlOnMappingSave, through executeHook', () => {
+  const auth = { accessToken: 'temp-token', refreshToken: 'refresh-token' }
+  const executeHook = (hookInputs: RetlOnMappingSaveInputs) =>
+    testDestination.actions.syncAudience.executeHook('retlOnMappingSave', {
+      settings: {},
+      auth,
+      hookInputs,
+      payload: {}
+    })
+
+  // The header is captured and asserted rather than matched on the interceptor: an unmatched
+  // interceptor fails the request instead, which performHook turns into a mapping save error,
+  // and the test would then fail on the result shape without naming the missing header.
+  const captureAuthHeader = (body: Record<string, unknown>) => {
+    const captured: { authorization?: string } = {}
+
+    return {
+      captured,
+      // nock hands every header back as an array.
+      reply: function (this: { req: { headers: Record<string, string | string[]> } }) {
+        const header = this.req.headers.authorization
+
+        captured.authorization = Array.isArray(header) ? header[0] : header
+        return body
+      }
+    }
+  }
+
+  it('sends the access token when creating an audience', async () => {
+    const { captured, reply } = captureAuthHeader({ firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+    nock(DV360_HOST).post(CREATE_PATH).reply(200, reply)
+
+    const result = await executeHook(inputs())
+
+    expect(captured.authorization).toBe(`Bearer ${auth.accessToken}`)
+    expect(result).toMatchObject({ savedData: { audienceId: AUDIENCE_ID } })
+  })
+
+  it('sends the access token when connecting to an existing audience', async () => {
+    const { captured, reply } = captureAuthHeader({
+      firstPartyAndPartnerAudienceId: AUDIENCE_ID,
+      audienceType: 'CUSTOMER_MATCH_CONTACT_INFO'
+    })
+    nock(DV360_HOST).get(GET_PATH).reply(200, reply)
+
+    await executeHook(inputs({ operation: 'existing', existingAudienceId: AUDIENCE_ID, audienceName: undefined }))
+
+    expect(captured.authorization).toBe(`Bearer ${auth.accessToken}`)
+  })
+
+  // Saving the mapping has to fail here. A mapping saved without an audience ID would send every
+  // event to an audience which does not exist.
+  it('fails the mapping save when Display & Video 360 answers 200 with no audience ID', async () => {
+    nock(DV360_HOST).post(CREATE_PATH).reply(200, {})
+
+    const result = await executeHook(inputs())
+
+    expect(result).toEqual(hookError('Failed to create audience in Display & Video 360'))
+  })
+
+  it('reports the message Display & Video 360 returns in a 200 body', async () => {
+    nock(DV360_HOST)
+      .post(CREATE_PATH)
+      .reply(200, { error: { message: 'Advertiser not found', code: 404, status: 'NOT_FOUND' } })
+
+    const result = await executeHook(inputs())
+
+    expect(result).toEqual(hookError('Advertiser not found'))
   })
 })

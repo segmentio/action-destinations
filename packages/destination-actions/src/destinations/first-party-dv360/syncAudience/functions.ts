@@ -92,7 +92,7 @@ export async function send(
   })
 
   // Adds and removes cannot travel in the same request, so each direction is sent on its own and
-  // reports back only against the payloads it carried. 
+  // reports back only against the payloads it carried.
   const operations = [
     { indices: addIndices, members: addedMembers, isAdd: true },
     { indices: removeIndices, members: removedMembers, isAdd: false }
@@ -105,17 +105,37 @@ export async function send(
   const endpoint = getEditCustomerMatchMembersEndpoint(getApiVersion(features, statsContext), audienceId)
 
   for (const { indices, members, isAdd } of operations) {
-    const response = await request<EditCustomerMatchMembersResponse>(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
-      throwHttpErrors: false
-    })
-
     // The request as it would have been had it carried this event alone, so that what is reported
     // against an event is the shape which was really sent, down to which list it travelled in.
     const sentFor = (index: number) =>
       buildJSON(advertiserId, audienceType, membersByIndex[index], isAdd, consent) as unknown as JSONLikeObject
+
+    let response: ModifiedResponse<EditCustomerMatchMembersResponse>
+
+    try {
+      response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
+        throwHttpErrors: false
+      })
+    } catch (error) {
+      // A transport failure answers with no status, so only the payloads this request carried are
+      // failed - anything already recorded for the other direction survives.
+      indices.forEach((index) => {
+        setError(
+          msResponse,
+          isBatch,
+          index,
+          500,
+          ErrorCodes.RETRYABLE_ERROR,
+          (error as Error)?.message ?? 'Request to Display & Video 360 failed',
+          sentFor(index)
+        )
+      })
+
+      continue
+    }
 
     if (!response.ok) {
       const { status, data } = response
@@ -160,12 +180,20 @@ function isPresent(value: string | undefined): value is string {
   return value !== undefined
 }
 
-function clean(value: string): string {
+function stripSpaces(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
 
-function hash(value: string): string {
-  return processHashing(value, 'sha256', 'hex', clean).toLowerCase()
+function trimOnly(value: string): string {
+  return value.trim()
+}
+
+function trimAndLower(value: string): string {
+  return value.trim().toLowerCase()
+}
+
+function hash(value: string, normalise?: (value: string) => string): string {
+  return processHashing(value, 'sha256', 'hex', normalise).toLowerCase()
 }
 
 export function getAudienceId(payload: Payload, hookOutputs?: HookOutputs): string | undefined {
@@ -249,22 +277,28 @@ export function buildContactInfo(mappedContactInfo: Payload['contact_info']): Co
   // report it as an unmatched member. A user is still synced on whatever is left, and an event
   // with nothing left over fails as having no usable identifier.
   //
-  // Phone numbers are sent as they are given. The field asks for E.164, and a number is taken at
-  // its word rather than read and rewritten.
-  const hashedEmails = toList(emails).map(normaliseEmail).filter(isPresent).map(hash)
-  const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
+  // A phone number is not reformatted - the field asks for E.164 and the digits are taken at their
+  // word - beyond having its leading and trailing whitespace removed.
+  const hashedEmails = toList(emails)
+    .map(normaliseEmail)
+    .filter(isPresent)
+    .map((email) => hash(email, stripSpaces))
+  const hashedPhoneNumbers = toList(phoneNumbers).map((phoneNumber) => hash(phoneNumber, trimOnly))
   const zipCodeList = toList(zipCodes)
+  const trimmedFirstName = firstName?.trim()
+  const trimmedLastName = lastName?.trim()
+  const trimmedCountryCode = countryCode?.trim()
 
   const contactInfo: ContactInfo = {
     ...(hashedEmails.length > 0 ? { hashedEmails } : {}),
     ...(hashedPhoneNumbers.length > 0 ? { hashedPhoneNumbers } : {}),
     // Google requires zipCodes, hashedFirstName, hashedLastName and countryCode to be sent together.
-    ...(zipCodeList.length > 0 && firstName && lastName && countryCode
+    ...(zipCodeList.length > 0 && trimmedFirstName && trimmedLastName && trimmedCountryCode
       ? {
           zipCodes: zipCodeList,
-          hashedFirstName: hash(firstName),
-          hashedLastName: hash(lastName),
-          countryCode: countryCode.trim().toUpperCase()
+          hashedFirstName: hash(trimmedFirstName, trimAndLower),
+          hashedLastName: hash(trimmedLastName, trimAndLower),
+          countryCode: trimmedCountryCode.toUpperCase()
         }
       : {})
   }

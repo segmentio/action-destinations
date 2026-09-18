@@ -1,0 +1,2466 @@
+{
+  "slug": "actions-first-party-dv360",
+  "name": "First Party Dv360",
+  "mode": "cloud",
+  "authentication": {
+    "scheme": "oauth2",
+    "fields": {}
+  },
+  "audienceConfig": {
+    "mode": {
+      "type": "synced",
+      "full_audience_sync": false
+    },
+    "audienceFields": {
+      "advertiserId": {
+        "label": "Advertiser ID",
+        "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "audienceType": {
+        "label": "Audience Type",
+        "description": "The type of the audience.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "CUSTOMER MATCH CONTACT INFO",
+            "value": "CUSTOMER_MATCH_CONTACT_INFO"
+          },
+          {
+            "label": "CUSTOMER MATCH DEVICE ID",
+            "value": "CUSTOMER_MATCH_DEVICE_ID"
+          }
+        ],
+        "default": null,
+        "depends_on": null
+      },
+      "description": {
+        "label": "Description",
+        "description": "The description of the audience.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "appId": {
+        "label": "App ID",
+        "description": "The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "membershipDurationDays": {
+        "label": "Membership Duration Days",
+        "description": "The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    },
+    "supportsAudienceFunctions": true
+  },
+  "actions": {
+    "addToAudContactInfo": {
+      "title": "Edit Customer Match Members - Contact Info List",
+      "description": "Add or update customer match members in Google Display & Video 360 Contact Info List Audience.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "emails": {
+          "label": "Emails",
+          "description": "A list of the user's emails. If not already hashed, the system will hash them before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "phoneNumbers": {
+          "label": "Phone Numbers",
+          "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "zipCodes": {
+          "label": "ZIP Codes",
+          "description": "A list of the user's zip codes.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.zipCodes"
+              },
+              "then": {
+                "@path": "$.traits.zipCodes"
+              },
+              "else": {
+                "@path": "$.properties.zipCodes"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "firstName": {
+          "label": "First Name",
+          "description": "The user's first name. If not already hashed, the system will hash it before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "lastName": {
+          "label": "Last Name",
+          "description": "The user's last name. If not already hashed, the system will hash it before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "countryCode": {
+          "label": "Country Code",
+          "description": "The country code of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.countryCode"
+              },
+              "then": {
+                "@path": "$.traits.countryCode"
+              },
+              "else": {
+                "@path": "$.properties.countryCode"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "advertiser_id": {
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "addToAudMobileDeviceId": {
+      "title": "Edit Customer Match Members - Mobile Device Id List",
+      "description": "Add or update customer match members in Google Display & Video 360 Mobile Device Id List Audience.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "mobileDeviceIds": {
+          "label": "Mobile Device IDs",
+          "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits.mobileDeviceIds"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "advertiser_id": {
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "removeFromAudContactInfo": {
+      "title": "Remove Customer Match Members - Contact Info List",
+      "description": "Remove customer match members in Google Display & Video 360 Contact Info List Audience.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Exited\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "emails": {
+          "label": "Emails",
+          "description": "A list of the user's emails. If not already hashed, the system will hash them before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "phoneNumbers": {
+          "label": "Phone Numbers",
+          "description": "A list of the user's phone numbers. If not already hashed, the system will hash them before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "zipCodes": {
+          "label": "ZIP Codes",
+          "description": "A list of the user's zip codes.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.zipCodes"
+              },
+              "then": {
+                "@path": "$.traits.zipCodes"
+              },
+              "else": {
+                "@path": "$.properties.zipCodes"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "firstName": {
+          "label": "First Name",
+          "description": "The user's first name. If not already hashed, the system will hash it before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "lastName": {
+          "label": "Last Name",
+          "description": "The user's last name. If not already hashed, the system will hash it before use.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": "hashedPII",
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "countryCode": {
+          "label": "Country Code",
+          "description": "The country code of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.countryCode"
+              },
+              "then": {
+                "@path": "$.traits.countryCode"
+              },
+              "else": {
+                "@path": "$.properties.countryCode"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "advertiser_id": {
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "removeFromAudMobileDeviceId": {
+      "title": "Remove Customer Match Members - Mobile Device Id List",
+      "description": "Remove customer match members in Google Display & Video 360 Mobile Device Id List Audience.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Audience Entered\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "mobileDeviceIds": {
+          "label": "Mobile Device IDs",
+          "description": "A list of mobile device IDs defining Customer Match audience members. The size of mobileDeviceIds mustn't be greater than 500,000.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits.mobileDeviceIds"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "advertiser_id": {
+          "label": "Advertiser ID",
+          "description": "The Advertiser ID associated with the DV360 Audience.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.audience_settings.advertiserId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "syncAudience": {
+      "title": "Sync Audience [Beta]",
+      "description": "Add users to, and remove users from, a Display & Video 360 Customer Match audience. Supports both Contact Info and Mobile Device ID audiences. This action is currently in beta.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": {
+        "default": "mirror",
+        "label": "Sync Mode",
+        "description": "When syncing from a database source (Reverse ETL), define the type of database operation that triggers syncs to Display & Video 360. This setting does not apply when syncing a Segment Audience; membership is resolved from the audience event itself and this selection is ignored.",
+        "choices": [
+          {
+            "value": "add",
+            "label": "Add - Row added"
+          },
+          {
+            "value": "update",
+            "label": "Update - Row updated"
+          },
+          {
+            "value": "upsert",
+            "label": "Upsert - Row added or updated"
+          },
+          {
+            "value": "delete",
+            "label": "Delete - Row deleted"
+          },
+          {
+            "value": "mirror",
+            "label": "Mirror -Row added, updated or deleted"
+          }
+        ]
+      },
+      "hooks": {
+        "retlOnMappingSave": {
+          "label": "Select or create an audience in Display & Video 360",
+          "description": "When saving this mapping, Segment will either create a new Customer Match audience in Display & Video 360 or connect to an existing one.",
+          "inputFields": {
+            "operation": {
+              "label": "Create a new audience or connect to an existing one?",
+              "description": "Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "create",
+              "choices": [
+                {
+                  "label": "Create New Audience",
+                  "value": "create"
+                },
+                {
+                  "label": "Connect to Existing Audience",
+                  "value": "existing"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "advertiserId": {
+              "label": "Advertiser ID",
+              "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audienceName": {
+              "label": "Audience Name",
+              "description": "The display name of the audience to create in Display & Video 360.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audienceType": {
+              "label": "Audience Type",
+              "description": "The type of the audience to create.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "CUSTOMER MATCH CONTACT INFO",
+                  "value": "CUSTOMER_MATCH_CONTACT_INFO"
+                },
+                {
+                  "label": "CUSTOMER MATCH DEVICE ID",
+                  "value": "CUSTOMER_MATCH_DEVICE_ID"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "membershipDurationDays": {
+              "label": "Membership Duration Days",
+              "description": "The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": 1,
+              "maximum": 540,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "description": {
+              "label": "Description",
+              "description": "The description of the audience.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "appId": {
+              "label": "App ID",
+              "description": "The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "create"
+                  },
+                  {
+                    "fieldKey": "audienceType",
+                    "operator": "is",
+                    "value": "CUSTOMER_MATCH_DEVICE_ID"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "existingAudienceId": {
+              "label": "Existing Audience ID",
+              "description": "The ID of the audience in Display & Video 360 to connect this mapping to.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": {
+                "match": "all",
+                "conditions": [
+                  {
+                    "fieldKey": "operation",
+                    "operator": "is",
+                    "value": "existing"
+                  }
+                ]
+              },
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "outputFields": {
+            "audienceId": {
+              "label": "Audience ID",
+              "description": "The ID of the audience in Display & Video 360 this mapping is connected to.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "advertiserId": {
+              "label": "Advertiser ID",
+              "description": "The ID of the advertiser which owns the audience.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audienceType": {
+              "label": "Audience Type",
+              "description": "The type of the audience in Display & Video 360.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "appId": {
+              "label": "App ID",
+              "description": "The app ID associated with the mobile device IDs in the audience.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "dynamicFields": null,
+      "fields": {
+        "contact_info": {
+          "label": "Contact Info Details",
+          "description": "The contact details used to match the user in Display & Video 360. This field is only used when syncing to a Customer Match Contact Info audience. It is ignored when syncing to a Mobile Device ID audience.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "emails": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.email"
+                },
+                "then": {
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.traits.email"
+                }
+              }
+            },
+            "phoneNumbers": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.phone"
+                },
+                "then": {
+                  "@path": "$.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "zipCodes": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.zipCodes"
+                },
+                "then": {
+                  "@path": "$.traits.zipCodes"
+                },
+                "else": {
+                  "@path": "$.properties.zipCodes"
+                }
+              }
+            },
+            "firstName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.firstName"
+                },
+                "then": {
+                  "@path": "$.traits.firstName"
+                },
+                "else": {
+                  "@path": "$.properties.firstName"
+                }
+              }
+            },
+            "lastName": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.lastName"
+                },
+                "then": {
+                  "@path": "$.traits.lastName"
+                },
+                "else": {
+                  "@path": "$.properties.lastName"
+                }
+              }
+            },
+            "countryCode": {
+              "@if": {
+                "exists": {
+                  "@path": "$.traits.countryCode"
+                },
+                "then": {
+                  "@path": "$.traits.countryCode"
+                },
+                "else": {
+                  "@path": "$.properties.countryCode"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "emails": {
+              "label": "Emails",
+              "description": "The user's email address. A single value, or several separated by commas. If not already hashed, the system will hash them before use.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phoneNumbers": {
+              "label": "Phone Numbers",
+              "description": "The user's phone number in E.164 format. A single value, or several separated by commas. If not already hashed, the system will hash them before use.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "zipCodes": {
+              "label": "ZIP Codes",
+              "description": "The user's zip code. A single value, or several separated by commas. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "firstName": {
+              "label": "First Name",
+              "description": "The user's first name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "lastName": {
+              "label": "Last Name",
+              "description": "The user's last name. If not already hashed, the system will hash it before use. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": "hashedPII",
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "countryCode": {
+              "label": "Country Code",
+              "description": "The user's country code. Zip Code, First Name, Last Name and Country Code must all be provided together. If any of them is missing, none of them are sent, and no error is raised.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "mobileDeviceIds": {
+          "label": "Mobile Device IDs",
+          "description": "A mobile device ID defining a Customer Match audience member. A single value, or several separated by commas. This field is only used when syncing to a Customer Match Mobile Device ID audience. It is ignored when syncing to a Contact Info audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits.mobileDeviceIds"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "consent": {
+          "label": "Consent",
+          "description": "Consent signals for this audience sync. A signal left unset is sent as not specified. Events with consent denied are not sent, as Display & Video 360 rejects any request containing denied consent.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "adUserData": {
+              "label": "Ad User Data Consent",
+              "description": "Consent to use the data for advertising purposes.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "CONSENT_STATUS_GRANTED",
+                  "value": "CONSENT_STATUS_GRANTED"
+                },
+                {
+                  "label": "CONSENT_STATUS_DENIED",
+                  "value": "CONSENT_STATUS_DENIED"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "adPersonalization": {
+              "label": "Ad Personalization Consent",
+              "description": "Consent to use the data for ad personalization.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "CONSENT_STATUS_GRANTED",
+                  "value": "CONSENT_STATUS_GRANTED"
+                },
+                {
+                  "label": "CONSENT_STATUS_DENIED",
+                  "value": "CONSENT_STATUS_DENIED"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "external_id": {
+          "label": "External ID",
+          "description": "The ID of the DV360 Audience.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.external_audience_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Enable batching of requests.",
+          "type": "boolean",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "external_id",
+            "consent"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Entities Audience Entered",
+      "type": "specificEvent",
+      "partnerAction": "addToAudContactInfo",
+      "mapping": {
+        "emails": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "phoneNumbers": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "zipCodes": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
+        },
+        "firstName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
+        },
+        "lastName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
+        },
+        "countryCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "eventSlug": "warehouse_audience_entered_track"
+    },
+    {
+      "name": "Entities Audience Exited",
+      "type": "specificEvent",
+      "partnerAction": "removeFromAudContactInfo",
+      "mapping": {
+        "emails": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "phoneNumbers": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "zipCodes": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
+        },
+        "firstName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
+        },
+        "lastName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
+        },
+        "countryCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "eventSlug": "warehouse_audience_exited_track"
+    },
+    {
+      "name": "Associated Entity Added",
+      "type": "specificEvent",
+      "partnerAction": "addToAudContactInfo",
+      "mapping": {
+        "emails": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "phoneNumbers": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "zipCodes": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
+        },
+        "firstName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
+        },
+        "lastName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
+        },
+        "countryCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "eventSlug": "warehouse_entity_added_track"
+    },
+    {
+      "name": "Associated Entity Removed",
+      "type": "specificEvent",
+      "partnerAction": "removeFromAudContactInfo",
+      "mapping": {
+        "emails": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "phoneNumbers": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "zipCodes": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
+        },
+        "firstName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
+        },
+        "lastName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
+        },
+        "countryCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "eventSlug": "warehouse_entity_removed_track"
+    },
+    {
+      "name": "Journeys Step Entered",
+      "type": "specificEvent",
+      "partnerAction": "addToAudContactInfo",
+      "mapping": {
+        "emails": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "phoneNumbers": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.phone"
+            },
+            "then": {
+              "@path": "$.traits.phone"
+            },
+            "else": {
+              "@path": "$.properties.phone"
+            }
+          }
+        },
+        "zipCodes": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.zipCodes"
+            },
+            "then": {
+              "@path": "$.traits.zipCodes"
+            },
+            "else": {
+              "@path": "$.properties.zipCodes"
+            }
+          }
+        },
+        "firstName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.firstName"
+            },
+            "then": {
+              "@path": "$.traits.firstName"
+            },
+            "else": {
+              "@path": "$.properties.firstName"
+            }
+          }
+        },
+        "lastName": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.lastName"
+            },
+            "then": {
+              "@path": "$.traits.lastName"
+            },
+            "else": {
+              "@path": "$.properties.lastName"
+            }
+          }
+        },
+        "countryCode": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.countryCode"
+            },
+            "then": {
+              "@path": "$.traits.countryCode"
+            },
+            "else": {
+              "@path": "$.properties.countryCode"
+            }
+          }
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "advertiser_id": {
+          "@path": "$.context.personas.audience_settings.advertiserId"
+        },
+        "enable_batching": true,
+        "batch_size": 500000
+      },
+      "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "syncAudience",
+      "mapping": {
+        "contact_info": {
+          "emails": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.email"
+              },
+              "then": {
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "phoneNumbers": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.phone"
+              },
+              "then": {
+                "@path": "$.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "zipCodes": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.zipCodes"
+              },
+              "then": {
+                "@path": "$.traits.zipCodes"
+              },
+              "else": {
+                "@path": "$.properties.zipCodes"
+              }
+            }
+          },
+          "firstName": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.firstName"
+              },
+              "then": {
+                "@path": "$.traits.firstName"
+              },
+              "else": {
+                "@path": "$.properties.firstName"
+              }
+            }
+          },
+          "lastName": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.lastName"
+              },
+              "then": {
+                "@path": "$.traits.lastName"
+              },
+              "else": {
+                "@path": "$.properties.lastName"
+              }
+            }
+          },
+          "countryCode": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.countryCode"
+              },
+              "then": {
+                "@path": "$.traits.countryCode"
+              },
+              "else": {
+                "@path": "$.properties.countryCode"
+              }
+            }
+          }
+        },
+        "mobileDeviceIds": {
+          "@path": "$.context.traits.mobileDeviceIds"
+        },
+        "external_id": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "enable_batching": true,
+        "batch_size": 500000,
+        "batch_keys": [
+          "external_id",
+          "consent"
+        ]
+      },
+      "eventSlug": "journey_step_all_events_track"
+    }
+  ]
+}

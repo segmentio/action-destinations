@@ -24,6 +24,10 @@ const EDIT_PATH = `/v4/firstPartyAndPartnerAudiences/${AUDIENCE_ID}:editCustomer
 const hash = (value: string): string =>
   processHashing(value, 'sha256', 'hex', (v) => v.replace(/\s+/g, '').toLowerCase())
 
+const hashName = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim().toLowerCase())
+
+const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim())
+
 // The identifier and consent options are the action's own field types, so a change to either
 // shape shows up here rather than leaving these tests mapping traits which no longer exist.
 type ContactInfoOptions = NonNullable<Payload['contact_info']>
@@ -308,7 +312,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     })
 
     // Phone numbers are not validated, so whatever the customer maps is hashed and sent.
-    it('sends a phone number exactly as it was given', async () => {
+    it('sends a phone number without reformatting it', async () => {
       const { captured } = captureBody()
 
       await testDestination.testAction('syncAudience', {
@@ -318,7 +322,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       })
 
       expect(captured.body.addedContactInfoList.contactInfos).toEqual([
-        { hashedPhoneNumbers: [hash('(212) 565-0000')] }
+        { hashedPhoneNumbers: [hashPhone('(212) 565-0000')] }
       ])
     })
 
@@ -429,6 +433,21 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(error.code).toBe('INVALID_AUTHENTICATION')
       expect(error.status).toBe(401)
     })
+
+    it('throws a retryable error for a single event when the request never answers', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).replyWithError('socket hang up')
+
+      const error = await rejectionOf(
+        testDestination.testAction('syncAudience', {
+          event: makeEvent({ membership: true, emails: 'a@example.com' }),
+          mapping,
+          useDefaultMappings: false
+        })
+      )
+
+      expect(error).toBeInstanceOf(RetryableError)
+      expect(error.status).toBe(500)
+    })
   })
 
   // A batch goes through performBatch, which reports the outcome of every event by index.
@@ -536,8 +555,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(body.addedContactInfoList.contactInfos).toEqual([
         {
           hashedEmails: [hash('complete@example.com')],
-          hashedFirstName: hash('jane'),
-          hashedLastName: hash('doe'),
+          hashedFirstName: hashName('jane'),
+          hashedLastName: hashName('doe'),
           zipCodes: ['90210'],
           countryCode: 'US'
         },
@@ -689,6 +708,35 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect((responses[1] as any).errormessage).toBe('Cannot remove')
     })
 
+    // A transport failure throws rather than answering with a status, so it has to be scoped to the
+    // request which failed too. Escaping send would discard the adds already recorded as delivered.
+    it('fails only the removed events when the remove request never answers', async () => {
+      nock(DV360_HOST).post(EDIT_PATH).once().reply(200, API_RESPONSE)
+      nock(DV360_HOST).post(EDIT_PATH).once().replyWithError('socket hang up')
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        settings: {},
+        events: [
+          makeEvent({ membership: true, emails: 'a@example.com' }),
+          makeEvent({ membership: false, emails: 'b@example.com' }),
+          makeEvent({ membership: true, emails: 'c@example.com' })
+        ],
+        mapping
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(responses[2].status).toBe(200)
+      expect(responses[1].status).toBe(500)
+      expect((responses[1] as any).errortype).toBe('RETRYABLE_ERROR')
+      expect((responses[1] as any).sent).toEqual({
+        advertiserId: ADVERTISER_ID,
+        removedContactInfoList: {
+          contactInfos: [{ hashedEmails: [hash('b@example.com')] }],
+          consent: GRANTED_CONSENT
+        }
+      })
+    })
+
     it('fully asserts the MultiStatusResponse for a mixed batch of 10 events', async () => {
       const { bodies, scope } = captureBodies()
 
@@ -734,7 +782,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           addedContactInfoList: {
             contactInfos: [
               { hashedEmails: [hash('add1@example.com')] },
-              { hashedPhoneNumbers: [hash('+12125650000')] },
+              { hashedPhoneNumbers: [hashPhone('+12125650000')] },
               { hashedEmails: [hash('add3@example.com')] }
             ],
             consent: GRANTED_CONSENT
@@ -756,7 +804,10 @@ describe('FirstPartyDv360.syncAudience', () => {
       // event alone, so the list it travelled in is visible per index.
       const added = (member: Record<string, unknown>) => ({
         status: 200,
-        sent: { advertiserId: ADVERTISER_ID, addedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT } },
+        sent: {
+          advertiserId: ADVERTISER_ID,
+          addedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT }
+        },
         body: API_RESPONSE
       })
 
@@ -779,7 +830,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           errorreporter: 'INTEGRATIONS',
           errormessage: 'Enable Batching must be a boolean but it was a string.'
         },
-        added({ hashedPhoneNumbers: [hash('+12125650000')] }),
+        added({ hashedPhoneNumbers: [hashPhone('+12125650000')] }),
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
