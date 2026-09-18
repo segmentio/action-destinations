@@ -1025,23 +1025,23 @@
         "choices": [
           {
             "value": "add",
-            "label": "Row added"
+            "label": "Add - Row added"
           },
           {
             "value": "update",
-            "label": "Row updated"
+            "label": "Update - Row updated"
           },
           {
             "value": "upsert",
-            "label": "Row added or updated"
+            "label": "Upsert - Row added or updated"
           },
           {
             "value": "delete",
-            "label": "Row deleted"
+            "label": "Delete - Row deleted"
           },
           {
             "value": "mirror",
-            "label": "Row added, updated or deleted"
+            "label": "Mirror -Row added, updated or deleted"
           }
         ]
       },

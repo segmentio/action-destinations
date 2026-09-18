@@ -40,11 +40,11 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
       'is resolved from the audience event itself and this selection is ignored.',
     default: 'mirror',
     choices: [
-      { value: 'add', label: 'Row added' },
-      { value: 'update', label: 'Row updated' },
-      { value: 'upsert', label: 'Row added or updated' },
-      { value: 'delete', label: 'Row deleted' },
-      { value: 'mirror', label: 'Row added, updated or deleted' }
+      { value: 'add', label: 'Add - Row added' },
+      { value: 'update', label: 'Update - Row updated' },
+      { value: 'upsert', label: 'Upsert - Row added or updated' },
+      { value: 'delete', label: 'Delete - Row deleted' },
+      { value: 'mirror', label: 'Mirror -Row added, updated or deleted' }
     ]
   },
   fields: {
