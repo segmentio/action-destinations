@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import createTestServer from 'create-test-server'
 import createInstance from '../request-client'
+import createRequestClient from '../create-request-client'
 import { Response } from '../fetch'
 
 jest.setTimeout(12000)
@@ -500,6 +501,61 @@ describe('request()', () => {
     expect(response.ok).toBe(true)
     expect(response.status).toBe(201)
     expect(await response.text()).toBe('hello=world')
+    await server.close()
+  })
+})
+
+// Regression coverage for STRATCONN-7032: afterResponse hooks (e.g. prepareResponse reading or
+// cloning the body) run outside the fetch timeout. A slow/large body read used to hang
+// indefinitely; it must now surface as a bounded timeout error instead.
+describe('afterResponse timeout (STRATCONN-7032)', () => {
+  it('bounds a hanging afterResponse hook with the request timeout instead of hanging forever', async () => {
+    const server = await createTestServer()
+    server.get('/', (_request, response) => {
+      response.end()
+    })
+
+    const request = createInstance({
+      afterResponse: [
+        // Simulates a body read that never settles (the clone/text() deadlock).
+        () => new Promise<void>(() => {})
+      ]
+    })
+
+    await expect(request(server.url, { timeout: 500 })).rejects.toThrowError(
+      'Request timed out while processing the response'
+    )
+    await server.close()
+  })
+
+  it('does not time out when afterResponse hooks complete within the timeout', async () => {
+    const server = await createTestServer()
+    server.get('/', (_request, response) => {
+      response.end()
+    })
+
+    const request = createInstance({
+      afterResponse: [() => new Promise<void>((resolve) => setTimeout(resolve, 100))]
+    })
+
+    await expect(request(server.url, { timeout: 1000 })).resolves.toMatchObject({ ok: true })
+    await server.close()
+  })
+
+  it('bounds prepareResponse when a large response body never finishes streaming', async () => {
+    const server = await createTestServer()
+    // Send more than one PassThrough highWaterMark (16KB) of data but never end the response, so
+    // the default clone().text() path in prepareResponse can never settle.
+    server.get('/', (_request, response) => {
+      response.write('a'.repeat(32 * 1024))
+      // intentionally no response.end()
+    })
+
+    const request = createRequestClient()
+
+    await expect(request(server.url, { timeout: 500 })).rejects.toThrowError(
+      'Request timed out while processing the response'
+    )
     await server.close()
   })
 })
