@@ -272,6 +272,7 @@ const action: ActionDefinition<Settings, Payload> = {
                 },
                 statsContext
               )
+              console.log('getDataManagerPerformHook api called')
               statsContext?.statsClient?.incr('getDataManagerPerformHook.success', 1, statsContext?.tags)
               return {
                 successMessage: `Using existing list data manager '${userList.id}' (id: ${hookInputs.list_id})`,
@@ -292,6 +293,7 @@ const action: ActionDefinition<Settings, Payload> = {
               features,
               statsContext
             )
+            console.log('getGoogleAudiencePerformHook api called')
             statsContext?.statsClient?.incr('getGoogleAudiencePerformHook.success', 1, statsContext?.tags)
             return {
               successMessage: `Using existing list google ads '${response.results[0].userList.id}' (id: ${hookInputs.list_id})`,
@@ -344,6 +346,7 @@ const action: ActionDefinition<Settings, Payload> = {
               { refresh_token: auth?.refreshToken },
               statsContext
             )
+            console.log('createDataManagerUserList api called')
             statsContext?.statsClient?.incr('createDataManagerPerformHook.success', 1, statsContext?.tags)
           } else {
             listId = await createGoogleAudience(
@@ -353,6 +356,7 @@ const action: ActionDefinition<Settings, Payload> = {
               features,
               statsContext
             )
+            console.log('createGoogleAudience api called')
             statsContext?.statsClient?.incr('createGoogleAudiencePerformHook.success', 1, statsContext?.tags)
           }
 

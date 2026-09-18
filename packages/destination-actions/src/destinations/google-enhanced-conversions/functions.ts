@@ -819,6 +819,7 @@ export async function getDataManagerListIds(
     }))
 
     statsContext?.statsClient?.incr('getDataManagerListIds.success', 1, statsContext?.tags)
+    console.log('data manager list api called')
     return { choices, nextPage: data.nextPageToken }
   } catch (err) {
     statsContext?.statsClient?.incr('getDataManagerListIds.error', 1, statsContext?.tags)
@@ -1018,6 +1019,7 @@ export async function getListIds(
     const choices = response.data.results.map((input: UserList) => {
       return { value: input.userList.id, label: input.userList.name }
     })
+    console.log('legacy google ads list api called')
     statsContext?.statsClient?.incr('getGoogleAdsListIds.success', 1, statsContext?.tags)
     return {
       choices
