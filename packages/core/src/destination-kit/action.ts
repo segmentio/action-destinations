@@ -1072,7 +1072,11 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     }
 
     const { jobId, multiStatusResponse: batchMultiStatus } = performBatchResponse
-    // status isn't guaranteed at runtime (performBatch is external); default to 200 on success.
+    // `status` is required by AsyncBatchResponse, but that is a compile-time guarantee only:
+    // performBatch is implemented outside core, so a cast or untyped code path can still
+    // resolve without it. performBatch resolved without throwing, so the batch submission
+    // itself succeeded - default to 200 rather than leaking `status: undefined` to callers.
+    // Per-item outcomes are carried in the multiStatusResponse.
     const status = performBatchResponse.status ?? 200
 
     // Process the multi-status response from performBatch
@@ -1133,7 +1137,7 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     } catch (error) {
       // Transient network failure while polling
       if (isRetryableNetworkError(error)) {
-        return { jobId: bundle.data.jobId, status: 500, jobStatus: 'RETRYABLE_ERROR' }
+        return { jobId: dataBundle.payload.jobId, status: 500, jobStatus: 'RETRYABLE_ERROR' }
       }
       throw error
     }
@@ -1165,9 +1169,12 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
       status = 500
       errormessage = (error as Error)?.message ?? 'Network error'
     } else {
-      // Unclassified error: treat as terminal, non-retryable (400)
-      status = 400
-      errormessage = error instanceof Error ? error.message : 'Unexpected error executing async batch'
+      // Unclassified/unexpected error -- almost always a programming or runtime bug. Rethrow so it
+      // fails fast and stays visible (surfaced to the caller's logging/Sentry) instead of being
+      // silently swallowed as a terminal batch result. A destination that wants a specific error
+      // treated as terminal should throw an IntegrationError with an explicit status rather than
+      // let it reach here.
+      throw error
     }
 
     this.fillMultiStatusWithErrorResponse({ ...input, status, errormessage })

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import createTestServer from 'create-test-server'
-import createInstance, { isRetryableNetworkError } from '../request-client'
+import createInstance, { isRetryableNetworkError, RETRYABLE_NETWORK_ERROR_CODES } from '../request-client'
 import { Response } from '../fetch'
 
 jest.setTimeout(12000)
@@ -526,7 +526,7 @@ describe('request()', () => {
 
   describe('isRetryableNetworkError', () => {
     it('is true for retryable Node network codes (on the error or its cause)', () => {
-      for (const code of ['ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EAI_AGAIN', 'ENOTFOUND']) {
+      for (const code of Array.from(RETRYABLE_NETWORK_ERROR_CODES)) {
         expect(isRetryableNetworkError(Object.assign(new Error('x'), { code }))).toBe(true)
         expect(isRetryableNetworkError(Object.assign(new Error('wrap'), { cause: { code } }))).toBe(true)
       }

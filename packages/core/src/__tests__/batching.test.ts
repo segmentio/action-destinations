@@ -1112,27 +1112,20 @@ describe('Async Batching - error handling', () => {
     expect(result.multiStatusResponse.getResponseAtIndex(1).value().status).toBe(401)
   })
 
-  test('classifies an unexpected (unclassified) error from performBatch as a terminal 400', async () => {
-    // The framework no longer rethrows unknown errors: a destination can just let them propagate,
-    // and they become a terminal, non-retryable 400 (so a deterministic bug doesn't retry forever).
+  test('rethrows an unclassified error from performBatch', async () => {
     mockPerformBatch.mockRejectedValue(new Error('unexpected failure'))
 
     const destination = new Destination(asyncBatchDestination)
-    const result = await destination.executeAsyncBatch('asyncTestAction', {
-      events,
-      mapping: { user_id: { '@path': '$.userId' } },
-      settings: {}
-    })
-
-    expect(result.jobId).toBeUndefined()
-    expect(result.status).toBe(400)
-    expect(result.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(400)
-    expect(result.multiStatusResponse.getResponseAtIndex(0).value().errormessage).toBe('unexpected failure')
+    await expect(
+      destination.executeAsyncBatch('asyncTestAction', {
+        events,
+        mapping: { user_id: { '@path': '$.userId' } },
+        settings: {}
+      })
+    ).rejects.toThrow('unexpected failure')
   })
 
   test('classifies a propagated network error from performBatch as retryable (framework-level)', async () => {
-    // A performBatch that simply lets a transient network failure (raw Node error, .code set)
-    // propagate should get retryable classification for free -- no per-destination code list.
     mockPerformBatch.mockRejectedValue(Object.assign(new Error('socket hang up'), { code: 'ECONNRESET' }))
 
     const destination = new Destination(asyncBatchDestination)
@@ -1255,8 +1248,6 @@ describe('Async Poll', () => {
   })
 
   test('classifies a propagated network error from performPoll as RETRYABLE_ERROR (framework-level)', async () => {
-    // A performPoll that lets a transient network failure propagate should report RETRYABLE_ERROR
-    // for free (the caller re-polls) rather than surfacing as a hard failure.
     mockPerformPoll.mockRejectedValue(Object.assign(new Error('ETIMEDOUT'), { code: 'ETIMEDOUT' }))
 
     const destination = new Destination(asyncPollDestination)

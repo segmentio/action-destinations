@@ -664,6 +664,9 @@ describe('Salesforce Marketing Cloud - Async', () => {
         })
 
         expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        // A retryable network failure isn't the caller's fault -- must surface as a 5xx (matching
+        // the framework's convention for retryable errors), not a 4xx client error.
+        expect(response.status).toBe(500)
       })
 
       it('should still return FAILED for an unclassified non-HTTP error', async () => {
@@ -677,6 +680,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
         })
 
         expect(response.jobStatus).toBe('FAILED')
+        expect(response.status).toBe(400)
       })
 
       it('should return SUCCEEDED with success count from uploadCount when Complete and OK', async () => {
@@ -855,6 +859,38 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.isErrorResponseAtIndex(2)).toBe(true)
       })
 
+      it('does not hang and returns RETRYABLE_ERROR when /results reports a count with an empty items page', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        // Inconsistent shape: count says 5 rows remain and pageSize is non-zero, but items is
+        // empty, so items.length never grows and the naive loop-exit condition never fires.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '1' })
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 5,
+            items: [],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
       it('counts a deadlocked row as delivered while a permanent errorCode-2 failure stays a 400', async () => {
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)
@@ -916,7 +952,7 @@ describe('Salesforce Marketing Cloud - Async', () => {
       })
 
       it('recognizes a deadlocked row (counts it as delivered) even with trailing whitespace on the message', async () => {
-        // The tolerant .trim().includes() match must still catch a deadlock message with
+        // The tolerant substring .includes() match must still catch a deadlock message with
         // trailing whitespace / minor variation after "Rerun the transaction."
         nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
           .get(`/data/v1/async/${jobId}/status`)

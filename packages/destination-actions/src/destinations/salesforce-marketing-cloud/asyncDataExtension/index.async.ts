@@ -84,6 +84,10 @@ type PollResultItems = AsyncUpsertRowsPollResultsResponse['items']
  * `response.clone()` sets up in prepare-response; reading only the clone deadlocks it and the
  * request never settles (same root cause/fix as the Iterable Lists hang, PR #2461).
  */
+// Hard ceiling on pages fetched, independent of anything SFMC reports, so a malformed or
+// inconsistent /results response (e.g. count > 0 with items perpetually empty) can't spin forever.
+const MAX_RESULT_PAGES = 1000
+
 async function fetchAllResultItems(request: RequestClient, subdomain: string, jobId: string): Promise<PollResultItems> {
   const items: PollResultItems = []
   let page = 1
@@ -96,6 +100,7 @@ async function fetchAllResultItems(request: RequestClient, subdomain: string, jo
       { method: 'GET', skipResponseCloning: true }
     )
 
+    const itemsBefore = items.length
     items.push(...(resultsResponse.data.items ?? []))
     totalCount = resultsResponse.data.count ?? items.length
     pageSize = resultsResponse.data.pageSize || pageSize
@@ -103,6 +108,18 @@ async function fetchAllResultItems(request: RequestClient, subdomain: string, jo
     if (!pageSize || items.length >= totalCount) {
       break
     }
+
+    // SFMC reported more rows remain (count > items.length) but this page added nothing --
+    // an inconsistent shape that would otherwise loop forever. Bail out with what we have so
+    // the caller's statusHasErrors/empty-items check can classify this as retryable.
+    if (items.length === itemsBefore) {
+      break
+    }
+
+    if (page >= MAX_RESULT_PAGES) {
+      break
+    }
+
     page++
   }
 
@@ -385,8 +402,12 @@ const asyncAction: AsyncActionDefinition<Settings, Payload> = {
         const message = error instanceof Error ? error.message : 'Unknown error'
         logger?.warn?.(`SFMC async poll failed for job ${payload.jobId} with a non-HTTP error: ${message}`)
 
-        response.status = 400
-        response.jobStatus = isRetryableNetworkError(error) ? 'RETRYABLE_ERROR' : 'FAILED'
+        const retryable = isRetryableNetworkError(error)
+        // A retryable network failure isn't the caller's fault -- report it as a 5xx (matching the
+        // framework's own convention for retryable network errors) so orchestrators don't mistake
+        // it for a non-retryable 4xx client error. Non-retryable, non-HTTP failures keep 400.
+        response.status = retryable ? 500 : 400
+        response.jobStatus = retryable ? 'RETRYABLE_ERROR' : 'FAILED'
         return response
       }
 

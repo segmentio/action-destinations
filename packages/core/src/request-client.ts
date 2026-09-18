@@ -243,8 +243,11 @@ export class RequestTimeoutError extends CustomError {
  * Node error codes that indicate the request never reached/received a response from the
  * server at all (DNS failure, connection reset/refused, etc.), as opposed to the server
  * responding with a non-2xx status (that's `HTTPError`). These are almost always transient.
+ *
+ * Exported as a `ReadonlySet` so consumers can't mutate the retry classification at runtime
+ * (adding/removing codes would change behavior process-wide).
  */
-export const RETRYABLE_NETWORK_ERROR_CODES = new Set([
+export const RETRYABLE_NETWORK_ERROR_CODES: ReadonlySet<string> = new Set([
   'ETIMEDOUT',
   'ECONNRESET',
   'ECONNREFUSED',
@@ -349,7 +352,6 @@ class RequestClient {
         }
         throw new RequestClientError()
       }
-
       throw err
     }
     for (const hook of this.options.afterResponse ?? []) {
