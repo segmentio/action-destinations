@@ -1,7 +1,7 @@
 import type { AudienceDestinationDefinition } from '@segment/actions-core'
 import { IntegrationError, ErrorCodes } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
-import { adAccountId, audienceDescription, audienceLabel } from './fields'
+import { adAccountId, audienceDescription, audienceLabel, operation, existingAudienceId } from './fields'
 import sync from './sync'
 import { createAudience, getAudience } from './functions'
 import { presets } from './presets'
@@ -35,6 +35,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'Your advertiser account id. Read [more](https://www.facebook.com/business/help/1492627900875762). This overrides the main Destination settings named "Advertiser Account ID".',
       required: false
     },
+    operation,
+    existingAudienceId,
     audienceDescription,
     audienceLabel
   },
@@ -46,13 +48,32 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     async createAudience(request, createAudienceInput) {
       const {
         audienceName,
-        audienceSettings: { engageAdAccountId, audienceDescription, audienceLabel } = {},
+        audienceSettings: { engageAdAccountId, audienceDescription, audienceLabel, operation, existingAudienceId } = {},
         settings: { retlAdAccountId } = {},
         features,
         statsContext
       } = createAudienceInput
 
       const addAccountId = (engageAdAccountId ?? retlAdAccountId) as string
+
+      if (operation === 'existing') {
+        const trimmedExistingAudienceId = typeof existingAudienceId === 'string' ? existingAudienceId.trim() : undefined
+        if (!trimmedExistingAudienceId) {
+          throw new IntegrationError('Missing audience ID value', ErrorCodes.GET_AUDIENCE_FAILED, 400)
+        }
+
+        const { data: { externalId: id } = {}, error } = await getAudience(
+          request,
+          trimmedExistingAudienceId,
+          features,
+          statsContext
+        )
+        if (error) {
+          throw new IntegrationError(error.message, ErrorCodes.GET_AUDIENCE_FAILED, 400)
+        }
+        return { externalId: id as string }
+      }
+
       const { data: { externalId: id } = {}, error } = await createAudience(
         request,
         audienceName,
