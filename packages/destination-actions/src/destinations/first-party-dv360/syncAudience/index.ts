@@ -35,7 +35,9 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   syncMode: {
     label: 'Sync Mode',
     description:
-      'When syncing from a database source, define the type of database operation that triggers syncs to Display & Video 360.',
+      'When syncing from a database source (Reverse ETL), define the type of database operation that triggers ' +
+      'syncs to Display & Video 360. This setting does not apply when syncing a Segment Audience; membership ' +
+      'is resolved from the audience event itself and this selection is ignored.',
     default: 'mirror',
     choices: [
       { value: 'add', label: 'Row added' },
