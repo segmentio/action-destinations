@@ -44,7 +44,7 @@ export interface UserV3 {
 export interface EventItemV3 {
   event_at: number // milliseconds
   action_source: ActionSourceV3
-  event_source_url?: string
+  event_source_url?: string // can only be passed when action_source is 'WEBSITE'
   click_id?: string
   type: {
     tracking_type: EventTypeV3

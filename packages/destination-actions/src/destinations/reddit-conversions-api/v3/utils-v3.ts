@@ -64,11 +64,11 @@ export function createRedditPayloadV3(
 
       const custom_event_name = clean((payload as CustomEvent).custom_event_name)
       const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
-
+      const cleanEventSourceUrl = clean(event_source_url ?? '')
       const event: EventItemV3 = {
         event_at: toEpochMs(event_at),
         action_source: toActionSourceV3(action_source),
-        event_source_url: clean(event_source_url),
+        ...(action_source === 'WEBSITE' && cleanEventSourceUrl ? { event_source_url: cleanEventSourceUrl } : {}),
         click_id: clean(click_id),
         type: {
           tracking_type: toV3TrackingType(tracking_type),
