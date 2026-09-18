@@ -18,9 +18,9 @@
       },
       "baseUrl": {
         "label": "Base URL",
-        "description": "Your Voiceops base URL.",
+        "description": "Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted.",
         "type": "string",
-        "required": true,
+        "required": false,
         "multiple": false,
         "choices": null,
         "default": "https://projectfrontline.net",
@@ -574,6 +574,107 @@
           "description": "Additional call metadata to forward to Voiceops unchanged.",
           "type": "object",
           "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.extraMetadata"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        }
+      }
+    },
+    "updateCallMetadata": {
+      "title": "Update Call Metadata",
+      "description": "Send a complete call metadata snapshot to reconcile with a recording received before or after this event. No recording URL or agent email is required.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" and event = \"call.completed\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "call_id": {
+          "label": "Call ID",
+          "description": "The same external call identifier sent with the recording. Use up to 100 letters, numbers, dots, hyphens, or underscores.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.call_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "call_completed_at": {
+          "label": "Call Completed At",
+          "description": "The completion event time as a 10-digit Unix timestamp in seconds. Voiceops uses this to order metadata snapshots. Map Regal completed_at here; do not use the delivery or retry time.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.call_completed_at"
+              },
+              "then": {
+                "@path": "$.properties.call_completed_at"
+              },
+              "else": {
+                "@path": "$.properties.completed_at"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "extraMetadata": {
+          "label": "Extra Metadata",
+          "description": "A nonempty, complete snapshot of call metadata, such as disposition and contact phone. Map individual metadata fields here. Do not include call_id, call_started_at, recording_url, agent_email, channels, agentLegs, voiceops_segment_source_call_id, source.",
+          "type": "object",
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,

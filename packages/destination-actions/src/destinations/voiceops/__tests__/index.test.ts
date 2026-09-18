@@ -26,6 +26,28 @@ describe('Voiceops', () => {
       await expect(testDestination.testAuthentication(SETTINGS)).resolves.toBeUndefined()
     })
 
+    it('uses the default base URL when the setting is omitted', async () => {
+      const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+        .get('/frontline-api/integrations/v1/segment/authentication')
+        .matchHeader('authorization', 'Bearer voiceops-token')
+        .reply(200, {})
+
+      const settings: Settings = { accessToken: 'voiceops-token' }
+      await expect(testDestination.testAuthentication(settings)).resolves.toBeUndefined()
+      expect(scope.isDone()).toBe(true)
+    })
+
+    it.each(['', ' \t\n '])('rejects blank settings %p at the authentication URI schema', async (baseUrl) => {
+      const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+        .get('/frontline-api/integrations/v1/segment/authentication')
+        .reply(200, {})
+
+      await expect(testDestination.testAuthentication({ ...SETTINGS, baseUrl })).rejects.toThrow(
+        'Base URL must be a valid URI string'
+      )
+      expect(scope.isDone()).toBe(false)
+    })
+
     it('surfaces invalid bearer tokens as credential failures', async () => {
       nock(DEFAULT_VOICEOPS_BASE_URL)
         .get('/frontline-api/integrations/v1/segment/authentication')
