@@ -24,7 +24,9 @@ const baseCreateAudienceInput = () => ({
   audienceSettings: {
     engageAdAccountId: adAccountId,
     audienceDescription: 'We are the Mario Brothers and plumbing is our game.',
-    audienceLabel: undefined as string | undefined
+    audienceLabel: undefined as string | undefined,
+    operation: undefined as string | undefined,
+    existingAudienceId: undefined as string | undefined
   },
   features: {}
 })
@@ -141,6 +143,63 @@ describe('Facebook Custom Audiences', () => {
       input.audienceName = 'Restricted Audience'
 
       await expect(testDestination.createAudience(input)).rejects.toThrow('Invalid parameter')
+    })
+
+    it('should fail if operation is existing but no existing audience ID is set', async () => {
+      const input = baseCreateAudienceInput()
+      input.audienceSettings.operation = 'existing'
+
+      await expect(testDestination.createAudience(input)).rejects.toThrowError(IntegrationError)
+    })
+
+    it('should connect to an existing audience without creating a new one', async () => {
+      const createScope = nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences')
+        .reply(200, { id: '88888888888888888' })
+      nock(getAudienceUrl)
+        .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
+        .reply(200, { id: audienceId, name: 'The Super Mario Brothers Fans' })
+
+      const input = baseCreateAudienceInput()
+      input.audienceSettings.operation = 'existing'
+      input.audienceSettings.existingAudienceId = audienceId
+
+      const r = await testDestination.createAudience(input)
+      expect(r).toEqual({ externalId: audienceId })
+      expect(createScope.isDone()).toBe(false)
+    })
+
+    it('should fail if the existing audience ID is only whitespace', async () => {
+      const input = baseCreateAudienceInput()
+      input.audienceSettings.operation = 'existing'
+      input.audienceSettings.existingAudienceId = '   '
+
+      await expect(testDestination.createAudience(input)).rejects.toThrowError(IntegrationError)
+    })
+
+    it('should trim whitespace from a pasted existing audience ID', async () => {
+      nock(getAudienceUrl)
+        .get(`/${audienceId}`)
+        .query({ fields: 'id,name' })
+        .reply(200, { id: audienceId, name: 'The Super Mario Brothers Fans' })
+
+      const input = baseCreateAudienceInput()
+      input.audienceSettings.operation = 'existing'
+      input.audienceSettings.existingAudienceId = `  ${audienceId}\n`
+
+      const r = await testDestination.createAudience(input)
+      expect(r).toEqual({ externalId: audienceId })
+    })
+
+    it('should throw if the existing audience ID does not exist', async () => {
+      nock(getAudienceUrl).get(`/${audienceId}`).query({ fields: 'id,name' }).reply(400, {})
+
+      const input = baseCreateAudienceInput()
+      input.audienceSettings.operation = 'existing'
+      input.audienceSettings.existingAudienceId = audienceId
+
+      await expect(testDestination.createAudience(input)).rejects.toThrowError(IntegrationError)
     })
   })
 
