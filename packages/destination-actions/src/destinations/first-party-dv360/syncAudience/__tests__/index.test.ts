@@ -24,6 +24,10 @@ const EDIT_PATH = `/v4/firstPartyAndPartnerAudiences/${AUDIENCE_ID}:editCustomer
 const hash = (value: string): string =>
   processHashing(value, 'sha256', 'hex', (v) => v.replace(/\s+/g, '').toLowerCase())
 
+const hashName = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim().toLowerCase())
+
+const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex')
+
 // The identifier and consent options are the action's own field types, so a change to either
 // shape shows up here rather than leaving these tests mapping traits which no longer exist.
 type ContactInfoOptions = NonNullable<Payload['contact_info']>
@@ -318,7 +322,7 @@ describe('FirstPartyDv360.syncAudience', () => {
       })
 
       expect(captured.body.addedContactInfoList.contactInfos).toEqual([
-        { hashedPhoneNumbers: [hash('(212) 565-0000')] }
+        { hashedPhoneNumbers: [hashPhone('(212) 565-0000')] }
       ])
     })
 
@@ -536,8 +540,8 @@ describe('FirstPartyDv360.syncAudience', () => {
       expect(body.addedContactInfoList.contactInfos).toEqual([
         {
           hashedEmails: [hash('complete@example.com')],
-          hashedFirstName: hash('jane'),
-          hashedLastName: hash('doe'),
+          hashedFirstName: hashName('jane'),
+          hashedLastName: hashName('doe'),
           zipCodes: ['90210'],
           countryCode: 'US'
         },
@@ -734,7 +738,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           addedContactInfoList: {
             contactInfos: [
               { hashedEmails: [hash('add1@example.com')] },
-              { hashedPhoneNumbers: [hash('+12125650000')] },
+              { hashedPhoneNumbers: [hashPhone('+12125650000')] },
               { hashedEmails: [hash('add3@example.com')] }
             ],
             consent: GRANTED_CONSENT
@@ -779,7 +783,7 @@ describe('FirstPartyDv360.syncAudience', () => {
           errorreporter: 'INTEGRATIONS',
           errormessage: 'Enable Batching must be a boolean but it was a string.'
         },
-        added({ hashedPhoneNumbers: [hash('+12125650000')] }),
+        added({ hashedPhoneNumbers: [hashPhone('+12125650000')] }),
         {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',

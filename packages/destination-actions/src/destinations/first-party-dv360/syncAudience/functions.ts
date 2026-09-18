@@ -160,12 +160,16 @@ function isPresent(value: string | undefined): value is string {
   return value !== undefined
 }
 
-function clean(value: string): string {
+function stripSpaces(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
 
-function hash(value: string): string {
-  return processHashing(value, 'sha256', 'hex', clean).toLowerCase()
+function trimAndLower(value: string): string {
+  return value.trim().toLowerCase()
+}
+
+function hash(value: string, normalise?: (value: string) => string): string {
+  return processHashing(value, 'sha256', 'hex', normalise).toLowerCase()
 }
 
 export function getAudienceId(payload: Payload, hookOutputs?: HookOutputs): string | undefined {
@@ -251,8 +255,11 @@ export function buildContactInfo(mappedContactInfo: Payload['contact_info']): Co
   //
   // Phone numbers are sent as they are given. The field asks for E.164, and a number is taken at
   // its word rather than read and rewritten.
-  const hashedEmails = toList(emails).map(normaliseEmail).filter(isPresent).map(hash)
-  const hashedPhoneNumbers = toList(phoneNumbers).map(hash)
+  const hashedEmails = toList(emails)
+    .map(normaliseEmail)
+    .filter(isPresent)
+    .map((email) => hash(email, stripSpaces))
+  const hashedPhoneNumbers = toList(phoneNumbers).map((phoneNumber) => hash(phoneNumber))
   const zipCodeList = toList(zipCodes)
   const trimmedFirstName = firstName?.trim()
   const trimmedLastName = lastName?.trim()
@@ -265,8 +272,8 @@ export function buildContactInfo(mappedContactInfo: Payload['contact_info']): Co
     ...(zipCodeList.length > 0 && trimmedFirstName && trimmedLastName && trimmedCountryCode
       ? {
           zipCodes: zipCodeList,
-          hashedFirstName: hash(trimmedFirstName),
-          hashedLastName: hash(trimmedLastName),
+          hashedFirstName: hash(trimmedFirstName, trimAndLower),
+          hashedLastName: hash(trimmedLastName, trimAndLower),
           countryCode: trimmedCountryCode.toUpperCase()
         }
       : {})
