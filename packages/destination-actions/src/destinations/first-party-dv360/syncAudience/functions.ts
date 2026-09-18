@@ -92,7 +92,7 @@ export async function send(
   })
 
   // Adds and removes cannot travel in the same request, so each direction is sent on its own and
-  // reports back only against the payloads it carried. 
+  // reports back only against the payloads it carried.
   const operations = [
     { indices: addIndices, members: addedMembers, isAdd: true },
     { indices: removeIndices, members: removedMembers, isAdd: false }
@@ -184,6 +184,10 @@ function stripSpaces(value: string): string {
   return value.replace(/\s+/g, '').toLowerCase()
 }
 
+function trimOnly(value: string): string {
+  return value.trim()
+}
+
 function trimAndLower(value: string): string {
   return value.trim().toLowerCase()
 }
@@ -273,13 +277,13 @@ export function buildContactInfo(mappedContactInfo: Payload['contact_info']): Co
   // report it as an unmatched member. A user is still synced on whatever is left, and an event
   // with nothing left over fails as having no usable identifier.
   //
-  // Phone numbers are sent as they are given. The field asks for E.164, and a number is taken at
-  // its word rather than read and rewritten.
+  // A phone number is not reformatted - the field asks for E.164 and the digits are taken at their
+  // word - beyond having its leading and trailing whitespace removed.
   const hashedEmails = toList(emails)
     .map(normaliseEmail)
     .filter(isPresent)
     .map((email) => hash(email, stripSpaces))
-  const hashedPhoneNumbers = toList(phoneNumbers).map((phoneNumber) => hash(phoneNumber))
+  const hashedPhoneNumbers = toList(phoneNumbers).map((phoneNumber) => hash(phoneNumber, trimOnly))
   const zipCodeList = toList(zipCodes)
   const trimmedFirstName = firstName?.trim()
   const trimmedLastName = lastName?.trim()

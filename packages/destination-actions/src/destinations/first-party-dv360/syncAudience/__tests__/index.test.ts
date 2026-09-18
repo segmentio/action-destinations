@@ -26,7 +26,7 @@ const hash = (value: string): string =>
 
 const hashName = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim().toLowerCase())
 
-const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex')
+const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim())
 
 // The identifier and consent options are the action's own field types, so a change to either
 // shape shows up here rather than leaving these tests mapping traits which no longer exist.
@@ -312,7 +312,7 @@ describe('FirstPartyDv360.syncAudience', () => {
     })
 
     // Phone numbers are not validated, so whatever the customer maps is hashed and sent.
-    it('sends a phone number exactly as it was given', async () => {
+    it('sends a phone number without reformatting it', async () => {
       const { captured } = captureBody()
 
       await testDestination.testAction('syncAudience', {
@@ -804,7 +804,10 @@ describe('FirstPartyDv360.syncAudience', () => {
       // event alone, so the list it travelled in is visible per index.
       const added = (member: Record<string, unknown>) => ({
         status: 200,
-        sent: { advertiserId: ADVERTISER_ID, addedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT } },
+        sent: {
+          advertiserId: ADVERTISER_ID,
+          addedContactInfoList: { contactInfos: [member], consent: GRANTED_CONSENT }
+        },
         body: API_RESPONSE
       })
 

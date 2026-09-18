@@ -31,7 +31,7 @@ const hash = (value: string): string =>
 
 const hashName = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim().toLowerCase())
 
-const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex')
+const hashPhone = (value: string): string => processHashing(value, 'sha256', 'hex', (v) => v.trim())
 
 describe('validateAudienceDetails', () => {
   it('returns undefined when everything is present and valid', () => {
@@ -52,7 +52,7 @@ describe('validateAudienceDetails', () => {
 
   // The audience's type reaches the action from the audience settings or the mapping save hook,
   // and the message names both places so a customer knows where to set it.
-  it("reports a missing audience type, naming the audience setting and the hook step", () => {
+  it('reports a missing audience type, naming the audience setting and the hook step', () => {
     expect(validateAudienceDetails(AUDIENCE_ID, ADVERTISER_ID)).toBe(
       `Missing the audience's type. Set the '${AUDIENCE_TYPE_LABEL}' audience setting, or the '${AUDIENCE_TYPE_LABEL}' field in the '${RETL_HOOK_LABEL}' step when syncing from a warehouse`
     )
@@ -302,9 +302,20 @@ describe('buildContactInfo', () => {
   // Phone numbers are not validated at all: the field asks for E.164 and whatever arrives is
   // hashed and sent. A number Display & Video 360 cannot match is accepted by it and then
   // matches nobody, which is invisible either way.
-  it('sends a phone number exactly as it was given', () => {
+  it('sends a phone number without reformatting it', () => {
     expect(buildContactInfo({ phoneNumbers: '(212) 565-0000, notaphone' })).toEqual({
       hashedPhoneNumbers: [hashPhone('(212) 565-0000'), hashPhone('notaphone')]
+    })
+  })
+
+  // Only the ends are trimmed. Spaces inside the number are left where they are, so a number
+  // written with them hashes differently from the same number without them.
+  it('trims a phone number before hashing but leaves the spacing inside it', () => {
+    expect(buildContactInfo({ phoneNumbers: ' +12125650000 ' })).toEqual({
+      hashedPhoneNumbers: [hashPhone('+12125650000')]
+    })
+    expect(buildContactInfo({ phoneNumbers: '+1 212 565 0000' })).toEqual({
+      hashedPhoneNumbers: [hashPhone('+1 212 565 0000')]
     })
   })
 
