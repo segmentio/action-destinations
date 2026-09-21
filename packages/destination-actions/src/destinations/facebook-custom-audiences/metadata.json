@@ -34,15 +34,76 @@
         "default": null,
         "depends_on": null
       },
+      "operation": {
+        "label": "Create a new custom audience or connect to an existing one?",
+        "description": "Choose to either create a new custom audience or connect to an existing one. If connecting to an existing audience, paste in the Facebook Audience ID you want to connect to in the \"Existing Audience ID\" field below.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Create New Audience",
+            "value": "create"
+          },
+          {
+            "label": "Connect to Existing Audience",
+            "value": "existing"
+          }
+        ],
+        "default": "create",
+        "depends_on": null
+      },
+      "existingAudienceId": {
+        "label": "Existing Audience ID",
+        "description": "The ID of the audience in Facebook",
+        "type": "string",
+        "required": {
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is",
+              "value": "existing"
+            }
+          ]
+        },
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is",
+              "value": "existing"
+            }
+          ]
+        }
+      },
       "audienceDescription": {
         "label": "Description",
         "description": "A brief description about your audience.",
         "type": "string",
-        "required": true,
+        "required": {
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            }
+          ]
+        },
         "multiple": false,
         "choices": null,
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            }
+          ]
+        }
       },
       "audienceLabel": {
         "label": "Audience Label",
@@ -93,7 +154,15 @@
           }
         ],
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            }
+          ]
+        }
       }
     },
     "supportsAudienceFunctions": true
