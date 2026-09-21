@@ -48,7 +48,7 @@ export async function send(
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnTransforms)
 
-  const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id)
+  const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, features)
 
   await s3Client.uploadS3(
     settings,
