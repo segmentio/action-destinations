@@ -24,6 +24,12 @@ export function resetUserCache() {
   }
 }
 
+const BRAZE_INTEGRATION_NAMES = ['Braze Web Mode (Actions)', 'Braze Cloud Mode (Actions)', 'Appboy']
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
 function shouldSendToBraze(event: SegmentEvent) {
   if (event.userId && event.userId !== cachedUser.id) {
     return true
@@ -53,9 +59,15 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     // Only send the event to Braze if a trait has changed
     // Target all possible Braze integration names
     const shouldSend = shouldSendToBraze(event)
-    ctx.updateEvent('integrations.Braze Web Mode (Actions)', shouldSend)
-    ctx.updateEvent('integrations.Braze Cloud Mode (Actions)', shouldSend)
-    ctx.updateEvent('integrations.Appboy', shouldSend)
+    for (const name of BRAZE_INTEGRATION_NAMES) {
+      // Writing `true` here would discard any per-destination options the caller set under
+      // this key, and that is where the SDK Authentication signature is supplied. An object
+      // is already truthy, so keeping it sends the event exactly as `true` would; only the
+      // `false` skip signal has to overwrite.
+      const existing = event.integrations?.[name]
+      const value = shouldSend && isObject(existing) ? existing : shouldSend
+      ctx.updateEvent(`integrations.${name}`, value)
+    }
 
     // Ensure analytics.user is defined
     cachedUser.id = analyticsUser.id()
