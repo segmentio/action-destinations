@@ -17,7 +17,8 @@ import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import {
   S3_KEY_LENGTH_GUARD_FLAG,
   S3_STS_ERROR_CLASSIFICATION_FLAG,
-  S3_STS_CREDENTIAL_CACHE_FLAG
+  S3_STS_CREDENTIAL_CACHE_FLAG,
+  S3_FILENAME_FIX_FLAG
 } from '../constants'
 
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
@@ -168,7 +169,22 @@ export class Client {
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
+    // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
+    // STRATCONN-6986 / INC 20659 — this fix was part of the reverted release cluster.
+    if (features?.[S3_FILENAME_FIX_FLAG]) {
+      filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
+    } else {
+      // Flag off (default): original (buggy) behavior, kept as-is. `replace` with a string
+      // replaces the FIRST occurrence of fileExtension anywhere in the name (e.g. the leading
+      // "csv" in "csv_export.csv"), which can corrupt the filename — see STRATCONN-6988.
+      if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
+        filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
+      } else {
+        filename_prefix = filename_prefix
+          ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
+          : `${dateSuffix}.${fileExtension}`
+      }
+    }
 
     const bucketName = settings.s3_aws_bucket_name
     const folderName = ['', null, undefined].includes(s3_aws_folder_name)
