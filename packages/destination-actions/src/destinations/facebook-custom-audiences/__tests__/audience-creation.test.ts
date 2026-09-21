@@ -149,7 +149,9 @@ describe('Facebook Custom Audiences', () => {
       const input = baseCreateAudienceInput()
       input.audienceSettings.operation = 'existing'
 
-      await expect(testDestination.createAudience(input)).rejects.toThrowError(IntegrationError)
+      await expect(testDestination.createAudience(input)).rejects.toThrow(
+        "The root value is missing the required field 'existingAudienceId'"
+      )
     })
 
     it('should connect to an existing audience without creating a new one', async () => {
