@@ -11,7 +11,9 @@ import {
   RequestTimeoutError,
   PayloadValidationError
 } from '@segment/actions-core'
+import type { Features } from '@segment/actions-core'
 import { Credentials } from './types'
+import { S3_KEY_LENGTH_GUARD_FLAG } from '../constants'
 
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
 const MAX_S3_OBJECT_KEY_BYTES = 1024
@@ -67,6 +69,7 @@ export class Client {
     filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string,
+    features?: Features,
     signal?: AbortSignal
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
@@ -92,14 +95,18 @@ export class Client {
 
     // Reject over-long keys up front with a clear, non-retryable validation error, rather than
     // letting the PUT fail late and opaquely (and storm retries) with a raw AWS error.
-    // Measure bytes, not characters: multi-byte UTF-8 chars count for more than one byte.
-    const objectKeyBytes = Buffer.byteLength(objectKey, 'utf8')
-    if (objectKeyBytes > MAX_S3_OBJECT_KEY_BYTES) {
-      // Do not include the key content in the message — it may contain PII.
-      throw new PayloadValidationError(
-        `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
-          `Shorten the folder name and/or filename prefix.`
-      )
+    // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
+    // STRATCONN-6986 / INC 20659 — this guard was part of the reverted release cluster.
+    if (features?.[S3_KEY_LENGTH_GUARD_FLAG]) {
+      // Measure bytes, not characters: multi-byte UTF-8 chars count for more than one byte.
+      const objectKeyBytes = Buffer.byteLength(objectKey, 'utf8')
+      if (objectKeyBytes > MAX_S3_OBJECT_KEY_BYTES) {
+        // Do not include the key content in the message — it may contain PII.
+        throw new PayloadValidationError(
+          `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
+            `Shorten the folder name and/or filename prefix.`
+        )
+      }
     }
 
     const credentials = await this.assumeRole()
