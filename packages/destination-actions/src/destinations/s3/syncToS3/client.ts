@@ -13,7 +13,7 @@ import {
 } from '@segment/actions-core'
 import type { Features } from '@segment/actions-core'
 import { Credentials } from './types'
-import { S3_KEY_LENGTH_GUARD_FLAG } from '../constants'
+import { S3_KEY_LENGTH_GUARD_FLAG, S3_STS_ERROR_CLASSIFICATION_FLAG } from '../constants'
 
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
 const MAX_S3_OBJECT_KEY_BYTES = 1024
@@ -23,12 +23,14 @@ export class Client {
   roleSessionName: string
   region: string
   externalId: string
+  features?: Features
 
-  constructor(region: string, roleArn: string, externalId: string) {
+  constructor(region: string, roleArn: string, externalId: string, features?: Features) {
     this.region = region
     this.roleSessionName = uuidv4()
     this.roleArn = roleArn
     this.externalId = externalId
+    this.features = features
   }
 
   async assumeRole(): Promise<Credentials> {
@@ -47,13 +49,19 @@ export class Client {
       ExternalId: externalId
     })
     let result
-    try {
+    if (this.features?.[S3_STS_ERROR_CLASSIFICATION_FLAG]) {
+      try {
+        result = await stsClient.send(command)
+      } catch (err) {
+        // STS failures used to escape uploadS3's try/catch entirely, so they reached the platform
+        // with no status/code, were classified type:internal and force-retried (even permanent auth
+        // failures). Map them to Segment error classes here so classification is correct.
+        throw mapAWSError(err, 'Failed to assume AWS role')
+      }
+    } else {
+      // Flag off (default): original behavior — STS errors are not wrapped and escape unclassified.
+      // Kept as-is for a gradual rollout after STRATCONN-6986 / INC 20659.
       result = await stsClient.send(command)
-    } catch (err) {
-      // STS failures used to escape uploadS3's try/catch entirely, so they reached the platform
-      // with no status/code, were classified type:internal and force-retried (even permanent auth
-      // failures). Map them to Segment error classes here so classification is correct.
-      throw mapAWSError(err, 'Failed to assume AWS role')
     }
     if (
       !result.Credentials ||
@@ -145,7 +153,26 @@ export class Client {
         throw new RequestTimeoutError()
       }
 
-      throw mapAWSError(err, 'AWS PUT failed')
+      if (this.features?.[S3_STS_ERROR_CLASSIFICATION_FLAG]) {
+        throw mapAWSError(err, 'AWS PUT failed')
+      }
+
+      // Flag off (default): original inline classification, kept as-is for a gradual rollout
+      // after STRATCONN-6986 / INC 20659.
+      if (isAWSError(err)) {
+        // https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/Package/-aws-sdk-client-s3/Interface/_Error/
+        if (err.Code && legacyAccessDeniedCodes.has(err.Code)) {
+          throw new APIError(err.Message || err.Code, 403)
+        } else if (err.Code === 'NoSuchBucket') {
+          throw new APIError(err.Message || err.Code, 404)
+        } else if (err.Code === 'SlowDown') {
+          throw new APIError(err.Message || err.Code, 429)
+        } else {
+          throw new RetryableError(err.Message || err.Code || 'Unknown AWS Put error: ' + err)
+        }
+      } else {
+        throw new APIError('Unknown error during AWS PUT: ' + err, 500)
+      }
     }
   }
 }
@@ -197,6 +224,20 @@ export function mapAWSError(err: unknown, context: string): Error {
   // Transient / server-side / unclassified failures are safe to retry.
   return new RetryableError(detail)
 }
+
+// Original (pre-classification) access-denied code set, used only on the flag-off path so that
+// disabling S3_STS_ERROR_CLASSIFICATION_FLAG restores the exact prior behavior.
+const legacyAccessDeniedCodes = new Set([
+  'AccessDenied',
+  'AccountProblem',
+  'AllAccessDisabled',
+  'InvalidAccessKeyId',
+  'InvalidSecurity',
+  'NotSignedUp',
+  'AmbiguousGrantByEmailAddress',
+  'AuthorizationHeaderMalformed',
+  'RequestExpired'
+])
 
 const accessDeniedCodes = new Set([
   'AccessDenied',

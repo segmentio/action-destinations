@@ -1,7 +1,9 @@
 import { Client, isAWSError, mapAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
 import { APIError, IntegrationError, RetryableError } from '@segment/actions-core'
+import type { Features } from '@segment/actions-core'
 import { Settings } from '../generated-types'
+import { S3_STS_ERROR_CLASSIFICATION_FLAG } from '../constants'
 
 // Controllable STS send mock so tests can simulate assume-role failures.
 const mockStsSend = jest.fn()
@@ -76,28 +78,42 @@ describe('Client STS assume-role error handling', () => {
     iam_external_id: 'external-id'
   }
 
-  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id)
+  const flagOn: Features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
 
   beforeEach(() => {
     mockStsSend.mockReset()
   })
 
-  // Regression: STS failures used to escape uploadS3's try/catch (assumeRole ran before it), so
-  // they reached the platform unwrapped (no status/code), got classified type:internal and were
-  // force-retried. They must now be mapped to a Segment error class with a status.
-  it('wraps a "could not load credentials" STS failure in a classified RetryableError', async () => {
-    mockStsSend.mockRejectedValue(new Error('Could not load credentials from any providers'))
+  it('is off by default: an STS failure is NOT wrapped and escapes unclassified (prior behavior)', async () => {
+    const rawError = new Error('Could not load credentials from any providers')
+    mockStsSend.mockRejectedValue(rawError)
 
     const err = await upload(newClient()).catch((e: unknown) => e)
+
+    // The raw rejection propagates as-is — not mapped to any Segment error class.
+    expect(err).toBe(rawError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect(err).not.toBeInstanceOf(APIError)
+  })
+
+  // Regression: STS failures used to escape uploadS3's try/catch (assumeRole ran before it), so
+  // they reached the platform unwrapped (no status/code), got classified type:internal and were
+  // force-retried. When enabled, they must be mapped to a Segment error class with a status.
+  it('when enabled, wraps a "could not load credentials" STS failure in a classified RetryableError', async () => {
+    mockStsSend.mockRejectedValue(new Error('Could not load credentials from any providers'))
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
 
     expect(err).toBeInstanceOf(RetryableError)
     expect((err as Error).message).toContain('Could not load credentials from any providers')
     expect((err as RetryableError).status).toBeDefined()
   })
 
-  // Regression: permanent authorization failures from STS must NOT be force-retried.
-  it('maps a permanent STS access-denied failure to a non-retryable 403 error', async () => {
+  // Regression: permanent authorization failures from STS must NOT be force-retried when enabled.
+  it('when enabled, maps a permanent STS access-denied failure to a non-retryable 403 error', async () => {
     const stsError = Object.assign(new Error('User is not authorized to perform sts:AssumeRole'), {
       name: 'AccessDenied',
       $fault: 'client',
@@ -105,7 +121,7 @@ describe('Client STS assume-role error handling', () => {
     })
     mockStsSend.mockRejectedValue(stsError)
 
-    const err = await upload(newClient()).catch((e: unknown) => e)
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
 
     expect(err).toBeInstanceOf(APIError)
     expect(err).not.toBeInstanceOf(RetryableError)
