@@ -1692,10 +1692,6 @@
                   "value": "AW"
                 },
                 {
-                  "label": "Ascension Island (AC, +247)",
-                  "value": "AC"
-                },
-                {
                   "label": "Australia (AU, +61)",
                   "value": "AU"
                 },
@@ -2102,10 +2098,6 @@
                 {
                   "label": "Kiribati (KI, +686)",
                   "value": "KI"
-                },
-                {
-                  "label": "Kosovo (XK, +383)",
-                  "value": "XK"
                 },
                 {
                   "label": "Kuwait (KW, +965)",
@@ -2530,10 +2522,6 @@
                 {
                   "label": "Trinidad & Tobago (TT, +1)",
                   "value": "TT"
-                },
-                {
-                  "label": "Tristan da Cunha (TA, +290)",
-                  "value": "TA"
                 },
                 {
                   "label": "Tunisia (TN, +216)",

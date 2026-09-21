@@ -23,7 +23,10 @@ import {
   RETL_HOOK_LABEL,
   PHONE_NORMALIZATION_NONE,
   PHONE_NORMALIZATION_NORMALIZE,
-  PHONE_NORMALIZATION_VALIDATE
+  PHONE_NORMALIZATION_VALIDATE,
+  COUNTRIES,
+  COUNTRY_CHOICES,
+  PHONE_REGION_CHOICES
 } from '../constants'
 
 const ADVERTISER_ID = '12345'
@@ -841,5 +844,20 @@ describe('failAllPayloads', () => {
         ErrorCodes.INVALID_AUDIENCE_MEMBERSHIP
       )
     ).toThrow('No membership')
+  })
+})
+
+describe('country choices', () => {
+  const values = (choices: { value: string }[]) => choices.map(({ value }) => value)
+
+  it('offers every libphonenumber region as a phone region', () => {
+    expect(values(PHONE_REGION_CHOICES)).toEqual(COUNTRIES.map(({ code }) => code))
+  })
+
+  it('leaves the codes which are not assigned ISO 3166-1 alpha-2 out of the country choices', () => {
+    expect(values(COUNTRY_CHOICES)).not.toContain('AC')
+    expect(values(COUNTRY_CHOICES)).not.toContain('TA')
+    expect(values(COUNTRY_CHOICES)).not.toContain('XK')
+    expect(COUNTRY_CHOICES).toHaveLength(COUNTRIES.length - 3)
   })
 })

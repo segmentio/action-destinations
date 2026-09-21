@@ -11,7 +11,8 @@ import {
   PHONE_NORMALIZATION_NONE,
   PHONE_NORMALIZATION_NORMALIZE,
   PHONE_NORMALIZATION_VALIDATE,
-  COUNTRY_CHOICES
+  COUNTRY_CHOICES,
+  PHONE_REGION_CHOICES
 } from './constants'
 import { mobileDeviceIds as sharedMobileDeviceIds } from '../properties'
 
@@ -168,7 +169,7 @@ export const phone_options: InputField = {
       description:
         'The country these phone numbers belong to, used to convert a number written in a local format. A number starting with + or 00 already states its own country and is converted without this. Without it, a local number cannot be converted, and is sent unchanged or dropped if validation is on.',
       type: 'string',
-      choices: COUNTRY_CHOICES,
+      choices: PHONE_REGION_CHOICES,
       depends_on: PHONE_NORMALIZATION_ON
     }
   },

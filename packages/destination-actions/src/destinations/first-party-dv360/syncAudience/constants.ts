@@ -15,8 +15,8 @@ export const PHONE_NORMALIZATION_VALIDATE = 'normalize_and_validate' as const
 
 // The 245 regions google-libphonenumber has metadata for, so a country picked here is always one
 // it can parse a national-format number against. The code is the ISO 3166-1 alpha-2 code, which
-// is also what Display & Video 360 expects for a contact info member's countryCode. PS is named
-// Palestine rather than the Palestinian Territories which the generated names give.
+// is also what Display & Video 360 expects for a contact info member's countryCode, except for
+// the three regions in NON_ISO_REGIONS below.
 export const COUNTRIES = [
   { name: 'Afghanistan', code: 'AF', dialing: 93 },
   { name: 'Åland Islands', code: 'AX', dialing: 358 },
@@ -265,7 +265,16 @@ export const COUNTRIES = [
   { name: 'Zimbabwe', code: 'ZW', dialing: 263 }
 ] as const
 
-export const COUNTRY_CHOICES = COUNTRIES.map(({ name, code, dialing }) => ({
+const toChoice = ({ name, code, dialing }: (typeof COUNTRIES)[number]) => ({
   label: `${name} (${code}, +${dialing})`,
   value: code
-}))
+})
+
+export const PHONE_REGION_CHOICES = COUNTRIES.map(toChoice)
+
+// AC and TA are exceptionally reserved and XK is user-assigned, so none of the three is an
+// assigned ISO 3166-1 alpha-2 code. They are valid phone regions but not valid countries to
+// send Display & Video 360 as a contact info member's country.
+const NON_ISO_REGIONS: string[] = ['AC', 'TA', 'XK']
+
+export const COUNTRY_CHOICES = COUNTRIES.filter(({ code }) => !NON_ISO_REGIONS.includes(code)).map(toChoice)
