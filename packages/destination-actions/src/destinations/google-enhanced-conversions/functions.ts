@@ -1221,7 +1221,6 @@ export async function getDataManagerListIds(
     }))
 
     statsContext?.statsClient?.incr('getDataManagerListIds.success', 1, statsContext?.tags)
-    console.log('data manager list api called')
     return { choices, nextPage: data.nextPageToken }
   } catch (err) {
     statsContext?.statsClient?.incr('getDataManagerListIds.error', 1, statsContext?.tags)
