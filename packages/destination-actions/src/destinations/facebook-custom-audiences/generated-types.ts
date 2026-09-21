@@ -14,9 +14,17 @@ export interface AudienceSettings {
    */
   engageAdAccountId?: string
   /**
+   * Choose to either create a new custom audience or connect to an existing one. If connecting to an existing audience, paste in the Facebook Audience ID you want to connect to in the "Existing Audience ID" field below.
+   */
+  operation?: string
+  /**
+   * The ID of the audience in Facebook
+   */
+  existingAudienceId?: string
+  /**
    * A brief description about your audience.
    */
-  audienceDescription: string
+  audienceDescription?: string
   /**
    * Optionally categorize this audience with one of Meta's predefined labels. Sent to Facebook when the audience is created; does not apply retroactively to existing audiences.
    */
