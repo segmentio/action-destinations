@@ -18,7 +18,7 @@ export interface AudienceSettings {
    */
   operation?: string
   /**
-   * The ID of the audience in Facebook to connect to.
+   * The ID of the audience in Facebook
    */
   existingAudienceId?: string
   /**
