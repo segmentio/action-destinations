@@ -669,8 +669,13 @@ export async function createDataManagerUserList(
   const customerId = input.settings.customerId?.replace(/-/g, '')
   const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
 
-  const uploadKeyType =
-    UPLOAD_KEY_TYPE_MAP[input.audienceSettings.external_id_type ?? ''] ?? input.audienceSettings.external_id_type
+  const externalIdType = input.audienceSettings.external_id_type?.trim()
+  const uploadKeyType = UPLOAD_KEY_TYPE_MAP[externalIdType ?? ''] ?? externalIdType
+  if (!uploadKeyType) {
+    throw new PayloadValidationError(
+      'audienceSettings.external_id_type is required and must map to a valid upload key type.'
+    )
+  }
 
   const ingestedUserListInfo: Record<string, unknown> = {
     uploadKeyTypes: [uploadKeyType]
