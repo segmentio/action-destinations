@@ -85,7 +85,7 @@ export const contact_info: InputField = {
     },
     countryCode: {
       label: 'Country Code',
-      description: `The user's country, as an ISO 3166-1 alpha-2 code. ${ADDRESS_GROUP} It is also used as the country for this user's phone numbers when 'Use Country Code From Contact Info Details' is enabled.`,
+      description: `The user's country, as an upper case ISO 3166-1 alpha-2 code such as US or GB. ${ADDRESS_GROUP} It is also used as the country for this user's phone numbers when 'Use Country Code From Contact Info Details' is enabled.`,
       type: 'string',
       choices: COUNTRY_CHOICES
     }

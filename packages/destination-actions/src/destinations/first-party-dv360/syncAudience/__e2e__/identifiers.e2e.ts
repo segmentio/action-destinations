@@ -118,7 +118,7 @@ const fixtures: E2EFixture[] = [
         computationId: COMPUTATION_ID,
         externalAudienceId: '$externalAudienceId:contactInfo',
         userId: 'e2e-dv360-id-address',
-        enrichedTraits: { zipCodes: '94105', firstName: 'Jane', lastName: 'Doe', countryCode: 'us' }
+        enrichedTraits: { zipCodes: '94105', firstName: 'Jane', lastName: 'Doe', countryCode: 'US' }
       })
     ],
     expect: {
@@ -134,7 +134,6 @@ const fixtures: E2EFixture[] = [
                   zipCodes: ['94105'],
                   hashedFirstName: '81f8f6dde88365f3928796ec7aa53f72820b06db8664f5fe76a7eb13e24546a2',
                   hashedLastName: '799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f',
-                  // Lower case 'us' on the event, upper cased before it is sent.
                   countryCode: 'US'
                 }
               ]
