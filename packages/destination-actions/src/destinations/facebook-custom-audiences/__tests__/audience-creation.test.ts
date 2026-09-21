@@ -145,6 +145,19 @@ describe('Facebook Custom Audiences', () => {
       await expect(testDestination.createAudience(input)).rejects.toThrow('Invalid parameter')
     })
 
+    it('should reject an operation value outside the predefined choices without creating an audience', async () => {
+      const createScope = nock(`${BASE_URL}/${API_VERSION}/act_${adAccountId}`)
+        .post('/customaudiences')
+        .reply(200, { id: '88888888888888888' })
+
+      const input = baseCreateAudienceInput()
+      input.audienceName = 'The Super Mario Brothers Fans'
+      input.audienceSettings.operation = 'bogus'
+
+      await expect(testDestination.createAudience(input)).rejects.toThrow('must be one of: "create" or "existing"')
+      expect(createScope.isDone()).toBe(false)
+    })
+
     it('should fail if operation is existing but no existing audience ID is set', async () => {
       const input = baseCreateAudienceInput()
       input.audienceSettings.operation = 'existing'
