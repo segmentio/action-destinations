@@ -643,28 +643,14 @@ export async function createDataManagerUserList(
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
   }
 
-  if (
-    !auth?.refresh_token ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
-  ) {
+  if (!auth?.refresh_token) {
     throw new PayloadValidationError('Oauth credentials missing.')
   }
 
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
 
-  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: auth.refresh_token,
-      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
-      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
-      grant_type: 'refresh_token'
-    })
-  })
-
-  const accessToken = tokenRes.data.access_token
+  const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
 
   const customerId = input.settings.customerId?.replace(/-/g, '')
   const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
@@ -727,28 +713,14 @@ export async function getDataManagerUserList(
   auth: CreateAudienceInput['settings']['oauth'],
   statsContext?: StatsContext
 ): Promise<DataManagerUserList> {
-  if (
-    !auth?.refresh_token ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID ||
-    !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET
-  ) {
+  if (!auth?.refresh_token) {
     throw new PayloadValidationError('Oauth credentials missing.')
   }
 
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
 
-  const tokenRes = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
-    method: 'POST',
-    body: new URLSearchParams({
-      refresh_token: auth.refresh_token,
-      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
-      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
-      grant_type: 'refresh_token'
-    })
-  })
-
-  const accessToken = tokenRes.data.access_token
+  const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
 
   const customerId = settings.customerId?.replace(/-/g, '')
   const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
