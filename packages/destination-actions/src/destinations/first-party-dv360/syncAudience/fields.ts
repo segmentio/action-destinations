@@ -7,7 +7,11 @@ import {
   CONSENT_STATUS_GRANTED,
   CONSENT_STATUS_DENIED,
   CONTACT_INFO,
-  DEVICE_ID
+  DEVICE_ID,
+  PHONE_NORMALIZATION_NONE,
+  PHONE_NORMALIZATION_NORMALIZE,
+  PHONE_NORMALIZATION_VALIDATE,
+  COUNTRY_CHOICES
 } from './constants'
 import { mobileDeviceIds as sharedMobileDeviceIds } from '../properties'
 
@@ -27,6 +31,11 @@ const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
     { fieldKey: 'operation', operator: 'is', value: 'create' },
     { fieldKey: 'audienceType', operator: 'is', value: DEVICE_ID }
   ]
+}
+
+const PHONE_NORMALIZATION_ON: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'normalization', operator: 'is_not', value: PHONE_NORMALIZATION_NONE }]
 }
 
 const CONTACT_INFO_ONLY =
@@ -52,7 +61,7 @@ export const contact_info: InputField = {
     },
     phoneNumbers: {
       label: 'Phone Numbers',
-      description: `The user's phone number in E.164 format. ${SEVERAL} If not already hashed, the system will hash them before use.`,
+      description: `The user's phone number in E.164 format. ${SEVERAL} If not already hashed, the system will hash them before use. Use the 'Phone Number Normalization' settings to have Segment convert numbers to E.164 first.`,
       type: 'string',
       category: 'hashedPII'
     },
@@ -75,8 +84,9 @@ export const contact_info: InputField = {
     },
     countryCode: {
       label: 'Country Code',
-      description: `The user's country code. ${ADDRESS_GROUP}`,
-      type: 'string'
+      description: `The user's country, as an ISO 3166-1 alpha-2 code. ${ADDRESS_GROUP} It is also used as the country for this user's phone numbers when 'Use Country Code From Contact Info Details' is enabled.`,
+      type: 'string',
+      choices: COUNTRY_CHOICES
     }
   },
   default: {
@@ -122,6 +132,49 @@ export const contact_info: InputField = {
         else: { '@path': '$.properties.countryCode' }
       }
     }
+  }
+}
+
+export const phone_options: InputField = {
+  label: 'Phone Number Normalization',
+  description: `How Segment should treat phone numbers before hashing them. Display & Video 360 only matches a phone number hashed from its E.164 form, so a number sent in any other format is silently unmatched. ${CONTACT_INFO_ONLY}`,
+  type: 'object',
+  defaultObjectUI: 'keyvalue:only',
+  additionalProperties: false,
+  properties: {
+    normalization: {
+      label: 'Normalization',
+      description:
+        "What to do with a phone number which is not already in E.164 format. 'Do not normalize' sends it exactly as mapped. 'Normalize' converts it to E.164 where possible and sends anything it cannot convert unchanged. 'Normalize and validate' also drops numbers which are not valid.",
+      type: 'string',
+      choices: [
+        { label: 'Do not normalize - send the phone number exactly as mapped', value: PHONE_NORMALIZATION_NONE },
+        { label: 'Normalize - convert to E.164 where possible', value: PHONE_NORMALIZATION_NORMALIZE },
+        {
+          label: 'Normalize and validate - convert to E.164 and drop invalid numbers',
+          value: PHONE_NORMALIZATION_VALIDATE
+        }
+      ]
+    },
+    useContactInfoCountryCode: {
+      label: 'Use Country Code From Contact Info Details',
+      description:
+        "Whether to take the country a user's phone numbers belong to from the Country Code mapped in Contact Info Details. This lets the country vary per user. It is only used for numbers written in a local format, and the Default Country applies whenever it is not populated.",
+      type: 'boolean',
+      depends_on: PHONE_NORMALIZATION_ON
+    },
+    defaultCountryCode: {
+      label: 'Default Country',
+      description:
+        'The country these phone numbers belong to, used to convert a number written in a local format. A number starting with + or 00 already states its own country and is converted without this. Without it, a local number cannot be converted, and is sent unchanged or dropped if validation is on.',
+      type: 'string',
+      choices: COUNTRY_CHOICES,
+      depends_on: PHONE_NORMALIZATION_ON
+    }
+  },
+  default: {
+    normalization: PHONE_NORMALIZATION_NONE,
+    useContactInfoCountryCode: false
   }
 }
 
