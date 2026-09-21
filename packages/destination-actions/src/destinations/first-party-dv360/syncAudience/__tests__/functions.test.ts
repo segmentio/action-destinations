@@ -7,6 +7,7 @@ import {
   buildMember,
   errorTypeForStatus,
   normaliseEmail,
+  normalisePhone,
   failAllPayloads,
   getAdvertiserId,
   getAudienceId,
@@ -15,9 +16,15 @@ import {
 } from '../functions'
 import type { Payload } from '../generated-types'
 import type { AudienceSettings } from '../../generated-types'
-import type { Consent, HookOutputs } from '../types'
+import type { Consent, HookOutputs, PhoneOptions } from '../types'
 import { processHashing } from '../../../../lib/hashing-utils'
-import { AUDIENCE_TYPE_LABEL, RETL_HOOK_LABEL } from '../constants'
+import {
+  AUDIENCE_TYPE_LABEL,
+  RETL_HOOK_LABEL,
+  PHONE_NORMALIZATION_NONE,
+  PHONE_NORMALIZATION_NORMALIZE,
+  PHONE_NORMALIZATION_VALIDATE
+} from '../constants'
 
 const ADVERTISER_ID = '12345'
 const AUDIENCE_ID = '98765'
@@ -299,12 +306,25 @@ describe('buildContactInfo', () => {
     })
   })
 
-  // Phone numbers are not validated at all: the field asks for E.164 and whatever arrives is
-  // hashed and sent. A number Display & Video 360 cannot match is accepted by it and then
-  // matches nobody, which is invisible either way.
+  // Normalising is opt in, so by default a phone number is not validated at all: the field asks
+  // for E.164 and whatever arrives is hashed and sent. A number Display & Video 360 cannot match
+  // is accepted by it and then matches nobody, which is invisible either way.
   it('sends a phone number without reformatting it', () => {
     expect(buildContactInfo({ phoneNumbers: '(212) 565-0000, notaphone' })).toEqual({
       hashedPhoneNumbers: [hashPhone('(212) 565-0000'), hashPhone('notaphone')]
+    })
+  })
+
+  // An entry which is empty once trimmed is dropped from the list rather than hashed, so a
+  // trailing comma or a blank value cannot become the digest of an empty string.
+  it('sends nothing for a list of phone numbers which are all empty', () => {
+    expect(buildContactInfo({ phoneNumbers: ' , , ' })).toBeUndefined()
+    expect(buildContactInfo({ phoneNumbers: '' })).toBeUndefined()
+  })
+
+  it('drops the empty entries of a phone number list and keeps the rest', () => {
+    expect(buildContactInfo({ phoneNumbers: '+12125650000, , +442070313000,' })).toEqual({
+      hashedPhoneNumbers: [hashPhone('+12125650000'), hashPhone('+442070313000')]
     })
   })
 
@@ -460,6 +480,189 @@ describe('buildContactInfo', () => {
   )
 })
 
+describe('normalisePhone', () => {
+  const NORMALIZE = { normalization: PHONE_NORMALIZATION_NORMALIZE }
+  const VALIDATE = { normalization: PHONE_NORMALIZATION_VALIDATE }
+
+  // A number already hashed cannot be normalised, and rewriting it would destroy it.
+  it.each<PhoneOptions | undefined>([undefined, NORMALIZE, VALIDATE])(
+    'leaves an already hashed number alone (%p)',
+    (phoneOptions: PhoneOptions | undefined) => {
+      const hashed = hash('+12125650000')
+
+      expect(normalisePhone(hashed, phoneOptions, 'US')).toBe(hashed)
+    }
+  )
+
+  // An empty value would otherwise survive as '' and be hashed into the digest of an empty
+  // string, which Display & Video 360 accepts and can never match.
+  it.each<PhoneOptions | undefined>([undefined, NORMALIZE, VALIDATE])(
+    'drops a value which is empty once trimmed (%p)',
+    (phoneOptions: PhoneOptions | undefined) => {
+      expect(normalisePhone('', phoneOptions, 'US')).toBeUndefined()
+      expect(normalisePhone('   ', phoneOptions, 'US')).toBeUndefined()
+    }
+  )
+
+  // The default has to keep behaving exactly as it did before normalising existed.
+  it.each<PhoneOptions | undefined>([undefined, { normalization: PHONE_NORMALIZATION_NONE }])(
+    'trims but does not reformat when normalising is off (%p)',
+    (phoneOptions: PhoneOptions | undefined) => {
+      expect(normalisePhone(' (212) 565-0000 ', phoneOptions, 'US')).toBe('(212) 565-0000')
+    }
+  )
+
+  // The country is only needed to resolve a national format, so a number which already carries
+  // its own country code normalises without one.
+  it('converts a number already in E.164 without needing a country', () => {
+    expect(normalisePhone('+1 (212) 565-0000', NORMALIZE)).toBe('+12125650000')
+    expect(normalisePhone('+44 20 7031 3000', VALIDATE)).toBe('+442070313000')
+  })
+
+  it('converts a national format against the default country', () => {
+    expect(normalisePhone('(212) 565-0000', { ...NORMALIZE, defaultCountryCode: 'US' })).toBe('+12125650000')
+    expect(normalisePhone('020 7031 3000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBe('+442070313000')
+  })
+
+  // The region is only ever consulted for a number which cannot be resolved without one, so a
+  // country which disagrees with the number cannot corrupt it.
+  it('ignores the country entirely for a number already in E.164', () => {
+    expect(normalisePhone('+442070313000', { ...VALIDATE, defaultCountryCode: 'US' })).toBe('+442070313000')
+    expect(normalisePhone('+12125650000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBe('+12125650000')
+    expect(
+      normalisePhone('+442070313000', { ...NORMALIZE, useContactInfoCountryCode: true, defaultCountryCode: 'US' }, 'US')
+    ).toBe('+442070313000')
+  })
+
+  // 00 states the number's own country, so it is read the same way whatever country is set -
+  // including none at all.
+  it('converts a 00 international prefix whatever the country is', () => {
+    expect(normalisePhone('00442070313000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBe('+442070313000')
+    expect(normalisePhone('00442070313000', { ...VALIDATE, defaultCountryCode: 'US' })).toBe('+442070313000')
+    expect(normalisePhone('00442070313000', { ...VALIDATE, defaultCountryCode: 'JP' })).toBe('+442070313000')
+    expect(normalisePhone('00442070313000', VALIDATE)).toBe('+442070313000')
+    expect(normalisePhone('0012125650000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBe('+12125650000')
+  })
+
+  // + and 00 are the only two ways a number states its own country. Anything else a caller might
+  // dial to reach it - 0011 from Australia, 810 from Russia - says where the call was made from,
+  // not whose number it is, so it is not a form we accept.
+  it.each(['0011442070313000', '001442070313000', '000442070313000', '810442070313000'])(
+    'does not treat %s as an international number',
+    (phone: string) => {
+      expect(normalisePhone(phone, { ...VALIDATE, defaultCountryCode: 'GB' })).toBeUndefined()
+      expect(normalisePhone(phone, VALIDATE)).toBeUndefined()
+    }
+  )
+
+  // 0113 and 0117 are real United Kingdom area codes, which is why a leading 011 is never read
+  // as the start of a country code.
+  it('reads a local number which begins 011 as the local number it is', () => {
+    expect(normalisePhone('01134960000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBe('+441134960000')
+    expect(normalisePhone('01174960000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBe('+441174960000')
+  })
+
+  it('leaves a 00 which is not a phone number at all to fail like any other', () => {
+    expect(normalisePhone('00notaphone', { ...NORMALIZE, defaultCountryCode: 'US' })).toBe('00notaphone')
+    expect(normalisePhone('00notaphone', { ...VALIDATE, defaultCountryCode: 'US' })).toBeUndefined()
+  })
+
+  // Without a + there is nothing to mark the country code as one, so it is read as national
+  // digits and comes out invalid. Normalising sends it as mapped, validating drops it.
+  it('does not convert a bare country code written without a plus', () => {
+    expect(normalisePhone('442070313000', { ...NORMALIZE, defaultCountryCode: 'US' })).toBe('442070313000')
+    expect(normalisePhone('442070313000', { ...VALIDATE, defaultCountryCode: 'US' })).toBeUndefined()
+    expect(normalisePhone('12125650000', { ...VALIDATE, defaultCountryCode: 'GB' })).toBeUndefined()
+  })
+
+  // Without a country a national format cannot be resolved at all, so the two modes part ways:
+  // normalising alone sends it untouched, validating drops it.
+  it('leaves a national format alone when there is no country to resolve it against', () => {
+    expect(normalisePhone('(212) 565-0000', NORMALIZE)).toBe('(212) 565-0000')
+    expect(normalisePhone('(212) 565-0000', VALIDATE)).toBeUndefined()
+  })
+
+  it('leaves a value which is not a phone number at all alone, and drops it once validation is on', () => {
+    expect(normalisePhone('notaphone', { ...NORMALIZE, defaultCountryCode: 'US' })).toBe('notaphone')
+    expect(normalisePhone('notaphone', { ...VALIDATE, defaultCountryCode: 'US' })).toBeUndefined()
+  })
+
+  // A number can be well formed enough to reformat and still not be a real number. Rewriting one
+  // would be a guess, so normalising leaves it exactly as mapped and validating drops it.
+  it('leaves a parseable but invalid number alone, and drops it once validation is on', () => {
+    expect(normalisePhone('+1 555 123 4567', NORMALIZE)).toBe('+1 555 123 4567')
+    expect(normalisePhone('+1 555 123 4567', VALIDATE)).toBeUndefined()
+  })
+
+  describe('choosing the country', () => {
+    it('ignores the per user country until it is switched on', () => {
+      expect(normalisePhone('020 7031 3000', VALIDATE, 'GB')).toBeUndefined()
+      expect(normalisePhone('020 7031 3000', { ...VALIDATE, useContactInfoCountryCode: true }, 'GB')).toBe(
+        '+442070313000'
+      )
+    })
+
+    it('prefers the per user country over the default once it is switched on', () => {
+      const phoneOptions: PhoneOptions = { ...VALIDATE, useContactInfoCountryCode: true, defaultCountryCode: 'US' }
+
+      expect(normalisePhone('020 7031 3000', phoneOptions, 'GB')).toBe('+442070313000')
+    })
+
+    it('falls back to the default country for a user who has none of their own', () => {
+      const phoneOptions: PhoneOptions = { ...VALIDATE, useContactInfoCountryCode: true, defaultCountryCode: 'US' }
+
+      expect(normalisePhone('(212) 565-0000', phoneOptions)).toBe('+12125650000')
+    })
+
+    // The wrong country would turn a real number into a different, unmatchable one, so neither
+    // mode sends it. This is the reason the per user country exists.
+    it('never converts a number against the wrong country', () => {
+      expect(normalisePhone('020 7031 3000', { ...NORMALIZE, defaultCountryCode: 'US' })).toBe('020 7031 3000')
+      expect(normalisePhone('020 7031 3000', { ...VALIDATE, defaultCountryCode: 'US' })).toBeUndefined()
+    })
+  })
+})
+
+describe('buildContactInfo phone normalisation', () => {
+  it('hashes the normalised number rather than the one which was mapped', () => {
+    expect(
+      buildContactInfo(
+        { phoneNumbers: '(212) 565-0000' },
+        { normalization: PHONE_NORMALIZATION_NORMALIZE, defaultCountryCode: 'US' }
+      )
+    ).toEqual({ hashedPhoneNumbers: [hashPhone('+12125650000')] })
+  })
+
+  // An invalid number is dropped the same way an invalid email is, and the user is still synced
+  // on whatever survives.
+  it('drops the invalid numbers and keeps the valid ones', () => {
+    expect(
+      buildContactInfo(
+        { emails: 'jane@example.com', phoneNumbers: '(212) 565-0000, notaphone, +1 555 123 4567' },
+        { normalization: PHONE_NORMALIZATION_VALIDATE, defaultCountryCode: 'US' }
+      )
+    ).toEqual({
+      hashedEmails: [hash('jane@example.com')],
+      hashedPhoneNumbers: [hashPhone('+12125650000')]
+    })
+  })
+
+  it('reads the per user country from the contact info it is building', () => {
+    expect(
+      buildContactInfo(
+        { phoneNumbers: '020 7031 3000', countryCode: 'gb' },
+        { normalization: PHONE_NORMALIZATION_VALIDATE, useContactInfoCountryCode: true, defaultCountryCode: 'US' }
+      )
+    ).toEqual({ hashedPhoneNumbers: [hashPhone('+442070313000')] })
+  })
+
+  it('returns undefined when the only phone number is invalid', () => {
+    expect(
+      buildContactInfo({ phoneNumbers: 'notaphone' }, { normalization: PHONE_NORMALIZATION_VALIDATE })
+    ).toBeUndefined()
+  })
+})
+
 describe('buildMember', () => {
   const target = { audienceId: AUDIENCE_ID, advertiserId: ADVERTISER_ID, audienceType: CONTACT_INFO }
   const payload = {
@@ -495,6 +698,34 @@ describe('buildMember', () => {
           countryCode: 'US'
         }
       ]
+    })
+  })
+
+  // Dropping the number leaves nothing to match on, so the event fails with the error the
+  // customer sees per event in the event delivery tab rather than failing the whole batch.
+  it('fails an event whose only identifier is a phone number dropped by validation', () => {
+    const invalidPhone = {
+      ...payload,
+      contact_info: { phoneNumbers: 'notaphone' },
+      phone_options: { normalization: PHONE_NORMALIZATION_VALIDATE }
+    } as Payload
+
+    expect(buildMember(invalidPhone, true, target)).toEqual({
+      errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+      errormessage:
+        'No usable contact info identifiers found. This audience requires an email, a phone number, or a complete first name, last name, zip code and country code.'
+    })
+  })
+
+  it('normalises a phone number using the settings on the payload', () => {
+    const nationalFormat = {
+      ...payload,
+      contact_info: { phoneNumbers: '020 7031 3000', countryCode: 'GB' },
+      phone_options: { normalization: PHONE_NORMALIZATION_VALIDATE, useContactInfoCountryCode: true }
+    } as Payload
+
+    expect(buildMember(nationalFormat, true, target)).toEqual({
+      members: [{ hashedPhoneNumbers: [hashPhone('+442070313000')] }]
     })
   })
 

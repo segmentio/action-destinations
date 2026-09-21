@@ -7,6 +7,7 @@ import {
   mobileDeviceIds,
   consent,
   batch_keys,
+  phone_options,
   retlHookInputFields,
   retlHookOutputTypes
 } from './fields'
@@ -50,6 +51,7 @@ const action: ActionDefinition<Settings, Payload, AudienceSettings> = {
   fields: {
     contact_info,
     mobileDeviceIds,
+    phone_options,
     consent,
     external_id,
     enable_batching,
