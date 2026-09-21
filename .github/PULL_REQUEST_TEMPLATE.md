@@ -27,6 +27,15 @@ _Please ensure sensitive data is properly protected in your integration._
 
 - [ ] **Reviewed all field definitions** for sensitive data (API keys, tokens, passwords, client secrets) and confirmed they use `type: 'password'`
 
+## Feature flag / Rollout
+
+_If this change is gated behind a feature flag, confirm the rollout details below._
+
+- [ ] This change is **not** gated behind a feature flag (N/A)
+- [ ] Flag name: `<flag-name>`
+- [ ] Flag is registered in Flagon and defaults to **off**
+- [ ] Rollout / rollback plan described in the summary above
+
 ## New Destination Checklist
 
 - [ ] Extracted all action API versions to `verioning-info.ts` file. [example](https://github.com/segmentio/action-destinations/blob/main/packages/destination-actions/src/destinations/facebook-conversions-api/versioning-info.ts)
