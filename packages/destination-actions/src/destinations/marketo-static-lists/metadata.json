@@ -1063,7 +1063,7 @@
         },
         "lookup_field": {
           "label": "Lookup Field",
-          "description": "The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.",
+          "description": "The lead field to use for deduplication and filtering. This field must be a part of the Lead Info Fields below.",
           "type": "string",
           "required": true,
           "multiple": false,
