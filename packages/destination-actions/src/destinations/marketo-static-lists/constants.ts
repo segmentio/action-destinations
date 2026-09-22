@@ -4,6 +4,9 @@ export const GET_FOLDER_ENDPOINT = `/rest/asset/${API_VERSION}/folder/byName.jso
 export const CREATE_LIST_ENDPOINT = `/rest/asset/${API_VERSION}/staticLists.json?folder=folderId&name=listName`
 export const GET_LIST_ENDPOINT = `/rest/asset/${API_VERSION}/staticList/listId.json`
 export const BULK_IMPORT_ENDPOINT = `/bulk/${API_VERSION}/leads.json?format=csv&listId=externalId&lookupField=fieldToLookup`
+// Async Bulk Import job polling endpoints (see functions in asyncAddToList).
+export const BULK_IMPORT_STATUS_ENDPOINT = `/bulk/${API_VERSION}/leads/batch/batchId.json`
+export const BULK_IMPORT_FAILURES_ENDPOINT = `/bulk/${API_VERSION}/leads/batch/batchId/failures.json`
 export const GET_LEADS_ENDPOINT = `/rest/${API_VERSION}/leads.json?filterType=field&filterValues=emailsToFilter`
 export const REMOVE_USERS_ENDPOINT = `/rest/${API_VERSION}/lists/listId/leads.json?id=idsToDelete`
 
@@ -36,6 +39,21 @@ export interface MarketoBulkImportResponse extends MarketoResponse {
       batchId: number
       importId: string
       status: string
+    }
+  ]
+}
+
+export interface MarketoBatchStatusResponse extends MarketoResponse {
+  result: [
+    {
+      batchId: number
+      importId: string
+      // Marketo returns: Queued | Importing | Complete | Failed
+      status: string
+      numOfLeadsProcessed?: number
+      numOfRowsFailed?: number
+      numOfRowsWithWarning?: number
+      message?: string
     }
   ]
 }
