@@ -7,9 +7,10 @@ import type { E2EAudienceDestinationConfig } from '@segment/actions-core'
 
 const audienceName = `e2e_test_audience_${Date.now()}`
 
-// A Facebook Custom Audience which already exists in the e2e ad account. createAudience must
-// connect to it and return this exact id rather than creating a new audience.
-const EXISTING_AUDIENCE_ID = '120250946013450690'
+// "e2e_existing_audience_do_not_delete", created once in the e2e ad account so that createAudience has
+// an audience which already exists to connect to. If it is ever deleted, create a replacement and put
+// its id here - the e2e suite does not create it.
+const EXISTING_AUDIENCE_ID = '120251031521470690'
 
 export const config: E2EAudienceDestinationConfig = {
   settings: {

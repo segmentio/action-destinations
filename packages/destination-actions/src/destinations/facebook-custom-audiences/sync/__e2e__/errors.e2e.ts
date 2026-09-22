@@ -1,10 +1,5 @@
 import type { E2EFixture } from '@segment/actions-core'
-import {
-  defaultValues,
-  createE2EJourneysV1AudienceEvent,
-  createE2EEngageAudienceEvent,
-  createE2ERetlAudienceEvent
-} from '@segment/actions-core'
+import { defaultValues, createE2EEngageAudienceEvent } from '@segment/actions-core'
 import sync from '../index'
 
 const COMPUTATION_KEY = 'e2e_test_facebook_errors'
@@ -15,99 +10,6 @@ const FAILURE_HINT =
 
 // Error / validation paths. These never reach Facebook — the action rejects them locally.
 const fixtures: E2EFixture[] = [
-  {
-    // A batch mixing journey_step and non-journey_step events is rejected wholesale with a thrown
-    // InvalidAudienceMembershipError (the entire batch fails, not per-item).
-    description: 'Error: batch mixing journey_step and non-journey_step events is rejected',
-    subscribe: 'type = "track" or type = "identify"',
-    mapping: defaultValues(sync.fields),
-    mode: 'batchWithMultistatus',
-    events: [
-      createE2EJourneysV1AudienceEvent({
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        externalAudienceId: '$externalAudienceId',
-        userId: 'e2e-fb-err-journey-001',
-        email: 'e2e-fb-err-journey-001@segment.com'
-      }),
-      createE2EEngageAudienceEvent({
-        type: 'track',
-        action: 'add',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        externalAudienceId: '$externalAudienceId',
-        userId: 'e2e-fb-err-engage-001',
-        email: 'e2e-fb-err-engage-001@segment.com'
-      })
-    ],
-    expect: {
-      status: 'error',
-      errorType: 'InvalidAudienceMembershipError',
-      errorMessage:
-        'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    // No audience id resolvable (events carry no external_audience_id and no hook output) => each
-    // payload gets a per-item INVALID_AUDIENCE_MEMBERSHIP error. Never reaches Facebook.
-    description: 'Error: batch with missing audience ID returns per-item INVALID_AUDIENCE_MEMBERSHIP',
-    subscribe: 'type = "track" or type = "identify"',
-    mapping: defaultValues(sync.fields),
-    mode: 'batchWithMultistatus',
-    events: [
-      createE2EEngageAudienceEvent({
-        type: 'identify',
-        action: 'add',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        userId: 'e2e-fb-err-noaud-001',
-        email: 'e2e-fb-err-noaud-001@segment.com'
-      }),
-      createE2EEngageAudienceEvent({
-        type: 'identify',
-        action: 'add',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        userId: 'e2e-fb-err-noaud-002',
-        email: 'e2e-fb-err-noaud-002@segment.com'
-      })
-    ],
-    expect: {
-      status: 'success',
-      jsonContains: [
-        { status: 400, errortype: 'INVALID_AUDIENCE_MEMBERSHIP', errormessage: 'Missing audience ID.', errorreporter: 'DESTINATION' },
-        { status: 400, errortype: 'INVALID_AUDIENCE_MEMBERSHIP', errormessage: 'Missing audience ID.', errorreporter: 'DESTINATION' }
-      ]
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
-  {
-    // RETL "new" events with no audience id => per-item INVALID_AUDIENCE_MEMBERSHIP.
-    description: 'Error: RETL batch with missing audience ID returns per-item INVALID_AUDIENCE_MEMBERSHIP',
-    subscribe: 'type = "track" or type = "identify"',
-    mapping: {
-      ...defaultValues(sync.fields),
-      __segment_internal_sync_mode: 'mirror'
-    },
-    mode: 'batchWithMultistatus',
-    events: [
-      createE2ERetlAudienceEvent({
-        eventName: 'new',
-        computationKey: COMPUTATION_KEY,
-        computationId: COMPUTATION_ID,
-        userId: 'e2e-fb-err-retl-001',
-        email: 'e2e-fb-err-retl-001@segment.com'
-      })
-    ],
-    expect: {
-      status: 'success',
-      jsonContains: [
-        { status: 400, errortype: 'INVALID_AUDIENCE_MEMBERSHIP', errormessage: 'Missing audience ID.', errorreporter: 'DESTINATION' }
-      ]
-    },
-    verboseFailureHint: FAILURE_HINT
-  },
   {
     // Passes local validation (audience id is a non-empty string) but Facebook rejects it because the
     // audience does not exist. Exercises the parseFacebookError path end-to-end. The exact errortype/

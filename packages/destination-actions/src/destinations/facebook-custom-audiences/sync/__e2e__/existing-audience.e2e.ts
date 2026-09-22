@@ -6,9 +6,9 @@ const COMPUTATION_KEY = 'e2e_test_facebook_existing_audience'
 const COMPUTATION_ID = 'aud_e2e_facebook_existing_001'
 
 // Must match EXISTING_AUDIENCE_ID in the destination's __e2e__/index.ts, where it is supplied as the
-// existingAudienceId audience setting. Asserting it in the response body proves createAudience
-// connected to that audience instead of creating a new one: Facebook echoes back the audience it wrote to.
-const EXISTING_AUDIENCE_ID = '120250946013450690'
+// existingAudienceId audience setting. Asserting it in the response body proves createAudience connected
+// to that audience instead of creating a new one: Facebook echoes back the audience it wrote to.
+const EXISTING_AUDIENCE_ID = '120251031521470690'
 
 const FAILURE_HINT =
   'Ensure E2E_FACEBOOK_CUSTOM_AUDIENCES_ACCESS_TOKEN and E2E_FACEBOOK_CUSTOM_AUDIENCES_AD_ACCOUNT_ID are set, the token has ads_management permission, and Facebook Custom Audience ' +
