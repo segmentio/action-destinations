@@ -22,6 +22,8 @@ export const ISO_4217 = /^[A-Z]{3}$/
 
 export const CUSTOM_EVENT_NAME_MAX_LENGTH = 64
 
+export const EVENT_AT_MAX_AGE_MS = 168 * 60 * 60 * 1000
+
 export const SUPPORTS_VALUE_METADATA: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>([
   'AddToCart',
   'AddToWishlist',

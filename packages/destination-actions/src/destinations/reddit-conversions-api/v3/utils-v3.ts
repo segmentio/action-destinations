@@ -9,6 +9,7 @@ import {
   TRACKING_TYPE_V3,
   ISO_4217,
   CUSTOM_EVENT_NAME_MAX_LENGTH,
+  EVENT_AT_MAX_AGE_MS,
   SUPPORTS_VALUE_METADATA,
   SUPPORTS_ITEM_COUNT,
   REQUIRES_ITEM_COUNT,
@@ -93,8 +94,16 @@ export function createRedditPayloadV3(
         )
       }
 
+      const eventAt = toEpochMs(event_at)
+
+      if (Date.now() - eventAt > EVENT_AT_MAX_AGE_MS) {
+        throw new PayloadValidationError(
+          'Event At is more than 7 days old. Reddit rejects these, and one stale event fails the whole request it is batched into.'
+        )
+      }
+
       const event: EventItemV3 = {
-        event_at: toEpochMs(event_at),
+        event_at: eventAt,
         action_source: toActionSourceV3(action_source),
         ...(action_source === 'WEBSITE' && cleanEventSourceUrl ? { event_source_url: cleanEventSourceUrl } : {}),
         ...(cleanedClickId ? { click_id: cleanedClickId } : {}),

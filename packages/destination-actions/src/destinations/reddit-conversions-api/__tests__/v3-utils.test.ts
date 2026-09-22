@@ -23,6 +23,16 @@ const settings: Settings = {
 // Matches smartHash(conversion_id, (value) => value.trim()) in ../v3/utils-v3.ts
 const sha256 = (value: string) => crypto.createHash('sha256').update(value.trim()).digest('hex')
 
+// The fixtures use a fixed event_at, which the v3 freshness check would reject.
+// Pin Date.now() to just after it so the fixtures stay deterministic.
+beforeEach(() => {
+  jest.spyOn(Date, 'now').mockReturnValue(1704721970212 + 1000)
+})
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
+
 function buildPayload(overrides: Partial<StandardEvent> = {}): StandardEvent {
   return {
     event_at: 1704721970212,
@@ -369,6 +379,40 @@ describe('createRedditPayloadV3', () => {
         errormessage: 'action_source is required when sending to Reddit Conversions API v3'
       }
     })
+    expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
+  })
+
+  it('accepts an event_at inside the 7 day window', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ event_at: Date.now() - 6 * 24 * 60 * 60 * 1000 })
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events).toHaveLength(1)
+  })
+
+  it('throws for an event_at older than 7 days, which Reddit rejects', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ event_at: Date.now() - 8 * 24 * 60 * 60 * 1000 })
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Event At is more than 7 days old'
+    )
+  })
+
+  it('fails only the stale event in a batch, so the rest of the request still sends', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payloads = [
+      buildPayload({ event_at: Date.now() }),
+      buildPayload({ event_at: Date.now() - 8 * 24 * 60 * 60 * 1000 }),
+      buildPayload({ event_at: Date.now() })
+    ]
+
+    const result = createRedditPayloadV3(payloads, settings, multiStatusResponse, true)
+
+    expect(result.data.events).toHaveLength(2)
+    expect(multiStatusResponse.isSuccessResponseAtIndex(0)).toBe(true)
+    expect(multiStatusResponse.isErrorResponseAtIndex(1)).toBe(true)
     expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
   })
 
