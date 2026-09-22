@@ -4,16 +4,16 @@ import { Settings } from '../../generated-types'
 import { S3_KEY_LENGTH_GUARD_FLAG } from '../../constants'
 
 // Shared spies so each test can assert whether AWS was actually contacted.
-const stsSend = jest.fn()
-const s3Send = jest.fn()
+const mockStsSend = jest.fn()
+const mockS3Send = jest.fn()
 
 jest.mock('@aws-sdk/client-sts', () => ({
-  STSClient: jest.fn().mockImplementation(() => ({ send: stsSend })),
+  STSClient: jest.fn().mockImplementation(() => ({ send: mockStsSend })),
   AssumeRoleCommand: jest.fn()
 }))
 
 jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({ send: s3Send })),
+  S3Client: jest.fn().mockImplementation(() => ({ send: mockS3Send })),
   PutObjectCommand: jest.fn(),
   _Error: jest.fn()
 }))
@@ -47,8 +47,8 @@ const flagOn: Features = { [S3_KEY_LENGTH_GUARD_FLAG]: true }
 describe('uploadS3 object key length guard', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    stsSend.mockResolvedValue(validStsResponse)
-    s3Send.mockResolvedValue({})
+    mockStsSend.mockResolvedValue(validStsResponse)
+    mockS3Send.mockResolvedValue({})
   })
 
   // A multi-byte folder name: 400 "€" chars = 1200 bytes but only 400 characters. This is
@@ -63,7 +63,7 @@ describe('uploadS3 object key length guard', () => {
     const result = await client.uploadS3(settings, 'file,content', '', overLongFolder(), 'csv')
 
     expect(result).toEqual({ statusCode: 200, message: 'Upload successful' })
-    expect(s3Send).toHaveBeenCalledTimes(1)
+    expect(mockS3Send).toHaveBeenCalledTimes(1)
   })
 
   it('when enabled, rejects an object key over 1024 bytes with a non-retryable PayloadValidationError and does not PUT', async () => {
@@ -74,8 +74,8 @@ describe('uploadS3 object key length guard', () => {
     await expect(promise).rejects.toThrow(PayloadValidationError)
     await expect(promise).rejects.toThrow('1024 bytes')
     // Fails fast: no role assumption and no PUT are attempted.
-    expect(stsSend).not.toHaveBeenCalled()
-    expect(s3Send).not.toHaveBeenCalled()
+    expect(mockStsSend).not.toHaveBeenCalled()
+    expect(mockS3Send).not.toHaveBeenCalled()
   })
 
   it('when enabled, does not leak the (potentially PII-laden) key content in the error message', async () => {
@@ -96,6 +96,6 @@ describe('uploadS3 object key length guard', () => {
     const result = await client.uploadS3(settings, 'file,content', 'export', 'my-folder', 'csv', flagOn)
 
     expect(result).toEqual({ statusCode: 200, message: 'Upload successful' })
-    expect(s3Send).toHaveBeenCalledTimes(1)
+    expect(mockS3Send).toHaveBeenCalledTimes(1)
   })
 })
