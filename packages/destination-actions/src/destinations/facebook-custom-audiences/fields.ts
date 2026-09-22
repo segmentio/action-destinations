@@ -7,64 +7,19 @@ export const adAccountId: GlobalSetting = {
   required: true
 }
 
-export const operation: GlobalSetting = {
-  type: 'string',
-  label: 'Create a new custom audience or connect to an existing one?',
-  description:
-    'Choose to either create a new custom audience or connect to an existing one. If connecting to an existing audience, paste in the Facebook Audience ID you want to connect to in the "Existing Audience ID" field below.',
-  choices: [
-    { label: 'Create New Audience', value: 'create' },
-    { label: 'Connect to Existing Audience', value: 'existing' }
-  ],
-  default: 'create'
-}
-
 export const existingAudienceId: GlobalSetting = {
   type: 'string',
   label: 'Existing Audience ID',
-  description: 'The ID of the audience in Facebook',
-  depends_on: {
-    conditions: [
-      {
-        fieldKey: 'operation',
-        operator: 'is',
-        value: 'existing'
-      }
-    ]
-  },
-  required: {
-    conditions: [
-      {
-        fieldKey: 'operation',
-        operator: 'is',
-        value: 'existing'
-      }
-    ]
-  }
+  description:
+    'Optional. To sync to an audience which already exists in Facebook, paste the Facebook Custom Audience ID here and Segment will connect to that audience instead of creating a new one. The Description and Audience Label settings are ignored when this field is populated. Leave this field blank to create a new Facebook Custom Audience.'
 }
 
 export const audienceDescription: GlobalSetting = {
   type: 'string',
   label: 'Description',
-  description: 'A brief description about your audience.',
-  depends_on: {
-    conditions: [
-      {
-        fieldKey: 'operation',
-        operator: 'is_not',
-        value: 'existing'
-      }
-    ]
-  },
-  required: {
-    conditions: [
-      {
-        fieldKey: 'operation',
-        operator: 'is_not',
-        value: 'existing'
-      }
-    ]
-  }
+  description:
+    'A brief description about your audience. Only applies when Segment creates a new audience; ignored when an Existing Audience ID is provided.',
+  required: false
 }
 
 // Values per Meta's Audience Labels partner integration guide. Meta's public
@@ -75,17 +30,8 @@ export const audienceLabel: GlobalSetting = {
   type: 'string',
   label: 'Audience Label',
   description:
-    "Optionally categorize this audience with one of Meta's predefined labels. Sent to Facebook when the audience is created; does not apply retroactively to existing audiences.",
+    "Optionally categorize this audience with one of Meta's predefined labels. Only applies when Segment creates a new audience; ignored when an Existing Audience ID is provided, and a label added here later does not apply to an audience which already exists.",
   required: false,
-  depends_on: {
-    conditions: [
-      {
-        fieldKey: 'operation',
-        operator: 'is_not',
-        value: 'existing'
-      }
-    ]
-  },
   choices: [
     { label: 'Qualified Leads', value: 'QUALIFIED_LEADS' },
     { label: 'Disqualified Leads', value: 'DISQUALIFIED_LEADS' },
