@@ -1,4 +1,4 @@
-import { getMetadata } from '../utils'
+import { getDataProcessingOptions, getMetadata } from '../utils'
 
 describe('getMetadata', () => {
   it('drops currency/value_decimal/item_count for tracking types that don\'t support any event metadata', () => {
@@ -13,5 +13,27 @@ describe('getMetadata', () => {
     expect(result?.currency).toBe('USD')
     expect(result?.value_decimal).toBe(10)
     expect(result?.item_count).toBeUndefined()
+  })
+})
+
+describe('getDataProcessingOptions', () => {
+  it('returns undefined when the field is absent', () => {
+    expect(getDataProcessingOptions(undefined)).toBeUndefined()
+  })
+
+  it('returns undefined for an empty object, so no empty data_processing_options is sent', () => {
+    expect(getDataProcessingOptions({})).toBeUndefined()
+  })
+
+  it('omits the keys that did not resolve', () => {
+    expect(getDataProcessingOptions({ country: 'US', region: 'CA' })).toEqual({ country: 'US', region: 'CA' })
+  })
+
+  it('splits modes into an array', () => {
+    expect(getDataProcessingOptions({ country: 'US', modes: 'LDU', region: 'CA' })).toEqual({
+      country: 'US',
+      modes: ['LDU'],
+      region: 'CA'
+    })
   })
 })

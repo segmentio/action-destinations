@@ -147,10 +147,17 @@ export function getDataProcessingOptions(
   dataProcessingOptions: DataProcessingOptionsType
 ): DatapProcessingOptions | undefined {
   if (!dataProcessingOptions) return undefined
+
+  const country = clean(dataProcessingOptions.country)
+  const modes = dataProcessingOptions.modes?.split(',').map((mode) => mode.trim())
+  const region = clean(dataProcessingOptions.region)
+
+  if (country === undefined && modes === undefined && region === undefined) return undefined
+
   return {
-    country: clean(dataProcessingOptions.country),
-    modes: dataProcessingOptions.modes?.split(',').map((mode) => mode.trim()),
-    region: clean(dataProcessingOptions.region)
+    ...(country ? { country } : {}),
+    ...(modes ? { modes } : {}),
+    ...(region ? { region } : {})
   }
 }
 
