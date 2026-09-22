@@ -8,7 +8,6 @@ Object {
         "action_source": "APP",
         "click_id": "Q1Q49h4LP@",
         "event_at": 1612137600000,
-        "event_source_url": "Q1Q49h4LP@",
         "metadata": Object {
           "conversion_id": "4fbe858b31ee34144cc3d009fd4636ef20fb342e095570d49a9898bb8d77598e",
           "currency": "HNL",

@@ -39,7 +39,7 @@ describe('Reddit Conversions Api - V3 batch events', () => {
     ] as const
 
     const events: SegmentEvent[] = kinds.map((kind, i) => {
-      const properties: JSONObject = { revenue: 100 }
+      const properties: JSONObject = { revenue: 100, currency: 'USD', quantity: 2 }
       if (kind !== 'schemaInvalid') properties.action_source = 'WEBSITE'
       properties.products =
         kind === 'businessInvalid'
@@ -99,6 +99,8 @@ describe('Reddit Conversions Api - V3 batch events', () => {
               tracking_type: 'PURCHASE'
             },
             metadata: {
+              currency: 'USD',
+              item_count: 2,
               value: 100,
               products: [
                 {

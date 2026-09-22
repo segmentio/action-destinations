@@ -4,8 +4,17 @@ import type { Settings } from '../generated-types'
 import type { Payload as StandardEvent } from '../standardEvent/generated-types'
 import type { Payload as CustomEvent } from '../customEvent/generated-types'
 import { EventItemV3, PayloadV3, MetadataV3, ProductV3, ActionSourceV3, EventTypeV3 } from './types-v3'
-import { ACTION_SOURCE_V3_LABELS, TRACKING_TYPE_V3 } from './constants'
-import { clean, cleanNum, getUser, smartHash, supportsValueMetadata, supportsItemCount } from '../utils'
+import {
+  ACTION_SOURCE_V3_LABELS,
+  TRACKING_TYPE_V3,
+  ISO_4217,
+  SUPPORTS_VALUE_METADATA,
+  SUPPORTS_ITEM_COUNT,
+  REQUIRES_ITEM_COUNT,
+  REQUIRES_PRODUCTS,
+  MATCH_KEYS
+} from './constants'
+import { clean, cleanNum, getUser, smartHash } from '../utils'
 import { LATEST_API_VERSION } from '../versioning-info'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
@@ -65,17 +74,27 @@ export function createRedditPayloadV3(
       const custom_event_name = clean((payload as CustomEvent).custom_event_name)
       const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
       const cleanEventSourceUrl = clean(event_source_url ?? '')
+      const cleanedClickId = clean(click_id)
+      const userObj = getUser(user, data_processing_options, screen_dimensions)
+      const hasMatchKey = userObj !== undefined && MATCH_KEYS.some((key) => userObj[key] !== undefined)
+
+      if (!cleanedClickId && !hasMatchKey) {
+        throw new PayloadValidationError(
+          'Either Click ID or at least one User match key is required for Reddit Conversions API v3 events. Supported user match keys are: ' + MATCH_KEYS.join(', ')
+        )
+      }
+
       const event: EventItemV3 = {
         event_at: toEpochMs(event_at),
         action_source: toActionSourceV3(action_source),
         ...(action_source === 'WEBSITE' && cleanEventSourceUrl ? { event_source_url: cleanEventSourceUrl } : {}),
-        click_id: clean(click_id),
+        ...(cleanedClickId ? { click_id: cleanedClickId } : {}),
         type: {
           tracking_type: toV3TrackingType(tracking_type),
           custom_event_name
         },
         metadata: getMetadata(event_metadata, products, conversion_id, tracking_type),
-        user: getUser(user, data_processing_options, screen_dimensions)
+        user: userObj
       }
 
       indices.push(index)
@@ -135,13 +154,25 @@ export function toActionSourceV3(action_source: string | undefined): ActionSourc
 
 export function getProducts(products: ProductsType): ProductV3[] | undefined {
   if (!products) return undefined
-  return products.map((product) => ({
-    category: clean(product.category),
-    id: toProductIdV3(product.id),
-    name: clean(product.name),
-    quantity: cleanNum(product.quantity),
-    item_price: cleanNum(product.item_price)
-  }))
+
+  const items = products
+    .filter((product) => Object.values(product).some((value) => value !== undefined && value !== null && value !== ''))
+    .map((product) => {
+      const category = clean(product.category)
+      const name = clean(product.name)
+      const quantity = cleanNum(product.quantity)
+      const item_price = cleanNum(product.item_price)
+
+      return {
+        ...(category ? { category } : {}),
+        id: toProductIdV3(product.id),
+        ...(name ? { name } : {}),
+        ...(typeof quantity === 'number' ? { quantity } : {}),
+        ...(typeof item_price === 'number' ? { item_price } : {})
+      }
+    })
+
+  return items.length > 0 ? items : undefined
 }
 
 export function toProductIdV3(id: string | undefined): string {
@@ -155,18 +186,43 @@ export function getMetadata(
   products: ProductsType,
   conversion_id: ConversionIdType,
   trackingType?: string
-): MetadataV3 | undefined {
-  if (!metadata && !products && !conversion_id) return undefined
-  const valueMetadataSupported = supportsValueMetadata(trackingType)
-  const itemCountSupported = supportsItemCount(trackingType)
+): MetadataV3 {
+  const type = trackingType ?? ''
+  const itemCount = SUPPORTS_ITEM_COUNT.has(type) ? cleanNum(metadata?.item_count) : undefined
+  const productList = getProducts(products)
+
+  if (REQUIRES_ITEM_COUNT.has(type) && itemCount === undefined) {
+    throw new PayloadValidationError(
+      `Event Metadata Item Count is required for ${type} events. It is read from the event, not summed from Products.`
+    )
+  }
+
+  if (REQUIRES_PRODUCTS.has(type) && productList === undefined) {
+    throw new PayloadValidationError(`Products is required for ${type} events`)
+  }
+
+  const hashedConversionId = smartHash(conversion_id, (value) => value.trim())
+  if (!hashedConversionId) {
+    throw new PayloadValidationError('Conversion ID is required for Reddit Conversions API v3 events')
+  }
+
+  const valueMetadataSupported = SUPPORTS_VALUE_METADATA.has(type)
+  const valueDecimal = valueMetadataSupported ? cleanNum(metadata?.value_decimal) : undefined
+  const currency = valueMetadataSupported ? clean(metadata?.currency) : undefined
+  const hasCurrency = currency !== undefined && ISO_4217.test(currency)
+  const hasValue = valueDecimal !== undefined
+
+  if (hasCurrency !== hasValue) {
+    throw new PayloadValidationError(
+      `Event Metadata Currency and Value must be sent together - ${hasCurrency ? 'Value' : 'Currency'} is missing`
+    )
+  }
 
   return {
-    currency: valueMetadataSupported ? clean(metadata?.currency) : undefined,
-    item_count: itemCountSupported ? cleanNum(metadata?.item_count) : undefined,
-    // The Segment-facing field is still named `value_decimal` (unchanged from v2, so existing
-    // mappings keep working) - only the wire-level key sent to Reddit v3 renames to `value`.
-    value: valueMetadataSupported ? cleanNum(metadata?.value_decimal) : undefined,
-    products: getProducts(products),
-    conversion_id: smartHash(conversion_id, (value) => value.trim())
+    ...(hasCurrency ? { currency } : {}),
+    ...(typeof itemCount === 'number' ? { item_count: itemCount } : {}),
+    ...(typeof valueDecimal === 'number' ? { value: valueDecimal } : {}),
+    ...(productList && productList.length > 0 ? { products: productList } : {}),
+    conversion_id: hashedConversionId
   }
 }

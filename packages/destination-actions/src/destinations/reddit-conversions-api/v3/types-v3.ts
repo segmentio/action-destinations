@@ -12,11 +12,11 @@ export interface ProductV3 {
 }
 
 export interface MetadataV3 {
-  currency?: string
-  item_count?: number
-  value?: number
-  conversion_id?: string
-  products?: Array<ProductV3>
+  currency?: string // if passed, must also include value. Only acceptable for some event types. Cannot be passed for Page Visit, View Content, Search
+  item_count?: number // only accepted for Add to Cart, Add to Wishlist, Custom, Purchase events. Required for Purchase events. 
+  value?: number // if passed, must also include currency. Only acceptable for some event types. Cannot be passed for Page Visit, View Content, Search
+  conversion_id: string // required for all events. 
+  products?: Array<ProductV3> // accepted for all events. Required for Purchase event
 }
 
 export interface DataProcessingOptionsV3 {
@@ -45,13 +45,13 @@ export interface EventItemV3 {
   event_at: number // milliseconds
   action_source: ActionSourceV3
   event_source_url?: string // can only be passed when action_source is 'WEBSITE'
-  click_id?: string
+  click_id?: string // required if no user object provided
   type: {
     tracking_type: EventTypeV3
     custom_event_name?: string // required if tracking_type is CUSTOM
   }
-  metadata?: MetadataV3
-  user?: UserV3
+  metadata: MetadataV3
+  user?: UserV3 // required if no click_id provided, and must carry at least one match key - data_processing_options and screen_dimensions do not count
 }
 
 export interface PayloadV3 {
