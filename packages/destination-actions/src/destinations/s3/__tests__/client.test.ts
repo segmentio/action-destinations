@@ -356,8 +356,7 @@ describe('uploadS3 filename fix flag', () => {
   }
 
   const flagOn: Features = { [S3_FILENAME_FIX_FLAG]: true }
-  const newClient = (features?: Features) =>
-    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, features)
+  const client = new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id)
 
   beforeEach(() => {
     mockStsSend.mockReset()
@@ -369,7 +368,7 @@ describe('uploadS3 filename fix flag', () => {
   })
 
   it('is off by default: the extension can still be corrupted for a name containing it mid-string', async () => {
-    await newClient().uploadS3(settings, 'content', 'csv_export.csv', '', 'csv')
+    await client.uploadS3(settings, 'content', 'csv_export.csv', '', 'csv', undefined)
 
     const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
     // Old (buggy) behavior: filename_prefix.replace('csv', ...) replaces the FIRST occurrence,
@@ -378,7 +377,7 @@ describe('uploadS3 filename fix flag', () => {
   })
 
   it('when enabled, does not corrupt a name whose base contains the extension string', async () => {
-    await newClient(flagOn).uploadS3(settings, 'content', 'csv_export.csv', '', 'csv')
+    await client.uploadS3(settings, 'content', 'csv_export.csv', '', 'csv', flagOn)
 
     const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
     expect(key).toMatch(/^csv_export_.*\.csv$/)
