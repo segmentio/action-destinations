@@ -123,7 +123,7 @@ export interface Payload {
     value_decimal?: number
   }
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.
+   * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. Required for Reddit Conversions API V3 (Beta).
    */
   conversion_id?: string
   /**
@@ -135,7 +135,7 @@ export interface Payload {
    */
   action_source?: string
   /**
-   * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).
+   * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.
    */
   event_source_url?: string
 }

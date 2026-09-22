@@ -26,8 +26,10 @@ const sha256 = (value: string) => crypto.createHash('sha256').update(value.trim(
 function buildPayload(overrides: Partial<StandardEvent> = {}): StandardEvent {
   return {
     event_at: 1704721970212,
-    tracking_type: 'Purchase',
+    tracking_type: 'Lead',
     action_source: 'WEBSITE',
+    conversion_id: 'msg-1',
+    click_id: 'click_id_1',
     ...overrides
   }
 }
@@ -162,12 +164,14 @@ describe('getProducts', () => {
 })
 
 describe('getMetadata', () => {
-  it('returns undefined when metadata, products, and conversion_id are all absent', () => {
-    expect(getMetadata(undefined, undefined, undefined)).toBeUndefined()
+  it('throws when metadata, products, and conversion_id are all absent', () => {
+    expect(() => getMetadata(undefined, undefined, undefined)).toThrow(
+      'Conversion ID is required for Reddit Conversions API v3 events'
+    )
   })
 
   it('maps currency/item_count/value_decimal->value, and hashes conversion_id', () => {
-    const result = getMetadata({ currency: 'USD', item_count: 10, value_decimal: 100 }, undefined, 'msg-1')
+    const result = getMetadata({ currency: 'USD', item_count: 10, value_decimal: 100 }, undefined, 'msg-1', 'AddToCart')
     expect(result?.currency).toBe('USD')
     expect(result?.item_count).toBe(10)
     expect(result?.value).toBe(100)
@@ -176,8 +180,8 @@ describe('getMetadata', () => {
     expect(result?.conversion_id).toBe(sha256('msg-1'))
   })
 
-  it('is present (not undefined) when only products are provided', () => {
-    const result = getMetadata(undefined, [{ id: 'product_id_1' }], undefined)
+  it('is present (not undefined) when only products and a conversion_id are provided', () => {
+    const result = getMetadata(undefined, [{ id: 'product_id_1' }], 'msg-1', 'AddToCart')
     expect(result).toEqual({
       currency: undefined,
       item_count: undefined,
@@ -185,22 +189,110 @@ describe('getMetadata', () => {
       products: [
         { category: undefined, id: 'product_id_1', name: undefined, quantity: undefined, item_price: undefined }
       ],
-      conversion_id: undefined
+      conversion_id: sha256('msg-1')
     })
   })
 
-  it("drops currency/value/item_count for tracking types that don't support any event metadata", () => {
-    const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, undefined, 'Search')
+  it('drops currency/value/item_count for tracking types that don\'t support any event metadata', () => {
+    const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, 'msg-1', 'Search')
     expect(result?.currency).toBeUndefined()
     expect(result?.item_count).toBeUndefined()
     expect(result?.value).toBeUndefined()
   })
 
   it('drops item_count but keeps currency/value for Lead/SignUp', () => {
-    const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, undefined, 'Lead')
+    const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, 'msg-1', 'Lead')
     expect(result?.currency).toBe('USD')
     expect(result?.value).toBe(10)
     expect(result?.item_count).toBeUndefined()
+  })
+
+  it('throws when currency is provided without a value, so Reddit never sees CURRENCY_WITH_NO_VALUE', () => {
+    expect(() => getMetadata({ currency: 'USD' }, undefined, 'msg-1', 'AddToCart')).toThrow(
+      'Event Metadata Currency and Value must be sent together - Value is missing'
+    )
+  })
+
+  it('does not throw for a currency without a value when the tracking type drops both', () => {
+    const result = getMetadata({ currency: 'USD' }, undefined, 'msg-1', 'ViewContent')
+    expect(result?.currency).toBeUndefined()
+    expect(result?.value).toBeUndefined()
+  })
+
+  it('drops all value metadata for an unrecognised or absent tracking type', () => {
+    const result = getMetadata({ currency: 'USD', item_count: 10, value_decimal: 100 }, undefined, 'msg-1')
+    expect(result?.currency).toBeUndefined()
+    expect(result?.value).toBeUndefined()
+    expect(result?.item_count).toBeUndefined()
+  })
+
+  it('does not throw when neither currency nor value is provided', () => {
+    const result = getMetadata({ item_count: 4 }, undefined, 'msg-1', 'AddToCart')
+    expect(result?.currency).toBeUndefined()
+    expect(result?.value).toBeUndefined()
+    expect(result?.item_count).toBe(4)
+  })
+
+  it('drops currency when value is dropped by the tracking type filter', () => {
+    const result = getMetadata({ currency: 'USD', value_decimal: 10 }, undefined, 'msg-1', 'ViewContent')
+    expect(result?.currency).toBeUndefined()
+    expect(result?.value).toBeUndefined()
+  })
+
+  it('keeps currency alongside a zero value', () => {
+    const result = getMetadata({ currency: 'USD', value_decimal: 0 }, undefined, 'msg-1', 'AddToCart')
+    expect(result?.currency).toBe('USD')
+    expect(result?.value).toBe(0)
+  })
+
+  it('throws when a value is provided without a currency', () => {
+    expect(() => getMetadata({ value_decimal: 10 }, undefined, 'msg-1', 'AddToCart')).toThrow(
+      'Event Metadata Currency and Value must be sent together - Currency is missing'
+    )
+  })
+
+  it('throws when a value is provided with a currency that is not a valid ISO 4217 code', () => {
+    expect(() => getMetadata({ currency: '   ', value_decimal: 10 }, undefined, 'msg-1', 'AddToCart')).toThrow(
+      'Event Metadata Currency and Value must be sent together - Currency is missing'
+    )
+  })
+
+  it('does not throw for a value without a currency when the tracking type drops both', () => {
+    const result = getMetadata({ value_decimal: 10, item_count: 4 }, undefined, 'msg-1', 'Search')
+    expect(result?.currency).toBeUndefined()
+    expect(result?.value).toBeUndefined()
+    expect(result?.item_count).toBeUndefined()
+  })
+
+  it('throws when a Purchase has no item_count', () => {
+    expect(() =>
+      getMetadata({ currency: 'USD', value_decimal: 100 }, [{ id: 'p1', quantity: 2 }], 'msg-1', 'Purchase')
+    ).toThrow('Event Metadata Item Count is required for Purchase events')
+  })
+
+  it('throws when a Purchase has no products', () => {
+    expect(() =>
+      getMetadata({ currency: 'USD', value_decimal: 100, item_count: 2 }, undefined, 'msg-1', 'Purchase')
+    ).toThrow('Products is required for Purchase events')
+  })
+
+  it('accepts a Purchase carrying item_count and products', () => {
+    const result = getMetadata(
+      { currency: 'USD', value_decimal: 100, item_count: 2 },
+      [{ id: 'p1', quantity: 2 }],
+      'msg-1',
+      'Purchase'
+    )
+    expect(result?.item_count).toBe(2)
+    expect(result?.products).toHaveLength(1)
+    expect(result?.currency).toBe('USD')
+    expect(result?.value).toBe(100)
+  })
+
+  it('throws when metadata is present but conversion_id does not resolve', () => {
+    expect(() => getMetadata({ currency: 'USD', value_decimal: 10 }, undefined, undefined, 'AddToCart')).toThrow(
+      'Conversion ID is required for Reddit Conversions API v3 events'
+    )
   })
 })
 
@@ -225,8 +317,8 @@ describe('createRedditPayloadV3', () => {
             action_source: 'WEBSITE',
             event_source_url: 'https://example.com/checkout',
             click_id: 'click_id_1',
-            type: { tracking_type: 'PURCHASE', custom_event_name: undefined },
-            metadata: undefined,
+            type: { tracking_type: 'LEAD', custom_event_name: undefined },
+            metadata: { conversion_id: sha256('msg-1') },
             user: undefined
           }
         ]
@@ -275,6 +367,66 @@ describe('createRedditPayloadV3', () => {
       data: {
         status: 400,
         errormessage: 'action_source is required when sending to Reddit Conversions API v3'
+      }
+    })
+    expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
+  })
+
+  it('throws when there is neither a click_id nor any user match key', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ click_id: undefined })
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Either Click ID or at least one User match key is required'
+    )
+  })
+
+  it('accepts a payload with no click_id when the user carries a match key', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ click_id: undefined, user: { email: 'test@example.com' } })
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events).toHaveLength(1)
+    expect(result.data.events[0].user?.email).toBeDefined()
+  })
+
+  it('throws when the user object carries only non-match-key fields', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ click_id: undefined, user: {}, screen_dimensions: { height: 1080, width: 1920 } })
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Either Click ID or at least one User match key is required'
+    )
+  })
+
+  it('throws for a single payload whose currency has no value', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ event_metadata: { currency: 'USD' }, conversion_id: 'msg-1' })
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Event Metadata Currency and Value must be sent together - Value is missing'
+    )
+    expect(multiStatusResponse.length()).toBe(0)
+  })
+
+  it('for a batch, fails only the event whose currency/value pair is incomplete', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payloads = [
+      buildPayload(),
+      buildPayload({ event_metadata: { value_decimal: 10 }, conversion_id: 'msg-2' }),
+      buildPayload()
+    ]
+
+    const result = createRedditPayloadV3(payloads, settings, multiStatusResponse, true)
+
+    expect(result.data.events).toHaveLength(2)
+    expect(multiStatusResponse.isSuccessResponseAtIndex(0)).toBe(true)
+    expect(multiStatusResponse.isErrorResponseAtIndex(1)).toBe(true)
+    expect(multiStatusResponse.getResponseAtIndex(1)).toMatchObject({
+      data: {
+        status: 400,
+        errormessage: 'Event Metadata Currency and Value must be sent together - Currency is missing'
       }
     })
     expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)

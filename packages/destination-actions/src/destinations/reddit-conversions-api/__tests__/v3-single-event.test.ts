@@ -167,6 +167,7 @@ describe('Reddit Conversions Api - V3 single event', () => {
       userId: 'user_id_1',
       properties: {
         revenue: 100,
+        currency: 'USD',
         products: [{ category: 'category_1', name: 'name_1' }]
       }
     })

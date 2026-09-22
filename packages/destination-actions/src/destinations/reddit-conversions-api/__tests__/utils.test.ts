@@ -1,7 +1,7 @@
 import { getMetadata } from '../utils'
 
 describe('getMetadata', () => {
-  it("drops currency/value_decimal/item_count for tracking types that don't support any event metadata", () => {
+  it('drops currency/value_decimal/item_count for tracking types that don\'t support any event metadata', () => {
     const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, undefined, 'Search')
     expect(result?.currency).toBeUndefined()
     expect(result?.item_count).toBeUndefined()

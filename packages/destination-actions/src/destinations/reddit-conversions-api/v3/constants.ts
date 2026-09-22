@@ -17,3 +17,36 @@ export const TRACKING_TYPE_V3 = {
   SignUp: 'SIGN_UP',
   Custom: 'CUSTOM'
 } as const
+
+export const ISO_4217 = /^[A-Z]{3}$/
+
+export const SUPPORTS_VALUE_METADATA: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>([
+  'AddToCart',
+  'AddToWishlist',
+  'Purchase',
+  'Lead',
+  'SignUp',
+  'Custom'
+])
+
+export const SUPPORTS_ITEM_COUNT: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>([
+  'AddToCart',
+  'AddToWishlist',
+  'Purchase',
+  'Custom'
+])
+
+export const REQUIRES_ITEM_COUNT: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>(['Purchase'])
+
+export const REQUIRES_PRODUCTS: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>(['Purchase'])
+
+export const MATCH_KEYS = [
+  'idfa',
+  'aaid',
+  'email',
+  'external_id',
+  'ip_address',
+  'user_agent',
+  'uuid',
+  'phone_number'
+] as const

@@ -57,6 +57,14 @@ const API_VERSION_IS_V3 = {
   conditions: [{ fieldKey: 'api_version', operator: 'is' as const, value: LATEST_API_VERSION }]
 }
 
+const API_VERSION_IS_V3_AND_ACTION_SOURCE_IS_WEBSITE = {
+  match: 'all' as const,
+  conditions: [
+    { fieldKey: 'api_version', operator: 'is' as const, value: LATEST_API_VERSION },
+    { fieldKey: 'action_source', operator: 'is' as const, value: 'WEBSITE' }
+  ]
+}
+
 export const action_source: InputField = {
   label: 'Action Source',
   description:
@@ -70,10 +78,10 @@ export const action_source: InputField = {
 export const event_source_url: InputField = {
   label: 'Event Source URL',
   description:
-    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).',
+    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.',
   type: 'string',
   required: false,
-  depends_on: API_VERSION_IS_V3,
+  depends_on: API_VERSION_IS_V3_AND_ACTION_SOURCE_IS_WEBSITE,
   default: { '@path': '$.context.page.url' }
 }
 
@@ -94,9 +102,9 @@ export const click_id: InputField = {
 export const conversion_id: InputField = {
   label: 'Conversion ID',
   description:
-    'The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.',
+    'The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. Required for Reddit Conversions API V3 (Beta).',
   type: 'string',
-  required: false,
+  required: API_VERSION_IS_V3,
   default: { '@path': '$.messageId' },
   category: 'hashedPII'
 }
