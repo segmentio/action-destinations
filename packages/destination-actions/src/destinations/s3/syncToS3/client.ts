@@ -14,7 +14,11 @@ import {
 import type { Features, StatsContext } from '@segment/actions-core'
 import { CachedCredentials, Credentials } from './types'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
-import { S3_KEY_LENGTH_GUARD_FLAG, S3_STS_ERROR_CLASSIFICATION_FLAG } from '../constants'
+import {
+  S3_KEY_LENGTH_GUARD_FLAG,
+  S3_STS_ERROR_CLASSIFICATION_FLAG,
+  S3_STS_CREDENTIAL_CACHE_FLAG
+} from '../constants'
 
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
 const MAX_S3_OBJECT_KEY_BYTES = 1024
@@ -72,14 +76,17 @@ export class Client {
     // cache hit/miss/set counts down per hop of the two-hop assume-role chain.
     const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
     const statsClient = this.statsContext?.statsClient
-
+    const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
     const cacheKey = `${this.region}|${roleId}|${externalId ?? ''}`
-    const cached = credentialsCache.get(cacheKey)
-    if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
-      statsClient?.incr('sts_credential_cache_hit', 1, tags)
-      return cached.credentials
+
+    if (cacheEnabled) {
+      const cached = credentialsCache.get(cacheKey)
+      if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
+        statsClient?.incr('sts_credential_cache_hit', 1, tags)
+        return cached.credentials
+      }
+      statsClient?.incr('sts_credential_cache_miss', 1, tags)
     }
-    statsClient?.incr('sts_credential_cache_miss', 1, tags)
 
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
@@ -123,9 +130,11 @@ export class Client {
       sessionToken: result.Credentials.SessionToken
     }
 
-    // Cache the freshly minted credentials until shortly before STS says they expire.
-    credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
-    statsClient?.incr('sts_credential_cache_set', 1, tags)
+    if (cacheEnabled) {
+      // Cache the freshly minted credentials until shortly before STS says they expire.
+      credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
+      statsClient?.incr('sts_credential_cache_set', 1, tags)
+    }
 
     return creds
   }
