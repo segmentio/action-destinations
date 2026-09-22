@@ -1,8 +1,9 @@
 import { Client, clearCredentialsCache, isAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
 import { IntegrationError } from '@segment/actions-core'
-import type { StatsContext } from '@segment/actions-core'
+import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
+import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
 // Controllable STS send mock so the caching tests can control credential responses.
 const mockStsSend = jest.fn()
@@ -87,8 +88,10 @@ describe('STS credential caching', () => {
     }
   })
 
-  const newClient = (roleArn = settings.iam_role_arn) =>
-    new Client(settings.s3_aws_region, roleArn, settings.iam_external_id)
+  const cacheFlagOn: Features = { [S3_STS_CREDENTIAL_CACHE_FLAG]: true }
+
+  const newClient = (roleArn = settings.iam_role_arn, features?: Features) =>
+    new Client(settings.s3_aws_region, roleArn, settings.iam_external_id, undefined, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
 
   beforeEach(() => {
@@ -96,32 +99,42 @@ describe('STS credential caching', () => {
     clearCredentialsCache()
   })
 
-  it('reuses cached credentials across uploads instead of re-calling STS for every file', async () => {
+  it('is off by default: calls STS on every upload without caching', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
 
     await upload(newClient())
     await upload(newClient())
+
+    // No caching without the flag: each upload assumes both roles = 2 STS calls x 2 uploads.
+    expect(mockStsSend).toHaveBeenCalledTimes(4)
+  })
+
+  it('when enabled, reuses cached credentials across uploads instead of re-calling STS for every file', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
 
     // First upload assumes both roles (intermediary + customer) = 2 STS calls.
     // Second upload finds both cached = 0 STS calls.
     expect(mockStsSend).toHaveBeenCalledTimes(2)
   })
 
-  it('refreshes credentials once they fall within the expiry safety buffer', async () => {
+  it('when enabled, refreshes credentials once they fall within the expiry safety buffer', async () => {
     // Expires in 1 minute, inside the 5-minute refresh buffer -> never safe to cache.
     mockStsSend.mockResolvedValue(stsResponse(60 * 1000))
 
-    await upload(newClient())
-    await upload(newClient())
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
 
     expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 
-  it('caches per role identity while sharing the intermediary role', async () => {
+  it('when enabled, caches per role identity while sharing the intermediary role', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
 
-    await upload(newClient('arn:aws:iam::123456789012:role/test'))
-    await upload(newClient('arn:aws:iam::999999999999:role/other'))
+    await upload(newClient('arn:aws:iam::123456789012:role/test', cacheFlagOn))
+    await upload(newClient('arn:aws:iam::999999999999:role/other', cacheFlagOn))
 
     // Intermediary role assumed once (shared), plus one customer assume-role per distinct ARN = 3.
     expect(mockStsSend).toHaveBeenCalledTimes(3)
@@ -134,7 +147,7 @@ describe('STS credential caching', () => {
       Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
     })
 
-    const err = await upload(newClient()).catch((e: unknown) => e)
+    const err = await upload(newClient(settings.iam_role_arn, cacheFlagOn)).catch((e: unknown) => e)
 
     expect(err).toBeInstanceOf(IntegrationError)
     expect((err as IntegrationError).status).toBe(403)
@@ -156,7 +169,7 @@ describe('STS credential caching', () => {
       return { statsContext, incr }
     }
     const clientWithStats = (statsContext: StatsContext) =>
-      new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, statsContext)
+      new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, statsContext, cacheFlagOn)
 
     it('emits miss + set on first assume-role, hit on the second, tagged per role_type', async () => {
       mockStsSend.mockResolvedValue(stsOk())
