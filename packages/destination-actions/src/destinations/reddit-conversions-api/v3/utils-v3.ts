@@ -88,7 +88,8 @@ export function createRedditPayloadV3(
 
       if (!cleanedClickId && !hasMatchKey) {
         throw new PayloadValidationError(
-          'Either Click ID or at least one User match key is required for Reddit Conversions API v3 events. Supported user match keys are: ' + MATCH_KEYS.join(', ')
+          'Either Click ID or at least one User match key is required for Reddit Conversions API v3 events. Supported user match keys are: ' +
+            MATCH_KEYS.join(', ')
         )
       }
 
