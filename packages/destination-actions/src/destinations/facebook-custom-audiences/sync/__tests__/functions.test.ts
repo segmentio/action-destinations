@@ -1,7 +1,6 @@
 import * as crypto from 'crypto'
 import {
   getAudienceId,
-  isJourneyPayloads,
   validate,
   getData,
   normalizeMonth,
@@ -13,55 +12,18 @@ import {
   normalizeCountry
 } from '../functions'
 import { Payload } from '../generated-types'
-import { RawData } from '../types'
+import { FLAGON_NAME_BATCH_DISCARD_FIX } from '../../constants'
 
 const sha256 = (value: string) => crypto.createHash('sha256').update(value).digest('hex')
+
+// The empty-phone discard fix is gated behind this flag; pass it to exercise the fixed behavior.
+const fixOn = { [FLAGON_NAME_BATCH_DISCARD_FIX]: true }
 
 const basePayload: Payload = {
   externalId: 'user-123',
   enable_batching: true,
   batch_size: 1000
 }
-
-// ---------------------------------------------------------------------------
-// isJourneyPayloads
-// ---------------------------------------------------------------------------
-describe('isJourneyPayloads', () => {
-  const journeyRaw: RawData = { context: { personas: { computation_class: 'journey_step' } } }
-  const audienceRaw: RawData = { context: { personas: { computation_class: 'audience' } } }
-
-  it('returns false when rawDatas is undefined', () => {
-    expect(isJourneyPayloads(undefined)).toBe(false)
-  })
-
-  it('returns false when rawDatas is an empty array', () => {
-    expect(isJourneyPayloads([])).toBe(false)
-  })
-
-  it('returns true when all events are journey_step', () => {
-    expect(isJourneyPayloads([journeyRaw, journeyRaw])).toBe(true)
-  })
-
-  it('returns false when no events are journey_step', () => {
-    expect(isJourneyPayloads([audienceRaw, audienceRaw])).toBe(false)
-  })
-
-  it('returns false when events have no computation_class', () => {
-    expect(isJourneyPayloads([{}, { context: {} }, { context: { personas: {} } }])).toBe(false)
-  })
-
-  it('throws when the batch mixes journey_step and non-journey_step events', () => {
-    expect(() => isJourneyPayloads([journeyRaw, audienceRaw])).toThrow(
-      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
-    )
-  })
-
-  it('throws when journey_step events are mixed with events missing computation_class', () => {
-    expect(() => isJourneyPayloads([journeyRaw, {}])).toThrow(
-      'Batch contains a mix of journey_step and non-journey_step events. All events in a batch must be the same computation_class.'
-    )
-  })
-})
 
 // ---------------------------------------------------------------------------
 // getAudienceId
@@ -97,38 +59,20 @@ describe('getAudienceId', () => {
 // validate
 // ---------------------------------------------------------------------------
 describe('validate', () => {
-  it('returns undefined when audienceId and audienceMemberships are valid', () => {
-    expect(validate([basePayload], 'aud-123', [true])).toBeUndefined()
-  })
-
-  it('returns undefined when audienceMembership is false (delete)', () => {
-    expect(validate([basePayload], 'aud-123', [false])).toBeUndefined()
-  })
-
-  it('returns undefined when audienceMembership is undefined (per-item error handled separately)', () => {
-    expect(validate([basePayload], 'aud-123', [undefined])).toBeUndefined()
-  })
-
-  it('returns an error message when audienceMemberships is not an array', () => {
-    expect(validate([basePayload], 'aud-123', undefined)).toBe('Audience membership details for batch missing.')
-  })
-
-  it('returns an error message when audienceMemberships length does not match payloads length', () => {
-    expect(validate([basePayload, basePayload], 'aud-123', [true])).toBe(
-      'Audience membership details count does not match batch payload count.'
-    )
+  it('returns undefined when audienceId is a valid string', () => {
+    expect(validate('aud-123')).toBeUndefined()
   })
 
   it('returns an error message when audienceId is undefined', () => {
-    expect(validate([basePayload], undefined, [true])).toBe('Missing audience ID.')
+    expect(validate(undefined)).toBe('Missing audience ID.')
   })
 
   it('returns an error message when audienceId is an empty string', () => {
-    expect(validate([basePayload], '', [true])).toBe('Missing audience ID.')
+    expect(validate('')).toBe('Missing audience ID.')
   })
 
   it('returns an error message when audienceId is a non-string value', () => {
-    expect(validate([basePayload], 99, [true])).toBe('Missing audience ID.')
+    expect(validate(99)).toBe('Missing audience ID.')
   })
 })
 
@@ -196,6 +140,33 @@ describe('getData', () => {
     const payload = { ...basePayload, mobileAdId: 'AB1234CD-E123-12FG-J123' }
     const [row] = getData([payload])
     expect(row[14]).toBe('AB1234CD-E123-12FG-J123')
+  })
+
+  it('with the fix flag ON, returns empty string for a phone that normalizes to an empty string (e.g. "+0000000000")', () => {
+    const payload = { ...basePayload, phone: '+0000000000' }
+    const [row] = getData([payload], fixOn)
+    expect(row[2]).toBe('')
+  })
+
+  it('with the fix flag OFF (legacy), a phone that normalizes to an empty string throws', () => {
+    const payload = { ...basePayload, phone: '+0000000000' }
+    expect(() => getData([payload])).toThrow('Cannot hash an empty string')
+  })
+
+  it('with the fix flag ON, passes an already-hashed phone through unchanged', () => {
+    const prehashed = sha256('+15551234567')
+    const payload = { ...basePayload, phone: prehashed }
+    const [row] = getData([payload], fixOn)
+    expect(row[2]).toBe(prehashed)
+  })
+
+  it('with the fix flag ON, passes an already-hashed phone with no digits through unchanged', () => {
+    // Pathological but valid sha256/hex value (only a-f). normalizePhone() would
+    // reduce it to '', so it must be detected as pre-hashed BEFORE normalizing.
+    const prehashed = 'abcdef'.repeat(11).slice(0, 64)
+    const payload = { ...basePayload, phone: prehashed }
+    const [row] = getData([payload], fixOn)
+    expect(row[2]).toBe(prehashed)
   })
 
   it('returns one row per payload', () => {
@@ -278,7 +249,7 @@ describe('normalizeName', () => {
     expect(normalizeName('  John  ')).toBe('john')
   })
 
-  it("removes apostrophes", () => {
+  it('removes apostrophes', () => {
     expect(normalizeName("O'Brien")).toBe('obrien')
   })
 

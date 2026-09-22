@@ -388,14 +388,14 @@ describe('FacebookCustomAudiences.sync - syncMode: upsert', () => {
 
       expect(responses[0]).toMatchObject({
         status: 400,
-        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-1', email: 'user1@example.com', enable_batching: true, batch_size: 10000 }
       })
 
       expect(responses[1]).toMatchObject({
         status: 400,
-        errortype: 'INVALID_AUDIENCE_MEMBERSHIP',
+        errortype: 'BAD_REQUEST',
         errormessage: 'Missing audience ID.',
         body: { externalId: 'user-2', email: 'user2@example.com', enable_batching: true, batch_size: 10000 }
       })
