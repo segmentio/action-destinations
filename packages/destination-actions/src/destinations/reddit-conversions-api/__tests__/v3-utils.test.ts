@@ -372,6 +372,34 @@ describe('createRedditPayloadV3', () => {
     expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
   })
 
+  it('accepts a custom event name at the 64 character maximum', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ custom_event_name: 'x'.repeat(64) } as never)
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events[0].type.custom_event_name).toBe('x'.repeat(64))
+    expect(result.data.events[0].type.tracking_type).toBe('CUSTOM')
+  })
+
+  it('throws for a custom event name over 64 characters, which Reddit would silently truncate', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ custom_event_name: 'x'.repeat(65) } as never)
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Custom Event Name must be at most 64 characters'
+    )
+  })
+
+  it('counts code points, not UTF-16 units, so emoji are not over-counted', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ custom_event_name: '\u{1F680}'.repeat(64) } as never)
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events[0].type.custom_event_name).toBe('\u{1F680}'.repeat(64))
+  })
+
   it('throws when there is neither a click_id nor any user match key', () => {
     const multiStatusResponse = new MultiStatusResponse()
     const payload = buildPayload({ click_id: undefined })

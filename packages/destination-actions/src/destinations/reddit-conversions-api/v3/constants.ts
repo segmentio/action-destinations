@@ -20,6 +20,8 @@ export const TRACKING_TYPE_V3 = {
 
 export const ISO_4217 = /^[A-Z]{3}$/
 
+export const CUSTOM_EVENT_NAME_MAX_LENGTH = 64
+
 export const SUPPORTS_VALUE_METADATA: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>([
   'AddToCart',
   'AddToWishlist',

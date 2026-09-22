@@ -8,6 +8,7 @@ import {
   ACTION_SOURCE_V3_LABELS,
   TRACKING_TYPE_V3,
   ISO_4217,
+  CUSTOM_EVENT_NAME_MAX_LENGTH,
   SUPPORTS_VALUE_METADATA,
   SUPPORTS_ITEM_COUNT,
   REQUIRES_ITEM_COUNT,
@@ -73,6 +74,13 @@ export function createRedditPayloadV3(
 
       const custom_event_name = clean((payload as CustomEvent).custom_event_name)
       const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
+
+      if (custom_event_name !== undefined && [...custom_event_name].length > CUSTOM_EVENT_NAME_MAX_LENGTH) {
+        throw new PayloadValidationError(
+          `Custom Event Name must be at most ${CUSTOM_EVENT_NAME_MAX_LENGTH} characters. Reddit silently truncates longer names, which merges distinct events.`
+        )
+      }
+
       const cleanEventSourceUrl = clean(event_source_url ?? '')
       const cleanedClickId = clean(click_id)
       const userObj = getUser(user, data_processing_options, screen_dimensions)
