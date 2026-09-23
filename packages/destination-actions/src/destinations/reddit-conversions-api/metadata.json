@@ -61,6 +61,104 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+        "api_version": {
+          "label": "API Version",
+          "description": "The version of the Reddit Conversions API to send this event to. \"V3 (Beta)\" requires Action Source to be set.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "v2.0",
+          "choices": [
+            {
+              "label": "V3 (Beta)",
+              "value": "v3"
+            },
+            {
+              "label": "V2",
+              "value": "v2.0"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "literal",
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "action_source": {
+          "label": "Action Source",
+          "description": "The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3 (Beta).",
+          "type": "string",
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "api_version",
+                "operator": "is",
+                "value": "v3"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "Website",
+              "value": "WEBSITE"
+            },
+            {
+              "label": "App",
+              "value": "APP"
+            },
+            {
+              "label": "Other",
+              "value": "OTHER"
+            },
+            {
+              "label": "Offline (Physical Store)",
+              "value": "PHYSICAL_STORE"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "api_version",
+                "operator": "is",
+                "value": "v3"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "event_at": {
           "label": "Event At",
           "description": "The RFC3339 timestamp when the conversion event occurred",
@@ -144,6 +242,46 @@
           "format": null,
           "additionalProperties": false
         },
+        "event_source_url": {
+          "label": "Event Source URL",
+          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "api_version",
+                "operator": "is",
+                "value": "v3"
+              },
+              {
+                "fieldKey": "action_source",
+                "operator": "is",
+                "value": "WEBSITE"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "click_id": {
           "label": "Click ID",
           "description": "The Reddit-generated id associated with a single ad click.",
@@ -2612,6 +2750,43 @@
           "format": null,
           "additionalProperties": false
         },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": 1000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "customEvent": {
+      "title": "Send Custom Event",
+      "description": "Send a Custom Conversion Event to Reddit",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
         "api_version": {
           "label": "API Version",
           "description": "The version of the Reddit Conversions API to send this event to. \"V3 (Beta)\" requires Action Source to be set.",
@@ -2710,83 +2885,6 @@
           "format": null,
           "additionalProperties": false
         },
-        "event_source_url": {
-          "label": "Event Source URL",
-          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.context.page.url"
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "api_version",
-                "operator": "is",
-                "value": "v3"
-              },
-              {
-                "fieldKey": "action_source",
-                "operator": "is",
-                "value": "WEBSITE"
-              }
-            ]
-          },
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "batch_size": {
-          "label": "Batch Size",
-          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.",
-          "type": "number",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": 1000,
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": true,
-          "minimum": null,
-          "maximum": 1000,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        }
-      }
-    },
-    "customEvent": {
-      "title": "Send Custom Event",
-      "description": "Send a Custom Conversion Event to Reddit",
-      "platform": "cloud",
-      "defaultSubscription": null,
-      "hidden": false,
-      "hasPerformBatch": true,
-      "syncMode": null,
-      "hooks": null,
-      "dynamicFields": null,
-      "fields": {
         "event_at": {
           "label": "Event At",
           "description": "The RFC3339 timestamp when the conversion event occurred",
@@ -2837,6 +2935,46 @@
           "format": null,
           "additionalProperties": false
         },
+        "event_source_url": {
+          "label": "Event Source URL",
+          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "api_version",
+                "operator": "is",
+                "value": "v3"
+              },
+              {
+                "fieldKey": "action_source",
+                "operator": "is",
+                "value": "WEBSITE"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "click_id": {
           "label": "Click ID",
           "description": "The Reddit-generated id associated with a single ad click.",
@@ -5295,144 +5433,6 @@
           "properties": null,
           "category": "hashedPII",
           "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "api_version": {
-          "label": "API Version",
-          "description": "The version of the Reddit Conversions API to send this event to. \"V3 (Beta)\" requires Action Source to be set.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": "v2.0",
-          "choices": [
-            {
-              "label": "V3 (Beta)",
-              "value": "v3"
-            },
-            {
-              "label": "V2",
-              "value": "v2.0"
-            }
-          ],
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": [
-            "literal",
-            "variable",
-            "function",
-            "freeform",
-            "enrichment"
-          ],
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "action_source": {
-          "label": "Action Source",
-          "description": "The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3 (Beta).",
-          "type": "string",
-          "required": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "api_version",
-                "operator": "is",
-                "value": "v3"
-              }
-            ]
-          },
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": null,
-          "choices": [
-            {
-              "label": "Website",
-              "value": "WEBSITE"
-            },
-            {
-              "label": "App",
-              "value": "APP"
-            },
-            {
-              "label": "Other",
-              "value": "OTHER"
-            },
-            {
-              "label": "Offline (Physical Store)",
-              "value": "PHYSICAL_STORE"
-            }
-          ],
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "api_version",
-                "operator": "is",
-                "value": "v3"
-              }
-            ]
-          },
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "event_source_url": {
-          "label": "Event Source URL",
-          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.context.page.url"
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "api_version",
-                "operator": "is",
-                "value": "v3"
-              },
-              {
-                "fieldKey": "action_source",
-                "operator": "is",
-                "value": "WEBSITE"
-              }
-            ]
-          },
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -5497,8 +5497,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"page\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -5612,10 +5616,6 @@
         "event_metadata": {},
         "conversion_id": {
           "@path": "$.messageId"
-        },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
         },
         "batch_size": 1000,
         "tracking_type": "PageVisit"
@@ -5628,8 +5628,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Product Viewed\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -5743,10 +5747,6 @@
         "event_metadata": {},
         "conversion_id": {
           "@path": "$.messageId"
-        },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
         },
         "batch_size": 1000,
         "tracking_type": "ViewContent"
@@ -5759,8 +5759,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Products Searched\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -5875,10 +5879,6 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
-        },
         "batch_size": 1000,
         "tracking_type": "Search"
       },
@@ -5890,8 +5890,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Product Added\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -6015,10 +6019,6 @@
         },
         "conversion_id": {
           "@path": "$.messageId"
-        },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
         },
         "batch_size": 1000,
         "tracking_type": "AddToCart"
@@ -6031,8 +6031,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -6157,10 +6161,6 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
-        },
         "batch_size": 1000,
         "tracking_type": "AddToWishlist"
       },
@@ -6172,8 +6172,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Order Completed\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -6308,10 +6312,6 @@
         "conversion_id": {
           "@path": "$.messageId"
         },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
-        },
         "batch_size": 1000,
         "tracking_type": "Purchase"
       },
@@ -6323,8 +6323,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Lead Generated\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -6445,10 +6449,6 @@
         },
         "conversion_id": {
           "@path": "$.messageId"
-        },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
         },
         "batch_size": 1000,
         "tracking_type": "Lead"
@@ -6461,8 +6461,12 @@
       "partnerAction": "standardEvent",
       "subscribe": "type = \"track\" and event = \"Signed Up\"",
       "mapping": {
+        "api_version": "v2.0",
         "event_at": {
           "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
         },
         "click_id": {
           "@if": {
@@ -6583,10 +6587,6 @@
         },
         "conversion_id": {
           "@path": "$.messageId"
-        },
-        "api_version": "v2.0",
-        "event_source_url": {
-          "@path": "$.context.page.url"
         },
         "batch_size": 1000,
         "tracking_type": "SignUp"

@@ -39,9 +39,12 @@ function buildEventAction<Payload extends StandardEvent | CustomEvent>(
     description,
     defaultSubscription,
     fields: {
+      api_version,
+      action_source,
       event_at,
       ...(trackingTypeField ? { tracking_type: trackingTypeField } : {}),
       ...(customEventNameField ? { custom_event_name: customEventNameField } : {}),
+      event_source_url,
       click_id,
       products,
       user,
@@ -49,9 +52,6 @@ function buildEventAction<Payload extends StandardEvent | CustomEvent>(
       screen_dimensions,
       event_metadata,
       conversion_id,
-      api_version,
-      action_source,
-      event_source_url,
       batch_size
     },
     perform: async (request, { settings, payload }) => {
