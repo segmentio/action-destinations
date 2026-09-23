@@ -53,7 +53,6 @@ export function createRedditPayloadV3(
   multiStatusResponse: MultiStatusResponse,
   isBatch: boolean
 ): PayloadV3 {
-  const indices: number[] = []
   const events: EventItemV3[] = []
 
   payloads.forEach((payload, index) => {
@@ -113,11 +112,10 @@ export function createRedditPayloadV3(
         user: userObj
       }
 
-      indices.push(index)
       events.push(event)
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: events[indices.indexOf(index)] as unknown as JSONLikeObject,
+        sent: event as unknown as JSONLikeObject,
         body: { success: true }
       })
     } catch (err) {
