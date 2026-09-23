@@ -1,4 +1,4 @@
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, MultiStatusResponse } from '@segment/actions-core'
 import { Features } from '@segment/actions-core/mapping-kit'
 import nock from 'nock'
 import {
@@ -6,7 +6,8 @@ import {
   formatToE164,
   commonEmailValidation,
   convertTimestamp,
-  timestampToEpochMicroseconds
+  timestampToEpochMicroseconds,
+  handlePartialFailureResponse
 } from '../functions'
 import destination from '../index'
 
@@ -131,7 +132,7 @@ describe('.getConversionActionId', () => {
       }
     }
     nock(`https://googleads.googleapis.com`)
-      .post(`/v22/customers/${settings.customerId}/googleAds:searchStream`)
+      .post(`/${CANARY_API_VERSION}/customers/${settings.customerId}/googleAds:searchStream`)
       .reply(401, errorResponse)
 
     const payload = {}
@@ -210,5 +211,174 @@ describe('timestampToEpochMicroseconds', () => {
     const timestamp = 'I AM NOT A TIMESTAMP - BLEEP BLOOP'
     const result = timestampToEpochMicroseconds(timestamp)
     expect(result).toEqual(undefined)
+  })
+})
+
+describe('handlePartialFailureResponse', () => {
+  const validPayloadIndicesBitmap = [2, 3]
+  const sentItems = [{ id: 'sent-2' }, { id: 'sent-3' }]
+
+  it('should mark only the attributed item as failed when the error location matches an index', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const partialFailureError = {
+      code: 3,
+      details: [
+        {
+          errors: [
+            {
+              message: 'Invalid conversion action.',
+              location: {
+                fieldPathElements: [{ fieldName: 'conversions', index: 0 }, { fieldName: 'conversion_action' }]
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    handlePartialFailureResponse(
+      partialFailureError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      sentItems,
+      failedPayloadIndices,
+      'conversions'
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([2]))
+    expect(multiStatusResponse.isErrorResponseAtIndex(2)).toBe(true)
+    expect(multiStatusResponse.getResponseAtIndex(2).value()).toMatchObject({
+      errormessage: 'Invalid conversion action.',
+      sent: sentItems[0]
+    })
+    expect(multiStatusResponse.isErrorResponseAtIndex(3)).toBe(false)
+  })
+
+  it('should fail the entire batch as retryable when the error has no location at all', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const partialFailureError = {
+      code: 8,
+      details: [
+        {
+          errors: [
+            {
+              errorCode: { resourceCountLimitExceededError: 'RESOURCE_COUNT_LIMIT_EXCEEDED' },
+              message: 'Too many operations in this batch.'
+              // No `location` at all - Google can't attribute this to a specific conversion.
+            }
+          ]
+        }
+      ]
+    }
+
+    handlePartialFailureResponse(
+      partialFailureError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      sentItems,
+      failedPayloadIndices,
+      'conversions'
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([2, 3]))
+
+    expect(multiStatusResponse.isErrorResponseAtIndex(2)).toBe(true)
+    expect(multiStatusResponse.getResponseAtIndex(2).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE',
+      errormessage: 'Too many operations in this batch.',
+      sent: sentItems[0]
+    })
+
+    expect(multiStatusResponse.isErrorResponseAtIndex(3)).toBe(true)
+    expect(multiStatusResponse.getResponseAtIndex(3).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE',
+      errormessage: 'Too many operations in this batch.',
+      sent: sentItems[1]
+    })
+  })
+
+  it('should fail the entire batch as retryable when the matching field path element has no index', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const partialFailureError = {
+      code: 3,
+      details: [
+        {
+          errors: [
+            {
+              message: 'Malformed error location from Google.',
+              location: {
+                // The 'conversions' element matches, but is missing its `index` entirely -
+                // distinct from a legitimate `index: 0`.
+                fieldPathElements: [{ fieldName: 'conversions' }]
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    handlePartialFailureResponse(
+      partialFailureError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      sentItems,
+      failedPayloadIndices,
+      'conversions'
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([2, 3]))
+    expect(multiStatusResponse.getResponseAtIndex(2).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE'
+    })
+    expect(multiStatusResponse.getResponseAtIndex(3).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE'
+    })
+  })
+
+  it('should fail the entire batch as retryable when the location does not reference the expected field', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const partialFailureError = {
+      code: 3,
+      details: [
+        {
+          errors: [
+            {
+              message: 'The field cannot be set.',
+              location: {
+                // Note: no 'conversions' element in the path, only nested fields.
+                fieldPathElements: [{ fieldName: 'create' }, { fieldName: 'ad' }, { fieldName: 'app_ad' }]
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+    handlePartialFailureResponse(
+      partialFailureError,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      sentItems,
+      failedPayloadIndices,
+      'conversions'
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([2, 3]))
+    expect(multiStatusResponse.getResponseAtIndex(2).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE'
+    })
+    expect(multiStatusResponse.getResponseAtIndex(3).value()).toMatchObject({
+      status: 500,
+      errortype: 'RETRYABLE_BATCH_FAILURE'
+    })
   })
 })

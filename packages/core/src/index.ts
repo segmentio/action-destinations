@@ -43,8 +43,10 @@ export {
   ErrorCodes,
   HttpErrorCodes,
   CustomErrorCodes,
-  getErrorCodeFromHttpStatus
+  getErrorCodeFromHttpStatus,
+  isRetryableStatus
 } from './errors'
+export type { RetryableStatusCodes } from './errors'
 export { retry } from './retry'
 export { get } from './get'
 export { omit } from './omit'
@@ -54,7 +56,12 @@ export { time, duration } from './time'
 export { realTypeOf, isObject, isArray, isString } from './real-type-of'
 
 export type { RequestOptions } from './request-client'
-export { HTTPError, DEFAULT_REQUEST_TIMEOUT } from './request-client'
+export {
+  HTTPError,
+  DEFAULT_REQUEST_TIMEOUT,
+  RETRYABLE_NETWORK_ERROR_CODES,
+  isRetryableNetworkError
+} from './request-client'
 export { ModifiedResponse } from './types'
 export { default as fetch, Request, Response, Headers } from './fetch'
 

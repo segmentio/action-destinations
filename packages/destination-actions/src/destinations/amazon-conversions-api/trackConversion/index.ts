@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: async (request, { payload, settings }) => {
     const eventData = prepareEventData(payload, settings)
-    const response = await sendEventsRequest<EventMultiStatusResponse>(request, settings, eventData)
+    const response = await sendEventsRequest<EventMultiStatusResponse>(request, settings, eventData, true)
     return handleResponse(response)
   },
 
