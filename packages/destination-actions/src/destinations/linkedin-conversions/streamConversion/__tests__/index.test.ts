@@ -551,6 +551,72 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
+  it('should trim whitespace from email before hashing it', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: '  testing@testing.com  ',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it.each(['email', 'linkedInUUID', 'acxiomID', 'oracleID'])(
+    'should throw an error when %s is the only identifier and is whitespace-only',
+    async (field) => {
+      await expect(
+        testDestination.testAction('streamConversion', {
+          event,
+          settings,
+          mapping: {
+            [field]: '   ',
+            conversionHappenedAt: {
+              '@path': '$.timestamp'
+            },
+            onMappingSave: {
+              inputs: {},
+              outputs: {
+                id: payload.conversionId
+              }
+            },
+            enable_batching: true,
+            batch_size: 5000
+          }
+        })
+      ).rejects.toThrowError(
+        'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+      )
+    }
+  )
+
   it('should throw an error if plaintextIpAddress is not a valid IPv4 address', async () => {
     await expect(
       testDestination.testAction('streamConversion', {

@@ -13,10 +13,10 @@ export function validate(payload: Payload, conversionTime: number): void {
   }
 
   if (
-    !payload.email &&
-    !payload.linkedInUUID &&
-    !payload.acxiomID &&
-    !payload.oracleID &&
+    !payload.email?.trim() &&
+    !payload.linkedInUUID?.trim() &&
+    !payload.acxiomID?.trim() &&
+    !payload.oracleID?.trim() &&
     !payload.plaintextIpAddress?.trim() &&
     !payload.sha256IpAddress?.trim() &&
     !payload.googleAID?.trim()

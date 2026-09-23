@@ -18,6 +18,10 @@ describe('validate', () => {
   it('throws when every identifier is whitespace-only', () => {
     const payload: Payload = {
       ...basePayload,
+      email: '   ',
+      linkedInUUID: '   ',
+      acxiomID: '   ',
+      oracleID: '   ',
       plaintextIpAddress: '   ',
       sha256IpAddress: '   ',
       googleAID: '   '
@@ -28,12 +32,15 @@ describe('validate', () => {
     )
   })
 
-  it('does not throw when at least one identifier is a non-empty string after trimming', () => {
-    const payload: Payload = {
-      ...basePayload,
-      googleAID: '  AEBE52E7-03EE-455A-B3C4-E57283966239  '
-    }
+  it.each(['email', 'linkedInUUID', 'acxiomID', 'oracleID', 'plaintextIpAddress', 'sha256IpAddress', 'googleAID'])(
+    'does not throw when %s is the only identifier and is non-empty after trimming',
+    (field) => {
+      const payload: Payload = {
+        ...basePayload,
+        [field]: '  value  '
+      }
 
-    expect(() => validate(payload, Date.now())).not.toThrow()
-  })
+      expect(() => validate(payload, Date.now())).not.toThrow()
+    }
+  )
 })

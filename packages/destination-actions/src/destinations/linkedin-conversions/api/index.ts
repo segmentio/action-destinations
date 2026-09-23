@@ -416,32 +416,38 @@ export class LinkedInConversions {
   private buildUserIdsArray = (payload: Payload): UserID[] => {
     const userIds: UserID[] = []
 
-    if (payload.email) {
-      const hashedEmail = processHashing(payload.email, 'sha256', 'hex', this.normalizeEmail)
-      userIds.push({
-        idType: 'SHA256_EMAIL',
-        idValue: hashedEmail
-      })
+    const email = payload.email?.trim()
+    if (email) {
+      const hashedEmail = processHashing(email, 'sha256', 'hex', this.normalizeEmail)
+      if (hashedEmail) {
+        userIds.push({
+          idType: 'SHA256_EMAIL',
+          idValue: hashedEmail
+        })
+      }
     }
 
-    if (payload.linkedInUUID) {
+    const linkedInUUID = payload.linkedInUUID?.trim()
+    if (linkedInUUID) {
       userIds.push({
         idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
-        idValue: payload.linkedInUUID
+        idValue: linkedInUUID
       })
     }
 
-    if (payload.acxiomID) {
+    const acxiomID = payload.acxiomID?.trim()
+    if (acxiomID) {
       userIds.push({
         idType: 'ACXIOM_ID',
-        idValue: payload.acxiomID
+        idValue: acxiomID
       })
     }
 
-    if (payload.oracleID) {
+    const oracleID = payload.oracleID?.trim()
+    if (oracleID) {
       userIds.push({
         idType: 'ORACLE_MOAT_ID',
-        idValue: payload.oracleID
+        idValue: oracleID
       })
     }
 
