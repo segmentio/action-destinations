@@ -30,11 +30,11 @@ export interface Payload {
      */
     name?: string
     /**
-     * The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).
+     * The number of this product in the event.
      */
     quantity?: number
     /**
-     * The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).
+     * The unit price of the product.
      */
     item_price?: number
   }[]

@@ -36,7 +36,7 @@ export async function sendV3(
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${settings.conversion_token}` },
-        json: JSON.parse(JSON.stringify(data))
+        json: data
       }
     )
     if (!isBatch) {

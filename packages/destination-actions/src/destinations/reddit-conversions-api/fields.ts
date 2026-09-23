@@ -344,13 +344,13 @@ export const products: InputField = {
     },
     quantity: {
       label: 'Quantity',
-      description: 'The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).',
+      description: 'The number of this product in the event.',
       type: 'integer',
       required: false
     },
     item_price: {
       label: 'Item Price',
-      description: 'The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).',
+      description: 'The unit price of the product.',
       type: 'number',
       required: false
     }
