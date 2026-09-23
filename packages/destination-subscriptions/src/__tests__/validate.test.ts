@@ -1,4 +1,4 @@
-import { validate as originalValidate } from '../index'
+import { validate as originalValidate, parseFql } from '../index'
 
 // Helper to avoid caring about types in tests
 const validate = (ast: any, data: any): boolean => originalValidate(ast, data)
@@ -761,4 +761,27 @@ test('operators -  number_not_equals (numbers)', () => {
     expect(validate(ast, { properties: { value: '456' } })).toEqual(false)
     expect(validate(ast, { properties: { value: 0 } })).toEqual(true)
   }
+})
+
+// STRATCONN-7038: a stored trigger whose trait path segment starts with a digit
+// must parse and validate end-to-end against an event that carries that key.
+test('digit-leading UUID trait path validates end-to-end', () => {
+  const uuid = '740107d2-7737-4a60-9d00-2a4cd800886e'
+  const ast = parseFql(`type = "identify" and traits.phi.traits.organisations_data.${uuid} != null`)
+
+  expect(
+    validate(ast, {
+      type: 'identify',
+      traits: { phi: { traits: { organisations_data: { [uuid]: { any: 'value' } } } } }
+    })
+  ).toEqual(true)
+  // Missing the key -> should not match
+  expect(validate(ast, { type: 'identify', traits: { phi: { traits: { organisations_data: {} } } } })).toEqual(false)
+})
+
+test('digit-leading numeric trait segment validates end-to-end', () => {
+  const ast = parseFql('traits.phone.123456 = 5')
+
+  expect(validate(ast, { traits: { phone: { '123456': 5 } } })).toEqual(true)
+  expect(validate(ast, { traits: { phone: { '123456': 6 } } })).toEqual(false)
 })

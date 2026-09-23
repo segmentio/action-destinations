@@ -867,3 +867,56 @@ test('support not_exists for event trait', () => {
     ]
   })
 })
+
+// Regression tests for STRATCONN-7038: a field-path segment that starts with a
+// digit (e.g. a UUID-valued trait key) was truncated at the first digit by
+// normalize(), causing the condition to silently fail to match. These assert the
+// path round-trips (parse -> generate) to the clean bare form.
+
+test('support digit-leading UUID trait path (exists)', () => {
+  testFql('traits.phone.740107d2-7737-4a60-9d00-2a4cd800886e != null', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-trait',
+        name: 'phone.740107d2-7737-4a60-9d00-2a4cd800886e',
+        operator: 'exists'
+      }
+    ]
+  })
+})
+
+test('support digit-leading numeric trait segment (number equals)', () => {
+  testFql('traits.phone.123456 = 5', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-trait',
+        name: 'phone.123456',
+        operator: 'number_equals',
+        value: 5
+      }
+    ]
+  })
+})
+
+test('support deeply-nested digit-leading UUID trait path from a full trigger', () => {
+  testFql('type = "identify" and traits.phi.traits.organisations_data.740107d2-7737-4a60-9d00-2a4cd800886e != null', {
+    type: 'group',
+    operator: 'and',
+    children: [
+      {
+        type: 'event-type',
+        operator: '=',
+        value: 'identify'
+      },
+      {
+        type: 'event-trait',
+        name: 'phi.traits.organisations_data.740107d2-7737-4a60-9d00-2a4cd800886e',
+        operator: 'exists'
+      }
+    ]
+  })
+})
