@@ -154,10 +154,7 @@ function getJSONItem(
 
   switch (name) {
     case EVENT_NAMES.PRODUCT_VIEWED: {
-      const {
-        product,
-        catalog_type
-      } = payload as SingleProductPayload
+      const { product, catalog_type } = payload as SingleProductPayload
 
       const event: ProductViewedEvent = {
         ...baseEvent,
@@ -169,7 +166,7 @@ function getJSONItem(
         }
       }
       return event
-    } 
+    }
     case EVENT_NAMES.CART_UPDATED:
     case EVENT_NAMES.CHECKOUT_STARTED:
     case EVENT_NAMES.ORDER_PLACED:
@@ -187,7 +184,7 @@ function getJSONItem(
         }
       }
 
-      switch(name) {
+      switch (name) {
         case EVENT_NAMES.CART_UPDATED: {
           const { cart_id, action, subtotal_value, tax, shipping } = payload as Payload
 
@@ -207,13 +204,7 @@ function getJSONItem(
         }
 
         case EVENT_NAMES.CHECKOUT_STARTED: {
-          const {
-            checkout_id,
-            cart_id,
-            subtotal_value,
-            tax,
-            shipping
-          } = payload as Payload
+          const { checkout_id, cart_id, subtotal_value, tax, shipping } = payload as Payload
 
           const event: CheckoutStartedEvent = {
             ...multiProductEvent,
@@ -231,15 +222,7 @@ function getJSONItem(
         }
 
         case EVENT_NAMES.ORDER_PLACED: {
-          const {
-            order_id,
-            cart_id,
-            subtotal_value,
-            tax,
-            shipping,
-            total_discounts,
-            discounts
-          } = payload as Payload
+          const { order_id, cart_id, subtotal_value, tax, shipping, total_discounts, discounts } = payload as Payload
 
           const event: OrderPlacedEvent = {
             ...multiProductEvent,
@@ -259,11 +242,7 @@ function getJSONItem(
         }
 
         case EVENT_NAMES.ORDER_REFUNDED: {
-          const {
-            order_id,
-            total_discounts,
-            discounts
-          } = payload as Payload
+          const { order_id, total_discounts, discounts } = payload as Payload
 
           const event: OrderRefundedEvent = {
             ...multiProductEvent,
@@ -279,15 +258,8 @@ function getJSONItem(
         }
 
         case EVENT_NAMES.ORDER_CANCELLED: {
-          const {
-            order_id,
-            cancel_reason,
-            subtotal_value,
-            tax,
-            shipping,
-            total_discounts,
-            discounts
-          } = payload as Payload
+          const { order_id, cancel_reason, subtotal_value, tax, shipping, total_discounts, discounts } =
+            payload as Payload
 
           const event: OrderCancelledEvent = {
             ...multiProductEvent,
