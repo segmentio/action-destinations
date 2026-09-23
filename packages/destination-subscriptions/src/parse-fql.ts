@@ -452,14 +452,27 @@ const normalize = (tokens: Token[]): Token[] => {
     const current = tokens[index]
     const next = tokens[index + 1]
 
-    if (last?.type === 'ident' && current.type === 'dot' && next?.type === 'ident') {
+    if (last?.type === 'ident' && current.type === 'dot' && (next?.type === 'ident' || next?.type === 'number')) {
       const previous = normalizedTokens.pop()
+      let value = `${previous?.value}${current.value}${next.value}`
+      index += 2
+
+      // A field-path segment that starts with a digit (e.g. a UUID-valued trait
+      // key like `740107d2-7737-...`) is lexed as a `number` token, optionally
+      // followed by adjacent `ident`/`number` tokens with no dot between them
+      // (e.g. number("740107") + ident("d2-7737-...")). Absorb that adjacent run
+      // so the full segment is reassembled into a single ident. Without this the
+      // path is truncated at the first digit and the condition silently fails to
+      // match. See STRATCONN-7038.
+      while (tokens[index]?.type === 'ident' || tokens[index]?.type === 'number') {
+        value += tokens[index].value
+        index++
+      }
+
       normalizedTokens.push({
         type: TokenType.Ident,
-        value: `${previous?.value}${current.value}${next.value}`
+        value
       })
-
-      index += 2
     } else {
       normalizedTokens.push(tokens[index])
       index++
