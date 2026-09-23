@@ -18,7 +18,7 @@ export interface Payload {
    */
   products?: {
     /**
-     * The category the product is in; for example, a label from Google's product taxonomy. Required.
+     * The category the product is in; for example, a label from Google's product taxonomy.
      */
     category?: string
     /**
@@ -30,11 +30,11 @@ export interface Payload {
      */
     name?: string
     /**
-     * The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).
+     * The number of this product in the event.
      */
     quantity?: number
     /**
-     * The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).
+     * The unit price of the product.
      */
     item_price?: number
   }[]
@@ -138,4 +138,8 @@ export interface Payload {
    * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.
    */
   event_source_url?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.
+   */
+  batch_size?: number
 }

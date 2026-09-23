@@ -8,6 +8,17 @@ import { LEGACY_API_VERSION } from '../versioning-info'
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
 const epochMs = 1704721970212
+
+// The fixtures use a fixed event_at, which the v3 freshness check would reject.
+// Pin Date.now() to just after it so the fixtures stay deterministic.
+beforeEach(() => {
+  jest.spyOn(Date, 'now').mockReturnValue(1704721970212 + 1000)
+})
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
+
 const settings: Settings = {
   ad_account_id: 'ad_account_id_1',
   conversion_token: 'conversion_token_1'

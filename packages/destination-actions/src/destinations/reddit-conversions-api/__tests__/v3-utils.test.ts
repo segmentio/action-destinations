@@ -23,6 +23,16 @@ const settings: Settings = {
 // Matches smartHash(conversion_id, (value) => value.trim()) in ../v3/utils-v3.ts
 const sha256 = (value: string) => crypto.createHash('sha256').update(value.trim()).digest('hex')
 
+// The fixtures use a fixed event_at, which the v3 freshness check would reject.
+// Pin Date.now() to just after it so the fixtures stay deterministic.
+beforeEach(() => {
+  jest.spyOn(Date, 'now').mockReturnValue(1704721970212 + 1000)
+})
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
+
 function buildPayload(overrides: Partial<StandardEvent> = {}): StandardEvent {
   return {
     event_at: 1704721970212,
@@ -193,7 +203,7 @@ describe('getMetadata', () => {
     })
   })
 
-  it('drops currency/value/item_count for tracking types that don\'t support any event metadata', () => {
+  it("drops currency/value/item_count for tracking types that don't support any event metadata", () => {
     const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, 'msg-1', 'Search')
     expect(result?.currency).toBeUndefined()
     expect(result?.item_count).toBeUndefined()
@@ -264,16 +274,21 @@ describe('getMetadata', () => {
     expect(result?.item_count).toBeUndefined()
   })
 
-  it('throws when a Purchase has no item_count', () => {
-    expect(() =>
-      getMetadata({ currency: 'USD', value_decimal: 100 }, [{ id: 'p1', quantity: 2 }], 'msg-1', 'Purchase')
-    ).toThrow('Event Metadata Item Count is required for Purchase events')
+  it('accepts a Purchase with no item_count - Reddit recommends it but does not require it', () => {
+    const result = getMetadata(
+      { currency: 'USD', value_decimal: 100 },
+      [{ id: 'p1', quantity: 2 }],
+      'msg-1',
+      'Purchase'
+    )
+    expect(result?.item_count).toBeUndefined()
+    expect(result?.products).toHaveLength(1)
   })
 
-  it('throws when a Purchase has no products', () => {
-    expect(() =>
-      getMetadata({ currency: 'USD', value_decimal: 100, item_count: 2 }, undefined, 'msg-1', 'Purchase')
-    ).toThrow('Products is required for Purchase events')
+  it('accepts a Purchase with no products', () => {
+    const result = getMetadata({ currency: 'USD', value_decimal: 100, item_count: 2 }, undefined, 'msg-1', 'Purchase')
+    expect(result?.products).toBeUndefined()
+    expect(result?.item_count).toBe(2)
   })
 
   it('accepts a Purchase carrying item_count and products', () => {
@@ -370,6 +385,68 @@ describe('createRedditPayloadV3', () => {
       }
     })
     expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
+  })
+
+  it('accepts an event_at inside the 7 day window', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ event_at: Date.now() - 6 * 24 * 60 * 60 * 1000 })
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events).toHaveLength(1)
+  })
+
+  it('throws for an event_at older than 7 days, which Reddit rejects', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ event_at: Date.now() - 8 * 24 * 60 * 60 * 1000 })
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Event At is more than 7 days old'
+    )
+  })
+
+  it('fails only the stale event in a batch, so the rest of the request still sends', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payloads = [
+      buildPayload({ event_at: Date.now() }),
+      buildPayload({ event_at: Date.now() - 8 * 24 * 60 * 60 * 1000 }),
+      buildPayload({ event_at: Date.now() })
+    ]
+
+    const result = createRedditPayloadV3(payloads, settings, multiStatusResponse, true)
+
+    expect(result.data.events).toHaveLength(2)
+    expect(multiStatusResponse.isSuccessResponseAtIndex(0)).toBe(true)
+    expect(multiStatusResponse.isErrorResponseAtIndex(1)).toBe(true)
+    expect(multiStatusResponse.isSuccessResponseAtIndex(2)).toBe(true)
+  })
+
+  it('accepts a custom event name at the 64 character maximum', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ custom_event_name: 'x'.repeat(64) } as never)
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events[0].type.custom_event_name).toBe('x'.repeat(64))
+    expect(result.data.events[0].type.tracking_type).toBe('CUSTOM')
+  })
+
+  it('throws for a custom event name over 64 characters, which Reddit would silently truncate', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ custom_event_name: 'x'.repeat(65) } as never)
+
+    expect(() => createRedditPayloadV3([payload], settings, multiStatusResponse, false)).toThrow(
+      'Custom Event Name must be at most 64 characters'
+    )
+  })
+
+  it('counts code points, not UTF-16 units, so emoji are not over-counted', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ custom_event_name: '\u{1F680}'.repeat(64) } as never)
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events[0].type.custom_event_name).toBe('\u{1F680}'.repeat(64))
   })
 
   it('throws when there is neither a click_id nor any user match key', () => {

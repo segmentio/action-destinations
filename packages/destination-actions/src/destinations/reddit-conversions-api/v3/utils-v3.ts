@@ -8,10 +8,10 @@ import {
   ACTION_SOURCE_V3_LABELS,
   TRACKING_TYPE_V3,
   ISO_4217,
+  CUSTOM_EVENT_NAME_MAX_LENGTH,
+  EVENT_AT_MAX_AGE_MS,
   SUPPORTS_VALUE_METADATA,
   SUPPORTS_ITEM_COUNT,
-  REQUIRES_ITEM_COUNT,
-  REQUIRES_PRODUCTS,
   MATCH_KEYS
 } from './constants'
 import { clean, cleanNum, getUser, smartHash } from '../utils'
@@ -36,7 +36,7 @@ export async function sendV3(
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${settings.conversion_token}` },
-        json: JSON.parse(JSON.stringify(data))
+        json: data
       }
     )
     if (!isBatch) {
@@ -53,7 +53,6 @@ export function createRedditPayloadV3(
   multiStatusResponse: MultiStatusResponse,
   isBatch: boolean
 ): PayloadV3 {
-  const indices: number[] = []
   const events: EventItemV3[] = []
 
   payloads.forEach((payload, index) => {
@@ -73,6 +72,13 @@ export function createRedditPayloadV3(
 
       const custom_event_name = clean((payload as CustomEvent).custom_event_name)
       const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
+
+      if (custom_event_name !== undefined && [...custom_event_name].length > CUSTOM_EVENT_NAME_MAX_LENGTH) {
+        throw new PayloadValidationError(
+          `Custom Event Name must be at most ${CUSTOM_EVENT_NAME_MAX_LENGTH} characters. Reddit silently truncates longer names, which merges distinct events.`
+        )
+      }
+
       const cleanEventSourceUrl = clean(event_source_url ?? '')
       const cleanedClickId = clean(click_id)
       const userObj = getUser(user, data_processing_options, screen_dimensions)
@@ -80,12 +86,21 @@ export function createRedditPayloadV3(
 
       if (!cleanedClickId && !hasMatchKey) {
         throw new PayloadValidationError(
-          'Either Click ID or at least one User match key is required for Reddit Conversions API v3 events. Supported user match keys are: ' + MATCH_KEYS.join(', ')
+          'Either Click ID or at least one User match key is required for Reddit Conversions API v3 events. Supported user match keys are: ' +
+            MATCH_KEYS.join(', ')
+        )
+      }
+
+      const eventAt = toEpochMs(event_at)
+
+      if (Date.now() - eventAt > EVENT_AT_MAX_AGE_MS) {
+        throw new PayloadValidationError(
+          'Event At is more than 7 days old. Reddit rejects these, and one stale event fails the whole request it is batched into.'
         )
       }
 
       const event: EventItemV3 = {
-        event_at: toEpochMs(event_at),
+        event_at: eventAt,
         action_source: toActionSourceV3(action_source),
         ...(action_source === 'WEBSITE' && cleanEventSourceUrl ? { event_source_url: cleanEventSourceUrl } : {}),
         ...(cleanedClickId ? { click_id: cleanedClickId } : {}),
@@ -97,11 +112,10 @@ export function createRedditPayloadV3(
         user: userObj
       }
 
-      indices.push(index)
       events.push(event)
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: events[indices.indexOf(index)] as unknown as JSONLikeObject,
+        sent: event as unknown as JSONLikeObject,
         body: { success: true }
       })
     } catch (err) {
@@ -190,16 +204,6 @@ export function getMetadata(
   const type = trackingType ?? ''
   const itemCount = SUPPORTS_ITEM_COUNT.has(type) ? cleanNum(metadata?.item_count) : undefined
   const productList = getProducts(products)
-
-  if (REQUIRES_ITEM_COUNT.has(type) && itemCount === undefined) {
-    throw new PayloadValidationError(
-      `Event Metadata Item Count is required for ${type} events. It is read from the event, not summed from Products.`
-    )
-  }
-
-  if (REQUIRES_PRODUCTS.has(type) && productList === undefined) {
-    throw new PayloadValidationError(`Products is required for ${type} events`)
-  }
 
   const hashedConversionId = smartHash(conversion_id, (value) => value.trim())
   if (!hashedConversionId) {

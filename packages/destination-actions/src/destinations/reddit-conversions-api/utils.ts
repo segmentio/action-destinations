@@ -20,7 +20,7 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
+export async function send(request: RequestClient, settings: Settings, payload: (StandardEvent | CustomEvent)[]) {
   const data = createRedditPayload(payload, settings)
   return request(`https://ads-api.reddit.com/api/${LEGACY_API_VERSION}/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
@@ -29,7 +29,7 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   })
 }
 
-function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
+function createRedditPayload(payloads: (StandardEvent | CustomEvent)[], settings: Settings): StandardEventPayload {
   const payloadItems: StandardEventPayloadItem[] = []
 
   payloads.forEach((payload) => {
@@ -147,10 +147,17 @@ export function getDataProcessingOptions(
   dataProcessingOptions: DataProcessingOptionsType
 ): DatapProcessingOptions | undefined {
   if (!dataProcessingOptions) return undefined
+
+  const country = clean(dataProcessingOptions.country)
+  const modes = dataProcessingOptions.modes?.split(',').map((mode) => mode.trim())
+  const region = clean(dataProcessingOptions.region)
+
+  if (country === undefined && modes === undefined && region === undefined) return undefined
+
   return {
-    country: clean(dataProcessingOptions.country),
-    modes: dataProcessingOptions.modes?.split(',').map((mode) => mode.trim()),
-    region: clean(dataProcessingOptions.region)
+    ...(country ? { country } : {}),
+    ...(modes ? { modes } : {}),
+    ...(region ? { region } : {})
   }
 }
 
