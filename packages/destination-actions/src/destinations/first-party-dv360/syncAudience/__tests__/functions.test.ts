@@ -1,4 +1,5 @@
 import { MultiStatusResponse, ErrorCodes, IntegrationError, RetryableError } from '@segment/actions-core'
+import { PhoneNumberUtil } from 'google-libphonenumber'
 import {
   validateAudienceDetails,
   buildContactInfo,
@@ -617,6 +618,17 @@ describe('normalisePhone', () => {
       expect(normalisePhone('(212) 565-0000', phoneOptions)).toBe('+12125650000')
     })
 
+    // Switching the per user country on without setting a default leaves a user who has no
+    // country of their own with no country at all, so their local numbers are as unresolvable
+    // as if nothing had been configured. Each mode treats that the way it treats any number it
+    // cannot convert.
+    it('has no country at all for a user without one when there is no default to fall back to', () => {
+      const phoneOptions = { useContactInfoCountryCode: true }
+
+      expect(normalisePhone('(212) 565-0000', { ...NORMALIZE, ...phoneOptions })).toBe('(212) 565-0000')
+      expect(normalisePhone('(212) 565-0000', { ...VALIDATE, ...phoneOptions })).toBeUndefined()
+    })
+
     // The wrong country would turn a real number into a different, unmatchable one, so neither
     // mode sends it. This is the reason the per user country exists.
     it('never converts a number against the wrong country', () => {
@@ -850,8 +862,14 @@ describe('failAllPayloads', () => {
 describe('country choices', () => {
   const values = (choices: { value: string }[]) => choices.map(({ value }) => value)
 
+  // The list is written out by hand rather than derived at runtime, so it is the library itself
+  // which says whether a region on it is one a number can actually be parsed against. A code
+  // which a libphonenumber upgrade renames or drops would otherwise sit in the dropdown and
+  // silently fail every national format number picked against it.
   it('offers every libphonenumber region as a phone region', () => {
-    expect(values(PHONE_REGION_CHOICES)).toEqual(COUNTRIES.map(({ code }) => code))
+    const supportedRegions = PhoneNumberUtil.getInstance().getSupportedRegions()
+
+    expect(values(PHONE_REGION_CHOICES).sort()).toEqual([...supportedRegions].sort())
   })
 
   it('leaves the codes which are not assigned ISO 3166-1 alpha-2 out of the country choices', () => {
