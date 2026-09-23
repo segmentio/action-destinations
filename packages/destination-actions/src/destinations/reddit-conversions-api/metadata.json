@@ -215,7 +215,7 @@
           "properties": {
             "category": {
               "label": "Category",
-              "description": "The category the product is in; for example, a label from Google's product taxonomy. Required.",
+              "description": "The category the product is in; for example, a label from Google's product taxonomy.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -2579,9 +2579,18 @@
         },
         "conversion_id": {
           "label": "Conversion ID",
-          "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.",
+          "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. Required for Reddit Conversions API V3 (Beta).",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "api_version",
+                "operator": "is",
+                "value": "v3"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -2703,7 +2712,7 @@
         },
         "event_source_url": {
           "label": "Event Source URL",
-          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).",
+          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -2723,6 +2732,11 @@
                 "fieldKey": "api_version",
                 "operator": "is",
                 "value": "v3"
+              },
+              {
+                "fieldKey": "action_source",
+                "operator": "is",
+                "value": "WEBSITE"
               }
             ]
           },
@@ -2730,6 +2744,30 @@
           "hidden": null,
           "minimum": null,
           "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": 1000,
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
@@ -2870,7 +2908,7 @@
           "properties": {
             "category": {
               "label": "Category",
-              "description": "The category the product is in; for example, a label from Google's product taxonomy. Required.",
+              "description": "The category the product is in; for example, a label from Google's product taxonomy.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -5234,9 +5272,18 @@
         },
         "conversion_id": {
           "label": "Conversion ID",
-          "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.",
+          "description": "The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. Required for Reddit Conversions API V3 (Beta).",
           "type": "string",
-          "required": false,
+          "required": {
+            "match": "all",
+            "conditions": [
+              {
+                "fieldKey": "api_version",
+                "operator": "is",
+                "value": "v3"
+              }
+            ]
+          },
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -5358,7 +5405,7 @@
         },
         "event_source_url": {
           "label": "Event Source URL",
-          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).",
+          "description": "The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -5378,6 +5425,11 @@
                 "fieldKey": "api_version",
                 "operator": "is",
                 "value": "v3"
+              },
+              {
+                "fieldKey": "action_source",
+                "operator": "is",
+                "value": "WEBSITE"
               }
             ]
           },
@@ -5385,6 +5437,30 @@
           "hidden": null,
           "minimum": null,
           "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 1000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": 1000,
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
@@ -5541,6 +5617,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "PageVisit"
       },
       "eventSlug": null
@@ -5671,6 +5748,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "ViewContent"
       },
       "eventSlug": null
@@ -5801,6 +5879,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "Search"
       },
       "eventSlug": null
@@ -5941,6 +6020,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "AddToCart"
       },
       "eventSlug": null
@@ -6081,6 +6161,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "AddToWishlist"
       },
       "eventSlug": null
@@ -6231,6 +6312,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "Purchase"
       },
       "eventSlug": null
@@ -6368,6 +6450,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "Lead"
       },
       "eventSlug": null
@@ -6505,6 +6588,7 @@
         "event_source_url": {
           "@path": "$.context.page.url"
         },
+        "batch_size": 1000,
         "tracking_type": "SignUp"
       },
       "eventSlug": null

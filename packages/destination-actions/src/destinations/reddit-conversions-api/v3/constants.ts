@@ -40,10 +40,6 @@ export const SUPPORTS_ITEM_COUNT: ReadonlySet<string> = new Set<keyof typeof TRA
   'Custom'
 ])
 
-export const REQUIRES_ITEM_COUNT: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>(['Purchase'])
-
-export const REQUIRES_PRODUCTS: ReadonlySet<string> = new Set<keyof typeof TRACKING_TYPE_V3>(['Purchase'])
-
 export const MATCH_KEYS = [
   'idfa',
   'aaid',

@@ -14,6 +14,7 @@ import {
   user,
   data_processing_options,
   screen_dimensions,
+  batch_size,
   event_metadata,
   conversion_id,
   api_version,
@@ -50,7 +51,8 @@ function buildEventAction<Payload extends StandardEvent | CustomEvent>(
       conversion_id,
       api_version,
       action_source,
-      event_source_url
+      event_source_url,
+      batch_size
     },
     perform: async (request, { settings, payload }) => {
       const resolvedPayload = resolvePayload(payload) as StandardEvent

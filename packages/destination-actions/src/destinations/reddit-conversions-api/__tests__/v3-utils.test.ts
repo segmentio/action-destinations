@@ -203,7 +203,7 @@ describe('getMetadata', () => {
     })
   })
 
-  it('drops currency/value/item_count for tracking types that don\'t support any event metadata', () => {
+  it("drops currency/value/item_count for tracking types that don't support any event metadata", () => {
     const result = getMetadata({ currency: 'USD', item_count: 5, value_decimal: 10 }, undefined, 'msg-1', 'Search')
     expect(result?.currency).toBeUndefined()
     expect(result?.item_count).toBeUndefined()
@@ -274,16 +274,21 @@ describe('getMetadata', () => {
     expect(result?.item_count).toBeUndefined()
   })
 
-  it('throws when a Purchase has no item_count', () => {
-    expect(() =>
-      getMetadata({ currency: 'USD', value_decimal: 100 }, [{ id: 'p1', quantity: 2 }], 'msg-1', 'Purchase')
-    ).toThrow('Event Metadata Item Count is required for Purchase events')
+  it('accepts a Purchase with no item_count - Reddit recommends it but does not require it', () => {
+    const result = getMetadata(
+      { currency: 'USD', value_decimal: 100 },
+      [{ id: 'p1', quantity: 2 }],
+      'msg-1',
+      'Purchase'
+    )
+    expect(result?.item_count).toBeUndefined()
+    expect(result?.products).toHaveLength(1)
   })
 
-  it('throws when a Purchase has no products', () => {
-    expect(() =>
-      getMetadata({ currency: 'USD', value_decimal: 100, item_count: 2 }, undefined, 'msg-1', 'Purchase')
-    ).toThrow('Products is required for Purchase events')
+  it('accepts a Purchase with no products', () => {
+    const result = getMetadata({ currency: 'USD', value_decimal: 100, item_count: 2 }, undefined, 'msg-1', 'Purchase')
+    expect(result?.products).toBeUndefined()
+    expect(result?.item_count).toBe(2)
   })
 
   it('accepts a Purchase carrying item_count and products', () => {

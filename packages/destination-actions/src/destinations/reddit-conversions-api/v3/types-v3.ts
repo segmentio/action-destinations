@@ -13,10 +13,10 @@ export interface ProductV3 {
 
 export interface MetadataV3 {
   currency?: string // if passed, must also include value. Only acceptable for some event types. Cannot be passed for Page Visit, View Content, Search
-  item_count?: number // only accepted for Add to Cart, Add to Wishlist, Custom, Purchase events. Required for Purchase events. 
+  item_count?: number // only accepted for Add to Cart, Add to Wishlist, Custom, Purchase events. Recommended for Purchase, not required.
   value?: number // if passed, must also include currency. Only acceptable for some event types. Cannot be passed for Page Visit, View Content, Search
-  conversion_id: string // required for all events. 
-  products?: Array<ProductV3> // accepted for all events. Required for Purchase event
+  conversion_id: string // required for all events.
+  products?: Array<ProductV3> // accepted for all events, never required. Products need an id for Product Ads / DPA matching.
 }
 
 export interface DataProcessingOptionsV3 {

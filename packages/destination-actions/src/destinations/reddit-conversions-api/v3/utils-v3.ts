@@ -12,8 +12,6 @@ import {
   EVENT_AT_MAX_AGE_MS,
   SUPPORTS_VALUE_METADATA,
   SUPPORTS_ITEM_COUNT,
-  REQUIRES_ITEM_COUNT,
-  REQUIRES_PRODUCTS,
   MATCH_KEYS
 } from './constants'
 import { clean, cleanNum, getUser, smartHash } from '../utils'
@@ -208,16 +206,6 @@ export function getMetadata(
   const type = trackingType ?? ''
   const itemCount = SUPPORTS_ITEM_COUNT.has(type) ? cleanNum(metadata?.item_count) : undefined
   const productList = getProducts(products)
-
-  if (REQUIRES_ITEM_COUNT.has(type) && itemCount === undefined) {
-    throw new PayloadValidationError(
-      `Event Metadata Item Count is required for ${type} events. It is read from the event, not summed from Products.`
-    )
-  }
-
-  if (REQUIRES_PRODUCTS.has(type) && productList === undefined) {
-    throw new PayloadValidationError(`Products is required for ${type} events`)
-  }
 
   const hashedConversionId = smartHash(conversion_id, (value) => value.trim())
   if (!hashedConversionId) {

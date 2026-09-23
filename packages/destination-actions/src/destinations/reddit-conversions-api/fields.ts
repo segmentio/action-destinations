@@ -326,7 +326,7 @@ export const products: InputField = {
   properties: {
     category: {
       label: 'Category',
-      description: "The category the product is in; for example, a label from Google's product taxonomy. Required.",
+      description: "The category the product is in; for example, a label from Google's product taxonomy.",
       type: 'string',
       required: false
     },
@@ -455,6 +455,17 @@ export const user: InputField = {
       }
     }
   }
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description:
+    'Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.',
+  type: 'number',
+  required: false,
+  default: 1000,
+  maximum: 1000,
+  unsafe_hidden: true
 }
 
 export const data_processing_options: InputField = {
