@@ -6,6 +6,15 @@ const basePayload: Payload = {
 }
 
 describe('validate', () => {
+  it('throws when the conversion timestamp is not a valid date', () => {
+    const payload: Payload = {
+      ...basePayload,
+      googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+    }
+
+    expect(() => validate(payload, NaN)).toThrowError('Timestamp is not a valid date.')
+  })
+
   it('throws when every identifier is whitespace-only', () => {
     const payload: Payload = {
       ...basePayload,

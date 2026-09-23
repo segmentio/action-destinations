@@ -551,6 +551,29 @@ describe('LinkedinConversions.streamConversion', () => {
     ).resolves.not.toThrowError()
   })
 
+  it('should throw an error if plaintextIpAddress is not a valid IPv4 address', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          plaintextIpAddress: '999.999.999.999',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError('must be a valid IPv4 address string but it was not')
+  })
+
   it('should successfully send the event with only sha256IpAddress as identifier', async () => {
     nock(`${BASE_URL}/conversionEvents`)
       .post('', {
