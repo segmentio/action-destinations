@@ -652,7 +652,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       const events = [
         { type: 'track', traits: { company_domain: 'microsoft.com' } },
-        { type: 'track', traits: { company_domain: 'invalid' } }
+        { type: 'track', traits: { company_domain: 'not-a-real-company.com' } }
       ] as any
 
       const response = await testDestination.executeBatch('updateCompanyAudience', {
@@ -669,7 +669,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       // sent = the element sent to LinkedIn; body = LinkedIn's per-element response
       expect((response[0] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
       expect((response[0] as any).body).toEqual({ status: 201 })
-      expect((response[1] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'invalid' })
+      expect((response[1] as any).sent).toEqual({ action: 'ADD', companyWebsiteDomain: 'not-a-real-company.com' })
       expect((response[1] as any).body).toEqual({ status: 400, error: { message: 'Invalid company' } })
     })
 
@@ -893,11 +893,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         )
       })
 
-      it('trims and lower-cases companyWebsiteDomain but does not strip a scheme or path', async () => {
-        // Deliberately unchanged production behaviour: trim and lowercase only, so a scheme and
-        // path are passed through rather than stripped. See STRATCONN-7046.
+      it('reduces companyWebsiteDomain to its host, whatever shape it was mapped in', async () => {
         const element = await sendOne({ identifiers: { companyDomain: '  HTTPS://WWW.Microsoft.com/about  ' } })
-        expect(element.companyWebsiteDomain).toBe('https://www.microsoft.com/about')
+        expect(element.companyWebsiteDomain).toBe('www.microsoft.com')
       })
     })
 

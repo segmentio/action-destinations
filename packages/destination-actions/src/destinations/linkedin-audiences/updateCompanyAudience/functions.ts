@@ -43,8 +43,11 @@ import {
 // its own, rather than relying on every caller lower-casing first.
 export const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
 const TRAILING_SLASHES = /\/+$/
+const TRAILING_DOT = /\.$/
 // A protocol-relative prefix, as in '//microsoft.com'.
 const LEADING_SLASHES = /^\/\//
+// A dotted-quad IPv4 address, which passes a dot check but is not a domain.
+const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
   let id = linkedInCompanyId.trim()
@@ -65,19 +68,31 @@ function withinLength(value: string | undefined, max: number): string | undefine
   return value && value.length <= max ? value : undefined
 }
 
-export function normalizeEmailDomain(value?: string): string | undefined {
-  let domain = trimmed(value)?.toLowerCase()
-  if (!domain) {
+// A company domain and a company email domain are both just hostnames, and customers map the
+// same three shapes into either field: a bare domain, an email address, or a page url. The
+// platform url parser handles all of them, along with the scheme, userinfo, port, path, query
+// and fragment, and lower-cases the host. An internationalized domain comes back in its punycode
+// form, which is the spelling DNS uses.
+export function normalizeDomain(value?: string): string | undefined {
+  const raw = trimmed(value)
+  if (!raw) {
     return undefined
   }
-  domain = domain.replace(SCHEME_PREFIX, '').replace(LEADING_SLASHES, '')
-  // Accept a full address or an '@'-prefixed domain, both of which customers map by mistake.
-  const at = domain.lastIndexOf('@')
-  if (at !== -1) {
-    domain = domain.slice(at + 1)
+
+  let hostname: string
+  try {
+    hostname = new URL(SCHEME_PREFIX.test(raw) ? raw : `https://${raw}`).hostname
+  } catch {
+    // Not recoverable as a url, so there is no domain to send.
+    return undefined
   }
-  // Drop anything after the host: a path, query, fragment or port.
-  return trimmed(domain.split(/[/?#:]/)[0])
+
+  // The parser returns a hostname for anything, so it is on us to decide whether that hostname is
+  // a domain. A domain is fully qualified, so it must contain a dot: that drops a company name
+  // mapped here by mistake, and an IPv6 literal, which is bracketed and has none. An IPv4 address
+  // is full of dots, so it needs rejecting on its own.
+  const host = hostname.replace(TRAILING_DOT, '')
+  return host.includes('.') && !IPV4.test(host) ? host : undefined
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
@@ -136,8 +151,8 @@ export function normalizeIdentifiers(payload: Payload): NormalizedIdentifiers {
     : rawCompanyId
 
   const companyName = trimmed(identifiers?.companyName)
-  const companyDomain = trimmed(identifiers?.companyDomain)?.toLowerCase()
-  const companyEmailDomain = normalizeEmailDomain(identifiers?.companyEmailDomain)
+  const companyDomain = normalizeDomain(identifiers?.companyDomain)
+  const companyEmailDomain = normalizeDomain(identifiers?.companyEmailDomain)
   const companyPageUrl = normalizeCompanyPageUrl(identifiers?.companyPageUrl)
 
   return {

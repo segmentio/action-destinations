@@ -3,7 +3,7 @@ import {
   companyKey,
   normalizeCompanyPageUrl,
   normalizeCountry,
-  normalizeEmailDomain,
+  normalizeDomain,
   normalizeIdentifiers,
   normalizeIndustries,
   normalizeTraits
@@ -167,7 +167,7 @@ describe('SCHEME_PREFIX', () => {
   })
 })
 
-describe('normalizeEmailDomain', () => {
+describe('normalizeDomain', () => {
   describe('plain domains', () => {
     it.each([
       ['a plain domain', 'microsoft.com', 'microsoft.com'],
@@ -181,9 +181,9 @@ describe('normalizeEmailDomain', () => {
       ['a hyphenated domain', 'my-company.com', 'my-company.com'],
       ['a numeric domain', '123.com', '123.com'],
       ['a long tld', 'microsoft.technology', 'microsoft.technology'],
-      ['a non-ascii domain, left as-is', 'müller.de', 'müller.de']
+      ['a non-ascii domain, converted to punycode', 'müller.de', 'xn--mller-kva.de']
     ])('handles %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeEmailDomain(input)).toBe(expected)
+      expect(normalizeDomain(input)).toBe(expected)
     })
   })
 
@@ -199,7 +199,7 @@ describe('normalizeEmailDomain', () => {
       ['a protocol-relative url', '//microsoft.com', 'microsoft.com'],
       ['a protocol-relative url with a path', '//microsoft.com/about', 'microsoft.com']
     ])('strips %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeEmailDomain(input)).toBe(expected)
+      expect(normalizeDomain(input)).toBe(expected)
     })
   })
 
@@ -211,15 +211,14 @@ describe('normalizeEmailDomain', () => {
       ['an upper case email', 'JOE@MICROSOFT.COM', 'microsoft.com'],
       ['a leading @', '@microsoft.com', 'microsoft.com'],
       ['whitespace around a full email', '  Joe@Microsoft.com  ', 'microsoft.com'],
-      ['spaces either side of the @', 'joe @ microsoft.com', 'microsoft.com'],
       ['credentials in a url', 'user:pass@microsoft.com', 'microsoft.com'],
       ['an email at a subdomain', 'joe@mail.microsoft.co.uk', 'mail.microsoft.co.uk']
     ])('takes the domain from %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeEmailDomain(input)).toBe(expected)
+      expect(normalizeDomain(input)).toBe(expected)
     })
 
     it('takes the part after the last @ when there are several', () => {
-      expect(normalizeEmailDomain('weird@name@microsoft.com')).toBe('microsoft.com')
+      expect(normalizeDomain('weird@name@microsoft.com')).toBe('microsoft.com')
     })
   })
 
@@ -233,12 +232,12 @@ describe('normalizeEmailDomain', () => {
       ['a port', 'microsoft.com:8080', 'microsoft.com'],
       ['a port and a path', 'microsoft.com:8080/about', 'microsoft.com']
     ])('drops %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeEmailDomain(input)).toBe(expected)
+      expect(normalizeDomain(input)).toBe(expected)
     })
   })
 
   it('handles everything at once', () => {
-    expect(normalizeEmailDomain('  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ')).toBe('www.microsoft.com')
+    expect(normalizeDomain('  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ')).toBe('www.microsoft.com')
   })
 
   it.each([
@@ -252,9 +251,48 @@ describe('normalizeEmailDomain', () => {
     ['only a path', '/about'],
     ['only a query string', '?a=1'],
     ['only a fragment', '#top'],
-    ['only a port', ':8080']
+    ['only a port', ':8080'],
+    ['spaces around the @, which is not a parseable url', 'joe @ microsoft.com']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
-    expect(normalizeEmailDomain(input)).toBeUndefined()
+    expect(normalizeDomain(input)).toBeUndefined()
+  })
+
+  // A company email domain is always fully qualified, so anything without a dot is not one.
+  describe('requires a dot', () => {
+    it('drops a company name mapped into this field by mistake', () => {
+      expect(normalizeDomain('Microsoft')).toBeUndefined()
+    })
+
+    it.each([
+      ['a single label', 'localhost'],
+      ['a single label with a port', 'localhost:3000'],
+      ['a single label with a path', 'intranet/about']
+    ])('drops %s', (_label: string, input: string) => {
+      expect(normalizeDomain(input)).toBeUndefined()
+    })
+  })
+
+  // IP addresses are not company domains. IPv6 is bracketed and so has no dot; IPv4 is all dots,
+  // so it is rejected explicitly.
+  describe('does not accept an IP address', () => {
+    it.each([
+      ['an IPv6 loopback literal', '[::1]'],
+      ['an IPv6 literal behind a scheme', 'https://[::1]'],
+      ['an IPv6 literal after an @', 'joe@[::1]'],
+      ['a full IPv6 literal with a port and path', 'https://[2001:db8::1]:8080/about'],
+      ['an IPv4-mapped IPv6 literal', '[::ffff:192.168.0.1]'],
+      ['an IPv4 address, which the dot check alone would let through', '192.168.0.1'],
+      ['a public IPv4 address', '8.8.8.8'],
+      ['an IPv4 address behind a scheme', 'https://10.0.0.1/about'],
+      ['an IPv4 address with a port', '10.0.0.1:8080'],
+      ['an IPv4 address after an @', 'joe@192.168.0.1']
+    ])('drops %s', (_label: string, input: string) => {
+      expect(normalizeDomain(input)).toBeUndefined()
+    })
+
+    it('still accepts a domain whose labels are numeric', () => {
+      expect(normalizeDomain('123.com')).toBe('123.com')
+    })
   })
 })
 
