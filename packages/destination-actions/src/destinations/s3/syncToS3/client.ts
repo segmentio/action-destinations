@@ -172,20 +172,27 @@ export class Client {
       RoleSessionName: this.roleSessionName,
       ExternalId: externalId
     })
-    // Bound the call so a stalled STS request can't hang every concurrent upload de-duped onto
-    // this same in-flight promise (see inFlightAssumeRole above) indefinitely.
-    const timeoutController = new AbortController()
-    const timeout = setTimeout(() => timeoutController.abort(), STS_REQUEST_TIMEOUT_MS)
+
     let result
-    try {
-      result = await stsClient.send(command, { abortSignal: timeoutController.signal })
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') {
-        throw new RetryableError(`STS AssumeRole timed out after ${STS_REQUEST_TIMEOUT_MS}ms`)
+    if (!cacheEnabled) {
+      // Flag off must stay byte-identical to main: no timeout, no abortSignal, plain send().
+      result = await stsClient.send(command)
+    } else {
+      // Bound the call so a stalled STS request can't hang every concurrent upload de-duped onto
+      // this same in-flight promise (see inFlightAssumeRole above) indefinitely. Scoped to the
+      // cache-enabled path only, since this is new behavior introduced alongside the cache.
+      const timeoutController = new AbortController()
+      const timeout = setTimeout(() => timeoutController.abort(), STS_REQUEST_TIMEOUT_MS)
+      try {
+        result = await stsClient.send(command, { abortSignal: timeoutController.signal })
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') {
+          throw new RequestTimeoutError(`STS AssumeRole timed out after ${STS_REQUEST_TIMEOUT_MS}ms`)
+        }
+        throw err
+      } finally {
+        clearTimeout(timeout)
       }
-      throw err
-    } finally {
-      clearTimeout(timeout)
     }
     if (
       !result.Credentials ||

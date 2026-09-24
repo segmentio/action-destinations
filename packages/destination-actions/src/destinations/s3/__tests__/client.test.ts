@@ -125,6 +125,21 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 
+  // Regression: the STS request timeout added alongside the cache must not change flag-off
+  // behavior. It was initially applied unconditionally, passing a second (options) argument and
+  // an AbortSignal into every send() call -- including the disabled path -- which is not
+  // byte-identical to main's plain `stsClient.send(command)` call.
+  it('is off by default: calls STS with no timeout/abortSignal option (matches main)', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    await upload(newClient())
+
+    expect(mockStsSend).toHaveBeenCalledTimes(2)
+    for (const call of mockStsSend.mock.calls) {
+      expect(call).toHaveLength(1)
+    }
+  })
+
   it('when enabled, reuses cached credentials across uploads instead of re-calling STS for every file', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
 
