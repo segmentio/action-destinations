@@ -96,6 +96,7 @@ describe('STS credential caching', () => {
 
   beforeEach(() => {
     mockStsSend.mockReset()
+    ;(S3Client as unknown as jest.Mock).mockClear()
     clearCredentialsCache()
   })
 
