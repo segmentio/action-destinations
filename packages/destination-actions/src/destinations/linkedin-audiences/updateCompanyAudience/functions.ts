@@ -44,8 +44,9 @@ import {
 export const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
 const TRAILING_SLASHES = /\/+$/
 const TRAILING_DOT = /\.$/
-// A protocol-relative prefix, as in '//microsoft.com'.
-const LEADING_SLASHES = /^\/\//
+// Leading slashes, as in a protocol-relative '//microsoft.com'. One or more, so a malformed
+// '///microsoft.com' does not leave a slash behind.
+const LEADING_SLASHES = /^\/+/
 // A dotted-quad IPv4 address, which passes a dot check but is not a domain.
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 

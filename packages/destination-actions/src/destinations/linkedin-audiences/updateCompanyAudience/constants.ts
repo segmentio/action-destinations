@@ -36,6 +36,9 @@ export const MAX_STOCK_SYMBOL_LENGTH = 5
  * The 249 officially assigned ISO 3166-1 alpha-2 country codes. LinkedIn's DMP Segment
  * Companies API requires the two-letter code for a company's `country`.
  *
+ * Source: https://www.iso.org/iso-3166-country-codes.html, as of September 2026. ISO assigns and
+ * withdraws codes from time to time, so re-check against that list before adding or removing one.
+ *
  * The country name against each code is a comment rather than data: nothing reads it at
  * runtime, but without it a list of 249 two-letter codes cannot be reviewed in a diff.
  */

@@ -325,6 +325,7 @@ describe('normalizeCompanyPageUrl', () => {
     ],
     ['a bare host with no path', 'linkedin.com', 'linkedin.com'],
     ['a protocol-relative url', '//linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    ['extra leading slashes', '///linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
     [
       'a protocol-relative url with case and a trailing slash',
       '//WWW.LinkedIn.com/company/Microsoft/',
