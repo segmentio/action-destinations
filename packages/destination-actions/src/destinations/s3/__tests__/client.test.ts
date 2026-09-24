@@ -1,5 +1,5 @@
 import { Client, clearCredentialsCache, isAWSError } from '../syncToS3/client'
-import { _Error as AWSError } from '@aws-sdk/client-s3'
+import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
 import { IntegrationError } from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
@@ -79,9 +79,10 @@ describe('STS credential caching', () => {
   }
 
   // A minimal successful AssumeRole response whose credentials expire `expiresInMs` from now.
-  const stsResponse = (expiresInMs: number) => ({
+  // `accessKeyId` is overridable so tests can assert on which hop's credentials actually get used.
+  const stsResponse = (expiresInMs: number, accessKeyId = 'AKIAEXAMPLE') => ({
     Credentials: {
-      AccessKeyId: 'AKIAEXAMPLE',
+      AccessKeyId: accessKeyId,
       SecretAccessKey: 'secret',
       SessionToken: 'token',
       Expiration: new Date(Date.now() + expiresInMs)
@@ -120,6 +121,26 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(2)
   })
 
+  it('when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop\'s', async () => {
+    // Distinguishable per-hop credentials so a cache-key mixup (e.g. customer lookup returning the
+    // intermediary's cached entry) would be caught by asserting the exact values used, not just call counts.
+    mockStsSend
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_INTERMEDIARY'))
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_CUSTOMER'))
+
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    const firstCallCredentials = (S3Client as unknown as jest.Mock).mock.calls[0][0].credentials
+    expect(firstCallCredentials.accessKeyId).toBe('AKIA_CUSTOMER')
+
+    // Second upload: both hops are cache hits (0 further STS calls) — verify the SAME correct,
+    // per-hop credentials are what actually get used, not just that STS wasn't re-called.
+    ;(S3Client as unknown as jest.Mock).mockClear()
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    expect(mockStsSend).toHaveBeenCalledTimes(2) // still just the first upload's 2 calls
+    const secondCallCredentials = (S3Client as unknown as jest.Mock).mock.calls[0][0].credentials
+    expect(secondCallCredentials.accessKeyId).toBe('AKIA_CUSTOMER')
+  })
+
   it('when enabled, refreshes credentials once they fall within the expiry safety buffer', async () => {
     // Expires in 1 minute, inside the 5-minute refresh buffer -> never safe to cache.
     mockStsSend.mockResolvedValue(stsResponse(60 * 1000))
@@ -140,9 +161,9 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(3)
   })
 
-  it('fails fast when STS returns credentials without an expiration', async () => {
-    // STS always returns Expiration in practice; a response missing it is malformed, so we treat
-    // it as an auth failure rather than caching a credential of unknown lifetime.
+  it('when enabled, fails fast when STS returns credentials without an expiration', async () => {
+    // STS always returns Expiration in practice; a response missing it is malformed, and we need a
+    // known expiry to safely cache it, so treat this as an auth failure when caching is enabled.
     mockStsSend.mockResolvedValue({
       Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
     })
@@ -151,6 +172,16 @@ describe('STS credential caching', () => {
 
     expect(err).toBeInstanceOf(IntegrationError)
     expect((err as IntegrationError).status).toBe(403)
+  })
+
+  it('is off by default: does NOT fail when STS returns credentials without an expiration (matches main)', async () => {
+    // Regression guard: the Expiration requirement must be gated behind the cache flag. main never
+    // checked Expiration, so flag-off must keep succeeding even when STS omits it.
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+
+    await expect(upload(newClient())).resolves.toBeDefined()
   })
 
   describe('DataDog metrics', () => {

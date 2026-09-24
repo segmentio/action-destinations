@@ -82,18 +82,21 @@ export class Client {
       ExternalId: externalId
     })
     const result = await stsClient.send(command)
-    // STS always returns all four fields on a successful AssumeRole (the SDK types them optional,
-    // but the API contract guarantees them; confirmed in DataDog that Expiration is always
-    // present). Treat a missing field as a malformed response and fail fast rather than cache
-    // a credential of unknown lifetime.
     if (
       !result.Credentials ||
       !result.Credentials.AccessKeyId ||
       !result.Credentials.SecretAccessKey ||
-      !result.Credentials.SessionToken ||
-      !result.Credentials.Expiration
+      !result.Credentials.SessionToken
     ) {
       // TODO: Add more specific error handling
+      throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
+    }
+    // Only require Expiration when caching is enabled — this is a new, stricter requirement needed
+    // to safely cache a credential of known lifetime, and must not change flag-off behavior (main
+    // never checked Expiration). STS always returns all four fields on a successful AssumeRole (the
+    // SDK types them optional, but the API contract guarantees them; confirmed in DataDog that
+    // Expiration is always present), so this only fails fast on a genuinely malformed response.
+    if (cacheEnabled && !result.Credentials.Expiration) {
       throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
     }
     const creds: Credentials = {
