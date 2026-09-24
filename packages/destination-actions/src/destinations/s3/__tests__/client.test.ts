@@ -125,14 +125,14 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 
-  // Regression: the STS request timeout added alongside the cache must not change flag-off
-  // behavior. It was initially applied unconditionally, passing a second (options) argument and
-  // an AbortSignal into every send() call -- including the disabled path -- which is not
-  // byte-identical to main's plain `stsClient.send(command)` call.
-  it('calls STS with no abortSignal option when no signal was passed to uploadS3 (matches main)', async () => {
+  // The signal passed to uploadS3 (from perform/performBatch) is only ever used to cancel the S3
+  // PutObject call below -- exactly as on main. STS calls never receive it, so caching can't
+  // change cancellation semantics for the STS hops.
+  it('never passes an abortSignal option to STS, even when uploadS3 is given a signal', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+    const controller = new AbortController()
 
-    await upload(newClient())
+    await newClient().uploadS3(settings, 'content', 'file', '', 'csv', controller.signal)
 
     expect(mockStsSend).toHaveBeenCalledTimes(2)
     for (const call of mockStsSend.mock.calls) {
@@ -243,23 +243,6 @@ describe('STS credential caching', () => {
     expect(mockStsSend.mock.calls.length).toBeGreaterThan(callsBeforeRefetch)
   })
 
-  // Regression: concurrent uploads for a not-yet-cached role each independently missed the cache
-  // and independently called STS, reproducing the exact throttling ("rate exceeded") problem this
-  // cache exists to prevent, under precisely the high-concurrency conditions where it matters most.
-  it('when enabled, de-dupes concurrent cache misses for the same key into a single AssumeRole call per hop', async () => {
-    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
-
-    await Promise.all([
-      upload(newClient(settings.iam_role_arn, cacheFlagOn)),
-      upload(newClient(settings.iam_role_arn, cacheFlagOn)),
-      upload(newClient(settings.iam_role_arn, cacheFlagOn))
-    ])
-
-    // All three concurrent uploads share one in-flight AssumeRole per hop = 2 STS calls total,
-    // not 6 (3 uploads x 2 hops) as independent misses would produce.
-    expect(mockStsSend).toHaveBeenCalledTimes(2)
-  })
-
   it('when enabled, does not cache a credential missing an expiration, and fetches fresh next time', async () => {
     // Fail safe, not fail hard: a credential we can't safely cache (unknown lifetime) should still
     // let the current request through — it just shouldn't be cached, so the next request goes back
@@ -318,22 +301,6 @@ describe('STS credential caching', () => {
     expect(credentials.accessKeyId).toBe('AKIA_CUSTOMER_DISTINCT')
   })
 
-  it('when enabled, clears the in-flight entry on rejection so concurrent and subsequent callers are not stuck', async () => {
-    mockStsSend.mockRejectedValueOnce(new Error('STS unavailable'))
-
-    const results = await Promise.allSettled([
-      upload(newClient(settings.iam_role_arn, cacheFlagOn)),
-      upload(newClient(settings.iam_role_arn, cacheFlagOn))
-    ])
-    expect(results[0].status).toBe('rejected')
-    expect(results[1].status).toBe('rejected')
-
-    // If the in-flight entry weren't cleared on rejection, this would hang or reuse the stale
-    // rejected promise forever instead of issuing a fresh AssumeRole call.
-    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
-    await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
-  })
-
   it('when enabled, does not cache and rejects when STS returns no usable Credentials, retrying fresh next time', async () => {
     mockStsSend
       .mockResolvedValueOnce(stsResponse(60 * 60 * 1000)) // intermediary hop succeeds
@@ -343,88 +310,6 @@ describe('STS credential caching', () => {
 
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
     await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
-  })
-
-  // The STS call no longer has its own bespoke timeout -- it forwards the same AbortSignal that
-  // perform/performBatch pass down through uploadS3 (the system-configured cancellation signal),
-  // matching how the S3 PutObject call already honors it.
-  it('forwards the caller-provided AbortSignal into STS calls and converts an abort into a timeout error', async () => {
-    const controller = new AbortController()
-    mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {
-      return new Promise((_resolve, reject) => {
-        opts?.abortSignal?.addEventListener('abort', () => {
-          const err = new Error('The operation was aborted')
-          err.name = 'AbortError'
-          reject(err)
-        })
-      })
-    })
-
-    const promise = newClient(settings.iam_role_arn, cacheFlagOn).uploadS3(
-      settings,
-      'content',
-      'file',
-      '',
-      'csv',
-      controller.signal
-    )
-    controller.abort()
-
-    await expect(promise).rejects.toThrow('Request timed out before receiving a response')
-  })
-
-  // Regression: the in-flight de-dup map shares one underlying AssumeRole fetch across concurrent
-  // callers for the same key. An earlier version of this forwarded whichever caller happened to
-  // start that fetch's own AbortSignal directly into the shared STS call, so if THAT caller's
-  // request aborted, every other caller sharing the fetch (including unrelated tenants, since the
-  // intermediary hop's cache key is identical across every workspace) got spuriously killed too.
-  it(
-    "when enabled, does not let one caller's own AbortSignal fail an unrelated caller sharing " +
-      'the same in-flight fetch',
-    async () => {
-      let resolveIntermediary: (value: unknown) => void = () => {}
-      mockStsSend
-        .mockImplementationOnce(() => new Promise((resolve) => (resolveIntermediary = resolve)))
-        .mockResolvedValue(stsResponse(60 * 60 * 1000))
-
-      const controllerA = new AbortController()
-      const promiseA = newClient(settings.iam_role_arn, cacheFlagOn).uploadS3(
-        settings,
-        'content',
-        'file',
-        '',
-        'csv',
-        controllerA.signal
-      )
-      // B shares A's in-flight intermediary-hop fetch but passes no signal of its own.
-      const promiseB = newClient(settings.iam_role_arn, cacheFlagOn).uploadS3(settings, 'content', 'file', '', 'csv')
-
-      controllerA.abort()
-      await expect(promiseA).rejects.toThrow('Request timed out before receiving a response')
-
-      // The shared fetch itself was never aborted -- once it actually resolves, B (whose own
-      // signal never fired) must still succeed normally.
-      resolveIntermediary(stsResponse(60 * 60 * 1000))
-      await expect(promiseB).resolves.toBeDefined()
-    }
-  )
-
-  it('is off by default: still forwards the caller-provided AbortSignal into STS calls', async () => {
-    const controller = new AbortController()
-    mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {
-      return new Promise((_resolve, reject) => {
-        opts?.abortSignal?.addEventListener('abort', () => {
-          const err = new Error('The operation was aborted')
-          err.name = 'AbortError'
-          reject(err)
-        })
-      })
-    })
-
-    const promise = newClient().uploadS3(settings, 'content', 'file', '', 'csv', controller.signal)
-    controller.abort()
-
-    await expect(promise).rejects.toThrow('Request timed out before receiving a response')
   })
 
   it('when enabled, expires a cached credential once real time passes its ttl', async () => {

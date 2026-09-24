@@ -32,15 +32,9 @@ const MAX_CACHE_ENTRIES = 1000
  */
 const credentialsCache = new LRUCache<string, Credentials>({ max: MAX_CACHE_ENTRIES })
 
-// De-dupes concurrent cache misses for the same key so a burst of concurrent uploads for a
-// not-yet-cached role shares one in-flight AssumeRole call instead of each independently calling
-// STS (which would otherwise reproduce the exact throttling this cache exists to prevent).
-const inFlightAssumeRole = new Map<string, Promise<Credentials>>()
-
 // Exposed for tests to reset the shared cache between cases.
 export function clearCredentialsCache(): void {
   credentialsCache.clear()
-  inFlightAssumeRole.clear()
 }
 
 // Builds a collision-safe cache key from the inputs that determine the returned credentials.
@@ -80,33 +74,6 @@ function safeIncr(statsClient: StatsContext['statsClient'] | undefined, metric: 
   }
 }
 
-// Rejects this specific caller's wait if `signal` fires, WITHOUT touching `promise` itself.
-// This is what lets a caller's own cancellation only ever fail that caller's own wait, never the
-// shared in-flight AssumeRole fetch it might be de-duped onto (or any other caller relying on that
-// same fetch) -- important because the intermediary hop's cache key is identical across every
-// workspace in the process, so an unrelated tenant could otherwise be sharing that same fetch.
-function awaitOwnSignal<T>(
-  promise: Promise<T>,
-  signal: AbortSignal | undefined,
-  onAbort: () => void
-): Promise<T> {
-  if (!signal) {
-    return promise
-  }
-  if (signal.aborted) {
-    onAbort()
-    return Promise.reject(new RequestTimeoutError())
-  }
-  return new Promise<T>((resolve, reject) => {
-    const abortListener = () => {
-      onAbort()
-      reject(new RequestTimeoutError())
-    }
-    signal.addEventListener('abort', abortListener, { once: true })
-    promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', abortListener))
-  })
-}
-
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -124,74 +91,39 @@ export class Client {
     this.features = features
   }
 
-  async assumeRole(signal?: AbortSignal): Promise<Credentials> {
+  async assumeRole(): Promise<Credentials> {
     const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
     const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-    const intermediaryCreds = await this.getSTSCredentials(
-      intermediaryARN,
-      intermediaryExternalId,
-      'intermediary',
-      undefined,
-      signal
-    )
-    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds, signal)
+    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId, 'intermediary')
+    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds)
   }
 
   private async getSTSCredentials(
     roleId: string,
     externalId: string,
     roleType: 'intermediary' | 'customer',
-    credentials?: Credentials,
-    signal?: AbortSignal
+    credentials?: Credentials
   ): Promise<Credentials> {
     // Tag every metric with the hop (intermediary vs customer role) so DataDog can break the
     // cache hit/miss counts down per hop of the two-hop assume-role chain.
     const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
     const statsClient = this.statsContext?.statsClient
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
 
     if (!cacheEnabled) {
-      return this.assumeRoleUncached(roleId, externalId, roleType, credentials, signal)
+      return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
     }
 
     // lru-cache purges an expired entry as soon as a get() finds it stale (default behavior), so
     // a cache miss here already means "absent or past its ttl" — no separate expiry check needed.
+    const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
     const cached = credentialsCache.get(cacheKey)
     if (cached) {
       safeIncr(statsClient, 'sts_credential_cache_hit', tags)
       return cached
     }
-
-    // De-dupe concurrent misses for the same key: if a fetch for this key is already in flight,
-    // await and share that result instead of issuing a second concurrent AssumeRole call, which
-    // would reproduce the exact STS-throttling problem this cache exists to prevent. The miss
-    // metric is only emitted by the caller that actually kicks off a new fetch, below — a caller
-    // that joins an in-flight fetch didn't cause a cache miss of its own to be resolved via STS.
-    //
-    // Neither this caller nor any other caller sharing the fetch passes its own `signal` into the
-    // underlying STS call (see assumeRoleUncached below) -- only into awaitOwnSignal, so each
-    // caller's own cancellation only fails its own wait and never aborts the shared fetch out from
-    // under every other caller relying on it.
-    const onAbort = () => safeIncr(statsClient, 'sts_credential_request_aborted', tags)
-    const existingInFlight = inFlightAssumeRole.get(cacheKey)
-    if (existingInFlight) {
-      return awaitOwnSignal(existingInFlight, signal, onAbort)
-    }
     safeIncr(statsClient, 'sts_credential_cache_miss', tags)
-
-    const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials).then(
-      (creds) => {
-        inFlightAssumeRole.delete(cacheKey)
-        return creds
-      },
-      (err) => {
-        inFlightAssumeRole.delete(cacheKey)
-        throw err
-      }
-    )
-    inFlightAssumeRole.set(cacheKey, fetchPromise)
-    return awaitOwnSignal(fetchPromise, signal, onAbort)
+    return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
   }
 
   // Calls STS directly (no cache read) and, when the cache is enabled and STS returns a usable
@@ -201,11 +133,9 @@ export class Client {
     roleId: string,
     externalId: string,
     roleType: 'intermediary' | 'customer',
-    credentials?: Credentials,
-    signal?: AbortSignal
+    credentials?: Credentials
   ): Promise<Credentials> {
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
@@ -213,19 +143,7 @@ export class Client {
       RoleSessionName: this.roleSessionName,
       ExternalId: externalId
     })
-
-    // Use the system-configured AbortSignal passed down from perform/performBatch (the same one
-    // uploadS3 already passes to the S3 PutObject call below) rather than a bespoke timeout, so
-    // STS respects the same cancellation the rest of the request honors.
-    let result
-    try {
-      result = signal ? await stsClient.send(command, { abortSignal: signal }) : await stsClient.send(command)
-    } catch (err) {
-      if ((err as Error).name === 'AbortError') {
-        throw new RequestTimeoutError()
-      }
-      throw err
-    }
+    const result = await stsClient.send(command)
     if (
       !result.Credentials ||
       !result.Credentials.AccessKeyId ||
@@ -248,6 +166,7 @@ export class Client {
         // construction) — no separate eviction bookkeeping needed.
         const ttl = result.Credentials.Expiration.getTime() - Date.now() - CREDENTIALS_EXPIRY_BUFFER_MS
         if (ttl > 0) {
+          const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
           credentialsCache.set(cacheKey, creds, { ttl })
         }
         // ttl <= 0 means the credential is already within (or past) the expiry safety buffer —
@@ -294,7 +213,7 @@ export class Client {
       : s3_aws_folder_name?.endsWith('/')
       ? s3_aws_folder_name
       : `${s3_aws_folder_name}/`
-    const credentials = await this.assumeRole(signal)
+    const credentials = await this.assumeRole()
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
       region: this.region,
