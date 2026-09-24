@@ -101,7 +101,6 @@ export class Client {
       if (result.Credentials.Expiration) {
         // Cache the freshly minted credentials until shortly before STS says they expire.
         credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
-        statsClient?.incr('sts_credential_cache_set', 1, tags)
       } else {
         // STS always returns Expiration in practice (the SDK types it optional, but the API
         // contract guarantees it; confirmed in DataDog it's always present). If it's ever missing,

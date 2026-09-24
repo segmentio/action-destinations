@@ -204,17 +204,16 @@ describe('STS credential caching', () => {
     const clientWithStats = (statsContext: StatsContext) =>
       new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, statsContext, cacheFlagOn)
 
-    it('emits miss + set on first assume-role, hit on the second, tagged per role_type', async () => {
+    it('emits miss on first assume-role, hit on the second, tagged per role_type', async () => {
       mockStsSend.mockResolvedValue(stsOk())
       const { statsContext, incr } = makeStatsContext()
 
-      // First upload: both hops miss then set. Second upload: both hops hit.
+      // First upload: both hops miss. Second upload: both hops hit.
       await upload(clientWithStats(statsContext))
       await upload(clientWithStats(statsContext))
 
       const names = incr.mock.calls.map((c: unknown[]) => c[0])
       expect(names.filter((n: string) => n === 'sts_credential_cache_miss')).toHaveLength(2)
-      expect(names.filter((n: string) => n === 'sts_credential_cache_set')).toHaveLength(2)
       expect(names.filter((n: string) => n === 'sts_credential_cache_hit')).toHaveLength(2)
 
       // Metrics carry the caller's tags plus the role_type of each hop.
