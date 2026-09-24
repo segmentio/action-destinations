@@ -5,9 +5,14 @@ import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
 import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
-import { CachedCredentials, Credentials } from './types'
+import { LRUCache } from 'lru-cache'
+import { Credentials } from './types'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
+
+// Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
+// live at once; this is a generous cap that still bounds memory growth in a long-lived process.
+const MAX_CACHE_ENTRIES = 1000
 
 /**
  * Module-level STS credential cache, shared across every Client instance.
@@ -20,15 +25,12 @@ import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
  * number of files grows.
  *
  * Keyed by region + role ARN + external id, the inputs that determine the returned credentials.
- * Bounded to MAX_CACHE_ENTRIES (evicting the oldest entry, Map iteration order == insertion order)
- * so a long-lived process can't accumulate an unbounded number of entries across every distinct
- * customer role ever seen.
+ * Uses lru-cache (already a dependency, see hubspot's cache-functions.ts for the same pattern)
+ * instead of a hand-rolled Map so both size (`max`) and per-entry expiry (`ttl`, set per-call to
+ * each credential's actual STS-reported lifetime) are handled by a well-tested library rather
+ * than bespoke eviction/expiry logic.
  */
-const credentialsCache = new Map<string, CachedCredentials>()
-
-// Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
-// live at once; this is a generous cap that still bounds memory growth in a long-lived process.
-const MAX_CACHE_ENTRIES = 1000
+const credentialsCache = new LRUCache<string, Credentials>({ max: MAX_CACHE_ENTRIES })
 
 // De-dupes concurrent cache misses for the same key so a burst of concurrent uploads for a
 // not-yet-cached role shares one in-flight AssumeRole call instead of each independently calling
@@ -102,15 +104,12 @@ export class Client {
       return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
     }
 
+    // lru-cache purges an expired entry as soon as a get() finds it stale (default behavior), so
+    // a cache miss here already means "absent or past its ttl" — no separate expiry check needed.
     const cached = credentialsCache.get(cacheKey)
-    if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
-      safeIncr(statsClient, 'sts_credential_cache_hit', tags)
-      return cached.credentials
-    }
     if (cached) {
-      // Expired — remove it now rather than only overwriting on a future lookup for this same
-      // key, so a key that's never requested again doesn't sit in the cache indefinitely.
-      credentialsCache.delete(cacheKey)
+      safeIncr(statsClient, 'sts_credential_cache_hit', tags)
+      return cached
     }
     safeIncr(statsClient, 'sts_credential_cache_miss', tags)
 
@@ -172,16 +171,15 @@ export class Client {
 
     if (cacheEnabled) {
       if (result.Credentials.Expiration) {
-        // Cache the freshly minted credentials until shortly before STS says they expire.
-        credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
-        if (credentialsCache.size > MAX_CACHE_ENTRIES) {
-          // Bound total memory: evict the oldest entry (Map iteration order == insertion order)
-          // rather than letting every distinct role/externalId ever seen accumulate forever.
-          const oldestKey: string | undefined = credentialsCache.keys().next().value
-          if (oldestKey !== undefined) {
-            credentialsCache.delete(oldestKey)
-          }
+        // Cache the freshly minted credentials until shortly before STS says they expire. lru-cache
+        // handles both the per-entry expiry (ttl) and the overall size bound (max, set at
+        // construction) — no separate eviction bookkeeping needed.
+        const ttl = result.Credentials.Expiration.getTime() - Date.now() - CREDENTIALS_EXPIRY_BUFFER_MS
+        if (ttl > 0) {
+          credentialsCache.set(cacheKey, creds, { ttl })
         }
+        // ttl <= 0 means the credential is already within (or past) the expiry safety buffer —
+        // not safe to cache, so skip storing it; the next request will fetch a fresh one.
       } else {
         // STS always returns Expiration in practice (the SDK types it optional, but the API
         // contract guarantees it; confirmed in DataDog it's always present). If it's ever missing,

@@ -193,18 +193,20 @@ describe('STS credential caching', () => {
 
   // Regression: the cache had no eviction, so every distinct (region, roleArn, externalId) ever
   // seen accumulated a permanent entry for the life of the process.
-  it('when enabled, bounds cache size by evicting the oldest entry once the cap is exceeded', async () => {
+  it('when enabled, bounds cache size (lru-cache max) by evicting the least-recently-used entry once the cap is exceeded', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
 
     // Fill the cache well past its cap with distinct customer roles (intermediary role is shared
-    // and only counted once). The exact cap value is an implementation detail; this only asserts
-    // that the cache does not grow without bound.
+    // and only counted once). Each entry is touched exactly once (at insert) and never read again
+    // before the next insert, so under lru-cache's least-recently-used policy this is equivalent to
+    // FIFO — the earliest-inserted, never-revisited entries get evicted first. The exact cap value
+    // is an implementation detail; this only asserts that the cache does not grow without bound.
     const CAP_PROBE_COUNT = 1010
     for (let i = 0; i < CAP_PROBE_COUNT; i++) {
       await upload(newClient(`arn:aws:iam::123456789012:role/customer-${i}`, cacheFlagOn))
     }
 
-    // The very first customer role's entry must have been evicted by now (it was the oldest),
+    // The very first customer role's entry must have been evicted by now (least recently used),
     // so requesting it again must trigger a fresh STS call rather than a cache hit.
     const callsBeforeRefetch = mockStsSend.mock.calls.length
     await upload(newClient('arn:aws:iam::123456789012:role/customer-0', cacheFlagOn))
