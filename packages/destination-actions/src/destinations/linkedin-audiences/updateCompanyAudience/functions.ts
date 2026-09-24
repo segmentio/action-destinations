@@ -89,7 +89,7 @@ export function normalizeCompanyPageUrl(value?: string): string | undefined {
   // the company's identity and can push an otherwise valid url past the length limit, costing us
   // the identifier altogether. The path is left alone: which segments are meaningful is
   // LinkedIn's business, not ours.
-  const withoutQuery = url.replace(SCHEME_PREFIX, '').split(/[?#]/)[0]
+  const withoutQuery = url.replace(SCHEME_PREFIX, '').replace(LEADING_SLASHES, '').split(/[?#]/)[0]
 
   return withinLength(trimmed(withoutQuery.replace(TRAILING_SLASHES, '')), MAX_COMPANY_PAGE_URL_LENGTH)
 }
