@@ -3,7 +3,7 @@ import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
-import { STS_REQUEST_TIMEOUT_MS } from '../syncToS3/constants'
+import { CREDENTIALS_EXPIRY_BUFFER_MS, STS_REQUEST_TIMEOUT_MS } from '../syncToS3/constants'
 
 // Controllable STS send mock so the caching tests can control credential responses.
 const mockStsSend = jest.fn()
@@ -353,22 +353,20 @@ describe('STS credential caching', () => {
   })
 
   it('when enabled, expires a cached credential once real time passes its ttl', async () => {
-    jest.useFakeTimers()
-    try {
-      // Expires in 15 minutes -> ttl = 15min - 5min buffer = 10min.
-      mockStsSend.mockResolvedValue(stsResponse(15 * 60 * 1000))
+    // lru-cache tracks ttl internally via perf_hooks' performance.now(), which jest's fake timers
+    // do not advance (they only affect Date/setTimeout), so this test uses a real, short-lived ttl
+    // and waits in real time instead of faking the clock.
+    const ttlMs = 20
+    mockStsSend.mockResolvedValue(stsResponse(CREDENTIALS_EXPIRY_BUFFER_MS + ttlMs))
 
-      await upload(newClient(settings.iam_role_arn, cacheFlagOn))
-      expect(mockStsSend).toHaveBeenCalledTimes(2)
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    expect(mockStsSend).toHaveBeenCalledTimes(2)
 
-      jest.advanceTimersByTime(11 * 60 * 1000)
+    await new Promise((resolve) => setTimeout(resolve, ttlMs + 100))
 
-      await upload(newClient(settings.iam_role_arn, cacheFlagOn))
-      // Both hops' cached entries have expired, so this upload must re-fetch from STS.
-      expect(mockStsSend).toHaveBeenCalledTimes(4)
-    } finally {
-      jest.useRealTimers()
-    }
+    await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    // Both hops' cached entries have expired, so this upload must re-fetch from STS.
+    expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 
   describe('DataDog metrics', () => {
