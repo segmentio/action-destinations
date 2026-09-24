@@ -185,13 +185,24 @@ export function mapAWSError(err: unknown, context: string): Error {
     // S3 returns a redirect (e.g. PermanentRedirect, HTTP 301) when the bucket lives in a
     // different region than configured. It's a permanent client misconfiguration, so surface a
     // non-retryable 401 rather than leaking the raw 3xx redirect status.
+    // Note: TemporaryRedirect (bucket mid-migration) and PermanentRedirect (fixed misconfiguration)
+    // are intentionally collapsed into the same non-retryable bucket here — a normal retry window
+    // won't resolve either, even though their root causes differ.
     return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, 401)
   }
-  // A client fault (4xx that is not throttling) is permanent - do not retry.
+  if (code && transientClientCodes.has(code)) {
+    // Despite carrying a 4xx status, AWS documents these as safe/recommended to retry
+    // (e.g. OperationAborted: "a conflicting conditional operation is currently in progress
+    // against this resource, please try again"; RequestTimeout: client-side upload stalled).
+    return new RetryableError(detail)
+  }
+  // A client fault (4xx that is not throttling/transient) is permanent - do not retry.
   if (e?.$fault === 'client' || (typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500)) {
     // Only ever surface a genuine 4xx as the status; never leak a non-4xx (e.g. a 3xx redirect).
     const status = typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500 ? httpStatus : 400
-    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, status)
+    // Not necessarily an auth problem — just an unclassified client-side failure — so use a
+    // neutral error code rather than mislabeling it as an authentication issue.
+    return new IntegrationError(detail, ErrorCodes.UNKNOWN_ERROR, status)
   }
   // Transient / server-side / unclassified failures are safe to retry.
   return new RetryableError(detail)
@@ -231,6 +242,9 @@ const throttlingCodes = new Set(['SlowDown', 'Throttling', 'ThrottlingException'
 
 // Region mismatch: S3 returns a 3xx redirect when the bucket is in a different region than configured.
 const redirectCodes = new Set(['PermanentRedirect', 'TemporaryRedirect'])
+
+// AWS documents these as transient despite carrying a 4xx status — safe (and recommended) to retry.
+const transientClientCodes = new Set(['OperationAborted', 'RequestTimeout'])
 
 // isAWSError validates that the error is an generic AWS error
 export function isAWSError(err: unknown): err is AWSError {

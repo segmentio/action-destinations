@@ -1,6 +1,6 @@
 import { Client, isAWSError, mapAWSError } from '../syncToS3/client'
 import { _Error as AWSError } from '@aws-sdk/client-s3'
-import { APIError, IntegrationError, RetryableError } from '@segment/actions-core'
+import { APIError, ErrorCodes, IntegrationError, RetryableError } from '@segment/actions-core'
 import type { Features } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { S3_STS_ERROR_CLASSIFICATION_FLAG } from '../constants'
@@ -178,5 +178,53 @@ describe('mapAWSError', () => {
     const err = mapAWSError(new Error('Could not load credentials from any providers'), 'Failed to assume AWS role')
     expect(err).toBeInstanceOf(RetryableError)
     expect(err.message).toContain('Could not load credentials from any providers')
+  })
+
+  it('classifies NoSuchBucket as a non-retryable 404', () => {
+    const err = mapAWSError({ Code: 'NoSuchBucket', Message: 'no such bucket' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(404)
+  })
+
+  // Regression: these carry a 4xx status but AWS documents them as transient/safe to retry, so
+  // they must not fall into the generic "4xx is permanent" branch.
+  it('treats OperationAborted (409) as retryable despite its 4xx status', () => {
+    const err = mapAWSError(
+      { Code: 'OperationAborted', Message: 'conflicting operation in progress', $fault: 'client', $metadata: { httpStatusCode: 409 } },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RetryableError)
+  })
+
+  it('treats RequestTimeout (400) as retryable despite its 4xx status', () => {
+    const err = mapAWSError(
+      { Code: 'RequestTimeout', Message: 'upload stalled', $fault: 'client', $metadata: { httpStatusCode: 400 } },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RetryableError)
+  })
+
+  it('does not mislabel an unclassified 4xx client fault as an authentication error', () => {
+    const err = mapAWSError(
+      { name: 'ValidationError', message: 'bad', $fault: 'client', $metadata: { httpStatusCode: 400 } },
+      'Failed to assume AWS role'
+    )
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
+  })
+
+  it('treats a $fault: server error with a 5xx status as retryable, not a client fault', () => {
+    const err = mapAWSError(
+      { name: 'InternalError', message: 'internal', $fault: 'server', $metadata: { httpStatusCode: 500 } },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RetryableError)
+  })
+
+  it('clamps to 400 when $fault is client and $metadata is entirely absent', () => {
+    const err = mapAWSError({ name: 'SomeClientFault', message: 'bad', $fault: 'client' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(400)
   })
 })
