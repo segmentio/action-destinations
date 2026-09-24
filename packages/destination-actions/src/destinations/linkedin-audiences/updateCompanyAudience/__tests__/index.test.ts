@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
 import { BASE_URL } from '../../constants'
+import { MAX_CITY_LENGTH } from '../constants'
 import { toOrganizationUrn } from '../functions'
 import type { Settings } from '../../generated-types'
 
@@ -388,7 +389,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             identifiers: { companyDomain: { '@path': '$.traits.company_domain' } }
           }
         })
-      ).rejects.toThrow('`Audience Key` field is required')
+      ).rejects.toThrow('The `Audience Key` field is required to look up or create a LinkedIn DMP Company Segment.')
     })
 
     it('throws a validation error when no identifier is provided', async () => {
@@ -400,7 +401,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           useDefaultMappings: true,
           mapping: { dmp_company_action: 'ADD', ...baseMapping, identifiers: {} }
         })
-      ).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required")
+      ).rejects.toThrow(
+        "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
+      )
     })
 
     it('treats a LinkedIn Company ID that is only the URN prefix as missing', async () => {
@@ -412,7 +415,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           useDefaultMappings: true,
           mapping: { dmp_company_action: 'ADD', ...baseMapping }
         })
-      ).rejects.toThrow("At least one of 'Company Domain' or 'LinkedIn Company ID' is required")
+      ).rejects.toThrow(
+        "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
+      )
     })
 
     it('rejects a dmp_company_action that is not exactly ADD or REMOVE', async () => {
@@ -615,7 +620,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
         errormessage:
-          "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field.",
+          "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field.",
         errorreporter: 'INTEGRATIONS'
       })
 
@@ -687,7 +692,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       expect(response[0].status).toBe(400)
-      expect((response[0] as any).errormessage).toContain("At least one of 'Company Domain'")
+      expect((response[0] as any).errormessage).toBe(
+        "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
+      )
       expect(response[1].status).toBe(201)
     })
 
@@ -712,7 +719,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       expect(response[0].status).toBe(201)
       expect(response[1].status).toBe(400)
-      expect((response[1] as any).errormessage).toContain('did not return a result')
+      expect((response[1] as any).errormessage).toBe('LinkedIn did not return a result for this company.')
     })
 
     it('throws when segment resolution fails so the whole batch is retried/failed together', async () => {
@@ -787,7 +794,339 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           mapping: { ...batchMapping, computation_key: '   ' }
         })
         .catch((e) => e)
-      expect(error.message).toContain('`Audience Key` field is required')
+      expect(error.message).toBe(
+        'The `Audience Key` field is required to look up or create a LinkedIn DMP Company Segment.'
+      )
+    })
+  })
+
+  describe('company fields', () => {
+    const companyFieldsBase = {
+      audience_source: 'ENGAGE_RETL',
+      computation_key: SOURCE_SEGMENT_ID,
+      dmp_company_action: 'ADD'
+    }
+
+    // Captures the batch body so each test can assert on exactly what LinkedIn was sent.
+    const mockBatch = () => {
+      const captured: { body?: any } = {}
+      nock(BASE_URL)
+        .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+          captured.body = body
+          return true
+        })
+        .reply(200, { elements: [{ status: 201 }, { status: 201 }, { status: 201 }] })
+      return captured
+    }
+
+    // Sends one event and returns the single element LinkedIn received.
+    const sendOne = async (mapping: Record<string, unknown>) => {
+      mockLookup()
+      const captured = mockBatch()
+      await testDestination.testAction('updateCompanyAudience', {
+        event: { type: 'track', traits: {} } as any,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { ...companyFieldsBase, ...mapping }
+      })
+      return captured.body.elements[0]
+    }
+
+    describe('identifiers', () => {
+      it('sends every identifier when all five are provided', async () => {
+        const element = await sendOne({
+          identifiers: {
+            companyName: 'Microsoft',
+            companyDomain: 'microsoft.com',
+            companyEmailDomain: 'microsoft.com',
+            linkedInCompanyId: '1035',
+            companyPageUrl: 'linkedin.com/company/microsoft'
+          }
+        })
+
+        expect(element).toEqual({
+          action: 'ADD',
+          companyName: 'Microsoft',
+          companyWebsiteDomain: 'microsoft.com',
+          companyEmailDomain: 'microsoft.com',
+          organizationUrn: 'urn:li:organization:1035',
+          companyPageUrl: 'linkedin.com/company/microsoft'
+        })
+      })
+
+      it('accepts a company name on its own, with no domain or company id', async () => {
+        const element = await sendOne({ identifiers: { companyName: 'Microsoft' } })
+        expect(element).toEqual({ action: 'ADD', companyName: 'Microsoft' })
+      })
+
+      it('accepts a company page url on its own', async () => {
+        const element = await sendOne({ identifiers: { companyPageUrl: 'linkedin.com/company/microsoft' } })
+        expect(element).toEqual({ action: 'ADD', companyPageUrl: 'linkedin.com/company/microsoft' })
+      })
+
+      it('accepts a company email domain on its own', async () => {
+        const element = await sendOne({ identifiers: { companyEmailDomain: 'microsoft.com' } })
+        expect(element).toEqual({ action: 'ADD', companyEmailDomain: 'microsoft.com' })
+      })
+
+      it('rejects a payload where every identifier is blank', async () => {
+        await expect(
+          testDestination.testAction('updateCompanyAudience', {
+            event: { type: 'track', traits: {} } as any,
+            settings,
+            auth,
+            useDefaultMappings: true,
+            mapping: { ...companyFieldsBase, identifiers: { companyName: '  ', companyDomain: '' } }
+          })
+        ).rejects.toThrow(
+          "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
+        )
+      })
+
+      it('trims and lower-cases companyWebsiteDomain but does not strip a scheme or path', async () => {
+        // Deliberately unchanged production behaviour: trim and lowercase only, so a scheme and
+        // path are passed through rather than stripped. See STRATCONN-7046.
+        const element = await sendOne({ identifiers: { companyDomain: '  HTTPS://WWW.Microsoft.com/about  ' } })
+        expect(element.companyWebsiteDomain).toBe('https://www.microsoft.com/about')
+      })
+    })
+
+    describe('traits', () => {
+      const allTraits = {
+        industries: ['Information Technology', 'Software'],
+        city: 'Seattle',
+        state: 'WA',
+        country: 'US',
+        postalCode: '98101',
+        stockSymbol: 'msft'
+      }
+
+      it('sends no traits when the toggle is off, even if they are mapped', async () => {
+        const element = await sendOne({
+          identifiers: { companyName: 'Microsoft' },
+          send_company_traits: false,
+          company_traits: allTraits
+        })
+
+        expect(element).toEqual({ action: 'ADD', companyName: 'Microsoft' })
+      })
+
+      it('sends no traits when the toggle is absent', async () => {
+        const element = await sendOne({
+          identifiers: { companyName: 'Microsoft' },
+          company_traits: allTraits
+        })
+
+        expect(element).toEqual({ action: 'ADD', companyName: 'Microsoft' })
+      })
+
+      it('sends every trait when the toggle is on', async () => {
+        const element = await sendOne({
+          identifiers: { companyName: 'Microsoft' },
+          send_company_traits: true,
+          company_traits: allTraits
+        })
+
+        expect(element).toEqual({
+          action: 'ADD',
+          companyName: 'Microsoft',
+          industries: ['Information Technology', 'Software'],
+          city: 'Seattle',
+          state: 'WA',
+          country: 'US',
+          postalCode: '98101',
+          stockSymbol: 'MSFT'
+        })
+      })
+
+      // Each case maps a single trait, and asserts on the whole element rather than just that one
+      // key: if the other traits showed up in the request as empty values, the test would fail.
+      it.each([
+        ['city', 'Seattle', 'Seattle'],
+        ['state', 'WA', 'WA'],
+        ['country', 'us', 'US'],
+        ['postalCode', '98101', '98101'],
+        ['stockSymbol', 'msft', 'MSFT']
+      ])('sends %s on its own', async (key: string, value: string, expected: string) => {
+        const element = await sendOne({
+          identifiers: { companyName: 'Microsoft' },
+          send_company_traits: true,
+          company_traits: { [key]: value }
+        })
+        expect(element).toEqual({ action: 'ADD', companyName: 'Microsoft', [key]: expected })
+      })
+
+      describe('industries', () => {
+        it('splits a single comma-separated value into separate industries', async () => {
+          const element = await sendOne({
+            identifiers: { companyName: 'Microsoft' },
+            send_company_traits: true,
+            company_traits: { industries: 'Software, Information Technology' }
+          })
+          expect(element.industries).toEqual(['Software', 'Information Technology'])
+        })
+      })
+
+      describe('country', () => {
+        it('accepts a lowercase code, which a choices enum would have rejected outright', async () => {
+          // The field is deliberately not a `choices` list: an enum rejects the whole event before
+          // the action runs, so a lowercase 'us' would cost the company its audience membership.
+          const element = await sendOne({
+            identifiers: { companyName: 'Microsoft' },
+            send_company_traits: true,
+            company_traits: { country: 'de' }
+          })
+          expect(element.country).toBe('DE')
+        })
+      })
+
+      it('does not reject the event when a trait breaches a limit', async () => {
+        const element = await sendOne({
+          identifiers: { companyName: 'Microsoft' },
+          send_company_traits: true,
+          company_traits: { city: 'a'.repeat(MAX_CITY_LENGTH + 1), country: 'UK' }
+        })
+        expect(element).toEqual({ action: 'ADD', companyName: 'Microsoft' })
+      })
+    })
+
+    describe('batch behaviour', () => {
+      const batchMapping = {
+        ...companyFieldsBase,
+        identifiers: { companyName: { '@path': '$.traits.company_name' } },
+        enable_batching: true
+      }
+
+      it('sends one element per distinct name-only company rather than collapsing them', async () => {
+        mockLookup()
+        let sentBody: any
+        nock(BASE_URL)
+          .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+            sentBody = body
+            return true
+          })
+          .reply(200, { elements: [{ status: 201 }, { status: 201 }, { status: 201 }] })
+
+        const events = [
+          { type: 'track', traits: { company_name: 'Microsoft' } },
+          { type: 'track', traits: { company_name: 'Apple' } },
+          { type: 'track', traits: { company_name: 'Google' } }
+        ] as any
+
+        const response = await testDestination.executeBatch('updateCompanyAudience', {
+          events,
+          settings,
+          auth,
+          mapping: batchMapping
+        })
+
+        expect(sentBody.elements).toHaveLength(3)
+        expect(sentBody.elements[0].companyName).toBe('Microsoft')
+        expect(sentBody.elements[1].companyName).toBe('Apple')
+        expect(sentBody.elements[2].companyName).toBe('Google')
+
+        expect(response[0].status).toBe(201)
+        expect(response[1].status).toBe(201)
+        expect(response[2].status).toBe(201)
+      })
+
+      // The case the dedupe exists for: several users in an Engage Audience belong to the same
+      // company, so the batch carries the same company several times. Sending it once is the
+      // point, but the single result then has to be reported against every event that produced
+      // it, or the events that were collapsed away would look like they had never been processed.
+      it('collapses users who share a company and fans the result back to each event', async () => {
+        mockLookup()
+        let sentBody: any
+        nock(BASE_URL)
+          .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+            sentBody = body
+            return true
+          })
+          // LinkedIn replies with one result because it is sent one company.
+          .reply(200, { elements: [{ status: 201 }] })
+
+        // Three separate events, all resolving to the same company.
+        const events = [
+          { type: 'track', traits: { company_name: 'Microsoft' } },
+          { type: 'track', traits: { company_name: 'Microsoft' } },
+          { type: 'track', traits: { company_name: 'Microsoft' } }
+        ] as any
+
+        const response = await testDestination.executeBatch('updateCompanyAudience', {
+          events,
+          settings,
+          auth,
+          mapping: batchMapping
+        })
+
+        // All three share a companyKey, so LinkedIn is sent the company once rather than 3 times.
+        expect(sentBody.elements).toHaveLength(1)
+
+        // The one result is fanned back out: each original event reports its own 201, so none of
+        // them is left without a status.
+        expect(response[0].status).toBe(201)
+        expect(response[1].status).toBe(201)
+        expect(response[2].status).toBe(201)
+      })
+
+      // Two users at the same company whose profiles disagree about where it is. Because traits
+      // are deliberately left out of the companyKey, the two still collapse into one company, and
+      // exactly one profile's traits are sent — the other user's are discarded. This is the
+      // behaviour the 'Send Company Traits' toggle warns about, and it is why the toggle exists.
+      it('sends one profile’s traits and discards the other when users at a company disagree', async () => {
+        mockLookup()
+        let sentBody: any
+        nock(BASE_URL)
+          .post(`/dmpSegments/${SEGMENT_ID}/companies`, (body) => {
+            sentBody = body
+            return true
+          })
+          .reply(200, { elements: [{ status: 201 }] })
+
+        // Same company, but every trait disagrees between the two profiles.
+        const seattleProfile = { city: 'Seattle', state: 'WA', postalCode: '98101' }
+        const austinProfile = { city: 'Austin', state: 'TX', postalCode: '78701' }
+
+        const events = [
+          { type: 'track', traits: { company_name: 'Microsoft', city: 'Seattle', state: 'WA', zip: '98101' } },
+          { type: 'track', traits: { company_name: 'Microsoft', city: 'Austin', state: 'TX', zip: '78701' } }
+        ] as any
+
+        const response = await testDestination.executeBatch('updateCompanyAudience', {
+          events,
+          settings,
+          auth,
+          mapping: {
+            ...batchMapping,
+            send_company_traits: true,
+            company_traits: {
+              city: { '@path': '$.traits.city' },
+              state: { '@path': '$.traits.state' },
+              postalCode: { '@path': '$.traits.zip' }
+            }
+          }
+        })
+
+        // One company goes to LinkedIn, not two.
+        expect(sentBody.elements).toHaveLength(1)
+
+        const sentTraits = {
+          city: sentBody.elements[0].city,
+          state: sentBody.elements[0].state,
+          postalCode: sentBody.elements[0].postalCode
+        }
+
+        // One profile wins outright and its traits travel together. The test accepts either
+        // profile because which one wins is not stable — it depends on the order the batch
+        // happens to arrive in — but it must be one of them whole. A merged result such as
+        // Seattle's city with Texas's state would fail here, and would describe no real place.
+        expect([seattleProfile, austinProfile]).toContainEqual(sentTraits)
+
+        // Both events still report their own status, even though one profile's traits were dropped.
+        expect(response[0].status).toBe(201)
+        expect(response[1].status).toBe(201)
+      })
     })
   })
 })
