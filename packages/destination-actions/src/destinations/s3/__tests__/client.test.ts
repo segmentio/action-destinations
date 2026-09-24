@@ -373,6 +373,42 @@ describe('STS credential caching', () => {
     await expect(promise).rejects.toThrow('Request timed out before receiving a response')
   })
 
+  // Regression: the in-flight de-dup map shares one underlying AssumeRole fetch across concurrent
+  // callers for the same key. An earlier version of this forwarded whichever caller happened to
+  // start that fetch's own AbortSignal directly into the shared STS call, so if THAT caller's
+  // request aborted, every other caller sharing the fetch (including unrelated tenants, since the
+  // intermediary hop's cache key is identical across every workspace) got spuriously killed too.
+  it(
+    "when enabled, does not let one caller's own AbortSignal fail an unrelated caller sharing " +
+      'the same in-flight fetch',
+    async () => {
+      let resolveIntermediary: (value: unknown) => void = () => {}
+      mockStsSend
+        .mockImplementationOnce(() => new Promise((resolve) => (resolveIntermediary = resolve)))
+        .mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+      const controllerA = new AbortController()
+      const promiseA = newClient(settings.iam_role_arn, cacheFlagOn).uploadS3(
+        settings,
+        'content',
+        'file',
+        '',
+        'csv',
+        controllerA.signal
+      )
+      // B shares A's in-flight intermediary-hop fetch but passes no signal of its own.
+      const promiseB = newClient(settings.iam_role_arn, cacheFlagOn).uploadS3(settings, 'content', 'file', '', 'csv')
+
+      controllerA.abort()
+      await expect(promiseA).rejects.toThrow('Request timed out before receiving a response')
+
+      // The shared fetch itself was never aborted -- once it actually resolves, B (whose own
+      // signal never fired) must still succeed normally.
+      resolveIntermediary(stsResponse(60 * 60 * 1000))
+      await expect(promiseB).resolves.toBeDefined()
+    }
+  )
+
   it('is off by default: still forwards the caller-provided AbortSignal into STS calls', async () => {
     const controller = new AbortController()
     mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {

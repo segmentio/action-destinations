@@ -80,6 +80,33 @@ function safeIncr(statsClient: StatsContext['statsClient'] | undefined, metric: 
   }
 }
 
+// Rejects this specific caller's wait if `signal` fires, WITHOUT touching `promise` itself.
+// This is what lets a caller's own cancellation only ever fail that caller's own wait, never the
+// shared in-flight AssumeRole fetch it might be de-duped onto (or any other caller relying on that
+// same fetch) -- important because the intermediary hop's cache key is identical across every
+// workspace in the process, so an unrelated tenant could otherwise be sharing that same fetch.
+function awaitOwnSignal<T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+  onAbort: () => void
+): Promise<T> {
+  if (!signal) {
+    return promise
+  }
+  if (signal.aborted) {
+    onAbort()
+    return Promise.reject(new RequestTimeoutError())
+  }
+  return new Promise<T>((resolve, reject) => {
+    const abortListener = () => {
+      onAbort()
+      reject(new RequestTimeoutError())
+    }
+    signal.addEventListener('abort', abortListener, { once: true })
+    promise.then(resolve, reject).finally(() => signal.removeEventListener('abort', abortListener))
+  })
+}
+
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -141,13 +168,19 @@ export class Client {
     // would reproduce the exact STS-throttling problem this cache exists to prevent. The miss
     // metric is only emitted by the caller that actually kicks off a new fetch, below — a caller
     // that joins an in-flight fetch didn't cause a cache miss of its own to be resolved via STS.
+    //
+    // Neither this caller nor any other caller sharing the fetch passes its own `signal` into the
+    // underlying STS call (see assumeRoleUncached below) -- only into awaitOwnSignal, so each
+    // caller's own cancellation only fails its own wait and never aborts the shared fetch out from
+    // under every other caller relying on it.
+    const onAbort = () => safeIncr(statsClient, 'sts_credential_request_aborted', tags)
     const existingInFlight = inFlightAssumeRole.get(cacheKey)
     if (existingInFlight) {
-      return existingInFlight
+      return awaitOwnSignal(existingInFlight, signal, onAbort)
     }
     safeIncr(statsClient, 'sts_credential_cache_miss', tags)
 
-    const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials, signal).then(
+    const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials).then(
       (creds) => {
         inFlightAssumeRole.delete(cacheKey)
         return creds
@@ -158,7 +191,7 @@ export class Client {
       }
     )
     inFlightAssumeRole.set(cacheKey, fetchPromise)
-    return fetchPromise
+    return awaitOwnSignal(fetchPromise, signal, onAbort)
   }
 
   // Calls STS directly (no cache read) and, when the cache is enabled and STS returns a usable
