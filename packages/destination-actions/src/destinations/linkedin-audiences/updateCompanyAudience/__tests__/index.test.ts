@@ -859,7 +859,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
             companyDomain: 'microsoft.com',
             companyEmailDomain: 'microsoft.com',
             linkedInCompanyId: '1035',
-            companyPageUrl: 'linkedin.com/company/microsoft'
+            companyPageUrl: 'https://linkedin.com/company/microsoft'
           }
         })
 
@@ -888,8 +888,28 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       })
 
       it('accepts a company page url on its own', async () => {
-        const element = await sendOne({ identifiers: { companyPageUrl: 'linkedin.com/company/microsoft' } })
+        const element = await sendOne({ identifiers: { companyPageUrl: 'https://linkedin.com/company/microsoft' } })
         expect(element).toEqual({ action: 'ADD', companyPageUrl: 'linkedin.com/company/microsoft' })
+      })
+
+      // The field carries format: 'uri', so a scheme-less url never reaches perform. The whole
+      // event is rejected, not just the identifier, which is why the description asks for a full
+      // url rather than normalizing one.
+      it('rejects the event when the company page url has no scheme', async () => {
+        mockLookup()
+        mockBatch()
+        await expect(
+          testDestination.testAction('updateCompanyAudience', {
+            event: { type: 'track', traits: {} } as any,
+            settings,
+            auth,
+            useDefaultMappings: true,
+            mapping: {
+              ...companyFieldsBase,
+              identifiers: { companyDomain: 'microsoft.com', companyPageUrl: 'linkedin.com/company/microsoft' }
+            }
+          })
+        ).rejects.toThrow(/uri/i)
       })
 
       it('accepts a company email domain on its own', async () => {

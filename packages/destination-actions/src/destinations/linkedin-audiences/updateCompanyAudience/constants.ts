@@ -25,6 +25,7 @@ export const RETRYABLE_STATUSES: readonly number[] = [408, 409, 423, 429, 500, 5
 // rather than truncated: a truncated city is a wrong city, and as a match signal that is worse
 // than no signal at all.
 export const MAX_COMPANY_PAGE_URL_LENGTH = 100
+export const LINKEDIN_HOST = 'linkedin.com'
 export const MAX_INDUSTRY_LENGTH = 50
 export const MAX_INDUSTRIES = 3
 export const MAX_CITY_LENGTH = 50

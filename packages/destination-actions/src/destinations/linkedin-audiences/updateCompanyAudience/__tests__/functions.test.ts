@@ -113,22 +113,25 @@ describe('normalizeDomain', () => {
 })
 
 describe('normalizeCompanyPageUrl', () => {
+  // Only values carrying a scheme are tested: the field is declared format: 'uri', so anything
+  // without one is rejected before it reaches here.
   it.each([
-    ['a plain url', 'linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
-    ['a scheme', 'https://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
-    ['an upper case scheme', 'HTTPS://LinkedIn.com/company/Microsoft', 'linkedin.com/company/microsoft'],
-    ['a mixed case scheme', 'HtTpS://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    ['https', 'https://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
     ['http', 'http://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    ['an upper case scheme and host', 'HTTPS://LinkedIn.com/company/Microsoft', 'linkedin.com/company/microsoft'],
     ['www', 'https://www.linkedin.com/company/microsoft', 'www.linkedin.com/company/microsoft'],
-    ['a trailing slash', 'linkedin.com/company/microsoft/', 'linkedin.com/company/microsoft'],
-    ['repeated trailing slashes', 'linkedin.com/company/microsoft///', 'linkedin.com/company/microsoft'],
-    ['surrounding whitespace', '  linkedin.com/company/microsoft  ', 'linkedin.com/company/microsoft'],
-    ['tabs and newlines', '\tlinkedin.com/company/microsoft\n', 'linkedin.com/company/microsoft'],
-    ['upper case in the path', 'linkedin.com/company/Microsoft', 'linkedin.com/company/microsoft'],
-    ['a deep path', 'linkedin.com/company/microsoft/about', 'linkedin.com/company/microsoft/about'],
-    ['a query string', 'linkedin.com/company/microsoft?trk=x', 'linkedin.com/company/microsoft'],
-    ['a fragment', 'linkedin.com/company/microsoft#about', 'linkedin.com/company/microsoft'],
-    ['a query string and a fragment', 'linkedin.com/company/microsoft?trk=x#about', 'linkedin.com/company/microsoft'],
+    ['a country subdomain', 'https://de.linkedin.com/company/microsoft', 'de.linkedin.com/company/microsoft'],
+    [
+      'a showcase page',
+      'https://www.linkedin.com/showcase/microsoft-azure',
+      'www.linkedin.com/showcase/microsoft-azure'
+    ],
+    ['a hyphenated company slug', 'https://linkedin.com/company/my-company', 'linkedin.com/company/my-company'],
+    ['a deep path', 'https://linkedin.com/company/microsoft/about', 'linkedin.com/company/microsoft/about'],
+    ['a bare host with no path', 'https://linkedin.com', 'linkedin.com'],
+    ['repeated trailing slashes', 'https://linkedin.com/company/microsoft///', 'linkedin.com/company/microsoft'],
+    ['a query string', 'https://linkedin.com/company/microsoft?trk=x', 'linkedin.com/company/microsoft'],
+    ['a fragment', 'https://linkedin.com/company/microsoft#about', 'linkedin.com/company/microsoft'],
     [
       'a real tracking parameter copied from a browser',
       'https://www.linkedin.com/company/microsoft?trk=public_profile_topcard-current-company',
@@ -136,27 +139,22 @@ describe('normalizeCompanyPageUrl', () => {
     ],
     [
       'a trailing slash before a query string',
-      'linkedin.com/company/microsoft/?viewAsMember=true',
+      'https://linkedin.com/company/microsoft/?viewAsMember=true',
       'linkedin.com/company/microsoft'
     ],
-    ['a bare host with no path', 'linkedin.com', 'linkedin.com'],
-    ['a protocol-relative url', '//linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
-    ['extra leading slashes', '///linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
-    [
-      'a protocol-relative url with case and a trailing slash',
-      '//WWW.LinkedIn.com/company/Microsoft/',
-      'www.linkedin.com/company/microsoft'
-    ],
-    ['a hyphenated company slug', 'linkedin.com/company/my-company', 'linkedin.com/company/my-company'],
     [
       'a user, which is not part of the page',
       'https://joe@www.linkedin.com/company/microsoft',
       'www.linkedin.com/company/microsoft'
     ],
-    ['a port, which is not part of the page', 'linkedin.com:8080/company/microsoft', 'linkedin.com/company/microsoft'],
     [
-      'scheme, case, whitespace, query and trailing slashes together',
-      '  HTTPS://WWW.LinkedIn.com/company/Microsoft//?trk=x#about  ',
+      'a port, which is not part of the page',
+      'https://linkedin.com:8080/company/microsoft',
+      'linkedin.com/company/microsoft'
+    ],
+    [
+      'case, path, query and trailing slashes together',
+      'HTTPS://WWW.LinkedIn.com/company/Microsoft//?trk=x#about',
       'www.linkedin.com/company/microsoft'
     ]
   ])('handles %s', (_label: string, input: string, expected: string) => {
@@ -165,29 +163,23 @@ describe('normalizeCompanyPageUrl', () => {
 
   describe('length limit', () => {
     const prefix = 'linkedin.com/company/'
+    const bareUrlOfLength = (length: number) => `${prefix}${'a'.repeat(length - prefix.length)}`
 
     it(`keeps a url of exactly ${MAX_COMPANY_PAGE_URL_LENGTH} characters`, () => {
-      const url = `${prefix}${'a'.repeat(MAX_COMPANY_PAGE_URL_LENGTH - prefix.length)}`
-      expect(url).toHaveLength(MAX_COMPANY_PAGE_URL_LENGTH)
-      expect(normalizeCompanyPageUrl(url)).toBe(url)
+      const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH)
+      expect(normalizeCompanyPageUrl(`https://${bare}`)).toBe(bare)
     })
 
     it('drops a url one character over the limit rather than truncating it', () => {
-      const url = `${prefix}${'a'.repeat(MAX_COMPANY_PAGE_URL_LENGTH + 1 - prefix.length)}`
-      expect(url).toHaveLength(MAX_COMPANY_PAGE_URL_LENGTH + 1)
-      expect(normalizeCompanyPageUrl(url)).toBeUndefined()
+      const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH + 1)
+      expect(normalizeCompanyPageUrl(`https://${bare}`)).toBeUndefined()
     })
 
-    it('measures length after stripping, so a url only over the limit because of its scheme is kept', () => {
-      const bare = `${prefix}${'a'.repeat(MAX_COMPANY_PAGE_URL_LENGTH - prefix.length)}`
+    it('measures length after the scheme is removed, so the scheme cannot push a url over', () => {
+      const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH)
       const withScheme = `https://${bare}`
       expect(withScheme.length).toBeGreaterThan(MAX_COMPANY_PAGE_URL_LENGTH)
       expect(normalizeCompanyPageUrl(withScheme)).toBe(bare)
-    })
-
-    it('measures length after trimming, so surrounding whitespace does not count', () => {
-      const bare = `${prefix}${'a'.repeat(MAX_COMPANY_PAGE_URL_LENGTH - prefix.length)}`
-      expect(normalizeCompanyPageUrl(`   ${bare}   `)).toBe(bare)
     })
 
     // The case that made stripping worth doing: a real company slug, plus the tracking parameter
@@ -204,14 +196,13 @@ describe('normalizeCompanyPageUrl', () => {
   })
 
   it.each([
-    ['undefined', undefined],
-    ['an empty string', ''],
-    ['only whitespace', '   '],
-    ['only slashes', '///'],
+    ['undefined, when the field is not mapped', undefined],
     ['a scheme with nothing after it', 'https://'],
     ['a scheme that parses but has no host or path', 'foo://'],
-    ['a company name mapped into this field by mistake', 'Microsoft'],
-    ['a single-label host', 'intranet/company/x']
+    ['a company website mapped into this field by mistake', 'https://microsoft.com/about'],
+    ['a host that merely ends in the same letters', 'https://notlinkedin.com/company/microsoft'],
+    ['a lookalike host that only starts with linkedin.com', 'https://linkedin.com.example.com/company/microsoft'],
+    ['a single-label host', 'https://intranet/company/x']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })

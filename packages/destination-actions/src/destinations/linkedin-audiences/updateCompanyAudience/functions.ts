@@ -27,6 +27,7 @@ import {
   AUDIENCE_ACTION,
   AUDIENCE_SOURCE,
   COUNTRY_CODES,
+  LINKEDIN_HOST,
   MAX_CITY_LENGTH,
   MAX_COMPANY_PAGE_URL_LENGTH,
   MAX_INDUSTRIES,
@@ -85,10 +86,16 @@ export function normalizeDomain(value?: string): string | undefined {
   return host.includes('.') && !IPV4.test(host) ? host : undefined
 }
 
+function isLinkedInHost(hostname: string): boolean {
+  return hostname === LINKEDIN_HOST || hostname.endsWith(`.${LINKEDIN_HOST}`)
+}
+
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
   const parsed = parseUrl(value)
 
-  if (!parsed?.hostname.includes('.')) {
+  // LinkedIn documents this field as the company's page on linkedin.com, so any other host is a
+  // mis-mapping. Sending one cannot match, and it would occupy the identifier slot.
+  if (!parsed || !isLinkedInHost(parsed.hostname)) {
     return undefined
   }
 
