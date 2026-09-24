@@ -7,11 +7,12 @@ import {
   getAudienceAction,
   send
 } from '../functions'
+import { Client } from '../client'
 import { Payload } from '../generated-types'
 import { Settings } from '../../generated-types'
 import { ColumnHeader, ColumnTransform, RawMapping } from '../types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { S3_HASHING_FEATURE_FLAG } from '../../constants'
+import { S3_HASHING_FEATURE_FLAG, S3_STS_ERROR_CLASSIFICATION_FLAG } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
 // Mock AWS SDK before any imports to avoid initialization issues
@@ -514,5 +515,25 @@ describe('send with hashing feature flag', () => {
     // future positional-argument regression (e.g. swapping features/signal) is caught here rather
     // than silently disabling the flag in production while this test stays green.
     expect(mockUploadS3.mock.calls[0][5]).toBe(features)
+  })
+
+  it('forwards the features object from send() through to the Client constructor intact', async () => {
+    ;(Client as unknown as jest.Mock).mockClear()
+    const payloadNoHashing: Payload = {
+      columns: { email: 'test@test.com', user_id: 'user_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+    const features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
+
+    await send([payloadNoHashing], settings, rawMapping, features)
+
+    expect(Client).toHaveBeenCalledTimes(1)
+    // features is the 4th positional arg to `new Client(region, roleArn, externalId, features)` —
+    // assert on the actual constructor call args so a future positional-argument regression (e.g.
+    // dropping or reordering features) is caught here rather than silently disabling the flag in
+    // production while this test stays green.
+    expect((Client as unknown as jest.Mock).mock.calls[0][3]).toBe(features)
   })
 })
