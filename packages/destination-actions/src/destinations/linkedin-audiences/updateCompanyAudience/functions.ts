@@ -184,8 +184,11 @@ export function validate(
 
     let message: string | undefined
     if (!Object.keys(identifiers).length) {
-      message =
-        "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
+      // Mapping a value that normalization then rejects looks identical to mapping nothing at
+      // all, so say which of the two happened.
+      message = Object.values(payload.identifiers ?? {}).some((identifier) => trimmed(identifier))
+        ? "Every value in the 'Identifiers' field was rejected. A 'Company Domain' or 'Company Email Domain' must be a fully qualified domain such as 'microsoft.com', and a 'LinkedIn Company Page URL' must be 100 characters or fewer."
+        : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
       payload.dmp_company_action !== AUDIENCE_ACTION.REMOVE

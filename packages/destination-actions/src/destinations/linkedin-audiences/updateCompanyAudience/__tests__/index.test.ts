@@ -406,7 +406,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       )
     })
 
-    it('treats a LinkedIn Company ID that is only the URN prefix as missing', async () => {
+    // The customer did map something, so the error says the value was rejected rather than that
+    // nothing was provided.
+    it('rejects a LinkedIn Company ID that is only the URN prefix', async () => {
       await expect(
         testDestination.testAction('updateCompanyAudience', {
           event: { type: 'track', traits: { linkedin_company_id: 'urn:li:organization:' } } as any,
@@ -416,8 +418,20 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           mapping: { dmp_company_action: 'ADD', ...baseMapping }
         })
       ).rejects.toThrow(
-        "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
+        "Every value in the 'Identifiers' field was rejected. A 'Company Domain' or 'Company Email Domain' must be a fully qualified domain such as 'microsoft.com', and a 'LinkedIn Company Page URL' must be 100 characters or fewer."
       )
+    })
+
+    it('says the values were rejected, not missing, when a company name is mapped to the domain', async () => {
+      await expect(
+        testDestination.testAction('updateCompanyAudience', {
+          event: { type: 'track', traits: { company_domain: 'Microsoft' } } as any,
+          settings,
+          auth,
+          useDefaultMappings: true,
+          mapping: { dmp_company_action: 'ADD', ...baseMapping }
+        })
+      ).rejects.toThrow("Every value in the 'Identifiers' field was rejected.")
     })
 
     it('rejects a dmp_company_action that is not exactly ADD or REMOVE', async () => {
