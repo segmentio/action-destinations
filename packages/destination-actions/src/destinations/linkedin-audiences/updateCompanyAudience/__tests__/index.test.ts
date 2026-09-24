@@ -807,7 +807,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
       dmp_company_action: 'ADD'
     }
 
-    // Captures the batch body so each test can assert on exactly what LinkedIn was sent.
+    // Captures the batch body so each test can assert on exactly what LinkedIn was sent. The
+    // reply is built from the captured request, so one result comes back per element sent and a
+    // mismatch in cardinality cannot pass unnoticed.
     const mockBatch = () => {
       const captured: { body?: any } = {}
       nock(BASE_URL)
@@ -815,7 +817,9 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           captured.body = body
           return true
         })
-        .reply(200, { elements: [{ status: 201 }, { status: 201 }, { status: 201 }] })
+        .reply(200, () => ({
+          elements: ((captured.body?.elements ?? []) as unknown[]).map(() => ({ status: 201 }))
+        }))
       return captured
     }
 

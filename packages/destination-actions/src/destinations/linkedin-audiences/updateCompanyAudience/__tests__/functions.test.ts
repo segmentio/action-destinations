@@ -270,7 +270,9 @@ describe('normalizeCompanyPageUrl', () => {
     ['only whitespace', '   '],
     ['only slashes', '///'],
     ['a scheme with nothing after it', 'https://'],
-    ['a scheme that parses but has no host or path', 'foo://']
+    ['a scheme that parses but has no host or path', 'foo://'],
+    ['a company name mapped into this field by mistake', 'Microsoft'],
+    ['a single-label host', 'intranet/company/x']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })

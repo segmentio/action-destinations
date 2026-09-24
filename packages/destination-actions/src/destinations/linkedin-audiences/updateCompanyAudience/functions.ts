@@ -87,7 +87,8 @@ export function normalizeDomain(value?: string): string | undefined {
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
   const parsed = parseUrl(value)
-  if (!parsed) {
+
+  if (!parsed?.hostname.includes('.')) {
     return undefined
   }
 
