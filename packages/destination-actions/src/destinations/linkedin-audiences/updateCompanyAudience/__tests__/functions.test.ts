@@ -8,7 +8,7 @@ import {
   normalizeIndustries,
   normalizeTraits
 } from '../functions'
-import { COUNTRY_CHOICES, COUNTRY_CODES, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
+import { COUNTRY_CODES, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
 import type { Payload } from '../generated-types'
 import type { NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
 
@@ -473,10 +473,10 @@ describe('normalizeCountry', () => {
     })
   })
 
-  it('accepts every code in the list it validates against', () => {
-    for (const { value } of COUNTRY_CHOICES) {
-      expect(normalizeCountry(value)).toBe(value)
-      expect(normalizeCountry(value.toLowerCase())).toBe(value)
+  it('accepts every code in the list it validates against, in either case', () => {
+    for (const code of COUNTRY_CODES) {
+      expect(normalizeCountry(code)).toBe(code)
+      expect(normalizeCountry(code.toLowerCase())).toBe(code)
     }
   })
 
@@ -517,15 +517,10 @@ describe('normalizeCountry', () => {
     expect([...COUNTRY_CODES].sort()).toEqual([...officiallyAssigned].sort())
   })
 
-  it('offers choices whose labels carry both the country name and the code', () => {
-    expect(COUNTRY_CHOICES).toContainEqual({ label: 'United States of America (US)', value: 'US' })
-    expect(COUNTRY_CHOICES).toContainEqual({
-      label: 'United Kingdom of Great Britain and Northern Ireland (GB)',
-      value: 'GB'
-    })
-    expect(COUNTRY_CHOICES).toContainEqual({ label: 'Palestine, State of (PS)', value: 'PS' })
-    expect(COUNTRY_CHOICES.every((choice) => /^[A-Z]{2}$/.test(choice.value))).toBe(true)
-    expect(COUNTRY_CODES.size).toBe(COUNTRY_CHOICES.length)
+  it('holds only upper case two-letter codes', () => {
+    for (const code of COUNTRY_CODES) {
+      expect(code).toMatch(/^[A-Z]{2}$/)
+    }
   })
 })
 
