@@ -1,6 +1,5 @@
 import { Client, clearCredentialsCache, isAWSError } from '../syncToS3/client'
 import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
-import { IntegrationError } from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
@@ -161,17 +160,20 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(3)
   })
 
-  it('when enabled, fails fast when STS returns credentials without an expiration', async () => {
-    // STS always returns Expiration in practice; a response missing it is malformed, and we need a
-    // known expiry to safely cache it, so treat this as an auth failure when caching is enabled.
+  it('when enabled, does not cache a credential missing an expiration, and fetches fresh next time', async () => {
+    // Fail safe, not fail hard: a credential we can't safely cache (unknown lifetime) should still
+    // let the current request through — it just shouldn't be cached, so the next request goes back
+    // to STS instead of reusing a credential of unknown lifetime forever.
     mockStsSend.mockResolvedValue({
       Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
     })
 
-    const err = await upload(newClient(settings.iam_role_arn, cacheFlagOn)).catch((e: unknown) => e)
+    await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
+    await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
 
-    expect(err).toBeInstanceOf(IntegrationError)
-    expect((err as IntegrationError).status).toBe(403)
+    // Neither upload's credentials (missing Expiration) were cacheable, so both uploads assume
+    // both roles from scratch = 2 STS calls x 2 uploads.
+    expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 
   it('is off by default: does NOT fail when STS returns credentials without an expiration (matches main)', async () => {

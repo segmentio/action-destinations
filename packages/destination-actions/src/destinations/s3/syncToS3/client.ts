@@ -91,14 +91,6 @@ export class Client {
       // TODO: Add more specific error handling
       throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
     }
-    // Only require Expiration when caching is enabled — this is a new, stricter requirement needed
-    // to safely cache a credential of known lifetime, and must not change flag-off behavior (main
-    // never checked Expiration). STS always returns all four fields on a successful AssumeRole (the
-    // SDK types them optional, but the API contract guarantees them; confirmed in DataDog that
-    // Expiration is always present), so this only fails fast on a genuinely malformed response.
-    if (cacheEnabled && !result.Credentials.Expiration) {
-      throw new IntegrationError('Failed to assume role', ErrorCodes.INVALID_AUTHENTICATION, 403)
-    }
     const creds: Credentials = {
       accessKeyId: result.Credentials.AccessKeyId,
       secretAccessKey: result.Credentials.SecretAccessKey,
@@ -106,9 +98,18 @@ export class Client {
     }
 
     if (cacheEnabled) {
-      // Cache the freshly minted credentials until shortly before STS says they expire.
-      credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
-      statsClient?.incr('sts_credential_cache_set', 1, tags)
+      if (result.Credentials.Expiration) {
+        // Cache the freshly minted credentials until shortly before STS says they expire.
+        credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
+        statsClient?.incr('sts_credential_cache_set', 1, tags)
+      } else {
+        // STS always returns Expiration in practice (the SDK types it optional, but the API
+        // contract guarantees it; confirmed in DataDog it's always present). If it's ever missing,
+        // fail safe rather than fail hard: skip caching this credential (so the next request fetches
+        // a fresh one instead of reusing a credential of unknown lifetime) and still let this
+        // request through with the credential STS just gave us.
+        statsClient?.incr('sts_credential_cache_skip_no_expiration', 1, tags)
+      }
     }
 
     return creds
