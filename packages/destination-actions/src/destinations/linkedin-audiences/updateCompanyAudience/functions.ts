@@ -85,10 +85,13 @@ export function normalizeCompanyPageUrl(value?: string): string | undefined {
   if (!url) {
     return undefined
   }
-  return withinLength(
-    trimmed(url.replace(SCHEME_PREFIX, '').replace(TRAILING_SLASHES, '')),
-    MAX_COMPANY_PAGE_URL_LENGTH
-  )
+  // A page copied from a browser usually carries a tracking query string, which is never part of
+  // the company's identity and can push an otherwise valid url past the length limit, costing us
+  // the identifier altogether. The path is left alone: which segments are meaningful is
+  // LinkedIn's business, not ours.
+  const withoutQuery = url.replace(SCHEME_PREFIX, '').split(/[?#]/)[0]
+
+  return withinLength(trimmed(withoutQuery.replace(TRAILING_SLASHES, '')), MAX_COMPANY_PAGE_URL_LENGTH)
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {

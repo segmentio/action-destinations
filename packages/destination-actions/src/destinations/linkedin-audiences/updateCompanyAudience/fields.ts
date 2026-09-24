@@ -36,7 +36,7 @@ export const fields: Record<string, InputField> = {
       companyPageUrl: {
         label: 'LinkedIn Company Page URL',
         description:
-          "The company's LinkedIn page URL, e.g. 'linkedin.com/company/microsoft'. Values longer than 100 characters are not sent, as LinkedIn rejects them.",
+          "The company's LinkedIn page URL, e.g. 'linkedin.com/company/microsoft'. Any query string or fragment, such as the tracking parameters a browser adds when the URL is copied, is removed. Values longer than 100 characters are not sent, as LinkedIn rejects them.",
         type: 'string'
       }
     },

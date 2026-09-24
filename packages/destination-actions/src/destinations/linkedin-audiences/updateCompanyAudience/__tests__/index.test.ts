@@ -855,6 +855,15 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         })
       })
 
+      // A warehouse column may hold either spelling, so both have to reach LinkedIn as the urn.
+      it.each(['1035', 'urn:li:organization:1035', 'URN:LI:ORGANIZATION:1035'])(
+        'sends the organization urn when the company id is mapped as %s',
+        async (linkedInCompanyId: string) => {
+          const element = await sendOne({ identifiers: { linkedInCompanyId } })
+          expect(element).toEqual({ action: 'ADD', organizationUrn: 'urn:li:organization:1035' })
+        }
+      )
+
       it('accepts a company name on its own, with no domain or company id', async () => {
         const element = await sendOne({ identifiers: { companyName: 'Microsoft' } })
         expect(element).toEqual({ action: 'ADD', companyName: 'Microsoft' })
