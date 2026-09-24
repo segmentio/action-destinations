@@ -200,6 +200,14 @@ export function mapAWSError(err: unknown, context: string): Error {
   if (code === 'NoSuchBucket') {
     return new APIError(detail, 404)
   }
+  if (code === 'KeyTooLongError') {
+    // The assembled object key (folder + filename_prefix, post timestamp/extension) exceeds AWS's
+    // 1024-byte object-key limit. This is a workspace configuration problem (filename_prefix/folder
+    // settings), not a transient failure — classify it as a payload validation failure rather than
+    // falling through to the generic unclassified-client-fault bucket below. AWS's own message
+    // ("Your key is too long") doesn't include the offending key, so it's safe to surface as-is.
+    return new IntegrationError(detail, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  }
   if (code && throttlingCodes.has(code)) {
     return new APIError(detail, 429)
   }

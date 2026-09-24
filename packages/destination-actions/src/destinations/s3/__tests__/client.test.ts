@@ -260,6 +260,17 @@ describe('mapAWSError', () => {
     expect((err as APIError).status).toBe(404)
   })
 
+  // The object key (folder + filename_prefix) exceeded AWS's 1024-byte limit -- a workspace
+  // configuration problem, not a transient failure. Classified as PAYLOAD_VALIDATION_FAILED
+  // rather than falling into the generic unclassified-client-fault bucket.
+  it('classifies KeyTooLongError as a non-retryable payload validation failure', () => {
+    const err = mapAWSError({ Code: 'KeyTooLongError', Message: 'Your key is too long' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as IntegrationError).status).toBe(400)
+    expect((err as IntegrationError).code).toBe(ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+  })
+
   // Regression: these carry a 4xx status but AWS documents them as transient/safe to retry, so
   // they must not fall into the generic "4xx is permanent" branch.
   it('treats OperationAborted (409) as retryable despite its 4xx status', () => {
