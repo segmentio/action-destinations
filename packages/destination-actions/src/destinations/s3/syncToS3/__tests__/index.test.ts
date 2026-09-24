@@ -29,9 +29,12 @@ jest.mock('@aws-sdk/client-sts', () => ({
 
 // Mock the S3 Client so send() can complete without hitting AWS. The flag guard under test
 // throws before the Client is ever constructed, so this only matters for the non-throwing cases.
+// mockUploadS3 is shared across instances so tests can assert on what send() actually passed
+// through to uploadS3 (e.g. the features object), not just that the call resolved.
+const mockUploadS3 = jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
 jest.mock('../client', () => ({
   Client: jest.fn().mockImplementation(() => ({
-    uploadS3: jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
+    uploadS3: mockUploadS3
   }))
 }))
 
@@ -491,5 +494,25 @@ describe('send with hashing feature flag', () => {
     await expect(
       send([payloadNormalizeOnly], settings, rawMapping, { [S3_HASHING_FEATURE_FLAG]: true })
     ).resolves.not.toThrow()
+  })
+
+  it('forwards the features object from send() through to uploadS3 intact', async () => {
+    mockUploadS3.mockClear()
+    const payloadNoHashing: Payload = {
+      columns: { email: 'test@test.com', user_id: 'user_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+    const features = { [S3_HASHING_FEATURE_FLAG]: true }
+
+    await send([payloadNoHashing], settings, rawMapping, features)
+
+    expect(mockUploadS3).toHaveBeenCalledTimes(1)
+    // features is the 6th positional arg to uploadS3(settings, fileContent, filename_prefix,
+    // s3_aws_folder_name, fileExtension, features, signal) — assert on the actual call args so a
+    // future positional-argument regression (e.g. swapping features/signal) is caught here rather
+    // than silently disabling the flag in production while this test stays green.
+    expect(mockUploadS3.mock.calls[0][5]).toBe(features)
   })
 })
