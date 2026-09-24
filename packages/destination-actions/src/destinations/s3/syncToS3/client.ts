@@ -7,7 +7,7 @@ import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutE
 import type { Features, StatsContext } from '@segment/actions-core'
 import { LRUCache } from 'lru-cache'
 import { Credentials } from './types'
-import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
+import { CREDENTIALS_EXPIRY_BUFFER_MS, STS_REQUEST_TIMEOUT_MS } from './constants'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
 // Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
@@ -49,8 +49,15 @@ export function clearCredentialsCache(): void {
 // never produce the same key — which matters because this cache is shared across every customer
 // workspace in the process, so a colliding key would return one workspace's live AWS credentials
 // to a different workspace.
-function buildCacheKey(region: string, roleId: string, externalId: string): string {
-  return JSON.stringify([region, roleId, externalId])
+//
+// roleType is part of the key (not just a metric tag) because the intermediary role's ARN and
+// external ID are effectively public — a customer must know them to configure their own role's
+// trust policy. Without roleType in the key, a workspace could set its own iam_role_arn/
+// iam_external_id equal to the intermediary's, forcing its "customer" hop to collide with the
+// (always-populated-first) "intermediary" cache entry and receive Segment's own shared
+// intermediary credentials without AWS ever checking its role's trust policy.
+function buildCacheKey(region: string, roleId: string, externalId: string, roleType: 'intermediary' | 'customer'): string {
+  return JSON.stringify([region, roleId, externalId, roleType])
 }
 
 // Increments a DataDog metric without letting a misbehaving stats client fail the upload it's
@@ -58,8 +65,10 @@ function buildCacheKey(region: string, roleId: string, externalId: string): stri
 function safeIncr(statsClient: StatsContext['statsClient'] | undefined, metric: string, tags: string[]): void {
   try {
     statsClient?.incr(metric, 1, tags)
-  } catch {
-    // Telemetry must never be able to fail the primary operation it's instrumenting.
+  } catch (err) {
+    // Telemetry must never be able to fail the primary operation it's instrumenting, but a broken
+    // stats client should still leave a trace so a silently-empty dashboard is diagnosable.
+    console.warn('[s3] failed to emit metric', metric, err)
   }
 }
 
@@ -98,7 +107,7 @@ export class Client {
     const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
     const statsClient = this.statsContext?.statsClient
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '')
+    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '', roleType)
 
     if (!cacheEnabled) {
       return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
@@ -145,7 +154,7 @@ export class Client {
     credentials?: Credentials
   ): Promise<Credentials> {
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '')
+    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '', roleType)
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
@@ -153,7 +162,21 @@ export class Client {
       RoleSessionName: this.roleSessionName,
       ExternalId: externalId
     })
-    const result = await stsClient.send(command)
+    // Bound the call so a stalled STS request can't hang every concurrent upload de-duped onto
+    // this same in-flight promise (see inFlightAssumeRole above) indefinitely.
+    const timeoutController = new AbortController()
+    const timeout = setTimeout(() => timeoutController.abort(), STS_REQUEST_TIMEOUT_MS)
+    let result
+    try {
+      result = await stsClient.send(command, { abortSignal: timeoutController.signal })
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') {
+        throw new RetryableError(`STS AssumeRole timed out after ${STS_REQUEST_TIMEOUT_MS}ms`)
+      }
+      throw err
+    } finally {
+      clearTimeout(timeout)
+    }
     if (
       !result.Credentials ||
       !result.Credentials.AccessKeyId ||

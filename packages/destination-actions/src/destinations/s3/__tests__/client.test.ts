@@ -3,6 +3,7 @@ import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
+import { STS_REQUEST_TIMEOUT_MS } from '../syncToS3/constants'
 
 // Controllable STS send mock so the caching tests can control credential responses.
 const mockStsSend = jest.fn()
@@ -254,6 +255,113 @@ describe('STS credential caching', () => {
     })
 
     await expect(upload(newClient())).resolves.toBeDefined()
+  })
+
+  // Regression: the cache key used to omit roleType, so it was built purely from
+  // (region, roleArn, externalId) — the same inputs used for BOTH the intermediary and customer
+  // hops. The intermediary role's ARN/external-id are effectively public (a customer must know
+  // them to configure their own role's trust policy), so a workspace could set its own
+  // iam_role_arn/iam_external_id equal to the intermediary's, forcing its customer hop's cache
+  // lookup to collide with the (always-populated-first) intermediary entry and receive Segment's
+  // shared intermediary credentials without AWS ever checking the customer role's trust policy.
+  it('when enabled, does not let a customer-configured role/externalId alias the intermediary hop\'s cache entry', async () => {
+    const originalRoleAddress = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
+    const originalExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::111111111111:role/intermediary'
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'shared-external-id'
+
+    try {
+      const attackerClient = new Client(
+        settings.s3_aws_region,
+        process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS,
+        process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID,
+        undefined,
+        cacheFlagOn
+      )
+      mockStsSend
+        .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_INTERMEDIARY'))
+        .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_CUSTOMER_DISTINCT'))
+
+      await upload(attackerClient)
+
+      // Without roleType in the cache key, the customer hop would find the intermediary's entry
+      // already cached and skip STS entirely (1 total call). The fix must keep the two hops in
+      // separate cache namespaces even when their (region, roleArn, externalId) inputs match.
+      expect(mockStsSend).toHaveBeenCalledTimes(2)
+      const credentials = (S3Client as unknown as jest.Mock).mock.calls[0][0].credentials
+      expect(credentials.accessKeyId).toBe('AKIA_CUSTOMER_DISTINCT')
+    } finally {
+      process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = originalRoleAddress
+      process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = originalExternalId
+    }
+  })
+
+  it('when enabled, clears the in-flight entry on rejection so concurrent and subsequent callers are not stuck', async () => {
+    mockStsSend.mockRejectedValueOnce(new Error('STS unavailable'))
+
+    const results = await Promise.allSettled([
+      upload(newClient(settings.iam_role_arn, cacheFlagOn)),
+      upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    ])
+    expect(results[0].status).toBe('rejected')
+    expect(results[1].status).toBe('rejected')
+
+    // If the in-flight entry weren't cleared on rejection, this would hang or reuse the stale
+    // rejected promise forever instead of issuing a fresh AssumeRole call.
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+    await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
+  })
+
+  it('when enabled, does not cache and rejects when STS returns no usable Credentials, retrying fresh next time', async () => {
+    mockStsSend
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000)) // intermediary hop succeeds
+      .mockResolvedValueOnce({ Credentials: undefined }) // customer hop malformed
+
+    await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).rejects.toThrow('Failed to assume role')
+
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+    await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
+  })
+
+  it('when enabled, times out and retries rather than hanging forever if STS never responds', async () => {
+    jest.useFakeTimers()
+    try {
+      mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {
+        return new Promise((_resolve, reject) => {
+          opts?.abortSignal?.addEventListener('abort', () => {
+            const err = new Error('The operation was aborted')
+            err.name = 'AbortError'
+            reject(err)
+          })
+        })
+      })
+
+      const promise = upload(newClient(settings.iam_role_arn, cacheFlagOn))
+      jest.advanceTimersByTime(STS_REQUEST_TIMEOUT_MS)
+
+      await expect(promise).rejects.toThrow(/timed out/)
+    } finally {
+      jest.useRealTimers()
+    }
+  })
+
+  it('when enabled, expires a cached credential once real time passes its ttl', async () => {
+    jest.useFakeTimers()
+    try {
+      // Expires in 15 minutes -> ttl = 15min - 5min buffer = 10min.
+      mockStsSend.mockResolvedValue(stsResponse(15 * 60 * 1000))
+
+      await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+      expect(mockStsSend).toHaveBeenCalledTimes(2)
+
+      jest.advanceTimersByTime(11 * 60 * 1000)
+
+      await upload(newClient(settings.iam_role_arn, cacheFlagOn))
+      // Both hops' cached entries have expired, so this upload must re-fetch from STS.
+      expect(mockStsSend).toHaveBeenCalledTimes(4)
+    } finally {
+      jest.useRealTimers()
+    }
   })
 
   describe('DataDog metrics', () => {
