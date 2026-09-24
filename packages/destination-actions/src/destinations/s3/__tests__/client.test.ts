@@ -95,6 +95,20 @@ describe('STS credential caching', () => {
     new Client(settings.s3_aws_region, roleArn, settings.iam_external_id, undefined, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
 
+  // Client.assumeRole() reads these to build the intermediary hop; set them for real (rather than
+  // leaving them undefined) so the intermediary hop's cache key/behavior in these tests matches
+  // what a real deployment would see.
+  const originalRoleAddress = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
+  const originalExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
+  beforeAll(() => {
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
+  })
+  afterAll(() => {
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = originalRoleAddress
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = originalExternalId
+  })
+
   beforeEach(() => {
     mockStsSend.mockReset()
     ;(S3Client as unknown as jest.Mock).mockClear()
@@ -265,35 +279,28 @@ describe('STS credential caching', () => {
   // lookup to collide with the (always-populated-first) intermediary entry and receive Segment's
   // shared intermediary credentials without AWS ever checking the customer role's trust policy.
   it('when enabled, does not let a customer-configured role/externalId alias the intermediary hop\'s cache entry', async () => {
-    const originalRoleAddress = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
-    const originalExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
-    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::111111111111:role/intermediary'
-    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'shared-external-id'
+    // Attacker sets their own iam_role_arn/iam_external_id equal to the (effectively public)
+    // intermediary role identity set up for the whole suite above, hoping the customer hop's
+    // cache lookup collides with the intermediary hop's entry and returns its shared credentials.
+    const attackerClient = new Client(
+      settings.s3_aws_region,
+      process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string,
+      process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string,
+      undefined,
+      cacheFlagOn
+    )
+    mockStsSend
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_INTERMEDIARY'))
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_CUSTOMER_DISTINCT'))
 
-    try {
-      const attackerClient = new Client(
-        settings.s3_aws_region,
-        process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS,
-        process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID,
-        undefined,
-        cacheFlagOn
-      )
-      mockStsSend
-        .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_INTERMEDIARY'))
-        .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_CUSTOMER_DISTINCT'))
+    await upload(attackerClient)
 
-      await upload(attackerClient)
-
-      // Without roleType in the cache key, the customer hop would find the intermediary's entry
-      // already cached and skip STS entirely (1 total call). The fix must keep the two hops in
-      // separate cache namespaces even when their (region, roleArn, externalId) inputs match.
-      expect(mockStsSend).toHaveBeenCalledTimes(2)
-      const credentials = (S3Client as unknown as jest.Mock).mock.calls[0][0].credentials
-      expect(credentials.accessKeyId).toBe('AKIA_CUSTOMER_DISTINCT')
-    } finally {
-      process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = originalRoleAddress
-      process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = originalExternalId
-    }
+    // Without roleType in the cache key, the customer hop would find the intermediary's entry
+    // already cached and skip STS entirely (1 total call). The fix must keep the two hops in
+    // separate cache namespaces even when their (region, roleArn, externalId) inputs match.
+    expect(mockStsSend).toHaveBeenCalledTimes(2)
+    const credentials = (S3Client as unknown as jest.Mock).mock.calls[0][0].credentials
+    expect(credentials.accessKeyId).toBe('AKIA_CUSTOMER_DISTINCT')
   })
 
   it('when enabled, clears the in-flight entry on rejection so concurrent and subsequent callers are not stuck', async () => {

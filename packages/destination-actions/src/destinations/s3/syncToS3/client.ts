@@ -103,7 +103,7 @@ export class Client {
     credentials?: Credentials
   ): Promise<Credentials> {
     // Tag every metric with the hop (intermediary vs customer role) so DataDog can break the
-    // cache hit/miss/set counts down per hop of the two-hop assume-role chain.
+    // cache hit/miss counts down per hop of the two-hop assume-role chain.
     const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
     const statsClient = this.statsContext?.statsClient
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
@@ -120,15 +120,17 @@ export class Client {
       safeIncr(statsClient, 'sts_credential_cache_hit', tags)
       return cached
     }
-    safeIncr(statsClient, 'sts_credential_cache_miss', tags)
 
     // De-dupe concurrent misses for the same key: if a fetch for this key is already in flight,
     // await and share that result instead of issuing a second concurrent AssumeRole call, which
-    // would reproduce the exact STS-throttling problem this cache exists to prevent.
+    // would reproduce the exact STS-throttling problem this cache exists to prevent. The miss
+    // metric is only emitted by the caller that actually kicks off a new fetch, below — a caller
+    // that joins an in-flight fetch didn't cause a cache miss of its own to be resolved via STS.
     const existingInFlight = inFlightAssumeRole.get(cacheKey)
     if (existingInFlight) {
       return existingInFlight
     }
+    safeIncr(statsClient, 'sts_credential_cache_miss', tags)
 
     const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials).then(
       (creds) => {
