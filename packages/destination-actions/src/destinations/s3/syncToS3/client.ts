@@ -18,7 +18,8 @@ import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import {
   S3_KEY_LENGTH_GUARD_FLAG,
   S3_STS_ERROR_CLASSIFICATION_FLAG,
-  S3_STS_CREDENTIAL_CACHE_FLAG
+  S3_STS_CREDENTIAL_CACHE_FLAG,
+  S3_FILENAME_FIX_FLAG
 } from '../constants'
 
 // AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
@@ -86,6 +87,31 @@ function safeIncr(statsClient: StatsContext['statsClient'] | undefined, metric: 
     // stats client should still leave a trace so a silently-empty dashboard is diagnosable.
     console.warn('[s3] failed to emit metric', metric, err)
   }
+}
+
+/**
+ * Insert a timestamp suffix into the filename, immediately before the extension.
+ *
+ * If the prefix already ends with an extension (`.<fileExtension>` or any other
+ * `.<ext>`-shaped suffix), the suffix is inserted just before it, replacing a mismatched
+ * extension rather than doubling it (e.g. a `.txt` prefix with `file_extension: csv` becomes
+ * `..._<date>.csv`, not `...txt_<date>.csv`); otherwise the suffix and extension are appended.
+ * We strip the trailing extension by length/regex rather than `String.prototype.replace`,
+ * because `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
+ * in the name (e.g. the leading "csv" in "csv_export.csv"), corrupting the filename.
+ *
+ * `filenamePrefix` is customer-controlled free text with no format validation, and becomes part
+ * of the literal S3 object key — path separators and `..` segments are neutralized (replaced,
+ * not rejected, so a customer's upload doesn't start failing) rather than passed through, as
+ * defense in depth against path traversal / unexpected key injection.
+ */
+export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
+  const safePrefix = filenamePrefix.replace(/[/\\]/g, '_').replace(/\.\./g, '_')
+  const ext = `.${fileExtension}`
+  const base = safePrefix.endsWith(ext)
+    ? safePrefix.slice(0, safePrefix.length - ext.length)
+    : safePrefix.replace(/\.[^./]+$/, '')
+  return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
 }
 
 export class Client {
@@ -242,14 +268,21 @@ export class Client {
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
-      // Insert the date suffix before the extension
-      filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
+    // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
+    // STRATCONN-6986 / INC 20659 — this fix was part of the reverted release cluster.
+    if (features?.[S3_FILENAME_FIX_FLAG]) {
+      filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
     } else {
-      // Append the date suffix followed by the extension
-      filename_prefix = filename_prefix
-        ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
-        : `${dateSuffix}.${fileExtension}`
+      // Flag off (default): original (buggy) behavior, kept as-is. `replace` with a string
+      // replaces the FIRST occurrence of fileExtension anywhere in the name (e.g. the leading
+      // "csv" in "csv_export.csv"), which can corrupt the filename — see STRATCONN-6988.
+      if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
+        filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
+      } else {
+        filename_prefix = filename_prefix
+          ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
+          : `${dateSuffix}.${fileExtension}`
+      }
     }
 
     const bucketName = settings.s3_aws_bucket_name
