@@ -161,6 +161,73 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(3)
   })
 
+  // Regression: the cache key used to be built via bare `${region}|${roleId}|${externalId}`
+  // string concatenation, which is not injective — two different (roleArn, externalId) pairs could
+  // produce the identical key, letting one workspace's request return a DIFFERENT workspace's live
+  // AWS credentials from the shared cache. Two role/externalId pairs below are chosen so a naive
+  // `|`-join of the customer values collides (roleArn contains a literal `|`), while the collision-
+  // safe key must still treat them as distinct.
+  it('when enabled, does NOT collide cache entries for role/externalId pairs that would collide under naive `|` concatenation', async () => {
+    // Victim: roleArn = "role|secret1", externalId = "" — naive `${region}|${roleId}|${externalId}`
+    // concatenation gives "region|role|secret1|".
+    const victimClient = new Client(settings.s3_aws_region, 'role|secret1', '', undefined, cacheFlagOn)
+    mockStsSend
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_INTERMEDIARY_1'))
+      .mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_VICTIM'))
+    await upload(victimClient)
+
+    // Attacker: roleArn = "role", externalId = "secret1|" — naive concatenation gives the SAME
+    // string ("region|role|secret1|"). A colliding cache would return the victim's cached
+    // CUSTOMER-hop credentials here instead of issuing a fresh (correctly-scoped) AssumeRole call.
+    const attackerClient = new Client(settings.s3_aws_region, 'role', 'secret1|', undefined, cacheFlagOn)
+    mockStsSend.mockResolvedValueOnce(stsResponse(60 * 60 * 1000, 'AKIA_ATTACKER'))
+    const attackerResult = await upload(attackerClient)
+
+    // The intermediary hop is legitimately shared (same env-derived role for both clients), so it's
+    // a genuine cache hit on the second upload — only the customer hop should trigger a fresh STS
+    // call. Total: victim's 2 (intermediary + customer) + attacker's 1 (customer only) = 3. If the
+    // customer hop had instead collided with the victim's entry, this would be 2, not 3.
+    expect(mockStsSend).toHaveBeenCalledTimes(3)
+    expect(attackerResult).toBeDefined()
+  })
+
+  // Regression: the cache had no eviction, so every distinct (region, roleArn, externalId) ever
+  // seen accumulated a permanent entry for the life of the process.
+  it('when enabled, bounds cache size by evicting the oldest entry once the cap is exceeded', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    // Fill the cache well past its cap with distinct customer roles (intermediary role is shared
+    // and only counted once). The exact cap value is an implementation detail; this only asserts
+    // that the cache does not grow without bound.
+    const CAP_PROBE_COUNT = 1010
+    for (let i = 0; i < CAP_PROBE_COUNT; i++) {
+      await upload(newClient(`arn:aws:iam::123456789012:role/customer-${i}`, cacheFlagOn))
+    }
+
+    // The very first customer role's entry must have been evicted by now (it was the oldest),
+    // so requesting it again must trigger a fresh STS call rather than a cache hit.
+    const callsBeforeRefetch = mockStsSend.mock.calls.length
+    await upload(newClient('arn:aws:iam::123456789012:role/customer-0', cacheFlagOn))
+    expect(mockStsSend.mock.calls.length).toBeGreaterThan(callsBeforeRefetch)
+  })
+
+  // Regression: concurrent uploads for a not-yet-cached role each independently missed the cache
+  // and independently called STS, reproducing the exact throttling ("rate exceeded") problem this
+  // cache exists to prevent, under precisely the high-concurrency conditions where it matters most.
+  it('when enabled, de-dupes concurrent cache misses for the same key into a single AssumeRole call per hop', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    await Promise.all([
+      upload(newClient(settings.iam_role_arn, cacheFlagOn)),
+      upload(newClient(settings.iam_role_arn, cacheFlagOn)),
+      upload(newClient(settings.iam_role_arn, cacheFlagOn))
+    ])
+
+    // All three concurrent uploads share one in-flight AssumeRole per hop = 2 STS calls total,
+    // not 6 (3 uploads x 2 hops) as independent misses would produce.
+    expect(mockStsSend).toHaveBeenCalledTimes(2)
+  })
+
   it('when enabled, does not cache a credential missing an expiration, and fetches fresh next time', async () => {
     // Fail safe, not fail hard: a credential we can't safely cache (unknown lifetime) should still
     // let the current request through — it just shouldn't be cached, so the next request goes back

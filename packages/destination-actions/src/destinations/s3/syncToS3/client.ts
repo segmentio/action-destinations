@@ -20,12 +20,45 @@ import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
  * number of files grows.
  *
  * Keyed by region + role ARN + external id, the inputs that determine the returned credentials.
+ * Bounded to MAX_CACHE_ENTRIES (evicting the oldest entry, Map iteration order == insertion order)
+ * so a long-lived process can't accumulate an unbounded number of entries across every distinct
+ * customer role ever seen.
  */
 const credentialsCache = new Map<string, CachedCredentials>()
+
+// Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
+// live at once; this is a generous cap that still bounds memory growth in a long-lived process.
+const MAX_CACHE_ENTRIES = 1000
+
+// De-dupes concurrent cache misses for the same key so a burst of concurrent uploads for a
+// not-yet-cached role shares one in-flight AssumeRole call instead of each independently calling
+// STS (which would otherwise reproduce the exact throttling this cache exists to prevent).
+const inFlightAssumeRole = new Map<string, Promise<Credentials>>()
 
 // Exposed for tests to reset the shared cache between cases.
 export function clearCredentialsCache(): void {
   credentialsCache.clear()
+  inFlightAssumeRole.clear()
+}
+
+// Builds a collision-safe cache key from the inputs that determine the returned credentials.
+// JSON.stringify on an array safely escapes/quotes each element, so unlike naive string
+// concatenation with a bare delimiter, two different (region, roleId, externalId) triples can
+// never produce the same key — which matters because this cache is shared across every customer
+// workspace in the process, so a colliding key would return one workspace's live AWS credentials
+// to a different workspace.
+function buildCacheKey(region: string, roleId: string, externalId: string): string {
+  return JSON.stringify([region, roleId, externalId])
+}
+
+// Increments a DataDog metric without letting a misbehaving stats client fail the upload it's
+// only meant to be observing.
+function safeIncr(statsClient: StatsContext['statsClient'] | undefined, metric: string, tags: string[]): void {
+  try {
+    statsClient?.incr(metric, 1, tags)
+  } catch {
+    // Telemetry must never be able to fail the primary operation it's instrumenting.
+  }
 }
 
 export class Client {
@@ -63,17 +96,57 @@ export class Client {
     const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
     const statsClient = this.statsContext?.statsClient
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = `${this.region}|${roleId}|${externalId ?? ''}`
+    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '')
 
-    if (cacheEnabled) {
-      const cached = credentialsCache.get(cacheKey)
-      if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
-        statsClient?.incr('sts_credential_cache_hit', 1, tags)
-        return cached.credentials
-      }
-      statsClient?.incr('sts_credential_cache_miss', 1, tags)
+    if (!cacheEnabled) {
+      return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
     }
 
+    const cached = credentialsCache.get(cacheKey)
+    if (cached && cached.expiration - CREDENTIALS_EXPIRY_BUFFER_MS > Date.now()) {
+      safeIncr(statsClient, 'sts_credential_cache_hit', tags)
+      return cached.credentials
+    }
+    if (cached) {
+      // Expired — remove it now rather than only overwriting on a future lookup for this same
+      // key, so a key that's never requested again doesn't sit in the cache indefinitely.
+      credentialsCache.delete(cacheKey)
+    }
+    safeIncr(statsClient, 'sts_credential_cache_miss', tags)
+
+    // De-dupe concurrent misses for the same key: if a fetch for this key is already in flight,
+    // await and share that result instead of issuing a second concurrent AssumeRole call, which
+    // would reproduce the exact STS-throttling problem this cache exists to prevent.
+    const existingInFlight = inFlightAssumeRole.get(cacheKey)
+    if (existingInFlight) {
+      return existingInFlight
+    }
+
+    const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials).then(
+      (creds) => {
+        inFlightAssumeRole.delete(cacheKey)
+        return creds
+      },
+      (err) => {
+        inFlightAssumeRole.delete(cacheKey)
+        throw err
+      }
+    )
+    inFlightAssumeRole.set(cacheKey, fetchPromise)
+    return fetchPromise
+  }
+
+  // Calls STS directly (no cache read) and, when the cache is enabled and STS returns a usable
+  // Expiration, stores the result. Always the single place that actually talks to STS, whether
+  // called from a cache miss or the cache-disabled path.
+  private async assumeRoleUncached(
+    roleId: string,
+    externalId: string,
+    roleType: 'intermediary' | 'customer',
+    credentials?: Credentials
+  ): Promise<Credentials> {
+    const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
+    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '')
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
@@ -101,13 +174,24 @@ export class Client {
       if (result.Credentials.Expiration) {
         // Cache the freshly minted credentials until shortly before STS says they expire.
         credentialsCache.set(cacheKey, { credentials: creds, expiration: result.Credentials.Expiration.getTime() })
+        if (credentialsCache.size > MAX_CACHE_ENTRIES) {
+          // Bound total memory: evict the oldest entry (Map iteration order == insertion order)
+          // rather than letting every distinct role/externalId ever seen accumulate forever.
+          const oldestKey: string | undefined = credentialsCache.keys().next().value
+          if (oldestKey !== undefined) {
+            credentialsCache.delete(oldestKey)
+          }
+        }
       } else {
         // STS always returns Expiration in practice (the SDK types it optional, but the API
         // contract guarantees it; confirmed in DataDog it's always present). If it's ever missing,
         // fail safe rather than fail hard: skip caching this credential (so the next request fetches
         // a fresh one instead of reusing a credential of unknown lifetime) and still let this
-        // request through with the credential STS just gave us.
-        statsClient?.incr('sts_credential_cache_skip_no_expiration', 1, tags)
+        // request through with the credential STS just gave us. This metric should be alerted on —
+        // a sustained non-zero rate means the caching feature is silently degrading back to calling
+        // STS on every upload.
+        const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
+        safeIncr(this.statsContext?.statsClient, 'sts_credential_cache_skip_no_expiration', tags)
       }
     }
 
