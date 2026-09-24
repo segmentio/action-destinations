@@ -56,7 +56,15 @@ export function clearCredentialsCache(): void {
 // iam_external_id equal to the intermediary's, forcing its "customer" hop to collide with the
 // (always-populated-first) "intermediary" cache entry and receive Segment's own shared
 // intermediary credentials without AWS ever checking its role's trust policy.
-function buildCacheKey(region: string, roleId: string, externalId: string, roleType: 'intermediary' | 'customer'): string {
+// externalId is intentionally not defaulted to '' by the caller: JSON.stringify serializes
+// undefined array elements as `null`, which is distinguishable from the empty string, so an
+// absent external id can never collide with an intentionally empty one.
+function buildCacheKey(
+  region: string,
+  roleId: string,
+  externalId: string | undefined,
+  roleType: 'intermediary' | 'customer'
+): string {
   return JSON.stringify([region, roleId, externalId, roleType])
 }
 
@@ -107,7 +115,7 @@ export class Client {
     const tags = [...(this.statsContext?.tags ?? []), `role_type:${roleType}`]
     const statsClient = this.statsContext?.statsClient
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '', roleType)
+    const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
 
     if (!cacheEnabled) {
       return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
@@ -156,7 +164,7 @@ export class Client {
     credentials?: Credentials
   ): Promise<Credentials> {
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
-    const cacheKey = buildCacheKey(this.region, roleId, externalId ?? '', roleType)
+    const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
