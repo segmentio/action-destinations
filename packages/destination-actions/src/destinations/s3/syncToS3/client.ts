@@ -26,11 +26,16 @@ export class Client {
   async assumeRole(): Promise<Credentials> {
     const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
     const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId)
-    return this.getSTSCredentials(this.roleArn, this.externalId, intermediaryCreds)
+    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId, false)
+    return this.getSTSCredentials(this.roleArn, this.externalId, true, intermediaryCreds)
   }
 
-  private async getSTSCredentials(roleId: string, externalId: string, credentials?: Credentials) {
+  private async getSTSCredentials(
+    roleId: string,
+    externalId: string,
+    isCustomerRole: boolean,
+    credentials?: Credentials
+  ) {
     const options = { region: this.region, credentials }
     const stsClient = new STSClient(options)
     const command = new AssumeRoleCommand({
@@ -46,6 +51,14 @@ export class Client {
         // STS failures used to escape uploadS3's try/catch entirely, so they reached the platform
         // with no status/code, were classified type:internal and force-retried (even permanent auth
         // failures). Map them to Segment error classes here so classification is correct.
+        if (!isCustomerRole) {
+          // This is Segment's own internal bridging role (not the customer's), so a failure here
+          // reflects Segment-side infrastructure, not a customer misconfiguration. Always treat it
+          // as retryable rather than applying the customer-facing classification below, which could
+          // otherwise permanently reject a transient internal failure (e.g. AccessDeniedException)
+          // and drop an otherwise-recoverable event.
+          throw new RetryableError(`Failed to assume intermediary AWS role: ${errorMessage(err)}`)
+        }
         throw mapAWSError(err, 'Failed to assume AWS role')
       }
     } else {
@@ -149,6 +162,12 @@ export class Client {
   }
 }
 
+// Extracts a plain message from any thrown value, for use in contexts (like the intermediary-role
+// retry path) that don't go through the full mapAWSError classification.
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err)
+}
+
 /**
  * Maps an AWS SDK error (S3 `_Error` shape or an STS/service exception) to the appropriate
  * Segment error class. Permanent, client-side failures (access denied, invalid config, expired
@@ -163,13 +182,16 @@ export function mapAWSError(err: unknown, context: string): Error {
     name?: string
     message?: string
     $fault?: 'client' | 'server'
-    $metadata?: { httpStatusCode?: number }
+    $metadata?: { httpStatusCode?: number; requestId?: string }
   }
   // S3 `_Error` uses Code/Message; STS/service exceptions use name/message.
   const code = e?.Code ?? e?.name
   const message = e?.Message ?? e?.message ?? code ?? String(err)
   const httpStatus = e?.$metadata?.httpStatusCode
-  const detail = `${context}: ${message}`
+  const requestId = e?.$metadata?.requestId
+  // Preserve the AWS request id when available so an incident 6 months from now can still
+  // correlate this classified error back to the specific AWS request that failed.
+  const detail = `${context}: ${message}${requestId ? ` (AWS requestId: ${requestId})` : ''}`
 
   if (code && accessDeniedCodes.has(code)) {
     // Permanent authentication/authorization failure. Not retryable.
@@ -183,12 +205,15 @@ export function mapAWSError(err: unknown, context: string): Error {
   }
   if (code && redirectCodes.has(code)) {
     // S3 returns a redirect (e.g. PermanentRedirect, HTTP 301) when the bucket lives in a
-    // different region than configured. It's a permanent client misconfiguration, so surface a
-    // non-retryable 401 rather than leaking the raw 3xx redirect status.
+    // different region than configured. It's a permanent client misconfiguration — NOT a
+    // credentials problem — so use a neutral error code rather than INVALID_AUTHENTICATION
+    // (which would incorrectly point customers/on-call at their credentials instead of the
+    // s3_aws_region setting). Still surfaced as non-retryable 401 rather than leaking the raw
+    // 3xx redirect status.
     // Note: TemporaryRedirect (bucket mid-migration) and PermanentRedirect (fixed misconfiguration)
     // are intentionally collapsed into the same non-retryable bucket here — a normal retry window
     // won't resolve either, even though their root causes differ.
-    return new IntegrationError(detail, ErrorCodes.INVALID_AUTHENTICATION, 401)
+    return new IntegrationError(detail, ErrorCodes.UNKNOWN_ERROR, 401)
   }
   if (code && transientClientCodes.has(code)) {
     // Despite carrying a 4xx status, AWS documents these as safe/recommended to retry

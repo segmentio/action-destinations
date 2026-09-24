@@ -7,11 +7,13 @@ import { S3_STS_ERROR_CLASSIFICATION_FLAG } from '../constants'
 
 // Controllable STS send mock so tests can simulate assume-role failures.
 const mockStsSend = jest.fn()
+// Controllable S3 send mock so tests can simulate PUT failures.
+const mockS3Send = jest.fn()
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
   S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn()
+    send: mockS3Send
   })),
   PutObjectCommand: jest.fn(),
   _Error: jest.fn()
@@ -112,14 +114,20 @@ describe('Client STS assume-role error handling', () => {
     expect((err as RetryableError).status).toBeDefined()
   })
 
-  // Regression: permanent authorization failures from STS must NOT be force-retried when enabled.
-  it('when enabled, maps a permanent STS access-denied failure to a non-retryable 403 error', async () => {
+  // Regression: permanent authorization failures from STS must NOT be force-retried when enabled —
+  // but only for the CUSTOMER role assumption. The intermediary (Segment-internal) hop resolves
+  // successfully here so this test isolates the customer-hop classification.
+  it('when enabled, maps a permanent STS access-denied failure on the CUSTOMER role to a non-retryable 403 error', async () => {
     const stsError = Object.assign(new Error('User is not authorized to perform sts:AssumeRole'), {
       name: 'AccessDenied',
       $fault: 'client',
       $metadata: { httpStatusCode: 403 }
     })
-    mockStsSend.mockRejectedValue(stsError)
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      .mockRejectedValueOnce(stsError)
 
     const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
 
@@ -127,6 +135,59 @@ describe('Client STS assume-role error handling', () => {
     expect(err).not.toBeInstanceOf(RetryableError)
     expect((err as APIError).status).toBe(403)
   })
+
+  // Regression: a transient/permission hiccup on Segment's OWN intermediary role must always be
+  // retryable — it's not a customer misconfiguration, so it must not get the strict customer-facing
+  // classification (which could otherwise permanently reject it).
+  it('when enabled, always treats an intermediary-role STS failure as retryable, even with an access-denied shape', async () => {
+    const stsError = Object.assign(new Error('User is not authorized to perform sts:AssumeRole'), {
+      name: 'AccessDenied',
+      $fault: 'client',
+      $metadata: { httpStatusCode: 403 }
+    })
+    mockStsSend.mockRejectedValueOnce(stsError)
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect(err).not.toBeInstanceOf(APIError)
+  })
+})
+
+describe('uploadS3 PUT error classification (flag-off legacy path parity)', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  beforeEach(() => {
+    mockStsSend.mockReset()
+    mockS3Send.mockReset()
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA_TEST', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+  })
+
+  // Regression: mapAWSError's accessDeniedCodes set (flag-on) adds ExpiredToken/ExpiredTokenException/
+  // AccessDeniedException on top of the original codes, but the flag-off legacy path must keep using
+  // ONLY the original set — otherwise flag-off would silently start classifying these as 403 where main
+  // never did, breaking the "flag off == main behavior" guarantee this whole re-ship depends on.
+  it.each(['ExpiredToken', 'ExpiredTokenException', 'AccessDeniedException'])(
+    'is off by default: does NOT classify %s as a non-retryable 403 via the legacy path',
+    async (code) => {
+      mockS3Send.mockRejectedValue({ Code: code, Message: 'nope' })
+
+      const err = await upload(newClient()).catch((e: unknown) => e)
+
+      expect(err).not.toBeInstanceOf(APIError)
+      expect(err).toBeInstanceOf(RetryableError)
+    }
+  )
 })
 
 describe('mapAWSError', () => {
@@ -152,7 +213,7 @@ describe('mapAWSError', () => {
     expect((err as IntegrationError).status).toBe(400)
   })
 
-  it('classifies a wrong-region PermanentRedirect (301) as a non-retryable 401, not the raw 3xx', () => {
+  it('classifies a wrong-region PermanentRedirect (301) as a non-retryable 401, not the raw 3xx, and does not mislabel it as an auth error', () => {
     const err = mapAWSError(
       {
         Code: 'PermanentRedirect',
@@ -165,6 +226,18 @@ describe('mapAWSError', () => {
     expect(err).toBeInstanceOf(IntegrationError)
     expect(err).not.toBeInstanceOf(RetryableError)
     expect((err as IntegrationError).status).toBe(401)
+    // Regression: a region mismatch is a config problem, not a credentials problem — must not be
+    // stamped with INVALID_AUTHENTICATION, which would misdirect customers/on-call toward rotating
+    // credentials instead of fixing s3_aws_region.
+    expect((err as IntegrationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
+  })
+
+  it('includes the AWS request id in the error detail when present, for incident correlation', () => {
+    const err = mapAWSError(
+      { Code: 'AccessDenied', Message: 'nope', $metadata: { requestId: 'req-123' } },
+      'AWS PUT failed'
+    )
+    expect(err.message).toContain('req-123')
   })
 
   it('never surfaces a non-4xx status from the generic client-fault branch (clamps to 400)', () => {
