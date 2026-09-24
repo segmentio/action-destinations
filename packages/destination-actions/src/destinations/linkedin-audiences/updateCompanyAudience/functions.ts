@@ -39,7 +39,7 @@ import {
   SEGMENT_TYPES
 } from './constants'
 
-export const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
+const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
 const TRAILING_SLASHES = /\/+$/
 const TRAILING_DOT = /\.$/
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
@@ -110,8 +110,9 @@ export function normalizeIndustries(values?: string[] | string): string[] | unde
   const seen = new Set<string>()
   const industries = cleaned
     .filter((industry) => {
-      const duplicate = seen.has(industry.toLowerCase())
-      seen.add(industry.toLowerCase())
+      const key = industry.toLowerCase()
+      const duplicate = seen.has(key)
+      seen.add(key)
       return !duplicate
     })
     .slice(0, MAX_INDUSTRIES)
@@ -187,7 +188,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers ?? {}).some((identifier) => trimmed(identifier))
-        ? "Every value in the 'Identifiers' field was rejected. A 'Company Domain' or 'Company Email Domain' must be a fully qualified domain such as 'microsoft.com', and a 'LinkedIn Company Page URL' must be 100 characters or fewer."
+        ? "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be 100 characters or fewer."
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
@@ -216,8 +217,9 @@ export function validate(
 
 // Every identifier we send belongs in the key. Two payloads that would produce different request
 // elements must not collapse onto one another, or one of them is silently dropped. Traits are
-// deliberately excluded: the 'Send Company Traits' toggle is the customer's acknowledgement that
-// only one company's traits are sent, which keeps this at one element per company.
+// deliberately excluded, as is the 'Send Company Traits' toggle that enables them: the toggle is
+// the customer's acknowledgement that only one company's traits are sent, which keeps this at one
+// element per company.
 export function companyKey(payload: ValidCompanyPayload): string {
   const { companyName, companyDomain, companyEmailDomain, linkedInCompanyId, companyPageUrl } =
     payload.identifiers ?? {}

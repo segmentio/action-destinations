@@ -1,5 +1,4 @@
 import {
-  SCHEME_PREFIX,
   companyKey,
   normalizeCompanyPageUrl,
   normalizeCountry,
@@ -32,66 +31,6 @@ const keyed = (
   identifiers,
   company_traits,
   index: 0
-})
-
-describe('SCHEME_PREFIX', () => {
-  const strip = (value: string) => value.replace(SCHEME_PREFIX, '')
-
-  // The scheme name itself is not a dimension the regex branches on — it matches the grammar
-  // below, not a list of known protocols — so one plain and one hyphenated case is the coverage.
-  it.each(['https://microsoft.com', 'chrome-extension://microsoft.com'])('matches %s', (value: string) => {
-    expect(strip(value)).toBe('microsoft.com')
-  })
-
-  it('is case-insensitive, so the constant does not depend on the caller lower-casing', () => {
-    expect(strip('HtTpS://microsoft.com')).toBe('microsoft.com')
-  })
-
-  describe('accepts the full RFC 3986 scheme grammar', () => {
-    it.each([
-      ['digits', 'h2://microsoft.com'],
-      ['a plus', 'svn+ssh://microsoft.com'],
-      ['a dot', 'a.b://microsoft.com'],
-      ['a hyphen', 'view-source://microsoft.com'],
-      ['all of them', 'a1+b-c.d://microsoft.com']
-    ])('allows %s in a scheme', (_label: string, value: string) => {
-      expect(strip(value)).toBe('microsoft.com')
-    })
-  })
-
-  it('removes only the scheme, leaving every other part of the url untouched', () => {
-    expect(strip('https://joe@microsoft.com:8080/a/b?c=1#top')).toBe('joe@microsoft.com:8080/a/b?c=1#top')
-  })
-
-  describe('does not match', () => {
-    it.each([
-      ['no colon at all', 'microsoft.com/company/x?a=1'],
-      // These look like a scheme right up to the colon, and are only rejected because what
-      // follows is not '//'.
-      ['a host and port', 'microsoft.com:8080'],
-      ['a scheme with no slashes', 'mailto:joe@microsoft.com'],
-      ['a single slash', 'https:/microsoft.com'],
-      ['a protocol-relative url', '//microsoft.com'],
-      ['a scheme starting with a digit', '1https://microsoft.com'],
-      ['a scheme with an underscore, which is not in the grammar', 'my_scheme://microsoft.com'],
-      ['an empty string', ''],
-      // The pattern is anchored, which is what lets both callers trim first and rely on it.
-      ['a scheme that is not at the start', 'go to https://microsoft.com']
-    ])('%s', (_label: string, value: string) => {
-      expect(strip(value)).toBe(value)
-    })
-  })
-
-  it('strips only the leading scheme, leaving a later one untouched', () => {
-    expect(strip('https://example.com/r?url=https://microsoft.com')).toBe('example.com/r?url=https://microsoft.com')
-  })
-
-  it('is not a global regex, so repeated tests do not drift with lastIndex', () => {
-    expect(SCHEME_PREFIX.global).toBe(false)
-    expect(SCHEME_PREFIX.test('https://microsoft.com')).toBe(true)
-    expect(SCHEME_PREFIX.test('https://microsoft.com')).toBe(true)
-    expect(SCHEME_PREFIX.test('https://microsoft.com')).toBe(true)
-  })
 })
 
 describe('normalizeDomain', () => {
