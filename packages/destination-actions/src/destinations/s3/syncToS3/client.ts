@@ -11,19 +11,26 @@ import { S3_FILENAME_FIX_FLAG } from '../constants'
 /**
  * Insert a timestamp suffix into the filename, immediately before the extension.
  *
- * If the prefix already ends with `.<fileExtension>`, the suffix is inserted just
- * before that extension; otherwise the suffix and extension are appended. We strip
- * the trailing extension by length rather than `String.prototype.replace`, because
- * `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
+ * If the prefix already ends with an extension (`.<fileExtension>` or any other
+ * `.<ext>`-shaped suffix), the suffix is inserted just before it, replacing a mismatched
+ * extension rather than doubling it (e.g. a `.txt` prefix with `file_extension: csv` becomes
+ * `..._<date>.csv`, not `...txt_<date>.csv`); otherwise the suffix and extension are appended.
+ * We strip the trailing extension by length/regex rather than `String.prototype.replace`,
+ * because `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
  * in the name (e.g. the leading "csv" in "csv_export.csv"), corrupting the filename.
+ *
+ * `filenamePrefix` is customer-controlled free text with no format validation, and becomes part
+ * of the literal S3 object key — path separators and `..` segments are neutralized (replaced,
+ * not rejected, so a customer's upload doesn't start failing) rather than passed through, as
+ * defense in depth against path traversal / unexpected key injection.
  */
 export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
+  const safePrefix = filenamePrefix.replace(/[/\\]/g, '_').replace(/\.\./g, '_')
   const ext = `.${fileExtension}`
-  if (filenamePrefix.endsWith(ext)) {
-    const base = filenamePrefix.slice(0, filenamePrefix.length - ext.length)
-    return `${base}_${dateSuffix}${ext}`
-  }
-  return filenamePrefix ? `${filenamePrefix}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
+  const base = safePrefix.endsWith(ext)
+    ? safePrefix.slice(0, safePrefix.length - ext.length)
+    : safePrefix.replace(/\.[^./]+$/, '')
+  return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
 }
 
 export class Client {

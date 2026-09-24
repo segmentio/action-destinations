@@ -95,8 +95,17 @@ describe('buildTimestampedFilename', () => {
     expect(buildTimestampedFilename('', DATE, 'csv')).toBe(`${DATE}.csv`)
   })
 
-  it('appends the configured extension when the prefix ends with a different extension', () => {
-    expect(buildTimestampedFilename('report.txt', DATE, 'csv')).toBe(`report.txt_${DATE}.csv`)
+  // Regression: previously the mismatched-extension case fell through to naive appending,
+  // producing a double-extension key (`report.txt_<date>.csv`) — the same "corrupted-looking
+  // filename" symptom this whole fix targets, just for a different input shape. Now any trailing
+  // extension-like suffix is replaced by the configured one instead of doubled.
+  it('replaces a mismatched trailing extension with the configured one, instead of doubling it', () => {
+    expect(buildTimestampedFilename('report.txt', DATE, 'csv')).toBe(`report_${DATE}.csv`)
+  })
+
+  it('neutralizes path separators and `..` segments in the prefix (defense in depth against S3 key injection)', () => {
+    expect(buildTimestampedFilename('../../etc/passwd', DATE, 'csv')).toBe(`____etc_passwd_${DATE}.csv`)
+    expect(buildTimestampedFilename('folder/nested.csv', DATE, 'csv')).toBe(`folder_nested_${DATE}.csv`)
   })
 })
 
