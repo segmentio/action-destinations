@@ -4,7 +4,8 @@ import type { Payload } from './generated-types'
 import {
   getContactLists,
   getFields,
-  API_BASE,
+  getAuthHeader,
+  getApiBaseUrl,
   ContactListApiPayload,
   BufferBatchContactList,
   BufferBatchContactListItem
@@ -37,28 +38,33 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    contactlistid: async (request) => {
-      return getContactLists(request)
+    contactlistid: async (request, data) => {
+      return getContactLists(request, data.settings)
     },
-    key_field: async (request) => {
-      return getFields(request)
+    key_field: async (request, data) => {
+      return getFields(request, data.settings)
     }
   },
   perform: async (request, data) => {
     data.payload.contactlistid = parseInt(data.payload.contactlistid.toString().replace(/[^0-9]/g, ''))
 
     if (data.payload.contactlistid > 0) {
+      const authHeader = await getAuthHeader(request, data.settings)
       const payload: ContactListApiPayload = {
         contactlistid: data.payload.contactlistid,
         key_id: data.payload.key_field,
         external_ids: [data.payload.key_value]
       }
 
-      const response = await request(`${API_BASE}contactlist/${data.payload.contactlistid}/delete`, {
-        method: 'post',
-        json: payload,
-        throwHttpErrors: false
-      })
+      const response = await request(
+        `${getApiBaseUrl(data.settings)}contactlist/${data.payload.contactlistid}/delete`,
+        {
+          method: 'post',
+          json: payload,
+          headers: authHeader,
+          throwHttpErrors: false
+        }
+      )
 
       switch (response?.status) {
         case 200:
@@ -75,6 +81,8 @@ const action: ActionDefinition<Settings, Payload> = {
           }
         case 400:
           throw new APIError('The contact could not be removed from the contact list', 400)
+        case 403:
+          throw new APIError('Please check the permission of your API credentials', 403)
         case 429:
           throw new RetryableError('Rate limit reached.')
         default:
@@ -86,6 +94,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   performBatch: async (request, data) => {
     if (data && data.payload && Array.isArray(data.payload)) {
+      const authHeader = await getAuthHeader(request, data.settings)
       const batches: BufferBatchContactList = {}
       data.payload.forEach((payload: Payload) => {
         if (!batches[`${payload.contactlistid}-${payload.key_field}`]) {
@@ -105,9 +114,10 @@ const action: ActionDefinition<Settings, Payload> = {
           key_id: batch.key_id,
           external_ids: batch.external_ids
         }
-        const response = request(`${API_BASE}contactlist/${batch.contactlistid}/delete`, {
+        const response = request(`${getApiBaseUrl(data.settings)}contactlist/${batch.contactlistid}/delete`, {
           method: 'post',
           json: payload,
+          headers: authHeader,
           throwHttpErrors: false
         })
         requests.push(response)
