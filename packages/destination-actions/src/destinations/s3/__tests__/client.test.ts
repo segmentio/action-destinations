@@ -3,7 +3,7 @@ import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
-import { CREDENTIALS_EXPIRY_BUFFER_MS, STS_REQUEST_TIMEOUT_MS } from '../syncToS3/constants'
+import { CREDENTIALS_EXPIRY_BUFFER_MS } from '../syncToS3/constants'
 
 // Controllable STS send mock so the caching tests can control credential responses.
 const mockStsSend = jest.fn()
@@ -129,7 +129,7 @@ describe('STS credential caching', () => {
   // behavior. It was initially applied unconditionally, passing a second (options) argument and
   // an AbortSignal into every send() call -- including the disabled path -- which is not
   // byte-identical to main's plain `stsClient.send(command)` call.
-  it('is off by default: calls STS with no timeout/abortSignal option (matches main)', async () => {
+  it('calls STS with no abortSignal option when no signal was passed to uploadS3 (matches main)', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
 
     await upload(newClient())
@@ -345,26 +345,50 @@ describe('STS credential caching', () => {
     await expect(upload(newClient(settings.iam_role_arn, cacheFlagOn))).resolves.toBeDefined()
   })
 
-  it('when enabled, times out and retries rather than hanging forever if STS never responds', async () => {
-    jest.useFakeTimers()
-    try {
-      mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {
-        return new Promise((_resolve, reject) => {
-          opts?.abortSignal?.addEventListener('abort', () => {
-            const err = new Error('The operation was aborted')
-            err.name = 'AbortError'
-            reject(err)
-          })
+  // The STS call no longer has its own bespoke timeout -- it forwards the same AbortSignal that
+  // perform/performBatch pass down through uploadS3 (the system-configured cancellation signal),
+  // matching how the S3 PutObject call already honors it.
+  it('forwards the caller-provided AbortSignal into STS calls and converts an abort into a timeout error', async () => {
+    const controller = new AbortController()
+    mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {
+      return new Promise((_resolve, reject) => {
+        opts?.abortSignal?.addEventListener('abort', () => {
+          const err = new Error('The operation was aborted')
+          err.name = 'AbortError'
+          reject(err)
         })
       })
+    })
 
-      const promise = upload(newClient(settings.iam_role_arn, cacheFlagOn))
-      jest.advanceTimersByTime(STS_REQUEST_TIMEOUT_MS)
+    const promise = newClient(settings.iam_role_arn, cacheFlagOn).uploadS3(
+      settings,
+      'content',
+      'file',
+      '',
+      'csv',
+      controller.signal
+    )
+    controller.abort()
 
-      await expect(promise).rejects.toThrow(/timed out/)
-    } finally {
-      jest.useRealTimers()
-    }
+    await expect(promise).rejects.toThrow('Request timed out before receiving a response')
+  })
+
+  it('is off by default: still forwards the caller-provided AbortSignal into STS calls', async () => {
+    const controller = new AbortController()
+    mockStsSend.mockImplementation((_cmd: unknown, opts?: { abortSignal?: AbortSignal }) => {
+      return new Promise((_resolve, reject) => {
+        opts?.abortSignal?.addEventListener('abort', () => {
+          const err = new Error('The operation was aborted')
+          err.name = 'AbortError'
+          reject(err)
+        })
+      })
+    })
+
+    const promise = newClient().uploadS3(settings, 'content', 'file', '', 'csv', controller.signal)
+    controller.abort()
+
+    await expect(promise).rejects.toThrow('Request timed out before receiving a response')
   })
 
   it('when enabled, expires a cached credential once real time passes its ttl', async () => {

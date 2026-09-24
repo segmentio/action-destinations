@@ -7,7 +7,7 @@ import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutE
 import type { Features, StatsContext } from '@segment/actions-core'
 import { LRUCache } from 'lru-cache'
 import { Credentials } from './types'
-import { CREDENTIALS_EXPIRY_BUFFER_MS, STS_REQUEST_TIMEOUT_MS } from './constants'
+import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
 // Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
@@ -97,18 +97,25 @@ export class Client {
     this.features = features
   }
 
-  async assumeRole(): Promise<Credentials> {
+  async assumeRole(signal?: AbortSignal): Promise<Credentials> {
     const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
     const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId, 'intermediary')
-    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds)
+    const intermediaryCreds = await this.getSTSCredentials(
+      intermediaryARN,
+      intermediaryExternalId,
+      'intermediary',
+      undefined,
+      signal
+    )
+    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds, signal)
   }
 
   private async getSTSCredentials(
     roleId: string,
     externalId: string,
     roleType: 'intermediary' | 'customer',
-    credentials?: Credentials
+    credentials?: Credentials,
+    signal?: AbortSignal
   ): Promise<Credentials> {
     // Tag every metric with the hop (intermediary vs customer role) so DataDog can break the
     // cache hit/miss counts down per hop of the two-hop assume-role chain.
@@ -118,7 +125,7 @@ export class Client {
     const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
 
     if (!cacheEnabled) {
-      return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
+      return this.assumeRoleUncached(roleId, externalId, roleType, credentials, signal)
     }
 
     // lru-cache purges an expired entry as soon as a get() finds it stale (default behavior), so
@@ -140,7 +147,7 @@ export class Client {
     }
     safeIncr(statsClient, 'sts_credential_cache_miss', tags)
 
-    const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials).then(
+    const fetchPromise = this.assumeRoleUncached(roleId, externalId, roleType, credentials, signal).then(
       (creds) => {
         inFlightAssumeRole.delete(cacheKey)
         return creds
@@ -161,7 +168,8 @@ export class Client {
     roleId: string,
     externalId: string,
     roleType: 'intermediary' | 'customer',
-    credentials?: Credentials
+    credentials?: Credentials,
+    signal?: AbortSignal
   ): Promise<Credentials> {
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
     const cacheKey = buildCacheKey(this.region, roleId, externalId, roleType)
@@ -173,26 +181,17 @@ export class Client {
       ExternalId: externalId
     })
 
+    // Use the system-configured AbortSignal passed down from perform/performBatch (the same one
+    // uploadS3 already passes to the S3 PutObject call below) rather than a bespoke timeout, so
+    // STS respects the same cancellation the rest of the request honors.
     let result
-    if (!cacheEnabled) {
-      // Flag off must stay byte-identical to main: no timeout, no abortSignal, plain send().
-      result = await stsClient.send(command)
-    } else {
-      // Bound the call so a stalled STS request can't hang every concurrent upload de-duped onto
-      // this same in-flight promise (see inFlightAssumeRole above) indefinitely. Scoped to the
-      // cache-enabled path only, since this is new behavior introduced alongside the cache.
-      const timeoutController = new AbortController()
-      const timeout = setTimeout(() => timeoutController.abort(), STS_REQUEST_TIMEOUT_MS)
-      try {
-        result = await stsClient.send(command, { abortSignal: timeoutController.signal })
-      } catch (err) {
-        if ((err as Error).name === 'AbortError') {
-          throw new RequestTimeoutError(`STS AssumeRole timed out after ${STS_REQUEST_TIMEOUT_MS}ms`)
-        }
-        throw err
-      } finally {
-        clearTimeout(timeout)
+    try {
+      result = signal ? await stsClient.send(command, { abortSignal: signal }) : await stsClient.send(command)
+    } catch (err) {
+      if ((err as Error).name === 'AbortError') {
+        throw new RequestTimeoutError()
       }
+      throw err
     }
     if (
       !result.Credentials ||
@@ -262,7 +261,7 @@ export class Client {
       : s3_aws_folder_name?.endsWith('/')
       ? s3_aws_folder_name
       : `${s3_aws_folder_name}/`
-    const credentials = await this.assumeRole()
+    const credentials = await this.assumeRole(signal)
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
       region: this.region,
