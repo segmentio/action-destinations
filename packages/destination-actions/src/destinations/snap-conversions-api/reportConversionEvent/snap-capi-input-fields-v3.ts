@@ -5,6 +5,11 @@ const action_source: InputField = {
   description: 'This field allows you to specify where your conversions occurred.',
   type: 'string',
   choices: [
+    // Native action sources
+    { label: 'WEB (Snap Native)', value: 'WEB' },
+    { label: 'MOBILE_APP (Snap Native)', value: 'MOBILE_APP' },
+    { label: 'OFFLINE (Snap Native)', value: 'OFFLINE' },
+    // Meta compatible action sources
     { label: 'EMAIL', value: 'email' },
     { label: 'WEBSITE', value: 'website' },
     { label: 'APP', value: 'app' },
