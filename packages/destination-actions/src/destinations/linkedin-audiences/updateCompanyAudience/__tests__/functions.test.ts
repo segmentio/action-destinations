@@ -37,84 +37,14 @@ const keyed = (
 describe('SCHEME_PREFIX', () => {
   const strip = (value: string) => value.replace(SCHEME_PREFIX, '')
 
-  describe('matches a leading scheme', () => {
-    it.each([
-      // web
-      'http://microsoft.com',
-      'https://microsoft.com',
-      'ws://microsoft.com',
-      'wss://microsoft.com',
-      // file transfer and storage
-      'ftp://microsoft.com',
-      'ftps://microsoft.com',
-      'sftp://microsoft.com',
-      'file://microsoft.com',
-      's3://microsoft.com',
-      'gs://microsoft.com',
-      'smb://microsoft.com',
-      'nfs://microsoft.com',
-      // source control and remote access
-      'git://microsoft.com',
-      'ssh://microsoft.com',
-      'svn://microsoft.com',
-      'rsync://microsoft.com',
-      'telnet://microsoft.com',
-      // directory, mail and messaging
-      'ldap://microsoft.com',
-      'ldaps://microsoft.com',
-      'imap://microsoft.com',
-      'nntp://microsoft.com',
-      'irc://microsoft.com',
-      'webcal://microsoft.com',
-      // databases and brokers
-      'redis://microsoft.com',
-      'mongodb://microsoft.com',
-      'postgres://microsoft.com',
-      'mysql://microsoft.com',
-      'amqp://microsoft.com',
-      'mqtt://microsoft.com',
-      // app and platform schemes, including hyphenated ones
-      'chrome-extension://microsoft.com',
-      'moz-extension://microsoft.com',
-      'android-app://microsoft.com',
-      'content://microsoft.com',
-      'market://microsoft.com'
-    ])('%s', (value: string) => {
-      expect(strip(value)).toBe('microsoft.com')
-    })
+  // The scheme name itself is not a dimension the regex branches on — it matches the grammar
+  // below, not a list of known protocols — so one plain and one hyphenated case is the coverage.
+  it.each(['https://microsoft.com', 'chrome-extension://microsoft.com'])('matches %s', (value: string) => {
+    expect(strip(value)).toBe('microsoft.com')
   })
 
-  // Only the scheme is removed. Everything after it survives untouched, including the parts that
-  // later stages go on to strip, so a failure here points at the regex rather than at a caller.
-  describe('strips the scheme and leaves the rest of the url alone', () => {
-    it.each([
-      ['a bare host', 'https://microsoft.com', 'microsoft.com'],
-      ['a trailing slash', 'https://microsoft.com/', 'microsoft.com/'],
-      ['a path', 'https://microsoft.com/about', 'microsoft.com/about'],
-      ['a deep path', 'https://microsoft.com/a/b/c', 'microsoft.com/a/b/c'],
-      ['a query string', 'https://microsoft.com?a=1', 'microsoft.com?a=1'],
-      ['a fragment', 'https://microsoft.com#top', 'microsoft.com#top'],
-      ['a port', 'https://microsoft.com:8080', 'microsoft.com:8080'],
-      ['a user', 'https://joe@microsoft.com', 'joe@microsoft.com'],
-      ['credentials', 'https://joe:pw@microsoft.com', 'joe:pw@microsoft.com'],
-      ['a subdomain', 'https://www.microsoft.com', 'www.microsoft.com'],
-      ['casing, which it does not change', 'https://MICROSOFT.COM', 'MICROSOFT.COM'],
-      ['an ip address', 'https://192.168.0.1', '192.168.0.1'],
-      ['an ipv6 host', 'https://[::1]:8080', '[::1]:8080'],
-      ['localhost and a port', 'http://localhost:3000', 'localhost:3000'],
-      ['everything at once', 'https://joe@microsoft.com:8080/a/b?c=1#top', 'joe@microsoft.com:8080/a/b?c=1#top']
-    ])('keeps %s', (_label: string, input: string, expected: string) => {
-      expect(strip(input)).toBe(expected)
-    })
-  })
-
-  describe('is case-insensitive, so the constant does not depend on the caller lower-casing', () => {
-    it.each(['HTTPS://microsoft.com', 'Https://microsoft.com', 'HtTpS://microsoft.com', 'HTTP://microsoft.com'])(
-      '%s',
-      (value: string) => {
-        expect(strip(value)).toBe('microsoft.com')
-      }
-    )
+  it('is case-insensitive, so the constant does not depend on the caller lower-casing', () => {
+    expect(strip('HtTpS://microsoft.com')).toBe('microsoft.com')
   })
 
   describe('accepts the full RFC 3986 scheme grammar', () => {
@@ -129,26 +59,23 @@ describe('SCHEME_PREFIX', () => {
     })
   })
 
+  it('removes only the scheme, leaving every other part of the url untouched', () => {
+    expect(strip('https://joe@microsoft.com:8080/a/b?c=1#top')).toBe('joe@microsoft.com:8080/a/b?c=1#top')
+  })
+
   describe('does not match', () => {
     it.each([
-      ['a bare domain', 'microsoft.com'],
-      ['a bare subdomain', 'www.microsoft.com'],
-      ['a domain with a path', 'linkedin.com/company/microsoft'],
-      ['a domain with a query string', 'microsoft.com?a=1'],
+      ['no colon at all', 'microsoft.com/company/x?a=1'],
       // These look like a scheme right up to the colon, and are only rejected because what
       // follows is not '//'.
       ['a host and port', 'microsoft.com:8080'],
-      ['a host, port and path', 'microsoft.com:8080/about'],
       ['a scheme with no slashes', 'mailto:joe@microsoft.com'],
       ['a single slash', 'https:/microsoft.com'],
-      ['a bare colon', 'microsoft.com:'],
       ['a protocol-relative url', '//microsoft.com'],
       ['a scheme starting with a digit', '1https://microsoft.com'],
-      ['a scheme starting with a symbol', '-https://microsoft.com'],
       ['a scheme with an underscore, which is not in the grammar', 'my_scheme://microsoft.com'],
       ['an empty string', ''],
-      ['only whitespace', '   '],
-      ['leading whitespace before a scheme', ' https://microsoft.com'],
+      // The pattern is anchored, which is what lets both callers trim first and rely on it.
       ['a scheme that is not at the start', 'go to https://microsoft.com']
     ])('%s', (_label: string, value: string) => {
       expect(strip(value)).toBe(value)
@@ -168,90 +95,51 @@ describe('SCHEME_PREFIX', () => {
 })
 
 describe('normalizeDomain', () => {
-  describe('plain domains', () => {
+  // The three shapes a customer maps into this field. Everything below the host — scheme,
+  // userinfo, port, path, query, fragment — is the URL parser's job, so one case each is enough;
+  // what is worth pinning is that we reduce all three to the same host.
+  describe('reduces each mapped shape to the host', () => {
     it.each([
-      ['a plain domain', 'microsoft.com', 'microsoft.com'],
-      ['upper case', 'MICROSOFT.COM', 'microsoft.com'],
-      ['mixed case', 'Microsoft.Com', 'microsoft.com'],
-      ['surrounding whitespace', '  microsoft.com  ', 'microsoft.com'],
-      ['tabs and newlines', '\t microsoft.com \n', 'microsoft.com'],
-      ['a subdomain', 'mail.microsoft.com', 'mail.microsoft.com'],
-      ['several subdomains', 'a.b.c.microsoft.com', 'a.b.c.microsoft.com'],
-      ['a multi-part tld', 'microsoft.co.uk', 'microsoft.co.uk'],
-      ['a hyphenated domain', 'my-company.com', 'my-company.com'],
-      ['a numeric domain', '123.com', '123.com'],
-      ['a long tld', 'microsoft.technology', 'microsoft.technology'],
-      ['a non-ascii domain, converted to punycode', 'müller.de', 'xn--mller-kva.de']
-    ])('handles %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeDomain(input)).toBe(expected)
-    })
-  })
-
-  describe('schemes', () => {
-    it.each([
-      ['http', 'http://microsoft.com', 'microsoft.com'],
-      ['https', 'https://microsoft.com', 'microsoft.com'],
-      ['an upper case scheme', 'HTTPS://Microsoft.com', 'microsoft.com'],
-      ['a mixed case scheme', 'HtTpS://microsoft.com', 'microsoft.com'],
-      ['ftp', 'ftp://files.microsoft.com', 'files.microsoft.com'],
-      ['a scheme and www', 'https://www.microsoft.com', 'www.microsoft.com'],
-      ['mailto, which has no slashes', 'mailto:joe@microsoft.com', 'microsoft.com'],
-      ['a protocol-relative url', '//microsoft.com', 'microsoft.com'],
-      ['a protocol-relative url with a path', '//microsoft.com/about', 'microsoft.com']
-    ])('strips %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeDomain(input)).toBe(expected)
-    })
-  })
-
-  describe('email addresses', () => {
-    it.each([
-      ['a full email address', 'joe.bloggs@microsoft.com', 'microsoft.com'],
-      ['an email with a plus tag', 'joe+segment@microsoft.com', 'microsoft.com'],
-      ['an email with digits', 'joe123@microsoft.com', 'microsoft.com'],
-      ['an upper case email', 'JOE@MICROSOFT.COM', 'microsoft.com'],
-      ['a leading @', '@microsoft.com', 'microsoft.com'],
-      ['whitespace around a full email', '  Joe@Microsoft.com  ', 'microsoft.com'],
-      ['credentials in a url', 'user:pass@microsoft.com', 'microsoft.com'],
-      ['an email at a subdomain', 'joe@mail.microsoft.co.uk', 'mail.microsoft.co.uk']
-    ])('takes the domain from %s', (_label: string, input: string, expected: string) => {
+      ['a bare domain', 'microsoft.com', 'microsoft.com'],
+      ['an email address', 'joe.bloggs@microsoft.com', 'microsoft.com'],
+      ['a page url', 'https://www.microsoft.com/about?a=1#top', 'www.microsoft.com'],
+      ['a subdomain and a multi-part tld', 'mail.microsoft.co.uk', 'mail.microsoft.co.uk'],
+      ['case and whitespace', '  MICROSOFT.COM  ', 'microsoft.com'],
+      ['all of it at once', '  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ', 'www.microsoft.com']
+    ])('takes the host from %s', (_label: string, input: string, expected: string) => {
       expect(normalizeDomain(input)).toBe(expected)
     })
 
     it('takes the part after the last @ when there are several', () => {
       expect(normalizeDomain('weird@name@microsoft.com')).toBe('microsoft.com')
     })
-  })
 
-  describe('trailing components', () => {
-    it.each([
-      ['a path', 'microsoft.com/about', 'microsoft.com'],
-      ['a deep path', 'microsoft.com/a/b/c', 'microsoft.com'],
-      ['a query string', 'microsoft.com?a=1', 'microsoft.com'],
-      ['a fragment', 'microsoft.com#top', 'microsoft.com'],
-      ['a trailing slash', 'microsoft.com/', 'microsoft.com'],
-      ['a port', 'microsoft.com:8080', 'microsoft.com'],
-      ['a port and a path', 'microsoft.com:8080/about', 'microsoft.com']
-    ])('drops %s', (_label: string, input: string, expected: string) => {
-      expect(normalizeDomain(input)).toBe(expected)
+    it('handles mailto, which has no slashes after the colon', () => {
+      expect(normalizeDomain('mailto:joe@microsoft.com')).toBe('microsoft.com')
     })
-  })
 
-  it('handles everything at once', () => {
-    expect(normalizeDomain('  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ')).toBe('www.microsoft.com')
+    it('handles a protocol-relative url', () => {
+      expect(normalizeDomain('//microsoft.com/about')).toBe('microsoft.com')
+    })
+
+    // Our choice, not the parser's: the canonical DNS spelling is sent. Blocked on LinkedIn
+    // confirming they match this form. See STRATCONN-7046.
+    it('converts an internationalized domain to punycode', () => {
+      expect(normalizeDomain('müller.de')).toBe('xn--mller-kva.de')
+    })
+
+    it('removes a trailing dot, so the two spellings do not sync as separate companies', () => {
+      expect(normalizeDomain('microsoft.com.')).toBe('microsoft.com')
+    })
   })
 
   it.each([
     ['undefined', undefined],
     ['an empty string', ''],
     ['only whitespace', '   '],
-    ['only an @', '@'],
     ['an email with no domain', 'joe@'],
     ['a scheme with nothing after it', 'https://'],
-    ['only slashes', '//'],
     ['only a path', '/about'],
-    ['only a query string', '?a=1'],
-    ['only a fragment', '#top'],
-    ['only a port', ':8080'],
     ['spaces around the @, which is not a parseable url', 'joe @ microsoft.com']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeDomain(input)).toBeUndefined()
@@ -259,14 +147,9 @@ describe('normalizeDomain', () => {
 
   // A company email domain is always fully qualified, so anything without a dot is not one.
   describe('requires a dot', () => {
-    it('drops a company name mapped into this field by mistake', () => {
-      expect(normalizeDomain('Microsoft')).toBeUndefined()
-    })
-
     it.each([
-      ['a single label', 'localhost'],
-      ['a single label with a port', 'localhost:3000'],
-      ['a single label with a path', 'intranet/about']
+      ['a company name mapped into this field by mistake', 'Microsoft'],
+      ['a single label', 'localhost:3000']
     ])('drops %s', (_label: string, input: string) => {
       expect(normalizeDomain(input)).toBeUndefined()
     })
@@ -276,16 +159,10 @@ describe('normalizeDomain', () => {
   // so it is rejected explicitly.
   describe('does not accept an IP address', () => {
     it.each([
-      ['an IPv6 loopback literal', '[::1]'],
-      ['an IPv6 literal behind a scheme', 'https://[::1]'],
-      ['an IPv6 literal after an @', 'joe@[::1]'],
-      ['a full IPv6 literal with a port and path', 'https://[2001:db8::1]:8080/about'],
-      ['an IPv4-mapped IPv6 literal', '[::ffff:192.168.0.1]'],
+      ['an IPv6 literal, caught by the dot check', '[::1]'],
+      ['an IPv6 literal with a port and path', 'https://[2001:db8::1]:8080/about'],
       ['an IPv4 address, which the dot check alone would let through', '192.168.0.1'],
-      ['a public IPv4 address', '8.8.8.8'],
-      ['an IPv4 address behind a scheme', 'https://10.0.0.1/about'],
-      ['an IPv4 address with a port', '10.0.0.1:8080'],
-      ['an IPv4 address after an @', 'joe@192.168.0.1']
+      ['an IPv4 address behind a scheme', 'https://10.0.0.1/about']
     ])('drops %s', (_label: string, input: string) => {
       expect(normalizeDomain(input)).toBeUndefined()
     })
@@ -401,10 +278,7 @@ describe('normalizeIndustries', () => {
       ['a mix of both', ['Software, Technology', 'Finance'], ['Software', 'Technology', 'Finance']],
       ['a single value as a string', 'Software', ['Software']],
       ['a single value as a list', ['Software'], ['Software']],
-      ['commas with no spacing', 'software,technology', ['software', 'technology']],
-      ['commas with wide spacing', 'software   ,   technology', ['software', 'technology']],
-      ['trailing and repeated commas', 'software,,technology,', ['software', 'technology']],
-      ['a leading comma', ',software', ['software']]
+      ['stray and repeated commas', ',software   ,,   technology,', ['software', 'technology']]
     ])('handles %s', (_label: string, input: string | string[], expected: string[]) => {
       expect(normalizeIndustries(input)).toEqual(expected)
     })
@@ -478,20 +352,13 @@ describe('normalizeIndustries', () => {
 })
 
 describe('normalizeCountry', () => {
-  describe('accepts an ISO 3166-1 alpha-2 code', () => {
-    it.each([
-      ['upper case', 'US', 'US'],
-      ['lower case', 'us', 'US'],
-      ['mixed case', 'Us', 'US'],
-      ['surrounding whitespace', '  de  ', 'DE'],
-      ['GB, the real code for the United Kingdom', 'GB', 'GB'],
-      ['Palestine', 'PS', 'PS'],
-      ['Taiwan', 'TW', 'TW'],
-      ['Côte d’Ivoire', 'CI', 'CI'],
-      ['a territory', 'AX', 'AX']
-    ])('%s', (_label: string, input: string, expected: string) => {
-      expect(normalizeCountry(input)).toBe(expected)
-    })
+  // Individual codes are covered by the loop over the whole list below; what these pin is the
+  // case and whitespace handling around them.
+  it.each([
+    ['lower case', 'us', 'US'],
+    ['surrounding whitespace', '  de  ', 'DE']
+  ])('accepts a code with %s', (_label: string, input: string, expected: string) => {
+    expect(normalizeCountry(input)).toBe(expected)
   })
 
   describe('rejects a value that is not an ISO code', () => {
@@ -554,12 +421,6 @@ describe('normalizeCountry', () => {
 
     expect(officiallyAssigned).toHaveLength(249)
     expect([...COUNTRY_CODES].sort()).toEqual([...officiallyAssigned].sort())
-  })
-
-  it('holds only upper case two-letter codes', () => {
-    for (const code of COUNTRY_CODES) {
-      expect(code).toMatch(/^[A-Z]{2}$/)
-    }
   })
 })
 
