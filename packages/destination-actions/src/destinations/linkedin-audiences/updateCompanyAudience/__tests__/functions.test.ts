@@ -210,6 +210,12 @@ describe('normalizeCompanyPageUrl', () => {
     ],
     ['a hyphenated company slug', 'linkedin.com/company/my-company', 'linkedin.com/company/my-company'],
     [
+      'a user, which is not part of the page',
+      'https://joe@www.linkedin.com/company/microsoft',
+      'www.linkedin.com/company/microsoft'
+    ],
+    ['a port, which is not part of the page', 'linkedin.com:8080/company/microsoft', 'linkedin.com/company/microsoft'],
+    [
       'scheme, case, whitespace, query and trailing slashes together',
       '  HTTPS://WWW.LinkedIn.com/company/Microsoft//?trk=x#about  ',
       'www.linkedin.com/company/microsoft'
@@ -263,7 +269,8 @@ describe('normalizeCompanyPageUrl', () => {
     ['an empty string', ''],
     ['only whitespace', '   '],
     ['only slashes', '///'],
-    ['a scheme with nothing after it', 'https://']
+    ['a scheme with nothing after it', 'https://'],
+    ['a scheme that parses but has no host or path', 'foo://']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })

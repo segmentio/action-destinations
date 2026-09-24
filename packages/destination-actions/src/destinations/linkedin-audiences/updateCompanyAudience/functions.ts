@@ -39,15 +39,9 @@ import {
   SEGMENT_TYPES
 } from './constants'
 
-// A leading URL scheme, per the RFC 3986 grammar. Case-insensitive so the constant is correct on
-// its own, rather than relying on every caller lower-casing first.
 export const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
 const TRAILING_SLASHES = /\/+$/
 const TRAILING_DOT = /\.$/
-// Leading slashes, as in a protocol-relative '//microsoft.com'. One or more, so a malformed
-// '///microsoft.com' does not leave a slash behind.
-const LEADING_SLASHES = /^\/+/
-// A dotted-quad IPv4 address, which passes a dot check but is not a domain.
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
 export function toOrganizationUrn(linkedInCompanyId: string): string {
@@ -58,74 +52,60 @@ export function toOrganizationUrn(linkedInCompanyId: string): string {
   return `${ORGANIZATION_URN_PREFIX}${id}`
 }
 
-// Trims a value, treating one that is empty or only whitespace as absent.
 function trimmed(value?: string): string | undefined {
   return value?.trim() || undefined
 }
 
-// LinkedIn's limits are enforced by dropping the value, never by shortening it. A shortened city
-// or ticker is a wrong one, and as a match signal a wrong value is worse than a missing one.
 function withinLength(value: string | undefined, max: number): string | undefined {
   return value && value.length <= max ? value : undefined
 }
 
-// A company domain and a company email domain are both just hostnames, and customers map the
-// same three shapes into either field: a bare domain, an email address, or a page url. The
-// platform url parser handles all of them, along with the scheme, userinfo, port, path, query
-// and fragment, and lower-cases the host. An internationalized domain comes back in its punycode
-// form, which is the spelling DNS uses.
-export function normalizeDomain(value?: string): string | undefined {
-  const raw = trimmed(value)
+function parseUrl(value?: string): URL | undefined {
+  const raw = trimmed(value)?.toLowerCase()
   if (!raw) {
     return undefined
   }
 
-  let hostname: string
   try {
-    hostname = new URL(SCHEME_PREFIX.test(raw) ? raw : `https://${raw}`).hostname
+    return new URL(SCHEME_PREFIX.test(raw) ? raw : `https://${raw}`)
   } catch {
-    // Not recoverable as a url, so there is no domain to send.
+    return undefined
+  }
+}
+
+export function normalizeDomain(value?: string): string | undefined {
+  const hostname = parseUrl(value)?.hostname
+  if (!hostname) {
     return undefined
   }
 
-  // The parser returns a hostname for anything, so it is on us to decide whether that hostname is
-  // a domain. A domain is fully qualified, so it must contain a dot: that drops a company name
-  // mapped here by mistake, and an IPv6 literal, which is bracketed and has none. An IPv4 address
-  // is full of dots, so it needs rejecting on its own.
+  // To be fully qualified a domain must contain a dot.
+  // An IPv4 address is full of dots, so it needs rejecting on its own.
   const host = hostname.replace(TRAILING_DOT, '')
   return host.includes('.') && !IPV4.test(host) ? host : undefined
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
-  const url = trimmed(value)?.toLowerCase()
-  if (!url) {
+  const parsed = parseUrl(value)
+  if (!parsed) {
     return undefined
   }
-  // A page copied from a browser usually carries a tracking query string, which is never part of
-  // the company's identity and can push an otherwise valid url past the length limit, costing us
-  // the identifier altogether. The path is left alone: which segments are meaningful is
-  // LinkedIn's business, not ours.
-  const withoutQuery = url.replace(SCHEME_PREFIX, '').replace(LEADING_SLASHES, '').split(/[?#]/)[0]
 
-  return withinLength(trimmed(withoutQuery.replace(TRAILING_SLASHES, '')), MAX_COMPANY_PAGE_URL_LENGTH)
+  const pageUrl = `${parsed.hostname}${parsed.pathname}`.replace(TRAILING_SLASHES, '')
+
+  return withinLength(pageUrl, MAX_COMPANY_PAGE_URL_LENGTH)
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {
-  // Two shapes are supported: a comma delimited string, which is parsed into its parts, or an
-  // array of strings, which is used as-is.
   const list = typeof values === 'string' ? values.split(',') : values ?? []
 
-  // An array entry can itself be comma delimited, because a single mapped value is coerced into
-  // a one-element array before it reaches here, so split the entries too.
+  // An array entry can itself be comma delimited
   const parts = list.flatMap((industry) => industry.split(','))
 
   const cleaned = parts
     .map((industry) => industry.trim())
     .filter((industry) => industry && industry.length <= MAX_INDUSTRY_LENGTH)
 
-  // The customer's spelling is sent as-is. This is free text handed to LinkedIn's matcher, like
-  // city and state, so changing it risks making the match worse. Only the duplicate check is
-  // case-insensitive, and the first spelling seen wins.
   const seen = new Set<string>()
   const industries = cleaned
     .filter((industry) => {
