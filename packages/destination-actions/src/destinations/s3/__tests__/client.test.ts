@@ -125,10 +125,11 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(4)
   })
 
-  // The signal passed to uploadS3 (from perform/performBatch) is only ever used to cancel the S3
-  // PutObject call below -- exactly as on main. STS calls never receive it, so caching can't
-  // change cancellation semantics for the STS hops.
-  it('never passes an abortSignal option to STS, even when uploadS3 is given a signal', async () => {
+  // The same AbortSignal that perform/performBatch pass into uploadS3 (and that already cancels
+  // the S3 PutObject call) is also forwarded into every STS AssumeRole call, on both hops,
+  // regardless of the cache flag -- there's no per-caller dedup/sharing to worry about, so this
+  // is a plain pass-through with no bespoke timeout or error conversion.
+  it('forwards the caller-provided AbortSignal into every STS call', async () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
     const controller = new AbortController()
 
@@ -136,7 +137,18 @@ describe('STS credential caching', () => {
 
     expect(mockStsSend).toHaveBeenCalledTimes(2)
     for (const call of mockStsSend.mock.calls) {
-      expect(call).toHaveLength(1)
+      expect(call[1]).toEqual({ abortSignal: controller.signal })
+    }
+  })
+
+  it('calls STS with an abortSignal option of undefined when no signal was passed to uploadS3', async () => {
+    mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
+
+    await upload(newClient())
+
+    expect(mockStsSend).toHaveBeenCalledTimes(2)
+    for (const call of mockStsSend.mock.calls) {
+      expect(call[1]).toEqual({ abortSignal: undefined })
     }
   })
 

@@ -91,18 +91,25 @@ export class Client {
     this.features = features
   }
 
-  async assumeRole(): Promise<Credentials> {
+  async assumeRole(signal?: AbortSignal): Promise<Credentials> {
     const intermediaryARN = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS as string
     const intermediaryExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID as string
-    const intermediaryCreds = await this.getSTSCredentials(intermediaryARN, intermediaryExternalId, 'intermediary')
-    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds)
+    const intermediaryCreds = await this.getSTSCredentials(
+      intermediaryARN,
+      intermediaryExternalId,
+      'intermediary',
+      undefined,
+      signal
+    )
+    return this.getSTSCredentials(this.roleArn, this.externalId, 'customer', intermediaryCreds, signal)
   }
 
   private async getSTSCredentials(
     roleId: string,
     externalId: string,
     roleType: 'intermediary' | 'customer',
-    credentials?: Credentials
+    credentials?: Credentials,
+    signal?: AbortSignal
   ): Promise<Credentials> {
     // Tag every metric with the hop (intermediary vs customer role) so DataDog can break the
     // cache hit/miss counts down per hop of the two-hop assume-role chain.
@@ -111,7 +118,7 @@ export class Client {
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
 
     if (!cacheEnabled) {
-      return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
+      return this.assumeRoleUncached(roleId, externalId, roleType, credentials, signal)
     }
 
     // lru-cache purges an expired entry as soon as a get() finds it stale (default behavior), so
@@ -123,7 +130,7 @@ export class Client {
       return cached
     }
     safeIncr(statsClient, 'sts_credential_cache_miss', tags)
-    return this.assumeRoleUncached(roleId, externalId, roleType, credentials)
+    return this.assumeRoleUncached(roleId, externalId, roleType, credentials, signal)
   }
 
   // Calls STS directly (no cache read) and, when the cache is enabled and STS returns a usable
@@ -133,7 +140,8 @@ export class Client {
     roleId: string,
     externalId: string,
     roleType: 'intermediary' | 'customer',
-    credentials?: Credentials
+    credentials?: Credentials,
+    signal?: AbortSignal
   ): Promise<Credentials> {
     const cacheEnabled = Boolean(this.features?.[S3_STS_CREDENTIAL_CACHE_FLAG])
     const options = { region: this.region, credentials }
@@ -143,7 +151,7 @@ export class Client {
       RoleSessionName: this.roleSessionName,
       ExternalId: externalId
     })
-    const result = await stsClient.send(command)
+    const result = await stsClient.send(command, { abortSignal: signal })
     if (
       !result.Credentials ||
       !result.Credentials.AccessKeyId ||
@@ -213,7 +221,7 @@ export class Client {
       : s3_aws_folder_name?.endsWith('/')
       ? s3_aws_folder_name
       : `${s3_aws_folder_name}/`
-    const credentials = await this.assumeRole()
+    const credentials = await this.assumeRole(signal)
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
       region: this.region,
