@@ -507,10 +507,11 @@ describe('send with hashing feature flag', () => {
     await send([payloadNoHashing], settings, rawMapping, features)
 
     expect(Client).toHaveBeenCalledTimes(1)
-    // features is the 4th positional arg to `new Client(region, roleArn, externalId, features)` —
-    // assert on the actual constructor call args so a future positional-argument regression (e.g.
-    // dropping or reordering features) is caught here rather than silently disabling the flag in
-    // production while this test stays green.
-    expect((Client as unknown as jest.Mock).mock.calls[0][3]).toBe(features)
+    // features is the 5th positional arg to
+    // `new Client(region, roleArn, externalId, statsContext, features)` — assert on the actual
+    // constructor call args so a future positional-argument regression (e.g. dropping or reordering
+    // features) is caught here rather than silently disabling the flag in production while this test
+    // stays green.
+    expect((Client as unknown as jest.Mock).mock.calls[0][4]).toBe(features)
   })
 })
