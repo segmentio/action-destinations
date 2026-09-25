@@ -318,7 +318,7 @@ describe('STS credential caching', () => {
     mockStsSend.mockResolvedValue(stsResponse(60 * 60 * 1000))
     const controller = new AbortController()
 
-    await newClient().uploadS3(settings, 'content', 'file', '', 'csv', controller.signal)
+    await newClient().uploadS3(settings, 'content', 'file', '', 'csv', undefined, controller.signal)
 
     expect(mockStsSend).toHaveBeenCalledTimes(2)
     for (const call of mockStsSend.mock.calls) {
