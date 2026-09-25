@@ -2,6 +2,14 @@
 
 export interface Payload {
   /**
+   * The version of the Reddit Conversions API to send this event to. "V3 (Beta)" requires Action Source to be set.
+   */
+  api_version?: string
+  /**
+   * The source/channel where the conversion occurred, used for omnichannel attribution. Only applies to, and required for, Reddit Conversions API V3 (Beta).
+   */
+  action_source?: string
+  /**
    * The RFC3339 timestamp when the conversion event occurred
    */
   event_at: string | number
@@ -9,6 +17,10 @@ export interface Payload {
    * A custom event name that can be passed when tracking_type is set to "Custom". All UTF-8 characters are accepted and custom_event_name must be at most 64 characters long.
    */
   custom_event_name: string
+  /**
+   * The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.
+   */
+  event_source_url?: string
   /**
    * The Reddit-generated id associated with a single ad click.
    */
@@ -18,7 +30,7 @@ export interface Payload {
    */
   products?: {
     /**
-     * The category the product is in; for example, a label from Google's product taxonomy. Required.
+     * The category the product is in; for example, a label from Google's product taxonomy.
      */
     category?: string
     /**
@@ -29,6 +41,14 @@ export interface Payload {
      * The name of the product. Optional.
      */
     name?: string
+    /**
+     * The number of this product in the event.
+     */
+    quantity?: number
+    /**
+     * The unit price of the product.
+     */
+    item_price?: number
   }[]
   /**
    * The identifying user parameters associated with the conversion event.
@@ -115,7 +135,11 @@ export interface Payload {
     value_decimal?: number
   }
   /**
-   * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.
+   * The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. Required for Reddit Conversions API V3 (Beta).
    */
   conversion_id?: string
+  /**
+   * Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.
+   */
+  batch_size?: number
 }
