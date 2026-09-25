@@ -766,7 +766,7 @@ export const verifyCustomerId = (customerId: string | undefined) => {
   return customerId.replace(/-/g, '')
 }
 
-const handleGoogleAdsAPIErrorResponse = (
+export const handleGoogleAdsAPIErrorResponse = (
   error: any,
   validPayloadIndicesBitmap: number[],
   multiStatusResponse: MultiStatusResponse,
@@ -778,7 +778,9 @@ const handleGoogleAdsAPIErrorResponse = (
   validPayloadIndicesBitmap.forEach((index) => {
     multiStatusResponse.setErrorResponseAtIndex(index, {
       ...parsedError,
-      body: error,
+      // Avoid attaching the raw HTTPError - its `request`/`response`/`options` carry the
+      // developer-token auth header and aren't guaranteed JSON-serializable (Fetch API objects).
+      body: (error?.response?.data ?? { message: error?.message }) as unknown as JSONLikeObject,
       sent: payload
     })
     failedPayloadIndices?.add(index)
@@ -1167,7 +1169,11 @@ export const handleJobExecutionError = (
       multiStatusResponse.setErrorResponseAtIndex(index, {
         ...parsedError,
         sent: sentBody,
-        body: executedJob.error
+        // Avoid attaching the raw HTTPError - its `request`/`response`/`options` carry the
+        // developer-token auth header and aren't guaranteed JSON-serializable (Fetch API objects).
+        body: (executedJob.error?.response?.data ?? {
+          message: executedJob.error?.message
+        }) as unknown as JSONLikeObject
       })
     }
   })
