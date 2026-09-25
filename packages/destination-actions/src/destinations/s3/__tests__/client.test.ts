@@ -322,7 +322,11 @@ describe('STS credential caching', () => {
 
     expect(mockStsSend).toHaveBeenCalledTimes(2)
     for (const call of mockStsSend.mock.calls) {
-      expect(call[1]).toEqual({ abortSignal: controller.signal })
+      // Compare by reference (`.toBe`), not `.toEqual`: Jest's recursive equality checker can throw
+      // "Method Map.prototype.entries called on incompatible receiver [object Map]" when it walks into a
+      // native AbortSignal's internal state. We only need to confirm the same signal was forwarded.
+      expect(Object.keys(call[1] as object)).toEqual(['abortSignal'])
+      expect((call[1] as { abortSignal: unknown }).abortSignal).toBe(controller.signal)
     }
   })
 
