@@ -3,7 +3,15 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { S3Client, PutObjectCommandInput, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 import * as process from 'process'
-import { ErrorCodes, IntegrationError, RetryableError, APIError, RequestTimeoutError } from '@segment/actions-core'
+import {
+  ErrorCodes,
+  IntegrationError,
+  RetryableError,
+  APIError,
+  RequestTimeoutError,
+  PayloadValidationError,
+  InvalidAuthenticationError
+} from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { LRUCache } from 'lru-cache'
 import { Credentials } from './types'
@@ -341,10 +349,10 @@ export function mapAWSError(err: unknown, context: string): Error {
     // settings), not a transient failure — classify it as a payload validation failure rather than
     // falling through to the generic unclassified-client-fault bucket below. AWS's own message
     // ("Your key is too long") doesn't include the offending key, so it's safe to surface as-is.
-    return new IntegrationError(detail, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+    return new PayloadValidationError(detail)
   }
   if (code && throttlingCodes.has(code)) {
-    return new APIError(detail, 429)
+    return new RetryableError(detail, 429)
   }
   if (code && redirectCodes.has(code)) {
     // S3 returns a redirect (e.g. PermanentRedirect, HTTP 301) when the bucket lives in a
@@ -356,13 +364,13 @@ export function mapAWSError(err: unknown, context: string): Error {
     // Note: TemporaryRedirect (bucket mid-migration) and PermanentRedirect (fixed misconfiguration)
     // are intentionally collapsed into the same non-retryable bucket here — a normal retry window
     // won't resolve either, even though their root causes differ.
-    return new IntegrationError(detail, ErrorCodes.UNKNOWN_ERROR, 401)
+    return new InvalidAuthenticationError(detail, ErrorCodes.UNKNOWN_ERROR)
   }
   if (code && transientClientCodes.has(code)) {
     // Despite carrying a 4xx status, AWS documents these as safe/recommended to retry
     // (e.g. OperationAborted: "a conflicting conditional operation is currently in progress
     // against this resource, please try again"; RequestTimeout: client-side upload stalled).
-    return new RetryableError(detail)
+    return new RequestTimeoutError(detail)
   }
   // A client fault (4xx that is not throttling/transient) is permanent - do not retry.
   if (e?.$fault === 'client' || (typeof httpStatus === 'number' && httpStatus >= 400 && httpStatus < 500)) {

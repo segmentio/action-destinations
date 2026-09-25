@@ -1,6 +1,14 @@
 import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
 import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
-import { APIError, ErrorCodes, IntegrationError, RetryableError } from '@segment/actions-core'
+import {
+  APIError,
+  ErrorCodes,
+  IntegrationError,
+  RetryableError,
+  RequestTimeoutError,
+  PayloadValidationError,
+  InvalidAuthenticationError
+} from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
@@ -198,10 +206,10 @@ describe('mapAWSError', () => {
     expect((err as APIError).status).toBe(403)
   })
 
-  it('classifies throttling as 429', () => {
+  it('classifies throttling as a retryable 429', () => {
     const err = mapAWSError({ name: 'ThrottlingException', message: 'slow down' }, 'Failed to assume AWS role')
-    expect(err).toBeInstanceOf(APIError)
-    expect((err as APIError).status).toBe(429)
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as RetryableError).status).toBe(429)
   })
 
   it('classifies a client fault (4xx) as a non-retryable IntegrationError', () => {
@@ -224,13 +232,13 @@ describe('mapAWSError', () => {
       },
       'AWS PUT failed'
     )
-    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).toBeInstanceOf(InvalidAuthenticationError)
     expect(err).not.toBeInstanceOf(RetryableError)
-    expect((err as IntegrationError).status).toBe(401)
+    expect((err as InvalidAuthenticationError).status).toBe(401)
     // Regression: a region mismatch is a config problem, not a credentials problem — must not be
     // stamped with INVALID_AUTHENTICATION, which would misdirect customers/on-call toward rotating
     // credentials instead of fixing s3_aws_region.
-    expect((err as IntegrationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
+    expect((err as InvalidAuthenticationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
   })
 
   it('includes the AWS request id in the error detail when present, for incident correlation', () => {
@@ -266,28 +274,29 @@ describe('mapAWSError', () => {
   // rather than falling into the generic unclassified-client-fault bucket.
   it('classifies KeyTooLongError as a non-retryable payload validation failure', () => {
     const err = mapAWSError({ Code: 'KeyTooLongError', Message: 'Your key is too long' }, 'AWS PUT failed')
-    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).toBeInstanceOf(PayloadValidationError)
     expect(err).not.toBeInstanceOf(RetryableError)
-    expect((err as IntegrationError).status).toBe(400)
-    expect((err as IntegrationError).code).toBe(ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+    expect((err as PayloadValidationError).status).toBe(400)
+    expect((err as PayloadValidationError).code).toBe(ErrorCodes.PAYLOAD_VALIDATION_FAILED)
   })
 
   // Regression: these carry a 4xx status but AWS documents them as transient/safe to retry, so
-  // they must not fall into the generic "4xx is permanent" branch.
-  it('treats OperationAborted (409) as retryable despite its 4xx status', () => {
+  // they must not fall into the generic "4xx is permanent" branch. Surfaced as RequestTimeoutError
+  // (a retryable timeout class) rather than the raw permanent client-fault bucket.
+  it('treats OperationAborted (409) as a retryable timeout despite its 4xx status', () => {
     const err = mapAWSError(
       { Code: 'OperationAborted', Message: 'conflicting operation in progress', $fault: 'client', $metadata: { httpStatusCode: 409 } },
       'AWS PUT failed'
     )
-    expect(err).toBeInstanceOf(RetryableError)
+    expect(err).toBeInstanceOf(RequestTimeoutError)
   })
 
-  it('treats RequestTimeout (400) as retryable despite its 4xx status', () => {
+  it('treats RequestTimeout (400) as a retryable timeout despite its 4xx status', () => {
     const err = mapAWSError(
       { Code: 'RequestTimeout', Message: 'upload stalled', $fault: 'client', $metadata: { httpStatusCode: 400 } },
       'AWS PUT failed'
     )
-    expect(err).toBeInstanceOf(RetryableError)
+    expect(err).toBeInstanceOf(RequestTimeoutError)
   })
 
   it('does not mislabel an unclassified 4xx client fault as an authentication error', () => {
