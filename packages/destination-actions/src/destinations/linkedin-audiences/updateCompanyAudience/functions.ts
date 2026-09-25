@@ -94,8 +94,9 @@ export function normalizeCompanyPageUrl(value?: string): string | undefined {
   const parsed = parseUrl(value)
 
   // LinkedIn documents this field as the company's page on linkedin.com, so any other host is a
-  // mis-mapping. Sending one cannot match, and it would occupy the identifier slot.
-  if (!parsed || !isLinkedInHost(parsed.hostname)) {
+  // mis-mapping. A bare host with no path is linkedin.com itself rather than a company, so it is
+  // rejected too. Sending either cannot match, and it would occupy the identifier slot.
+  if (!parsed || !isLinkedInHost(parsed.hostname) || parsed.pathname === '/') {
     return undefined
   }
 
@@ -195,7 +196,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers ?? {}).some((identifier) => trimmed(identifier))
-        ? "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be 100 characters or fewer."
+        ? "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of 100 characters or fewer."
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&

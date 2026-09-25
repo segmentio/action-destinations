@@ -128,7 +128,6 @@ describe('normalizeCompanyPageUrl', () => {
     ],
     ['a hyphenated company slug', 'https://linkedin.com/company/my-company', 'linkedin.com/company/my-company'],
     ['a deep path', 'https://linkedin.com/company/microsoft/about', 'linkedin.com/company/microsoft/about'],
-    ['a bare host with no path', 'https://linkedin.com', 'linkedin.com'],
     ['repeated trailing slashes', 'https://linkedin.com/company/microsoft///', 'linkedin.com/company/microsoft'],
     ['a query string', 'https://linkedin.com/company/microsoft?trk=x', 'linkedin.com/company/microsoft'],
     ['a fragment', 'https://linkedin.com/company/microsoft#about', 'linkedin.com/company/microsoft'],
@@ -202,7 +201,9 @@ describe('normalizeCompanyPageUrl', () => {
     ['a company website mapped into this field by mistake', 'https://microsoft.com/about'],
     ['a host that merely ends in the same letters', 'https://notlinkedin.com/company/microsoft'],
     ['a lookalike host that only starts with linkedin.com', 'https://linkedin.com.example.com/company/microsoft'],
-    ['a single-label host', 'https://intranet/company/x']
+    ['a single-label host', 'https://intranet/company/x'],
+    ['a bare host with no path, which is linkedin.com itself rather than a company', 'https://linkedin.com'],
+    ['a bare host with only a trailing slash', 'https://www.linkedin.com/']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })

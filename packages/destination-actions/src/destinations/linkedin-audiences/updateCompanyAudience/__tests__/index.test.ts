@@ -418,7 +418,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           mapping: { dmp_company_action: 'ADD', ...baseMapping }
         })
       ).rejects.toThrow(
-        "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be 100 characters or fewer."
+        "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of 100 characters or fewer."
       )
     })
 
