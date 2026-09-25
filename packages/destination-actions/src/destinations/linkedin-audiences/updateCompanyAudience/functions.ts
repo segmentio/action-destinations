@@ -41,6 +41,7 @@ import {
 } from './constants'
 
 const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
+const HTTP_SCHEME = /^https?:\/\//i
 const TRAILING_SLASHES = /\/+$/
 const TRAILING_DOT = /\.$/
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
@@ -91,6 +92,12 @@ function isLinkedInHost(hostname: string): boolean {
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
+  // The field's 'uri' format accepts any scheme, so 'mailto:joe@linkedin.com/company/x' reaches
+  // here and parses into a linkedin.com host. Only an http(s) url can be a page.
+  if (!HTTP_SCHEME.test(trimmed(value) ?? '')) {
+    return undefined
+  }
+
   const parsed = parseUrl(value)
 
   // LinkedIn documents this field as the company's page on linkedin.com, so any other host is a
