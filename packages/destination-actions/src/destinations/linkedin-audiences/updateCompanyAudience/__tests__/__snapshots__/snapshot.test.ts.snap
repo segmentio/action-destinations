@@ -5,8 +5,14 @@ Object {
   "elements": Array [
     Object {
       "action": "ADD",
-      "companyWebsiteDomain": "t$o9ppw&",
+      "city": "t$O9PpW&",
+      "companyName": "t$O9PpW&",
+      "industries": Array [
+        "t$O9PpW&",
+      ],
       "organizationUrn": "urn:li:organization:t$O9PpW&",
+      "postalCode": "t$O9PpW&",
+      "state": "t$O9PpW&",
     },
   ],
 }
