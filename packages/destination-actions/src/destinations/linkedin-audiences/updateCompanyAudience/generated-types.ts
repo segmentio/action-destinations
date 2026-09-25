@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The company identifiers to add to or remove from the LinkedIn DMP Company Segment. At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required. When more than one is provided, all of them are sent to LinkedIn to improve the match rate.
+   * The company identifiers to add to or remove from the LinkedIn DMP Company Segment. At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required, and providing more than one is recommended. Every identifier that meets the format for its field is sent, so the more LinkedIn receives, the better its chance of matching the company.
    */
   identifiers: {
     /**
@@ -22,12 +22,12 @@ export interface Payload {
      */
     linkedInCompanyId?: string
     /**
-     * The company's page on LinkedIn, as a full URL including the scheme, e.g. 'https://www.linkedin.com/company/microsoft'. A URL on any other website is not sent. Any query string or fragment, such as the tracking parameters a browser adds when the URL is copied, is removed, and the remaining URL must be 100 characters or fewer once the scheme is removed, as LinkedIn rejects longer values.
+     * The company's page on LinkedIn, as a full URL including the scheme, e.g. 'https://www.linkedin.com/company/microsoft'. A value without a scheme fails validation and the event is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
      */
     companyPageUrl?: string
   }
   /**
-   * Send additional company details, such as city and country, to help LinkedIn match the company. Leave this off when syncing a user-based Engage Audience: several users can belong to the same company, their profiles can disagree on these details, and only one of them is sent. Which one is not stable, so the values sent may change between syncs.
+   * Send additional company details, such as city and country, to help LinkedIn match the company. Only one record's values are sent per company, so make sure they are consistent across the records you sync. See the [Company Traits documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-traits) for details.
    */
   send_company_traits?: boolean
   /**
@@ -60,7 +60,7 @@ export interface Payload {
     stockSymbol?: string
   }
   /**
-   * Whether the company should be added to or removed from the LinkedIn DMP Company Segment.
+   * Whether the company should be added to or removed from the LinkedIn DMP Company Segment. This is a fixed setting for the mapping, not derived from Audience membership: a mapping set to Add only ever adds companies, and one set to Remove only ever removes them.
    */
   dmp_company_action: string
   /**
