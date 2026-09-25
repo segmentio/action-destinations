@@ -420,7 +420,9 @@ const throttlingCodes = new Set(['SlowDown', 'Throttling', 'ThrottlingException'
 const redirectCodes = new Set(['PermanentRedirect', 'TemporaryRedirect'])
 
 // AWS documents these as transient despite carrying a 4xx status — safe (and recommended) to retry.
-const transientClientCodes = new Set(['OperationAborted', 'RequestTimeout'])
+// ConditionalRequestConflict: "A conflicting operation occurred. If using PutObject you can retry
+// the request." (409)
+const transientClientCodes = new Set(['OperationAborted', 'RequestTimeout', 'ConditionalRequestConflict'])
 
 // isAWSError validates that the error is an generic AWS error
 export function isAWSError(err: unknown): err is AWSError {

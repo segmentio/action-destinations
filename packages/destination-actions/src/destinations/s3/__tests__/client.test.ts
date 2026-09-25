@@ -299,6 +299,21 @@ describe('mapAWSError', () => {
     expect(err).toBeInstanceOf(RequestTimeoutError)
   })
 
+  it('treats ConditionalRequestConflict (409) as a retryable timeout despite its 4xx status', () => {
+    // AWS: "A conflicting operation occurred. If using PutObject you can retry the request." — so it
+    // must not fall into the generic permanent-4xx bucket.
+    const err = mapAWSError(
+      {
+        Code: 'ConditionalRequestConflict',
+        Message: 'A conflicting operation occurred',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 409 }
+      },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
   it('does not mislabel an unclassified 4xx client fault as an authentication error', () => {
     const err = mapAWSError(
       { name: 'ValidationError', message: 'bad', $fault: 'client', $metadata: { httpStatusCode: 400 } },
