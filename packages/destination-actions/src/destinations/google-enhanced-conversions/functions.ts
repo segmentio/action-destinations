@@ -14,7 +14,12 @@ import {
   OfflineUserJobPayload,
   AddOperationPayload,
   KeyValuePairList,
-  KeyValueItem
+  KeyValueItem,
+  PartnerLinkResponse,
+  DataManagerErrorResponse,
+  DataManagerUserList,
+  DataManagerAudienceMember,
+  DataManagerIngestResponse
 } from './types'
 import {
   ModifiedResponse,
@@ -47,7 +52,28 @@ export const API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_API_VERSION
 export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
+export const FLAGON_NAME_DATA_MANAGER_API = 'actions-google-ec-data-manager-api'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
+export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
+const PARTNER_ACCOUNT_ID = '262932431'
+
+const RETRYABLE_DATA_MANAGER_GRPC_STATUSES = new Set([
+  'UNAVAILABLE',
+  'DEADLINE_EXCEEDED',
+  'INTERNAL',
+  'UNKNOWN',
+  'ABORTED'
+])
+
+// Maps Google Ads API uploadKeyType values to Data Manager API uploadKeyTypes enum values
+const UPLOAD_KEY_TYPE_MAP: Record<string, string> = {
+  CONTACT_INFO: 'CONTACT_ID',
+  CRM_ID: 'USER_ID',
+  MOBILE_ADVERTISING_ID: 'MOBILE_ID'
+}
+
+// 540 days expressed as a protobuf Duration string (must be exact multiples of 86400s)
+const MEMBERSHIP_DURATION = `${540 * 86400}s`
 
 const phoneUtil = PhoneNumberUtil.getInstance()
 
@@ -518,6 +544,672 @@ export const validateAndFormatToE164 = (
   } catch (error) {
     statsContext?.statsClient?.incr('validateAndFormatPhone.error', 1, statsContext?.tags)
     throw new PayloadValidationError((error as Error).message || 'Invalid phone number or country code.')
+  }
+}
+
+export function throwDataManagerError(err: unknown): never {
+  const errorBody = (err as { response?: { data?: DataManagerErrorResponse; status?: number } })?.response?.data?.error
+  if (!errorBody) {
+    // Not a parseable Data Manager API error response (e.g. network/timeout error) — rethrow as-is.
+    throw err as Error
+  }
+
+  const details = errorBody.details ?? []
+  const fieldViolations = details.find((detail) => detail['@type']?.endsWith('BadRequest'))?.fieldViolations ?? []
+  const requestId = details.find((detail) => detail['@type']?.endsWith('RequestInfo'))?.requestId
+
+  let message = errorBody.message || 'Data Manager API request failed.'
+  if (fieldViolations.length > 0) {
+    message += ' ' + fieldViolations.map((v) => `${v.field}: ${v.description}`).join('; ')
+  }
+  if (requestId) {
+    message += ` (requestId: ${requestId})`
+  }
+
+  if (RETRYABLE_DATA_MANAGER_GRPC_STATUSES.has(errorBody.status)) {
+    // Rewritten to 500 (rather than the original HTTP status, e.g. 409 for ABORTED) so that
+    // Centrifuge retries it — see handleGoogleAdsError above for the same pattern.
+    throw new RetryableError(message, 500)
+  }
+
+  if (errorBody.status === 'INVALID_ARGUMENT') {
+    throw new PayloadValidationError(message)
+  }
+
+  const httpStatus = errorBody.code ?? (err as { response?: { status?: number } })?.response?.status ?? 500
+
+  if (errorBody.status === 'PERMISSION_DENIED') {
+    throw new IntegrationError(message, 'PERMISSION_DENIED', httpStatus)
+  }
+
+  throw new IntegrationError(message, errorBody.status || 'INTEGRATION_ERROR', httpStatus)
+}
+
+export async function exchangeForAccessToken(request: RequestClient, refreshToken: string): Promise<string> {
+  if (!process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID || !process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET) {
+    throw new PayloadValidationError('OAuth client credentials (client ID / client secret) are not configured.')
+  }
+
+  const res = await request<RefreshTokenResponse>('https://www.googleapis.com/oauth2/v4/token', {
+    method: 'POST',
+    body: new URLSearchParams({
+      refresh_token: refreshToken,
+      client_id: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_ID,
+      client_secret: process.env.GOOGLE_ENHANCED_CONVERSIONS_CLIENT_SECRET,
+      grant_type: 'refresh_token'
+    })
+  })
+
+  return res.data.access_token
+}
+
+export async function createDataManagerPartnerLink(
+  request: RequestClient,
+  customerId: string,
+  customerAccessToken: string,
+  loginCustomerId?: string
+): Promise<PartnerLinkResponse> {
+  const owningAccountId = loginCustomerId || customerId
+  const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
+  try {
+    const response = await request<PartnerLinkResponse>(url, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${customerAccessToken}`,
+        'login-account': `accountTypes/GOOGLE_ADS/accounts/${owningAccountId}`
+      },
+      json: {
+        owningAccount: { accountId: owningAccountId, accountType: 'GOOGLE_ADS' },
+        partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
+      }
+    })
+    return response.data
+  } catch (err: any) {
+    // 409 ALREADY_EXISTS means the link is already established — treat as success
+    if (err?.response?.status === 409) {
+      return err.response.data as PartnerLinkResponse
+    }
+    throwDataManagerError(err)
+  }
+}
+
+export async function createDataManagerUserList(
+  request: RequestClient,
+  input: CreateAudienceInput,
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
+): Promise<string> {
+  if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
+    throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
+  }
+
+  if (!auth?.refresh_token) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
+
+  const customerId = input.settings.customerId?.replace(/-/g, '')
+  const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
+
+  const externalIdType = input.audienceSettings.external_id_type?.trim()
+  const uploadKeyType = UPLOAD_KEY_TYPE_MAP[externalIdType ?? ''] ?? externalIdType
+  if (!uploadKeyType) {
+    throw new PayloadValidationError(
+      'audienceSettings.external_id_type is required and must map to a valid upload key type.'
+    )
+  }
+
+  const ingestedUserListInfo: Record<string, unknown> = {
+    uploadKeyTypes: [uploadKeyType]
+  }
+  if (uploadKeyType === 'MOBILE_ID' && input.audienceSettings.app_id) {
+    ingestedUserListInfo.mobileIdInfo = { appId: input.audienceSettings.app_id }
+  }
+
+  const body: Record<string, unknown> = {
+    displayName: input.audienceName,
+    membershipDuration: MEMBERSHIP_DURATION,
+    ingestedUserListInfo
+  }
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${accessToken}`
+  }
+  if (loginCustomerId) {
+    // Equivalent of login-customer-id in Google Ads API — identifies the MCC managing the account
+    headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+  }
+
+  let response
+  try {
+    response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
+      method: 'post',
+      headers,
+      json: body
+    })
+  } catch (err) {
+    statsClient?.incr('createDataManagerAudience.error', 1, statsTags)
+    throwDataManagerError(err)
+  }
+
+  const userList = response.data as DataManagerUserList
+  if (!userList?.id) {
+    statsClient?.incr('createDataManagerAudience.error', 1, statsTags)
+    throw new IntegrationError('Failed to receive a created user list id from Data Manager.', 'INVALID_RESPONSE', 400)
+  }
+
+  statsClient?.incr('createDataManagerAudience.success', 1, statsTags)
+  return userList.id
+}
+
+export async function getDataManagerUserList(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  externalId: string,
+  auth: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
+): Promise<DataManagerUserList> {
+  if (!auth?.refresh_token) {
+    throw new PayloadValidationError('Oauth credentials missing.')
+  }
+
+  const statsClient = statsContext?.statsClient
+  const statsTags = statsContext?.tags
+
+  const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
+
+  const customerId = settings.customerId?.replace(/-/g, '')
+  const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
+
+  const headers: Record<string, string> = {
+    authorization: `Bearer ${accessToken}`
+  }
+  if (loginCustomerId) {
+    headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+  }
+
+  let response
+  try {
+    response = await request(
+      `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists/${externalId}`,
+      {
+        method: 'get',
+        headers
+      }
+    )
+  } catch (err) {
+    statsClient?.incr('getDataManagerAudience.error', 1, statsTags)
+    throwDataManagerError(err)
+  }
+
+  const userList = response.data as DataManagerUserList
+  if (!userList?.id) {
+    statsClient?.incr('getDataManagerAudience.error', 1, statsTags)
+    throw new IntegrationError('Failed to retrieve user list from Data Manager.', 'INVALID_RESPONSE', 400)
+  }
+
+  statsClient?.incr('getDataManagerAudience.success', 1, statsTags)
+  return userList
+}
+
+function buildDataManagerDestination(customerId: string, userListId: string, loginCustomerId?: string) {
+  // loginAccount must match the authorization token (customer's GOOGLE_ADS token from extendRequest).
+  // For MCC setups: loginAccount = MCC, linkedAccount = sub-account the MCC manages, operatingAccount = sub-account.
+  const loginAccountId = loginCustomerId || customerId
+  const dest: Record<string, unknown> = {
+    loginAccount: { accountId: loginAccountId, accountType: 'GOOGLE_ADS' },
+    operatingAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
+    productDestinationId: userListId
+  }
+  // linkedAccount: for MCC, this is the sub-account (customerId) that the MCC has access to via account link.
+  if (loginCustomerId) {
+    dest.linkedAccount = { accountId: customerId, accountType: 'GOOGLE_ADS' }
+  }
+  return dest
+}
+
+function toDataManagerConsentStatus(value?: string): string | undefined {
+  if (value === 'GRANTED') return 'CONSENT_GRANTED'
+  if (value === 'DENIED') return 'CONSENT_DENIED'
+  return undefined
+}
+
+export async function ingestAudienceMembers(
+  request: RequestClient,
+  customerId: string,
+  userListId: string,
+  members: DataManagerAudienceMember[],
+  loginCustomerId?: string,
+  customerAccessToken?: string,
+  statsContext?: StatsContext
+): Promise<DataManagerIngestResponse> {
+  try {
+    const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:ingest`, {
+      method: 'POST',
+      // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
+      ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
+      json: {
+        destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
+        audienceMembers: members,
+        encoding: 'HEX',
+        termsOfService: { customerMatchTermsOfServiceStatus: 'ACCEPTED' }
+      }
+    })
+    // A 200 response can still carry warnings for optional fields that failed validation —
+    // surface them via stats since the request itself otherwise looks like a clean success.
+    if (response.data.fieldWarnings?.length) {
+      statsContext?.statsClient?.incr(
+        'dataManagerIngest.fieldWarnings',
+        response.data.fieldWarnings.length,
+        statsContext?.tags
+      )
+    }
+    statsContext?.statsClient?.incr('dataManagerIngest.success', 1, statsContext?.tags)
+    return response.data
+  } catch (err) {
+    statsContext?.statsClient?.incr('dataManagerIngest.error', 1, statsContext?.tags)
+    throwDataManagerError(err)
+  }
+}
+
+export async function removeAudienceMembers(
+  request: RequestClient,
+  customerId: string,
+  userListId: string,
+  members: DataManagerAudienceMember[],
+  loginCustomerId?: string,
+  customerAccessToken?: string,
+  statsContext?: StatsContext
+): Promise<DataManagerIngestResponse> {
+  try {
+    const response = await request<DataManagerIngestResponse>(`${DATA_MANAGER_BASE_URL}/audienceMembers:remove`, {
+      method: 'POST',
+      // Only override auth if we have an explicit token; otherwise extendRequest's token is used.
+      ...(customerAccessToken && { headers: { authorization: `Bearer ${customerAccessToken}` } }),
+      json: {
+        destinations: [buildDataManagerDestination(customerId, userListId, loginCustomerId)],
+        audienceMembers: members,
+        encoding: 'HEX'
+      }
+    })
+    if (response.data.fieldWarnings?.length) {
+      statsContext?.statsClient?.incr(
+        'dataManagerRemove.fieldWarnings',
+        response.data.fieldWarnings.length,
+        statsContext?.tags
+      )
+    }
+    statsContext?.statsClient?.incr('dataManagerRemove.success', 1, statsContext?.tags)
+    return response.data
+  } catch (err) {
+    statsContext?.statsClient?.incr('dataManagerRemove.error', 1, statsContext?.tags)
+    throwDataManagerError(err)
+  }
+}
+
+function buildAudienceMember(
+  payload: UserListPayload,
+  idType: string,
+  features?: Features,
+  statsContext?: StatsContext
+): DataManagerAudienceMember | null {
+  const consent = {
+    adUserData: toDataManagerConsentStatus(payload.ad_user_data_consent_state),
+    adPersonalization: toDataManagerConsentStatus(payload.ad_personalization_consent_state)
+  }
+
+  if (idType === 'MOBILE_ADVERTISING_ID') {
+    const mobileId = payload.mobile_advertising_id?.trim()
+    if (!mobileId) return null
+    return { mobileData: { mobileIds: [mobileId] }, consent }
+  }
+
+  if (idType === 'CRM_ID') {
+    const userId = payload.crm_id?.trim()
+    if (!userId) return null
+    return { userIdData: { userId }, consent }
+  }
+
+  // CONTACT_INFO
+  const userIdentifiers: NonNullable<DataManagerAudienceMember['userData']>['userIdentifiers'] = []
+
+  if (payload.email) {
+    userIdentifiers.push({
+      emailAddress: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
+    })
+  }
+
+  if (payload.phone) {
+    userIdentifiers.push({
+      phoneNumber: processHashing(payload.phone, 'sha256', 'hex', (v) =>
+        formatPhone(v, payload.phone_country_code, features, statsContext)
+      )
+    })
+  }
+
+  // None of first_name/last_name/country_code/postal_code are required on their own — a member can
+  // still match on email or phone alone. But Data Manager's AddressInfo requires the full tuple
+  // (givenName + familyName + regionCode + postalCode); sending a partial address would fail
+  // INVALID_ARGUMENT for the whole ingest/remove call (Data Manager has no per-item partial failure),
+  // taking every other member in that call down with it. So only add the address identifier when
+  // all four are present — otherwise omit it and fall back to whatever other identifiers exist.
+  if (payload.first_name && payload.last_name && payload.country_code && payload.postal_code) {
+    userIdentifiers.push({
+      address: {
+        givenName: processHashing(payload.first_name, 'sha256', 'hex'),
+        familyName: processHashing(payload.last_name, 'sha256', 'hex'),
+        regionCode: payload.country_code,
+        postalCode: payload.postal_code
+      }
+    })
+  }
+
+  if (userIdentifiers.length === 0) return null
+  return { userData: { userIdentifiers }, consent }
+}
+
+export async function handleDataManagerUpdate(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  audienceSettings: CreateAudienceInput['audienceSettings'],
+  payloads: UserListPayload[],
+  hookListId: string,
+  hookListType: string,
+  syncMode?: string,
+  features?: Features,
+  statsContext?: StatsContext,
+  audienceMembership?: AudienceMembership | AudienceMembership[]
+) {
+  const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
+
+  const customerId = settings.customerId!
+  const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+  const idType = hookListType ?? audienceSettings?.external_id_type
+
+  // Ensure the partner link exists — covers existing customers when the flag is first enabled.
+  // Best-effort: errors are swallowed so member sync can still proceed.
+  let customerAccessToken: string | undefined
+  if (settings.oauth?.refresh_token) {
+    try {
+      customerAccessToken = await exchangeForAccessToken(request, settings.oauth.refresh_token)
+      await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+    } catch (_) {
+      // intentionally swallowed — partner link errors must not block member sync
+    }
+  }
+
+  const addMembers: DataManagerAudienceMember[] = []
+  const removeMembers: DataManagerAudienceMember[] = []
+
+  for (let i = 0; i < payloads.length; i++) {
+    const payload = payloads[i]
+    const member = buildAudienceMember(payload, idType, features, statsContext)
+    if (!member) continue
+
+    const membership = Array.isArray(audienceMembership) ? audienceMembership[i] : audienceMembership
+    if (
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+      membership === true
+    ) {
+      addMembers.push(member)
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      membership === false
+    ) {
+      removeMembers.push(member)
+    }
+  }
+
+  const results: DataManagerIngestResponse[] = []
+
+  if (addMembers.length > 0) {
+    const r = await ingestAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      addMembers,
+      loginCustomerId,
+      customerAccessToken,
+      statsContext
+    )
+    results.push(r)
+  }
+
+  if (removeMembers.length > 0) {
+    const r = await removeAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      removeMembers,
+      loginCustomerId,
+      customerAccessToken,
+      statsContext
+    )
+    results.push(r)
+  }
+
+  statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+  return results
+}
+
+/*
+  Batch variant of handleDataManagerUpdate that reports a per-payload MultiStatusResponse instead
+  of a single batch-wide result, so invalid/skipped payloads and API failures are attributed to the
+  correct event rather than the whole batch being reported as delivered.
+
+  The Data Manager API's audienceMembers:ingest/remove calls are all-or-nothing per request: they
+  don't support Google Ads' enablePartialFailure-style per-item results, so every member sent in the
+  same add (or remove) call shares that call's outcome. fieldWarnings on a 200 response are non-fatal
+  (the member was still ingested) and aren't attributed to a specific payload index since Google
+  doesn't document an audienceMembers-specific index convention for them; they're only tracked via
+  stats inside ingestAudienceMembers/removeAudienceMembers.
+*/
+export async function handleDataManagerBatchUpdate(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  audienceSettings: CreateAudienceInput['audienceSettings'],
+  payloads: UserListPayload[],
+  hookListId: string,
+  hookListType: string,
+  syncMode?: string,
+  features?: Features,
+  statsContext?: StatsContext,
+  audienceMemberships?: AudienceMembership[]
+): Promise<MultiStatusResponse> {
+  const multiStatusResponse = new MultiStatusResponse()
+
+  const externalAudienceId: string | undefined = hookListId || payloads[0]?.external_audience_id
+  if (!externalAudienceId) {
+    throw new PayloadValidationError('External Audience ID is required.')
+  }
+
+  const customerId = settings.customerId!
+  const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+  const idType = hookListType ?? audienceSettings?.external_id_type
+
+  // Ensure the partner link exists — covers existing customers when the flag is first enabled.
+  // Best-effort: errors are swallowed so member sync can still proceed.
+  let customerAccessToken: string | undefined
+  if (settings.oauth?.refresh_token) {
+    try {
+      customerAccessToken = await exchangeForAccessToken(request, settings.oauth.refresh_token)
+      await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+    } catch (_) {
+      // intentionally swallowed — partner link errors must not block member sync
+    }
+  }
+
+  type IndexedMember = { member: DataManagerAudienceMember; index: number }
+  const addMembers: IndexedMember[] = []
+  const removeMembers: IndexedMember[] = []
+
+  payloads.forEach((payload, index) => {
+    const member = buildAudienceMember(payload, idType, features, statsContext)
+    if (!member) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: `Missing or invalid data for ${idType}.`,
+        sent: payload as unknown as JSONLikeObject
+      })
+      return
+    }
+
+    const membership = audienceMemberships?.[index]
+    if (
+      payload.event_name === 'Audience Entered' ||
+      syncMode === 'add' ||
+      (syncMode === 'mirror' && (payload.event_name === 'new' || payload.event_name === 'updated')) ||
+      membership === true
+    ) {
+      addMembers.push({ member, index })
+    } else if (
+      payload.event_name === 'Audience Exited' ||
+      syncMode === 'delete' ||
+      (syncMode === 'mirror' && payload.event_name === 'deleted') ||
+      membership === false
+    ) {
+      removeMembers.push({ member, index })
+    } else {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: 'Could not determine Operation Type.',
+        sent: payload as unknown as JSONLikeObject
+      })
+    }
+  })
+
+  const applyBatchCall = async (
+    entries: IndexedMember[],
+    call: (members: DataManagerAudienceMember[]) => Promise<DataManagerIngestResponse>
+  ) => {
+    if (entries.length === 0) return
+
+    try {
+      const response = await call(entries.map(({ member }) => member))
+      entries.forEach(({ index, member }) => {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: member as unknown as JSONLikeObject,
+          body: response as unknown as JSONLikeObject
+        })
+      })
+    } catch (err) {
+      // ingestAudienceMembers/removeAudienceMembers already convert raw errors into
+      // RetryableError/PayloadValidationError/IntegrationError via throwDataManagerError.
+      const typedErr = err as { message?: string; status?: number }
+      entries.forEach(({ index, member }) => {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: typedErr.status ?? 500,
+          errormessage: typedErr.message ?? 'Data Manager API request failed.',
+          sent: member as unknown as JSONLikeObject
+        })
+      })
+    }
+  }
+
+  await applyBatchCall(addMembers, (members) =>
+    ingestAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      members,
+      loginCustomerId,
+      customerAccessToken,
+      statsContext
+    )
+  )
+
+  await applyBatchCall(removeMembers, (members) =>
+    removeAudienceMembers(
+      request,
+      customerId,
+      externalAudienceId,
+      members,
+      loginCustomerId,
+      customerAccessToken,
+      statsContext
+    )
+  )
+
+  statsContext?.statsClient?.incr('success.dataManagerUpdateAudience', 1, statsContext?.tags)
+  return multiStatusResponse
+}
+
+export async function getDataManagerListIds(
+  request: RequestClient,
+  settings: CreateAudienceInput['settings'],
+  auth?: CreateAudienceInput['settings']['oauth'],
+  statsContext?: StatsContext
+) {
+  try {
+    if (!auth?.refresh_token) {
+      throw new PayloadValidationError('Oauth credentials missing.')
+    }
+
+    const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
+
+    const customerId = settings.customerId?.replace(/-/g, '')
+    const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
+
+    // Best-effort partner link creation — errors must not block list lookup
+    if (customerId) {
+      try {
+        await createDataManagerPartnerLink(request, customerId, accessToken, loginCustomerId)
+      } catch (_) {
+        // intentionally swallowed — partner link errors must not block list lookup
+      }
+    }
+
+    const headers: Record<string, string> = {
+      authorization: `Bearer ${accessToken}`
+    }
+    if (loginCustomerId) {
+      headers['login-account'] = `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`
+    }
+
+    let response
+    try {
+      response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
+        method: 'get',
+        headers
+      })
+    } catch (err) {
+      throwDataManagerError(err)
+    }
+
+    const data = response.data as { userLists?: DataManagerUserList[]; nextPageToken?: string }
+    const userLists = data.userLists ?? []
+    const choices = userLists.map((userList) => ({
+      value: userList.id,
+      label: userList.displayName ?? userList.id
+    }))
+
+    statsContext?.statsClient?.incr('getDataManagerListIds.success', 1, statsContext?.tags)
+    return { choices, nextPage: data.nextPageToken }
+  } catch (err) {
+    statsContext?.statsClient?.incr('getDataManagerListIds.error', 1, statsContext?.tags)
+    const typedErr = err as { message?: string; status?: number }
+    return {
+      choices: [],
+      nextPage: '',
+      error: {
+        message: typedErr.message ?? (err as GoogleAdsError).response?.statusText ?? 'Unknown error',
+        code: String(typedErr.status ?? (err as GoogleAdsError).response?.status ?? 500)
+      }
+    }
   }
 }
 
