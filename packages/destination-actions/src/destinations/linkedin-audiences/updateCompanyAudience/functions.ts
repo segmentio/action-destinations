@@ -196,7 +196,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers ?? {}).some((identifier) => trimmed(identifier))
-        ? "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of 100 characters or fewer."
+        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
