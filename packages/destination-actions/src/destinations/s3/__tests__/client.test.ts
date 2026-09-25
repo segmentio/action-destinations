@@ -1,6 +1,14 @@
 import { Client, clearCredentialsCache, isAWSError, mapAWSError, buildTimestampedFilename } from '../syncToS3/client'
 import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
-import { APIError, ErrorCodes, IntegrationError, RetryableError } from '@segment/actions-core'
+import {
+  APIError,
+  ErrorCodes,
+  IntegrationError,
+  RetryableError,
+  RequestTimeoutError,
+  PayloadValidationError,
+  InvalidAuthenticationError
+} from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import {
@@ -282,10 +290,10 @@ describe('mapAWSError', () => {
     expect((err as APIError).status).toBe(403)
   })
 
-  it('classifies throttling as 429', () => {
+  it('classifies throttling as a retryable 429', () => {
     const err = mapAWSError({ name: 'ThrottlingException', message: 'slow down' }, 'Failed to assume AWS role')
-    expect(err).toBeInstanceOf(APIError)
-    expect((err as APIError).status).toBe(429)
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as RetryableError).status).toBe(429)
   })
 
   it('classifies a client fault (4xx) as a non-retryable IntegrationError', () => {
@@ -308,13 +316,13 @@ describe('mapAWSError', () => {
       },
       'AWS PUT failed'
     )
-    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).toBeInstanceOf(InvalidAuthenticationError)
     expect(err).not.toBeInstanceOf(RetryableError)
-    expect((err as IntegrationError).status).toBe(401)
+    expect((err as InvalidAuthenticationError).status).toBe(401)
     // Regression: a region mismatch is a config problem, not a credentials problem — must not be
     // stamped with INVALID_AUTHENTICATION, which would misdirect customers/on-call toward rotating
     // credentials instead of fixing s3_aws_region.
-    expect((err as IntegrationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
+    expect((err as InvalidAuthenticationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
   })
 
   it('includes the AWS request id in the error detail when present, for incident correlation', () => {
@@ -345,22 +353,49 @@ describe('mapAWSError', () => {
     expect((err as APIError).status).toBe(404)
   })
 
+  // The object key (folder + filename_prefix) exceeded AWS's 1024-byte limit -- a workspace
+  // configuration problem, not a transient failure. Classified as PAYLOAD_VALIDATION_FAILED
+  // rather than falling into the generic unclassified-client-fault bucket.
+  it('classifies KeyTooLongError as a non-retryable payload validation failure', () => {
+    const err = mapAWSError({ Code: 'KeyTooLongError', Message: 'Your key is too long' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(PayloadValidationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as PayloadValidationError).status).toBe(400)
+    expect((err as PayloadValidationError).code).toBe(ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+  })
+
   // Regression: these carry a 4xx status but AWS documents them as transient/safe to retry, so
-  // they must not fall into the generic "4xx is permanent" branch.
-  it('treats OperationAborted (409) as retryable despite its 4xx status', () => {
+  // they must not fall into the generic "4xx is permanent" branch. Surfaced as RequestTimeoutError
+  // (a retryable timeout class) rather than the raw permanent client-fault bucket.
+  it('treats OperationAborted (409) as a retryable timeout despite its 4xx status', () => {
     const err = mapAWSError(
       { Code: 'OperationAborted', Message: 'conflicting operation in progress', $fault: 'client', $metadata: { httpStatusCode: 409 } },
       'AWS PUT failed'
     )
-    expect(err).toBeInstanceOf(RetryableError)
+    expect(err).toBeInstanceOf(RequestTimeoutError)
   })
 
-  it('treats RequestTimeout (400) as retryable despite its 4xx status', () => {
+  it('treats RequestTimeout (400) as a retryable timeout despite its 4xx status', () => {
     const err = mapAWSError(
       { Code: 'RequestTimeout', Message: 'upload stalled', $fault: 'client', $metadata: { httpStatusCode: 400 } },
       'AWS PUT failed'
     )
-    expect(err).toBeInstanceOf(RetryableError)
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
+  it('treats ConditionalRequestConflict (409) as a retryable timeout despite its 4xx status', () => {
+    // AWS: "A conflicting operation occurred. If using PutObject you can retry the request." — so it
+    // must not fall into the generic permanent-4xx bucket.
+    const err = mapAWSError(
+      {
+        Code: 'ConditionalRequestConflict',
+        Message: 'A conflicting operation occurred',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 409 }
+      },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RequestTimeoutError)
   })
 
   it('does not mislabel an unclassified 4xx client fault as an authentication error', () => {
@@ -428,6 +463,8 @@ describe('STS credential caching', () => {
 
   beforeEach(() => {
     mockStsSend.mockReset()
+    // mockS3Send is shared across describe blocks in this file, so reset it here and default it to a
+    // successful PUT — the caching tests exercise the full uploadS3 path and only assert on STS.
     mockS3Send.mockReset()
     mockS3Send.mockResolvedValue({})
     ;(S3Client as unknown as jest.Mock).mockClear()
