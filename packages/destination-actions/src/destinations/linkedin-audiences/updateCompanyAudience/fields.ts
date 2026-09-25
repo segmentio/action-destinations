@@ -1,19 +1,31 @@
 import { InputField } from '@segment/actions-core'
-import { AUDIENCE_ACTION, AUDIENCE_SOURCE } from './constants'
+import { AUDIENCE_ACTION, AUDIENCE_SOURCE, MAX_INDUSTRIES } from './constants'
 
 export const fields: Record<string, InputField> = {
   identifiers: {
     label: 'Company Identifiers',
     description:
-      "The company identifiers to add to or remove from the LinkedIn DMP Company Segment. At least one of 'Company Domain' or 'LinkedIn Company ID' is required. When both are provided, both are sent to LinkedIn to improve the match rate.",
+      "The company identifiers to add to or remove from the LinkedIn DMP Company Segment. At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required, and providing more than one is recommended. Every identifier that meets the format for its field is sent, so the more LinkedIn receives, the better its chance of matching the company.",
     type: 'object',
     required: true,
     additionalProperties: false,
     defaultObjectUI: 'keyvalue:only',
     properties: {
+      companyName: {
+        label: 'Company Name',
+        description: "The company's name to send to LinkedIn, e.g. 'Microsoft'.",
+        type: 'string'
+      },
       companyDomain: {
         label: 'Company Domain',
-        description: "The company's website domain to send to LinkedIn, e.g. 'microsoft.com'.",
+        description:
+          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.",
+        type: 'string'
+      },
+      companyEmailDomain: {
+        label: 'Company Email Domain',
+        description:
+          "The company's email domain, which is sometimes different from its website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.",
         type: 'string'
       },
       linkedInCompanyId: {
@@ -21,6 +33,13 @@ export const fields: Record<string, InputField> = {
         description:
           "The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn.",
         type: 'string'
+      },
+      companyPageUrl: {
+        label: 'LinkedIn Company Page URL',
+        description:
+          "The company's page on LinkedIn, as a full URL including the scheme, e.g. 'https://www.linkedin.com/company/microsoft'. A value without a scheme fails validation and the event is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.",
+        type: 'string',
+        format: 'uri'
       }
     },
     default: {
@@ -40,9 +59,71 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
+  send_company_traits: {
+    label: 'Send Company Traits',
+    description:
+      "Send additional company details, such as city and country, to help LinkedIn match the company. Only one record's values are sent per company, so make sure they are consistent across the records you sync. See the [Company Traits documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-traits) for details.",
+    type: 'boolean',
+    default: false,
+    required: false
+  },
+  company_traits: {
+    label: 'Company Traits',
+    description:
+      'Additional company details sent to LinkedIn to help it match the company. Only used when "Send Company Traits" is enabled. A value that breaches a LinkedIn length or format limit is left out of the request rather than shortened.',
+    type: 'object',
+    required: false,
+    additionalProperties: false,
+    defaultObjectUI: 'keyvalue:only',
+    depends_on: {
+      match: 'all',
+      conditions: [
+        {
+          fieldKey: 'send_company_traits',
+          operator: 'is',
+          value: true
+        }
+      ]
+    },
+    properties: {
+      industries: {
+        label: 'Industries',
+        description: `The company's industries, as free text. Accepts either a list or a single comma-separated value, e.g. 'software, technology'. LinkedIn accepts at most ${MAX_INDUSTRIES}; any beyond that are not sent. Entries longer than 50 characters are not sent.`,
+        type: 'string',
+        multiple: true
+      },
+      city: {
+        label: 'City',
+        description: "The company's city, e.g. 'Seattle'. Values longer than 50 characters are not sent.",
+        type: 'string'
+      },
+      state: {
+        label: 'State or Province',
+        description: "The company's state or province, e.g. 'WA'. Values longer than 50 characters are not sent.",
+        type: 'string'
+      },
+      country: {
+        label: 'Country',
+        description:
+          "The company's country as a two-letter ISO 3166-1 alpha-2 code, e.g. 'US' or 'DE'. Lowercase codes are accepted and upper-cased. A country name, or a code that is not an ISO one, is not sent. Note the code for the United Kingdom is 'GB', not 'UK'.",
+        type: 'string'
+      },
+      postalCode: {
+        label: 'Postal Code',
+        description: "The company's postal code, e.g. '98101'. Values longer than 20 characters are not sent.",
+        type: 'string'
+      },
+      stockSymbol: {
+        label: 'Stock Symbol',
+        description: "The company's stock ticker symbol, e.g. 'MSFT'. Values longer than 5 characters are not sent.",
+        type: 'string'
+      }
+    }
+  },
   dmp_company_action: {
     label: 'Company Segment Action',
-    description: 'Whether the company should be added to or removed from the LinkedIn DMP Company Segment.',
+    description:
+      'Whether the company should be added to or removed from the LinkedIn DMP Company Segment. This is a fixed setting for the mapping, not derived from Audience membership: a mapping set to Add only ever adds companies, and one set to Remove only ever removes them.',
     type: 'string',
     required: true,
     choices: [

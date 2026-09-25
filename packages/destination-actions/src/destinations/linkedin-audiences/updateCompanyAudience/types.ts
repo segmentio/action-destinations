@@ -7,8 +7,17 @@ export type AudienceAction = typeof AUDIENCE_ACTION[keyof typeof AUDIENCE_ACTION
 
 export interface LinkedInCompanyAudienceElement {
   action: AudienceAction
+  companyName?: string
   companyWebsiteDomain?: string
+  companyEmailDomain?: string
   organizationUrn?: string
+  companyPageUrl?: string
+  industries?: string[]
+  city?: string
+  state?: string
+  country?: string
+  postalCode?: string
+  stockSymbol?: string
 }
 
 export interface AudienceJSON<E> {
@@ -36,4 +45,27 @@ export interface LinkedInBatchUpdateResponse {
   }>
 }
 
-export type ValidCompanyPayload = Payload & { index: number }
+// The identifiers and traits carried by a validated payload are the cleaned values, not the raw
+// mapped ones: a value that breached a LinkedIn limit has already been dropped by this point.
+export interface NormalizedIdentifiers {
+  companyName?: string
+  companyDomain?: string
+  companyEmailDomain?: string
+  linkedInCompanyId?: string
+  companyPageUrl?: string
+}
+
+export interface NormalizedTraits {
+  industries?: string[]
+  city?: string
+  state?: string
+  country?: string
+  postalCode?: string
+  stockSymbol?: string
+}
+
+export type ValidCompanyPayload = Omit<Payload, 'identifiers' | 'company_traits'> & {
+  index: number
+  identifiers: NormalizedIdentifiers
+  company_traits?: NormalizedTraits
+}
