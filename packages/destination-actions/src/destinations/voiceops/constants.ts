@@ -1,7 +1,7 @@
 export const DEFAULT_VOICEOPS_BASE_URL = 'https://projectfrontline.net'
 
 export function normalizeVoiceopsBaseUrl(baseUrl?: string): string {
-  return (baseUrl ?? DEFAULT_VOICEOPS_BASE_URL).trim().replace(/\/+$/, '')
+  return (baseUrl?.trim() || DEFAULT_VOICEOPS_BASE_URL).replace(/\/+$/, '')
 }
 
 export function getVoiceopsAuthenticationEndpoint(baseUrl?: string): string {
@@ -10,6 +10,10 @@ export function getVoiceopsAuthenticationEndpoint(baseUrl?: string): string {
 
 export function getVoiceopsCallsEndpoint(baseUrl?: string): string {
   return `${normalizeVoiceopsBaseUrl(baseUrl)}/frontline-api/integrations/v1/segment/calls`
+}
+
+export function getVoiceopsMetadataEndpoint(baseUrl?: string): string {
+  return `${normalizeVoiceopsBaseUrl(baseUrl)}/frontline-api/integrations/v1/segment/metadata`
 }
 
 export const SEGMENT_USER_AGENT = 'Segment'
