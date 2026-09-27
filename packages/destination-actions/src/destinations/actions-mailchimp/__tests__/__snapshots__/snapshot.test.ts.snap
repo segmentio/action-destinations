@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-mailchimp destination: addOrRemoveTags action - all fields 1`] = `
+Object {
+  "tags": Array [
+    Object {
+      "name": "f&(J*rH9Ln#F6",
+      "status": "inactive",
+    },
+    Object {
+      "name": "f&(J*rH9Ln#F6",
+      "status": "active",
+    },
+    Object {
+      "name": "f&(J*rH9Ln#F6",
+      "status": "inactive",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-mailchimp destination: addOrRemoveTags action - required fields 1`] = `
+Object {
+  "tags": Array [
+    Object {
+      "name": "Test Event",
+      "status": "active",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-mailchimp destination: addOrUpdateMember action - all fields 1`] = `
+Object {
+  "email_address": "ek@sopperi.ru",
+  "language": "A!F#*Q0UC",
+  "merge_fields": Object {
+    "testType": "A!F#*Q0UC",
+  },
+  "status": "unsubscribed",
+  "status_if_new": "unsubscribed",
+  "tags": Array [
+    "A!F#*Q0UC",
+  ],
+  "vip": true,
+}
+`;
+
+exports[`Testing snapshot for actions-mailchimp destination: addOrUpdateMember action - required fields 1`] = `
+Object {
+  "email_address": "ek@sopperi.ru",
+  "language": "en-US",
+  "status_if_new": "unsubscribed",
+}
+`;
