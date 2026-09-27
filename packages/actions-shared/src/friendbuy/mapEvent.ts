@@ -65,6 +65,9 @@ export function mapEventHelper(map: EventMap, analyticsPayload: AnalyticsPayload
   // Friendbuy payload later.  However it shouldn't throw an exception if the
   // shape is wrong.
 
+  console.log(process.env.NODE_ENV)
+  console.log(window?.location.host)
+
   // If the payload has a `friendbuyAttributes` attribute, copy its attributes
   // to the root, but don't override any fields that already exist on the root.
   if (analyticsPayload.friendbuyAttributes) {
