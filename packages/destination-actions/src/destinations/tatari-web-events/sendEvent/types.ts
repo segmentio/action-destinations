@@ -15,12 +15,6 @@ export interface TatariWebEvent {
   hem_md5?: string
 }
 
-export interface TrackResponse {
-  status?: string
-  error?: string
-  message?: string
-}
-
 /**
  * 200: `{ accepted_count, rejected_count: 0 }`
  * 207: partial accept (ACCEPT_ANY_VALID) with `errors_by_index`
