@@ -1,8 +1,8 @@
-import { ActionDefinition, RequestClient, JSONLikeObject, MultiStatusResponse } from '@segment/actions-core'
+import { ActionDefinition, RequestClient, JSONLikeObject, MultiStatusResponse, Features } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { data, customData, userData, items, hotelData, enable_batching, batch_size } from './fields'
-import { API_URL } from './constants'
+import { API_URL, ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG } from './constants'
 import { BingCAPIRequestItem, MSMultiStatusResponse } from './types'
 import { processHashing } from '../../../lib/hashing-utils'
 
@@ -19,15 +19,21 @@ const action: ActionDefinition<Settings, Payload> = {
     enable_batching,
     batch_size
   },
-  perform: async (request, { payload, settings }) => {
-    return await send(request, [payload], settings, false)
+  perform: async (request, { payload, settings, features }) => {
+    return await send(request, [payload], settings, false, features)
   },
-  performBatch: async (request, { payload, settings }) => {
-    return await send(request, payload, settings, true)
+  performBatch: async (request, { payload, settings, features }) => {
+    return await send(request, payload, settings, true, features)
   }
 }
 
-async function send(request: RequestClient, payloads: Payload[], settings: Settings, isBatch: boolean) {
+async function send(
+  request: RequestClient,
+  payloads: Payload[],
+  settings: Settings,
+  isBatch: boolean,
+  features?: Features
+) {
   const json: BingCAPIRequestItem[] = []
   const multiStatusResponse = new MultiStatusResponse()
 
@@ -62,10 +68,13 @@ async function send(request: RequestClient, payloads: Payload[], settings: Setti
     json.push(jsonItem)
   })
 
+  const sendRootContinueOnValidationError = Boolean(features?.[ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG])
+
   const response = await request<MSMultiStatusResponse>(`${API_URL}${settings.UetTag}/events`, {
     method: 'post',
     json: {
-      data: json
+      data: json,
+      ...(sendRootContinueOnValidationError ? { continueOnValidationError: true } : {})
     }
   })
 
