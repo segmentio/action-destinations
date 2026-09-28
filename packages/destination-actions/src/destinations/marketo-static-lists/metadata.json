@@ -61,7 +61,6 @@
       "description": "Add users to a list in Marketo.",
       "platform": "cloud",
       "defaultSubscription": "event = \"Audience Entered\"",
-      "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": {
