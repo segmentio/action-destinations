@@ -106,6 +106,10 @@ export function buildEvent(payload: Payload): TatariWebEvent {
   return Object.fromEntries(Object.entries(event).filter(([, v]) => v !== undefined)) as TatariWebEvent
 }
 
+function sentSummary(event: TatariWebEvent): JSONLikeObject {
+  return { event: event.event, event_dt: event.event_dt, distinct_id: event.distinct_id }
+}
+
 /**
  * Translate a batch response into per-event statuses.
  *
@@ -138,7 +142,7 @@ export function applyBatchResponse(
         status: 400,
         errortype: ErrorCodes.BAD_REQUEST,
         errormessage: message,
-        sent: event as unknown as JSONLikeObject,
+        sent: sentSummary(event),
         body: body as unknown as JSONLikeObject
       })
     })
@@ -154,7 +158,7 @@ export function applyBatchResponse(
         status: 400,
         errortype: ErrorCodes.BAD_REQUEST,
         errormessage: error,
-        sent: event as unknown as JSONLikeObject,
+        sent: sentSummary(event),
         body: error
       })
     } else if (status === 400) {
@@ -166,13 +170,13 @@ export function applyBatchResponse(
         errortype: ErrorCodes.RETRYABLE_ERROR,
         errormessage:
           body.message ?? 'batch rejected by REJECT_ALL_IF_ANY_INVALID policy; event was valid and will be retried',
-        sent: event as unknown as JSONLikeObject,
+        sent: sentSummary(event),
         body: body as unknown as JSONLikeObject
       })
     } else {
       multiStatus.setSuccessResponseAtIndex(originalIndex, {
         status: 200,
-        sent: event as unknown as JSONLikeObject,
+        sent: sentSummary(event),
         body: body as unknown as JSONLikeObject
       })
     }

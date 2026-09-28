@@ -281,6 +281,29 @@ describe('Tatari Web Events', () => {
       })
     })
 
+    it('reports only event, event_dt and distinct_id in MultiStatus sent', async () => {
+      nock(baseUrl)
+        .post('/webevents/v1/batch')
+        .reply(207, { accepted_count: 2, rejected_count: 1, errors_by_index: { '1': 'INVALID_URL' } })
+
+      const responses = await testDestination.executeBatch('sendEvent', { events, settings, mapping })
+
+      expect(responses[0].sent).toEqual({
+        event: 'Order Completed',
+        event_dt: '2026-09-10T20:00:00.000Z',
+        distinct_id: 'msg-123'
+      })
+      expect(responses[1].sent).toEqual({
+        event: 'Product Viewed',
+        event_dt: '2026-09-10T20:00:00.000Z',
+        distinct_id: 'msg-456'
+      })
+      const serialized = JSON.stringify(responses)
+      expect(serialized).not.toMatch(
+        /user-42|anon-abc|203\.0\.113\.9|Mozilla|shop\.example\.com|hem_|example@example\.com/i
+      )
+    })
+
     it('on a REJECT_ALL_IF_ANY_INVALID 400, fails the bad event and marks valid siblings retryable', async () => {
       nock(baseUrl)
         .post('/webevents/v1/batch')
