@@ -114,19 +114,23 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     ])
   })
 
-  describe.each(['single', 'batch'] as Mode[])('shared coordinate vectors (%s)', (mode) => {
-    describe.each(checkpointFixtures)('checkpoint default from $name', (fixture) => {
-      it.each(vectors.coordinateCases)('$name', async ({ input, expected }) => {
-        const { bodies } = await sendOne(fixture.event(), { ...input }, fixture.settings, mode)
+  for (const mode of ['single', 'batch'] as Mode[]) {
+    for (const fixture of checkpointFixtures) {
+      describe(`shared coordinate vectors (${mode}, checkpoint default from ${fixture.name})`, () => {
+        for (const { name, input, expected } of vectors.coordinateCases) {
+          it(name, async () => {
+            const { bodies } = await sendOne(fixture.event(), { ...input }, fixture.settings, mode)
 
-        expect(bodies).toHaveLength(1)
-        expectCoordinates(bodies[0], expected, fixture.checkpointDefault)
-        // Coordinates are top-level siblings: the schema and stream are untouched.
-        expect(propertyNames(bodies[0])).toStrictEqual(Object.keys(fixture.event().properties ?? {}))
-        expect(bodies[0].streamId).toBe('anon-gw-1')
+            expect(bodies).toHaveLength(1)
+            expectCoordinates(bodies[0], expected, fixture.checkpointDefault)
+            // Coordinates are top-level siblings: the schema and stream are untouched.
+            expect(propertyNames(bodies[0])).toStrictEqual(Object.keys(fixture.event().properties ?? {}))
+            expect(bodies[0].streamId).toBe('anon-gw-1')
+          })
+        }
       })
-    })
-  })
+    }
+  }
 
   it(vectors.propertyCollisionCase.name, async () => {
     const { eventProperties, input, expected } = vectors.propertyCollisionCase
@@ -147,20 +151,27 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
       event: fixtureEvent({ properties: { plan: 'pro', ...input } }),
       mapping: Object.fromEntries(Object.keys(input).map((key) => [key, { '@path': `$.properties.${key}` }]))
     })
-    const [nullCase, numberCase, booleanCase, objectAndArrayCase] = vectors.untypedInputCases.cases
+    const hasStructuredValue = (input: Record<string, unknown>) =>
+      Object.values(input).some((value) => typeof value === 'object' && value !== null)
+    const scalarCases = vectors.untypedInputCases.cases.filter(({ input }) => !hasStructuredValue(input))
+    const structuredCases = vectors.untypedInputCases.cases.filter(({ input }) => hasStructuredValue(input))
 
-    it.each([nullCase, numberCase, booleanCase])(
-      'the framework omits null and stringifies scalars before perform: $name',
-      async ({ input, expected }) => {
+    it('the vector table has both kinds of untyped case', () => {
+      expect(scalarCases).toHaveLength(3)
+      expect(structuredCases).toHaveLength(1)
+    })
+
+    for (const { name, input, expected } of scalarCases) {
+      it(`the framework omits null and stringifies scalars before perform: ${name}`, async () => {
         const { event, mapping } = mapThroughPaths(input)
         const { bodies } = await sendOne(event, mapping)
 
         expectCoordinates(bodies[0], expected, '3.1.0')
-      }
-    )
+      })
+    }
 
     it('the framework rejects the event when a coordinate resolves to an object or array', async () => {
-      const { event, mapping } = mapThroughPaths(objectAndArrayCase.input)
+      const { event, mapping } = mapThroughPaths(structuredCases[0].input)
       const track = nock('https://api.avo.app').post(/.*/).reply(200, {})
 
       await expect(
