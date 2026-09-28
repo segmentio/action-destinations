@@ -30,12 +30,7 @@ const trackEvent = createTestEvent({
 describe('Tatari Web Events', () => {
   afterEach(() => nock.cleanAll())
 
-  describe('testAuthentication', () => {
-    it('is a no-op placeholder that accepts any key', async () => {
-      // no HTTP mock: the placeholder must not make a request
-      await expect(testDestination.testAuthentication(settings)).resolves.not.toThrowError()
-    })
-
+  describe('settings validation', () => {
     it('rejects settings without an apiKey', async () => {
       await expect(
         testDestination.testAuthentication({ environment: 'production' } as typeof settings)

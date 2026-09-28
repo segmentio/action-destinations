@@ -30,14 +30,6 @@ const destination: DestinationDefinition<Settings> = {
         ],
         default: DEFAULT_ENVIRONMENT
       }
-    },
-    // TODO: The Tatari Web Events API has no no-op / auth-check endpoint yet. Until one exists this is a
-    // deliberate no-op: the core treats "no throw" as valid credentials, so a bad key
-    // will only surface on the first delivery (403 Forbidden from API Gateway).
-    testAuthentication: (_request) => {
-      // Return a request that tests/validates the user's credentials.
-      // If you do not have a way to validate the authentication fields safely,
-      // you can remove the `testAuthentication` function, though discouraged.
     }
   },
 
