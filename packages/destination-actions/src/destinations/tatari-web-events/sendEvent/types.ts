@@ -26,6 +26,5 @@ export interface BatchResponse {
   /** stringified zero-based index into the submitted array -> "CODE: detail" */
   errors_by_index?: Record<string, string>
   message?: string
-  /** batch-level error (e.g. `batch size N exceeds maximum of 1000`) */
   error?: string
 }

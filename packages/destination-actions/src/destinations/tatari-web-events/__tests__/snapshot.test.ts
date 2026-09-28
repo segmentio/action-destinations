@@ -5,9 +5,7 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-tatari-web-events'
 
-// The generic `generateTestData` helper produces random strings, which the strict IP and
-// timestamp validation in this destination rejects before any request is made. Use a fixed,
-// realistic event instead so the snapshot reflects the real wire format.
+// generateTestData produces random strings that fail this destination's IP and timestamp validation
 const settings = { apiKey: 'snapshot-api-key', environment: 'production' }
 
 const fullEvent = createTestEvent({

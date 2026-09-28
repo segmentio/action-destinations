@@ -215,7 +215,6 @@ const action: ActionDefinition<Settings, Payload> = {
     const response = await request<BatchResponse>(batchUrl(settings.environment), {
       method: 'post',
       json: events,
-      // 207/400 carry per-event detail in the body; handled in applyBatchResponse
       throwHttpErrors: false
     })
 

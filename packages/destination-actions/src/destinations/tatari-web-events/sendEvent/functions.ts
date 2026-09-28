@@ -32,11 +32,7 @@ export function hashedEmailFields(email?: string): Pick<TatariWebEvent, 'hem_sha
   }
 }
 
-/**
- * The Tatari Web Events API requires at least one of `ipv4` / `ipv6` and validates each strictly.
- * Segment's `context.ip` is a single address, but proxies occasionally forward a comma-separated
- * list, so we take the first entry.
- */
+/** Proxies occasionally forward `context.ip` as a comma-separated list; the first entry is the client. */
 export function ipFields(ip: string): Pick<TatariWebEvent, 'ipv4' | 'ipv6'> {
   const first = ip.split(',')[0].trim()
   if (isIPv4(first)) return { ipv4: first }
@@ -57,12 +53,6 @@ function nonEmpty(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined
 }
 
-/**
- * `args` is free-form for the Tatari Web Events API except two reserved ROAS keys:
- * `order_id` must be a non-empty string and `order_total` must be a number.
- * Dedicated fields let the mapping pull them from the Segment e-commerce spec
- * (`properties.order_id`, `properties.total`) and we coerce types here.
- */
 function buildArgs(payload: Payload): Record<string, unknown> | undefined {
   const source = payload.args
   const args: Record<string, unknown> =
@@ -110,11 +100,6 @@ function sentSummary(event: TatariWebEvent): JSONLikeObject {
   return { event: event.event, event_dt: event.event_dt, distinct_id: event.distinct_id }
 }
 
-/**
- * Translate a batch response into per-event statuses.
- *
- * @param indexMap position in the submitted array -> index in the original Segment batch
- */
 export function applyBatchResponse(
   multiStatus: MultiStatusResponse,
   response: ModifiedResponse<BatchResponse>,
@@ -125,8 +110,6 @@ export function applyBatchResponse(
   const status = response.status
 
   if (status !== 200 && status !== 207 && status !== 400) {
-    // 403 (bad key), 429 (throttled), 5xx — the whole request failed; let the framework
-    // decide retry semantics from the status code.
     const detail = body.message ?? body.error ?? response.content
     throw new APIError(`Tatari Web Events API responded ${status}: ${detail}`, status)
   }
@@ -135,7 +118,6 @@ export function applyBatchResponse(
   const hasPerEventErrors = Object.keys(errorsByIndex).length > 0
 
   if (status === 400 && !hasPerEventErrors) {
-    // batch-level rejection (malformed array, too large, ...) — nothing was accepted
     const message = body.error ?? body.message ?? 'batch rejected'
     sent.forEach((event, i) => {
       multiStatus.setErrorResponseAtIndex(indexMap[i], {
@@ -162,9 +144,6 @@ export function applyBatchResponse(
         body: error
       })
     } else if (status === 400) {
-      // REJECT_ALL_IF_ANY_INVALID policy: this event was valid but discarded because a
-      // sibling failed. Mark it retryable so Segment resends it in a later batch that
-      // (after the invalid siblings are dropped) will be accepted.
       multiStatus.setErrorResponseAtIndex(originalIndex, {
         status: 500,
         errortype: ErrorCodes.RETRYABLE_ERROR,

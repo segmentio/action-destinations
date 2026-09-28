@@ -129,7 +129,6 @@ describe('Tatari Web Events', () => {
         hem_sha256: '31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66',
         hem_sha1: '914fec35ce8bfa1a067581032f26b053591ee38a',
         hem_md5: '23463b99b62a72f26ed677cc556c44e8',
-        // all properties pass through; order_id is coerced to string and order_total is added alongside total
         args: { order_id: '9001', order_total: 149.99, total: 149.99, currency: 'USD' }
       })
     })
