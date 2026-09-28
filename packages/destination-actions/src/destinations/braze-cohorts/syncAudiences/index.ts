@@ -23,18 +23,16 @@ const action: ActionDefinition<Settings, Payload> = {
     user_alias: {
       label: 'User Alias Object',
       description:
-        'Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.',
+        'Alternate unique user identifier, this is required if External User ID or Device ID is not set. Both `Alias Name` and `Alias Label` must be provided together; if either is missing the alias is ignored in favor of External User ID or Device ID. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.',
       type: 'object',
       properties: {
         alias_name: {
           label: 'Alias Name',
-          type: 'string',
-          required: true
+          type: 'string'
         },
         alias_label: {
           label: 'Alias Label',
-          type: 'string',
-          required: true
+          type: 'string'
         }
       }
     },
@@ -162,6 +160,19 @@ function validate(payloads: Payload[]): void {
   if (payloads[0].cohort_name !== payloads[0].personas_audience_key) {
     throw new PayloadValidationError('The value of `personas computation key` and `personas_audience_key` must match.')
   }
+
+  for (const { external_id, device_id, user_alias } of payloads) {
+    // A User Alias Object, when provided, must be complete: Braze requires both
+    // alias_name and alias_label (each non-empty). If the alias is incomplete and there
+    // is no External User ID or Device ID to fall back on, the user cannot be identified,
+    // so surface a validation error instead of silently dropping them.
+    const aliasIncomplete = Boolean(user_alias) && !(user_alias?.alias_name && user_alias?.alias_label)
+    if (!external_id && !device_id && aliasIncomplete) {
+      throw new PayloadValidationError(
+        'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
+      )
+    }
+  }
 }
 
 function extractUsers(payloads: Payload[]) {
@@ -187,7 +198,7 @@ function extractUsers(payloads: Payload[]) {
       user?.user_ids?.add(external_id)
     } else if (device_id && !addUsers.device_ids?.has(device_id) && !removeUsers.device_ids?.has(device_id)) {
       user?.device_ids?.add(device_id)
-    } else if (user_alias) {
+    } else if (user_alias?.alias_name && user_alias?.alias_label) {
       const aliasKey = `${user_alias.alias_name}:${user_alias.alias_label}`
       if (!addUsers.aliases?.has(aliasKey) && !removeUsers.aliases?.has(aliasKey)) {
         user?.aliases?.set(aliasKey, user_alias)
