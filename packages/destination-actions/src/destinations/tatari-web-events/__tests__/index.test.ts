@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, defaultValues } from '@segment/actions-core'
 import Definition from '../index'
 import sendEvent from '../sendEvent'
-import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE, MAX_BATCH_SIZE } from '../versioning-info'
+import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE, MAX_BATCH_BYTES, MAX_BATCH_SIZE } from '../versioning-info'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -356,6 +356,30 @@ describe('Tatari Web Events', () => {
       expect(sentBody).toHaveLength(2)
       expect(responses.map((r) => r.status)).toEqual([200, 400, 200])
       expect(responses[1]).toMatchObject({ errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    })
+
+    it('maps API error indexes back to original positions after a locally-invalid event is dropped', async () => {
+      nock(baseUrl)
+        .post('/webevents/v1/batch')
+        .reply(207, { accepted_count: 2, rejected_count: 1, errors_by_index: { '1': 'INVALID_URL' } })
+
+      const badIp = createTestEvent({ ...trackEvent, messageId: 'bad', context: { ...trackEvent.context, ip: 'nope' } })
+      const responses = await testDestination.executeBatch('sendEvent', {
+        events: [events[0], badIp, events[1], events[2]],
+        settings,
+        mapping
+      })
+
+      expect(responses.map((r) => r.status)).toEqual([200, 400, 400, 200])
+      expect(responses[1]).toMatchObject({ errortype: 'PAYLOAD_VALIDATION_FAILED' })
+      expect(responses[2]).toMatchObject({ errortype: 'BAD_REQUEST', errormessage: 'INVALID_URL' })
+    })
+
+    it('caps batch_size and batch_bytes below the Tatari API limits', () => {
+      expect(sendEvent.fields.batch_size).toMatchObject({ default: MAX_BATCH_SIZE, maximum: MAX_BATCH_SIZE })
+      expect(sendEvent.fields.batch_bytes).toMatchObject({ default: MAX_BATCH_BYTES, unsafe_hidden: true })
+      expect(MAX_BATCH_SIZE).toBe(1000)
+      expect(MAX_BATCH_BYTES).toBeLessThan(3_000_000)
     })
 
     it('rejects a batch larger than MAX_BATCH_SIZE without making a request', async () => {
