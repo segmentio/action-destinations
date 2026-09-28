@@ -68,6 +68,8 @@ function buildArgs(payload: Payload): Record<string, unknown> | undefined {
   const args: Record<string, unknown> =
     source && typeof source === 'object' && !Array.isArray(source) ? { ...(source as Record<string, unknown>) } : {}
 
+  delete args.email
+
   const orderId = payload.order_id ?? args.order_id
   if (orderId !== undefined && orderId !== null && String(orderId).trim() !== '') {
     args.order_id = String(orderId)

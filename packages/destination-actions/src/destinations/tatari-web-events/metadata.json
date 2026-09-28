@@ -414,7 +414,7 @@
         },
         "args": {
           "label": "Additional Properties",
-          "description": "Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Avoid sending PII here.",
+          "description": "Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. An `email` key is dropped; use the Email field so it is hashed. Avoid sending other PII here.",
           "type": "object",
           "required": false,
           "multiple": false,
@@ -480,6 +480,30 @@
           "hidden": true,
           "minimum": 1,
           "maximum": 1000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_bytes": {
+          "label": "Batch Bytes",
+          "description": "Maximum size of a batch request in bytes. The Tatari batch endpoint rejects requests over 3 MB.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 2000000,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
@@ -586,7 +610,8 @@
           "@path": "$.properties"
         },
         "enable_batching": true,
-        "batch_size": 1000
+        "batch_size": 1000,
+        "batch_bytes": 2000000
       },
       "eventSlug": null
     }

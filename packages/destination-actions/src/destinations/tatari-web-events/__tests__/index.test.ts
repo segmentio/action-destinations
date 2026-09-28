@@ -188,6 +188,30 @@ describe('Tatari Web Events', () => {
       expect(sentBody.hem_md5).toBeUndefined()
     })
 
+    it('hashes properties.email and does not forward it in args', async () => {
+      let sentBody: Record<string, unknown> = {}
+      nock(baseUrl)
+        .post('/webevents/v1/track', (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, {})
+
+      await testDestination.testAction('sendEvent', {
+        event: createTestEvent({
+          ...trackEvent,
+          context: { ...trackEvent.context, traits: {} },
+          properties: { email: 'Example@Example.com ', plan: 'pro' }
+        }),
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(sentBody.hem_sha256).toBe('31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66')
+      expect(sentBody.args).toEqual({ plan: 'pro' })
+      expect(JSON.stringify(sentBody)).not.toMatch(/example@example\.com/i)
+    })
+
     it('rejects an unparseable IP before making a request', async () => {
       await expect(
         testDestination.testAction('sendEvent', {

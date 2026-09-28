@@ -3,7 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { BatchResponse, TatariWebEvent } from './types'
 import { applyBatchResponse, buildEvent } from './functions'
-import { batchUrl, MAX_BATCH_SIZE, trackUrl } from '../versioning-info'
+import { batchUrl, MAX_BATCH_BYTES, MAX_BATCH_SIZE, trackUrl } from '../versioning-info'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Web Event',
@@ -135,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
     args: {
       label: 'Additional Properties',
       description:
-        'Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Avoid sending PII here.',
+        'Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. An `email` key is dropped; use the Email field so it is hashed. Avoid sending other PII here.',
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue',
@@ -157,6 +157,14 @@ const action: ActionDefinition<Settings, Payload> = {
       default: MAX_BATCH_SIZE,
       minimum: 1,
       maximum: MAX_BATCH_SIZE,
+      unsafe_hidden: true
+    },
+    batch_bytes: {
+      label: 'Batch Bytes',
+      description: 'Maximum size of a batch request in bytes. The Tatari batch endpoint rejects requests over 3 MB.',
+      type: 'number',
+      required: false,
+      default: MAX_BATCH_BYTES,
       unsafe_hidden: true
     }
   },

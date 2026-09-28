@@ -50,7 +50,7 @@ export interface Payload {
    */
   order_total?: number
   /**
-   * Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Avoid sending PII here.
+   * Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. An `email` key is dropped; use the Email field so it is hashed. Avoid sending other PII here.
    */
   args?: {
     [k: string]: unknown
@@ -63,4 +63,8 @@ export interface Payload {
    * Maximum number of events per batch request. Tatari accepts at most 1000. Actual batch sizes may be smaller.
    */
   batch_size?: number
+  /**
+   * Maximum size of a batch request in bytes. The Tatari batch endpoint rejects requests over 3 MB.
+   */
+  batch_bytes?: number
 }

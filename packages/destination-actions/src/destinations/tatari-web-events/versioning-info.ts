@@ -1,5 +1,7 @@
 export const API_VERSION = 'v1'
 export const MAX_BATCH_SIZE = 1000
+// The API rejects request bodies over 3 MB; leave headroom since Segment measures inbound event size, not the outbound body.
+export const MAX_BATCH_BYTES = 2_000_000
 
 export const INTEGRATION_HEADER = 'X-Vault-Api-Integration'
 export const INTEGRATION_NAME = 'segment'
