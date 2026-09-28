@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, defaultValues } from '@segment/actions-core'
 import Definition from '../index'
 import sendEvent from '../sendEvent'
-import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE } from '../versioning-info'
+import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE, MAX_BATCH_SIZE } from '../versioning-info'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -357,6 +357,18 @@ describe('Tatari Web Events', () => {
       expect(sentBody).toHaveLength(2)
       expect(responses.map((r) => r.status)).toEqual([200, 400, 200])
       expect(responses[1]).toMatchObject({ errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    })
+
+    it('rejects a batch larger than MAX_BATCH_SIZE without making a request', async () => {
+      const scope = nock(baseUrl).post('/webevents/v1/batch').reply(200, {})
+      const oversized = Array.from({ length: MAX_BATCH_SIZE + 1 }, (_, i) =>
+        createTestEvent({ ...trackEvent, messageId: `msg-${i}` })
+      )
+
+      await expect(
+        testDestination.executeBatch('sendEvent', { events: oversized, settings, mapping })
+      ).rejects.toThrowError(new RegExp(`at most ${MAX_BATCH_SIZE} events`))
+      expect(scope.isDone()).toBe(false)
     })
 
     it('throws for the whole batch on 429 so the framework retries it', async () => {

@@ -1,4 +1,10 @@
-import { ActionDefinition, MultiStatusResponse, ErrorCodes, IntegrationError } from '@segment/actions-core'
+import {
+  ActionDefinition,
+  MultiStatusResponse,
+  ErrorCodes,
+  IntegrationError,
+  PayloadValidationError
+} from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { BatchResponse, TatariWebEvent } from './types'
@@ -178,6 +184,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: async (request, { payload: payloads, settings }) => {
+    if (payloads.length > MAX_BATCH_SIZE) {
+      throw new PayloadValidationError(
+        `Tatari accepts at most ${MAX_BATCH_SIZE} events per batch; received ${payloads.length}`
+      )
+    }
+
     const multiStatus = new MultiStatusResponse()
     const events: TatariWebEvent[] = []
     const indexMap: number[] = []
