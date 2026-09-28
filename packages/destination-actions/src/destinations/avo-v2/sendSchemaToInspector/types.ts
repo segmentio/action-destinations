@@ -13,7 +13,7 @@ export interface EventProperty {
 
 export interface BaseBody {
   appName: string
-  appVersion: string
+  appVersion: string | null
   libVersion: string
   libPlatform: string
   messageId: string
@@ -27,6 +27,10 @@ export interface EventSchemaBody extends BaseBody {
   streamId: string
   eventName: string
   eventProperties: Array<EventProperty>
+  /** Gateway coordinate: the mirrored output's reference. Absent = gateway checkpoint. */
+  outputReference?: string
+  /** Gateway coordinate: the source that produced the event. */
+  originHint?: string
   eventId: string | null
   eventHash: string | null
   eventSpecMetadata?: EventSpecMetadata

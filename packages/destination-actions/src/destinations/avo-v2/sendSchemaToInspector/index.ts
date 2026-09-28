@@ -90,6 +90,27 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    outputReference: {
+      label: 'Output Reference',
+      type: 'string',
+      description:
+        "Optional. Leave empty to report events at the gateway checkpoint: every event this mapping receives, as Segment receives it. To report the checkpoint of one of your other destinations (an output), add one Avo mapping per output, copy that output's trigger onto it, and paste the output's reference here. Copy the reference from the Inspector Setup tab of your gateway source in Avo. Avo cannot see inside your other destinations: this mapping MIRRORS the output's configuration rather than observing what the output actually sends, so keep its trigger in sync with the output. Only takes effect when the API key belongs to a gateway in Avo.",
+      required: false
+    },
+    originHint: {
+      label: 'Origin Hint',
+      type: 'string',
+      description:
+        'Optional. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through this gateway. Map a path such as `$.context.library.name`, or enter a static label. Only takes effect when the API key belongs to a gateway in Avo. When set, the app version comes from Origin App Version only; the App Version field and the App Version Property setting are ignored.',
+      required: false
+    },
+    originAppVersion: {
+      label: 'Origin App Version',
+      type: 'string',
+      description:
+        'Optional. App version of the source that produced each event, for example `$.context.app.version`. Overrides the App Version field and the App Version Property setting. If Origin Hint is set and this is empty, the event is sent without an app version.',
+      required: false
+    },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',

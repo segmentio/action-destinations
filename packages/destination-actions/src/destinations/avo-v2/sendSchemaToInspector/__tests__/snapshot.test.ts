@@ -114,6 +114,11 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     settingsData.apiKey = settingsData.apiKey || 'test-api-key'
     settingsData.env = settingsData.env || 'dev'
     settingsData.appVersionPropertyName = 'appVersion'
+    // Gateway coordinates override the checkpoint default chain; leave them out so this test
+    // keeps exercising the appVersionPropertyName path.
+    delete eventData.outputReference
+    delete eventData.originHint
+    delete eventData.originAppVersion
 
     // Mock the /getEventSpec endpoint with a valid JSON response (empty object will fail validation and return null, which is expected)
     nock(/.*/)

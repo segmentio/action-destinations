@@ -18,14 +18,24 @@ const fixtureEvent = (overrides: Partial<SegmentEvent> = {}) =>
     ...overrides
   })
 
-async function sendOne(event: SegmentEvent, mapping: Record<string, unknown> = {}, settings = {}) {
+type Mode = 'single' | 'batch'
+
+async function sendOne(
+  event: SegmentEvent,
+  mapping: Record<string, unknown> = {},
+  settings: Record<string, string> = {},
+  mode: Mode = 'single'
+) {
   nock('https://api.avo.app').post(/.*/).reply(200, {})
-  const responses = await testDestination.testAction('sendSchemaToInspector', {
-    event,
+  const input = {
     mapping,
     useDefaultMappings: true,
     settings: { apiKey: 'test-api-key', env: 'prod', ...settings }
-  })
+  }
+  const responses =
+    mode === 'single'
+      ? await testDestination.testAction('sendSchemaToInspector', { ...input, event })
+      : await testDestination.testBatchAction('sendSchemaToInspector', { ...input, events: [event] })
   const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
   if (!post) throw new Error('no track request was sent')
   const bodies = JSON.parse(await post.request.text()) as Record<string, unknown>[]
@@ -33,6 +43,52 @@ async function sendOne(event: SegmentEvent, mapping: Record<string, unknown> = {
 }
 
 afterEach(() => nock.cleanAll())
+
+const propertyNames = (body: Record<string, unknown>) =>
+  (body.eventProperties as { propertyName: string }[]).map((p) => p.propertyName)
+
+const COORDINATE_KEYS = ['outputReference', 'originHint', 'appVersion'] as const
+
+// Each fixture pins down one link of today's appVersion chain, which is the checkpoint
+// default: the appVersionPropertyName setting, then the appVersion field, then 'unversioned'.
+const checkpointFixtures = [
+  {
+    name: 'appVersionPropertyName setting',
+    event: () => fixtureEvent({ properties: { plan: 'pro', build: '88.0' } }),
+    settings: { appVersionPropertyName: 'build' },
+    checkpointDefault: '88.0'
+  },
+  {
+    name: 'appVersion field',
+    event: () => fixtureEvent(),
+    settings: {},
+    checkpointDefault: '3.1.0'
+  },
+  {
+    name: 'no version anywhere',
+    event: () => fixtureEvent({ context: {} }),
+    settings: {},
+    checkpointDefault: 'unversioned'
+  }
+]
+
+function expectCoordinates(
+  body: Record<string, unknown>,
+  expected: Record<string, unknown>,
+  checkpointDefault: string
+) {
+  for (const key of COORDINATE_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(expected, key)) {
+      const value = expected[key] === '<CHECKPOINT_DEFAULT>' ? checkpointDefault : expected[key]
+      expect(body).toHaveProperty(key)
+      expect(body[key]).toStrictEqual(value)
+    } else {
+      expect(Object.prototype.hasOwnProperty.call(body, key)).toBe(false)
+    }
+  }
+  // The mapping field name never leaks onto the wire; it only sets appVersion.
+  expect(body).not.toHaveProperty('originAppVersion')
+}
 
 describe('Avo.sendSchemaToInspector gateway coordinates', () => {
   it('a mapping without the gateway fields sends the pre-existing body', async () => {
@@ -56,6 +112,69 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
         eventHash: null
       }
     ])
+  })
+
+  describe.each(['single', 'batch'] as Mode[])('shared coordinate vectors (%s)', (mode) => {
+    describe.each(checkpointFixtures)('checkpoint default from $name', (fixture) => {
+      it.each(vectors.coordinateCases)('$name', async ({ input, expected }) => {
+        const { bodies } = await sendOne(fixture.event(), { ...input }, fixture.settings, mode)
+
+        expect(bodies).toHaveLength(1)
+        expectCoordinates(bodies[0], expected, fixture.checkpointDefault)
+        // Coordinates are top-level siblings: the schema and stream are untouched.
+        expect(propertyNames(bodies[0])).toStrictEqual(Object.keys(fixture.event().properties ?? {}))
+        expect(bodies[0].streamId).toBe('anon-gw-1')
+      })
+    })
+  })
+
+  it(vectors.propertyCollisionCase.name, async () => {
+    const { eventProperties, input, expected } = vectors.propertyCollisionCase
+    const { bodies } = await sendOne(fixtureEvent({ properties: eventProperties }), { ...input })
+
+    expectCoordinates(bodies[0], expected, '3.1.0')
+    expect(propertyNames(bodies[0])).toStrictEqual(expected.eventPropertyNames)
+  })
+
+  it('coordinates are not batch keys', () => {
+    expect(Destination.actions.sendSchemaToInspector.fields.batch_keys.default).toStrictEqual(['anonymousId', 'userId'])
+  })
+
+  describe('non-string mapping values', () => {
+    // Map each coordinate through a path to an event property holding the untyped value,
+    // as a customer mapping such as `$.context.app.build` would.
+    const mapThroughPaths = (input: Record<string, unknown>) => ({
+      event: fixtureEvent({ properties: { plan: 'pro', ...input } }),
+      mapping: Object.fromEntries(Object.keys(input).map((key) => [key, { '@path': `$.properties.${key}` }]))
+    })
+    const [nullCase, numberCase, booleanCase, objectAndArrayCase] = vectors.untypedInputCases.cases
+
+    it.each([nullCase, numberCase, booleanCase])(
+      'the framework omits null and stringifies scalars before perform: $name',
+      async ({ input, expected }) => {
+        const { event, mapping } = mapThroughPaths(input)
+        const { bodies } = await sendOne(event, mapping)
+
+        expectCoordinates(bodies[0], expected, '3.1.0')
+      }
+    )
+
+    it('the framework rejects the event when a coordinate resolves to an object or array', async () => {
+      const { event, mapping } = mapThroughPaths(objectAndArrayCase.input)
+      const track = nock('https://api.avo.app').post(/.*/).reply(200, {})
+
+      await expect(
+        testDestination.testAction('sendSchemaToInspector', {
+          event,
+          mapping,
+          useDefaultMappings: true,
+          settings: { apiKey: 'test-api-key', env: 'prod' }
+        })
+      ).rejects.toThrow(
+        'Output Reference must be a string but it was an object. Origin Hint must be a string but it was an array.'
+      )
+      expect(track.isDone()).toBe(false)
+    })
   })
 
   it('posts to the v2 track endpoint with the client header matching every body libPlatform', async () => {

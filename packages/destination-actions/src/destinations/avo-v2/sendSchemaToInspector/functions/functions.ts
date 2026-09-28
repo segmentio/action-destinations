@@ -60,12 +60,17 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       eventSpecMetadata = validationResult.metadata
     }
 
+    const outputReference = normalizeCoordinate(payload.outputReference)
+    const originHint = normalizeCoordinate(payload.originHint)
+    const originAppVersion = normalizeCoordinate(payload.originAppVersion)
+
     const itemJSON: EventSchemaBody = {
       appName: appName ?? (pageUrl ? pageUrl.split('/')[2] : 'unnamed Segment app'),
-      appVersion:
+      appVersion: resolveAppVersion(originHint, originAppVersion, () =>
         appVersionPropertyName && properties[appVersionPropertyName]
           ? (properties[appVersionPropertyName] as string)
-          : payload.appVersion ?? 'unversioned',
+          : payload.appVersion ?? 'unversioned'
+      ),
       libVersion: LIB_VERSION,
       libPlatform: LIB_PLATFORM,
       messageId,
@@ -76,6 +81,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       streamId,
       eventName: event,
       eventProperties,
+      ...(outputReference ? { outputReference } : {}),
+      ...(originHint ? { originHint } : {}),
       eventId: null,
       eventHash: null,
       ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {})
@@ -101,6 +108,27 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     },
     json
   })
+}
+
+// Gateway coordinates are trimmed; a blank value counts as not provided, and its key is
+// omitted from the body rather than sent as null or "".
+function normalizeCoordinate(value: string | undefined): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : undefined
+}
+
+// An event with an originHint belongs to that source, so the checkpoint's own version
+// never applies to it: use originAppVersion, or null when there is none. Without an
+// originHint, originAppVersion overrides the checkpoint default.
+function resolveAppVersion(
+  originHint: string | undefined,
+  originAppVersion: string | undefined,
+  checkpointDefault: () => string
+): string | null {
+  if (originHint) {
+    return originAppVersion ?? null
+  }
+  return originAppVersion ?? checkpointDefault()
 }
 
 async function fetchEventSpecsForBatch(
