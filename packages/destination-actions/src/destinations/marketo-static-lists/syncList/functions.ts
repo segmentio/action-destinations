@@ -9,6 +9,7 @@ import {
 import { Settings } from '../generated-types'
 import { Payload } from './generated-types'
 import { addToList, addToListBatch, removeFromList, removeFromListBatch } from '../functions'
+import { sendBatchProbe } from './probe'
 
 export async function syncList(
   request: RequestClient,
@@ -61,6 +62,8 @@ export async function syncListBatch(
       removePayloads.push(payload)
     }
   })
+
+  await sendBatchProbe(request, payloads, addPayloads.length, removePayloads.length, payloads.length - addPayloads.length - removePayloads.length)
 
   const [addResult, removeResult] = await Promise.all([
     addPayloads.length > 0 ? addToListBatch(request, settings, addPayloads, statsContext, hookOutputs) : undefined,

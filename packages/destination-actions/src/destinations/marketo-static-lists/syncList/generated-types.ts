@@ -32,6 +32,14 @@ export interface Payload {
    */
   batch_size: number
   /**
+   * Whether the event adds the user to the list or removes them from it. Used to keep additions and removals in separate batches.
+   */
+  audience_membership?: string
+  /**
+   * The keys to use for batching the events.
+   */
+  batch_keys?: string[]
+  /**
    * The name of the current Segment event.
    */
   event_name: string

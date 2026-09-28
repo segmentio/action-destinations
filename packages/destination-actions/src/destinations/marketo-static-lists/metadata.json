@@ -621,7 +621,7 @@
       "description": "Add or remove users from a list in Marketo",
       "platform": "cloud",
       "defaultSubscription": "type = track or type = identify",
-      "hidden": true,
+      "hidden": false,
       "hasPerformBatch": true,
       "syncMode": {
         "default": "mirror",
@@ -980,16 +980,234 @@
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": 300,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.personas.computation_key"
+              },
+              "then": {
+                "@if": {
+                  "exists": {
+                    "@if": {
+                      "exists": {
+                        "@path": {
+                          "@template": "$.traits.{{context.personas.computation_key}}"
+                        }
+                      },
+                      "then": {
+                        "@path": {
+                          "@template": "$.traits.{{context.personas.computation_key}}"
+                        }
+                      },
+                      "else": {
+                        "@path": {
+                          "@template": "$.properties.{{context.personas.computation_key}}"
+                        }
+                      }
+                    }
+                  },
+                  "then": {
+                    "@if": {
+                      "blank": {
+                        "@if": {
+                          "exists": {
+                            "@path": {
+                              "@template": "$.traits.{{context.personas.computation_key}}"
+                            }
+                          },
+                          "then": {
+                            "@path": {
+                              "@template": "$.traits.{{context.personas.computation_key}}"
+                            }
+                          },
+                          "else": {
+                            "@path": {
+                              "@template": "$.properties.{{context.personas.computation_key}}"
+                            }
+                          }
+                        }
+                      },
+                      "then": 60,
+                      "else": 30
+                    }
+                  },
+                  "else": {
+                    "@if": {
+                      "blank": {
+                        "@replace": {
+                          "value": {
+                            "@path": "$.event"
+                          },
+                          "pattern": "deleted",
+                          "replacement": ""
+                        }
+                      },
+                      "then": 60,
+                      "else": 30
+                    }
+                  }
+                }
+              },
+              "else": {
+                "@if": {
+                  "blank": {
+                    "@replace": {
+                      "value": {
+                        "@path": "$.event"
+                      },
+                      "pattern": "deleted",
+                      "replacement": ""
+                    }
+                  },
+                  "then": 60,
+                  "else": 30
+                }
+              }
+            }
+          },
           "choices": null,
           "placeholder": null,
           "properties": null,
           "category": null,
           "depends_on": null,
           "readOnly": null,
-          "hidden": false,
+          "hidden": true,
           "minimum": 1,
-          "maximum": 300,
+          "maximum": 300000,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audience_membership": {
+          "label": "Audience Membership",
+          "description": "Whether the event adds the user to the list or removes them from it. Used to keep additions and removals in separate batches.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.personas.computation_key"
+              },
+              "then": {
+                "@if": {
+                  "exists": {
+                    "@if": {
+                      "exists": {
+                        "@path": {
+                          "@template": "$.traits.{{context.personas.computation_key}}"
+                        }
+                      },
+                      "then": {
+                        "@path": {
+                          "@template": "$.traits.{{context.personas.computation_key}}"
+                        }
+                      },
+                      "else": {
+                        "@path": {
+                          "@template": "$.properties.{{context.personas.computation_key}}"
+                        }
+                      }
+                    }
+                  },
+                  "then": {
+                    "@if": {
+                      "blank": {
+                        "@if": {
+                          "exists": {
+                            "@path": {
+                              "@template": "$.traits.{{context.personas.computation_key}}"
+                            }
+                          },
+                          "then": {
+                            "@path": {
+                              "@template": "$.traits.{{context.personas.computation_key}}"
+                            }
+                          },
+                          "else": {
+                            "@path": {
+                              "@template": "$.properties.{{context.personas.computation_key}}"
+                            }
+                          }
+                        }
+                      },
+                      "then": "add",
+                      "else": "remove"
+                    }
+                  },
+                  "else": {
+                    "@if": {
+                      "blank": {
+                        "@replace": {
+                          "value": {
+                            "@path": "$.event"
+                          },
+                          "pattern": "deleted",
+                          "replacement": ""
+                        }
+                      },
+                      "then": "add",
+                      "else": "remove"
+                    }
+                  }
+                }
+              },
+              "else": {
+                "@if": {
+                  "blank": {
+                    "@replace": {
+                      "value": {
+                        "@path": "$.event"
+                      },
+                      "pattern": "deleted",
+                      "replacement": ""
+                    }
+                  },
+                  "then": "add",
+                  "else": "remove"
+                }
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "audience_membership"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,
@@ -1220,7 +1438,179 @@
           }
         },
         "enable_batching": true,
-        "batch_size": 300,
+        "batch_size": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.personas.computation_key"
+            },
+            "then": {
+              "@if": {
+                "exists": {
+                  "@if": {
+                    "exists": {
+                      "@path": {
+                        "@template": "$.traits.{{context.personas.computation_key}}"
+                      }
+                    },
+                    "then": {
+                      "@path": {
+                        "@template": "$.traits.{{context.personas.computation_key}}"
+                      }
+                    },
+                    "else": {
+                      "@path": {
+                        "@template": "$.properties.{{context.personas.computation_key}}"
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "@if": {
+                    "blank": {
+                      "@if": {
+                        "exists": {
+                          "@path": {
+                            "@template": "$.traits.{{context.personas.computation_key}}"
+                          }
+                        },
+                        "then": {
+                          "@path": {
+                            "@template": "$.traits.{{context.personas.computation_key}}"
+                          }
+                        },
+                        "else": {
+                          "@path": {
+                            "@template": "$.properties.{{context.personas.computation_key}}"
+                          }
+                        }
+                      }
+                    },
+                    "then": 60,
+                    "else": 30
+                  }
+                },
+                "else": {
+                  "@if": {
+                    "blank": {
+                      "@replace": {
+                        "value": {
+                          "@path": "$.event"
+                        },
+                        "pattern": "deleted",
+                        "replacement": ""
+                      }
+                    },
+                    "then": 60,
+                    "else": 30
+                  }
+                }
+              }
+            },
+            "else": {
+              "@if": {
+                "blank": {
+                  "@replace": {
+                    "value": {
+                      "@path": "$.event"
+                    },
+                    "pattern": "deleted",
+                    "replacement": ""
+                  }
+                },
+                "then": 60,
+                "else": 30
+              }
+            }
+          }
+        },
+        "audience_membership": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.personas.computation_key"
+            },
+            "then": {
+              "@if": {
+                "exists": {
+                  "@if": {
+                    "exists": {
+                      "@path": {
+                        "@template": "$.traits.{{context.personas.computation_key}}"
+                      }
+                    },
+                    "then": {
+                      "@path": {
+                        "@template": "$.traits.{{context.personas.computation_key}}"
+                      }
+                    },
+                    "else": {
+                      "@path": {
+                        "@template": "$.properties.{{context.personas.computation_key}}"
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "@if": {
+                    "blank": {
+                      "@if": {
+                        "exists": {
+                          "@path": {
+                            "@template": "$.traits.{{context.personas.computation_key}}"
+                          }
+                        },
+                        "then": {
+                          "@path": {
+                            "@template": "$.traits.{{context.personas.computation_key}}"
+                          }
+                        },
+                        "else": {
+                          "@path": {
+                            "@template": "$.properties.{{context.personas.computation_key}}"
+                          }
+                        }
+                      }
+                    },
+                    "then": "add",
+                    "else": "remove"
+                  }
+                },
+                "else": {
+                  "@if": {
+                    "blank": {
+                      "@replace": {
+                        "value": {
+                          "@path": "$.event"
+                        },
+                        "pattern": "deleted",
+                        "replacement": ""
+                      }
+                    },
+                    "then": "add",
+                    "else": "remove"
+                  }
+                }
+              }
+            },
+            "else": {
+              "@if": {
+                "blank": {
+                  "@replace": {
+                    "value": {
+                      "@path": "$.event"
+                    },
+                    "pattern": "deleted",
+                    "replacement": ""
+                  }
+                },
+                "then": "add",
+                "else": "remove"
+              }
+            }
+          }
+        },
+        "batch_keys": [
+          "audience_membership"
+        ],
         "event_name": {
           "@path": "$.event"
         }

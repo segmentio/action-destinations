@@ -8,6 +8,16 @@ export const GET_LEADS_ENDPOINT = `/rest/${API_VERSION}/leads.json?filterType=fi
 export const REMOVE_USERS_ENDPOINT = `/rest/${API_VERSION}/lists/listId/leads.json?id=idsToDelete`
 
 export const CSV_LIMIT = 10000000 // 10MB
+
+// Marketo's bulk lead import accepts up to 300k rows, but removing leads from a list is
+// capped at 300: both the Get Leads filterValues lookup and the Remove Leads id list.
+//
+// STAGING TEST ONLY - deliberately tiny so a few hundred test events are enough to fill a
+// batch and prove the upstream service resolves batch_size per batch group.
+// Real values are 300000 / 300. Revert before this goes anywhere near main.
+export const ADD_BATCH_SIZE = 60
+export const REMOVE_BATCH_SIZE = 30
+
 export interface RefreshTokenResponse {
   access_token: string
 }
