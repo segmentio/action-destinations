@@ -33,8 +33,8 @@ export function hashedEmailFields(email?: string): Pick<TatariWebEvent, 'hem_sha
 }
 
 /**
- * V4B requires at least one of `ipv4` / `ipv6` and validates each strictly. Segment's
- * `context.ip` is a single address, but proxies occasionally forward a comma-separated
+ * The Tatari Web Events API requires at least one of `ipv4` / `ipv6` and validates each strictly.
+ * Segment's `context.ip` is a single address, but proxies occasionally forward a comma-separated
  * list, so we take the first entry.
  */
 export function ipFields(ip: string): Pick<TatariWebEvent, 'ipv4' | 'ipv6'> {
@@ -58,10 +58,10 @@ function nonEmpty(value: string | undefined): string | undefined {
 }
 
 /**
- * `args` is free-form for V4B except two reserved ROAS keys: `order_id` must be a non-empty
- * string and `order_total` must be a number. Dedicated fields let the mapping pull them from
- * the Segment e-commerce spec (`properties.order_id`, `properties.total`) and we coerce
- * types here so a numeric order id doesn't trip `INVALID_ARGS`.
+ * `args` is free-form for the Tatari Web Events API except two reserved ROAS keys:
+ * `order_id` must be a non-empty string and `order_total` must be a number.
+ * Dedicated fields let the mapping pull them from the Segment e-commerce spec
+ * (`properties.order_id`, `properties.total`) and we coerce types here.
  */
 function buildArgs(payload: Payload): Record<string, unknown> | undefined {
   const source = payload.args
@@ -101,12 +101,11 @@ export function buildEvent(payload: Payload): TatariWebEvent {
     ...hashedEmailFields(payload.email)
   }
 
-  // drop undefined keys so the wire payload is exactly what the server will see
   return Object.fromEntries(Object.entries(event).filter(([, v]) => v !== undefined)) as TatariWebEvent
 }
 
 /**
- * Translate a V4B batch response into per-event statuses.
+ * Translate a batch response into per-event statuses.
  *
  * @param indexMap position in the submitted array -> index in the original Segment batch
  */

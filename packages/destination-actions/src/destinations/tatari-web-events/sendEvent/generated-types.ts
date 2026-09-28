@@ -2,23 +2,23 @@
 
 export interface Payload {
   /**
-   * Name of the event (e.g. `page`, `add_to_cart`, `purchase`). Free-form, but coordinate event names with your Tatari account team. Defaults to the track event name, or the call type (`page`) for page calls.
+   * Name of the event (e.g. `page`, `add_to_cart`, `purchase`). Defaults to the track event name, or the call type (`page`) for page calls.
    */
   event: string
   /**
-   * When the event occurred. Sent as RFC 3339 UTC. Tatari rejects events more than 14 days in the past or 30 minutes in the future.
+   * When the event occurred. Sent as RFC 3339 UTC. The Web Events API rejects events dated more than 14 days in the past or 30 minutes in the future.
    */
   timestamp: string | number
   /**
-   * Identifier used to group events from the same browsing session. Segment does not emit a first-class session ID, so this defaults to `anonymousId` (a device identifier).
+   * Identifier used to group events from the same browsing session. Defaults to `anonymousId` (a device identifier).
    */
   session_id: string
   /**
-   * Your identifier for the logged-in user, if known.
+   * The identifier for the logged-in user, if known.
    */
   user_id?: string
   /**
-   * Deduplication key. Retries of the same event within a UTC day are collapsed by Tatari when this value matches. Defaults to the Segment `messageId`.
+   * Deduplication key. Defaults to the Segment `messageId`.
    */
   distinct_id?: string
   /**
@@ -30,7 +30,7 @@ export interface Payload {
    */
   user_agent: string
   /**
-   * Full URL (`http://` or `https://`) of the page the event occurred on.
+   * Full URL (`http://` or `https://`) of the page the event occurred on. Include UTM parameters if available.
    */
   url: string
   /**
@@ -50,7 +50,7 @@ export interface Payload {
    */
   order_total?: number
   /**
-   * Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here.
+   * Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Avoid sending PII here.
    */
   args?: {
     [k: string]: unknown

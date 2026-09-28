@@ -31,7 +31,7 @@ const destination: DestinationDefinition<Settings> = {
         default: DEFAULT_ENVIRONMENT
       }
     },
-    // TODO: V4B has no no-op / auth-check endpoint yet. Until one exists this is a
+    // TODO: The Tatari Web Events API has no no-op / auth-check endpoint yet. Until one exists this is a
     // deliberate no-op: the core treats "no throw" as valid credentials, so a bad key
     // will only surface on the first delivery (403 Forbidden from API Gateway).
     testAuthentication: (_request) => {
