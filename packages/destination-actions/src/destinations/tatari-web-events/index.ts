@@ -26,7 +26,7 @@ const destination: DestinationDefinition<Settings> = {
         required: true,
         choices: [
           { label: 'Production', value: 'production' },
-          { label: 'Staging (Tatari internal testing only)', value: 'staging' }
+          { label: 'Staging', value: 'staging' }
         ],
         default: DEFAULT_ENVIRONMENT
       }

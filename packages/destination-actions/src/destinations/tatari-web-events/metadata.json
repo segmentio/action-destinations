@@ -28,7 +28,7 @@
             "value": "production"
           },
           {
-            "label": "Staging (Tatari internal testing only)",
+            "label": "Staging",
             "value": "staging"
           }
         ],
