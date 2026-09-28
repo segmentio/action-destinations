@@ -13,8 +13,8 @@ export type BrazeDestinationClient = {
   // on the very first call, before any request is made for the identified user.
   setDeferredUser: (userId: string, sdkAuthSignature?: string) => void
   // Identifies the user with Braze, authenticating the call when an SDK Authentication
-  // signature is supplied. Routes a refreshed signature for the already-identified user
-  // to `setSdkAuthenticationSignature`, which is how Braze documents rotating a token
-  // mid-session.
+  // signature is supplied and the setting is on. The signature is also applied explicitly
+  // with `setSdkAuthenticationSignature`, because SDK 3.3's `changeUser` ignores it for a
+  // user who is already current.
   identifyUser: (userId: string, sdkAuthSignature?: string) => void
 }
