@@ -49,9 +49,11 @@ const minimalEvent = createTestEvent({
 })
 
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+  afterEach(() => nock.cleanAll())
+
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
-      nock(/.*/).persist().post(/.*/).reply(200, { status: 'success' })
+      nock(/.*/).post(/.*/).reply(200, { status: 'success' })
 
       const responses = await testDestination.testAction(actionSlug, {
         event: minimalEvent,
@@ -68,7 +70,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
     })
 
     it(`${actionSlug} action - all fields`, async () => {
-      nock(/.*/).persist().post(/.*/).reply(200, { status: 'success' })
+      nock(/.*/).post(/.*/).reply(200, { status: 'success' })
 
       const responses = await testDestination.testAction(actionSlug, {
         event: fullEvent,
