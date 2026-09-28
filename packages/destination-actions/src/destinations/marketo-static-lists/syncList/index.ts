@@ -103,9 +103,7 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       },
       minimum: 1,
-      // STAGING TEST ONLY: kept at the real ceiling so existing mappings and tests that pass
-      // batch_size: 300 still validate while the resolved defaults are 60/30.
-      maximum: 300000,
+      maximum: ADD_BATCH_SIZE,
       unsafe_hidden: true,
       required: true
     },

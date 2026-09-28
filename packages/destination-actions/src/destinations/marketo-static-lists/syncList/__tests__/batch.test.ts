@@ -34,7 +34,7 @@ const mapping = {
     }
   },
   enable_batching: true,
-  batch_size: 300,
+  batch_size: 30,
   event_name: { '@path': '$.event' }
 }
 

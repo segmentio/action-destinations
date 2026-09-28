@@ -1073,7 +1073,7 @@
           "readOnly": null,
           "hidden": true,
           "minimum": 1,
-          "maximum": 300000,
+          "maximum": 60,
           "defaultObjectUI": null,
           "disabledInputMethods": null,
           "displayMode": null,

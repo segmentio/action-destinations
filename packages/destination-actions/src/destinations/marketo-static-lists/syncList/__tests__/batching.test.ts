@@ -141,7 +141,7 @@ describe('syncList batching directives', () => {
 
     it('hides batch_size so a manual override cannot break the removal cap', () => {
       expect(action.fields.batch_size.unsafe_hidden).toBe(true)
-      expect(action.fields.batch_size.maximum).toBe(300000)
+      expect(action.fields.batch_size.maximum).toBe(ADD_BATCH_SIZE)
     })
   })
 })

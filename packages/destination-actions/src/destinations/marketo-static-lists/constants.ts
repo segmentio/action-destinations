@@ -14,7 +14,7 @@ export const CSV_LIMIT = 10000000 // 10MB
 //
 // STAGING TEST ONLY - deliberately tiny so a few hundred test events are enough to fill a
 // batch and prove the upstream service resolves batch_size per batch group.
-// Real values are 300000 / 300. Revert before this goes anywhere near main.
+// Real values live on the stratconn-7025-marketo-static-lists branch. Revert before merge.
 export const ADD_BATCH_SIZE = 60
 export const REMOVE_BATCH_SIZE = 30
 
