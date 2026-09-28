@@ -144,6 +144,42 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     expect(Destination.actions.sendSchemaToInspector.fields.batch_keys.default).toStrictEqual(['anonymousId', 'userId'])
   })
 
+  it('events that differ only in coordinates are sent in one request, each with its own coordinates', async () => {
+    const coordinates = [
+      { outputReference: 'meta-x7k2q', originHint: 'android', originAppVersion: '4.2.0' },
+      { originHint: 'ios', originAppVersion: '7.0.1' },
+      { outputReference: 'ga4-p9d3m' }
+    ]
+    const expected = [
+      { outputReference: 'meta-x7k2q', originHint: 'android', appVersion: '4.2.0' },
+      { originHint: 'ios', appVersion: '7.0.1' },
+      { outputReference: 'ga4-p9d3m', appVersion: '3.1.0' }
+    ]
+    nock('https://api.avo.app').post(/.*/).times(coordinates.length).reply(200, {})
+
+    const responses = await testDestination.testBatchAction('sendSchemaToInspector', {
+      events: coordinates.map((gateway) =>
+        fixtureEvent({ context: { app: { name: 'Shop', version: '3.1.0' }, gateway } })
+      ),
+      mapping: {
+        outputReference: { '@path': '$.context.gateway.outputReference' },
+        originHint: { '@path': '$.context.gateway.originHint' },
+        originAppVersion: { '@path': '$.context.gateway.originAppVersion' }
+      },
+      useDefaultMappings: true,
+      settings: { apiKey: 'test-api-key', env: 'prod' }
+    })
+
+    const posts = responses.filter((r) => r.options.method?.toLowerCase() === 'post')
+    expect(posts).toHaveLength(1)
+    const bodies = JSON.parse(await posts[0].request.text()) as Record<string, unknown>[]
+    expect(bodies).toHaveLength(coordinates.length)
+    bodies.forEach((body, i) => {
+      expectCoordinates(body, expected[i], 'unused')
+      expect(body.streamId).toBe('anon-gw-1')
+    })
+  })
+
   describe('non-string mapping values', () => {
     // Map each coordinate through a path to an event property holding the untyped value,
     // as a customer mapping such as `$.context.app.build` would.
@@ -161,13 +197,15 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
       expect(structuredCases).toHaveLength(1)
     })
 
-    for (const { name, input, expected } of scalarCases) {
-      it(`the framework omits null and stringifies scalars before perform: ${name}`, async () => {
-        const { event, mapping } = mapThroughPaths(input)
-        const { bodies } = await sendOne(event, mapping)
+    for (const mode of ['single', 'batch'] as Mode[]) {
+      for (const { name, input, expected } of scalarCases) {
+        it(`the framework omits null and stringifies scalars before perform (${mode}): ${name}`, async () => {
+          const { event, mapping } = mapThroughPaths(input)
+          const { bodies } = await sendOne(event, mapping, {}, mode)
 
-        expectCoordinates(bodies[0], expected, '3.1.0')
-      })
+          expectCoordinates(bodies[0], expected, '3.1.0')
+        })
+      }
     }
 
     it('the framework rejects the event when a coordinate resolves to an object or array', async () => {
@@ -185,6 +223,35 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
         'Output Reference must be a string but it was an object. Origin Hint must be a string but it was an array.'
       )
       expect(track.isDone()).toBe(false)
+    })
+
+    it('in a batch, the framework fails only the event whose coordinate is an object or array', async () => {
+      const rejected = mapThroughPaths(structuredCases[0].input)
+      const accepted = fixtureEvent({ messageId: 'msg-gw-accepted' })
+      let posted: Record<string, unknown>[] = []
+      nock('https://api.avo.app')
+        .post(/.*/, (body: Record<string, unknown>[]) => {
+          posted = body
+          return true
+        })
+        .reply(200, {})
+
+      await testDestination.testBatchAction('sendSchemaToInspector', {
+        events: [rejected.event, accepted],
+        mapping: rejected.mapping,
+        useDefaultMappings: true,
+        settings: { apiKey: 'test-api-key', env: 'prod' }
+      })
+
+      const [multistatus] = testDestination.results.map((r) => (r as { multistatus: unknown[] }).multistatus)
+      expect(multistatus[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage:
+          'Output Reference must be a string but it was an object. Origin Hint must be a string but it was an array.'
+      })
+      expect(multistatus[1]).toMatchObject({ status: 200 })
+      expect(posted.map((body) => body.messageId)).toStrictEqual(['msg-gw-accepted'])
     })
   })
 
