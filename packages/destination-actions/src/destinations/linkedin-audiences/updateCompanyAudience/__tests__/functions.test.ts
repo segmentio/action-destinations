@@ -203,7 +203,10 @@ describe('normalizeCompanyPageUrl', () => {
     ['a lookalike host that only starts with linkedin.com', 'https://linkedin.com.example.com/company/microsoft'],
     ['a single-label host', 'https://intranet/company/x'],
     ['a bare host with no path, which is linkedin.com itself rather than a company', 'https://linkedin.com'],
-    ['a bare host with only a trailing slash', 'https://www.linkedin.com/']
+    ['a bare host with only a trailing slash', 'https://www.linkedin.com/'],
+    ['a mailto, which the uri format accepts and which parses to a linkedin host', 'mailto:joe@linkedin.com/company/x'],
+    ['a non-http scheme', 'ftp://linkedin.com/company/x'],
+    ['a scheme-less value, which the field schema rejects before this point', 'linkedin.com/company/microsoft']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })

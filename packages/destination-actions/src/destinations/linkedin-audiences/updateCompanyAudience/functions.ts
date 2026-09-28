@@ -41,6 +41,7 @@ import {
 } from './constants'
 
 const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
+const HTTP_SCHEME = /^https?:\/\//i
 const TRAILING_SLASHES = /\/+$/
 const TRAILING_DOT = /\.$/
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
@@ -91,6 +92,12 @@ function isLinkedInHost(hostname: string): boolean {
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
+  // The field's 'uri' format accepts any scheme, so 'mailto:joe@linkedin.com/company/x' reaches
+  // here and parses into a linkedin.com host. Only an http(s) url can be a page.
+  if (!HTTP_SCHEME.test(trimmed(value) ?? '')) {
+    return undefined
+  }
+
   const parsed = parseUrl(value)
 
   // LinkedIn documents this field as the company's page on linkedin.com, so any other host is a
@@ -196,7 +203,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers ?? {}).some((identifier) => trimmed(identifier))
-        ? "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of 100 characters or fewer."
+        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
