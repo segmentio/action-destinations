@@ -9,7 +9,7 @@ import {
 } from '@segment/actions-core'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Payload } from './generated-types'
-import type { V4bBatchResponse, V4bWebEvent } from './types'
+import type { BatchResponse, TatariWebEvent } from './types'
 
 const HEX_SHA256 = /^[a-f0-9]{64}$/i
 const HEX_SHA1 = /^[a-f0-9]{40}$/i
@@ -17,7 +17,7 @@ const HEX_MD5 = /^[a-f0-9]{32}$/i
 
 const normalizeEmail = (value: string) => value.trim().toLowerCase()
 
-export function hashedEmailFields(email?: string): Pick<V4bWebEvent, 'hem_sha256' | 'hem_sha1' | 'hem_md5'> {
+export function hashedEmailFields(email?: string): Pick<TatariWebEvent, 'hem_sha256' | 'hem_sha1' | 'hem_md5'> {
   const value = email?.trim()
   if (!value) return {}
 
@@ -37,7 +37,7 @@ export function hashedEmailFields(email?: string): Pick<V4bWebEvent, 'hem_sha256
  * `context.ip` is a single address, but proxies occasionally forward a comma-separated
  * list, so we take the first entry.
  */
-export function ipFields(ip: string): Pick<V4bWebEvent, 'ipv4' | 'ipv6'> {
+export function ipFields(ip: string): Pick<TatariWebEvent, 'ipv4' | 'ipv6'> {
   const first = ip.split(',')[0].trim()
   if (isIPv4(first)) return { ipv4: first }
   if (isIPv6(first)) return { ipv6: first }
@@ -86,8 +86,8 @@ function buildArgs(payload: Payload): Record<string, unknown> | undefined {
   return Object.keys(args).length > 0 ? args : undefined
 }
 
-export function buildEvent(payload: Payload): V4bWebEvent {
-  const event: V4bWebEvent = {
+export function buildEvent(payload: Payload): TatariWebEvent {
+  const event: TatariWebEvent = {
     event_dt: toRfc3339Utc(payload.timestamp),
     session_id: payload.session_id,
     event: payload.event,
@@ -102,7 +102,7 @@ export function buildEvent(payload: Payload): V4bWebEvent {
   }
 
   // drop undefined keys so the wire payload is exactly what the server will see
-  return Object.fromEntries(Object.entries(event).filter(([, v]) => v !== undefined)) as V4bWebEvent
+  return Object.fromEntries(Object.entries(event).filter(([, v]) => v !== undefined)) as TatariWebEvent
 }
 
 /**
@@ -112,11 +112,11 @@ export function buildEvent(payload: Payload): V4bWebEvent {
  */
 export function applyBatchResponse(
   multiStatus: MultiStatusResponse,
-  response: ModifiedResponse<V4bBatchResponse>,
-  sent: V4bWebEvent[],
+  response: ModifiedResponse<BatchResponse>,
+  sent: TatariWebEvent[],
   indexMap: number[]
 ): MultiStatusResponse {
-  const body: V4bBatchResponse = response.data ?? {}
+  const body: BatchResponse = response.data ?? {}
   const status = response.status
 
   if (status !== 200 && status !== 207 && status !== 400) {

@@ -1,9 +1,4 @@
-/**
- * Wire format accepted by V4B `POST /webevents/v1/track` (single object) and
- * `POST /webevents/v1/batch` (top-level array). The server uses
- * `deny_unknown_fields`, so nothing outside this shape may be sent.
- */
-export interface V4bWebEvent {
+export interface TatariWebEvent {
   event_dt: string
   session_id: string
   event: string
@@ -20,7 +15,7 @@ export interface V4bWebEvent {
   hem_md5?: string
 }
 
-export interface V4bTrackResponse {
+export interface TrackResponse {
   status?: string
   error?: string
   message?: string
@@ -31,7 +26,7 @@ export interface V4bTrackResponse {
  * 207: partial accept (ACCEPT_ANY_VALID) with `errors_by_index`
  * 400: full reject (REJECT_ALL_IF_ANY_INVALID, all-invalid, or a batch-level error)
  */
-export interface V4bBatchResponse {
+export interface BatchResponse {
   accepted_count?: number
   rejected_count?: number
   /** stringified zero-based index into the submitted array -> "CODE: detail" */

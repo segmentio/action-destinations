@@ -52,7 +52,7 @@
       "fields": {
         "event": {
           "label": "Event Name",
-          "description": "Name of the event (e.g. `page`, `add_to_cart`, `purchase`). Free-form, but coordinate event names with your Tatari account team. Defaults to the track event name, or the call type (`page`) for page calls.",
+          "description": "Name of the event (e.g. `page`, `add_to_cart`, `purchase`). Defaults to the track event name, or the call type (`page`) for page calls.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -88,7 +88,7 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "When the event occurred. Sent as RFC 3339 UTC. Tatari rejects events more than 14 days in the past or 30 minutes in the future.",
+          "description": "When the event occurred. Sent as RFC 3339 UTC. The Web Events API rejects events dated more than 14 days in the past or 30 minutes in the future.",
           "type": "datetime",
           "required": true,
           "multiple": false,
@@ -114,7 +114,7 @@
         },
         "session_id": {
           "label": "Session ID",
-          "description": "Identifier used to group events from the same browsing session. Segment does not emit a first-class session ID, so this defaults to `anonymousId` (a device identifier).",
+          "description": "Identifier used to group events from the same browsing session. Defaults to `anonymousId` (a device identifier).",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -140,7 +140,7 @@
         },
         "user_id": {
           "label": "User ID",
-          "description": "Your identifier for the logged-in user, if known.",
+          "description": "The identifier for the logged-in user, if known.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -166,7 +166,7 @@
         },
         "distinct_id": {
           "label": "Distinct ID",
-          "description": "Deduplication key. Retries of the same event within a UTC day are collapsed by Tatari when this value matches. Defaults to the Segment `messageId`.",
+          "description": "Deduplication key. Defaults to the Segment `messageId`.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -244,7 +244,7 @@
         },
         "url": {
           "label": "Page URL",
-          "description": "Full URL (`http://` or `https://`) of the page the event occurred on.",
+          "description": "Full URL (`http://` or `https://`) of the page the event occurred on. Include UTM parameters if available.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -414,7 +414,7 @@
         },
         "args": {
           "label": "Additional Properties",
-          "description": "Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here.",
+          "description": "Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Avoid sending PII here.",
           "type": "object",
           "required": false,
           "multiple": false,

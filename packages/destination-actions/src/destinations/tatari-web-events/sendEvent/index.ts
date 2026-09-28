@@ -1,7 +1,7 @@
 import { ActionDefinition, MultiStatusResponse, ErrorCodes, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import type { V4bBatchResponse, V4bWebEvent } from './types'
+import type { BatchResponse, TatariWebEvent } from './types'
 import { applyBatchResponse, buildEvent } from './functions'
 import { batchUrl, MAX_BATCH_SIZE, trackUrl } from '../versioning-info'
 
@@ -13,7 +13,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event: {
       label: 'Event Name',
       description:
-        'Name of the event (e.g. `page`, `add_to_cart`, `purchase`). Free-form, but coordinate event names with your Tatari account team. Defaults to the track event name, or the call type (`page`) for page calls.',
+        'Name of the event (e.g. `page`, `add_to_cart`, `purchase`). Defaults to the track event name, or the call type (`page`) for page calls.',
       type: 'string',
       required: true,
       default: {
@@ -27,7 +27,7 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp: {
       label: 'Timestamp',
       description:
-        'When the event occurred. Sent as RFC 3339 UTC. Tatari rejects events more than 14 days in the past or 30 minutes in the future.',
+        'When the event occurred. Sent as RFC 3339 UTC. The Web Events API rejects events dated more than 14 days in the past or 30 minutes in the future.',
       type: 'datetime',
       required: true,
       default: { '@path': '$.timestamp' }
@@ -35,22 +35,21 @@ const action: ActionDefinition<Settings, Payload> = {
     session_id: {
       label: 'Session ID',
       description:
-        'Identifier used to group events from the same browsing session. Segment does not emit a first-class session ID, so this defaults to `anonymousId` (a device identifier).',
+        'Identifier used to group events from the same browsing session. Defaults to `anonymousId` (a device identifier).',
       type: 'string',
       required: true,
       default: { '@path': '$.anonymousId' }
     },
     user_id: {
       label: 'User ID',
-      description: 'Your identifier for the logged-in user, if known.',
+      description: 'The identifier for the logged-in user, if known.',
       type: 'string',
       required: false,
       default: { '@path': '$.userId' }
     },
     distinct_id: {
       label: 'Distinct ID',
-      description:
-        'Deduplication key. Retries of the same event within a UTC day are collapsed by Tatari when this value matches. Defaults to the Segment `messageId`.',
+      description: 'Deduplication key. Defaults to the Segment `messageId`.',
       type: 'string',
       required: false,
       default: { '@path': '$.messageId' }
@@ -72,7 +71,8 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     url: {
       label: 'Page URL',
-      description: 'Full URL (`http://` or `https://`) of the page the event occurred on.',
+      description:
+        'Full URL (`http://` or `https://`) of the page the event occurred on. Include UTM parameters if available.',
       type: 'string',
       required: true,
       default: {
@@ -135,7 +135,7 @@ const action: ActionDefinition<Settings, Payload> = {
     args: {
       label: 'Additional Properties',
       description:
-        'Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here.',
+        'Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Avoid sending PII here.',
       type: 'object',
       required: false,
       defaultObjectUI: 'keyvalue',
@@ -171,7 +171,7 @@ const action: ActionDefinition<Settings, Payload> = {
 
   performBatch: async (request, { payload: payloads, settings }) => {
     const multiStatus = new MultiStatusResponse()
-    const events: V4bWebEvent[] = []
+    const events: TatariWebEvent[] = []
     const indexMap: number[] = []
 
     payloads.forEach((payload, originalIndex) => {
@@ -192,7 +192,7 @@ const action: ActionDefinition<Settings, Payload> = {
       return multiStatus
     }
 
-    const response = await request<V4bBatchResponse>(batchUrl(settings.environment), {
+    const response = await request<BatchResponse>(batchUrl(settings.environment), {
       method: 'post',
       json: events,
       // 207/400 carry per-event detail in the body; handled in applyBatchResponse
