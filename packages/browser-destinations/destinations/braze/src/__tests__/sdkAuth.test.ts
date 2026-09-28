@@ -83,29 +83,50 @@ describe('Braze SDK Authentication', () => {
       expect(instance.changeUser.mock.calls[0]).toHaveLength(1)
       expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
     })
+
+    test('ignores a mapped signature entirely when SDK Authentication is off', async () => {
+      const { client, instance } = await initClient({ enableSdkAuthentication: false })
+
+      identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-1' })
+
+      // The setting is the gate: a customer who starts sending tokens before switching it on
+      // must see exactly the pre-SDK-Authentication call, and no credential handed to the SDK.
+      expect(instance.changeUser).toHaveBeenCalledWith('user-1')
+      expect(instance.changeUser.mock.calls[0]).toHaveLength(1)
+      expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
+    })
   })
 
   describe('token refresh', () => {
-    test('routes a new signature for the same user to setSdkAuthenticationSignature', async () => {
+    test('applies the signature explicitly, not only through changeUser', async () => {
       const { client, instance } = await initClient({ enableSdkAuthentication: true })
 
       identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-1' })
-      instance.changeUser.mockClear()
 
-      identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-2' })
-
-      expect(instance.setSdkAuthenticationSignature).toHaveBeenCalledWith('jwt-2')
-      expect(instance.changeUser).not.toHaveBeenCalled()
+      // On SDK 3.3, changeUser ignores the signature for a user Braze already has persisted,
+      // which is every returning visitor on a fresh page load. The explicit call is what
+      // applies it there; the stub cannot model 3.3, so assert the call is made.
+      expect(instance.changeUser).toHaveBeenCalledWith('user-1', 'jwt-1')
+      expect(instance.setSdkAuthenticationSignature).toHaveBeenCalledWith('jwt-1')
     })
 
-    test('uses changeUser when the user actually changes', async () => {
+    test('applies a refreshed signature for the same user', async () => {
+      const { client, instance } = await initClient({ enableSdkAuthentication: true })
+
+      identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-1' })
+      identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-2' })
+
+      expect(instance.setSdkAuthenticationSignature).toHaveBeenLastCalledWith('jwt-2')
+    })
+
+    test('switches user and signature together when the user changes', async () => {
       const { client, instance } = await initClient({ enableSdkAuthentication: true })
 
       identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-1' })
       identify(client, { external_id: 'user-2', sdk_auth_signature: 'jwt-2' })
 
       expect(instance.changeUser).toHaveBeenLastCalledWith('user-2', 'jwt-2')
-      expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
+      expect(instance.setSdkAuthenticationSignature).toHaveBeenLastCalledWith('jwt-2')
     })
   })
 
@@ -153,6 +174,9 @@ describe('Braze SDK Authentication', () => {
       // The signed changeUser must land before the session is opened, so Braze does not
       // open an unauthenticated session for the identified user.
       expect(instance.changeUser.mock.invocationCallOrder[0]).toBeLessThan(
+        instance.openSession.mock.invocationCallOrder[0]
+      )
+      expect(instance.setSdkAuthenticationSignature.mock.invocationCallOrder[0]).toBeLessThan(
         instance.openSession.mock.invocationCallOrder[0]
       )
     })

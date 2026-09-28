@@ -361,10 +361,6 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
       // SDK Authentication signature captured from that same identify, so the deferred
       // `changeUser` below can be authenticated on its first call.
       let deferredSdkAuthSignature: string | undefined
-      // The userId of the last `changeUser` we issued. Used to tell "identify a different
-      // user" apart from "the same user with a refreshed token", which Braze handles with
-      // two different methods.
-      let identifiedUserId: string | undefined
 
       const client: BrazeDestinationClient = {
         instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
@@ -440,31 +436,28 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           deferredSdkAuthSignature = sdkAuthSignature
         },
         identifyUser: (userId: string, sdkAuthSignature?: string) => {
-          // A new signature for the user we already identified is a token refresh, not a
-          // user switch, and Braze documents `setSdkAuthenticationSignature` for exactly
-          // that. This is not merely stylistic: on SDK 3.3 `changeUser(id, signature)` for
-          // the current user returns without applying the signature, so the token would be
-          // silently dropped. 3.5+ apply it internally, and 3.1 has neither method — hence
-          // the guard, which falls through to `changeUser` there.
-          if (
-            sdkAuthSignature &&
-            userId === identifiedUserId &&
-            typeof client.instance.setSdkAuthenticationSignature === 'function'
-          ) {
-            client.instance.setSdkAuthenticationSignature(sdkAuthSignature)
+          // The setting is the gate. With SDK Authentication off, a mapped token is ignored
+          // entirely, so the call is identical to the pre-SDK-Authentication behavior and no
+          // credential is stored in the browser.
+          const signature = settings.enableSdkAuthentication ? sdkAuthSignature : undefined
+
+          // Pass the signature only when we actually have one, rather than relying on how each
+          // supported SDK version handles an explicitly-undefined second argument.
+          if (!signature) {
+            client.instance.changeUser(userId)
             return
           }
 
-          identifiedUserId = userId
+          client.instance.changeUser(userId, signature)
 
-          // Pass the signature only when we actually have one, so that the no-signature
-          // path stays byte-identical to the pre-SDK-Authentication behavior on every
-          // supported SDK version rather than relying on how each one handles an
-          // explicitly-undefined second argument.
-          if (sdkAuthSignature) {
-            client.instance.changeUser(userId, sdkAuthSignature)
-          } else {
-            client.instance.changeUser(userId)
+          // On SDK 3.3, `changeUser` applies the signature only when the user actually changes.
+          // A same-user call returns without touching it, and that covers every returning
+          // visitor on a fresh page load as well as a mid-session refresh, so the token would be
+          // silently dropped. Setting it explicitly covers that case. On 3.5+ this is a no-op,
+          // because `changeUser` has already stored the same value. Missing on SDK 3.1, hence
+          // the guard.
+          if (typeof client.instance.setSdkAuthenticationSignature === 'function') {
+            client.instance.setSdkAuthenticationSignature(signature)
           }
         }
       }
