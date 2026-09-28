@@ -40,11 +40,10 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    // Find the POST request to /inspector/segment/v1/track (the actual action request)
+    // Find the POST request to /inspector/v2/track (the actual action request)
     // The GET request to /getEventSpec will be first, so we want the POST one
     const postResponse =
-      responses.find((r: any) => r.request?.url?.includes('/inspector/segment/v1/track')) ||
-      responses[responses.length - 1]
+      responses.find((r: any) => r.request?.url?.includes('/inspector/v2/track')) || responses[responses.length - 1]
 
     const request = postResponse.request
     const rawBody = await request.text()
@@ -91,10 +90,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    // Find the POST request to /inspector/segment/v1/track (the actual action request)
+    // Find the POST request to /inspector/v2/track (the actual action request)
     const postResponse =
-      responses.find((r: any) => r.request?.url?.includes('/inspector/segment/v1/track')) ||
-      responses[responses.length - 1]
+      responses.find((r: any) => r.request?.url?.includes('/inspector/v2/track')) || responses[responses.length - 1]
 
     const request = postResponse.request
     const rawBody = await request.text()
@@ -143,10 +141,9 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
       auth: undefined
     })
 
-    // Find the POST request to /inspector/segment/v1/track (the actual action request)
+    // Find the POST request to /inspector/v2/track (the actual action request)
     const postResponse =
-      responses.find((r: any) => r.request?.url?.includes('/inspector/segment/v1/track')) ||
-      responses[responses.length - 1]
+      responses.find((r: any) => r.request?.url?.includes('/inspector/v2/track')) || responses[responses.length - 1]
 
     const request = postResponse.request
     const rawBody = await request.text()

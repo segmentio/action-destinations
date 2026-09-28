@@ -20,6 +20,11 @@ import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
 import { DEFAULT_BASE_URL } from '../../constants'
 
+// Identifies this integration to Inspector: sent as the X-Avo-Client header and as
+// libPlatform on every event body, so the two always agree.
+const LIB_PLATFORM = 'segment'
+const LIB_VERSION = '2.1.0'
+
 export const send = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const anonymousId = payloads[0]?.anonymousId
   const userId = payloads[0]?.userId
@@ -61,8 +66,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
         appVersionPropertyName && properties[appVersionPropertyName]
           ? (properties[appVersionPropertyName] as string)
           : payload.appVersion ?? 'unversioned',
-      libVersion: '2.0.0',
-      libPlatform: 'Segment',
+      libVersion: LIB_VERSION,
+      libPlatform: LIB_PLATFORM,
       messageId,
       createdAt,
       sessionId: '',
@@ -82,7 +87,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     throw new PayloadValidationError('No events generated from payload')
   }
 
-  const endpoint = 'https://api.avo.app/inspector/segment/v1/track'
+  const endpoint = `${DEFAULT_BASE_URL}/inspector/v2/track`
 
   return request(endpoint, {
     method: 'post',
@@ -91,7 +96,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       'content-type': 'application/json',
       'api-key': apiKey,
       env,
-      streamId
+      streamId,
+      'X-Avo-Client': LIB_PLATFORM
     },
     json
   })

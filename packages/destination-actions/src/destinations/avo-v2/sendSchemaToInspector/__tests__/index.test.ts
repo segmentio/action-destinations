@@ -9,7 +9,7 @@ describe('Avo.sendSchemaToInspector', () => {
     const event = createTestEvent({ previousId: 'test-prev-id' })
 
     nock('https://api.avo.app')
-      .post('/inspector/segment/v1/track', (body) => {
+      .post('/inspector/v2/track', (body) => {
         const events = Array.isArray(body) ? body : typeof body === 'string' ? JSON.parse(body) : body
         return Array.isArray(events) && events.length === 1 && typeof events[0].streamId === 'string'
       })
@@ -64,7 +64,7 @@ describe('Avo.sendSchemaToInspector', () => {
 
     // Mock track endpoint - should receive all 3 events in a single request
     const trackScope = nock('https://api.avo.app')
-      .post('/inspector/segment/v1/track', (body) => {
+      .post('/inspector/v2/track', (body) => {
         // Body may be a string (JSON) or already parsed object depending on nock version
         const events = Array.isArray(body) ? body : typeof body === 'string' ? JSON.parse(body) : body
         return Array.isArray(events) && events.length === 3
@@ -82,7 +82,7 @@ describe('Avo.sendSchemaToInspector', () => {
 
     // Filter to only POST responses (ignore GET requests for event specs)
     // Filter by URL path since we want only the track endpoint responses
-    const postResponses = responses.filter((r) => r.url.includes('/inspector/segment/v1/track'))
+    const postResponses = responses.filter((r) => r.url.includes('/inspector/v2/track'))
 
     expect(postResponses.length).toBe(1)
     expect(postResponses[0].status).toBe(200)
@@ -115,7 +115,7 @@ describe('Avo.sendSchemaToInspector', () => {
 
     // Mock track endpoint - should still receive both events
     const trackScope = nock('https://api.avo.app')
-      .post('/inspector/segment/v1/track', (body) => {
+      .post('/inspector/v2/track', (body) => {
         // Body may be a string (JSON) or already parsed object depending on nock version
         const events = Array.isArray(body) ? body : typeof body === 'string' ? JSON.parse(body) : body
         return Array.isArray(events) && events.length === 2
@@ -133,7 +133,7 @@ describe('Avo.sendSchemaToInspector', () => {
 
     // Filter to only POST responses (ignore GET requests for event specs)
     // Filter by URL path since we want only the track endpoint responses
-    const postResponses = responses.filter((r) => r.url.includes('/inspector/segment/v1/track'))
+    const postResponses = responses.filter((r) => r.url.includes('/inspector/v2/track'))
 
     expect(postResponses.length).toBe(1)
     expect(postResponses[0].status).toBe(200)
