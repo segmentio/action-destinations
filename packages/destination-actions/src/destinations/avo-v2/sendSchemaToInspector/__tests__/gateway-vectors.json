@@ -1,90 +1,177 @@
 {
-  "_comment": "Shared gateway-coordinate test vectors. Identical copies live in the Segment avo-v2 tests and the monorepo RudderStack script tests; the two tables must match. A key missing from `input` means the value is not provided. `expected` lists the exact coordinate keys the event body carries: a key missing from `expected` MUST be absent from the body (not null, not \"\"). appVersion is always present; the token \"<CHECKPOINT_DEFAULT>\" stands for the platform's checkpoint default (Segment: appVersionPropertyName -> appVersion field -> 'unversioned'; RudderStack: context.app.version -> 'unversioned Rudderstack app').",
+  "_comment": "Shared gateway-coordinate test vectors. The same table is asserted by every Avo Inspector CDP sender; copies must stay deep-equal once parsed as JSON. A key missing from `input` means the value is not provided. `expected` lists the exact coordinate keys the event body carries: a key missing from `expected` MUST be absent from the body (not null, not \"\"). appVersion is always present; the token \"<CHECKPOINT_DEFAULT>\" stands for the sender's checkpoint default app version.",
   "coordinateCases": [
     {
       "name": "no coordinates: nothing added, checkpoint default version",
       "input": {},
-      "expected": { "appVersion": "<CHECKPOINT_DEFAULT>" }
+      "expected": {
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
     },
     {
       "name": "cell 1: originHint + originAppVersion -> provided version",
-      "input": { "originHint": "android", "originAppVersion": "4.2.0" },
-      "expected": { "originHint": "android", "appVersion": "4.2.0" }
+      "input": {
+        "originHint": "android",
+        "originAppVersion": "4.2.0"
+      },
+      "expected": {
+        "originHint": "android",
+        "appVersion": "4.2.0"
+      }
     },
     {
       "name": "cell 2: originHint without originAppVersion -> null version",
-      "input": { "originHint": "android" },
-      "expected": { "originHint": "android", "appVersion": null }
+      "input": {
+        "originHint": "android"
+      },
+      "expected": {
+        "originHint": "android",
+        "appVersion": null
+      }
     },
     {
       "name": "cell 3: originAppVersion without originHint -> provided version",
-      "input": { "originAppVersion": "4.2.0" },
-      "expected": { "appVersion": "4.2.0" }
+      "input": {
+        "originAppVersion": "4.2.0"
+      },
+      "expected": {
+        "appVersion": "4.2.0"
+      }
     },
     {
       "name": "cell 4: neither -> checkpoint default (outputReference does not change the rule)",
-      "input": { "outputReference": "meta-x7k2q" },
-      "expected": { "outputReference": "meta-x7k2q", "appVersion": "<CHECKPOINT_DEFAULT>" }
+      "input": {
+        "outputReference": "meta-x7k2q"
+      },
+      "expected": {
+        "outputReference": "meta-x7k2q",
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
     },
     {
       "name": "all three set",
-      "input": { "outputReference": "meta-x7k2q", "originHint": "ios", "originAppVersion": "7.0.1" },
-      "expected": { "outputReference": "meta-x7k2q", "originHint": "ios", "appVersion": "7.0.1" }
+      "input": {
+        "outputReference": "meta-x7k2q",
+        "originHint": "ios",
+        "originAppVersion": "7.0.1"
+      },
+      "expected": {
+        "outputReference": "meta-x7k2q",
+        "originHint": "ios",
+        "appVersion": "7.0.1"
+      }
     },
     {
       "name": "values are trimmed",
-      "input": { "outputReference": "  meta-x7k2q  ", "originHint": "\tandroid \n", "originAppVersion": "  4.2.0 " },
-      "expected": { "outputReference": "meta-x7k2q", "originHint": "android", "appVersion": "4.2.0" }
+      "input": {
+        "outputReference": "  meta-x7k2q  ",
+        "originHint": "\tandroid \n",
+        "originAppVersion": "  4.2.0 "
+      },
+      "expected": {
+        "outputReference": "meta-x7k2q",
+        "originHint": "android",
+        "appVersion": "4.2.0"
+      }
     },
     {
       "name": "empty strings are omitted",
-      "input": { "outputReference": "", "originHint": "", "originAppVersion": "" },
-      "expected": { "appVersion": "<CHECKPOINT_DEFAULT>" }
+      "input": {
+        "outputReference": "",
+        "originHint": "",
+        "originAppVersion": ""
+      },
+      "expected": {
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
     },
     {
       "name": "whitespace-only strings are omitted",
-      "input": { "outputReference": "   ", "originHint": " \t ", "originAppVersion": "  " },
-      "expected": { "appVersion": "<CHECKPOINT_DEFAULT>" }
+      "input": {
+        "outputReference": "   ",
+        "originHint": " \t ",
+        "originAppVersion": "  "
+      },
+      "expected": {
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
     },
     {
       "name": "whitespace-only originHint counts as absent for the appVersion rule",
-      "input": { "originHint": "   ", "originAppVersion": "4.2.0" },
-      "expected": { "appVersion": "4.2.0" }
+      "input": {
+        "originHint": "   ",
+        "originAppVersion": "4.2.0"
+      },
+      "expected": {
+        "appVersion": "4.2.0"
+      }
     },
     {
       "name": "whitespace-only originAppVersion with originHint -> null version",
-      "input": { "originHint": "ios", "originAppVersion": "   " },
-      "expected": { "originHint": "ios", "appVersion": null }
+      "input": {
+        "originHint": "ios",
+        "originAppVersion": "   "
+      },
+      "expected": {
+        "originHint": "ios",
+        "appVersion": null
+      }
     }
   ],
   "untypedInputCases": {
-    "_comment": "Only where the platform can hand the code a non-string value (a RudderStack getter, a Segment mapping path resolving to a non-string, if the framework lets it through). Mirrors the sGTM toHintString: numbers and booleans are stringified, null/objects/arrays are absent.",
+    "_comment": "Only where the platform can hand the code a non-string value. Numbers and booleans are stringified; null, objects and arrays are absent. A platform whose framework rejects some of these before the sender's code runs documents that in its own tests.",
     "cases": [
       {
         "name": "null values are omitted",
-        "input": { "outputReference": null, "originHint": null, "originAppVersion": null },
-        "expected": { "appVersion": "<CHECKPOINT_DEFAULT>" }
+        "input": {
+          "outputReference": null,
+          "originHint": null,
+          "originAppVersion": null
+        },
+        "expected": {
+          "appVersion": "<CHECKPOINT_DEFAULT>"
+        }
       },
       {
         "name": "number originAppVersion is stringified",
-        "input": { "originHint": "android", "originAppVersion": 42 },
-        "expected": { "originHint": "android", "appVersion": "42" }
+        "input": {
+          "originHint": "android",
+          "originAppVersion": 42
+        },
+        "expected": {
+          "originHint": "android",
+          "appVersion": "42"
+        }
       },
       {
         "name": "boolean originHint is stringified",
-        "input": { "originHint": true },
-        "expected": { "originHint": "true", "appVersion": null }
+        "input": {
+          "originHint": true
+        },
+        "expected": {
+          "originHint": "true",
+          "appVersion": null
+        }
       },
       {
         "name": "object and array values are omitted",
-        "input": { "outputReference": {}, "originHint": [] },
-        "expected": { "appVersion": "<CHECKPOINT_DEFAULT>" }
+        "input": {
+          "outputReference": {},
+          "originHint": []
+        },
+        "expected": {
+          "appVersion": "<CHECKPOINT_DEFAULT>"
+        }
       }
     ]
   },
   "propertyCollisionCase": {
     "name": "event properties named like the coordinates stay ordinary properties",
-    "eventProperties": { "outputReference": "p1", "originHint": "p2", "appVersion": "p3" },
+    "eventProperties": {
+      "outputReference": "p1",
+      "originHint": "p2",
+      "appVersion": "p3"
+    },
     "input": {},
     "expected": {
       "appVersion": "<CHECKPOINT_DEFAULT>",
@@ -95,14 +182,18 @@
     "segment": {
       "url": "https://api.avo.app/inspector/v2/track",
       "method": "POST",
-      "headers": { "X-Avo-Client": "segment" },
+      "headers": {
+        "X-Avo-Client": "segment"
+      },
       "libPlatform": "segment",
       "libVersion": "2.1.0"
     },
     "rudderstack": {
       "url": "https://api.avo.app/inspector/v2/track",
       "method": "POST",
-      "headers": { "X-Avo-Client": "rudderstack" },
+      "headers": {
+        "X-Avo-Client": "rudderstack"
+      },
       "libPlatform": "rudderstack",
       "libVersion": "2.0.0"
     }
