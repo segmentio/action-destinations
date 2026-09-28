@@ -884,7 +884,28 @@ describe('GoogleEnhancedConversions', () => {
             }
           }
         },
-        body: new Error('Bad Request')
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      someotherError: 'DATA_CONSTRAINT_VIOLATION'
+                    },
+                    message:
+                      'The request conflicted with existing data. This error will usually be replaced with a more specific error if the request is retried.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        }
       })
 
       expect(responses[1]).toMatchObject({
@@ -988,7 +1009,27 @@ describe('GoogleEnhancedConversions', () => {
             }
           }
         },
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
 
@@ -1009,7 +1050,27 @@ describe('GoogleEnhancedConversions', () => {
             }
           }
         },
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
     })
@@ -1127,7 +1188,27 @@ describe('GoogleEnhancedConversions', () => {
             }
           ]
         },
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
 
@@ -1165,7 +1246,27 @@ describe('GoogleEnhancedConversions', () => {
             }
           ]
         },
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
     })
@@ -1795,7 +1896,28 @@ describe('GoogleEnhancedConversions', () => {
         errortype: 'BAD_REQUEST',
         errormessage: 'Request contains an invalid argument.',
         sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      someotherError: 'DATA_CONSTRAINT_VIOLATION'
+                    },
+                    message:
+                      'The request conflicted with existing data. This error will usually be replaced with a more specific error if the request is retried.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
 
@@ -1804,7 +1926,28 @@ describe('GoogleEnhancedConversions', () => {
         errortype: 'BAD_REQUEST',
         errormessage: 'Request contains an invalid argument.',
         sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      someotherError: 'DATA_CONSTRAINT_VIOLATION'
+                    },
+                    message:
+                      'The request conflicted with existing data. This error will usually be replaced with a more specific error if the request is retried.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
     })
@@ -1898,7 +2041,27 @@ describe('GoogleEnhancedConversions', () => {
         errormessage:
           "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
 
@@ -1908,7 +2071,27 @@ describe('GoogleEnhancedConversions', () => {
         errormessage:
           "This event wasn't delivered because of CONCURRENT_MODIFICATION error. Multiple requests were attempting to modify the same resource at once. Retry the request.",
         sent: '/customers/1234/userLists/1234:run',
-        body: new Error('Bad Request'),
+        body: {
+          error: {
+            code: 400,
+            details: [
+              {
+                '@type': 'type.googleapis.com/google.ads.googleads.v21.errors.GoogleAdsFailure',
+                errors: [
+                  {
+                    errorCode: {
+                      databaseError: 'CONCURRENT_MODIFICATION'
+                    },
+                    message: 'Multiple requests were attempting to modify the same resource at once. Retry the request.'
+                  }
+                ],
+                requestId: 'OZ5_72C-3qFN9a87mjE7_w'
+              }
+            ],
+            message: 'Request contains an invalid argument.',
+            status: 'INVALID_ARGUMENT'
+          }
+        },
         errorreporter: 'DESTINATION'
       })
     })
