@@ -27,7 +27,7 @@ export interface EventSchemaBody extends BaseBody {
   streamId: string
   eventName: string
   eventProperties: Array<EventProperty>
-  /** Gateway coordinate: the mirrored output's reference. Absent = gateway checkpoint. */
+  /** Gateway coordinate: identifies an Avo gateway output. Absent = gateway checkpoint. */
   outputReference?: string
   /** Gateway coordinate: the source that produced the event. */
   originHint?: string

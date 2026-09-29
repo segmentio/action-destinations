@@ -40,7 +40,7 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Optional. Leave empty to report events at the gateway checkpoint: every event this mapping receives, as Segment receives it. To report the checkpoint of one of your other destinations (an output), add one Avo mapping per output, copy that output's trigger onto it, and paste the output's reference here. Copy the reference from the Inspector Setup tab of your gateway source in Avo. Avo cannot see inside your other destinations: this mapping MIRRORS the output's configuration rather than observing what the output actually sends, so keep its trigger in sync with the output. Only used when the API key belongs to a gateway in Avo; other keys ignore it.
+   * Optional. Identifies an Avo gateway output. Leave empty unless Avo asks you to set it. Only used when the API key belongs to a gateway in Avo; other keys ignore it.
    */
   outputReference?: string
   /**
