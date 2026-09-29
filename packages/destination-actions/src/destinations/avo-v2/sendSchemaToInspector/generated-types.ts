@@ -40,7 +40,7 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Optional. Identifies an Avo gateway output. Leave empty unless Avo asks you to set it. Only used when the API key belongs to a gateway in Avo; other keys ignore it.
+   * Optional, for gateways only. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.
    */
   outputReference?: string
   /**

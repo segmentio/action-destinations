@@ -309,7 +309,7 @@
         },
         "outputReference": {
           "label": "Output Reference",
-          "description": "Optional. Identifies an Avo gateway output. Leave empty unless Avo asks you to set it. Only used when the API key belongs to a gateway in Avo; other keys ignore it.",
+          "description": "Optional, for gateways only. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.",
           "type": "string",
           "required": false,
           "multiple": false,
