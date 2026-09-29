@@ -333,7 +333,7 @@
         },
         "originHint": {
           "label": "Origin Hint",
-          "description": "Optional, for gateways only. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Map a path such as `$.context.library.name`, or enter a static label. Avo only reads this value when the API key belongs to a gateway, but setting it changes the app version sent with every API key: the App Version field and the App Version Property setting are then ignored, and the version comes from Origin App Version only, or is left empty if Origin App Version is empty. On a regular source, leave this field empty.",
+          "description": "Optional, for gateways only. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as \"ios-app\". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. Avo only reads this value when the API key belongs to a gateway, but setting it changes the app version sent with every API key: the App Version field and the App Version Property setting are then ignored, and the version comes from Origin App Version only, or is left empty if Origin App Version is empty. On a regular source, leave this field empty.",
           "type": "string",
           "required": false,
           "multiple": false,
