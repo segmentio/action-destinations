@@ -42,4 +42,33 @@ describe('Adobe Target Web', () => {
       ]
     `)
   })
+
+  test('loads a self-hosted at.js from library_url when set, bypassing the Adobe download endpoint', async () => {
+    const subscriptions: Subscription[] = [
+      {
+        partnerAction: 'upsertProfile',
+        name: 'Upsert Profile',
+        enabled: true,
+        subscribe: 'type = "identify"',
+        mapping: {}
+      }
+    ]
+    const [event] = await adobeTarget({
+      client_code: 'segmentexchangepartn',
+      admin_number: '10',
+      version: '2.8.0',
+      cookie_domain: 'segment.com',
+      mbox_name: 'target-global-mbox',
+      library_url: 'https://cdn.example.com/assets/at.js',
+      subscriptions: subscriptions as unknown as JSONArray
+    })
+
+    jest.spyOn(destination, 'initialize')
+
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    const loadedScript = window.document.querySelector('script[src]')
+    expect(loadedScript?.getAttribute('src')).toBe('https://cdn.example.com/assets/at.js')
+  })
 })
