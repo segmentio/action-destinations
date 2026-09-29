@@ -125,7 +125,8 @@ export default class QualtricsApiClient {
   private request: RequestClient
 
   constructor(dc: string, apiToken: string, request: RequestClient) {
-    this.baseUrl = `https://${dc || 'iad1'}.qualtrics.com`
+    const datacenter = dc || 'iad1'
+    this.baseUrl = `https://${datacenter}.qualtrics.com`
     this.apiToken = apiToken
     this.request = request
   }
