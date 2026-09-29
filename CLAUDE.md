@@ -345,3 +345,51 @@ expect(responses[0].status).toBe(200)
 ### CI Checks
 
 All PRs must pass: Unit Tests, Lint, Validate, Browser Destination Bundle QA, Browser tests (actions-core), Required Field Check, Test External, Code coverage.
+
+## Change Release Safety (Change Control) — required review
+
+Context: Per the internal "Segment Change Release Safety" guidelines, nearly half of
+recent incidents were self-inflicted (defect escape or regression), with outsized
+impact on our largest enterprise customers. Reviewing changes against these guidelines
+is a first-class part of every review — not an afterthought.
+
+When you review a PR that can reach production, verify the PR description contains all of
+the items below, each in enough detail that another engineer with similar expertise could
+reproduce them. For each item, report its status (✅ present / ⚠️ too vague / ❌ missing),
+quote the relevant text from the description, and suggest concrete additions specific to
+this change (e.g. the exact dashboards, metrics, or tests to watch). Reject placeholder
+answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards",
+"Revert PR and push", or "N/A".
+
+Each item maps 1:1 to a checkbox in the PR template
+(`.github/PULL_REQUEST_TEMPLATE.md`).
+
+1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging
+   first** with sufficient bake time for end-to-end tests to complete; covers flag/gate
+   states (on, off, and partial rollout). For high-volume destinations (e.g. Facebook,
+   Google, Snapchat), confirm a feature flag is used to roll out safely.
+2. **Deployment Plan** — deploy steps, environments, and any linked PRs / flags / gates /
+   cob vars that must land or change together.
+3. **Verification Plan** — how the change is verified in production (dashboard links,
+   metrics monitored, prod tests expected to pass); aim for ~3 independent signals. This
+   is a required complement to the Test Plan, not a substitute for it.
+4. **Rollback Plan** — clear steps any teammate can execute quickly; risky rollbacks
+   should be tested in staging.
+5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature
+   flag/gate behavior and how it protects the change).
+
+Approval & process expectations (flag anything that looks bypassed):
+
+6. **+2 code review approvals** before merge to the protected branch — two +1s from two
+   different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
+7. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
+   changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
+   execution require at least one approval; pairing is mandatory for script execution and
+   DB writes.
+8. **Pair programming** for non-standard operational work that cannot be staged and
+   reviewed (scripts, database queries).
+9. **Director involvement** for major/risky changes — skipping staging for hotfixes,
+   restoring DBs from backup, operations that could cause data loss, COGS-driven infra
+   changes, and maintenance windows.
+10. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
+    maintenance window (contractual customer-notice requirements apply).
