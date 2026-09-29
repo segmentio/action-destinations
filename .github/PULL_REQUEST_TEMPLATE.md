@@ -49,7 +49,9 @@ _A summary of your pull request, including the what change you're making and why
 - [ ] **Verification Plan** documented — dashboards / metrics / prod tests (aim for ~3 independent signals)
 - [ ] **Rollback Plan** documented — executable by any teammate
 - [ ] **Risk Mitigation** described — feature flags/gates and how they protect the change
+- [ ] **Feature flag / gate** — risky or high-volume changes gated behind a flag that defaults to **off**; on / off / partial-rollout states tested; rollout & flag-cleanup plan documented (or N/A)
 - [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
+- [ ] **AI deep review** completed — Claude deep review and Copilot code review run on this PR, and their Change Release Safety findings addressed or explicitly resolved
 - [ ] **Non-code production changes** (config, Flagon gates/flags, cob vars, Terraform, AWS console, prod DB reads/writes, scripts) have ≥1 approval; pairing for script execution & DB writes
 - [ ] **Director approval** obtained for major/risky changes (skipping staging, DB restore, possible data loss, COGS infra, maintenance windows) — or N/A
 
