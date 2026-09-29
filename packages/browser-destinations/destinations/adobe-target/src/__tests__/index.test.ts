@@ -66,4 +66,25 @@ describe('Adobe Target Web', () => {
     expect(mockLoadScript).toHaveBeenCalledWith('https://cdn.example.com/assets/at.js')
     expect(mockLoadScript).not.toHaveBeenCalledWith(expect.stringContaining('testandtarget.omniture.com'))
   })
+
+  test('falls back to the Adobe admin download endpoint when library_url is empty/whitespace', async () => {
+    const [event] = await adobeTarget({
+      client_code: 'segmentexchangepartn',
+      admin_number: '10',
+      version: '2.8.0',
+      cookie_domain: 'segment.com',
+      mbox_name: 'target-global-mbox',
+      library_url: '   ',
+      subscriptions: subscriptions as unknown as JSONArray
+    })
+
+    jest.spyOn(destination, 'initialize')
+
+    await event.load(Context.system(), {} as Analytics)
+    expect(destination.initialize).toHaveBeenCalled()
+
+    expect(mockLoadScript).toHaveBeenCalledWith(
+      'https://admin10.testandtarget.omniture.com/admin/rest/v1/libraries/atjs/download?client=segmentexchangepartn&version=2.8.0'
+    )
+  })
 })

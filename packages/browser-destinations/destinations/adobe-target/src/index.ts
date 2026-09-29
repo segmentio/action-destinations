@@ -77,9 +77,9 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
     initScript(settings)
 
     const targetUrl = 'testandtarget.omniture.com/admin/rest/v1/libraries/atjs/download'
-    const atjsUrl =
-      settings.library_url ??
-      `https://admin${settings.admin_number}.${targetUrl}?client=${settings.client_code}&version=${settings.version}`
+    const atjsUrl = settings.library_url?.trim()
+      ? settings.library_url
+      : `https://admin${settings.admin_number}.${targetUrl}?client=${settings.client_code}&version=${settings.version}`
 
     await deps.loadScript(atjsUrl)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'adobe'), 100)
