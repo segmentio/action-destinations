@@ -53,12 +53,14 @@ function nonEmpty(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined
 }
 
+const PROMOTED_PROPERTY_KEYS = ['email', 'total', 'revenue', 'url', 'referrer'] as const
+
 function buildArgs(payload: Payload): Record<string, unknown> | undefined {
   const source = payload.args
   const args: Record<string, unknown> =
     source && typeof source === 'object' && !Array.isArray(source) ? { ...(source as Record<string, unknown>) } : {}
 
-  delete args.email
+  for (const key of PROMOTED_PROPERTY_KEYS) delete args[key]
 
   const orderId = payload.order_id ?? args.order_id
   if (orderId !== undefined && orderId !== null && String(orderId).trim() !== '') {

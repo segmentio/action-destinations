@@ -129,8 +129,38 @@ describe('Tatari Web Events', () => {
         hem_sha256: '31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66',
         hem_sha1: '914fec35ce8bfa1a067581032f26b053591ee38a',
         hem_md5: '23463b99b62a72f26ed677cc556c44e8',
-        args: { order_id: '9001', order_total: 149.99, total: 149.99, currency: 'USD' }
+        args: { order_id: '9001', order_total: 149.99, currency: 'USD' }
       })
+    })
+
+    it('drops properties already promoted to dedicated fields from args', async () => {
+      let sentBody: Record<string, unknown> = {}
+      nock(baseUrl)
+        .post('/webevents/v1/track', (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, {})
+
+      await testDestination.testAction('sendEvent', {
+        event: createTestEvent({
+          ...trackEvent,
+          context: { ip: '203.0.113.9', userAgent: 'UA' },
+          properties: {
+            order_id: 'ORD-555',
+            revenue: '120.50',
+            url: 'https://shop.example.com/confirmation',
+            referrer: 'https://shop.example.com/cart',
+            currency: 'USD'
+          }
+        }),
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(sentBody.url).toBe('https://shop.example.com/confirmation')
+      expect(sentBody.referrer_url).toBe('https://shop.example.com/cart')
+      expect(sentBody.args).toEqual({ order_id: 'ORD-555', order_total: 120.5, currency: 'USD' })
     })
 
     it('falls back to $.type for page calls and routes IPv6 correctly', async () => {

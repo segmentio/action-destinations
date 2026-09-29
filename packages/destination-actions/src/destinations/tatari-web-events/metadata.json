@@ -414,7 +414,7 @@
         },
         "args": {
           "label": "Additional Properties",
-          "description": "Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. An `email` key is dropped; use the Email field so it is hashed. Avoid sending other PII here.",
+          "description": "Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Keys already carried by a dedicated field are dropped: `email` (use the Email field so it is hashed), `total` and `revenue` (see Order Total), and `url` and `referrer` (see Page URL / Referrer URL). Avoid sending other PII here.",
           "type": "object",
           "required": false,
           "multiple": false,

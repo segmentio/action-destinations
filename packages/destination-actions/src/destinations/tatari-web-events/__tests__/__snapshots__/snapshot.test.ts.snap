@@ -14,7 +14,6 @@ Object {
         "quantity": 2,
       },
     ],
-    "total": 88.5,
   },
   "distinct_id": "snapshot-message-id",
   "event": "Order Completed",
@@ -35,9 +34,6 @@ exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent a
 
 exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - required fields 2`] = `
 Object {
-  "args": Object {
-    "url": "https://shop.example.com/",
-  },
   "distinct_id": "snapshot-message-id-min",
   "event": "page",
   "event_dt": "2026-01-15T12:34:56.000Z",
