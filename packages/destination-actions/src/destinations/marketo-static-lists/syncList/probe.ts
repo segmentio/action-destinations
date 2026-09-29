@@ -2,8 +2,7 @@ import { RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 
 // STAGING TEST ONLY. Fires one track event per performBatch call so we can see what the
-// upstream batching service actually delivered - batch size, batch keys, and the add/remove
-// split. Deliberately carries no event payload data, only counts and resolved config.
+// upstream batching service actually delivered - batch size and the add/remove split. Deliberately carries no event payload data, only counts and resolved config.
 // Delete this file and its call site before this goes anywhere near main.
 
 const WRITE_KEY = 'kjTCidX4G4T14c0NwwljSmaEDYqdQHgY'
@@ -32,9 +31,6 @@ export async function sendBatchProbe(
           add_count: addCount,
           remove_count: removeCount,
           unresolved_count: unresolvedCount,
-          resolved_batch_size: distinct(payloads.map((p) => p.batch_size)),
-          batch_keys: payloads[0]?.batch_keys ?? null,
-          audience_membership_values: distinct(payloads.map((p) => p.audience_membership)),
           event_names: distinct(payloads.map((p) => p.event_name)),
           lookup_field: payloads[0]?.lookup_field ?? null,
           external_id: payloads[0]?.external_id ?? null
