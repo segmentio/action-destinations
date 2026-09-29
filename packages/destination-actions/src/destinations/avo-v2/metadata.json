@@ -57,6 +57,16 @@
         "choices": null,
         "default": null,
         "depends_on": null
+      },
+      "gatewaySupport": {
+        "label": "Gateway Support",
+        "description": "Sends events to Avo Inspector's current endpoint, which supports Avo gateways and the Output Reference, Origin Hint and Origin App Version fields. On by default for new destinations. Destinations added before this option existed keep using the previous endpoint until you turn it on.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
       }
     }
   },
@@ -309,7 +319,7 @@
         },
         "outputReference": {
           "label": "Output Reference",
-          "description": "Optional, for gateways only. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.",
+          "description": "Optional, for gateways only. Requires Gateway Support. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -333,7 +343,7 @@
         },
         "originHint": {
           "label": "Origin Hint",
-          "description": "Optional, for gateways only. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as \"ios-app\". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. Avo only reads this value when the API key belongs to a gateway, but setting it changes the app version sent with every API key: the App Version field and the App Version Property setting are then ignored, and the version comes from Origin App Version only, or is left empty if Origin App Version is empty. On a regular source, leave this field empty.",
+          "description": "Optional, for gateways only. Requires Gateway Support. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as \"ios-app\". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. Avo only reads this value when the API key belongs to a gateway, but setting it changes the app version sent with every API key: the App Version field and the App Version Property setting are then ignored, and the version comes from Origin App Version only, or is left empty if Origin App Version is empty. On a regular source, leave this field empty.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -357,7 +367,7 @@
         },
         "originAppVersion": {
           "label": "Origin App Version",
-          "description": "Optional, for gateways only. App version of the source that produced each event, for example `$.context.app.version`. When set, it replaces the App Version field and the App Version Property setting for every API key. If Origin Hint is set and this is empty, the event is sent without an app version. On a regular source, leave this field empty and use the App Version field instead.",
+          "description": "Optional, for gateways only. Requires Gateway Support. App version of the source that produced each event, for example `$.context.app.version`. When set, it replaces the App Version field and the App Version Property setting for every API key. If Origin Hint is set and this is empty, the event is sent without an app version. On a regular source, leave this field empty and use the App Version field instead.",
           "type": "string",
           "required": false,
           "multiple": false,

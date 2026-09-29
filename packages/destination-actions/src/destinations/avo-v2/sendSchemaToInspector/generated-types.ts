@@ -40,15 +40,15 @@ export interface Payload {
    */
   userId?: string
   /**
-   * Optional, for gateways only. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.
+   * Optional, for gateways only. Requires Gateway Support. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.
    */
   outputReference?: string
   /**
-   * Optional, for gateways only. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as "ios-app". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. Avo only reads this value when the API key belongs to a gateway, but setting it changes the app version sent with every API key: the App Version field and the App Version Property setting are then ignored, and the version comes from Origin App Version only, or is left empty if Origin App Version is empty. On a regular source, leave this field empty.
+   * Optional, for gateways only. Requires Gateway Support. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as "ios-app". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. Avo only reads this value when the API key belongs to a gateway, but setting it changes the app version sent with every API key: the App Version field and the App Version Property setting are then ignored, and the version comes from Origin App Version only, or is left empty if Origin App Version is empty. On a regular source, leave this field empty.
    */
   originHint?: string
   /**
-   * Optional, for gateways only. App version of the source that produced each event, for example `$.context.app.version`. When set, it replaces the App Version field and the App Version Property setting for every API key. If Origin Hint is set and this is empty, the event is sent without an app version. On a regular source, leave this field empty and use the App Version field instead.
+   * Optional, for gateways only. Requires Gateway Support. App version of the source that produced each event, for example `$.context.app.version`. When set, it replaces the App Version field and the App Version Property setting for every API key. If Origin Hint is set and this is empty, the event is sent without an app version. On a regular source, leave this field empty and use the App Version field instead.
    */
   originAppVersion?: string
   /**

@@ -20,10 +20,20 @@ import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
 import { DEFAULT_BASE_URL } from '../../constants'
 
-// Identifies this integration to Inspector: sent as the X-Avo-Client header and as
-// libPlatform on every event body, so the two always agree.
-const LIB_PLATFORM = 'segment'
-const LIB_VERSION = '2.1.0'
+// With Gateway Support on, events go to the v2 endpoint, which understands the gateway
+// coordinates. libPlatform doubles as the X-Avo-Client header there, so the two always agree.
+const GATEWAY_CLIENT = {
+  endpoint: `${DEFAULT_BASE_URL}/inspector/v2/track`,
+  libPlatform: 'segment',
+  libVersion: '2.1.0'
+}
+// Instances created before Gateway Support existed have no value for it, and keep sending
+// exactly what they sent before.
+const LEGACY_CLIENT = {
+  endpoint: `${DEFAULT_BASE_URL}/inspector/segment/v1/track`,
+  libPlatform: 'Segment',
+  libVersion: '2.0.0'
+}
 
 export const send = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const anonymousId = payloads[0]?.anonymousId
@@ -32,6 +42,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
   const eventSpecMap = await fetchEventSpecsForBatch(request, settings, payloads, streamId)
 
   const { appVersionPropertyName, publicEncryptionKey, env, apiKey } = settings
+  const gatewaySupport = settings.gatewaySupport === true
+  const client = gatewaySupport ? GATEWAY_CLIENT : LEGACY_CLIENT
 
   // Create one encryption session for the entire batch — EC key generation happens
   // once here rather than once per event or once per property value.
@@ -60,9 +72,9 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       eventSpecMetadata = validationResult.metadata
     }
 
-    const outputReference = normalizeCoordinate(payload.outputReference)
-    const originHint = normalizeCoordinate(payload.originHint)
-    const originAppVersion = normalizeCoordinate(payload.originAppVersion)
+    const outputReference = gatewaySupport ? normalizeCoordinate(payload.outputReference) : undefined
+    const originHint = gatewaySupport ? normalizeCoordinate(payload.originHint) : undefined
+    const originAppVersion = gatewaySupport ? normalizeCoordinate(payload.originAppVersion) : undefined
 
     const itemJSON: EventSchemaBody = {
       appName: appName ?? (pageUrl ? pageUrl.split('/')[2] : 'unnamed Segment app'),
@@ -71,8 +83,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
           ? (properties[appVersionPropertyName] as string)
           : payload.appVersion ?? 'unversioned'
       ),
-      libVersion: LIB_VERSION,
-      libPlatform: LIB_PLATFORM,
+      libVersion: client.libVersion,
+      libPlatform: client.libPlatform,
       messageId,
       createdAt,
       sessionId: '',
@@ -94,9 +106,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     throw new PayloadValidationError('No events generated from payload')
   }
 
-  const endpoint = `${DEFAULT_BASE_URL}/inspector/v2/track`
-
-  return request(endpoint, {
+  return request(client.endpoint, {
     method: 'post',
     headers: {
       accept: 'application/json',
@@ -104,7 +114,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       'api-key': apiKey,
       env,
       streamId,
-      'X-Avo-Client': LIB_PLATFORM
+      ...(gatewaySupport ? { 'X-Avo-Client': client.libPlatform } : {})
     },
     json
   })

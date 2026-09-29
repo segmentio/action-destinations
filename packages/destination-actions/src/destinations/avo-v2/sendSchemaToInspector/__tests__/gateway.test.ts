@@ -23,7 +23,7 @@ type Mode = 'single' | 'batch'
 async function sendOne(
   event: SegmentEvent,
   mapping: Record<string, unknown> = {},
-  settings: Record<string, string> = {},
+  settings: Record<string, unknown> = {},
   mode: Mode = 'single'
 ) {
   nock('https://api.avo.app').post(/.*/).reply(200, {})
@@ -36,11 +36,13 @@ async function sendOne(
     mode === 'single'
       ? await testDestination.testAction('sendSchemaToInspector', { ...input, event })
       : await testDestination.testBatchAction('sendSchemaToInspector', { ...input, events: [event] })
-  const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
-  if (!post) throw new Error('no track request was sent')
-  const bodies = JSON.parse(await post.request.text()) as Record<string, unknown>[]
-  return { url: post.url, headers: post.request.headers, bodies }
+  const posts = responses.filter((r) => r.options.method?.toLowerCase() === 'post')
+  if (posts.length !== 1) throw new Error(`expected one track request, got ${posts.length}`)
+  const bodies = JSON.parse(await posts[0].request.text()) as Record<string, unknown>[]
+  return { url: posts[0].url, headers: posts[0].request.headers, bodies }
 }
+
+const GATEWAY = { gatewaySupport: true }
 
 afterEach(() => nock.cleanAll())
 
@@ -90,9 +92,110 @@ function expectCoordinates(
   expect(body).not.toHaveProperty('originAppVersion')
 }
 
+// What upstream main sends for fixtureEvent() with default mappings, before Gateway Support existed.
+const LEGACY_URL = 'https://api.avo.app/inspector/segment/v1/track'
+const LEGACY_HEADERS = {
+  accept: 'application/json',
+  'content-type': 'application/json',
+  'api-key': 'test-api-key',
+  env: 'prod',
+  streamid: 'anon-gw-1',
+  'user-agent': 'Segment (Actions)'
+}
+const LEGACY_BODY = {
+  appName: 'Shop',
+  appVersion: '3.1.0',
+  libVersion: '2.0.0',
+  libPlatform: 'Segment',
+  messageId: 'msg-gw-1',
+  createdAt: '2026-01-01T00:00:00.000Z',
+  sessionId: '',
+  type: 'event',
+  streamId: 'anon-gw-1',
+  eventName: 'Checkout Started',
+  eventProperties: [{ propertyName: 'plan', propertyType: 'string' }],
+  eventId: null,
+  eventHash: null
+}
+
+const headerMap = (headers: Headers) => Object.fromEntries([...headers.entries()])
+
+describe('Avo.sendSchemaToInspector with Gateway Support off', () => {
+  // Instances saved before the setting existed have no value for it at all.
+  const offSettings: [string, Record<string, unknown>][] = [
+    ['unset', {}],
+    ['false', { gatewaySupport: false }]
+  ]
+  const allCoordinates = {
+    outputReference: 'meta-x7k2q',
+    originHint: 'android',
+    originAppVersion: '4.2.0'
+  }
+
+  it('the runtime does not fill in the setting default for an instance saved without it', async () => {
+    // onEvent is the production entry point: it validates the saved settings against the
+    // settings schema (which carries `default: true`) and then runs the subscription.
+    let posted: { url: string; body: unknown } | undefined
+    nock('https://api.avo.app')
+      .post(/.*/, (body) => {
+        posted = { url: '', body }
+        return true
+      })
+      .reply(200, function () {
+        if (posted) posted.url = `https://api.avo.app${this.req.path}`
+        return {}
+      })
+
+    // A separate instance, so the recorded responses don't leak into the other tests.
+    await createTestIntegration(Destination).onEvent(fixtureEvent(), {
+      apiKey: 'test-api-key',
+      env: 'prod',
+      subscription: {
+        subscribe: 'type = "track"',
+        partnerAction: 'sendSchemaToInspector',
+        mapping: {
+          event: { '@path': '$.event' },
+          properties: { '@path': '$.properties' },
+          messageId: { '@path': '$.messageId' },
+          createdAt: { '@path': '$.timestamp' },
+          appVersion: { '@path': '$.context.app.version' },
+          appName: { '@path': '$.context.app.name' },
+          anonymousId: { '@path': '$.anonymousId' },
+          originHint: 'android'
+        }
+      }
+    })
+
+    expect(posted?.url).toBe(LEGACY_URL)
+    expect(posted?.body).toStrictEqual([LEGACY_BODY])
+  })
+
+  for (const [label, settings] of offSettings) {
+    for (const mode of ['single', 'batch'] as Mode[]) {
+      it(`sends exactly the previous request (${label}, ${mode})`, async () => {
+        const { url, headers, bodies } = await sendOne(fixtureEvent(), {}, settings, mode)
+
+        expect(url).toBe(LEGACY_URL)
+        expect(headerMap(headers)).toStrictEqual(LEGACY_HEADERS)
+        expect(bodies).toStrictEqual([LEGACY_BODY])
+      })
+
+      it(`ignores mapped coordinates (${label}, ${mode})`, async () => {
+        for (const mapping of [allCoordinates, { originHint: 'android' }]) {
+          const { url, headers, bodies } = await sendOne(fixtureEvent(), mapping, settings, mode)
+
+          expect(url).toBe(LEGACY_URL)
+          expect(headerMap(headers)).toStrictEqual(LEGACY_HEADERS)
+          expect(bodies).toStrictEqual([LEGACY_BODY])
+        }
+      })
+    }
+  }
+})
+
 describe('Avo.sendSchemaToInspector gateway coordinates', () => {
-  it('a mapping without the gateway fields sends the pre-existing body', async () => {
-    const { url, bodies } = await sendOne(fixtureEvent())
+  it('a mapping without the gateway fields sends the previous body apart from endpoint, libPlatform and libVersion', async () => {
+    const { url, bodies } = await sendOne(fixtureEvent(), {}, GATEWAY)
 
     expect(url).toBe(segment.url)
     expect(bodies).toStrictEqual([
@@ -119,7 +222,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
       describe(`shared coordinate vectors (${mode}, checkpoint default from ${fixture.name})`, () => {
         for (const { name, input, expected } of vectors.coordinateCases) {
           it(name, async () => {
-            const { bodies } = await sendOne(fixture.event(), { ...input }, fixture.settings, mode)
+            const { bodies } = await sendOne(fixture.event(), { ...input }, { ...fixture.settings, ...GATEWAY }, mode)
 
             expect(bodies).toHaveLength(1)
             expectCoordinates(bodies[0], expected, fixture.checkpointDefault)
@@ -134,7 +237,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
 
   it(vectors.propertyCollisionCase.name, async () => {
     const { eventProperties, input, expected } = vectors.propertyCollisionCase
-    const { bodies } = await sendOne(fixtureEvent({ properties: eventProperties }), { ...input })
+    const { bodies } = await sendOne(fixtureEvent({ properties: eventProperties }), { ...input }, GATEWAY)
 
     expectCoordinates(bodies[0], expected, '3.1.0')
     expect(propertyNames(bodies[0])).toStrictEqual(expected.eventPropertyNames)
@@ -167,7 +270,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
         originAppVersion: { '@path': '$.context.gateway.originAppVersion' }
       },
       useDefaultMappings: true,
-      settings: { apiKey: 'test-api-key', env: 'prod' }
+      settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY }
     })
 
     const posts = responses.filter((r) => r.options.method?.toLowerCase() === 'post')
@@ -201,7 +304,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
       for (const { name, input, expected } of scalarCases) {
         it(`the framework omits null and stringifies scalars before perform (${mode}): ${name}`, async () => {
           const { event, mapping } = mapThroughPaths(input)
-          const { bodies } = await sendOne(event, mapping, {}, mode)
+          const { bodies } = await sendOne(event, mapping, GATEWAY, mode)
 
           expectCoordinates(bodies[0], expected, '3.1.0')
         })
@@ -217,7 +320,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
           event,
           mapping,
           useDefaultMappings: true,
-          settings: { apiKey: 'test-api-key', env: 'prod' }
+          settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY }
         })
       ).rejects.toThrow(
         'Output Reference must be a string but it was an object. Origin Hint must be a string but it was an array.'
@@ -240,7 +343,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
         events: [rejected.event, accepted],
         mapping: rejected.mapping,
         useDefaultMappings: true,
-        settings: { apiKey: 'test-api-key', env: 'prod' }
+        settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY }
       })
 
       const [multistatus] = testDestination.results.map((r) => (r as { multistatus: unknown[] }).multistatus)
@@ -256,7 +359,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
   })
 
   it('posts to the v2 track endpoint with the client header matching every body libPlatform', async () => {
-    const { url, headers, bodies } = await sendOne(fixtureEvent(), {}, { apiKey: 'key-123', env: 'prod' })
+    const { url, headers, bodies } = await sendOne(fixtureEvent(), {}, { apiKey: 'key-123', env: 'prod', ...GATEWAY })
 
     expect(url).toBe(segment.url)
     expect(headers.get('api-key')).toBe('key-123')

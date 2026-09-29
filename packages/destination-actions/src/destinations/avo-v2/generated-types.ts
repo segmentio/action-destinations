@@ -17,4 +17,8 @@ export interface Settings {
    * If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.
    */
   appVersionPropertyName?: string
+  /**
+   * Sends events to Avo Inspector's current endpoint, which supports Avo gateways and the Output Reference, Origin Hint and Origin App Version fields. On by default for new destinations. Destinations added before this option existed keep using the previous endpoint until you turn it on.
+   */
+  gatewaySupport?: boolean
 }

@@ -91,7 +91,7 @@ describe('send', () => {
     expect(result.messageId).toBe('test-message-id')
     // Should include validation metadata when spec is provided
     expect(result.eventSpecMetadata).toBeDefined()
-    expect(getPostUrl()).toBe('https://api.avo.app/inspector/v2/track')
+    expect(getPostUrl()).toBe('https://api.avo.app/inspector/segment/v1/track')
   })
 
   it('should send event body without validation when env is not dev/staging', async () => {
