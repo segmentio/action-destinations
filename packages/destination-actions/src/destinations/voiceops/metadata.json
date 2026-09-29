@@ -18,7 +18,7 @@
       },
       "baseUrl": {
         "label": "Base URL",
-        "description": "Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted.",
+        "description": "Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted or blank.",
         "type": "string",
         "required": false,
         "multiple": false,
@@ -601,7 +601,7 @@
       "title": "Update Call Metadata",
       "description": "Send a complete call metadata snapshot to reconcile with a recording received before or after this event. No recording URL or agent email is required.",
       "platform": "cloud",
-      "defaultSubscription": "type = \"track\" and event = \"call.completed\"",
+      "defaultSubscription": "type = \"track\" and event = \"Call Completed\"",
       "hidden": false,
       "hasPerformBatch": false,
       "syncMode": null,
@@ -643,17 +643,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.properties.call_completed_at"
-              },
-              "then": {
-                "@path": "$.properties.call_completed_at"
-              },
-              "else": {
-                "@path": "$.properties.completed_at"
-              }
-            }
+            "@path": "$.properties.call_completed_at"
           },
           "choices": null,
           "placeholder": null,
@@ -679,7 +669,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.properties.extraMetadata"
+            "@path": "$.properties.extra_metadata"
           },
           "choices": null,
           "placeholder": null,

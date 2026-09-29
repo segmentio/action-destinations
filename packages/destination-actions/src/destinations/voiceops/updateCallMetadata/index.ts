@@ -19,7 +19,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Call Metadata',
   description:
     'Send a complete call metadata snapshot to reconcile with a recording received before or after this event. No recording URL or agent email is required.',
-  defaultSubscription: 'type = "track" and event = "call.completed"',
+  defaultSubscription: 'type = "track" and event = "Call Completed"',
   fields: {
     call_id: {
       label: 'Call ID',
@@ -35,13 +35,7 @@ const action: ActionDefinition<Settings, Payload> = {
         'The completion event time as a 10-digit Unix timestamp in seconds. Voiceops uses this to order metadata snapshots. Map Regal completed_at here; do not use the delivery or retry time.',
       type: 'string',
       required: true,
-      default: {
-        '@if': {
-          exists: { '@path': '$.properties.call_completed_at' },
-          then: { '@path': '$.properties.call_completed_at' },
-          else: { '@path': '$.properties.completed_at' }
-        }
-      }
+      default: { '@path': '$.properties.call_completed_at' }
     },
     extraMetadata: {
       label: 'Extra Metadata',
@@ -51,7 +45,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       additionalProperties: true,
       required: true,
-      default: { '@path': '$.properties.extraMetadata' }
+      default: { '@path': '$.properties.extra_metadata' }
     }
   },
   perform: (request, { settings, payload }) => {
@@ -61,6 +55,10 @@ const action: ActionDefinition<Settings, Payload> = {
 
     if (!/^\d{10}$/.test(payload.call_completed_at)) {
       throw new PayloadValidationError('call_completed_at must be a 10-digit Unix timestamp in seconds.')
+    }
+
+    if (!payload.extraMetadata || typeof payload.extraMetadata !== 'object' || Array.isArray(payload.extraMetadata)) {
+      throw new PayloadValidationError('extraMetadata must be an object.')
     }
 
     if (Object.keys(payload.extraMetadata).length === 0) {
@@ -74,7 +72,11 @@ const action: ActionDefinition<Settings, Payload> = {
 
     return request(getVoiceopsMetadataEndpoint(settings.baseUrl), {
       method: 'post',
-      json: payload
+      json: {
+        call_id: String(payload.call_id),
+        call_completed_at: String(payload.call_completed_at),
+        extraMetadata: payload.extraMetadata
+      }
     })
   }
 }

@@ -42,9 +42,8 @@ const destination: DestinationDefinition<Settings> = {
       },
       baseUrl: {
         label: 'Base URL',
-        description: 'Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted.',
+        description: 'Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted or blank.',
         type: 'string',
-        format: 'uri',
         required: false,
         default: DEFAULT_VOICEOPS_BASE_URL
       }

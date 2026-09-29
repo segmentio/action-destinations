@@ -1,6 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import destination from '../../index'
+import action from '../index'
 import { DEFAULT_VOICEOPS_BASE_URL } from '../../constants'
 import type { Settings } from '../../generated-types'
 
@@ -13,11 +14,11 @@ function sendMetadata(properties: Record<string, unknown> = {}) {
     settings,
     useDefaultMappings: true,
     event: createTestEvent({
-      event: 'call.completed',
+      event: 'Call Completed',
       properties: {
         call_id: 'call-123',
-        completed_at: 1789394517,
-        extraMetadata: { disposition: 'Appointment Set' },
+        call_completed_at: 1789394517,
+        extra_metadata: { disposition: 'Appointment Set' },
         ...properties
       }
     })
@@ -68,6 +69,7 @@ describe('Voiceops.updateCallMetadata', () => {
         }
       }),
       mapping: {
+        call_completed_at: { '@path': '$.properties.completed_at' },
         extraMetadata: {
           disposition: { '@path': '$.properties.disposition' },
           attempt: { '@path': '$.properties.dialer_attempt' },
@@ -79,18 +81,18 @@ describe('Voiceops.updateCallMetadata', () => {
     expect(scope.isDone()).toBe(true)
   })
 
-  it('prefers the canonical completion timestamp and forwards nested metadata unchanged', async () => {
+  it('uses canonical properties and forwards nested metadata unchanged', async () => {
     const extraMetadata = { disposition: 'Answered', details: { tags: ['sales'], score: 0, connected: false } }
     const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
       .post(endpoint, { call_id: 'call-123', call_completed_at: '1789394600', extraMetadata })
       .reply(200, {})
 
-    await sendMetadata({ call_completed_at: '1789394600', extraMetadata })
+    await sendMetadata({ call_completed_at: '1789394600', extra_metadata: extraMetadata, completed_at: 1789394517 })
 
     expect(scope.isDone()).toBe(true)
   })
 
-  it.each(['call_id', 'completed_at', 'extraMetadata'])(
+  it.each(['call_id', 'call_completed_at', 'extra_metadata'])(
     'rejects missing %s before sending a request',
     async (field) => {
       const scope = nock(DEFAULT_VOICEOPS_BASE_URL).post(endpoint).reply(200, {})
@@ -103,7 +105,7 @@ describe('Voiceops.updateCallMetadata', () => {
   it.each(['', '1789394517000', '2026-09-14T14:00:00Z', 'invalid'])(
     'rejects invalid completion time %p',
     async (value) => {
-      await expect(sendMetadata({ completed_at: value })).rejects.toThrow()
+      await expect(sendMetadata({ call_completed_at: value })).rejects.toThrow()
     }
   )
 
@@ -114,7 +116,7 @@ describe('Voiceops.updateCallMetadata', () => {
   })
 
   it('rejects an empty metadata snapshot', async () => {
-    await expect(sendMetadata({ extraMetadata: {} })).rejects.toThrow(
+    await expect(sendMetadata({ extra_metadata: {} })).rejects.toThrow(
       'extraMetadata must contain at least one metadata field.'
     )
   })
@@ -129,9 +131,57 @@ describe('Voiceops.updateCallMetadata', () => {
     'voiceops_segment_source_call_id',
     'source'
   ])('rejects reserved metadata field %s', async (field) => {
-    await expect(sendMetadata({ extraMetadata: { [field]: null } })).rejects.toThrow(
+    await expect(sendMetadata({ extra_metadata: { [field]: null } })).rejects.toThrow(
       `extraMetadata must not contain the reserved field '${field}'.`
     )
+  })
+
+  it.each([null, undefined, [], ['disposition'], 'Answered', 42, true])(
+    'rejects invalid metadata shape %p even when invoked without schema validation',
+    (extraMetadata) => {
+      const request = jest.fn()
+      const data = {
+        settings,
+        payload: { call_id: 'call-123', call_completed_at: '1789394517', extraMetadata }
+      } as unknown as Parameters<NonNullable<typeof action.perform>>[1]
+
+      expect(() => action.perform(request, data)).toThrow('extraMetadata must be an object.')
+      expect(request).not.toHaveBeenCalled()
+    }
+  )
+
+  it('serializes IDs and completion timestamps as strings even without schema coercion', async () => {
+    const request = jest.fn().mockResolvedValue({})
+    const data = {
+      settings,
+      payload: { call_id: 123, call_completed_at: 1789394517, extraMetadata: { disposition: 'Answered' } }
+    } as unknown as Parameters<NonNullable<typeof action.perform>>[1]
+
+    await action.perform(request, data)
+
+    expect(request).toHaveBeenCalledWith(`${DEFAULT_VOICEOPS_BASE_URL}${endpoint}`, {
+      method: 'post',
+      json: { call_id: '123', call_completed_at: '1789394517', extraMetadata: { disposition: 'Answered' } }
+    })
+  })
+
+  it('requires explicit mapping for the Regal completed_at property', async () => {
+    await expect(sendMetadata({ call_completed_at: undefined, completed_at: 1789394517 })).rejects.toThrow(
+      /required field/
+    )
+  })
+
+  it.each(['not a url', '/relative', 'ftp://example.com'])('rejects an invalid base URL %p', async (baseUrl) => {
+    await expect(
+      testDestination.testAction('updateCallMetadata', {
+        settings: { ...settings, baseUrl },
+        mapping: {
+          call_id: 'call-123',
+          call_completed_at: '1789394517',
+          extraMetadata: { disposition: 'Answered' }
+        }
+      })
+    ).rejects.toThrow('Base URL must be a valid HTTP or HTTPS URL.')
   })
 
   it('uses the configured base URL and removes trailing slashes', async () => {

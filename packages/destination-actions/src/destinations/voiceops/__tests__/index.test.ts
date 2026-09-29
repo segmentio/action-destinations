@@ -37,14 +37,21 @@ describe('Voiceops', () => {
       expect(scope.isDone()).toBe(true)
     })
 
-    it.each(['', ' \t\n '])('rejects blank settings %p at the authentication URI schema', async (baseUrl) => {
+    it.each(['', ' \t\n '])('uses the default base URL for blank settings %p', async (baseUrl) => {
       const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
         .get('/frontline-api/integrations/v1/segment/authentication')
         .reply(200, {})
 
-      await expect(testDestination.testAuthentication({ ...SETTINGS, baseUrl })).rejects.toThrow(
-        'Base URL must be a valid URI string'
-      )
+      await expect(testDestination.testAuthentication({ ...SETTINGS, baseUrl })).resolves.toBeUndefined()
+      expect(scope.isDone()).toBe(true)
+    })
+
+    it.each(['not a url', '/relative', 'ftp://example.com'])('rejects an invalid base URL %p', async (baseUrl) => {
+      const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+        .get('/frontline-api/integrations/v1/segment/authentication')
+        .reply(200, {})
+
+      await expect(testDestination.testAuthentication({ ...SETTINGS, baseUrl })).rejects.toThrow()
       expect(scope.isDone()).toBe(false)
     })
 
