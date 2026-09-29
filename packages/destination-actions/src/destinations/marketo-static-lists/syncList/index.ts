@@ -9,6 +9,7 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync List',
   description: 'Add or remove users from a list in Marketo',
   defaultSubscription: 'type = track or type = identify',
+  hidden: true,
   syncMode: {
     label: 'Sync Mode',
     description: 'Specify how Segment should sync data to Marketo when connected to a database Source.',
