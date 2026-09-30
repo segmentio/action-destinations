@@ -909,8 +909,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         expect(element).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
       })
 
-      // The URL parser percent-encodes a non-ASCII slug; LinkedIn stores it decoded.
-      it('sends a non-ascii company slug decoded', async () => {
+      it('sends a non-ascii company slug as the customer wrote it', async () => {
         const element = await sendOne({
           identifiers: { companyPageUrl: 'https://www.linkedin.com/company/société-générale' }
         })

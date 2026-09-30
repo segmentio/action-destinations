@@ -138,8 +138,8 @@ describe('folds a leading www. away', () => {
 })
 
 describe('normalizeCompanyPageUrl', () => {
-  // Only values carrying a scheme are tested: the field is declared format: 'uri', so anything
-  // without one is rejected before it reaches here.
+  // The field carries no format, so a value with or without a scheme reaches here. A scheme other
+  // than http(s) leaves its host in place and is rejected by the domain check.
   it.each([
     ['https', 'https://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
     [
