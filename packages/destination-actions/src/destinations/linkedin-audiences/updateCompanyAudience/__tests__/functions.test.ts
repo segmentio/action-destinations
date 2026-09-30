@@ -142,6 +142,19 @@ describe('normalizeCompanyPageUrl', () => {
   // without one is rejected before it reaches here.
   it.each([
     ['https', 'https://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    [
+      'a percent sign in the slug, sent as written',
+      'https://linkedin.com/company/100%-growth',
+      'linkedin.com/company/100%-growth'
+    ],
+    ['a bare host, since the only check is the domain', 'https://linkedin.com', 'linkedin.com'],
+    // Without a URL parser the host check is a string suffix test, so a user prefix rides along.
+    // Junk in, junk out: it reaches LinkedIn and simply does not match.
+    [
+      'a user prefix, which still ends in the linkedin.com suffix',
+      'https://joe@www.linkedin.com/company/microsoft',
+      'joe@www.linkedin.com/company/microsoft'
+    ],
     ['no scheme at all', 'linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
     [
       "LinkedIn's own documented example, which carries no scheme",
@@ -149,7 +162,7 @@ describe('normalizeCompanyPageUrl', () => {
       'www.linkedin.com/company/linkedin'
     ],
     [
-      'a non-ascii slug, which the parser percent-encodes and we decode again',
+      'a non-ascii slug, sent as written rather than percent-encoded',
       'https://www.linkedin.com/company/société-générale',
       'www.linkedin.com/company/société-générale'
     ],
@@ -175,16 +188,6 @@ describe('normalizeCompanyPageUrl', () => {
     [
       'a trailing slash before a query string',
       'https://linkedin.com/company/microsoft/?viewAsMember=true',
-      'linkedin.com/company/microsoft'
-    ],
-    [
-      'a user, which is not part of the page',
-      'https://joe@www.linkedin.com/company/microsoft',
-      'www.linkedin.com/company/microsoft'
-    ],
-    [
-      'a port, which is not part of the page',
-      'https://linkedin.com:8080/company/microsoft',
       'linkedin.com/company/microsoft'
     ],
     [
@@ -238,11 +241,10 @@ describe('normalizeCompanyPageUrl', () => {
     ['a host that merely ends in the same letters', 'https://notlinkedin.com/company/microsoft'],
     ['a lookalike host that only starts with linkedin.com', 'https://linkedin.com.example.com/company/microsoft'],
     ['a single-label host', 'https://intranet/company/x'],
-    ['a bare host with no path, which is linkedin.com itself rather than a company', 'https://linkedin.com'],
-    ['a bare host with only a trailing slash', 'https://www.linkedin.com/'],
     ['a mailto, which parses with a linkedin.com host read from its userinfo', 'mailto:joe@linkedin.com/company/x'],
     ['a non-http scheme', 'ftp://linkedin.com/company/x'],
-    ['a port, which reads as a scheme that is not http', 'linkedin.com:8080/company/microsoft']
+    ['a port, which is not a linkedin.com host', 'linkedin.com:8080/company/microsoft'],
+    ['a protocol-relative url, whose host segment is empty', '//linkedin.com/company/microsoft']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })

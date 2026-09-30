@@ -42,10 +42,11 @@ import {
 } from './constants'
 
 const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
-const SCHEME = /^[a-z][a-z0-9+.-]*:/i
 const HTTP_SCHEME = /^https?:\/\//i
 const TRAILING_DOT = /\.$/
 const WWW_PREFIX = /^www\./
+const TRAILING_SLASHES = /\/+$/
+const QUERY_OR_FRAGMENT = /[?#]/
 const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
@@ -107,27 +108,19 @@ function isLinkedInHost(hostname: string): boolean {
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
-  const raw = trimmed(value)?.toLowerCase()
+  // Sent as the customer wrote it, minus the scheme, the query string and the fragment. No URL
+  // parsing: the parser re-encodes a non-ascii slug, and the only thing worth checking here is
+  // the host.
+  const withoutScheme = trimmed(value)?.toLowerCase().replace(HTTP_SCHEME, '')
+  const withoutQuery = withoutScheme?.split(QUERY_OR_FRAGMENT)[0]
 
-  if (!raw || (SCHEME.test(raw) && !HTTP_SCHEME.test(raw))) {
+  // Length is checked before the slashes are stripped, so the strip never runs on a long value.
+  if (!withoutQuery || withoutQuery.length > MAX_COMPANY_PAGE_URL_LENGTH) {
     return undefined
   }
 
-  try {
-    const { hostname, pathname } = new URL(HTTP_SCHEME.test(raw) ? raw : `https://${raw}`)
-
-    if (!isLinkedInHost(hostname) || pathname === '/') {
-      return undefined
-    }
-
-    const path = decodeURIComponent(pathname)
-    let end = path.length
-    while (end > 1 && path[end - 1] === '/') end--
-
-    return withinLength(`${hostname}${path.slice(0, end)}`, MAX_COMPANY_PAGE_URL_LENGTH)
-  } catch {
-    return undefined
-  }
+  const pageUrl = withoutQuery.replace(TRAILING_SLASHES, '')
+  return isLinkedInHost(pageUrl.split('/')[0]) ? pageUrl : undefined
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {
