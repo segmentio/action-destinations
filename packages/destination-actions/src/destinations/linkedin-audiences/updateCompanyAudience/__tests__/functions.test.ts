@@ -7,7 +7,7 @@ import {
   normalizeIndustries,
   normalizeTraits
 } from '../functions'
-import { COUNTRY_CODES, MAX_COMPANY_ID_LENGTH, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
+import { COUNTRY_CODES, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
 import type { Payload } from '../generated-types'
 import type { AudienceAction, NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
 
@@ -44,13 +44,24 @@ describe('normalizeDomain', () => {
       ['a page url', 'https://www.microsoft.com/about?a=1#top', 'www.microsoft.com'],
       ['a subdomain and a multi-part tld', 'mail.microsoft.co.uk', 'mail.microsoft.co.uk'],
       ['case and whitespace', '  MICROSOFT.COM  ', 'microsoft.com'],
-      ['mailto, which has no slashes after the colon', 'mailto:joe@microsoft.com', 'microsoft.com']
+      ['mailto, which has no slashes after the colon', 'mailto:joe@microsoft.com', 'microsoft.com'],
+      ['a query string with no path before it', 'https://microsoft.com?utm_source=google', 'microsoft.com'],
+      ['a fragment with no path before it', 'microsoft.com#about', 'microsoft.com'],
+      ['a port', 'www.microsoft.com:8080', 'www.microsoft.com'],
+      ['spaces around the @', 'joe @ microsoft.com', 'microsoft.com'],
+      ['all of it at once', '  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ', 'www.microsoft.com']
     ])('takes the host from %s', (_label: string, input: string, expected: string) => {
       expect(normalizeDomain(input)).toBe(expected)
     })
 
     it('takes the part after the last @ when there are several', () => {
       expect(normalizeDomain('weird@name@microsoft.com')).toBe('microsoft.com')
+    })
+
+    // The @ split runs on the host, never on the whole value, so a domain in the query string
+    // cannot displace the real one.
+    it('ignores an @ that is below the host', () => {
+      expect(normalizeDomain('https://microsoft.com?a=b@evil.com')).toBe('microsoft.com')
     })
   })
 
@@ -73,7 +84,10 @@ describe('normalizeDomain', () => {
     ['only whitespace', '   '],
     ['an email with no domain', 'joe@'],
     ['a scheme with nothing after it', 'https://'],
-    ['only a path', '/about']
+    ['only a path', '/about'],
+    ['a company name that happens to contain a dot', 'Acme Inc.'],
+    ['a company name with a dot mid-string', 'St. Jude Medical'],
+    ['a domain with a space inside it', 'micro soft.com']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeDomain(input)).toBeUndefined()
   })
@@ -168,6 +182,13 @@ describe('normalizeCompanyPageUrl', () => {
     it('drops a url one character over the limit rather than truncating it', () => {
       const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH + 1)
       expect(normalizeCompanyPageUrl(`https://${bare}`)).toBeUndefined()
+    })
+
+    // Same reasoning as the query string below: length is measured on the value actually sent,
+    // so a trailing slash the code strips anyway cannot cost the identifier.
+    it('keeps a url of exactly the limit that carries a trailing slash', () => {
+      const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH)
+      expect(normalizeCompanyPageUrl(`https://${bare}/`)).toBe(bare)
     })
 
     it('measures length after the scheme is removed, so the scheme cannot push a url over', () => {
@@ -397,12 +418,6 @@ describe('normalizeIdentifiers', () => {
     expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: '1035' } }))).toEqual({
       organizationUrn: 'urn:li:organization:1035'
     })
-  })
-
-  // A real organization id is a short number, so an oversized value is a mis-mapped column.
-  it('drops a company id longer than the limit rather than stripping it', () => {
-    const tooLong = 'a'.repeat(MAX_COMPANY_ID_LENGTH + 1)
-    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: tooLong } }))).toEqual({})
   })
 
   it('drops a company id that is only the urn prefix, with no id behind it', () => {

@@ -29,7 +29,6 @@ import {
   COUNTRY_CODES,
   LINKEDIN_HOST,
   MAX_CITY_LENGTH,
-  MAX_COMPANY_ID_LENGTH,
   MAX_COMPANY_PAGE_URL_LENGTH,
   MAX_INDUSTRIES,
   MAX_INDUSTRY_LENGTH,
@@ -44,16 +43,12 @@ import {
 const HTTP_SCHEME = /^https?:\/\//i
 const TRAILING_SLASHES = /\/+$/
 const QUERY_OR_FRAGMENT = /[?#]/
+const PATH_QUERY_OR_FRAGMENT = /[/?#]/
 const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
 
 export function toOrganizationUrn(linkedInCompanyId?: string): string | undefined {
-  const raw = trimmed(linkedInCompanyId)
-  if (!raw || raw.length > MAX_COMPANY_ID_LENGTH) {
-    return undefined
-  }
-
   // One anchored pass, not a loop that re-copies the remainder each time round.
-  const id = raw.replace(ORGANIZATION_URN_PREFIXES, '').trim()
+  const id = trimmed(linkedInCompanyId)?.replace(ORGANIZATION_URN_PREFIXES, '').trim()
   return id ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
 }
 
@@ -66,13 +61,20 @@ function withinLength(value: string | undefined, max: number): string | undefine
 }
 
 export function normalizeDomain(value?: string): string | undefined {
-  // Whatever the customer maps, reduced to the host: the scheme goes, anything after the host
-  // goes, and an email address keeps only what follows the last @. No URL parsing, so a non-ascii
-  // domain is sent as written rather than converted to punycode.
-  const host = trimmed(value)?.toLowerCase().replace(HTTP_SCHEME, '').split('/')[0].split('@').pop()
+  // Whatever the customer maps, reduced to the domain. The path and query are cut before the @
+  // so a query string cannot pass its own tail off as the host; the port comes off after, so
+  // 'mailto:' does not read as one. No URL parsing, so a non-ascii domain is sent as written.
+  const host = trimmed(value)
+    ?.toLowerCase()
+    .replace(HTTP_SCHEME, '')
+    .split(PATH_QUERY_OR_FRAGMENT)[0]
+    .split('@')
+    .pop()
+    ?.split(':')[0]
+    .trim()
 
-  // A domain has a dot in it. Beyond that the value is the customer's to get right.
-  return host?.includes('.') ? host : undefined
+  // A domain has a dot and no space in it. Beyond that the value is the customer's to get right.
+  return host && host.includes('.') && !host.includes(' ') ? host : undefined
 }
 
 function isLinkedInHost(hostname: string): boolean {
@@ -80,19 +82,18 @@ function isLinkedInHost(hostname: string): boolean {
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
-  // Sent as the customer wrote it, minus the scheme, the query string and the fragment. No URL
-  // parsing: the parser re-encodes a non-ascii slug, and the only thing worth checking here is
-  // the host.
-  const withoutScheme = trimmed(value)?.toLowerCase().replace(HTTP_SCHEME, '')
-  const withoutQuery = withoutScheme?.split(QUERY_OR_FRAGMENT)[0]
+  // Lower-cased, and otherwise sent as the customer wrote it minus the scheme, the query string,
+  // the fragment and any trailing slashes. No URL parsing: the parser re-encodes a non-ascii
+  // slug, and the only thing worth checking here is the host.
+  const stripped = trimmed(value)
+    ?.toLowerCase()
+    .replace(HTTP_SCHEME, '')
+    .split(QUERY_OR_FRAGMENT)[0]
+    .replace(TRAILING_SLASHES, '')
 
-  // Length is checked before the slashes are stripped, so the strip never runs on a long value.
-  if (!withoutQuery || withoutQuery.length > MAX_COMPANY_PAGE_URL_LENGTH) {
-    return undefined
-  }
-
-  const pageUrl = withoutQuery.replace(TRAILING_SLASHES, '')
-  return isLinkedInHost(pageUrl.split('/')[0]) ? pageUrl : undefined
+  // Measured on the value actually sent, so a trailing slash never costs the identifier.
+  const pageUrl = withinLength(stripped, MAX_COMPANY_PAGE_URL_LENGTH)
+  return pageUrl && isLinkedInHost(pageUrl.split('/')[0]) ? pageUrl : undefined
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {
@@ -182,7 +183,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers).some((identifier) => trimmed(identifier))
-        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
+        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&

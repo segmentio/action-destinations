@@ -28,7 +28,7 @@ export const fields: Record<string, InputField> = {
       companyDomain: {
         label: 'Company Domain',
         description:
-          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. It is sent as written, so map one consistent form: 'microsoft.com' and 'www.microsoft.com' count as two companies. A value with no dot in it, such as a company name, is not sent.",
+          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. Subdomains are kept as written, so map one consistent form: 'microsoft.com' and 'www.microsoft.com' count as two companies. A value that is not a domain, such as a company name, is not sent.",
         type: 'string'
       },
       companyEmailDomain: {
