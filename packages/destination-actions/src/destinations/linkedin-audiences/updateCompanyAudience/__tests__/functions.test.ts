@@ -7,7 +7,7 @@ import {
   normalizeIndustries,
   normalizeTraits
 } from '../functions'
-import { COUNTRY_CODES, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
+import { COUNTRY_CODES, MAX_COMPANY_ID_LENGTH, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
 import type { Payload } from '../generated-types'
 import type { AudienceAction, NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
 
@@ -438,6 +438,12 @@ describe('normalizeIdentifiers', () => {
     expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: '1035' } }))).toEqual({
       organizationUrn: 'urn:li:organization:1035'
     })
+  })
+
+  // A real organization id is a short number, so an oversized value is a mis-mapped column.
+  it('drops a company id longer than the limit rather than stripping it', () => {
+    const tooLong = 'a'.repeat(MAX_COMPANY_ID_LENGTH + 1)
+    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: tooLong } }))).toEqual({})
   })
 
   it('drops a company id that is only the urn prefix, with no id behind it', () => {

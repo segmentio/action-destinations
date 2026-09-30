@@ -29,6 +29,7 @@ import {
   COUNTRY_CODES,
   LINKEDIN_HOST,
   MAX_CITY_LENGTH,
+  MAX_COMPANY_ID_LENGTH,
   MAX_COMPANY_PAGE_URL_LENGTH,
   MAX_INDUSTRIES,
   MAX_INDUSTRY_LENGTH,
@@ -45,13 +46,17 @@ const SCHEME = /^[a-z][a-z0-9+.-]*:/i
 const HTTP_SCHEME = /^https?:\/\//i
 const TRAILING_DOT = /\.$/
 const WWW_PREFIX = /^www\./
+const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
 export function toOrganizationUrn(linkedInCompanyId?: string): string | undefined {
-  let id = linkedInCompanyId?.trim() ?? ''
-  while (id.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)) {
-    id = id.slice(ORGANIZATION_URN_PREFIX.length).trim()
+  const raw = trimmed(linkedInCompanyId)
+  if (!raw || raw.length > MAX_COMPANY_ID_LENGTH) {
+    return undefined
   }
+
+  // One anchored pass, not a loop that re-copies the remainder each time round.
+  const id = raw.replace(ORGANIZATION_URN_PREFIXES, '').trim()
   return id ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
 }
 

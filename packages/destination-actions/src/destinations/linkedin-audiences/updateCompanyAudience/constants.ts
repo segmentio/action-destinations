@@ -33,6 +33,10 @@ export const MAX_STATE_LENGTH = 50
 export const MAX_POSTAL_CODE_LENGTH = 20
 export const MAX_STOCK_SYMBOL_LENGTH = 5
 
+// Not a LinkedIn limit. An organization id is a short number, so anything longer is a mis-mapped
+// column, and rejecting it early keeps prefix stripping off a value of unbounded length.
+export const MAX_COMPANY_ID_LENGTH = 64
+
 /**
  * The 249 officially assigned ISO 3166-1 alpha-2 country codes. LinkedIn's DMP Segment
  * Companies API requires the two-letter code for a company's `country`.
