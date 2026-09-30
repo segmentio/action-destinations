@@ -41,10 +41,10 @@ describe('normalizeDomain', () => {
     it.each([
       ['a bare domain', 'microsoft.com', 'microsoft.com'],
       ['an email address', 'joe.bloggs@microsoft.com', 'microsoft.com'],
-      ['a page url', 'https://www.microsoft.com/about?a=1#top', 'microsoft.com'],
+      ['a page url', 'https://www.microsoft.com/about?a=1#top', 'www.microsoft.com'],
       ['a subdomain and a multi-part tld', 'mail.microsoft.co.uk', 'mail.microsoft.co.uk'],
       ['case and whitespace', '  MICROSOFT.COM  ', 'microsoft.com'],
-      ['all of it at once', '  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ', 'microsoft.com']
+      ['all of it at once', '  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ', 'www.microsoft.com']
     ])('takes the host from %s', (_label: string, input: string, expected: string) => {
       expect(normalizeDomain(input)).toBe(expected)
     })
@@ -109,31 +109,6 @@ describe('normalizeDomain', () => {
     it('still accepts a domain whose labels are numeric', () => {
       expect(normalizeDomain('123.com')).toBe('123.com')
     })
-  })
-})
-
-// 'www.' is an alias for the domain itself and LinkedIn's own sample request omits it, so both
-// spellings have to reach LinkedIn as one company.
-describe('folds a leading www. away', () => {
-  it.each([
-    ['a bare www domain', 'www.microsoft.com', 'microsoft.com'],
-    ['a www page url', 'https://www.microsoft.com/about', 'microsoft.com'],
-    ['a www email address', 'joe@www.microsoft.com', 'microsoft.com'],
-    ['upper case', 'WWW.Microsoft.com', 'microsoft.com']
-  ])('strips it from %s', (_label: string, input: string, expected: string) => {
-    expect(normalizeDomain(input)).toBe(expected)
-  })
-
-  it.each([
-    ['another subdomain', 'mail.microsoft.co.uk'],
-    ['a host that merely starts with the same letters', 'wwwfoo.com'],
-    ['a www. whose removal would leave a single label', 'www.microsoft']
-  ])('leaves %s alone', (_label: string, input: string) => {
-    expect(normalizeDomain(input)).toBe(input)
-  })
-
-  it('sends one company for a bare domain and its www spelling', () => {
-    expect(normalizeDomain('microsoft.com')).toBe(normalizeDomain('https://www.microsoft.com/about'))
   })
 })
 

@@ -28,13 +28,13 @@ export const fields: Record<string, InputField> = {
       companyDomain: {
         label: 'Company Domain',
         description:
-          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.",
+          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. The host is sent as written, so map one consistent form: 'microsoft.com' and 'www.microsoft.com' count as two companies. A value that is not a fully qualified domain, such as a company name or an IP address, is not sent.",
         type: 'string'
       },
       companyEmailDomain: {
         label: 'Company Email Domain',
         description:
-          "The company's email domain, which is sometimes different from its website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.",
+          "The company's email domain, which is sometimes different from its website domain, e.g. 'microsoft.com'. Accepts the same values as 'Company Domain' and is sent the same way.",
         type: 'string'
       },
       linkedInCompanyId: {

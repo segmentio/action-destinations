@@ -44,7 +44,6 @@ import {
 const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
 const HTTP_SCHEME = /^https?:\/\//i
 const TRAILING_DOT = /\.$/
-const WWW_PREFIX = /^www\./
 const TRAILING_SLASHES = /\/+$/
 const QUERY_OR_FRAGMENT = /[?#]/
 const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
@@ -91,16 +90,7 @@ export function normalizeDomain(value?: string): string | undefined {
   // To be fully qualified a domain must contain a dot.
   // An IPv4 address is full of dots, so it needs rejecting on its own.
   const host = hostname.replace(TRAILING_DOT, '')
-  if (!host.includes('.') || IPV4.test(host)) {
-    return undefined
-  }
-
-  // 'www.' is an alias for the domain itself, and LinkedIn's own sample request sends the domain
-  // without it, so both spellings fold to one company rather than two request elements. Any other
-  // subdomain is a different host and is kept, as is a 'www.' whose removal would leave a value
-  // that is no longer fully qualified.
-  const stripped = host.replace(WWW_PREFIX, '')
-  return stripped.includes('.') ? stripped : host
+  return host.includes('.') && !IPV4.test(host) ? host : undefined
 }
 
 function isLinkedInHost(hostname: string): boolean {
