@@ -42,6 +42,20 @@ _A summary of your pull request, including the what change you're making and why
 
 <!-- Actions taken to reduce risk (e.g. feature flag/gate behavior and how it protects the change). -->
 
+### Breaking Change & Customer Impact
+
+<!-- Does this change alter behavior that customers depend on? State explicitly:
+     - Is it a breaking change? (schema/field changes, new required fields, removed/renamed
+       fields, changed defaults, API or version bumps, altered mapping output, auth or
+       rate-limit changes, dropped events). New required fields ARE a breaking change.
+     - Who is affected — which destinations/integrations, customer segments, or event
+       volumes, and notably any top enterprise customers.
+     - Customer-visible impact — data loss, delivery failures, duplicate/missing events,
+       downstream schema breakage, or silent behavior changes.
+     - Backward-compatibility / migration path — how existing customers are protected
+       (gating, versioning, opt-in, deprecation notice / comms).
+     Write "Not a breaking change - no customer impact" only after doing this analysis. -->
+
 ### Change Control Checklist
 
 - [ ] **Test Plan** documented — staging-first, sufficient bake time for E2E, flag/gate on/off/partial covered
@@ -49,6 +63,7 @@ _A summary of your pull request, including the what change you're making and why
 - [ ] **Verification Plan** documented — dashboards / metrics / prod tests (aim for ~3 independent signals)
 - [ ] **Rollback Plan** documented — executable by any teammate
 - [ ] **Risk Mitigation** described — feature flags/gates and how they protect the change
+- [ ] **Breaking change & customer impact** analyzed — whether behavior customers depend on changes, who is affected and how, and the backward-compatibility / migration path (or explicitly not a breaking change after analysis)
 - [ ] **Feature flag / gate** — risky or high-volume changes gated behind a flag that defaults to **off**; on / off / partial-rollout states tested; rollout & flag-cleanup plan documented (or N/A)
 - [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
 - [ ] **AI deep review** completed — Claude deep review and Copilot code review run on this PR, and their Change Release Safety findings addressed or explicitly resolved

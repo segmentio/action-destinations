@@ -377,19 +377,28 @@ Each item maps 1:1 to a checkbox in the PR template
    should be tested in staging.
 5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature
    flag/gate behavior and how it protects the change).
+6. **Breaking Change & Customer Impact** — whether the change alters behavior customers
+   depend on (schema/field changes, new required fields, removed/renamed fields, changed
+   defaults, API or version bumps, altered mapping output, auth or rate-limit changes,
+   dropped events); who is affected (which destinations/integrations, customer segments,
+   event volumes — call out top enterprise customers) and the customer-visible impact
+   (data loss, delivery failures, duplicate/missing events, downstream schema breakage,
+   silent behavior changes); and the backward-compatibility / migration path (gating,
+   versioning, opt-in, deprecation notice). Treat new required fields as breaking. Reject a
+   bare "no impact" — require the analysis behind it.
 
 Approval & process expectations (flag anything that looks bypassed):
 
-6. **+2 code review approvals** before merge to the protected branch — two +1s from two
+7. **+2 code review approvals** before merge to the protected branch — two +1s from two
    different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
-7. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
+8. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
    changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
    execution require at least one approval; pairing is mandatory for script execution and
    DB writes.
-8. **Pair programming** for non-standard operational work that cannot be staged and
+9. **Pair programming** for non-standard operational work that cannot be staged and
    reviewed (scripts, database queries).
-9. **Director involvement** for major/risky changes — skipping staging for hotfixes,
+10. **Director involvement** for major/risky changes — skipping staging for hotfixes,
    restoring DBs from backup, operations that could cause data loss, COGS-driven infra
    changes, and maintenance windows.
-10. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
+11. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
     maintenance window (contractual customer-notice requirements apply).
