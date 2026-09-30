@@ -78,9 +78,10 @@ any of the tasks you completed below during your testing._
 
 - [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
-- [ ] [If destination is already live] Tested for backward compatibility of destination. **Note:** New required fields are a breaking change.
-- [ ] [Segmenters] Tested in the staging environment
 - [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron.
+
+<!-- Staging bake time, flag/gate states, and backward-compatibility are covered under
+     Change Release Safety above (Test Plan and Breaking Change & Customer Impact). -->
 
 ## Security Review
 
@@ -88,14 +89,9 @@ _Please ensure sensitive data is properly protected in your integration._
 
 - [ ] **Reviewed all field definitions** for sensitive data (API keys, tokens, passwords, client secrets) and confirmed they use `type: 'password'`
 
-## Feature flag / Rollout
-
-_If this change is gated behind a feature flag, confirm the rollout details below._
-
-- [ ] This change is **not** gated behind a feature flag (N/A)
-- [ ] Flag name: `<flag-name>`
-- [ ] Flag is registered in Flagon and defaults to **off**
-- [ ] Rollout / rollback plan described in the summary above
+<!-- Feature-flag / rollout details (flag name, Flagon registration, defaults-off, rollout &
+     cleanup plan) belong in the Change Release Safety section above — see the Risk Mitigation
+     narrative and the "Feature flag / gate" item in the Change Control Checklist. -->
 
 ## New Destination Checklist
 

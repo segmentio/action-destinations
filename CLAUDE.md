@@ -361,7 +361,7 @@ this change (e.g. the exact dashboards, metrics, or tests to watch). Reject plac
 answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards",
 "Revert PR and push", or "N/A".
 
-Each item maps 1:1 to a checkbox in the PR template
+Each item corresponds to a checkbox in the PR template's Change Control Checklist
 (`.github/PULL_REQUEST_TEMPLATE.md`).
 
 1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging
@@ -393,12 +393,9 @@ Approval & process expectations (flag anything that looks bypassed):
    different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
 8. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
    changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
-   execution require at least one approval; pairing is mandatory for script execution and
-   DB writes.
-9. **Pair programming** for non-standard operational work that cannot be staged and
-   reviewed (scripts, database queries).
-10. **Director involvement** for major/risky changes — skipping staging for hotfixes,
-   restoring DBs from backup, operations that could cause data loss, COGS-driven infra
-   changes, and maintenance windows.
-11. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
-    maintenance window (contractual customer-notice requirements apply).
+   execution require at least one approval; pairing is mandatory for non-standard operational
+   work that cannot be staged and reviewed (script execution and DB writes/queries).
+9. **Director involvement / approval** for major/risky changes — skipping (or approving the
+   skip of) testing in staging for hotfixes, restoring DBs from backup, operations that could
+   cause data loss, COGS-driven infra changes, and any Statuspage maintenance window
+   (contractual customer-notice requirements apply).
