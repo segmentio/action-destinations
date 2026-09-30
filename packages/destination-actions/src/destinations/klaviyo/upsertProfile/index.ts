@@ -1,4 +1,4 @@
-import type { ActionDefinition, DynamicFieldResponse, IntegrationError, JSONLikeObject } from '@segment/actions-core'
+import type { ActionDefinition, DynamicFieldResponse, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -10,14 +10,13 @@ import {
   createImportJobPayload,
   getListIdDynamicData,
   sendImportJobRequest,
-  getList,
-  createList,
   processPhoneNumber,
   validateExternalId,
   validateProfilePayload,
   updateMultiStatusWithSuccessData,
   updateMultiStatusWithKlaviyoErrors
 } from '../functions'
+import { retlOnMappingSaveHook } from '../retlOnMappingSaveHook'
 import { batch_size, country_code } from '../properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -117,7 +116,7 @@ const action: ActionDefinition<Settings, Payload> = {
           allowNull: true
         },
         longitude: {
-          label: 'Longitide',
+          label: 'Longitude',
           type: 'string',
           allowNull: true
         },
@@ -169,70 +168,7 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   hooks: {
-    retlOnMappingSave: {
-      label: 'Connect to a static list in Klaviyo',
-      description: 'When saving this mapping, we will connect to a list in Klaviyo.',
-      inputFields: {
-        list_identifier: {
-          type: 'string',
-          label: 'Existing List ID',
-          description:
-            'The ID of the list in Klaviyo that users will be synced to. If defined, we will not create a new list.',
-          required: false,
-          dynamic: async (request) => {
-            return getListIdDynamicData(request)
-          }
-        },
-        list_name: {
-          type: 'string',
-          label: 'Name of list to create',
-          description: 'The name of the list that you would like to create in Klaviyo.',
-          required: false
-        }
-      },
-      outputTypes: {
-        id: {
-          type: 'string',
-          label: 'ID',
-          description: 'The ID of the created Klaviyo list that users will be synced to.',
-          required: false
-        },
-        name: {
-          type: 'string',
-          label: 'List Name',
-          description: 'The name of the created Klaviyo list that users will be synced to.',
-          required: false
-        }
-      },
-      performHook: async (request, { settings, hookInputs }) => {
-        if (hookInputs.list_identifier) {
-          try {
-            return getList(request, settings, hookInputs.list_identifier)
-          } catch (e) {
-            const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
-            const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
-            return {
-              error: {
-                message,
-                code
-              }
-            }
-          }
-        }
-        try {
-          return createList(request, settings, hookInputs.list_name)
-        } catch (e) {
-          const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
-          const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
-          return {
-            error: {
-              message,
-              code
-            }
-          }
-        }
-      }
-    }
+    retlOnMappingSave: retlOnMappingSaveHook<Payload>()
   },
   dynamicFields: {
     list_id: async (request): Promise<DynamicFieldResponse> => {

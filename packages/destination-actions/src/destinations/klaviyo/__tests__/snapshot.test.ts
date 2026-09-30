@@ -24,7 +24,11 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().put(/.*/).reply(200, {})
       nock(/.*/).persist().delete(/.*/).reply(200, {})
       const event = createTestEvent({
-        properties: eventData
+        properties: eventData,
+        ...(actionSlug === 'syncList' && {
+          context: { personas: { computation_class: 'audience', computation_key: 'test_audience' } },
+          properties: { ...eventData, test_audience: true }
+        })
       })
 
       const responses = await testDestination.testAction(actionSlug, {
