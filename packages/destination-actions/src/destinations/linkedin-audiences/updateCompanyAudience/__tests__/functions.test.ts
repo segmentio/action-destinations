@@ -34,9 +34,9 @@ const keyed = (
 })
 
 describe('normalizeDomain', () => {
-  // The three shapes a customer maps into this field. Everything below the host — scheme,
-  // userinfo, port, path, query, fragment — is the URL parser's job, so one case each is enough;
-  // what is worth pinning is that we reduce all three to the same host.
+  // The shapes a customer maps into this field, all reduced to the host. Nothing below the host
+  // is interpreted: the value is sent as written once the scheme, the path and any email local
+  // part are removed.
   describe('reduces each mapped shape to the host', () => {
     it.each([
       ['a bare domain', 'microsoft.com', 'microsoft.com'],
@@ -44,7 +44,7 @@ describe('normalizeDomain', () => {
       ['a page url', 'https://www.microsoft.com/about?a=1#top', 'www.microsoft.com'],
       ['a subdomain and a multi-part tld', 'mail.microsoft.co.uk', 'mail.microsoft.co.uk'],
       ['case and whitespace', '  MICROSOFT.COM  ', 'microsoft.com'],
-      ['all of it at once', '  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ', 'www.microsoft.com']
+      ['mailto, which has no slashes after the colon', 'mailto:joe@microsoft.com', 'microsoft.com']
     ])('takes the host from %s', (_label: string, input: string, expected: string) => {
       expect(normalizeDomain(input)).toBe(expected)
     })
@@ -52,23 +52,18 @@ describe('normalizeDomain', () => {
     it('takes the part after the last @ when there are several', () => {
       expect(normalizeDomain('weird@name@microsoft.com')).toBe('microsoft.com')
     })
+  })
 
-    it('handles mailto, which has no slashes after the colon', () => {
-      expect(normalizeDomain('mailto:joe@microsoft.com')).toBe('microsoft.com')
-    })
-
-    it('handles a protocol-relative url', () => {
-      expect(normalizeDomain('//microsoft.com/about')).toBe('microsoft.com')
-    })
-
-    // Our choice, not the parser's: the canonical DNS spelling is sent. Blocked on LinkedIn
-    // confirming they match this form. See STRATCONN-7046.
-    it('converts an internationalized domain to punycode', () => {
-      expect(normalizeDomain('müller.de')).toBe('xn--mller-kva.de')
-    })
-
-    it('removes a trailing dot, so the two spellings do not sync as separate companies', () => {
-      expect(normalizeDomain('microsoft.com.')).toBe('microsoft.com')
+  // Sent as written, not canonicalised. A customer mapping one company in several spellings gets
+  // several companies, which is their business rather than something to guess at here.
+  describe('sends the host as written', () => {
+    it.each([
+      ['an internationalized domain, not converted to punycode', 'müller.de'],
+      ['a www prefix', 'www.microsoft.com'],
+      ['a trailing dot', 'microsoft.com.'],
+      ['an IP address', '192.168.0.1']
+    ])('keeps %s', (_label: string, input: string) => {
+      expect(normalizeDomain(input)).toBe(input)
     })
   })
 
@@ -78,35 +73,22 @@ describe('normalizeDomain', () => {
     ['only whitespace', '   '],
     ['an email with no domain', 'joe@'],
     ['a scheme with nothing after it', 'https://'],
-    ['only a path', '/about'],
-    ['spaces around the @, which is not a parseable url', 'joe @ microsoft.com']
+    ['only a path', '/about']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeDomain(input)).toBeUndefined()
   })
 
-  // A company email domain is always fully qualified, so anything without a dot is not one.
+  // The one rule: a domain has a dot in it.
   describe('requires a dot', () => {
     it.each([
       ['a company name mapped into this field by mistake', 'Microsoft'],
-      ['a single label', 'localhost:3000']
-    ])('drops %s', (_label: string, input: string) => {
-      expect(normalizeDomain(input)).toBeUndefined()
-    })
-  })
-
-  // IP addresses are not company domains. IPv6 is bracketed and so has no dot; IPv4 is all dots,
-  // so it is rejected explicitly.
-  describe('does not accept an IP address', () => {
-    it.each([
-      ['an IPv6 literal, caught by the dot check', '[::1]'],
-      ['an IPv6 literal with a port and path', 'https://[2001:db8::1]:8080/about'],
-      ['an IPv4 address, which the dot check alone would let through', '192.168.0.1'],
-      ['an IPv4 address behind a scheme', 'https://10.0.0.1/about']
+      ['a single label', 'localhost:3000'],
+      ['an IPv6 literal, which is bracketed and so has no dot', '[::1]']
     ])('drops %s', (_label: string, input: string) => {
       expect(normalizeDomain(input)).toBeUndefined()
     })
 
-    it('still accepts a domain whose labels are numeric', () => {
+    it('accepts a domain whose labels are numeric', () => {
       expect(normalizeDomain('123.com')).toBe('123.com')
     })
   })

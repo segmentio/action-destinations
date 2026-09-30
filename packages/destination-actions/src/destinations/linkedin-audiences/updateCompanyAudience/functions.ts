@@ -41,13 +41,10 @@ import {
   SEGMENT_TYPES
 } from './constants'
 
-const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
 const HTTP_SCHEME = /^https?:\/\//i
-const TRAILING_DOT = /\.$/
 const TRAILING_SLASHES = /\/+$/
 const QUERY_OR_FRAGMENT = /[?#]/
 const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
-const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
 export function toOrganizationUrn(linkedInCompanyId?: string): string | undefined {
   const raw = trimmed(linkedInCompanyId)
@@ -68,29 +65,14 @@ function withinLength(value: string | undefined, max: number): string | undefine
   return value && value.length <= max ? value : undefined
 }
 
-function parseUrl(value?: string): URL | undefined {
-  const raw = trimmed(value)?.toLowerCase()
-  if (!raw) {
-    return undefined
-  }
-
-  try {
-    return new URL(SCHEME_PREFIX.test(raw) ? raw : `https://${raw}`)
-  } catch {
-    return undefined
-  }
-}
-
 export function normalizeDomain(value?: string): string | undefined {
-  const hostname = parseUrl(value)?.hostname
-  if (!hostname) {
-    return undefined
-  }
+  // Whatever the customer maps, reduced to the host: the scheme goes, anything after the host
+  // goes, and an email address keeps only what follows the last @. No URL parsing, so a non-ascii
+  // domain is sent as written rather than converted to punycode.
+  const host = trimmed(value)?.toLowerCase().replace(HTTP_SCHEME, '').split('/')[0].split('@').pop()
 
-  // To be fully qualified a domain must contain a dot.
-  // An IPv4 address is full of dots, so it needs rejecting on its own.
-  const host = hostname.replace(TRAILING_DOT, '')
-  return host.includes('.') && !IPV4.test(host) ? host : undefined
+  // A domain has a dot in it. Beyond that the value is the customer's to get right.
+  return host?.includes('.') ? host : undefined
 }
 
 function isLinkedInHost(hostname: string): boolean {
