@@ -941,7 +941,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
 
       it('reduces companyWebsiteDomain to its host, whatever shape it was mapped in', async () => {
         const element = await sendOne({ identifiers: { companyDomain: '  HTTPS://WWW.Microsoft.com/about  ' } })
-        expect(element.companyWebsiteDomain).toBe('www.microsoft.com')
+        expect(element.companyWebsiteDomain).toBe('microsoft.com')
       })
     })
 
