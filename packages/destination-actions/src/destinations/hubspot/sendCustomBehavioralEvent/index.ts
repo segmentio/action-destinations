@@ -1,10 +1,9 @@
 import { ActionDefinition, DynamicFieldResponse, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { HUBSPOT_BASE_URL } from '../properties'
 import type { Payload } from './generated-types'
 import { flattenObject, transformEventName, GetCustomEventResponse } from '../utils'
 import { HubSpotError } from '../errors'
-import { HUBSPOT_CRM_API_VERSION } from '../versioning-info'
+import { hubspotUrls } from '../versioning-info'
 
 interface CustomBehavioralEvent {
   eventName: string
@@ -71,15 +70,13 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    eventName: async (request): Promise<DynamicFieldResponse> => {
+    eventName: async (request, { features }): Promise<DynamicFieldResponse> => {
+      const urls = hubspotUrls(features)
       try {
-        const result: GetCustomEventResponse = await request(
-          `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions`,
-          {
-            method: 'get',
-            skipResponseCloning: true
-          }
-        )
+        const result: GetCustomEventResponse = await request(`${urls.events}/event-definitions`, {
+          method: 'get',
+          skipResponseCloning: true
+        })
         const choices = result.data.results.map((event) => {
           return { value: event.fullyQualifiedName, label: event.name }
         })
@@ -101,7 +98,8 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features }) => {
+    const urls = hubspotUrls(features)
     const eventName = transformEventName(payload.eventName)
 
     const event: CustomBehavioralEvent = {
@@ -127,7 +125,7 @@ const action: ActionDefinition<Settings, Payload> = {
       throw new PayloadValidationError(`One of the following parameters: email, user token, or objectId is required`)
     }
 
-    return request(`${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/send`, {
+    return request(`${urls.events}/send`, {
       method: 'post',
       json: event
     })

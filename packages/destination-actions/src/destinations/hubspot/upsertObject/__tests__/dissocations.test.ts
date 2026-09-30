@@ -170,8 +170,7 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping,
-        features: { 'actions-hubspot-lists-association-support': true }
+        mapping
       })
 
       expect(responses.length).toBe(5)
@@ -384,8 +383,7 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: modifiedMapping,
-        features: { 'actions-hubspot-lists-association-support': true }
+        mapping: modifiedMapping
       })
 
       expect(responses.length).toBe(5)
@@ -744,8 +742,7 @@ describe('Hubspot.upsertObject', () => {
         events: [event1, event2],
         settings,
         useDefaultMappings: true,
-        mapping: modifiedMapping,
-        features: { 'actions-hubspot-lists-association-support': true }
+        mapping: modifiedMapping
       })
 
       expect(responses.length).toBe(7)

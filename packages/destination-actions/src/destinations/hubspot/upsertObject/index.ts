@@ -74,16 +74,9 @@ const send = async (
     list_details
   } = payloads[0]
 
-  const flag = features?.['actions-hubspot-lists-association-support'] ?? false
-
-  let listName: string | undefined = undefined
-
-  const client = new Client(request, objectType)
-  const validPayloads = validate(payloads, flag)
-
-  if (flag) {
-    listName = getListName(payloads[0])
-  }
+  const client = new Client(request, objectType, features)
+  const validPayloads = validate(payloads)
+  const listName = getListName(payloads[0])
 
   const schema = objectSchema(validPayloads, objectType)
 
@@ -113,11 +106,15 @@ const send = async (
     }
   }
 
-  let cachableList = undefined
-  if (flag) {
-    const shouldCreateList = list_details?.should_create_list ?? false
-    cachableList = await ensureList(client, objectType, listName, shouldCreateList, subscriptionMetadata, statsContext)
-  }
+  const shouldCreateList = list_details?.should_create_list ?? false
+  const cachableList = await ensureList(
+    client,
+    objectType,
+    listName,
+    shouldCreateList,
+    subscriptionMetadata,
+    statsContext
+  )
 
   const fromRecordPayloads = await sendFromRecords(client, validPayloads, objectType, syncMode)
   const associationPayloads = deDuplicateAssociations(createAssociationPayloads(fromRecordPayloads, 'associations'))
@@ -128,15 +125,13 @@ const send = async (
   )
   await sendAssociations(client, associatedRecords, 'create')
 
-  if (flag) {
-    const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
-    // We don't want to create new records when dissociating, hence forcing AssociationSyncMode.Read
-    const dissociatedRecords = await sendAssociatedRecords(client, dissociationPayloads, AssociationSyncMode.Read)
-    await sendAssociations(client, dissociatedRecords, 'archive')
+  const dissociationPayloads = createAssociationPayloads(fromRecordPayloads, 'dissociations')
+  // We don't want to create new records when dissociating, hence forcing AssociationSyncMode.Read
+  const dissociatedRecords = await sendAssociatedRecords(client, dissociationPayloads, AssociationSyncMode.Read)
+  await sendAssociations(client, dissociatedRecords, 'archive')
 
-    if (cachableList) {
-      await sendLists(client, cachableList, fromRecordPayloads)
-    }
+  if (cachableList) {
+    await sendLists(client, cachableList, fromRecordPayloads)
   }
 
   return
