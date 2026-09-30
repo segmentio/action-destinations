@@ -250,7 +250,7 @@ describe('trackConversion utils', () => {
       )
     })
 
-    it('should respect throwHttpErrors value always being false', async () => {
+    it('should default throwHttpErrors to false when not specified', async () => {
       nock(settings.region).post('/adsApi/v1/create/events').reply(400, { error: 'Bad Request' })
 
       const mockRequest = jest.fn().mockResolvedValue({
@@ -264,6 +264,24 @@ describe('trackConversion utils', () => {
         expect.any(String),
         expect.objectContaining({
           throwHttpErrors: false
+        })
+      )
+
+      mockRequest.mockClear()
+    })
+
+    it('should pass throwHttpErrors: true through when explicitly requested', async () => {
+      const mockRequest = jest.fn().mockResolvedValue({
+        status: 200,
+        data: { success: true }
+      })
+
+      await sendEventsRequest(mockRequest as unknown as RequestClient, settings, eventData, true)
+
+      expect(mockRequest).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          throwHttpErrors: true
         })
       )
 
