@@ -587,7 +587,7 @@
             },
             "companyPageUrl": {
               "label": "LinkedIn Company Page URL",
-              "description": "The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on any other website, or one that is not a company page, is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.",
+              "description": "The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on another website is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.",
               "type": "string",
               "required": false,
               "multiple": false,
