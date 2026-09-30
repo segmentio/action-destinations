@@ -497,26 +497,6 @@ describe('send with hashing feature flag', () => {
     ).resolves.not.toThrow()
   })
 
-  it('forwards the features object from send() through to uploadS3 intact', async () => {
-    mockUploadS3.mockClear()
-    const payloadNoHashing: Payload = {
-      columns: { email: 'test@test.com', user_id: 'user_1' },
-      delimiter: ',',
-      enable_batching: true,
-      file_extension: 'csv'
-    }
-    const features = { [S3_HASHING_FEATURE_FLAG]: true }
-
-    await send([payloadNoHashing], settings, rawMapping, features)
-
-    expect(mockUploadS3).toHaveBeenCalledTimes(1)
-    // features is the 6th positional arg to uploadS3(settings, fileContent, filename_prefix,
-    // s3_aws_folder_name, fileExtension, features, signal) — assert on the actual call args so a
-    // future positional-argument regression (e.g. swapping features/signal) is caught here rather
-    // than silently disabling the flag in production while this test stays green.
-    expect(mockUploadS3.mock.calls[0][5]).toBe(features)
-  })
-
   it('forwards the features object from send() through to the Client constructor intact', async () => {
     ;(Client as unknown as jest.Mock).mockClear()
     const payloadNoHashing: Payload = {

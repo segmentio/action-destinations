@@ -621,7 +621,7 @@
       "description": "Add or remove users from a list in Marketo",
       "platform": "cloud",
       "defaultSubscription": "type = track or type = identify",
-      "hidden": false,
+      "hidden": true,
       "hasPerformBatch": true,
       "syncMode": {
         "default": "mirror",

@@ -9,20 +9,28 @@ const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync List',
   description: 'Add or remove users from a list in Marketo',
   defaultSubscription: 'type = track or type = identify',
+  hidden: true,
   syncMode: {
     label: 'Sync Mode',
     description: 'Specify how Segment should sync data to Marketo when connected to a database Source.',
     default: 'mirror',
     choices: [
       { label: 'Add - when connected to a database Source, adding a row will trigger this mapping', value: 'add' },
-      { label: 'Update - when connected to a database Source, updating a row will trigger this mapping', value: 'update' },
+      {
+        label: 'Update - when connected to a database Source, updating a row will trigger this mapping',
+        value: 'update'
+      },
       {
         label: 'Upsert - when connected to a database Source, adding or updating a row will trigger this mapping',
         value: 'upsert'
       },
-      { label: 'Delete - when connected to a database Source, deleting a row will trigger this mapping', value: 'delete' },
       {
-        label: 'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
+        label: 'Delete - when connected to a database Source, deleting a row will trigger this mapping',
+        value: 'delete'
+      },
+      {
+        label:
+          'Mirror - when connected to a database Source, adding, updating, or deleting a row will trigger this mapping',
         value: 'mirror'
       }
     ]

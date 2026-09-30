@@ -1,4 +1,4 @@
-import { Client, clearCredentialsCache, isAWSError, mapAWSError, buildTimestampedFilename } from '../syncToS3/client'
+import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
 import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
 import {
   APIError,
@@ -11,17 +11,11 @@ import {
 } from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import {
-  S3_STS_ERROR_CLASSIFICATION_FLAG,
-  S3_STS_CREDENTIAL_CACHE_FLAG,
-  S3_FILENAME_FIX_FLAG
-} from '../constants'
+import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from '../syncToS3/constants'
 
-// Controllable STS send mock so tests can simulate assume-role failures / control credential responses.
+// Controllable STS send mock so tests can control assume-role responses/failures.
 const mockStsSend = jest.fn()
-// Controllable S3 send mock so tests can simulate PUT failures / inspect the S3 key that gets PUT.
-const mockS3Send = jest.fn()
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
@@ -88,184 +82,6 @@ describe('isAWSError', () => {
   })
 })
 
-describe('buildTimestampedFilename', () => {
-  const DATE = '2026-09-02T11-23-42-574Z'
-
-  it('inserts the date suffix before the extension for a plain name', () => {
-    expect(buildTimestampedFilename('export.csv', DATE, 'csv')).toBe(`export_${DATE}.csv`)
-  })
-
-  it('does NOT corrupt a name whose base contains the extension string (regression: STRATCONN-6988)', () => {
-    // The old code did filename_prefix.replace('csv', ...), which replaced the
-    // leading "csv" in "csv_export" and produced "_<date>.csv_export.csv".
-    expect(buildTimestampedFilename('csv_export.csv', DATE, 'csv')).toBe(`csv_export_${DATE}.csv`)
-    expect(buildTimestampedFilename('my_txt_report.txt', DATE, 'txt')).toBe(`my_txt_report_${DATE}.txt`)
-  })
-
-  it('appends suffix and extension when the prefix has no extension', () => {
-    expect(buildTimestampedFilename('export', DATE, 'csv')).toBe(`export_${DATE}.csv`)
-  })
-
-  it('uses only the date suffix when the prefix is empty', () => {
-    expect(buildTimestampedFilename('', DATE, 'csv')).toBe(`${DATE}.csv`)
-  })
-
-  // Regression: previously the mismatched-extension case fell through to naive appending,
-  // producing a double-extension key (`report.txt_<date>.csv`) — the same "corrupted-looking
-  // filename" symptom this whole fix targets, just for a different input shape. Now any trailing
-  // extension-like suffix is replaced by the configured one instead of doubled.
-  it('replaces a mismatched trailing extension with the configured one, instead of doubling it', () => {
-    expect(buildTimestampedFilename('report.txt', DATE, 'csv')).toBe(`report_${DATE}.csv`)
-  })
-
-  it('neutralizes path separators and `..` segments in the prefix (defense in depth against S3 key injection)', () => {
-    expect(buildTimestampedFilename('../../etc/passwd', DATE, 'csv')).toBe(`____etc_passwd_${DATE}.csv`)
-    expect(buildTimestampedFilename('folder/nested.csv', DATE, 'csv')).toBe(`folder_nested_${DATE}.csv`)
-  })
-
-  it('neutralizes backslash path separators too', () => {
-    expect(buildTimestampedFilename('folder\\nested.csv', DATE, 'csv')).toBe(`folder_nested_${DATE}.csv`)
-  })
-
-  it('treats a prefix that is only the extension (no base) as empty', () => {
-    expect(buildTimestampedFilename('.csv', DATE, 'csv')).toBe(`${DATE}.csv`)
-  })
-
-  it('keeps earlier dot-segments intact and only strips the trailing extension-shaped one', () => {
-    expect(buildTimestampedFilename('a.b.c.csv', DATE, 'csv')).toBe(`a.b.c_${DATE}.csv`)
-    // Mismatched configured extension: only the final ".txt" segment is stripped, not "a.b".
-    expect(buildTimestampedFilename('a.b.txt', DATE, 'csv')).toBe(`a.b_${DATE}.csv`)
-  })
-
-  it('leaves a bare trailing dot with nothing after it untouched (no extension-shaped suffix to strip)', () => {
-    expect(buildTimestampedFilename('name.', DATE, 'csv')).toBe(`name._${DATE}.csv`)
-  })
-
-  it('extension matching is case-sensitive: an uppercase extension is treated as mismatched, not matching', () => {
-    expect(buildTimestampedFilename('export.CSV', DATE, 'csv')).toBe(`export_${DATE}.csv`)
-  })
-
-  it('does not corrupt a name with no dot at all, whether or not it contains the extension as a substring', () => {
-    expect(buildTimestampedFilename('plainname', DATE, 'csv')).toBe(`plainname_${DATE}.csv`)
-    // Core regression case without a dot: "csv" appears in the name but there's no ".csv" to match/strip.
-    expect(buildTimestampedFilename('mycsvfile', DATE, 'csv')).toBe(`mycsvfile_${DATE}.csv`)
-  })
-
-  it('works symmetrically in the other direction: a .csv prefix with file_extension txt', () => {
-    expect(buildTimestampedFilename('data.csv', DATE, 'txt')).toBe(`data_${DATE}.txt`)
-  })
-
-  it('is not hardcoded to csv/txt -- works for any configured extension value', () => {
-    expect(buildTimestampedFilename('export.json', DATE, 'json')).toBe(`export_${DATE}.json`)
-    expect(buildTimestampedFilename('export.txt', DATE, 'json')).toBe(`export_${DATE}.json`)
-  })
-
-  it('handles runs of multiple dots without crashing, still landing on a safe, non-traversal-looking name', () => {
-    expect(buildTimestampedFilename('..', DATE, 'csv')).toBe(`__${DATE}.csv`)
-    expect(buildTimestampedFilename('...', DATE, 'csv')).toBe(`_._${DATE}.csv`)
-    expect(buildTimestampedFilename('....', DATE, 'csv')).toBe(`___${DATE}.csv`)
-    // A leading ".." immediately followed by the real extension: neutralized before extension
-    // matching runs, so it's treated as a plain (mismatched, dot-less) base rather than re-forming
-    // a ".csv"-ending string that would trip the exact-match branch.
-    expect(buildTimestampedFilename('..csv', DATE, 'csv')).toBe(`_csv_${DATE}.csv`)
-  })
-
-  it('preserves multi-byte unicode characters in the base untouched', () => {
-    expect(buildTimestampedFilename('résumé_📁.csv', DATE, 'csv')).toBe(`résumé_📁_${DATE}.csv`)
-  })
-})
-
-describe('uploadS3 filename fix flag', () => {
-  const settings: Settings = {
-    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
-    s3_aws_bucket_name: 'test-bucket',
-    s3_aws_region: 'us-east-1',
-    iam_external_id: 'external-id'
-  }
-
-  const flagOn: Features = { [S3_FILENAME_FIX_FLAG]: true }
-  const client = new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id)
-
-  beforeEach(() => {
-    mockStsSend.mockReset()
-    mockS3Send.mockReset()
-    mockStsSend.mockResolvedValue({
-      Credentials: { AccessKeyId: 'AKIA_TEST', SecretAccessKey: 'secret', SessionToken: 'token' }
-    })
-    mockS3Send.mockResolvedValue({})
-  })
-
-  it('is off by default: the extension can still be corrupted for a name containing it mid-string', async () => {
-    await client.uploadS3(settings, 'content', 'csv_export.csv', '', 'csv', undefined)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    // Old (buggy) behavior: filename_prefix.replace('csv', ...) replaces the FIRST occurrence,
-    // which is the leading "csv" in "csv_export", not the trailing extension.
-    expect(key).toMatch(/^_.*\.csv_export\.csv$/)
-  })
-
-  it('when enabled, does not corrupt a name whose base contains the extension string', async () => {
-    await client.uploadS3(settings, 'content', 'csv_export.csv', '', 'csv', flagOn)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    expect(key).toMatch(/^csv_export_.*\.csv$/)
-  })
-
-  // The PR's own safety claim: for a filename that was never actually corrupted by the legacy
-  // logic (no extension-shaped substring anywhere in the base), flag on and flag off must produce
-  // the exact same key -- not just "similarly shaped" keys.
-  it('produces a byte-identical key whether the flag is on or off, for a name the legacy path never corrupted', async () => {
-    await client.uploadS3(settings, 'content', 'plain_report', '', 'csv', undefined)
-    const keyFlagOff = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-
-    mockS3Send.mockClear()
-    await client.uploadS3(settings, 'content', 'plain_report', '', 'csv', flagOn)
-    const keyFlagOn = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-
-    // Both calls happen close enough together that the second-resolution dateSuffix should match;
-    // guard against flakiness at a minute boundary by comparing everything up to the timestamp.
-    expect(keyFlagOn.replace(/\d{2}-\d{2}-\d{2}-\d{3}Z\.csv$/, '')).toBe(
-      keyFlagOff.replace(/\d{2}-\d{2}-\d{2}-\d{3}Z\.csv$/, '')
-    )
-    expect(keyFlagOn).toMatch(/^plain_report_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.csv$/)
-  })
-
-  it('when enabled, prefixes the key with the folder name unchanged, only fixing the filename', async () => {
-    await client.uploadS3(settings, 'content', 'csv_export.csv', 'exports/', 'csv', flagOn)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    expect(key).toMatch(/^exports\/csv_export_.*\.csv$/)
-  })
-
-  it('when enabled, appends a folder-name slash automatically if the setting omits it', async () => {
-    await client.uploadS3(settings, 'content', 'report', 'exports', 'csv', flagOn)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    expect(key).toMatch(/^exports\/report_.*\.csv$/)
-  })
-
-  it('when enabled, an empty filename_prefix falls back to just the timestamp and extension', async () => {
-    await client.uploadS3(settings, 'content', '', '', 'csv', flagOn)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    expect(key).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.csv$/)
-  })
-
-  it('when enabled, works end-to-end for the txt extension too, including its own mid-string corruption case', async () => {
-    await client.uploadS3(settings, 'content', 'txt_report.txt', '', 'txt', flagOn)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    expect(key).toMatch(/^txt_report_.*\.txt$/)
-  })
-
-  it('is off by default: an empty filename_prefix matches main (timestamp and extension only)', async () => {
-    await client.uploadS3(settings, 'content', '', '', 'csv', undefined)
-
-    const key = (mockS3Send.mock.calls[0][0] as { Key: string }).Key
-    expect(key).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z\.csv$/)
-  })
-})
-
 describe('Client STS assume-role error handling', () => {
   const settings: Settings = {
     iam_role_arn: 'arn:aws:iam::123456789012:role/test',
@@ -275,15 +91,12 @@ describe('Client STS assume-role error handling', () => {
   }
 
   const flagOn: Features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
-  // features is the 5th positional arg to `new Client(region, roleArn, externalId, statsContext, features)`.
   const newClient = (features?: Features) =>
     new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
 
   beforeEach(() => {
     mockStsSend.mockReset()
-    mockS3Send.mockReset()
-    mockS3Send.mockResolvedValue({})
   })
 
   it('is off by default: an STS failure is NOT wrapped and escapes unclassified (prior behavior)', async () => {
@@ -358,7 +171,6 @@ describe('uploadS3 PUT error classification (flag-off legacy path parity)', () =
     s3_aws_region: 'us-east-1',
     iam_external_id: 'external-id'
   }
-  // features is the 5th positional arg to `new Client(region, roleArn, externalId, statsContext, features)`.
   const newClient = (features?: Features) =>
     new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
@@ -440,7 +252,10 @@ describe('mapAWSError', () => {
 
   it('never surfaces a non-4xx status from the generic client-fault branch (clamps to 400)', () => {
     // A client-fault error carrying a 3xx status must not leak that 3xx as the error status.
-    const err = mapAWSError({ name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } }, 'AWS PUT failed')
+    const err = mapAWSError(
+      { name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } },
+      'AWS PUT failed'
+    )
     expect(err).toBeInstanceOf(IntegrationError)
     expect((err as IntegrationError).status).toBe(400)
   })
@@ -474,7 +289,12 @@ describe('mapAWSError', () => {
   // (a retryable timeout class) rather than the raw permanent client-fault bucket.
   it('treats OperationAborted (409) as a retryable timeout despite its 4xx status', () => {
     const err = mapAWSError(
-      { Code: 'OperationAborted', Message: 'conflicting operation in progress', $fault: 'client', $metadata: { httpStatusCode: 409 } },
+      {
+        Code: 'OperationAborted',
+        Message: 'conflicting operation in progress',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 409 }
+      },
       'AWS PUT failed'
     )
     expect(err).toBeInstanceOf(RequestTimeoutError)
@@ -624,7 +444,7 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(2)
   })
 
-  it('when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop\'s', async () => {
+  it("when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop's", async () => {
     // Distinguishable per-hop credentials so a cache-key mixup (e.g. customer lookup returning the
     // intermediary's cached entry) would be caught by asserting the exact values used, not just call counts.
     mockStsSend
@@ -749,7 +569,7 @@ describe('STS credential caching', () => {
   // iam_role_arn/iam_external_id equal to the intermediary's, forcing its customer hop's cache
   // lookup to collide with the (always-populated-first) intermediary entry and receive Segment's
   // shared intermediary credentials without AWS ever checking the customer role's trust policy.
-  it('when enabled, does not let a customer-configured role/externalId alias the intermediary hop\'s cache entry', async () => {
+  it("when enabled, does not let a customer-configured role/externalId alias the intermediary hop's cache entry", async () => {
     // Attacker sets their own iam_role_arn/iam_external_id equal to the (effectively public)
     // intermediary role identity set up for the whole suite above, hoping the customer hop's
     // cache lookup collides with the intermediary hop's entry and returns its shared credentials.

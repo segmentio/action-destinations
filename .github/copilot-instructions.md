@@ -47,6 +47,10 @@ When reviewing pull requests, thoroughly check the following areas:
   - Required Field Check
   - Test External
   - Code coverage
+- Beyond the gating status checks above, also confirm the PR meets the author-facing
+  review bar covered in **PR Author Nudges** below (Testing section filled in, and
+  feature-flag rollout details when a flag is introduced). These are advisory, not
+  gating checks, but should be raised as review comments when missing.
 
 ### 2. Code Quality and Standards
 
@@ -66,10 +70,31 @@ When reviewing pull requests, thoroughly check the following areas:
   - Adding new required fields to existing action definitions
   - Changing field types in ways that could break existing integrations
   - Altering the behavior of existing functionality that customers rely on
-- For critical high-volume destinations (e.g., Facebook, Google, Snapchat), recommend using feature flags to safely roll out changes
+- For critical high-volume destinations (e.g., Facebook, Google, Snapchat, TikTok), recommend using feature flags to safely roll out changes
   - This allows testing in production with limited exposure
   - Helps identify potential issues before affecting all customers
   - Provides a quick rollback mechanism if problems are discovered
+
+#### Recognizing feature flags in a diff
+
+Feature flags follow consistent conventions in this repo, so you can detect them when reviewing a diff:
+
+- Flags are **kebab-case string literals**, usually defined as an exported constant whose name contains `FLAGON`, `FEATURE_FLAG`, `_FLAG`, or `FLAG_` (e.g. `S3_HASHING_FEATURE_FLAG`, `FLAGON_NAME`), or occasionally inlined as a literal.
+- They are read off the perform bundle as `features?.['flag-name']` or `features['flag-name']` inside `perform` / `performBatch`.
+- A flag should **default to off** and be registered in Flagon before rollout.
+- Real examples for reference:
+  - [`mixpanel/trackEvent/index.ts`](../packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts) — `mixpanel-multistatus`
+  - [`hubspot/upsertObject/index.ts`](../packages/destination-actions/src/destinations/hubspot/upsertObject/index.ts) — `actions-hubspot-lists-association-support`
+  - [`s3/constants.ts`](../packages/destination-actions/src/destinations/s3/constants.ts) — `S3_HASHING_FEATURE_FLAG`
+
+### 3a. PR Author Nudges
+
+When reviewing a PR, post a short, friendly, **non-blocking** review comment (a suggestion, never "request changes") when either of the following applies. Prefer a single consolidated comment covering both.
+
+- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging / Hadron regression), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
+- **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered in Flagon and **defaults to off**, and to describe the rollout / rollback plan.
+
+Keep these nudges advisory and encouraging — they help authors and reviewers, but they do not block merge.
 
 ### 4. PR Organization
 

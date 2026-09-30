@@ -16,15 +16,7 @@ import type { Features, StatsContext } from '@segment/actions-core'
 import { LRUCache } from 'lru-cache'
 import { Credentials } from './types'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
-import {
-  S3_KEY_LENGTH_GUARD_FLAG,
-  S3_STS_ERROR_CLASSIFICATION_FLAG,
-  S3_STS_CREDENTIAL_CACHE_FLAG,
-  S3_FILENAME_FIX_FLAG
-} from '../constants'
-
-// AWS enforces a hard limit of 1024 bytes (UTF-8) on S3 object keys.
-const MAX_S3_OBJECT_KEY_BYTES = 1024
+import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
 // Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
 // live at once; this is a generous cap that still bounds memory growth in a long-lived process.
@@ -264,27 +256,26 @@ export class Client {
     filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string,
-    features?: Features,
     signal?: AbortSignal
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
     // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
     // STRATCONN-6986 / INC 20659 — this fix was part of the reverted release cluster.
-    if (features?.[S3_FILENAME_FIX_FLAG]) {
-      filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
+    // if (features?.[S3_FILENAME_FIX_FLAG]) {
+    //   filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
+    // } else {
+    // Flag off (default): original (buggy) behavior, kept as-is. `replace` with a string
+    // replaces the FIRST occurrence of fileExtension anywhere in the name (e.g. the leading
+    // "csv" in "csv_export.csv"), which can corrupt the filename — see STRATCONN-6988.
+    if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
+      filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
     } else {
-      // Flag off (default): original (buggy) behavior, kept as-is. `replace` with a string
-      // replaces the FIRST occurrence of fileExtension anywhere in the name (e.g. the leading
-      // "csv" in "csv_export.csv"), which can corrupt the filename — see STRATCONN-6988.
-      if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
-        filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
-      } else {
-        filename_prefix = filename_prefix
-          ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
-          : `${dateSuffix}.${fileExtension}`
-      }
+      filename_prefix = filename_prefix
+        ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
+        : `${dateSuffix}.${fileExtension}`
     }
+    // }
 
     const bucketName = settings.s3_aws_bucket_name
     const folderName = ['', null, undefined].includes(s3_aws_folder_name)
@@ -299,17 +290,17 @@ export class Client {
     // letting the PUT fail late and opaquely (and storm retries) with a raw AWS error.
     // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
     // STRATCONN-6986 / INC 20659 — this guard was part of the reverted release cluster.
-    if (features?.[S3_KEY_LENGTH_GUARD_FLAG]) {
-      // Measure bytes, not characters: multi-byte UTF-8 chars count for more than one byte.
-      const objectKeyBytes = Buffer.byteLength(objectKey, 'utf8')
-      if (objectKeyBytes > MAX_S3_OBJECT_KEY_BYTES) {
-        // Do not include the key content in the message — it may contain PII.
-        throw new PayloadValidationError(
-          `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
-            `Shorten the folder name and/or filename prefix.`
-        )
-      }
-    }
+    // if (features?.[S3_KEY_LENGTH_GUARD_FLAG]) {
+    //   // Measure bytes, not characters: multi-byte UTF-8 chars count for more than one byte.
+    //   const objectKeyBytes = Buffer.byteLength(objectKey, 'utf8')
+    //   if (objectKeyBytes > MAX_S3_OBJECT_KEY_BYTES) {
+    //     // Do not include the key content in the message — it may contain PII.
+    //     throw new PayloadValidationError(
+    //       `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
+    //         `Shorten the folder name and/or filename prefix.`
+    //     )
+    //   }
+    // }
 
     const credentials = await this.assumeRole(signal)
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
