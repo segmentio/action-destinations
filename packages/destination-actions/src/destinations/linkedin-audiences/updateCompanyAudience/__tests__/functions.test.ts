@@ -9,7 +9,7 @@ import {
 } from '../functions'
 import { COUNTRY_CODES, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
 import type { Payload } from '../generated-types'
-import type { NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
+import type { AudienceAction, NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
 
 const payload = (overrides: Partial<Payload> = {}): Payload =>
   ({
@@ -23,7 +23,7 @@ const payload = (overrides: Partial<Payload> = {}): Payload =>
 // the original batch; companyKey ignores it, but the type requires it, so it is fixed at 0 here.
 const keyed = (
   identifiers: NormalizedIdentifiers,
-  action = 'ADD',
+  action: AudienceAction = 'ADD',
   company_traits?: NormalizedTraits
 ): ValidCompanyPayload => ({
   dmp_company_action: action,

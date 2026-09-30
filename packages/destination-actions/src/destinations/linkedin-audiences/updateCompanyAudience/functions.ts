@@ -236,7 +236,14 @@ export function validate(
         throw new PayloadValidationError(message)
       }
     } else {
-      validPayloads.push({ ...payload, identifiers, company_traits: normalizeTraits(payload), index })
+      validPayloads.push({
+        ...payload,
+        // Narrowed by the check above; the generated Payload type keeps `choices` as a string.
+        dmp_company_action: payload.dmp_company_action as AudienceAction,
+        identifiers,
+        company_traits: normalizeTraits(payload),
+        index
+      })
     }
   })
 
@@ -267,7 +274,7 @@ export function buildJSON(payloads: ValidCompanyPayload[]): AudienceJSON<LinkedI
     const { companyName, companyDomain, companyEmailDomain, linkedInCompanyId, companyPageUrl } =
       payload.identifiers ?? {}
     return {
-      action: payload.dmp_company_action as AudienceAction,
+      action: payload.dmp_company_action,
       ...(companyName && { companyName }),
       ...(companyDomain && { companyWebsiteDomain: companyDomain }),
       ...(companyEmailDomain && { companyEmailDomain }),

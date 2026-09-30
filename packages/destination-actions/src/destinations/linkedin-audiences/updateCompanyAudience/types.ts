@@ -64,8 +64,9 @@ export interface NormalizedTraits {
   stockSymbol?: string
 }
 
-export type ValidCompanyPayload = Omit<Payload, 'identifiers' | 'company_traits'> & {
+export type ValidCompanyPayload = Omit<Payload, 'identifiers' | 'company_traits' | 'dmp_company_action'> & {
   index: number
+  dmp_company_action: AudienceAction
   identifiers: NormalizedIdentifiers
   company_traits?: NormalizedTraits
 }
