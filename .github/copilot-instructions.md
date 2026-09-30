@@ -66,14 +66,14 @@ When reviewing pull requests, thoroughly check the following areas:
 
 ### 3. Breaking Changes Prevention
 
-- Ensure PRs don't introduce breaking changes, especially:
-  - Adding new required fields to existing action definitions
-  - Changing field types in ways that could break existing integrations
-  - Altering the behavior of existing functionality that customers rely on
-- For critical high-volume destinations (e.g., Facebook, Google, Snapchat, TikTok), recommend using feature flags to safely roll out changes
-  - This allows testing in production with limited exposure
-  - Helps identify potential issues before affecting all customers
-  - Provides a quick rollback mechanism if problems are discovered
+Breaking-change and customer-impact analysis, and feature-flag rollout for high-volume
+destinations, are reviewed under the **Change Release Safety** section below (items 1, 5,
+and 6) — that is the single source of truth; don't restate it here. When reviewing the diff
+specifically, flag PRs that:
+
+- Add new required fields to existing action definitions
+- Change field types in ways that could break existing integrations
+- Alter the behavior of existing functionality that customers rely on
 
 #### Recognizing feature flags in a diff
 
@@ -91,8 +91,8 @@ Feature flags follow consistent conventions in this repo, so you can detect them
 
 When reviewing a PR, post a short, friendly, **non-blocking** review comment (a suggestion, never "request changes") when either of the following applies. Prefer a single consolidated comment covering both.
 
-- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging / Hadron regression), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
-- **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered in Flagon and **defaults to off**, and to describe the rollout / rollback plan.
+- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / Hadron regression), or to describe the testing they performed. Staging and backward-compatibility are covered by the Change Release Safety Test Plan and Breaking Change & Customer Impact. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
+- **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's **Risk Mitigation** narrative and the **Feature flag / gate** item in the Change Control Checklist (both under Change Release Safety) are not filled in. Remind the author to confirm the flag name, that the flag is registered in Flagon and **defaults to off**, and to describe the rollout / rollback plan.
 
 Keep these nudges advisory and encouraging — they help authors and reviewers, but they do not block merge.
 

@@ -247,7 +247,8 @@ fields: {
 
 - Be mindful of API rate limits when making external requests
 - Optimize code in action perform methods for high-volume event processing
-- For critical high-volume destinations (e.g., Facebook, Google, Snapchat), use feature flags to safely roll out changes
+- Gate risky changes to critical high-volume destinations (e.g., Facebook, Google, Snapchat)
+  behind a feature flag — see **Change Release Safety** for the rollout policy
 
 ## Development Workflow
 
@@ -332,15 +333,19 @@ expect(responses[0].status).toBe(200)
 
 ### Breaking Changes Prevention
 
-- Don't add new required fields to existing action definitions
-- Don't change field types in ways that could break existing integrations
-- Don't alter behavior of existing functionality customers rely on
-- For high-volume destinations, use feature flags for safe rollout
+Breaking-change and customer-impact analysis, and feature-flag rollout for high-volume
+destinations, are reviewed under **Change Release Safety** below (items 1, 5, and 6) — that
+is the single source of truth. When reviewing the diff specifically, flag:
+
+- Adding new required fields to existing action definitions
+- Changing field types in ways that could break existing integrations
+- Altering behavior of existing functionality customers rely on
 
 ### PR Organization
 
 - Split changes to multiple destinations into separate PRs
-- Ensure PR descriptions clearly explain changes and testing performed
+- Ensure PR descriptions clearly explain the changes (testing is covered by the Change
+  Release Safety Test Plan)
 
 ### CI Checks
 
