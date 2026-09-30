@@ -358,6 +358,9 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
       // `setDeferredUser` from the updateUserProfile action). Undefined until an
       // identify actually fires this load.
       let deferredUserId: string | undefined
+      // SDK Authentication signature captured from that same identify, so the deferred
+      // `changeUser` below can be authenticated on its first call.
+      let deferredSdkAuthSignature: string | undefined
 
       const client: BrazeDestinationClient = {
         instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
@@ -388,6 +391,25 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])
           }
 
+          // Surface SDK Authentication failures instead of letting them fail silently.
+          // Braze never invokes this subscriber unless SDK Authentication is enabled on
+          // the dashboard, but we still gate on the setting so that customers who have it
+          // off get no new code paths at all. `subscribeToSdkAuthenticationFailures` does
+          // not exist on SDK 3.1, hence the guard.
+          if (
+            settings.enableSdkAuthentication &&
+            typeof client.instance.subscribeToSdkAuthenticationFailures === 'function'
+          ) {
+            client.instance.subscribeToSdkAuthenticationFailures((error) => {
+              // Deliberately does not log `error.signature`: that is the customer's JWT.
+              console.error(
+                `Braze SDK Authentication failed with error code ${error.errorCode}${
+                  error.reason ? `: ${error.reason}` : ''
+                }. See https://www.braze.com/docs/developer_guide/sdk_integration/authentication for the error code reference.`
+              )
+            })
+          }
+
           if (automaticallyDisplayMessages) {
             if ('display' in client.instance) {
               client.instance.display.automaticallyShowNewInAppMessages()
@@ -402,15 +424,41 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           // setting is off: in that path attribution is handled by updateUserProfile's
           // own changeUser() on identify, and the session opens as before.
           if (deferUntilIdentified && deferredUserId !== undefined) {
-            client.instance.changeUser(deferredUserId)
+            client.identifyUser(deferredUserId, deferredSdkAuthSignature)
           }
 
           client.instance.openSession()
 
           return (initialized = true)
         },
-        setDeferredUser: (userId: string) => {
+        setDeferredUser: (userId: string, sdkAuthSignature?: string) => {
           deferredUserId = userId
+          deferredSdkAuthSignature = sdkAuthSignature
+        },
+        identifyUser: (userId: string, sdkAuthSignature?: string) => {
+          // The setting is the gate. With SDK Authentication off, a mapped token is ignored
+          // entirely, so the call is identical to the pre-SDK-Authentication behavior and no
+          // credential is stored in the browser.
+          const signature = settings.enableSdkAuthentication ? sdkAuthSignature : undefined
+
+          // Pass the signature only when we actually have one, rather than relying on how each
+          // supported SDK version handles an explicitly-undefined second argument.
+          if (!signature) {
+            client.instance.changeUser(userId)
+            return
+          }
+
+          client.instance.changeUser(userId, signature)
+
+          // On SDK 3.3, `changeUser` applies the signature only when the user actually changes.
+          // A same-user call returns without touching it, and that covers every returning
+          // visitor on a fresh page load as well as a mid-session refresh, so the token would be
+          // silently dropped. Setting it explicitly covers that case. On 3.5+ this is a no-op,
+          // because `changeUser` has already stored the same value. Missing on SDK 3.1, hence
+          // the guard.
+          if (typeof client.instance.setSdkAuthenticationSignature === 'function') {
+            client.instance.setSdkAuthenticationSignature(signature)
+          }
         }
       }
 

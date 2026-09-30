@@ -19,6 +19,20 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
         '@path': '$.userId'
       }
     },
+    sdk_auth_signature: {
+      label: 'SDK Authentication Signature',
+      description:
+        'The JWT used to authenticate this user when the **Enable SDK Authentication** setting is on. Supply it on your `analytics.identify()` call under `integrations["Braze Web Mode (Actions)"].sdk_auth_signature`. The token must be signed by your server with `sub` set to the same value sent as the External User ID. [See Braze docs](https://www.braze.com/docs/developer_guide/sdk_integration/authentication).',
+      type: 'string',
+      required: false,
+      default: {
+        '@if': {
+          exists: { '@path': '$.integrations.Braze Web Mode (Actions).sdk_auth_signature' },
+          then: { '@path': '$.integrations.Braze Web Mode (Actions).sdk_auth_signature' },
+          else: { '@path': '$.integrations.Braze Web Mode (Actions).sdkAuthSignature' }
+        }
+      }
+    },
     country: {
       label: 'Country',
       description: 'The country code of the user',
@@ -179,7 +193,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     // When deferUntilIdentified is enabled this is what allows ready() to initialize
     // the SDK, using this fresh userId rather than a stale value from localStorage.
     if (payload.external_id) {
-      client.setDeferredUser(payload.external_id)
+      client.setDeferredUser(payload.external_id, payload.sdk_auth_signature)
     }
 
     if (!client.ready()) {
@@ -188,7 +202,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
 
     // TODO - addAlias / addToCustomAttributeArray?
     if (payload.external_id) {
-      client.instance.changeUser(payload.external_id)
+      client.identifyUser(payload.external_id, payload.sdk_auth_signature)
     }
 
     const user = client.instance.getUser()

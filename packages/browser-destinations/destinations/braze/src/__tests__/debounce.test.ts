@@ -130,4 +130,41 @@ describe('debounce', () => {
     })
     expect(changedTraits.event.integrations['Braze Web Mode (Actions)']).toBe(true)
   })
+
+  test('preserves integration options when sending', async () => {
+    const [debounce] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      doNotLoadFontAwesome: true,
+      sdkVersion: '4.1',
+      subscriptions: [
+        {
+          partnerAction: 'debounce',
+          name: 'Debounce',
+          enabled: true,
+          subscribe: 'type = "identify"',
+          mapping: {}
+        }
+      ]
+    })
+
+    await ajs.register(debounce)
+
+    // The SDK Authentication signature is supplied under this key, so overwriting it with
+    // `true` would silently drop the token before updateUserProfile ever reads it.
+    const ctx = await ajs.identify(
+      'hasbulla',
+      { goat: true },
+      { integrations: { 'Braze Web Mode (Actions)': { sdk_auth_signature: 'jwt-1' } } }
+    )
+    expect(ctx.event.integrations['Braze Web Mode (Actions)']).toEqual({ sdk_auth_signature: 'jwt-1' })
+
+    // Skipping still has to win: an unchanged identify must not be sent to Braze.
+    const sameCtx = await ajs.identify(
+      'hasbulla',
+      { goat: true },
+      { integrations: { 'Braze Web Mode (Actions)': { sdk_auth_signature: 'jwt-1' } } }
+    )
+    expect(sameCtx.event.integrations['Braze Web Mode (Actions)']).toBe(false)
+  })
 })
