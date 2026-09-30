@@ -2,12 +2,21 @@ import { readFileSync } from 'fs'
 import { RequestClient } from '@segment/actions-core'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import { IntegrationError, ErrorCodes } from '@segment/actions-core'
+import { Logger, StatsContext } from '@segment/actions-core/destination-kit'
 import { v4 as uuidv4 } from '@lukeed/uuid'
 
 export type AWSCredentials = {
   accessKeyId: string
   secretAccessKey: string
   sessionToken: string
+}
+
+// Optional diagnostic instrumentation for the Kinesis assume-role path.
+// Gated by the `actions-aws-kinesis-advanced-logging` Flagon flag (see aws-kinesis/send/index.ts).
+export type StsLogging = {
+  advancedLogging: boolean
+  logger?: Logger
+  statsContext?: StatsContext
 }
 
 type K8sApiServiceAccountResponse = {
@@ -132,14 +141,33 @@ export async function getAWSCredentialsFromEKS(request: RequestClient): Promise<
   return credentials
 }
 
-export const assumeRole = async (roleArn: string, externalId: string, region: string): Promise<AWSCredentials> => {
+export const assumeRole = async (
+  roleArn: string,
+  externalId: string,
+  region: string,
+  logging?: StsLogging
+): Promise<AWSCredentials> => {
   const intermediaryARN = process.env.AMAZON_KINESIS_ACTIONS_ROLE_ADDRESS as string
   const intermediaryExternalId = process.env.AMAZON_KINESIS_ACTIONS_EXTERNAL_ID as string
-  const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
-  return getSTSCredentials(roleArn, externalId, region, intermediaryCreds)
+  const intermediaryCreds = await getSTSCredentials(
+    intermediaryARN,
+    intermediaryExternalId,
+    region,
+    undefined,
+    logging,
+    'sts_intermediary_ms'
+  )
+  return getSTSCredentials(roleArn, externalId, region, intermediaryCreds, logging, 'sts_customer_ms')
 }
 
-const getSTSCredentials = async (roleId: string, externalId: string, region: string, credentials?: AWSCredentials) => {
+const getSTSCredentials = async (
+  roleId: string,
+  externalId: string,
+  region: string,
+  credentials?: AWSCredentials,
+  logging?: StsLogging,
+  metric?: string
+) => {
   const options = { credentials, region: region }
   const stsClient = new STSClient(options)
   const roleSessionName: string = uuidv4()
@@ -148,7 +176,13 @@ const getSTSCredentials = async (roleId: string, externalId: string, region: str
     RoleSessionName: roleSessionName,
     ExternalId: externalId
   })
+  const start = Date.now()
   const result = await stsClient.send(command)
+  if (logging?.advancedLogging && metric) {
+    const durationMs = Date.now() - start
+    logging.statsContext?.statsClient?.histogram(`actions_kinesis.${metric}`, durationMs, logging.statsContext?.tags)
+    logging.logger?.info(`[aws-kinesis] assume_role phase=${metric} durationMs=${durationMs} region=${region}`)
+  }
   if (
     !result.Credentials ||
     !result.Credentials.AccessKeyId ||

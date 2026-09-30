@@ -76,6 +76,67 @@ describe('assumeRole', () => {
     })
   })
 
+  it('should emit per-call latency metrics when advanced logging is enabled', async () => {
+    mockSend
+      .mockResolvedValueOnce({
+        Credentials: {
+          AccessKeyId: 'AKIA_INTER',
+          SecretAccessKey: 'SECRET_INTER',
+          SessionToken: 'TOKEN_INTER'
+        }
+      })
+      .mockResolvedValueOnce({
+        Credentials: {
+          AccessKeyId: 'AKIA_FINAL',
+          SecretAccessKey: 'SECRET_FINAL',
+          SessionToken: 'TOKEN_FINAL'
+        }
+      })
+
+    const histogram = jest.fn()
+    const logger = { info: jest.fn() }
+    const logging = {
+      advancedLogging: true,
+      logger: logger as any,
+      statsContext: { statsClient: { histogram } as any, tags: ['tag1'] } as any
+    }
+
+    await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id-final', 'us-east-1', logging)
+
+    expect(histogram).toHaveBeenCalledWith('actions_kinesis.sts_intermediary_ms', expect.any(Number), ['tag1'])
+    expect(histogram).toHaveBeenCalledWith('actions_kinesis.sts_customer_ms', expect.any(Number), ['tag1'])
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('phase=sts_intermediary_ms'))
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('phase=sts_customer_ms'))
+  })
+
+  it('should not emit latency metrics when advanced logging is disabled', async () => {
+    mockSend
+      .mockResolvedValueOnce({
+        Credentials: {
+          AccessKeyId: 'AKIA_INTER',
+          SecretAccessKey: 'SECRET_INTER',
+          SessionToken: 'TOKEN_INTER'
+        }
+      })
+      .mockResolvedValueOnce({
+        Credentials: {
+          AccessKeyId: 'AKIA_FINAL',
+          SecretAccessKey: 'SECRET_FINAL',
+          SessionToken: 'TOKEN_FINAL'
+        }
+      })
+
+    const histogram = jest.fn()
+    const logging = {
+      advancedLogging: false,
+      statsContext: { statsClient: { histogram } as any, tags: ['tag1'] } as any
+    }
+
+    await assumeRole('arn:aws:iam::222222222222:role/TargetRole', 'external-id-final', 'us-east-1', logging)
+
+    expect(histogram).not.toHaveBeenCalled()
+  })
+
   it('should pass intermediary credentials to second STS call', async () => {
     mockSend
       .mockResolvedValueOnce({
