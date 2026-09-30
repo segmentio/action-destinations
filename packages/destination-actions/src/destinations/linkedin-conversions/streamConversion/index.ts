@@ -5,6 +5,7 @@ import { LinkedInConversions } from '../api'
 import { CONVERSION_TYPE_OPTIONS, SUPPORTED_LOOKBACK_WINDOW_CHOICES, DEPENDS_ON_CONVERSION_RULE_ID } from '../constants'
 import type { Payload, OnMappingSaveInputs, OnMappingSaveOutputs } from './generated-types'
 import { LinkedInError } from '../types'
+import { validate } from '../functions'
 
 /**
  * Rendered as the button text for this hook in the mapping editor, and quoted in the error below so the two cannot
@@ -255,7 +256,7 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     email: {
       label: 'Email',
       description:
-        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
+        'Email address of the contact associated with the conversion event. Segment will hash this value before sending it to LinkedIn. At least one user identifier is required.',
       type: 'string',
       required: false,
       default: { '@path': '$.traits.email' },
@@ -264,21 +265,43 @@ const action: ActionDefinition<Settings, Payload, undefined, OnMappingSaveInputs
     linkedInUUID: {
       label: 'LinkedIn First Party Ads Tracking UUID',
       description:
-        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
+        'First party cookie or Click Id. Enhanced conversion tracking must be enabled to use this ID type. See [LinkedIn documentation](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api?view=li-lms-2024-01&tabs=http#idtype) for more details. At least one user identifier is required.',
       type: 'string',
       required: false
     },
     acxiomID: {
       label: 'Acxiom ID',
       description:
-        'User identifier for matching with LiveRamp identity graph. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
+        'User identifier for matching with LiveRamp identity graph. At least one user identifier is required.',
       type: 'string',
       required: false
     },
     oracleID: {
       label: 'Oracle ID',
       description:
-        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.',
+        'User identifier for matching with Oracle MOAT Identity. Also known as ORACLE_MOAT_ID in LinkedIn documentation. At least one user identifier is required.',
+      type: 'string',
+      required: false
+    },
+    plaintextIpAddress: {
+      label: 'Plain Text IP Address',
+      description:
+        "The user's IP address in plain text IPv4 format. Do not hash this value. LinkedIn will hash it during processing. At least one user identifier is required.",
+      type: 'string',
+      format: 'ipv4',
+      required: false
+    },
+    sha256IpAddress: {
+      label: 'SHA256 IP Address',
+      description:
+        "The user's IPv4 address. Segment will hash this value using SHA256 before sending it to LinkedIn, unless it is already hashed. At least one user identifier is required.",
+      type: 'string',
+      required: false
+    },
+    googleAID: {
+      label: 'Google Advertising ID',
+      description:
+        'The Google Advertising ID (GAID) is a unique, user-resettable, anonymous identifier for Android devices. Do not hash this value. iOS advertising IDs (IDFA) are not supported. At least one user identifier is required.',
       type: 'string',
       required: false
     },
@@ -399,22 +422,6 @@ function handleRequestError(error: unknown) {
   }
 
   return new IntegrationError(asLinkedInError.response.data.message, 'INTEGRATION_ERROR', status)
-}
-
-function validate(payload: Payload, conversionTime: number) {
-  if (!Number.isFinite(conversionTime)) {
-    throw new PayloadValidationError('Timestamp is not a valid date.')
-  }
-
-  // Check if the timestamp is within the past 90 days
-  const ninetyDaysAgo = Date.now() - 90 * 24 * 60 * 60 * 1000
-  if (conversionTime < ninetyDaysAgo) {
-    throw new PayloadValidationError('Timestamp should be within the past 90 days.')
-  }
-
-  if (!payload.email && !payload.linkedInUUID && !payload.acxiomID && !payload.oracleID) {
-    throw new PayloadValidationError('One of email or LinkedIn UUID or Acxiom ID or Oracle ID is required.')
-  }
 }
 
 function isNotEpochTimestampInMilliseconds(timestamp: string) {

@@ -1,4 +1,6 @@
-import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED } from './constants'
+import { CONSENT_STATUS_GRANTED, CONSENT_STATUS_DENIED, COUNTRIES } from './constants'
+
+export type CountryCode = typeof COUNTRIES[number]['code']
 
 export interface ContactInfo {
   hashedEmails?: string[]
@@ -83,4 +85,10 @@ export interface AudienceTarget {
   audienceId: string
   advertiserId: string
   audienceType: string
+}
+
+export interface PhoneOptions {
+  normalization?: string
+  useContactInfoCountryCode?: boolean
+  defaultCountryCode?: CountryCode
 }
