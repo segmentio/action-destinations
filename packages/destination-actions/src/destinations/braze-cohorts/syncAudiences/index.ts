@@ -6,6 +6,7 @@ import {
   JSONLikeObject,
   ErrorCodes
 } from '@segment/actions-core'
+import { Features } from '@segment/actions-core/mapping-kit'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
@@ -120,27 +121,45 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, [payload], stateContext, false)
+  perform: async (request, { settings, payload, stateContext, features }) => {
+    return processPayload(request, settings, [payload], stateContext, false, isMultiStatusEnabled(features))
   },
-  performBatch: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, payload, stateContext, true)
+  performBatch: async (request, { settings, payload, stateContext, features }) => {
+    return processPayload(request, settings, payload, stateContext, true, isMultiStatusEnabled(features))
   }
 }
+
+// Gates the per-event multi-status handling of unidentifiable events behind a feature flag so
+// the change can be rolled out safely (and rolled back to the previous whole-batch behavior).
+function isMultiStatusEnabled(features?: Features): boolean {
+  return Boolean(features?.['braze-cohorts-multistatus'])
+}
+
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
   stateContext: StateContext | undefined,
-  isBatch: boolean
+  isBatch: boolean,
+  useMultiStatus: boolean
 ) {
   // Batch-wide invariant: cohort_name and personas_audience_key are configuration values
   // that are identical for every event in the batch, so a mismatch is a whole-batch failure.
   validate(payloads)
 
-  const multiStatusResponse = new MultiStatusResponse()
+  // Legacy behavior (feature flag off): a single event with an incomplete User Alias Object and
+  // no External User ID / Device ID fails the whole call. Retained as a safe rollback path.
+  if (!useMultiStatus) {
+    for (const { external_id, device_id, user_alias } of payloads) {
+      const aliasIncomplete = Boolean(user_alias) && !(user_alias?.alias_name && user_alias?.alias_label)
+      if (!external_id && !device_id && aliasIncomplete) {
+        throw new PayloadValidationError(UNIDENTIFIABLE_USER_ERROR)
+      }
+    }
+    return syncCohort(request, settings, payloads, payloads, stateContext)
+  }
 
-  // Classify each payload:
+  // Multi-status behavior (feature flag on). Classify each payload:
   //  - 'sync'   : has a usable identifier (External User ID, Device ID, or a complete User
   //               Alias Object) and is sent to Braze.
   //  - 'reject' : a User Alias Object was provided but is incomplete (missing alias_name or
@@ -149,6 +168,7 @@ async function processPayload(
   //               single event we throw (preserving the previous perform() behavior).
   //  - 'noop'   : no identifier at all. Historically a no-op that succeeds without syncing a
   //               user, so we preserve that (200 in a batch, early return for a single event).
+  const multiStatusResponse = new MultiStatusResponse()
   const payloadsToSync: Payload[] = []
   const succeededIndices: number[] = []
 
@@ -175,32 +195,7 @@ async function processPayload(
     }
   })
 
-  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
-  const { cohort_name, cohort_id } = payloads[0]
-  const cohortChanges: Array<CohortChanges> = []
-
-  if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
-    await syncAudiencesApiClient.createCohort(settings, payloads[0])
-    //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
-    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
-  }
-  const { addUsers, removeUsers } = extractUsers(payloadsToSync)
-
-  const hasAddUsers = hasUsersToAddOrRemove(addUsers)
-  const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
-
-  if (hasAddUsers) {
-    cohortChanges.push(addUsers)
-  }
-  if (hasRemoveUsers) {
-    cohortChanges.push(removeUsers)
-  }
-
-  // The whole batch is delivered to Braze in a single request. If that request fails it
-  // throws here and propagates, failing the batch as a whole — which is correct, because
-  // every synced event shared that one request (and 5xx failures stay retryable).
-  const response =
-    cohortChanges.length > 0 ? await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges) : undefined
+  const response = await syncCohort(request, settings, payloads, payloadsToSync, stateContext)
 
   // Single-event path keeps its original contract: return the API response (or undefined
   // when there was nothing to send).
@@ -219,6 +214,45 @@ async function processPayload(
   }
 
   return multiStatusResponse
+}
+
+// Creates the cohort (once per cohort_name) and delivers `payloadsToSync` to Braze in a single
+// aggregated request. `allPayloads` supplies the batch-wide cohort configuration (identical for
+// every event), while `payloadsToSync` is the subset of identifiable users to add/remove.
+async function syncCohort(
+  request: RequestClient,
+  settings: Settings,
+  allPayloads: Payload[],
+  payloadsToSync: Payload[],
+  stateContext: StateContext | undefined
+) {
+  const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
+  const { cohort_name, cohort_id } = allPayloads[0]
+  const cohortChanges: Array<CohortChanges> = []
+
+  if (stateContext?.getRequestContext?.('cohort_name') != cohort_name) {
+    await syncAudiencesApiClient.createCohort(settings, allPayloads[0])
+    //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
+    stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
+  }
+  const { addUsers, removeUsers } = extractUsers(payloadsToSync)
+
+  const hasAddUsers = hasUsersToAddOrRemove(addUsers)
+  const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
+
+  if (hasAddUsers) {
+    cohortChanges.push(addUsers)
+  }
+  if (hasRemoveUsers) {
+    cohortChanges.push(removeUsers)
+  }
+
+  // The whole batch is delivered to Braze in a single request. If that request fails it
+  // throws here and propagates, failing the batch as a whole — which is correct, because
+  // every synced event shared that one request (and 5xx failures stay retryable).
+  return cohortChanges.length > 0
+    ? await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
+    : undefined
 }
 
 function validate(payloads: Payload[]): void {
