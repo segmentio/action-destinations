@@ -41,8 +41,8 @@ import {
 } from './constants'
 
 const SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:\/\//i
+const SCHEME = /^[a-z][a-z0-9+.-]*:/i
 const HTTP_SCHEME = /^https?:\/\//i
-const TRAILING_SLASHES = /\/+$/
 const TRAILING_DOT = /\.$/
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
@@ -92,24 +92,27 @@ function isLinkedInHost(hostname: string): boolean {
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
-  // The field's 'uri' format accepts any scheme, so 'mailto:joe@linkedin.com/company/x' reaches
-  // here and parses into a linkedin.com host. Only an http(s) url can be a page.
-  if (!HTTP_SCHEME.test(trimmed(value) ?? '')) {
+  const raw = trimmed(value)?.toLowerCase()
+
+  if (!raw || (SCHEME.test(raw) && !HTTP_SCHEME.test(raw))) {
     return undefined
   }
 
-  const parsed = parseUrl(value)
+  try {
+    const { hostname, pathname } = new URL(HTTP_SCHEME.test(raw) ? raw : `https://${raw}`)
 
-  // LinkedIn documents this field as the company's page on linkedin.com, so any other host is a
-  // mis-mapping. A bare host with no path is linkedin.com itself rather than a company, so it is
-  // rejected too. Sending either cannot match, and it would occupy the identifier slot.
-  if (!parsed || !isLinkedInHost(parsed.hostname) || parsed.pathname === '/') {
+    if (!isLinkedInHost(hostname) || pathname === '/') {
+      return undefined
+    }
+
+    const path = decodeURIComponent(pathname)
+    let end = path.length
+    while (end > 1 && path[end - 1] === '/') end--
+
+    return withinLength(`${hostname}${path.slice(0, end)}`, MAX_COMPANY_PAGE_URL_LENGTH)
+  } catch {
     return undefined
   }
-
-  const pageUrl = `${parsed.hostname}${parsed.pathname}`.replace(TRAILING_SLASHES, '')
-
-  return withinLength(pageUrl, MAX_COMPANY_PAGE_URL_LENGTH)
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {

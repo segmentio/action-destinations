@@ -22,7 +22,7 @@ export interface Payload {
      */
     linkedInCompanyId?: string
     /**
-     * The company's page on LinkedIn, as a full URL including the scheme, e.g. 'https://www.linkedin.com/company/microsoft'. A value without a scheme fails validation and the event is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
+     * The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on any other website, or one that is not a company page, is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
      */
     companyPageUrl?: string
   }

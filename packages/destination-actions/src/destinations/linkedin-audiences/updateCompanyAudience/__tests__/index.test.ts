@@ -892,24 +892,32 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         expect(element).toEqual({ action: 'ADD', companyPageUrl: 'linkedin.com/company/microsoft' })
       })
 
-      // The field carries format: 'uri', so a scheme-less url never reaches perform. The whole
-      // event is rejected, not just the identifier, which is why the description asks for a full
-      // url rather than normalizing one.
-      it('rejects the event when the company page url has no scheme', async () => {
-        mockLookup()
-        mockBatch()
-        await expect(
-          testDestination.testAction('updateCompanyAudience', {
-            event: { type: 'track', traits: {} } as any,
-            settings,
-            auth,
-            useDefaultMappings: true,
-            mapping: {
-              ...companyFieldsBase,
-              identifiers: { companyDomain: 'microsoft.com', companyPageUrl: 'linkedin.com/company/microsoft' }
-            }
-          })
-        ).rejects.toThrow(/uri/i)
+      it('accepts a company page url with no scheme', async () => {
+        const element = await sendOne({ identifiers: { companyPageUrl: 'linkedin.com/company/microsoft' } })
+        expect(element).toEqual({ action: 'ADD', companyPageUrl: 'linkedin.com/company/microsoft' })
+      })
+
+      // A page url the action cannot use is dropped like any other identifier, so a sparse or
+      // mis-mapped column never costs the company its other identifiers.
+      it.each([
+        ['blank', ''],
+        ['whitespace', '   '],
+        ['a url on another website', 'https://microsoft.com/about'],
+        ['a mailto, which parses with a linkedin.com host from its userinfo', 'mailto:joe@linkedin.com/company/x']
+      ])('drops a page url that is %s and still syncs the company', async (_label: string, companyPageUrl: string) => {
+        const element = await sendOne({ identifiers: { companyDomain: 'microsoft.com', companyPageUrl } })
+        expect(element).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
+      })
+
+      // The URL parser percent-encodes a non-ASCII slug; LinkedIn stores it decoded.
+      it('sends a non-ascii company slug decoded', async () => {
+        const element = await sendOne({
+          identifiers: { companyPageUrl: 'https://www.linkedin.com/company/société-générale' }
+        })
+        expect(element).toEqual({
+          action: 'ADD',
+          companyPageUrl: 'www.linkedin.com/company/société-générale'
+        })
       })
 
       it('accepts a company email domain on its own', async () => {

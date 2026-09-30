@@ -117,6 +117,17 @@ describe('normalizeCompanyPageUrl', () => {
   // without one is rejected before it reaches here.
   it.each([
     ['https', 'https://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    ['no scheme at all', 'linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    [
+      "LinkedIn's own documented example, which carries no scheme",
+      'www.linkedin.com/company/linkedin',
+      'www.linkedin.com/company/linkedin'
+    ],
+    [
+      'a non-ascii slug, which the parser percent-encodes and we decode again',
+      'https://www.linkedin.com/company/société-générale',
+      'www.linkedin.com/company/société-générale'
+    ],
     ['http', 'http://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
     ['an upper case scheme and host', 'HTTPS://LinkedIn.com/company/Microsoft', 'linkedin.com/company/microsoft'],
     ['www', 'https://www.linkedin.com/company/microsoft', 'www.linkedin.com/company/microsoft'],
@@ -204,9 +215,9 @@ describe('normalizeCompanyPageUrl', () => {
     ['a single-label host', 'https://intranet/company/x'],
     ['a bare host with no path, which is linkedin.com itself rather than a company', 'https://linkedin.com'],
     ['a bare host with only a trailing slash', 'https://www.linkedin.com/'],
-    ['a mailto, which the uri format accepts and which parses to a linkedin host', 'mailto:joe@linkedin.com/company/x'],
+    ['a mailto, which parses with a linkedin.com host read from its userinfo', 'mailto:joe@linkedin.com/company/x'],
     ['a non-http scheme', 'ftp://linkedin.com/company/x'],
-    ['a scheme-less value, which the field schema rejects before this point', 'linkedin.com/company/microsoft']
+    ['a port, which reads as a scheme that is not http', 'linkedin.com:8080/company/microsoft']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })
