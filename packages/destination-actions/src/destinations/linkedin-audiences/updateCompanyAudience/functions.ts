@@ -47,12 +47,12 @@ const TRAILING_DOT = /\.$/
 const WWW_PREFIX = /^www\./
 const IPV4 = /^\d{1,3}(\.\d{1,3}){3}$/
 
-export function toOrganizationUrn(linkedInCompanyId: string): string {
-  let id = linkedInCompanyId.trim()
+export function toOrganizationUrn(linkedInCompanyId?: string): string | undefined {
+  let id = linkedInCompanyId?.trim() ?? ''
   while (id.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)) {
     id = id.slice(ORGANIZATION_URN_PREFIX.length).trim()
   }
-  return `${ORGANIZATION_URN_PREFIX}${id}`
+  return id ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
 }
 
 function trimmed(value?: string): string | undefined {
@@ -156,11 +156,7 @@ export function normalizeCountry(value?: string): string | undefined {
 export function normalizeIdentifiers(payload: Payload): NormalizedIdentifiers {
   const identifiers = payload.identifiers
 
-  const rawCompanyId = trimmed(identifiers?.linkedInCompanyId)
-  const idWithoutPrefix = rawCompanyId?.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)
-    ? trimmed(rawCompanyId.slice(ORGANIZATION_URN_PREFIX.length))
-    : rawCompanyId
-
+  const organizationUrn = toOrganizationUrn(identifiers?.linkedInCompanyId)
   const companyName = trimmed(identifiers?.companyName)
   const companyDomain = normalizeDomain(identifiers?.companyDomain)
   const companyEmailDomain = normalizeDomain(identifiers?.companyEmailDomain)
@@ -170,7 +166,7 @@ export function normalizeIdentifiers(payload: Payload): NormalizedIdentifiers {
     ...(companyName && { companyName }),
     ...(companyDomain && { companyDomain }),
     ...(companyEmailDomain && { companyEmailDomain }),
-    ...(idWithoutPrefix && { linkedInCompanyId: idWithoutPrefix }),
+    ...(organizationUrn && { organizationUrn }),
     ...(companyPageUrl && { companyPageUrl })
   }
 }
@@ -256,29 +252,27 @@ export function validate(
 // the customer's acknowledgement that only one company's traits are sent, which keeps this at one
 // element per company.
 export function companyKey(payload: ValidCompanyPayload): string {
-  const { companyName, companyDomain, companyEmailDomain, linkedInCompanyId, companyPageUrl } =
-    payload.identifiers ?? {}
+  const { companyName, companyDomain, companyEmailDomain, organizationUrn, companyPageUrl } = payload.identifiers
 
   return JSON.stringify({
     action: payload.dmp_company_action,
     companyName,
     companyDomain,
     companyEmailDomain,
-    organizationUrn: linkedInCompanyId ? toOrganizationUrn(linkedInCompanyId) : undefined,
+    organizationUrn,
     companyPageUrl
   })
 }
 
 export function buildJSON(payloads: ValidCompanyPayload[]): AudienceJSON<LinkedInCompanyAudienceElement> {
   const elements: LinkedInCompanyAudienceElement[] = payloads.map((payload) => {
-    const { companyName, companyDomain, companyEmailDomain, linkedInCompanyId, companyPageUrl } =
-      payload.identifiers ?? {}
+    const { companyName, companyDomain, companyEmailDomain, organizationUrn, companyPageUrl } = payload.identifiers
     return {
       action: payload.dmp_company_action,
       ...(companyName && { companyName }),
       ...(companyDomain && { companyWebsiteDomain: companyDomain }),
       ...(companyEmailDomain && { companyEmailDomain }),
-      ...(linkedInCompanyId && { organizationUrn: toOrganizationUrn(linkedInCompanyId) }),
+      ...(organizationUrn && { organizationUrn }),
       ...(companyPageUrl && { companyPageUrl }),
       ...payload.company_traits
     }

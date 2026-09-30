@@ -1137,9 +1137,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           })
           .reply(200, { elements: [{ status: 201 }] })
 
-        // Same company, but every trait disagrees between the two profiles.
+        // Same company, but every trait disagrees between the two profiles below.
         const seattleProfile = { city: 'Seattle', state: 'WA', postalCode: '98101' }
-        const austinProfile = { city: 'Austin', state: 'TX', postalCode: '78701' }
 
         const events = [
           { type: 'track', traits: { company_name: 'Microsoft', city: 'Seattle', state: 'WA', zip: '98101' } },
@@ -1170,11 +1169,11 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           postalCode: sentBody.elements[0].postalCode
         }
 
-        // One profile wins outright and its traits travel together. The test accepts either
-        // profile because which one wins is not stable — it depends on the order the batch
-        // happens to arrive in — but it must be one of them whole. A merged result such as
-        // Seattle's city with Texas's state would fail here, and would describe no real place.
-        expect([seattleProfile, austinProfile]).toContainEqual(sentTraits)
+        // The first payload for a company wins: the dedup keeps the first occurrence of a key and
+        // validate preserves event order. Its traits travel together, so a merged result such as
+        // Seattle's city with Texas's state would fail here and would describe no real place.
+        // Across syncs the winner can still differ, because batch composition is not stable.
+        expect(sentTraits).toEqual(seattleProfile)
 
         // Both events still report their own status, even though one profile's traits were dropped.
         expect(response[0].status).toBe(201)

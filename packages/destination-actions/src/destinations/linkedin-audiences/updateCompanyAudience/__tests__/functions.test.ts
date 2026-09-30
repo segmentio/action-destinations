@@ -404,10 +404,8 @@ describe('normalizeCountry', () => {
 })
 
 describe('normalizeIdentifiers', () => {
-  // Note linkedInCompanyId comes back as the bare id with the urn prefix removed. That is the
-  // internal form only: buildJSON and companyKey both put the prefix back, so a customer who maps
-  // the full 'urn:li:organization:1035' gets exactly that sent to LinkedIn. See the round trip
-  // asserted below.
+  // The company id is normalized straight to the urn LinkedIn is sent, so every spelling a
+  // customer might map collapses to one value here rather than being converted again downstream.
   it('normalizes all five identifiers', () => {
     expect(
       normalizeIdentifiers(
@@ -425,7 +423,7 @@ describe('normalizeIdentifiers', () => {
       companyName: 'Microsoft Corporation',
       companyDomain: 'microsoft.com',
       companyEmailDomain: 'microsoft.com',
-      linkedInCompanyId: '1035',
+      organizationUrn: 'urn:li:organization:1035',
       companyPageUrl: 'www.linkedin.com/company/microsoft'
     })
   })
@@ -436,10 +434,14 @@ describe('normalizeIdentifiers', () => {
     ).toEqual({ companyName: "McDonald's", companyDomain: 'mcd.com' })
   })
 
-  it('strips the urn prefix from a LinkedIn company id', () => {
-    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: 'urn:li:organization:1035' } }))).toEqual({
-      linkedInCompanyId: '1035'
+  it('normalizes a bare company id to the organization urn', () => {
+    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: '1035' } }))).toEqual({
+      organizationUrn: 'urn:li:organization:1035'
     })
+  })
+
+  it('drops a company id that is only the urn prefix, with no id behind it', () => {
+    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: 'urn:li:organization:' } }))).toEqual({})
   })
 
   // Customers map this field from whatever their warehouse holds, which may be a bare id or a
@@ -448,9 +450,9 @@ describe('normalizeIdentifiers', () => {
   describe('accepts a bare id and a full urn interchangeably', () => {
     const spellings = ['1035', 'urn:li:organization:1035', 'URN:LI:ORGANIZATION:1035', '  urn:li:organization:1035  ']
 
-    it.each(spellings)('normalizes %s to the same bare id', (linkedInCompanyId: string) => {
+    it.each(spellings)('normalizes %s to the same urn', (linkedInCompanyId: string) => {
       expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId } }))).toEqual({
-        linkedInCompanyId: '1035'
+        organizationUrn: 'urn:li:organization:1035'
       })
     })
 
@@ -545,7 +547,9 @@ describe('normalizeTraits', () => {
 
 describe('companyKey', () => {
   it('names its parts, so it can be read directly when debugging', () => {
-    expect(JSON.parse(companyKey(keyed({ companyDomain: 'microsoft.com', linkedInCompanyId: '1035' })))).toEqual({
+    expect(
+      JSON.parse(companyKey(keyed({ companyDomain: 'microsoft.com', organizationUrn: 'urn:li:organization:1035' })))
+    ).toEqual({
       action: 'ADD',
       companyDomain: 'microsoft.com',
       organizationUrn: 'urn:li:organization:1035'
@@ -556,7 +560,7 @@ describe('companyKey', () => {
     ['name', { companyName: 'Microsoft' }, { companyName: 'Microsoft Corp' }],
     ['domain', { companyDomain: 'a.com' }, { companyDomain: 'b.com' }],
     ['email domain', { companyEmailDomain: 'a.com' }, { companyEmailDomain: 'b.com' }],
-    ['company id', { linkedInCompanyId: '1' }, { linkedInCompanyId: '2' }],
+    ['company id', { organizationUrn: 'urn:li:organization:1' }, { organizationUrn: 'urn:li:organization:2' }],
     ['page url', { companyPageUrl: 'linkedin.com/company/a' }, { companyPageUrl: 'linkedin.com/company/b' }]
   ])(
     'separates two companies that differ only by %s',
@@ -589,7 +593,7 @@ describe('companyKey', () => {
       companyKey(keyed({ companyName: 'a', companyDomain: 'b::c' }))
     )
     expect(companyKey(keyed({ companyName: 'urn:li:organization:1035' }))).not.toBe(
-      companyKey(keyed({ linkedInCompanyId: '1035' }))
+      companyKey(keyed({ organizationUrn: 'urn:li:organization:1035' }))
     )
   })
 

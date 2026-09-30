@@ -51,7 +51,7 @@ export interface NormalizedIdentifiers {
   companyName?: string
   companyDomain?: string
   companyEmailDomain?: string
-  linkedInCompanyId?: string
+  organizationUrn?: string
   companyPageUrl?: string
 }
 
