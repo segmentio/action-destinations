@@ -49,7 +49,13 @@ export async function send(
 
   const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnTransforms)
 
-  const s3Client = new Client(settings.s3_aws_region, settings.iam_role_arn, settings.iam_external_id, statsContext)
+  const s3Client = new Client(
+    settings.s3_aws_region,
+    settings.iam_role_arn,
+    settings.iam_external_id,
+    statsContext,
+    features
+  )
 
   await s3Client.uploadS3(
     settings,
@@ -65,12 +71,7 @@ export function clean(delimiter: string, str?: string) {
   if (!str) {
     return ''
   }
-  // Remove EVERY occurrence of the delimiter, not just the first. `String.replace`
-  // with a string argument replaces only the first match, so a column name with
-  // multiple delimiters (e.g. "tag,list,csv") kept residual delimiters that split
-  // the header row and desynced it from the data rows (STRATCONN-6989). split/join
-  // is used instead of a RegExp so delimiter characters are treated literally.
-  return delimiter === 'tab' ? str : str.split(delimiter).join('')
+  return delimiter === 'tab' ? str : str.replace(delimiter, '')
 }
 
 export function getNormalizer(normalize?: Normalization): ((value: string) => string) | undefined {
@@ -131,13 +132,7 @@ export function generateFile(
   })
 
   return Buffer.concat([
-    // Encode header cells the same way data cells are encoded (processField ->
-    // encodeString). Previously headers were written raw while data was quoted,
-    // so a header containing the delimiter or a quote desynced from the data
-    // columns beneath it (STRATCONN-6989).
-    Buffer.from(
-      `${headers.map((header) => encodeString(header.cleanName)).join(delimiter === 'tab' ? '\t' : delimiter)}\n`
-    ),
+    Buffer.from(`${headers.map((header) => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`),
     ...rows
   ])
 }

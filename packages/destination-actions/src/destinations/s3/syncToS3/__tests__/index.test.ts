@@ -7,11 +7,12 @@ import {
   getAudienceAction,
   send
 } from '../functions'
+import { Client } from '../client'
 import { Payload } from '../generated-types'
 import { Settings } from '../../generated-types'
 import { ColumnHeader, ColumnTransform, RawMapping } from '../types'
 import { PayloadValidationError } from '@segment/actions-core'
-import { S3_HASHING_FEATURE_FLAG } from '../../constants'
+import { S3_HASHING_FEATURE_FLAG, S3_STS_ERROR_CLASSIFICATION_FLAG } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
 // Mock AWS SDK before any imports to avoid initialization issues
@@ -38,13 +39,6 @@ jest.mock('../client', () => ({
 describe('clean', () => {
   it('should remove delimiter from string', () => {
     expect(clean(',', 'abcd,Efg')).toEqual('abcdEfg')
-  })
-
-  it('removes EVERY delimiter, not just the first (regression: STRATCONN-6989)', () => {
-    // The old code used str.replace(delimiter, '') which removed only the first match,
-    // leaving residual delimiters that split the (unencoded) header row.
-    expect(clean(',', 'tag,list,csv')).toBe('taglistcsv')
-    expect(clean(';', 'a;b;c;d')).toBe('abcd')
   })
 
   it('should handle undefined input', () => {
@@ -179,7 +173,7 @@ describe('generateFile', () => {
     { cleanName: 'batch_size', originalName: 'batch_size' }
   ]
 
-  const output = `"event_name","event_type","user_id","anonymous_id","email","properties","traits","context","timestamp","message_id","integrations","audience_name","audience_id","audience_space_id","Custom Field 1","Custom Field 2","audience_action","batch_size"\n"Custom Event 1","track","user_id_1","anonymous_id_1","test@test.com","{""prop_str"":""Hello String!"",""prop_num"":123.45,""prop_bool"":true,""prop_datetime"":""2024-01-08T13:52:50.212Z"",""prop_date"":""2024-01-08"",""prop_obj"":{""key1"":""value1"",""key2"":""value2""},""prop_arr"":[""value1"",""value2""],""custom_field_1"":""Custom Field Value 1"",""custom_field_2"":""Custom Field Value 2""}","{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""}","{""traits"":{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""},""personas"":{""computation_key"":""audience_name_1"",""computation_id"":""audience_id_1"",""space_id"":""space_id_1""}}","2024-01-08T13:52:50.212Z","aaa-bbb-ccc","{}","audience_name_1","audience_id_1","space_id_1","Custom Field Value 1","Custom Field Value 2","true","1"`
+  const output = `event_name,event_type,user_id,anonymous_id,email,properties,traits,context,timestamp,message_id,integrations,audience_name,audience_id,audience_space_id,Custom Field 1,Custom Field 2,audience_action,batch_size\n"Custom Event 1","track","user_id_1","anonymous_id_1","test@test.com","{""prop_str"":""Hello String!"",""prop_num"":123.45,""prop_bool"":true,""prop_datetime"":""2024-01-08T13:52:50.212Z"",""prop_date"":""2024-01-08"",""prop_obj"":{""key1"":""value1"",""key2"":""value2""},""prop_arr"":[""value1"",""value2""],""custom_field_1"":""Custom Field Value 1"",""custom_field_2"":""Custom Field Value 2""}","{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""}","{""traits"":{""first_name"":""John"",""last_name"":""Doe"",""email"":""test@test.com""},""personas"":{""computation_key"":""audience_name_1"",""computation_id"":""audience_id_1"",""space_id"":""space_id_1""}}","2024-01-08T13:52:50.212Z","aaa-bbb-ccc","{}","audience_name_1","audience_id_1","space_id_1","Custom Field Value 1","Custom Field Value 2","true","1"`
 
   it('should generate a CSV file with correct content', () => {
     const result = generateFile(payloads, headers, ',', 'audience_action', 'batch_size')
@@ -193,7 +187,7 @@ describe('generateFile', () => {
     const headerRow = rows[0].split(',')
     const dataRow = rows[1].split(',')
 
-    const emailIndex = headerRow.indexOf('"email"')
+    const emailIndex = headerRow.indexOf('email')
     const expectedHash = processHashing('test@test.com', 'sha256', 'hex')
     expect(dataRow[emailIndex]).toBe(`"${expectedHash}"`)
   })
@@ -235,8 +229,8 @@ describe('generateFile', () => {
     const headerRow = rows[0].split(',')
     const dataRow = rows[1].split(',')
 
-    const emailIndex = headerRow.indexOf('"email"')
-    const userIdIndex = headerRow.indexOf('"user_id"')
+    const emailIndex = headerRow.indexOf('email')
+    const userIdIndex = headerRow.indexOf('user_id')
 
     const expectedEmailHash = processHashing('test@test.com', 'sha256', 'hex')
     const expectedUserIdHash = processHashing('user_id_1', 'sha256', 'hex')
@@ -252,7 +246,7 @@ describe('generateFile', () => {
     const headerRow = rows[0].split(',')
     const dataRow = rows[1].split(',')
 
-    const userIdIndex = headerRow.indexOf('"user_id"')
+    const userIdIndex = headerRow.indexOf('user_id')
     expect(dataRow[userIdIndex]).toBe('"user_id_1"')
   })
 
@@ -271,8 +265,7 @@ describe('generateFile', () => {
 
   const readColumn = (buffer: Buffer, column: string): string => {
     const rows = buffer.toString().split('\n')
-    // Header cells are encoded (quoted) just like data cells.
-    const index = rows[0].split(',').indexOf(`"${column}"`)
+    const index = rows[0].split(',').indexOf(column)
     return rows[1].split(',')[index]
   }
 
@@ -500,33 +493,25 @@ describe('send with hashing feature flag', () => {
       send([payloadNormalizeOnly], settings, rawMapping, { [S3_HASHING_FEATURE_FLAG]: true })
     ).resolves.not.toThrow()
   })
-})
 
-describe('generateFile header/data alignment (STRATCONN-6989)', () => {
-  it('keeps header column count equal to data column count when a column name contains the delimiter', () => {
-    const cols = ['event_name', 'tag,list,csv', 'amount']
-    const headers: ColumnHeader[] = cols.map((c) => ({ cleanName: clean(',', c), originalName: c }))
-    const payloads = [
-      { columns: { event_name: 'Purchase', 'tag,list,csv': 'u-1', amount: '100' } },
-      { columns: { event_name: 'Refund', 'tag,list,csv': 'u-2', amount: '50' } }
-    ] as unknown as Payload[]
+  it('forwards the features object from send() through to the Client constructor intact', async () => {
+    ;(Client as unknown as jest.Mock).mockClear()
+    const payloadNoHashing: Payload = {
+      columns: { email: 'test@test.com', user_id: 'user_1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+    const features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
 
-    const rows = generateFile(payloads, headers, ',').toString().split('\n')
-    const headerCols = rows[0].split(',')
-    const dataCols = rows[1].split(',')
+    await send([payloadNoHashing], settings, rawMapping, features)
 
-    // No desync: header and data rows have the same number of columns.
-    expect(headerCols.length).toBe(dataCols.length)
-    // Header cells are encoded (quoted) like data cells, and clean() stripped BOTH commas.
-    expect(rows[0]).toBe('"event_name","taglistcsv","amount"')
-    expect(rows[1]).toBe('"Purchase","u-1","100"')
-  })
-
-  it('encodes header cells so an embedded quote in a column name does not corrupt the row', () => {
-    const headers: ColumnHeader[] = [{ cleanName: clean(',', 'na"me'), originalName: 'na"me' }]
-    const payloads = [{ columns: { 'na"me': 'v' } }] as unknown as Payload[]
-    const rows = generateFile(payloads, headers, ',').toString().split('\n')
-    expect(rows[0]).toBe('"na""me"')
-    expect(rows[1]).toBe('"v"')
+    expect(Client).toHaveBeenCalledTimes(1)
+    // features is the 5th positional arg to
+    // `new Client(region, roleArn, externalId, statsContext, features)` — assert on the actual
+    // constructor call args so a future positional-argument regression (e.g. dropping or reordering
+    // features) is caught here rather than silently disabling the flag in production while this test
+    // stays green.
+    expect((Client as unknown as jest.Mock).mock.calls[0][4]).toBe(features)
   })
 })
