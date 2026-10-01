@@ -583,3 +583,62 @@ describe('companyKey', () => {
     expect(companyKey(seattle)).toBe(companyKey(austin))
   })
 })
+
+// 'ü' can be stored two ways: as the single character 'ü', or as a plain 'u' followed by a
+// separate accent mark. They look identical but are different data, and LinkedIn matches
+// exactly without cleaning up what it is sent, so we always send the single-character form.
+describe('unicode normalization', () => {
+  // Each pair is the same text twice. Written as escapes on purpose: the two spellings render
+  // identically, so as literal characters they would be indistinguishable here. \u00FC is the
+  // single character 'u-umlaut'; \u0308 is the umlaut on its own, which renders on top of the
+  // plain 'u' before it.
+  const domain = { asOneCharacter: 'm\u00FCller.de', asAccentMark: 'mu\u0308ller.de' }
+  const city = { asOneCharacter: 'Z\u00FCrich', asAccentMark: 'Zu\u0308rich' }
+
+  it('uses two spellings that really are different data', () => {
+    expect(domain.asAccentMark).not.toBe(domain.asOneCharacter)
+    expect(domain.asAccentMark).toHaveLength(domain.asOneCharacter.length + 1)
+  })
+
+  it('converts a company domain', () => {
+    expect(normalizeDomain(domain.asAccentMark)).toBe(domain.asOneCharacter)
+  })
+
+  it('converts a company email domain', () => {
+    expect(normalizeDomain(`joe@${domain.asAccentMark}`)).toBe(domain.asOneCharacter)
+  })
+
+  it('converts a company page url', () => {
+    expect(normalizeCompanyPageUrl(`linkedin.com/company/${city.asAccentMark}`)).toBe(
+      `linkedin.com/company/${city.asOneCharacter.toLowerCase()}`
+    )
+  })
+
+  it('converts a company name', () => {
+    expect(normalizeIdentifiers(payload({ identifiers: { companyName: city.asAccentMark } }))).toEqual({
+      companyName: city.asOneCharacter
+    })
+  })
+
+  it('converts a city and an industry', () => {
+    const company_traits = { city: city.asAccentMark, industries: [city.asAccentMark] }
+
+    expect(normalizeTraits(payload({ send_company_traits: true, company_traits }))).toEqual({
+      city: city.asOneCharacter,
+      industries: [city.asOneCharacter]
+    })
+  })
+
+  // Without this, one company mapped in both spellings would sync as two companies. companyKey
+  // is given already-normalized identifiers, so the key is taken the way validate() takes it.
+  it('treats a company written both ways as one company', () => {
+    const fromAccentMark = normalizeIdentifiers(payload({ identifiers: { companyDomain: domain.asAccentMark } }))
+    const fromOneCharacter = normalizeIdentifiers(payload({ identifiers: { companyDomain: domain.asOneCharacter } }))
+
+    expect(companyKey(keyed(fromAccentMark))).toBe(companyKey(keyed(fromOneCharacter)))
+  })
+
+  it('leaves an ascii value exactly as it is', () => {
+    expect(normalizeDomain('microsoft.com')).toBe('microsoft.com')
+  })
+})

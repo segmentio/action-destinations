@@ -52,8 +52,12 @@ export function toOrganizationUrn(linkedInCompanyId?: string): string | undefine
   return id ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
 }
 
+// An accented letter can be stored two ways in Unicode: as one character, 'ü', or as a plain
+// 'u' plus a separate accent mark. The two look identical on screen but are different data, and
+// LinkedIn matches company values exactly without cleaning up what it is sent, so only one of
+// them matches. NFC is the one-character form, which is what LinkedIn expects.
 function trimmed(value?: string): string | undefined {
-  return value?.trim() || undefined
+  return value?.normalize('NFC').trim() || undefined
 }
 
 function withinLength(value: string | undefined, max: number): string | undefined {
@@ -103,8 +107,8 @@ export function normalizeIndustries(values?: string[] | string): string[] | unde
   const parts = list.flatMap((industry) => industry.split(','))
 
   const cleaned = parts
-    .map((industry) => industry.trim())
-    .filter((industry) => industry && industry.length <= MAX_INDUSTRY_LENGTH)
+    .map((industry) => trimmed(industry))
+    .filter((industry): industry is string => !!industry && industry.length <= MAX_INDUSTRY_LENGTH)
 
   const seen = new Set<string>()
   const industries = cleaned
