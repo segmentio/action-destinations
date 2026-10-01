@@ -47,7 +47,7 @@ export const fields: Record<string, InputField> = {
       companyPageUrl: {
         label: 'LinkedIn Company Page URL',
         description:
-          `The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. Must be shorter than ${MAX_COMPANY_PAGE_URL_LENGTH} characters. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.`,
+          `The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. Entries longer than ${MAX_COMPANY_PAGE_URL_LENGTH} characters are not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.`,
         type: 'string'
       }
     },
