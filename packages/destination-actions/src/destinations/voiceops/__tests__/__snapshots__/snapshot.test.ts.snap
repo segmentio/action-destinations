@@ -31,3 +31,23 @@ Object {
   "recording_url": "https://example.com/audio.wav",
 }
 `;
+
+exports[`Testing snapshot for actions-voiceops destination: updateCallMetadata action - all fields 1`] = `
+Object {
+  "call_completed_at": Any<String>,
+  "call_id": "call-123",
+  "extraMetadata": Object {
+    "disposition": "Answered",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-voiceops destination: updateCallMetadata action - required fields 1`] = `
+Object {
+  "call_completed_at": Any<String>,
+  "call_id": "call-123",
+  "extraMetadata": Object {
+    "disposition": "Answered",
+  },
+}
+`;
