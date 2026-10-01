@@ -61,6 +61,7 @@ export interface Config {
         capture_text_content?: boolean
       }
     | boolean
+  api_host?: string
   cross_subdomain_cookie?: boolean
   persistence?: PersistenceOptions
   track_marketing?: boolean
@@ -72,8 +73,13 @@ export interface Config {
   record_canvas?: boolean
   record_heatmap_data?: boolean
   record_idle_timeout_ms?: number
+  record_mask_all_text?: boolean
   record_mask_text_class?: string
-  record_mask_text_selectors?: string
+  record_mask_text_selector?: string
+  record_unmask_text_selector?: string
+  record_mask_all_inputs?: boolean
+  record_mask_input_selector?: string
+  record_unmask_input_selector?: string
   record_max_ms?: number
   record_min_ms?: number
   record_sessions_percent?: number

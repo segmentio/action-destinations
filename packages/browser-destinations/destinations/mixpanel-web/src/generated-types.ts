@@ -8,7 +8,7 @@ export interface Settings {
   /**
    * The name for the new mixpanel instance that you want created.
    */
-  name?: string
+  instanceName?: string
   /**
    * This value, if it's not blank, will be sent as segment_source_name to Mixpanel for every event, including events Mixpanel captures automatically.
    */
@@ -98,13 +98,33 @@ export interface Settings {
    */
   record_idle_timeout_ms?: number
   /**
+   * When enabled, all text is masked in session recordings by default. Disable to record text and mask only specific elements via Record Mask Text Selector.
+   */
+  record_mask_all_text?: boolean
+  /**
    * CSS class to mask text elements in session recordings.
    */
   record_mask_text_class?: string
   /**
-   * CSS selector to mask text elements in session recordings.
+   * CSS selector for text elements to mask. Only applies when Record Mask All Text is disabled.
    */
   record_mask_text_selector?: string
+  /**
+   * CSS selector for text elements to leave unmasked. Only applies when Record Mask All Text is enabled.
+   */
+  record_unmask_text_selector?: string
+  /**
+   * When enabled, all input fields are masked in session recordings by default. Disable to record inputs and mask only specific elements via Record Mask Input Selector.
+   */
+  record_mask_all_inputs?: boolean
+  /**
+   * CSS selector for input elements to mask. Only applies when Record Mask All Inputs is disabled.
+   */
+  record_mask_input_selector?: string
+  /**
+   * CSS selector for input elements to leave unmasked. Only applies when Record Mask All Inputs is enabled.
+   */
+  record_unmask_input_selector?: string
   /**
    * Maximum recording time in milliseconds for session recordings.
    */
