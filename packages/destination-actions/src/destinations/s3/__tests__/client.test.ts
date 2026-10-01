@@ -324,6 +324,107 @@ describe('uploadS3 PUT error classification (flag-off legacy path parity)', () =
       expect(err).toBeInstanceOf(RetryableError)
     }
   )
+
+  // Flag off (default): the inline legacy classification must map an actual S3 PUT rejection the
+  // same way main did. These drive the real uploadS3 catch (client.ts:292-302) end to end, not
+  // mapAWSError in isolation.
+  it.each([
+    ['AccessDenied', 403],
+    ['AccountProblem', 403],
+    ['NoSuchBucket', 404],
+    ['SlowDown', 429]
+  ])('is off by default: classifies a %s PUT failure as a non-retryable APIError %d', async (code, status) => {
+    mockS3Send.mockRejectedValue({ Code: code, Message: 'nope' })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(status)
+  })
+
+  it('is off by default: wraps a non-AWS PUT failure as a non-retryable APIError 500', async () => {
+    // Not an AWS `_Error` (no Code/Message), so it falls to the legacy else branch -> 500.
+    mockS3Send.mockRejectedValue(new Error('socket hang up'))
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(500)
+  })
+})
+
+describe('uploadS3 PUT error classification (flag on -> mapAWSError wiring) and abort handling', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const flagOn: Features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  beforeEach(() => {
+    // STS succeeds for both hops so the PUT is reached; the file-level beforeEach already reset
+    // both send mocks, so each test only sets its own S3 rejection.
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA_TEST', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+  })
+
+  // Regression: with the flag ON, a PUT rejection must be routed through mapAWSError in the
+  // uploadS3 catch (client.ts:284-285) — previously only mapAWSError-in-isolation was tested, so
+  // the wiring itself had zero coverage. mapAWSError prefixes the detail with the context string.
+  it('when enabled, routes an AccessDenied PUT failure through mapAWSError as a non-retryable APIError 403', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'AccessDenied', Message: 'nope' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(403)
+    expect((err as Error).message).toContain('AWS PUT failed')
+  })
+
+  it('when enabled, routes a NoSuchBucket PUT failure through mapAWSError as a non-retryable APIError 404', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'NoSuchBucket', Message: 'no bucket' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect((err as APIError).status).toBe(404)
+  })
+
+  it('when enabled, routes a throttling PUT failure through mapAWSError as a retryable 429', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'SlowDown', Message: 'slow down' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as RetryableError).status).toBe(429)
+  })
+
+  // The abort path is flag-independent: an in-flight PUT cancelled via AbortSignal is detected by
+  // the `name === 'AbortError'` check (client.ts:279-281) BEFORE any classification, and surfaces
+  // as a retryable RequestTimeoutError in both flag states.
+  it('maps an AbortError PUT rejection to a RequestTimeoutError (flag off)', async () => {
+    mockS3Send.mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }))
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
+  it('maps an AbortError PUT rejection to a RequestTimeoutError (flag on)', async () => {
+    mockS3Send.mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }))
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
 })
 
 describe('mapAWSError', () => {

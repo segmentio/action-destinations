@@ -1,4 +1,4 @@
-import { createTestIntegration, createTestEvent, DEFAULT_REQUEST_TIMEOUT } from '@segment/actions-core'
+import { createTestIntegration, createTestEvent } from '@segment/actions-core'
 import Definition from '../index'
 import type { Settings } from '../generated-types'
 
@@ -137,6 +137,9 @@ describe('extendRequest', () => {
     const extendRequest = destination.definition.extendRequest
     expect(extendRequest).toBeDefined()
     const result = extendRequest?.({} as Parameters<NonNullable<typeof extendRequest>>[0])
-    expect(result).toEqual({ timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT) })
+    // Assert the concrete floor (DEFAULT_REQUEST_TIMEOUT is 10s, so the 30s floor wins) rather
+    // than re-deriving it from the same expression as production — this fails if the floor is
+    // ever lowered below 30s.
+    expect(result).toEqual({ timeout: 30_000 })
   })
 })
