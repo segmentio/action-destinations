@@ -15,7 +15,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { extractSchema } from './schema-functions'
-import { rawEventsByMessageId, warehouseColumns } from './warehouse-columns'
+import { rawEventsForPayloads, warehouseColumns } from './warehouse-columns'
 import { createEncryptionSession, EncryptionSession } from './encryption-functions'
 import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
@@ -61,15 +61,15 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
   }
 
   const inspectedFields = gatewaySupport ? settings.inspectedFields : undefined
-  const rawEventById = rawEventsByMessageId(rawEvents)
+  const rawEventByIndex = rawEventsForPayloads(payloads, rawEvents)
 
-  const json = payloads.map((payload) => {
+  const json = payloads.map((payload, index) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
     // Warehouse columns add names and types only: their values are never encrypted or sent.
     const eventProperties = [
       ...extractSchema(payload.properties, encryptionSession),
-      ...extractSchema(warehouseColumns(rawEventById.get(messageId), properties, inspectedFields))
+      ...extractSchema(warehouseColumns(rawEventByIndex[index], properties, inspectedFields))
     ]
     const eventSpec = eventSpecMap?.get(event) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined

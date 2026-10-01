@@ -81,14 +81,26 @@ export function warehouseColumns(rawEvent: unknown, properties: unknown, inspect
   return columns
 }
 
-// Batch payloads are compacted when an event fails validation but the raw events are not, so
-// they are matched by messageId, never by position.
-export function rawEventsByMessageId(rawEvents: unknown[] | undefined): Map<string, unknown> {
-  const byId = new Map<string, unknown>()
-  for (const rawEvent of rawEvents ?? []) {
-    if (isPlainObject(rawEvent) && typeof rawEvent.messageId === 'string' && !byId.has(rawEvent.messageId)) {
-      byId.set(rawEvent.messageId, rawEvent)
+// The raw event behind each payload, by index. A batch's payloads drop events that fail
+// validation while its raw events do not, so positions line up only when nothing was dropped;
+// otherwise payloads are matched by messageId, in order, so events sharing one stay distinct.
+// A payload whose messageId is remapped in a batch that dropped events gets no raw event.
+export function rawEventsForPayloads(payloads: { messageId?: unknown }[], rawEvents: unknown[] | undefined): unknown[] {
+  if (!rawEvents) {
+    return []
+  }
+  if (rawEvents.length === payloads.length) {
+    return rawEvents
+  }
+  const queues = new Map<string, unknown[]>()
+  for (const rawEvent of rawEvents) {
+    if (isPlainObject(rawEvent) && typeof rawEvent.messageId === 'string') {
+      const queue = queues.get(rawEvent.messageId) ?? []
+      queue.push(rawEvent)
+      queues.set(rawEvent.messageId, queue)
     }
   }
-  return byId
+  return payloads.map((payload) =>
+    typeof payload.messageId === 'string' ? queues.get(payload.messageId)?.shift() : undefined
+  )
 }

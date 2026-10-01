@@ -524,6 +524,62 @@ describe('Inspected Fields (shared warehouse column vectors)', () => {
     ])
   })
 
+  const contextColumnsByBody = async (events: Record<string, unknown>[], mapping: Record<string, unknown> = {}) => {
+    nock('https://api.avo.app').post(/.*/).reply(200, {})
+    const responses = await testDestination.testBatchAction('sendSchemaToInspector', {
+      events: events as unknown as SegmentEvent[],
+      useDefaultMappings: true,
+      mapping,
+      settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY, inspectedFields: 'event+context' }
+    })
+    const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
+    const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
+    return bodies.map((body) => Object.keys(schemaOf(body)).filter((n) => n.startsWith('context_')))
+  }
+  const withContext = (messageId: string, context: Record<string, unknown>) =>
+    asSent({ ...everything.event, messageId, properties: { plan: 'pro' }, context })
+
+  it('a single event gets its columns even when Message ID is mapped to another field', async () => {
+    nock('https://api.avo.app').post(/.*/).reply(200, {})
+    const responses = await testDestination.testAction('sendSchemaToInspector', {
+      event: asSent(everything.event) as unknown as SegmentEvent,
+      useDefaultMappings: true,
+      mapping: { messageId: { '@path': '$.properties.orderId' } },
+      settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY, inspectedFields: 'everything' }
+    })
+    const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
+    const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
+    // Positive control: the remapped Message ID really differs from the raw event's.
+    expect(bodies[0].messageId).not.toBe(everything.event.messageId)
+    expect(Object.keys(schemaOf(bodies[0])).sort()).toStrictEqual(Object.keys(everything.expectedSchema).sort())
+  })
+
+  it('in a batch with no failed events, each event gets its own columns even when Message ID is remapped', async () => {
+    const columns = await contextColumnsByBody(
+      [withContext('msg-a', { locale: 'de-DE' }), withContext('msg-b', { timezone: 'Europe/Oslo' })],
+      { messageId: { '@path': '$.properties.plan' } }
+    )
+    expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
+  })
+
+  it('in a batch, events sharing a Message ID each get their own columns', async () => {
+    const columns = await contextColumnsByBody([
+      withContext('msg-dup', { locale: 'de-DE' }),
+      withContext('msg-dup', { timezone: 'Europe/Oslo' })
+    ])
+    expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
+  })
+
+  it('in a batch with a failed event, events sharing a Message ID each get their own columns', async () => {
+    const invalid = { ...asSent(everything.event), messageId: 'msg-invalid', event: undefined }
+    const columns = await contextColumnsByBody([
+      invalid,
+      withContext('msg-dup', { locale: 'de-DE' }),
+      withContext('msg-dup', { timezone: 'Europe/Oslo' })
+    ])
+    expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
+  })
+
   it('offers the shared scopes, defaulting to everything', () => {
     const setting = Destination.authentication?.fields.inspectedFields
     expect(setting?.choices).toStrictEqual([
