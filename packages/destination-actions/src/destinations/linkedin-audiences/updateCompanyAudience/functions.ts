@@ -97,37 +97,27 @@ function isLinkedInHost(hostname: string): boolean {
 }
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
-  // Lower-cased, and otherwise sent as the customer wrote it minus the scheme, the query string,
-  // the fragment and any trailing slashes.
-  const stripped = trimmed(value)?.toLowerCase().replace(HTTP_SCHEME, '').split(QUERY_OR_FRAGMENT)[0]
+  const stripped = trimmed(value)
+    ?.toLowerCase()
+    .normalize('NFC')
+    .replace(HTTP_SCHEME, '')
+    .split(QUERY_OR_FRAGMENT)[0]
 
-  // Measured on the value actually sent, so a trailing slash never costs the identifier.
   const pageUrl = withinLength(stripped && withoutTrailingSlashes(stripped), MAX_COMPANY_PAGE_URL_LENGTH)
   if (!pageUrl) {
     return undefined
   }
 
   // Parsed only to decide whether to send it, never to build what is sent, because the parser
-  // percent-encodes a non-ascii slug. Splitting on '/' by hand is not enough: a URL parser reads
-  // a backslash as the end of the authority, so 'evil.com\.linkedin.com' passes a string check
-  // while resolving to evil.com. Parsing the already-stripped value is what keeps a scheme other
-  // than http(s) out, since it stays in the host segment rather than becoming a scheme.
+  // percent-encodes a non-ascii slug.
   let url: URL
   try {
-    url = new URL(`https://${pageUrl.normalize('NFC')}`)
+    url = new URL(`https://${pageUrl}`)
   } catch {
     return undefined
   }
 
-  // startsWith ties the string that is sent to the host that was checked, so nothing can sit in
-  // front of it — a protocol-relative '//' or a user prefix parses to a linkedin.com host while
-  // the value itself begins with something else.
-  const isCompanyPage =
-    isLinkedInHost(url.hostname) &&
-    pageUrl.startsWith(url.hostname) &&
-    url.pathname !== '/' &&
-    !url.port
-  return isCompanyPage ? pageUrl.normalize('NFC') : undefined
+  return isLinkedInHost(url.hostname) && pageUrl.startsWith(`${url.hostname}/`) ? pageUrl : undefined
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {
@@ -220,7 +210,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers).some((identifier) => trimmed(identifier))
-        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', a 'LinkedIn Company ID' must be numeric, with or without the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
+        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', and must not be a linkedin.com address — map a LinkedIn page to 'LinkedIn Company Page URL' instead. A 'LinkedIn Company ID' must be numeric, with or without the URN prefix. A 'LinkedIn Company Page URL' must be a company's page on linkedin.com, of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&

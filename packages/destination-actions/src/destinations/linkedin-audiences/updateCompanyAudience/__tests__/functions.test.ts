@@ -95,7 +95,12 @@ describe('normalizeDomain', () => {
     ['a bare linkedin.com, since it is nobody\'s own website domain', 'linkedin.com'],
     ['a bare www.linkedin.com', 'https://www.linkedin.com'],
     ['a company name with a dot mid-string', 'St. Jude Medical'],
-    ['a domain with a space inside it', 'micro soft.com']
+    ['a domain with a space inside it', 'micro soft.com'],
+    // The guard is /\\s/, not a space test: these are the shapes spreadsheet- and web-copied data
+    // actually carries, and every one of them passes an `includes(' ')` check.
+    ['a domain with a non-breaking space', 'Acme\u00A0Inc.'],
+    ['a domain with a tab', 'micro\tsoft.com'],
+    ['a domain with an ideographic space', 'micro\u3000soft.com']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeDomain(input)).toBeUndefined()
   })
@@ -171,14 +176,36 @@ describe('normalizeCompanyPageUrl', () => {
     expect(normalizeCompanyPageUrl(input)).toBe(expected)
   })
 
-  // The strip used to be an unanchored /\\/+$/, which backtracks quadratically when anything
-  // follows the run, on a value whose length is not yet bounded.
-  it('strips a long run of trailing slashes without stalling', () => {
+  it('strips a long run of trailing slashes', () => {
     const slug = 'linkedin.com/company/microsoft'
     expect(normalizeCompanyPageUrl(`${slug}${'/'.repeat(50000)}`)).toBe(slug)
   })
 
+  // The strip used to be an unanchored /\\/+$/, which backtracks quadratically only when
+  // something FOLLOWS the run — with the run at the end it matches in one pass and is linear.
+  // So the trailing character is what makes this a regression test rather than a no-op: the old
+  // regex takes seconds on this input, where the case above costs it nothing.
+  it('does not stall when the run of slashes is followed by another character', () => {
+    const value = `linkedin.com/company/microsoft${'/'.repeat(50000)}a`
+    const started = process.hrtime.bigint()
+
+    expect(normalizeCompanyPageUrl(value)).toBeUndefined()
+    expect(Number(process.hrtime.bigint() - started) / 1e6).toBeLessThan(250)
+  })
+
   describe('length limit', () => {
+    // Lower-casing 'J' + combining caron yields 'j' + caron, which NFC then composes to one code
+    // point — so the value shrinks AFTER the case fold. If the cap were applied before composing,
+    // this 61-character identifier would be dropped for breaching a 100-character limit.
+    it('measures the composed length, not the length before the case fold composes it', () => {
+      const slug = `linkedin.com/company/${'J\u030C'.repeat(40)}`
+      const sent = normalizeCompanyPageUrl(slug)
+
+      expect(slug.length).toBeGreaterThan(MAX_COMPANY_PAGE_URL_LENGTH)
+      expect(sent).toHaveLength(61)
+      expect(sent).toBe(`linkedin.com/company/${'\u01F0'.repeat(40)}`)
+    })
+
     const prefix = 'linkedin.com/company/'
     const bareUrlOfLength = (length: number) => `${prefix}${'a'.repeat(length - prefix.length)}`
 
@@ -230,6 +257,15 @@ describe('normalizeCompanyPageUrl', () => {
     ['a mailto, which parses with a linkedin.com host read from its userinfo', 'mailto:joe@linkedin.com/company/x'],
     ['a non-http scheme', 'ftp://linkedin.com/company/x'],
     ['a port, which is not a linkedin.com host', 'linkedin.com:8080/company/microsoft'],
+    // A parser reports no port for a scheme's default, so :443 has to be caught by the host
+    // prefix test rather than by url.port.
+    ['the https default port, which url.port reports as empty', 'linkedin.com:443/company/microsoft'],
+    // A WHATWG parser ends the authority at a backslash while an RFC 3986 one does not, so a
+    // value that merely starts with linkedin.com must not pass: the real authority here is
+    // evil.example, which is what any non-WHATWG consumer of the identifier would read.
+    ['a backslash after the host, hiding another authority', 'https://linkedin.com\\@evil.example/company/acme'],
+    ['the same without a scheme', 'linkedin.com\\@evil.example/company/acme'],
+    ['a backslash standing in for the path separator', 'linkedin.com\\evil.example'],
     ['a protocol-relative url, whose host segment is empty', '//linkedin.com/company/microsoft'],
     // A URL parser ends the authority at a backslash, so a string check on the first '/' segment
     // sees 'evil.com\\.linkedin.com' as the host while the value resolves to evil.com.
@@ -513,6 +549,16 @@ describe('normalizeTraits', () => {
     postalCode: '98101',
     stockSymbol: 'msft'
   }
+
+  // U+0390 is NFC-stable but upper-cases to three code units, so without the post-fold normalize
+  // the value measures 6 and MAX_STOCK_SYMBOL_LENGTH drops the trait entirely. Composed it is 4
+  // and survives — so this pins data being kept, not merely its spelling.
+  it('normalizes a stock symbol after upper-casing it, so the length limit sees the sent form', () => {
+    const traits = { stockSymbol: '\u0390\u0390' }
+    expect(normalizeTraits(payload({ send_company_traits: true, company_traits: traits }))).toEqual({
+      stockSymbol: '\u03AA\u0301\u03AA\u0301'
+    })
+  })
 
   it('returns undefined when the toggle is off, even if traits are mapped', () => {
     expect(normalizeTraits(payload({ send_company_traits: false, company_traits: traits }))).toBeUndefined()
