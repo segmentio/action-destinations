@@ -40,6 +40,27 @@ const destination: DestinationDefinition<Settings> = {
           'If you send a custom event property on all events that contains the app version, please enter the name of that property here (e.g. “app_version”). If you do not have a custom event property for the app version, please leave this field empty.',
         type: 'string',
         required: false
+      },
+      gatewaySupport: {
+        label: 'Gateway Support',
+        description:
+          "Sends events to Avo Inspector's current endpoint, which supports Avo gateways and the Output Reference, Origin Hint and Origin App Version fields. On by default for new destinations. Destinations added before this option existed keep using the previous endpoint until you turn it on.",
+        type: 'boolean',
+        required: false,
+        default: true
+      },
+      inspectedFields: {
+        label: 'Inspected Fields',
+        description:
+          'For gateways only. Requires Gateway Support. What Avo Inspector inspects for each event, named the way a warehouse stores it. "Event properties" inspects the event properties only. "Event properties and context" also inspects every context field, as a column such as context_page_path. "Everything" also inspects anonymous_id, user_id, id, event, timestamp, original_timestamp, sent_at and received_at. Avo receives the names and types of these fields, never their values.',
+        type: 'string',
+        choices: [
+          { label: 'Event properties', value: 'event' },
+          { label: 'Event properties and context', value: 'event+context' },
+          { label: 'Everything', value: 'everything' }
+        ],
+        required: false,
+        default: 'everything'
       }
     },
     testAuthentication: (request, { settings }) => {

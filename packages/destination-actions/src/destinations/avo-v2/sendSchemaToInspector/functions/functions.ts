@@ -15,18 +15,36 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { extractSchema } from './schema-functions'
+import { rawEventsForPayloads, warehouseColumns } from './warehouse-columns'
 import { createEncryptionSession, EncryptionSession } from './encryption-functions'
 import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
 import { DEFAULT_BASE_URL } from '../../constants'
 
-export const send = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
+// With Gateway Support on, events go to the v2 endpoint, which understands the gateway
+// coordinates. libPlatform doubles as the X-Avo-Client header there, so the two always agree.
+const GATEWAY_CLIENT = {
+  endpoint: `${DEFAULT_BASE_URL}/inspector/v2/track`,
+  libPlatform: 'segment',
+  libVersion: '2.1.0'
+}
+// Instances created before Gateway Support existed have no value for it, and keep sending
+// exactly what they sent before.
+const LEGACY_CLIENT = {
+  endpoint: `${DEFAULT_BASE_URL}/inspector/segment/v1/track`,
+  libPlatform: 'Segment',
+  libVersion: '2.0.0'
+}
+
+export const send = async (request: RequestClient, settings: Settings, payloads: Payload[], rawEvents?: unknown[]) => {
   const anonymousId = payloads[0]?.anonymousId
   const userId = payloads[0]?.userId
   const streamId = anonymousId ? anonymousId : userId ? processHashing(userId, 'sha256', 'hex') : 'unknown'
   const eventSpecMap = await fetchEventSpecsForBatch(request, settings, payloads, streamId)
 
   const { appVersionPropertyName, publicEncryptionKey, env, apiKey } = settings
+  const gatewaySupport = settings.gatewaySupport === true
+  const client = gatewaySupport ? GATEWAY_CLIENT : LEGACY_CLIENT
 
   // Create one encryption session for the entire batch — EC key generation happens
   // once here rather than once per event or once per property value.
@@ -42,10 +60,17 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     }
   }
 
-  const json = payloads.map((payload) => {
+  const inspectedFields = gatewaySupport ? settings.inspectedFields : undefined
+  const rawEventByIndex = rawEventsForPayloads(payloads, rawEvents)
+
+  const json = payloads.map((payload, index) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
-    const eventProperties = extractSchema(payload.properties, encryptionSession)
+    // Warehouse columns add names and types only: their values are never encrypted or sent.
+    const eventProperties = [
+      ...extractSchema(payload.properties, encryptionSession),
+      ...extractSchema(warehouseColumns(rawEventByIndex[index], properties, inspectedFields))
+    ]
     const eventSpec = eventSpecMap?.get(event) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined
 
@@ -55,14 +80,26 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       eventSpecMetadata = validationResult.metadata
     }
 
+    const outputReference = gatewaySupport ? normalizeCoordinate(payload.outputReference) : undefined
+    const originHint = gatewaySupport ? normalizeCoordinate(payload.originHint) : undefined
+    const originAppVersion = gatewaySupport ? normalizeCoordinate(payload.originAppVersion) : undefined
+
+    // The event's own version: the App Version Property setting, then the App Version field. In
+    // gateway mode a blank value counts as none, like every other coordinate; the legacy path keeps
+    // its truthiness check.
+    const propertyVersion = appVersionPropertyName ? properties[appVersionPropertyName] : undefined
+    const legacyVersion = (): unknown => (propertyVersion ? propertyVersion : payload.appVersion)
+
     const itemJSON: EventSchemaBody = {
       appName: appName ?? (pageUrl ? pageUrl.split('/')[2] : 'unnamed Segment app'),
-      appVersion:
-        appVersionPropertyName && properties[appVersionPropertyName]
-          ? (properties[appVersionPropertyName] as string)
-          : payload.appVersion ?? 'unversioned',
-      libVersion: '2.0.0',
-      libPlatform: 'Segment',
+      appVersion: gatewaySupport
+        ? resolveAppVersion(
+            originHint,
+            originAppVersion ?? versionCoordinate(propertyVersion) ?? versionCoordinate(payload.appVersion)
+          )
+        : (legacyVersion() as string | undefined) ?? 'unversioned',
+      libVersion: client.libVersion,
+      libPlatform: client.libPlatform,
       messageId,
       createdAt,
       sessionId: '',
@@ -71,6 +108,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       streamId,
       eventName: event,
       eventProperties,
+      ...(outputReference ? { outputReference } : {}),
+      ...(originHint ? { originHint } : {}),
       eventId: null,
       eventHash: null,
       ...(typeof eventSpecMetadata !== 'undefined' ? { eventSpecMetadata } : {})
@@ -82,19 +121,44 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     throw new PayloadValidationError('No events generated from payload')
   }
 
-  const endpoint = 'https://api.avo.app/inspector/segment/v1/track'
-
-  return request(endpoint, {
+  return request(client.endpoint, {
     method: 'post',
     headers: {
       accept: 'application/json',
       'content-type': 'application/json',
       'api-key': apiKey,
       env,
-      streamId
+      streamId,
+      ...(gatewaySupport ? { 'X-Avo-Client': client.libPlatform } : {})
     },
     json
   })
+}
+
+// Gateway coordinates are trimmed; a blank value counts as not provided, and its key is
+// omitted from the body rather than sent as null or "".
+function normalizeCoordinate(value: string | undefined): string | undefined {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : undefined
+}
+
+// Gateway mode. Segment forwards the event it received, so the event's own version is the default
+// originAppVersion, and an explicit Origin App Version overrides it. With an origin hint and no
+// origin app version the version is null; without a hint and none it is 'unversioned'.
+function resolveAppVersion(originHint: string | undefined, originAppVersion: string | undefined): string | null {
+  if (originHint) {
+    return originAppVersion ?? null
+  }
+  return originAppVersion ?? 'unversioned'
+}
+
+// The App Version Property setting can name a property of any type: send a number or boolean as
+// its string, and treat anything else that isn't a non-blank string as no version.
+function versionCoordinate(value: unknown): string | undefined {
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+  return typeof value === 'string' ? normalizeCoordinate(value) : undefined
 }
 
 async function fetchEventSpecsForBatch(

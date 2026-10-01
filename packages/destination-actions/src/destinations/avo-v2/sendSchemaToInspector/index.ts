@@ -1,7 +1,11 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, ExecuteInput } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions/functions'
+
+// The runtime passes the unmapped event as rawData, which ExecuteInput does not declare; the same
+// extension liveramp-audiences uses.
+type ExecuteInputRaw<P, R> = ExecuteInput<Settings, P> & { rawData?: R }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Schema From Event',
@@ -90,6 +94,27 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    outputReference: {
+      label: 'Output Reference',
+      type: 'string',
+      description:
+        'Optional, for gateways only. Requires Gateway Support. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.',
+      required: false
+    },
+    originHint: {
+      label: 'Origin Hint',
+      type: 'string',
+      description:
+        'Optional, for gateways only. Requires Gateway Support. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as "ios-app". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. Avo only reads this value when the API key belongs to a gateway. With an origin hint, the app version comes from Origin App Version; if that is empty, from the event\'s own version (the App Version Property setting, then the App Version field), and is left empty only when the event carries none. On a regular source, leave this field empty.',
+      required: false
+    },
+    originAppVersion: {
+      label: 'Origin App Version',
+      type: 'string',
+      description:
+        "Optional, for gateways only. Requires Gateway Support. App version of the source that produced each event. Leave it empty to use the event's own version: the App Version Property setting, then the App Version field (`$.context.app.version`, which only mobile sources send). For a web source, set the App Version Property setting to the event property that carries its version, such as `app_version`. Set this field only to read the version from somewhere else. When set, it replaces the App Version field and the App Version Property setting for every API key. On a regular source, leave this field empty and use the App Version field instead.",
+      required: false
+    },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
@@ -109,11 +134,11 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, settings }) => {
-    return send(request, settings, [payload])
+  perform: async (request, { payload, settings, rawData }: ExecuteInputRaw<Payload, unknown>) => {
+    return send(request, settings, [payload], [rawData])
   },
-  performBatch: async (request, { payload, settings }) => {
-    return send(request, settings, payload)
+  performBatch: async (request, { payload, settings, rawData }: ExecuteInputRaw<Payload[], unknown[]>) => {
+    return send(request, settings, payload, rawData)
   }
 }
 export default action
