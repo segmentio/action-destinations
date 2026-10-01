@@ -169,9 +169,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
           const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
 
           // Best-effort partner link creation — errors must not block audience creation
+          let customerAccessToken: string | undefined
           if (auth?.refresh_token) {
             try {
-              const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+              customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
               await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
             } catch (_) {
               // intentionally swallowed
@@ -181,7 +182,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
             request,
             createAudienceInput,
             auth,
-            createAudienceInput.statsContext
+            createAudienceInput.statsContext,
+            customerAccessToken
           )
         } else {
           userListId = await createGoogleAudience(
@@ -229,9 +231,10 @@ const destination: AudienceDestinationDefinition<Settings> = {
         const loginCustomerId = getAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
         const auth = getAudienceInput.settings.oauth
 
+        let customerAccessToken: string | undefined
         if (auth?.refresh_token) {
           try {
-            const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+            customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
             await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
           } catch (_) {
             // intentionally swallowed
@@ -242,7 +245,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
           getAudienceInput.settings,
           getAudienceInput.externalId,
           getAudienceInput.settings.oauth,
-          getAudienceInput.statsContext
+          getAudienceInput.statsContext,
+          customerAccessToken
         )
         return { externalId: userList.id }
       }

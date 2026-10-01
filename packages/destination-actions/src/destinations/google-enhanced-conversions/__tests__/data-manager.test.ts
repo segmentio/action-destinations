@@ -212,17 +212,17 @@ describe('createDataManagerPartnerLink', () => {
     expect(result.partnerLinkId).toBe('1')
   })
 
-  it('uses the MCC login customer id as the owning account when provided', async () => {
+  it('keeps the advertiser as the owning account and sends the MCC only in the login-account header', async () => {
     nock(DATA_MANAGER_BASE_URL)
       .post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`, {
-        owningAccount: { accountId: loginCustomerId, accountType: 'GOOGLE_ADS' },
+        owningAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
         partnerAccount: { accountId: '262932431', accountType: 'DATA_PARTNER' }
       })
       .matchHeader('login-account', `accountTypes/GOOGLE_ADS/accounts/${loginCustomerId}`)
       .reply(200, {
         name: 'link',
         partnerLinkId: '2',
-        owningAccount: { accountId: loginCustomerId, accountType: 'GOOGLE_ADS' },
+        owningAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
         partnerAccount: { accountId: '262932431', accountType: 'DATA_PARTNER' }
       })
 
@@ -433,13 +433,13 @@ describe('ingestAudienceMembers', () => {
     expect(result).toEqual({ requestId: 'req-1' })
   })
 
-  it('includes linkedAccount in the destination and uses the customer access token when a login customer id is set', async () => {
+  it('sets the MCC as loginAccount, omits linkedAccount, and uses the customer access token', async () => {
     nock(DATA_MANAGER_BASE_URL)
       .post('/audienceMembers:ingest', (body) => {
         const dest = body.destinations[0]
         return (
           dest.loginAccount.accountId === loginCustomerId &&
-          dest.linkedAccount?.accountId === customerId &&
+          !('linkedAccount' in dest) &&
           dest.operatingAccount.accountId === customerId
         )
       })
@@ -728,12 +728,41 @@ describe('handleDataManagerUpdate', () => {
     expect(results).toEqual([{ requestId: 'req-14' }])
   })
 
-  it('skips a payload with no usable identifiers and makes no Data Manager call', async () => {
+  it('rejects a payload with no usable identifiers rather than dropping it silently', async () => {
     const payload: UserListPayload = {
       ad_user_data_consent_state: 'GRANTED',
       ad_personalization_consent_state: 'GRANTED',
       event_name: 'Audience Entered'
     }
+
+    await expect(
+      handleDataManagerUpdate(requestClient, settings, audienceSettings, [payload], 'dm-list-1', 'CONTACT_INFO')
+    ).rejects.toThrow('Missing or invalid data for CONTACT_INFO.')
+    expect(nock.pendingMocks()).toEqual([])
+  })
+
+  it('rejects a payload whose operation type cannot be determined rather than dropping it silently', async () => {
+    const payload = contactInfoPayload({ event_name: 'Unrecognized Event' })
+
+    await expect(
+      handleDataManagerUpdate(requestClient, settings, audienceSettings, [payload], 'dm-list-1', 'CONTACT_INFO')
+    ).rejects.toThrow('Could not determine Operation Type.')
+    expect(nock.pendingMocks()).toEqual([])
+  })
+
+  it('omits a blank email instead of sending it as an empty identifier', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => {
+        const identifiers = body.audienceMembers[0].userData.userIdentifiers
+        return (
+          identifiers.length === 2 &&
+          identifiers.every((identifier: Record<string, unknown>) => !('emailAddress' in identifier)) &&
+          identifiers[0].phoneNumber === HASHED_PHONE
+        )
+      })
+      .reply(200, { requestId: 'req-blank-email' })
+
+    const payload = contactInfoPayload({ email: '   ', event_name: 'Audience Entered' })
 
     const results = await handleDataManagerUpdate(
       requestClient,
@@ -744,8 +773,57 @@ describe('handleDataManagerUpdate', () => {
       'CONTACT_INFO'
     )
 
-    expect(results).toEqual([])
-    expect(nock.pendingMocks()).toEqual([])
+    expect(results).toEqual([{ requestId: 'req-blank-email' }])
+  })
+
+  it('omits the address identifier when the country code is not a 2-letter ISO code', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => {
+        const identifiers = body.audienceMembers[0].userData.userIdentifiers
+        return (
+          identifiers.length === 2 &&
+          identifiers.every((identifier: Record<string, unknown>) => !('address' in identifier))
+        )
+      })
+      .reply(200, { requestId: 'req-bad-region' })
+
+    const payload = contactInfoPayload({ country_code: 'United States', event_name: 'Audience Entered' })
+
+    const results = await handleDataManagerUpdate(
+      requestClient,
+      settings,
+      audienceSettings,
+      [payload],
+      'dm-list-1',
+      'CONTACT_INFO'
+    )
+
+    expect(results).toEqual([{ requestId: 'req-bad-region' }])
+  })
+
+  it('omits the address identifier when a required address field is blank', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => {
+        const identifiers = body.audienceMembers[0].userData.userIdentifiers
+        return (
+          identifiers.length === 2 &&
+          identifiers.every((identifier: Record<string, unknown>) => !('address' in identifier))
+        )
+      })
+      .reply(200, { requestId: 'req-blank-postal' })
+
+    const payload = contactInfoPayload({ postal_code: '   ', event_name: 'Audience Entered' })
+
+    const results = await handleDataManagerUpdate(
+      requestClient,
+      settings,
+      audienceSettings,
+      [payload],
+      'dm-list-1',
+      'CONTACT_INFO'
+    )
+
+    expect(results).toEqual([{ requestId: 'req-blank-postal' }])
   })
 
   it('maps GRANTED/DENIED consent states to CONSENT_GRANTED/CONSENT_DENIED', async () => {
@@ -853,6 +931,34 @@ describe('handleDataManagerBatchUpdate', () => {
     expect(result.getResponseAtIndex(1).value()).toMatchObject({ status: 200, body: { requestId: 'req-17' } })
   })
 
+  it('attributes a malformed email to its own index and still delivers the rest of the batch', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => body.audienceMembers.length === 1)
+      .reply(200, { requestId: 'req-partial' })
+
+    const payloads = [
+      contactInfoPayload({ email: 'not-an-email', event_name: 'Audience Entered' }),
+      contactInfoPayload({ email: 'valid@gmail.com', event_name: 'Audience Entered' })
+    ]
+
+    const result = await handleDataManagerBatchUpdate(
+      requestClient,
+      settings,
+      audienceSettings,
+      payloads,
+      'dm-list-1',
+      'CONTACT_INFO'
+    )
+
+    expect(result.isErrorResponseAtIndex(0)).toBe(true)
+    expect(result.getResponseAtIndex(0).value()).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: "Email provided doesn't seem to be in a valid format."
+    })
+    expect(result.getResponseAtIndex(1).value()).toMatchObject({ status: 200, body: { requestId: 'req-partial' } })
+  })
+
   it('marks every entry in a failed batch call as an error using the thrown error status/message', async () => {
     nock(DATA_MANAGER_BASE_URL)
       .post('/audienceMembers:ingest')
@@ -904,6 +1010,26 @@ describe('getDataManagerListIds', () => {
     })
   })
 
+  it('sends the page token it was given as pageToken on the next request', async () => {
+    nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(200, { access_token: accessToken })
+    nock(DATA_MANAGER_BASE_URL).post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`).reply(200, {})
+    nock(DATA_MANAGER_BASE_URL)
+      .get(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`)
+      .query({ pageToken: 'page-2' })
+      .reply(200, { userLists: [{ id: 'dm-list-3', name: 'n3', displayName: 'List Three' }] })
+
+    const result = await getDataManagerListIds(
+      requestClient,
+      { customerId },
+      { refresh_token: refreshToken },
+      undefined,
+      'page-2'
+    )
+
+    expect(result.choices).toEqual([{ value: 'dm-list-3', label: 'List Three' }])
+    expect(nock.pendingMocks()).toEqual([])
+  })
+
   it('still returns choices when the best-effort partner link creation fails', async () => {
     nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(200, { access_token: accessToken })
     nock(DATA_MANAGER_BASE_URL)
@@ -938,9 +1064,9 @@ describe('getDataManagerListIds', () => {
 
 describe('destination.createAudience with the Data Manager feature flag', () => {
   it('creates a Data Manager user list when the flag is ON', async () => {
-    // Two separate token exchanges happen on this path: one for the best-effort partner
-    // link bootstrap, and a second (duplicated) exchange inside createDataManagerUserList itself.
-    nock('https://www.googleapis.com').post('/oauth2/v4/token').twice().reply(200, { access_token: accessToken })
+    // One token exchange for the whole path: the partner-link bootstrap exchanges the refresh
+    // token and createDataManagerUserList reuses it instead of exchanging a second time.
+    nock('https://www.googleapis.com').post('/oauth2/v4/token').once().reply(200, { access_token: accessToken })
     nock(DATA_MANAGER_BASE_URL).post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`).reply(200, {})
     nock(DATA_MANAGER_BASE_URL)
       .post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`)
@@ -954,6 +1080,7 @@ describe('destination.createAudience with the Data Manager feature flag', () => 
     })
 
     expect(result).toEqual({ externalId: 'dm-list-9' })
+    expect(nock.pendingMocks()).toEqual([])
   })
 
   it('falls back to the legacy Google Ads audience creation flow when the flag is OFF', async () => {

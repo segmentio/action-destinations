@@ -609,17 +609,20 @@ export async function createDataManagerPartnerLink(
   customerAccessToken: string,
   loginCustomerId?: string
 ): Promise<PartnerLinkResponse> {
-  const owningAccountId = loginCustomerId || customerId
+  // The link is owned by the advertiser account, which must be the same account as the `parent` in
+  // the URL. A manager account authenticates the call through the login-account header instead — it
+  // does not own the link.
+  const loginAccountId = loginCustomerId || customerId
   const url = `${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`
   try {
     const response = await request<PartnerLinkResponse>(url, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${customerAccessToken}`,
-        'login-account': `accountTypes/GOOGLE_ADS/accounts/${owningAccountId}`
+        'login-account': `accountTypes/GOOGLE_ADS/accounts/${loginAccountId}`
       },
       json: {
-        owningAccount: { accountId: owningAccountId, accountType: 'GOOGLE_ADS' },
+        owningAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
         partnerAccount: { accountId: PARTNER_ACCOUNT_ID, accountType: 'DATA_PARTNER' }
       }
     })
@@ -637,7 +640,10 @@ export async function createDataManagerUserList(
   request: RequestClient,
   input: CreateAudienceInput,
   auth: CreateAudienceInput['settings']['oauth'],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  // Callers that already exchanged the refresh token (for the partner-link bootstrap) pass it in so
+  // this doesn't hit Google's token endpoint a second time for the same operation.
+  customerAccessToken?: string
 ): Promise<string> {
   if (input.audienceSettings.external_id_type === 'MOBILE_ADVERTISING_ID' && !input.audienceSettings.app_id) {
     throw new PayloadValidationError('App ID is required when external ID type is mobile advertising ID.')
@@ -650,7 +656,7 @@ export async function createDataManagerUserList(
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
 
-  const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
+  const accessToken = customerAccessToken ?? (await exchangeForAccessToken(request, auth.refresh_token))
 
   const customerId = input.settings.customerId?.replace(/-/g, '')
   const loginCustomerId = input.settings.loginCustomerId?.replace(/-/g, '')
@@ -711,7 +717,9 @@ export async function getDataManagerUserList(
   settings: CreateAudienceInput['settings'],
   externalId: string,
   auth: CreateAudienceInput['settings']['oauth'],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  // See createDataManagerUserList — avoids a duplicate token exchange per operation.
+  customerAccessToken?: string
 ): Promise<DataManagerUserList> {
   if (!auth?.refresh_token) {
     throw new PayloadValidationError('Oauth credentials missing.')
@@ -720,7 +728,7 @@ export async function getDataManagerUserList(
   const statsClient = statsContext?.statsClient
   const statsTags = statsContext?.tags
 
-  const accessToken = await exchangeForAccessToken(request, auth.refresh_token)
+  const accessToken = customerAccessToken ?? (await exchangeForAccessToken(request, auth.refresh_token))
 
   const customerId = settings.customerId?.replace(/-/g, '')
   const loginCustomerId = settings.loginCustomerId?.replace(/-/g, '')
@@ -757,19 +765,17 @@ export async function getDataManagerUserList(
 }
 
 function buildDataManagerDestination(customerId: string, userListId: string, loginCustomerId?: string) {
-  // loginAccount must match the authorization token (customer's GOOGLE_ADS token from extendRequest).
-  // For MCC setups: loginAccount = MCC, linkedAccount = sub-account the MCC manages, operatingAccount = sub-account.
-  const loginAccountId = loginCustomerId || customerId
-  const dest: Record<string, unknown> = {
-    loginAccount: { accountId: loginAccountId, accountType: 'GOOGLE_ADS' },
+  // Per Data Manager's destination matrix for Google Ads access:
+  //   direct  — loginAccount omitted, or set to the same account as operatingAccount
+  //   manager — loginAccount = the manager (MCC) account, operatingAccount = the managed account
+  // linkedAccount belongs only to data-partner access via a manager partner link, where it carries
+  // the *manager* account. It must not be set for either Google Ads scenario, so it is omitted here.
+  // https://developers.google.com/data-manager/api/devguides/concepts/destinations
+  return {
+    loginAccount: { accountId: loginCustomerId || customerId, accountType: 'GOOGLE_ADS' },
     operatingAccount: { accountId: customerId, accountType: 'GOOGLE_ADS' },
     productDestinationId: userListId
   }
-  // linkedAccount: for MCC, this is the sub-account (customerId) that the MCC has access to via account link.
-  if (loginCustomerId) {
-    dest.linkedAccount = { accountId: customerId, accountType: 'GOOGLE_ADS' }
-  }
-  return dest
 }
 
 function toDataManagerConsentStatus(value?: string): string | undefined {
@@ -877,18 +883,24 @@ function buildAudienceMember(
   // CONTACT_INFO
   const userIdentifiers: NonNullable<DataManagerAudienceMember['userData']>['userIdentifiers'] = []
 
+  // processHashing returns '' for a whitespace-only value, short-circuiting before its cleaning
+  // function runs, so a truthy-but-blank trait would otherwise be sent as an empty identifier.
+  // Data Manager rejects that with INVALID_ARGUMENT for the entire ingest/remove call (it has no
+  // per-item partial failure), so only push identifiers that actually carry a value.
   if (payload.email) {
-    userIdentifiers.push({
-      emailAddress: processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
-    })
+    const emailAddress = processHashing(payload.email, 'sha256', 'hex', commonEmailValidation)
+    if (emailAddress) {
+      userIdentifiers.push({ emailAddress })
+    }
   }
 
   if (payload.phone) {
-    userIdentifiers.push({
-      phoneNumber: processHashing(payload.phone, 'sha256', 'hex', (v) =>
-        formatPhone(v, payload.phone_country_code, features, statsContext)
-      )
-    })
+    const phoneNumber = processHashing(payload.phone, 'sha256', 'hex', (v) =>
+      formatPhone(v, payload.phone_country_code, features, statsContext)
+    )
+    if (phoneNumber) {
+      userIdentifiers.push({ phoneNumber })
+    }
   }
 
   // None of first_name/last_name/country_code/postal_code are required on their own — a member can
@@ -898,14 +910,25 @@ function buildAudienceMember(
   // taking every other member in that call down with it. So only add the address identifier when
   // all four are present — otherwise omit it and fall back to whatever other identifiers exist.
   if (payload.first_name && payload.last_name && payload.country_code && payload.postal_code) {
-    userIdentifiers.push({
-      address: {
-        givenName: processHashing(payload.first_name, 'sha256', 'hex'),
-        familyName: processHashing(payload.last_name, 'sha256', 'hex'),
-        regionCode: payload.country_code,
-        postalCode: payload.postal_code
-      }
-    })
+    const givenName = processHashing(payload.first_name, 'sha256', 'hex')
+    const familyName = processHashing(payload.last_name, 'sha256', 'hex')
+    const regionCode = payload.country_code.trim().toUpperCase()
+    const postalCode = payload.postal_code.trim()
+    // Same blank-value guard as email/phone: a whitespace-only name hashes to '', and regionCode /
+    // postalCode are sent unhashed, so any of the four being blank would fail the whole call.
+    // regionCode must additionally be a 2-letter ISO-3166-1 code — a value like 'United States'
+    // would fail INVALID_ARGUMENT for every member in the call, so drop the address identifier and
+    // let the member match on email/phone instead.
+    if (givenName && familyName && /^[A-Z]{2}$/.test(regionCode) && postalCode) {
+      userIdentifiers.push({
+        address: {
+          givenName,
+          familyName,
+          regionCode,
+          postalCode
+        }
+      })
+    }
   }
 
   if (userIdentifiers.length === 0) return null
@@ -951,7 +974,12 @@ export async function handleDataManagerUpdate(
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     const member = buildAudienceMember(payload, idType, features, statsContext)
-    if (!member) continue
+    if (!member) {
+      // Reported rather than skipped: silently continuing here returned an empty result set as a
+      // 200, so the event was dropped while delivery looked healthy. Mirrors the error the batch
+      // path records at this index.
+      throw new PayloadValidationError(`Missing or invalid data for ${idType}.`)
+    }
 
     const membership = Array.isArray(audienceMembership) ? audienceMembership[i] : audienceMembership
     if (
@@ -968,6 +996,9 @@ export async function handleDataManagerUpdate(
       membership === false
     ) {
       removeMembers.push(member)
+    } else {
+      // Also previously a silent drop — the batch path records this at the payload's index.
+      throw new PayloadValidationError('Could not determine Operation Type.')
     }
   }
 
@@ -1055,7 +1086,23 @@ export async function handleDataManagerBatchUpdate(
   const removeMembers: IndexedMember[] = []
 
   payloads.forEach((payload, index) => {
-    const member = buildAudienceMember(payload, idType, features, statsContext)
+    let member: DataManagerAudienceMember | null
+    try {
+      member = buildAudienceMember(payload, idType, features, statsContext)
+    } catch (error) {
+      // buildAudienceMember throws on a malformed email (commonEmailValidation) or phone number
+      // (formatPhone, when the phone-validation flag is on). Left uncaught, that escaped this
+      // forEach and failed the whole batch with one 400, discarding the MultiStatusResponse and
+      // every other member in it. Attribute it to the payload that caused it instead.
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: (error as Error).message,
+        sent: payload as unknown as JSONLikeObject
+      })
+      return
+    }
+
     if (!member) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -1152,7 +1199,10 @@ export async function getDataManagerListIds(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   auth?: CreateAudienceInput['settings']['oauth'],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  // The page token the previous call returned as `nextPage`. Without it, this returned a nextPage
+  // the caller could never act on, so paging re-fetched the first page forever.
+  page?: string
 ) {
   try {
     if (!auth?.refresh_token) {
@@ -1184,7 +1234,8 @@ export async function getDataManagerListIds(
     try {
       response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
         method: 'get',
-        headers
+        headers,
+        ...(page && { searchParams: { pageToken: page } })
       })
     } catch (err) {
       throwDataManagerError(err)

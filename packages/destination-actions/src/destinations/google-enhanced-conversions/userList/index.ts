@@ -182,9 +182,15 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          dynamic: async (request, { settings, auth, features, statsContext }) => {
+          dynamic: async (request, { settings, auth, features, statsContext, page }) => {
             if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-              return await getDataManagerListIds(request, settings, { refresh_token: auth?.refreshToken }, statsContext)
+              return await getDataManagerListIds(
+                request,
+                settings,
+                { refresh_token: auth?.refreshToken },
+                statsContext,
+                page
+              )
             }
             return await getListIds(request, settings, auth, features, statsContext)
           }
@@ -251,9 +257,10 @@ const action: ActionDefinition<Settings, Payload> = {
               const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
 
               // Best-effort partner link creation — errors must not block list creation/lookup
+              let customerAccessToken: string | undefined
               if (auth?.refreshToken) {
                 try {
-                  const customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
+                  customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
                   await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
                 } catch (_) {
                   // intentionally swallowed — partner link errors must not block list creation/lookup
@@ -267,7 +274,8 @@ const action: ActionDefinition<Settings, Payload> = {
                 {
                   refresh_token: auth?.refreshToken
                 },
-                statsContext
+                statsContext,
+                customerAccessToken
               )
               statsContext?.statsClient?.incr('getDataManagerPerformHook.success', 1, statsContext?.tags)
               return {
@@ -325,9 +333,10 @@ const action: ActionDefinition<Settings, Payload> = {
             const loginCustomerId = settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
 
             // Best-effort partner link creation — errors must not block list creation
+            let customerAccessToken: string | undefined
             if (auth?.refreshToken) {
               try {
-                const customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
+                customerAccessToken = await exchangeForAccessToken(request, auth.refreshToken)
                 await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
               } catch (_) {
                 // intentionally swallowed — partner link errors must not block list creation
@@ -337,7 +346,8 @@ const action: ActionDefinition<Settings, Payload> = {
               request,
               input,
               { refresh_token: auth?.refreshToken },
-              statsContext
+              statsContext,
+              customerAccessToken
             )
             statsContext?.statsClient?.incr('createDataManagerPerformHook.success', 1, statsContext?.tags)
           } else {
