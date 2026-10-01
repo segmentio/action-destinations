@@ -1,5 +1,6 @@
 import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
 import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import {
   APIError,
   ErrorCodes,
@@ -34,6 +35,32 @@ jest.mock('@aws-sdk/client-sts', () => ({
   })),
   AssumeRoleCommand: jest.fn()
 }))
+
+// Client.assumeRole() reads these to build the intermediary (first-hop) AssumeRole call. Set them
+// for the WHOLE file so no describe runs with them unset — otherwise the earlier describes would
+// build the intermediary command with RoleArn/ExternalId of `undefined`, and behavior could depend
+// on test execution order.
+const ORIGINAL_ROLE_ADDRESS = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
+const ORIGINAL_EXTERNAL_ID = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
+beforeAll(() => {
+  process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
+  process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
+})
+afterAll(() => {
+  process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = ORIGINAL_ROLE_ADDRESS
+  process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = ORIGINAL_EXTERNAL_ID
+})
+
+// Reset BOTH AWS send mocks (and the shared credential cache) before every test. Previously the
+// first describe reset only mockStsSend, so mockS3Send state could leak across describes — an
+// order-dependence hazard. Describe-level beforeEach hooks still run after this one and re-apply
+// their own per-suite defaults.
+beforeEach(() => {
+  mockStsSend.mockReset()
+  mockS3Send.mockReset()
+  mockS3Send.mockResolvedValue({})
+  clearCredentialsCache()
+})
 
 describe('isAWSError', () => {
   it('should return true for a valid AWS error', () => {
@@ -163,6 +190,106 @@ describe('Client STS assume-role error handling', () => {
   })
 })
 
+describe('uploadS3 incomplete-credentials guard (independent of the error-classification flag)', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  // Regression: the "Failed to assume role" completeness check (client.ts:185-193) sits AFTER the
+  // flag-gated STS send, so it must reject on malformed STS credentials whether or not the
+  // error-classification flag is on. Previously only the flag-on path exercised it.
+  it('is off by default: rejects a non-retryable 403 InvalidAuthentication error when STS omits a credential field', async () => {
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      // Customer hop is missing SessionToken -> fails the completeness check.
+      .mockResolvedValueOnce({ Credentials: { AccessKeyId: 'AKIA_CUSTOMER', SecretAccessKey: 'secret' } })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as IntegrationError).status).toBe(403)
+    expect((err as IntegrationError).code).toBe(ErrorCodes.INVALID_AUTHENTICATION)
+    expect((err as Error).message).toBe('Failed to assume role')
+  })
+
+  it('also rejects with the same 403 guard when the classification flag is on', async () => {
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      .mockResolvedValueOnce({ Credentials: undefined })
+
+    const err = await upload(newClient({ [S3_STS_ERROR_CLASSIFICATION_FLAG]: true })).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(403)
+  })
+})
+
+describe('AssumeRole command inputs and intermediary -> customer credential chaining', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, undefined)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  it('builds each hop with the right RoleArn/ExternalId + a shared RoleSessionName, and feeds the intermediary creds into the customer-hop STS client', async () => {
+    ;(AssumeRoleCommand as unknown as jest.Mock).mockClear()
+    ;(STSClient as unknown as jest.Mock).mockClear()
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'int-secret', SessionToken: 'int-token' }
+      })
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_CUSTOMER', SecretAccessKey: 'cust-secret', SessionToken: 'cust-token' }
+      })
+
+    await upload(newClient())
+
+    const assumeCalls = (AssumeRoleCommand as unknown as jest.Mock).mock.calls
+    expect(assumeCalls).toHaveLength(2)
+
+    // Hop 1: Segment's intermediary role, from the env vars set for this file.
+    expect(assumeCalls[0][0]).toMatchObject({
+      RoleArn: 'arn:aws:iam::555555555555:role/segment-intermediary',
+      ExternalId: 'segment-intermediary-external-id'
+    })
+    expect(typeof assumeCalls[0][0].RoleSessionName).toBe('string')
+    expect(assumeCalls[0][0].RoleSessionName.length).toBeGreaterThan(0)
+
+    // Hop 2: the customer's configured role + external id.
+    expect(assumeCalls[1][0]).toMatchObject({
+      RoleArn: settings.iam_role_arn,
+      ExternalId: settings.iam_external_id
+    })
+    // Both hops reuse the single per-Client session name.
+    expect(assumeCalls[1][0].RoleSessionName).toBe(assumeCalls[0][0].RoleSessionName)
+
+    // Credential chaining: the first STS client is built with no credentials; the second MUST be
+    // built with the intermediary hop's freshly minted credentials.
+    const stsCtorCalls = (STSClient as unknown as jest.Mock).mock.calls
+    expect(stsCtorCalls).toHaveLength(2)
+    expect(stsCtorCalls[0][0].credentials).toBeUndefined()
+    expect(stsCtorCalls[1][0].credentials).toEqual({
+      accessKeyId: 'AKIA_INTERMEDIARY',
+      secretAccessKey: 'int-secret',
+      sessionToken: 'int-token'
+    })
+  })
+})
+
 describe('uploadS3 PUT error classification (flag-off legacy path parity)', () => {
   const settings: Settings = {
     iam_role_arn: 'arn:aws:iam::123456789012:role/test',
@@ -251,7 +378,10 @@ describe('mapAWSError', () => {
 
   it('never surfaces a non-4xx status from the generic client-fault branch (clamps to 400)', () => {
     // A client-fault error carrying a 3xx status must not leak that 3xx as the error status.
-    const err = mapAWSError({ name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } }, 'AWS PUT failed')
+    const err = mapAWSError(
+      { name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } },
+      'AWS PUT failed'
+    )
     expect(err).toBeInstanceOf(IntegrationError)
     expect((err as IntegrationError).status).toBe(400)
   })
@@ -285,7 +415,12 @@ describe('mapAWSError', () => {
   // (a retryable timeout class) rather than the raw permanent client-fault bucket.
   it('treats OperationAborted (409) as a retryable timeout despite its 4xx status', () => {
     const err = mapAWSError(
-      { Code: 'OperationAborted', Message: 'conflicting operation in progress', $fault: 'client', $metadata: { httpStatusCode: 409 } },
+      {
+        Code: 'OperationAborted',
+        Message: 'conflicting operation in progress',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 409 }
+      },
       'AWS PUT failed'
     )
     expect(err).toBeInstanceOf(RequestTimeoutError)
@@ -363,28 +498,13 @@ describe('STS credential caching', () => {
     new Client(settings.s3_aws_region, roleArn, settings.iam_external_id, undefined, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
 
-  // Client.assumeRole() reads these to build the intermediary hop; set them for real (rather than
-  // leaving them undefined) so the intermediary hop's cache key/behavior in these tests matches
-  // what a real deployment would see.
-  const originalRoleAddress = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
-  const originalExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
-  beforeAll(() => {
-    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
-    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
-  })
-  afterAll(() => {
-    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = originalRoleAddress
-    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = originalExternalId
-  })
-
+  // The intermediary-role env vars are set file-wide (see the top-level beforeAll), so this suite's
+  // intermediary hop sees the same identity a real deployment would.
   beforeEach(() => {
-    mockStsSend.mockReset()
-    // mockS3Send is shared across describe blocks in this file, so reset it here and default it to a
-    // successful PUT — the caching tests exercise the full uploadS3 path and only assert on STS.
-    mockS3Send.mockReset()
-    mockS3Send.mockResolvedValue({})
+    // The file-level beforeEach already reset both send mocks, defaulted the PUT to success and
+    // cleared the cache; this suite only needs to clear the S3Client constructor-call history it
+    // asserts on.
     ;(S3Client as unknown as jest.Mock).mockClear()
-    clearCredentialsCache()
   })
 
   it('is off by default: calls STS on every upload without caching', async () => {
@@ -435,7 +555,7 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(2)
   })
 
-  it('when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop\'s', async () => {
+  it("when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop's", async () => {
     // Distinguishable per-hop credentials so a cache-key mixup (e.g. customer lookup returning the
     // intermediary's cached entry) would be caught by asserting the exact values used, not just call counts.
     mockStsSend
@@ -560,7 +680,7 @@ describe('STS credential caching', () => {
   // iam_role_arn/iam_external_id equal to the intermediary's, forcing its customer hop's cache
   // lookup to collide with the (always-populated-first) intermediary entry and receive Segment's
   // shared intermediary credentials without AWS ever checking the customer role's trust policy.
-  it('when enabled, does not let a customer-configured role/externalId alias the intermediary hop\'s cache entry', async () => {
+  it("when enabled, does not let a customer-configured role/externalId alias the intermediary hop's cache entry", async () => {
     // Attacker sets their own iam_role_arn/iam_external_id equal to the (effectively public)
     // intermediary role identity set up for the whole suite above, hoping the customer hop's
     // cache lookup collides with the intermediary hop's entry and returns its shared credentials.

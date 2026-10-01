@@ -15,26 +15,23 @@ import { PayloadValidationError } from '@segment/actions-core'
 import { S3_HASHING_FEATURE_FLAG, S3_STS_ERROR_CLASSIFICATION_FLAG } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
-// Mock AWS SDK before any imports to avoid initialization issues
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn()
-  })),
-  PutObjectCommand: jest.fn()
-}))
-
-jest.mock('@aws-sdk/client-sts', () => ({
-  STSClient: jest.fn(),
-  AssumeRoleCommand: jest.fn()
-}))
-
-// Mock the S3 Client so send() can complete without hitting AWS. The flag guard under test
-// throws before the Client is ever constructed, so this only matters for the non-throwing cases.
+// `../client` is mocked wholesale below, so client.ts never executes and the AWS SDK is never
+// imported through this test — no `@aws-sdk/*` mocks are needed here (the previous ones were dead).
+//
+// A single module-level uploadS3 mock, shared across every mocked Client instance, lets tests
+// assert on the exact file content / prefix / folder / extension that send() hands to the client,
+// not merely that the call resolved.
+const mockUploadS3 = jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
 jest.mock('../client', () => ({
   Client: jest.fn().mockImplementation(() => ({
-    uploadS3: jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
+    uploadS3: mockUploadS3
   }))
 }))
+
+beforeEach(() => {
+  mockUploadS3.mockClear()
+  ;(Client as unknown as jest.Mock).mockClear()
+})
 
 describe('clean', () => {
   it('should remove delimiter from string', () => {
@@ -333,6 +330,27 @@ describe('generateFile', () => {
     // The value is passed through untouched (not re-hashed, not lower-cased).
     expect(readColumn(result, 'email')).toBe(`"${alreadyHashed}"`)
   })
+
+  it('produces a header-only file when there are no payloads', () => {
+    // payloads=[] still emits the header row (newline-terminated) and nothing after it — there are
+    // no data rows to append. Asserted so this edge case is deliberate, documented behavior.
+    const result = generateFile([], headers, ',')
+    expect(result.toString()).toBe(`${headers.map((header) => header.cleanName).join(',')}\n`)
+  })
+
+  it('joins headers and rows with a non-comma delimiter (pipe)', () => {
+    const result = generateFile(normalizePayloads, normalizeHeaders, '|')
+    const rows = result.toString().split('\n')
+    expect(rows[0]).toBe('email|user_id')
+    expect(rows[1]).toBe('"  Test@Test.com  "|"User_1"')
+  })
+
+  it('joins headers and rows with a real tab when the delimiter is "tab"', () => {
+    const result = generateFile(normalizePayloads, normalizeHeaders, 'tab')
+    const rows = result.toString().split('\n')
+    expect(rows[0]).toBe('email\tuser_id')
+    expect(rows[1]).toBe('"  Test@Test.com  "\t"User_1"')
+  })
 })
 
 describe('getNormalizer', () => {
@@ -513,5 +531,80 @@ describe('send with hashing feature flag', () => {
     // features) is caught here rather than silently disabling the flag in production while this test
     // stays green.
     expect((Client as unknown as jest.Mock).mock.calls[0][4]).toBe(features)
+  })
+})
+
+describe('send uploads the generated file content to the client', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+
+  // The latest (settings, fileContent, filename_prefix, s3_aws_folder_name, file_extension) tuple
+  // that send() handed to Client.uploadS3.
+  const lastUpload = () => mockUploadS3.mock.calls[mockUploadS3.mock.calls.length - 1]
+
+  it('passes the generated CSV body plus the filename prefix, folder and extension through to uploadS3', async () => {
+    const rawMapping: RawMapping = { columns: { email: 'email', user_id: 'user_id' } }
+    const payload: Payload = {
+      columns: { email: 'a@b.com', user_id: 'u1' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv',
+      filename_prefix: 'myfile',
+      s3_aws_folder_name: 'folder'
+    }
+
+    await send([payload], settings, rawMapping, {})
+
+    const [uploadSettings, fileContent, prefix, folder, ext] = lastUpload()
+    expect(uploadSettings).toBe(settings)
+    const text = (fileContent as Buffer).toString()
+    expect(text.split('\n')[0]).toBe('email,user_id')
+    expect(text.split('\n')[1]).toBe('"a@b.com","u1"')
+    expect(prefix).toBe('myfile')
+    expect(folder).toBe('folder')
+    expect(ext).toBe('csv')
+  })
+
+  it('includes the audience-action and batch-size columns in the uploaded header row', async () => {
+    // Covers the header-push branches in send() (functions.ts) that the existing send() tests never
+    // exercised: they are only appended when the payload carries these column names.
+    const rawMapping: RawMapping = { columns: { email: 'email' } }
+    const payload: Payload = {
+      columns: { email: 'a@b.com' },
+      audience_action_column_name: 'in_audience',
+      batch_size_column_name: 'batch_size',
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv'
+    }
+
+    await send([payload], settings, rawMapping, {})
+
+    const header = (lastUpload()[1] as Buffer).toString().split('\n')[0]
+    expect(header).toBe('email,in_audience,batch_size')
+  })
+
+  it('writes the HASHED value (not the plaintext) into the uploaded file when the hashing flag is on', async () => {
+    // Guards against a silent hashing regression: the previous send() tests only asserted the call
+    // resolved, so a bug that wrote the raw value instead of its hash would not have been caught.
+    const rawMapping: RawMapping = { columns: { email: 'email' } }
+    const payload: Payload = {
+      columns: { email: 'test@test.com' },
+      delimiter: ',',
+      enable_batching: true,
+      file_extension: 'csv',
+      columns_to_transform: [{ column_name: 'email', hash_algorithm: 'sha256', normalize: 'none' }]
+    }
+
+    await send([payload], settings, rawMapping, { [S3_HASHING_FEATURE_FLAG]: true })
+
+    const text = (lastUpload()[1] as Buffer).toString()
+    const expectedHash = processHashing('test@test.com', 'sha256', 'hex')
+    expect(text).toContain(expectedHash)
+    expect(text).not.toContain('test@test.com')
   })
 })
