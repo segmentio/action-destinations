@@ -45,6 +45,11 @@ describe('clean', () => {
   it('should handle empty string', () => {
     expect(clean('')).toBe('')
   })
+
+  it('returns the string unchanged when the delimiter is "tab"', () => {
+    // tab is a virtual delimiter rendered as \t at write time, so clean() must not strip it.
+    expect(clean('tab', 'a\tb,c')).toBe('a\tb,c')
+  })
 })
 
 describe('encodeString', () => {
@@ -77,6 +82,20 @@ describe('getAudienceAction', () => {
       file_extension: 'csv'
     }
     expect(getAudienceAction(payload)).toBe(true)
+  })
+
+  it('should return undefined when computation_key is not a key in traits_or_props', () => {
+    // traits_or_props and computation_key are both present (so the early guard passes), but the
+    // key is absent -> the lookup is undefined and falls through the `?? undefined`.
+    const payload: Payload = {
+      traits_or_props: { other_audience: true },
+      computation_key: 'missing_audience',
+      columns: {},
+      delimiter: ',',
+      enable_batching: false,
+      file_extension: 'csv'
+    }
+    expect(getAudienceAction(payload)).toBeUndefined()
   })
 })
 
@@ -456,6 +475,34 @@ describe('resolveColumnTransforms', () => {
   it('should return an empty map when entries is empty', () => {
     const result = resolveColumnTransforms([], validColumnNames)
     expect(result.size).toBe(0)
+  })
+
+  it('should treat an undefined column_name as empty and throw', () => {
+    // Exercises the `entry.column_name ?? ''` fallback when the field is missing entirely.
+    const entries = [{ hash_algorithm: 'sha256', normalize: 'none' }] as unknown as {
+      column_name: string
+      hash_algorithm: string
+      normalize: string
+    }[]
+    expect(() => resolveColumnTransforms(entries, validColumnNames)).toThrow('column_name is required')
+  })
+
+  it('should treat an undefined hash_algorithm as no algorithm', () => {
+    // Exercises the `entry.hash_algorithm ?? ''` fallback → empty → normalize-only transform.
+    const entries = [{ column_name: 'email', normalize: 'trim' }] as unknown as {
+      column_name: string
+      hash_algorithm: string
+      normalize: string
+    }[]
+    const result = resolveColumnTransforms(entries, validColumnNames)
+    expect(result.get('email')).toEqual({ algorithm: undefined, normalize: 'trim' })
+  })
+
+  it('should fall back to "none" when normalize is whitespace-only', () => {
+    // Exercises the `|| 'none'` fallback: '   '.trim() === '' is falsy → defaults to 'none'.
+    const entries = [{ column_name: 'email', hash_algorithm: 'none', normalize: '   ' }]
+    const result = resolveColumnTransforms(entries, validColumnNames)
+    expect(result.get('email')).toEqual({ algorithm: undefined, normalize: 'none' })
   })
 })
 

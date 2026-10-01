@@ -1,5 +1,5 @@
 import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
-import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
+import { S3Client, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import {
   APIError,
@@ -188,6 +188,17 @@ describe('Client STS assume-role error handling', () => {
     expect(err).toBeInstanceOf(RetryableError)
     expect(err).not.toBeInstanceOf(APIError)
   })
+
+  // errorMessage() String(err) branch: a non-Error intermediary-role rejection is stringified into
+  // the retryable message rather than read via `.message`.
+  it('when enabled, stringifies a non-Error intermediary-role rejection into the retryable message', async () => {
+    mockStsSend.mockRejectedValueOnce({ toString: () => 'weird-sts-failure' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toBe('Failed to assume intermediary AWS role: weird-sts-failure')
+  })
 })
 
 describe('uploadS3 incomplete-credentials guard (independent of the error-classification flag)', () => {
@@ -352,6 +363,44 @@ describe('uploadS3 PUT error classification (flag-off legacy path parity)', () =
     expect(err).toBeInstanceOf(APIError)
     expect(err).not.toBeInstanceOf(RetryableError)
     expect((err as APIError).status).toBe(500)
+  })
+
+  // Exercises the `err.Message || err.Code` fallback (message defaults to the Code when Message is
+  // empty) for each legacy branch.
+  it.each([
+    ['AccessDenied', 403],
+    ['NoSuchBucket', 404],
+    ['SlowDown', 429]
+  ])(
+    'is off by default: falls back to err.Code as the message for a %s PUT failure with no Message',
+    async (code, status) => {
+      mockS3Send.mockRejectedValue({ Code: code, Message: '' })
+
+      const err = await upload(newClient()).catch((e: unknown) => e)
+
+      expect(err).toBeInstanceOf(APIError)
+      expect((err as APIError).status).toBe(status)
+      expect((err as Error).message).toContain(code)
+    }
+  )
+
+  it('is off by default: falls back to err.Code for an unclassified AWS PUT failure with no Message', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'WeirdError', Message: '' })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toContain('WeirdError')
+  })
+
+  it('is off by default: falls back to a generic message for an AWS PUT failure with neither Code nor Message', async () => {
+    // Both keys present (so isAWSError is true) but empty -> the final `|| 'Unknown AWS Put error'`.
+    mockS3Send.mockRejectedValue({ Code: '', Message: '' })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toContain('Unknown AWS Put error')
   })
 })
 
@@ -571,6 +620,21 @@ describe('mapAWSError', () => {
     const err = mapAWSError({ name: 'SomeClientFault', message: 'bad', $fault: 'client' }, 'AWS PUT failed')
     expect(err).toBeInstanceOf(IntegrationError)
     expect((err as IntegrationError).status).toBe(400)
+  })
+
+  it('uses the AWS Code as the message when Message and message are both absent', () => {
+    // Exercises `e?.Message ?? e?.message ?? code` falling through to `code`.
+    const err = mapAWSError({ Code: 'AccessDenied' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(APIError)
+    expect((err as APIError).status).toBe(403)
+    expect(err.message).toContain('AccessDenied')
+  })
+
+  it('does not throw on a null error value and classifies it as retryable (defensive fallback)', () => {
+    // Exercises the `e?.*` null branches and the final `?? String(err)` message fallback.
+    const err = mapAWSError(null, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(RetryableError)
+    expect(err.message).toContain('AWS PUT failed')
   })
 })
 
@@ -873,5 +937,74 @@ describe('STS credential caching', () => {
       mockStsSend.mockResolvedValue(stsOk())
       await expect(upload(newClient())).resolves.toBeDefined()
     })
+
+    // Telemetry must never fail the upload it only observes: if the stats client throws, safeIncr
+    // swallows it and logs a warning (client.ts:81) rather than propagating.
+    it('does not fail the upload when the stats client throws, and logs a warning instead', async () => {
+      mockStsSend.mockResolvedValue(stsOk())
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const incr = jest.fn(() => {
+        throw new Error('statsd unavailable')
+      })
+      const statsContext = { statsClient: { incr }, tags: ['dest:s3'] } as unknown as StatsContext
+
+      await expect(upload(clientWithStats(statsContext))).resolves.toBeDefined()
+
+      expect(warn).toHaveBeenCalledWith('[s3] failed to emit metric', expect.any(String), expect.any(Error))
+      warn.mockRestore()
+    })
+  })
+})
+
+describe('uploadS3 object key generation', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, undefined)
+
+  beforeEach(() => {
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+  })
+
+  const keyOf = () => (PutObjectCommand as unknown as jest.Mock).mock.calls[0][0].Key as string
+
+  // Characterization tests for the filename_prefix-ends-with-.csv/.txt branch (client.ts:238-240).
+  // NOTE: these pin the CURRENT, known-buggy behavior — `filename_prefix.replace(fileExtension, ...)`
+  // replaces the FIRST occurrence of the extension substring, inserting a stray dot
+  // ('myfile.csv' -> 'myfile._<date>.csv'). This is the deferred breaking-change finding #1 from
+  // the deep review; we are NOT fixing it here, only documenting today's output so any future fix
+  // must consciously update these expectations.
+  it('inserts the date suffix via string replace when filename_prefix already ends in .csv', async () => {
+    await newClient().uploadS3(settings, 'content', 'myfile.csv', '', 'csv')
+    expect(keyOf()).toMatch(/^myfile\._.*\.csv$/)
+  })
+
+  it('inserts the date suffix via string replace when filename_prefix already ends in .txt', async () => {
+    await newClient().uploadS3(settings, 'content', 'notes.txt', '', 'txt')
+    expect(keyOf()).toMatch(/^notes\._.*\.txt$/)
+  })
+
+  it('uses just the date suffix + extension when filename_prefix is empty', async () => {
+    // else-branch, falsy filename_prefix: `${dateSuffix}.${ext}` (no leading prefix/underscore).
+    await newClient().uploadS3(settings, 'content', '', '', 'csv')
+    const key = keyOf()
+    expect(key).toMatch(/\.csv$/)
+    expect(key).not.toMatch(/^_/)
+  })
+
+  it('uses the folder name as-is when it already ends in a slash', async () => {
+    await newClient().uploadS3(settings, 'content', 'file', 'myfolder/', 'csv')
+    expect(keyOf()).toMatch(/^myfolder\/file_.*\.csv$/)
+  })
+
+  it('appends a trailing slash to a folder name that lacks one', async () => {
+    await newClient().uploadS3(settings, 'content', 'file', 'myfolder', 'csv')
+    expect(keyOf()).toMatch(/^myfolder\/file_.*\.csv$/)
   })
 })
