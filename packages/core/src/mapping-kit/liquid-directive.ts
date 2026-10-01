@@ -1,11 +1,6 @@
 import { Liquid } from 'liquidjs'
 import { StatsContext } from '../destination-kit'
-
-const liquidEngine = new Liquid({
-  renderLimit: 500, // 500 ms
-  parseLimit: 1000, // 1000 characters. This is also enforced by us to enable a custom error message
-  memoryLimit: 1e8 // 100 MB memory
-})
+import { JSONLike } from '../json-object'
 
 const disabledTags = ['case', 'for', 'include', 'layout', 'render', 'tablerow']
 
@@ -32,34 +27,67 @@ const disabledFilters = [
   'type'
 ]
 
-disabledTags.forEach((tag) => {
-  const disabled = {
-    parse: function () {
-      throw new Error(`tag "${tag}" is disabled`)
-    },
-    render: function () {
-      throw new Error(`tag "${tag}" is disabled`)
+interface LiquidEngineOptions {
+  /**
+   * Return the evaluated value instead of a string when the template writes a single output,
+   * e.g. `{{ properties.tags }}` returns an array. Mixed output is still rendered to a string.
+   */
+  keepOutputType?: boolean
+}
+
+export function createLiquidEngine({ keepOutputType = false }: LiquidEngineOptions = {}): Liquid {
+  const engine = new Liquid({
+    renderLimit: 500, // 500 ms
+    parseLimit: 1000, // 1000 characters. This is also enforced by us to enable a custom error message
+    memoryLimit: 1e8, // 100 MB memory
+    keepOutputType
+  })
+
+  disabledTags.forEach((tag) => {
+    const disabled = {
+      parse: function () {
+        throw new Error(`tag "${tag}" is disabled`)
+      },
+      render: function () {
+        throw new Error(`tag "${tag}" is disabled`)
+      }
     }
-  }
 
-  liquidEngine.registerTag(tag, disabled)
-})
+    engine.registerTag(tag, disabled)
+  })
 
-disabledFilters.forEach((filter) => {
-  const disabledFilter = (name: string) => {
-    return function () {
-      throw new Error(`filter "${name}" is disabled`)
+  disabledFilters.forEach((filter) => {
+    const disabledFilter = (name: string) => {
+      return function () {
+        throw new Error(`filter "${name}" is disabled`)
+      }
     }
-  }
 
-  liquidEngine.registerFilter(filter, disabledFilter(filter))
-})
+    engine.registerFilter(filter, disabledFilter(filter))
+  })
+
+  return engine
+}
+
+const liquidEngine = createLiquidEngine()
 
 export function getLiquidKeys(liquidValue: string): string[] {
   return liquidEngine.fullVariablesSync(liquidValue)
 }
 
-export function evaluateLiquid(liquidValue: any, event: any, statsContext?: StatsContext | undefined): string {
+export function evaluateLiquid(liquidValue: any, event: any, statsContext?: StatsContext | undefined): string
+export function evaluateLiquid(
+  liquidValue: any,
+  event: any,
+  statsContext: StatsContext | undefined,
+  engine: Liquid
+): JSONLike
+export function evaluateLiquid(
+  liquidValue: any,
+  event: any,
+  statsContext?: StatsContext | undefined,
+  engine: Liquid = liquidEngine
+): JSONLike {
   if (typeof liquidValue !== 'string') {
     // type checking of @liquid directive is done in validate.ts as well
     throw new Error('liquid template value must be a string')
@@ -73,12 +101,12 @@ export function evaluateLiquid(liquidValue: any, event: any, statsContext?: Stat
     throw new Error('liquid template values are limited to 1000 characters')
   }
 
-  let res: string
+  let res: JSONLike
   const start = Date.now()
   let status: 'success' | 'fail' = 'success'
 
   try {
-    res = liquidEngine.parseAndRenderSync(liquidValue, event)
+    res = engine.parseAndRenderSync(liquidValue, event)
   } catch (e) {
     status = 'fail'
     throw e
@@ -88,6 +116,10 @@ export function evaluateLiquid(liquidValue: any, event: any, statsContext?: Stat
       ...statsContext.tags,
       `result:${status}`
     ])
+  }
+
+  if (engine.options.keepOutputType) {
+    return res
   }
 
   if (typeof res !== 'string') {
