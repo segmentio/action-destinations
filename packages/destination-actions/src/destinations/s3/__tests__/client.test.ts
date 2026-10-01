@@ -344,17 +344,20 @@ describe('uploadS3 PUT error classification (flag-off legacy path parity)', () =
     ['AccountProblem', 403],
     ['NoSuchBucket', 404],
     ['SlowDown', 429]
-  ])('is off by default: classifies a %s PUT failure as a non-retryable APIError %d', async (code, status) => {
-    mockS3Send.mockRejectedValue({ Code: code, Message: 'nope' })
+  ])(
+    'is off by default: classifies a %s PUT failure as an APIError %d (not a RetryableError)',
+    async (code, status) => {
+      mockS3Send.mockRejectedValue({ Code: code, Message: 'nope' })
 
-    const err = await upload(newClient()).catch((e: unknown) => e)
+      const err = await upload(newClient()).catch((e: unknown) => e)
 
-    expect(err).toBeInstanceOf(APIError)
-    expect(err).not.toBeInstanceOf(RetryableError)
-    expect((err as APIError).status).toBe(status)
-  })
+      expect(err).toBeInstanceOf(APIError)
+      expect(err).not.toBeInstanceOf(RetryableError)
+      expect((err as APIError).status).toBe(status)
+    }
+  )
 
-  it('is off by default: wraps a non-AWS PUT failure as a non-retryable APIError 500', async () => {
+  it('is off by default: wraps a non-AWS PUT failure as an APIError 500 (not a RetryableError)', async () => {
     // Not an AWS `_Error` (no Code/Message), so it falls to the legacy else branch -> 500.
     mockS3Send.mockRejectedValue(new Error('socket hang up'))
 
@@ -948,10 +951,13 @@ describe('STS credential caching', () => {
       })
       const statsContext = { statsClient: { incr }, tags: ['dest:s3'] } as unknown as StatsContext
 
-      await expect(upload(clientWithStats(statsContext))).resolves.toBeDefined()
-
-      expect(warn).toHaveBeenCalledWith('[s3] failed to emit metric', expect.any(String), expect.any(Error))
-      warn.mockRestore()
+      try {
+        await expect(upload(clientWithStats(statsContext))).resolves.toBeDefined()
+        expect(warn).toHaveBeenCalledWith('[s3] failed to emit metric', expect.any(String), expect.any(Error))
+      } finally {
+        // Restore via finally so a mid-test failure can't leak the console spy into later suites.
+        warn.mockRestore()
+      }
     })
   })
 })
