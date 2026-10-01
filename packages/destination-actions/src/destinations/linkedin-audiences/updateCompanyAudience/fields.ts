@@ -3,6 +3,7 @@ import {
   AUDIENCE_ACTION,
   AUDIENCE_SOURCE,
   MAX_CITY_LENGTH,
+  MAX_COMPANY_PAGE_URL_LENGTH,
   MAX_INDUSTRIES,
   MAX_INDUSTRY_LENGTH,
   MAX_POSTAL_CODE_LENGTH,
@@ -40,13 +41,13 @@ export const fields: Record<string, InputField> = {
       linkedInCompanyId: {
         label: 'LinkedIn Company ID',
         description:
-          "The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn.",
+          "The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn. The ID is a number, so a value that is not one, such as a company's LinkedIn vanity name, is not sent.",
         type: 'string'
       },
       companyPageUrl: {
         label: 'LinkedIn Company Page URL',
         description:
-          "The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on another website is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.",
+          `The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on another website, or one longer than ${MAX_COMPANY_PAGE_URL_LENGTH} characters, is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.`,
         type: 'string'
       }
     },

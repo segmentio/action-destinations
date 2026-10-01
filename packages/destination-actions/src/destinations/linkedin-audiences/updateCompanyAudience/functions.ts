@@ -41,21 +41,31 @@ import {
 } from './constants'
 
 const HTTP_SCHEME = /^https?:\/\//i
-const TRAILING_SLASHES = /\/+$/
 const QUERY_OR_FRAGMENT = /[?#]/
 const PATH_QUERY_OR_FRAGMENT = /[/?#]/
 const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
+const ORGANIZATION_ID = /^\d+$/
+const WHITESPACE = /\s/
+
+// remove slashes in a linear way
+function withoutTrailingSlashes(value: string): string {
+  let end = value.length
+  while (end > 0 && value.charCodeAt(end - 1) === 47) end--
+  return end === value.length ? value : value.slice(0, end)
+}
 
 export function toOrganizationUrn(linkedInCompanyId?: string): string | undefined {
-  // One anchored pass, not a loop that re-copies the remainder each time round.
   const id = trimmed(linkedInCompanyId)?.replace(ORGANIZATION_URN_PREFIXES, '').trim()
-  return id ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
+  return id && ORGANIZATION_ID.test(id) ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
 }
 
 // An accented letter can be stored two ways in Unicode: as one character, 'ü', or as a plain
 // 'u' plus a separate accent mark. The two look identical on screen but are different data, and
 // LinkedIn matches company values exactly without cleaning up what it is sent, so only one of
 // them matches. NFC is the one-character form, which is what LinkedIn expects.
+//
+// Case folding does not preserve NFC, so anything that lower- or upper-cases a value has to
+// normalize again afterwards rather than relying on this.
 function trimmed(value?: string): string | undefined {
   return value?.normalize('NFC').trim() || undefined
 }
@@ -76,9 +86,12 @@ export function normalizeDomain(value?: string): string | undefined {
     .pop()
     ?.split(':')[0]
     .trim()
+    .normalize('NFC')
 
-  // A domain has a dot and no space in it. Beyond that the value is the customer's to get right.
-  return host && host.includes('.') && !host.includes(' ') ? host : undefined
+  // A domain has a dot and no whitespace in it. Beyond that the value is the customer's to get
+  // right. The check is every whitespace character, not just a space: a company name pasted from
+  // a spreadsheet carries a non-breaking one, and that is the case worth catching.
+  return host && host.includes('.') && !WHITESPACE.test(host) ? host : undefined
 }
 
 function isLinkedInHost(hostname: string): boolean {
@@ -87,17 +100,36 @@ function isLinkedInHost(hostname: string): boolean {
 
 export function normalizeCompanyPageUrl(value?: string): string | undefined {
   // Lower-cased, and otherwise sent as the customer wrote it minus the scheme, the query string,
-  // the fragment and any trailing slashes. No URL parsing: the parser re-encodes a non-ascii
-  // slug, and the only thing worth checking here is the host.
-  const stripped = trimmed(value)
-    ?.toLowerCase()
-    .replace(HTTP_SCHEME, '')
-    .split(QUERY_OR_FRAGMENT)[0]
-    .replace(TRAILING_SLASHES, '')
+  // the fragment and any trailing slashes.
+  const stripped = trimmed(value)?.toLowerCase().replace(HTTP_SCHEME, '').split(QUERY_OR_FRAGMENT)[0]
 
   // Measured on the value actually sent, so a trailing slash never costs the identifier.
-  const pageUrl = withinLength(stripped, MAX_COMPANY_PAGE_URL_LENGTH)
-  return pageUrl && isLinkedInHost(pageUrl.split('/')[0]) ? pageUrl : undefined
+  const pageUrl = withinLength(stripped && withoutTrailingSlashes(stripped), MAX_COMPANY_PAGE_URL_LENGTH)
+  if (!pageUrl) {
+    return undefined
+  }
+
+  // Parsed only to decide whether to send it, never to build what is sent, because the parser
+  // percent-encodes a non-ascii slug. Splitting on '/' by hand is not enough: a URL parser reads
+  // a backslash as the end of the authority, so 'evil.com\.linkedin.com' passes a string check
+  // while resolving to evil.com. Parsing the already-stripped value is what keeps a scheme other
+  // than http(s) out, since it stays in the host segment rather than becoming a scheme.
+  let url: URL
+  try {
+    url = new URL(`https://${pageUrl.normalize('NFC')}`)
+  } catch {
+    return undefined
+  }
+
+  // startsWith ties the string that is sent to the host that was checked, so nothing can sit in
+  // front of it — a protocol-relative '//' or a user prefix parses to a linkedin.com host while
+  // the value itself begins with something else.
+  const isCompanyPage =
+    isLinkedInHost(url.hostname) &&
+    pageUrl.startsWith(url.hostname) &&
+    url.pathname !== '/' &&
+    !url.port
+  return isCompanyPage ? pageUrl.normalize('NFC') : undefined
 }
 
 export function normalizeIndustries(values?: string[] | string): string[] | undefined {
@@ -158,7 +190,10 @@ export function normalizeTraits(payload: Payload): NormalizedTraits | undefined 
   const state = withinLength(trimmed(company_traits?.state), MAX_STATE_LENGTH)
   const country = normalizeCountry(company_traits?.country)
   const postalCode = withinLength(trimmed(company_traits?.postalCode), MAX_POSTAL_CODE_LENGTH)
-  const stockSymbol = withinLength(trimmed(company_traits?.stockSymbol)?.toUpperCase(), MAX_STOCK_SYMBOL_LENGTH)
+  const stockSymbol = withinLength(
+    trimmed(company_traits?.stockSymbol)?.toUpperCase().normalize('NFC'),
+    MAX_STOCK_SYMBOL_LENGTH
+  )
 
   const traits: NormalizedTraits = {
     ...(industries && { industries }),
@@ -187,7 +222,7 @@ export function validate(
       // Mapping a value that normalization then rejects looks identical to mapping nothing at
       // all, so say which of the two happened.
       message = Object.values(payload.identifiers).some((identifier) => trimmed(identifier))
-        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
+        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', a 'LinkedIn Company ID' must be numeric, with or without the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
         : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
@@ -396,8 +431,8 @@ function handleRequestError(status: number, statsContext: StatsContext | undefin
 export function resolveSourceSegmentId(payload: ValidCompanyPayload): string {
   const key =
     payload.audience_source === AUDIENCE_SOURCE.CONNECTIONS
-      ? payload.segment_name?.trim()
-      : payload.computation_key?.trim()
+      ? trimmed(payload.segment_name)
+      : trimmed(payload.computation_key)
 
   if (!key) {
     const message =

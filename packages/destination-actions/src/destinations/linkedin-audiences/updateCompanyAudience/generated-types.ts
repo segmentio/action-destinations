@@ -18,11 +18,11 @@ export interface Payload {
      */
     companyEmailDomain?: string
     /**
-     * The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn.
+     * The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn. The ID is a number, so a value that is not one, such as a company's LinkedIn vanity name, is not sent.
      */
     linkedInCompanyId?: string
     /**
-     * The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on another website is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
+     * The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on another website, or one longer than 100 characters, is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
      */
     companyPageUrl?: string
   }
