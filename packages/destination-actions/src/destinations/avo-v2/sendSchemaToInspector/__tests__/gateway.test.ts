@@ -1,4 +1,5 @@
 import nock from 'nock'
+import { createECDH } from 'crypto'
 import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 import vectors from './gateway-vectors.json'
@@ -372,5 +373,164 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
       expect(body.libPlatform).toBe(headers.get('X-Avo-Client'))
       expect(body.libVersion).toBe(segment.libVersion)
     }
+  })
+})
+
+const schemaOf = (body: Record<string, unknown>) =>
+  Object.fromEntries(
+    (body.eventProperties as { propertyName: string; propertyType: string }[]).map((p) => [
+      p.propertyName,
+      p.propertyType
+    ])
+  )
+
+describe('Inspected Fields (shared warehouse column vectors)', () => {
+  const cases = vectors.warehouseColumnCases.cases
+
+  it('the vector table carries every warehouse-column case', () => {
+    expect(cases).toHaveLength(5)
+  })
+
+  // The harness also fills in Segment's default envelope fields, so the ones a case leaves out
+  // are passed as explicitly absent.
+  const ENVELOPE_FIELDS = [
+    'anonymousId',
+    'userId',
+    'messageId',
+    'timestamp',
+    'originalTimestamp',
+    'sentAt',
+    'receivedAt'
+  ]
+  const asSent = (event: Record<string, unknown>) => ({
+    ...Object.fromEntries(ENVELOPE_FIELDS.filter((field) => !(field in event)).map((field) => [field, undefined])),
+    ...event
+  })
+
+  for (const mode of ['single', 'batch'] as Mode[]) {
+    for (const { name, scope, event, expectedSchema } of cases) {
+      it(`${mode}: ${name}`, async () => {
+        const { bodies } = await sendOne(
+          asSent(event) as unknown as SegmentEvent,
+          {},
+          { ...GATEWAY, inspectedFields: scope },
+          mode
+        )
+        expect(schemaOf(bodies[0])).toStrictEqual(expectedSchema)
+      })
+    }
+  }
+
+  const everything = cases[2]
+  const eventOnly = cases[0]
+
+  it('without Gateway Support, Inspected Fields is ignored', async () => {
+    const { url, bodies } = await sendOne(
+      everything.event as unknown as SegmentEvent,
+      {},
+      {
+        inspectedFields: 'everything'
+      }
+    )
+    expect(url).toBe('https://api.avo.app/inspector/segment/v1/track')
+    expect(schemaOf(bodies[0])).toStrictEqual(eventOnly.expectedSchema)
+  })
+
+  it('a destination saved before Inspected Fields existed inspects the event properties only', async () => {
+    const { bodies } = await sendOne(everything.event as unknown as SegmentEvent, {}, GATEWAY)
+    expect(schemaOf(bodies[0])).toStrictEqual(eventOnly.expectedSchema)
+  })
+
+  it('warehouse columns never carry a value, even with a public encryption key', async () => {
+    const recipient = createECDH('prime256v1')
+    recipient.generateKeys()
+    const publicEncryptionKey = recipient.getPublicKey('hex', 'uncompressed')
+    const { bodies } = await sendOne(
+      asSent(everything.event) as unknown as SegmentEvent,
+      {},
+      {
+        ...GATEWAY,
+        env: 'dev',
+        publicEncryptionKey,
+        inspectedFields: 'everything'
+      }
+    )
+    const properties = bodies[0].eventProperties as {
+      propertyName: string
+      encryptedPropertyValue?: string
+      children?: unknown
+    }[]
+    const columns = properties.filter((p) => !(p.propertyName in eventOnly.expectedSchema))
+    // Positive controls: the columns really are in the body, and encryption is really on.
+    expect(columns.map((p) => p.propertyName).sort()).toStrictEqual(
+      Object.keys(everything.expectedSchema)
+        .filter((name) => !(name in eventOnly.expectedSchema))
+        .sort()
+    )
+    expect(properties.filter((p) => p.encryptedPropertyValue !== undefined).map((p) => p.propertyName)).toStrictEqual(
+      Object.keys(eventOnly.expectedSchema)
+    )
+    expect(columns.filter((p) => p.encryptedPropertyValue !== undefined || p.children !== undefined)).toStrictEqual([])
+  })
+
+  it('a mapping saved before Inspected Fields existed still gets the columns', async () => {
+    nock('https://api.avo.app').post(/.*/).reply(200, {})
+    const responses = await testDestination.testAction('sendSchemaToInspector', {
+      event: asSent(everything.event) as unknown as SegmentEvent,
+      useDefaultMappings: false,
+      mapping: {
+        event: { '@path': '$.event' },
+        properties: { '@path': '$.properties' },
+        messageId: { '@path': '$.messageId' },
+        createdAt: { '@path': '$.timestamp' },
+        anonymousId: { '@path': '$.anonymousId' },
+        userId: { '@path': '$.userId' }
+      },
+      settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY, inspectedFields: 'everything' }
+    })
+    const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
+    const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
+    expect(schemaOf(bodies[0])).toStrictEqual(everything.expectedSchema)
+  })
+
+  it('in a batch, each event gets its own columns even when another event fails validation', async () => {
+    nock('https://api.avo.app').post(/.*/).reply(200, {})
+    const invalid = { ...asSent(everything.event), messageId: 'msg-invalid', event: undefined }
+    const first = asSent({
+      ...everything.event,
+      messageId: 'msg-a',
+      properties: { plan: 'pro' },
+      context: { locale: 'de-DE' }
+    })
+    const second = asSent({
+      ...everything.event,
+      messageId: 'msg-b',
+      properties: { plan: 'pro' },
+      context: { timezone: 'Europe/Oslo' }
+    })
+    const responses = await testDestination.testBatchAction('sendSchemaToInspector', {
+      events: [invalid, first, second] as unknown as SegmentEvent[],
+      useDefaultMappings: true,
+      mapping: {},
+      settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY, inspectedFields: 'event+context' }
+    })
+    const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
+    const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
+    expect(
+      bodies.map((body) => [body.messageId, Object.keys(schemaOf(body)).filter((n) => n.startsWith('context_'))])
+    ).toStrictEqual([
+      ['msg-a', ['context_locale']],
+      ['msg-b', ['context_timezone']]
+    ])
+  })
+
+  it('offers the shared scopes, defaulting to everything', () => {
+    const setting = Destination.authentication?.fields.inspectedFields
+    expect(setting?.choices).toStrictEqual([
+      { label: 'Event properties', value: 'event' },
+      { label: 'Event properties and context', value: 'event+context' },
+      { label: 'Everything', value: 'everything' }
+    ])
+    expect(setting?.default).toBe('everything')
   })
 })

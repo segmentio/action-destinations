@@ -1,7 +1,11 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, ExecuteInput } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions/functions'
+
+// The runtime passes the unmapped event as rawData, which ExecuteInput does not declare; the same
+// extension liveramp-audiences uses.
+type ExecuteInputRaw<P, R> = ExecuteInput<Settings, P> & { rawData?: R }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Schema From Event',
@@ -130,11 +134,11 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, settings }) => {
-    return send(request, settings, [payload])
+  perform: async (request, { payload, settings, rawData }: ExecuteInputRaw<Payload, unknown>) => {
+    return send(request, settings, [payload], [rawData])
   },
-  performBatch: async (request, { payload, settings }) => {
-    return send(request, settings, payload)
+  performBatch: async (request, { payload, settings, rawData }: ExecuteInputRaw<Payload[], unknown[]>) => {
+    return send(request, settings, payload, rawData)
   }
 }
 export default action

@@ -15,6 +15,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { extractSchema } from './schema-functions'
+import { rawEventsByMessageId, warehouseColumns } from './warehouse-columns'
 import { createEncryptionSession, EncryptionSession } from './encryption-functions'
 import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
@@ -35,7 +36,7 @@ const LEGACY_CLIENT = {
   libVersion: '2.0.0'
 }
 
-export const send = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
+export const send = async (request: RequestClient, settings: Settings, payloads: Payload[], rawEvents?: unknown[]) => {
   const anonymousId = payloads[0]?.anonymousId
   const userId = payloads[0]?.userId
   const streamId = anonymousId ? anonymousId : userId ? processHashing(userId, 'sha256', 'hex') : 'unknown'
@@ -59,10 +60,17 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     }
   }
 
+  const inspectedFields = gatewaySupport ? settings.inspectedFields : undefined
+  const rawEventById = rawEventsByMessageId(rawEvents)
+
   const json = payloads.map((payload) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
-    const eventProperties = extractSchema(payload.properties, encryptionSession)
+    // Warehouse columns add names and types only: their values are never encrypted or sent.
+    const eventProperties = [
+      ...extractSchema(payload.properties, encryptionSession),
+      ...extractSchema(warehouseColumns(rawEventById.get(messageId), properties, inspectedFields))
+    ]
     const eventSpec = eventSpecMap?.get(event) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined
 
