@@ -42,6 +42,7 @@ describe('normalizeDomain', () => {
       ['a bare domain', 'microsoft.com', 'microsoft.com'],
       ['an email address', 'joe.bloggs@microsoft.com', 'microsoft.com'],
       ['a page url', 'https://www.microsoft.com/about?a=1#top', 'www.microsoft.com'],
+      ['a company website with a path, which is not refused', 'https://microsoft.com/about', 'microsoft.com'],
       ['a subdomain and a multi-part tld', 'mail.microsoft.co.uk', 'mail.microsoft.co.uk'],
       ['case and whitespace', '  MICROSOFT.COM  ', 'microsoft.com'],
       ['mailto, which has no slashes after the colon', 'mailto:joe@microsoft.com', 'microsoft.com'],
@@ -86,6 +87,13 @@ describe('normalizeDomain', () => {
     ['a scheme with nothing after it', 'https://'],
     ['only a path', '/about'],
     ['a company name that happens to contain a dot', 'Acme Inc.'],
+    // The field used to invite a page URL, and a column of them reduces every company to the
+    // same host, so the whole batch collapses onto one element that matches nothing.
+    ['a linkedin company page url, which is not the company website', 'https://www.linkedin.com/company/microsoft'],
+    ['the same without a scheme', 'www.linkedin.com/company/microsoft'],
+    ['a linkedin member profile', 'https://www.linkedin.com/in/joe-bloggs'],
+    ['a bare linkedin.com, since it is nobody\'s own website domain', 'linkedin.com'],
+    ['a bare www.linkedin.com', 'https://www.linkedin.com'],
     ['a company name with a dot mid-string', 'St. Jude Medical'],
     ['a domain with a space inside it', 'micro soft.com']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {

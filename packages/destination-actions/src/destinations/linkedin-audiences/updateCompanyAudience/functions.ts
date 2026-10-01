@@ -75,9 +75,6 @@ function withinLength(value: string | undefined, max: number): string | undefine
 }
 
 export function normalizeDomain(value?: string): string | undefined {
-  // Whatever the customer maps, reduced to the domain. The path and query are cut before the @
-  // so a query string cannot pass its own tail off as the host; the port comes off after, so
-  // 'mailto:' does not read as one. No URL parsing, so a non-ascii domain is sent as written.
   const host = trimmed(value)
     ?.toLowerCase()
     .replace(HTTP_SCHEME, '')
@@ -88,10 +85,11 @@ export function normalizeDomain(value?: string): string | undefined {
     .trim()
     .normalize('NFC')
 
-  // A domain has a dot and no whitespace in it. Beyond that the value is the customer's to get
-  // right. The check is every whitespace character, not just a space: a company name pasted from
-  // a spreadsheet carries a non-breaking one, and that is the case worth catching.
-  return host && host.includes('.') && !WHITESPACE.test(host) ? host : undefined
+  if (!host || !host.includes('.') || WHITESPACE.test(host)) {
+    return undefined
+  }
+
+  return isLinkedInHost(host) ? undefined : host
 }
 
 function isLinkedInHost(hostname: string): boolean {

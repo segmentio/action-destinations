@@ -10,11 +10,11 @@ export interface Payload {
      */
     companyName?: string
     /**
-     * The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. Subdomains are kept as written, so map one consistent form: 'microsoft.com' and 'www.microsoft.com' count as two companies. A value that is not a domain, such as a company name, is not sent.
+     * The company's website domain, e.g. 'microsoft.com'. A domain, an email address, or a URL on the company's own website are all accepted, and only the domain part is sent.
      */
     companyDomain?: string
     /**
-     * The company's email domain, which is sometimes different from its website domain, e.g. 'microsoft.com'. Accepts the same values as 'Company Domain' and is sent the same way.
+     * The company's email domain, e.g. 'microsoft.com'. A domain, an email address, or a URL on the company's own website are all accepted, and only the domain part is sent.
      */
     companyEmailDomain?: string
     /**
@@ -22,7 +22,7 @@ export interface Payload {
      */
     linkedInCompanyId?: string
     /**
-     * The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. A URL on another website, or one longer than 100 characters, is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
+     * The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. Must be shorter than 100 characters. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
      */
     companyPageUrl?: string
   }
