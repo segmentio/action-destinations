@@ -1,5 +1,5 @@
 {
-  "_comment": "Shared gateway-coordinate test vectors. The same table is asserted by every Avo Inspector CDP sender; copies must stay deep-equal once parsed as JSON. A key missing from `input` means the value is not provided. `expected` lists the exact coordinate keys the event body carries: a key missing from `expected` MUST be absent from the body (not null, not \"\"). appVersion is always present; the token \"<CHECKPOINT_DEFAULT>\" stands for the sender's checkpoint default app version.",
+  "_comment": "Shared gateway-coordinate test vectors. The same table is asserted by every Avo Inspector CDP sender; copies must stay deep-equal once parsed as JSON. A key missing from `input` means the value is not provided. `expected` lists the exact coordinate keys the event body carries: a key missing from `expected` MUST be absent from the body (not null, not \"\"). appVersion is always present; the token \"<CHECKPOINT_DEFAULT>\" stands for the sender's checkpoint default app version, and \"<EVENT_VERSION_OR_NULL>\" for the version the sender reads from the event itself (its checkpoint default without the unversioned fallback), trimmed, or null when the event carries none. A gateway forwards the event it received, so with an origin hint and no origin app version the event's own version is the origin's.",
   "coordinateCases": [
     {
       "name": "no coordinates: nothing added, checkpoint default version",
@@ -20,13 +20,13 @@
       }
     },
     {
-      "name": "cell 2: originHint without originAppVersion -> null version",
+      "name": "cell 2: originHint without originAppVersion -> the event's own version, or null",
       "input": {
         "originHint": "android"
       },
       "expected": {
         "originHint": "android",
-        "appVersion": null
+        "appVersion": "<EVENT_VERSION_OR_NULL>"
       }
     },
     {
@@ -107,14 +107,14 @@
       }
     },
     {
-      "name": "whitespace-only originAppVersion with originHint -> null version",
+      "name": "whitespace-only originAppVersion with originHint -> the event's own version, or null",
       "input": {
         "originHint": "ios",
         "originAppVersion": "   "
       },
       "expected": {
         "originHint": "ios",
-        "appVersion": null
+        "appVersion": "<EVENT_VERSION_OR_NULL>"
       }
     }
   ],
@@ -150,7 +150,7 @@
         },
         "expected": {
           "originHint": "true",
-          "appVersion": null
+          "appVersion": "<EVENT_VERSION_OR_NULL>"
         }
       },
       {

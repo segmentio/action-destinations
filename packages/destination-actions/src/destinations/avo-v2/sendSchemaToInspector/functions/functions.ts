@@ -84,13 +84,20 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     const originHint = gatewaySupport ? normalizeCoordinate(payload.originHint) : undefined
     const originAppVersion = gatewaySupport ? normalizeCoordinate(payload.originAppVersion) : undefined
 
+    // The event's own version: the App Version Property setting, then the App Version field. In
+    // gateway mode a blank value counts as none, like every other coordinate; the legacy path keeps
+    // its truthiness check.
+    const propertyVersion = appVersionPropertyName ? properties[appVersionPropertyName] : undefined
+    const legacyVersion = (): unknown => (propertyVersion ? propertyVersion : payload.appVersion)
+
     const itemJSON: EventSchemaBody = {
       appName: appName ?? (pageUrl ? pageUrl.split('/')[2] : 'unnamed Segment app'),
-      appVersion: resolveAppVersion(originHint, originAppVersion, () =>
-        appVersionPropertyName && properties[appVersionPropertyName]
-          ? (properties[appVersionPropertyName] as string)
-          : payload.appVersion ?? 'unversioned'
-      ),
+      appVersion: gatewaySupport
+        ? resolveAppVersion(
+            originHint,
+            originAppVersion ?? versionCoordinate(propertyVersion) ?? versionCoordinate(payload.appVersion)
+          )
+        : (legacyVersion() as string | undefined) ?? 'unversioned',
       libVersion: client.libVersion,
       libPlatform: client.libPlatform,
       messageId,
@@ -135,18 +142,23 @@ function normalizeCoordinate(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined
 }
 
-// An event with an originHint belongs to that source, so the checkpoint's own version
-// never applies to it: use originAppVersion, or null when there is none. Without an
-// originHint, originAppVersion overrides the checkpoint default.
-function resolveAppVersion(
-  originHint: string | undefined,
-  originAppVersion: string | undefined,
-  checkpointDefault: () => string
-): string | null {
+// Gateway mode. Segment forwards the event it received, so the event's own version is the default
+// originAppVersion, and an explicit Origin App Version overrides it. With an origin hint and no
+// origin app version the version is null; without a hint and none it is 'unversioned'.
+function resolveAppVersion(originHint: string | undefined, originAppVersion: string | undefined): string | null {
   if (originHint) {
     return originAppVersion ?? null
   }
-  return originAppVersion ?? checkpointDefault()
+  return originAppVersion ?? 'unversioned'
+}
+
+// The App Version Property setting can name a property of any type: send a number or boolean as
+// its string, and treat anything else that isn't a non-blank string as no version.
+function versionCoordinate(value: unknown): string | undefined {
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+  return typeof value === 'string' ? normalizeCoordinate(value) : undefined
 }
 
 async function fetchEventSpecsForBatch(

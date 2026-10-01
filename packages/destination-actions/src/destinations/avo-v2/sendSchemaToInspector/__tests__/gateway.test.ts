@@ -59,30 +59,42 @@ const checkpointFixtures = [
     name: 'appVersionPropertyName setting',
     event: () => fixtureEvent({ properties: { plan: 'pro', build: '88.0' } }),
     settings: { appVersionPropertyName: 'build' },
-    checkpointDefault: '88.0'
+    checkpointDefault: '88.0',
+    eventVersion: '88.0'
   },
   {
     name: 'appVersion field',
     event: () => fixtureEvent(),
     settings: {},
-    checkpointDefault: '3.1.0'
+    checkpointDefault: '3.1.0',
+    eventVersion: '3.1.0'
   },
   {
     name: 'no version anywhere',
     event: () => fixtureEvent({ context: {} }),
     settings: {},
-    checkpointDefault: 'unversioned'
+    checkpointDefault: 'unversioned',
+    eventVersion: null
   }
 ]
+
+// fixtureEvent() carries context.app.version 3.1.0 and no App Version Property is set.
+const FIXTURE_VERSIONS = { checkpointDefault: '3.1.0', eventVersion: '3.1.0' }
+
+const TOKENS: Record<string, 'checkpointDefault' | 'eventVersion'> = {
+  '<CHECKPOINT_DEFAULT>': 'checkpointDefault',
+  '<EVENT_VERSION_OR_NULL>': 'eventVersion'
+}
 
 function expectCoordinates(
   body: Record<string, unknown>,
   expected: Record<string, unknown>,
-  checkpointDefault: string
+  versions: { checkpointDefault: string; eventVersion: string | null }
 ) {
   for (const key of COORDINATE_KEYS) {
     if (Object.prototype.hasOwnProperty.call(expected, key)) {
-      const value = expected[key] === '<CHECKPOINT_DEFAULT>' ? checkpointDefault : expected[key]
+      const token = typeof expected[key] === 'string' ? TOKENS[expected[key]] : undefined
+      const value = token ? versions[token] : expected[key]
       expect(body).toHaveProperty(key)
       expect(body[key]).toStrictEqual(value)
     } else {
@@ -226,7 +238,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
             const { bodies } = await sendOne(fixture.event(), { ...input }, { ...fixture.settings, ...GATEWAY }, mode)
 
             expect(bodies).toHaveLength(1)
-            expectCoordinates(bodies[0], expected, fixture.checkpointDefault)
+            expectCoordinates(bodies[0], expected, fixture)
             // Coordinates are top-level siblings: the schema and stream are untouched.
             expect(propertyNames(bodies[0])).toStrictEqual(Object.keys(fixture.event().properties ?? {}))
             expect(bodies[0].streamId).toBe('anon-gw-1')
@@ -236,11 +248,68 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     }
   }
 
+  it('the event version standing in for an origin app version is trimmed, with or without a hint', async () => {
+    const padded = fixtureEvent({ context: { app: { name: 'Shop', version: ' 3.1.0 ' } } })
+    const withHint = await sendOne(padded, { originHint: 'ios' }, GATEWAY)
+    const withoutHint = await sendOne(padded, {}, GATEWAY)
+    // Positive control: with Gateway Support off the version is sent as Segment delivered it.
+    const legacy = await sendOne(padded, {}, {})
+    expect([
+      withHint.bodies[0].appVersion,
+      withoutHint.bodies[0].appVersion,
+      legacy.bodies[0].appVersion
+    ]).toStrictEqual(['3.1.0', '3.1.0', ' 3.1.0 '])
+  })
+
+  it('in gateway mode, a non-string App Version Property value is sent as its string, never throwing', async () => {
+    const event = fixtureEvent({ properties: { plan: 'pro', build: 88 } })
+    const withHint = await sendOne(event, { originHint: 'ios' }, { appVersionPropertyName: 'build', ...GATEWAY })
+    const withoutHint = await sendOne(event, {}, { appVersionPropertyName: 'build', ...GATEWAY })
+    // Positive control: with Gateway Support off the number is sent as before.
+    const legacy = await sendOne(event, {}, { appVersionPropertyName: 'build' })
+    expect([
+      withHint.bodies[0].appVersion,
+      withoutHint.bodies[0].appVersion,
+      legacy.bodies[0].appVersion
+    ]).toStrictEqual(['88', '88', 88])
+  })
+
+  it('in gateway mode, a blank App Version Property value falls back to the App Version field, and 0 is a version', async () => {
+    const settings = { appVersionPropertyName: 'build', ...GATEWAY }
+    const blank = await sendOne(
+      fixtureEvent({ properties: { plan: 'pro', build: '  ' } }),
+      { originHint: 'ios' },
+      settings
+    )
+    const zero = await sendOne(fixtureEvent({ properties: { plan: 'pro', build: 0 } }), { originHint: 'ios' }, settings)
+    // Positive control: with Gateway Support off the previous truthiness check still applies.
+    const legacyZero = await sendOne(
+      fixtureEvent({ properties: { plan: 'pro', build: 0 } }),
+      {},
+      { appVersionPropertyName: 'build' }
+    )
+    expect([blank.bodies[0].appVersion, zero.bodies[0].appVersion, legacyZero.bodies[0].appVersion]).toStrictEqual([
+      '3.1.0',
+      '0',
+      '3.1.0'
+    ])
+  })
+
+  it('an explicit Origin App Version wins over the App Version Property setting and the App Version field', async () => {
+    const event = fixtureEvent({ properties: { plan: 'pro', build: '88.0' } })
+    const { bodies } = await sendOne(
+      event,
+      { originHint: 'ios', originAppVersion: '7.0.1' },
+      { appVersionPropertyName: 'build', ...GATEWAY }
+    )
+    expect(bodies[0].appVersion).toBe('7.0.1')
+  })
+
   it(vectors.propertyCollisionCase.name, async () => {
     const { eventProperties, input, expected } = vectors.propertyCollisionCase
     const { bodies } = await sendOne(fixtureEvent({ properties: eventProperties }), { ...input }, GATEWAY)
 
-    expectCoordinates(bodies[0], expected, '3.1.0')
+    expectCoordinates(bodies[0], expected, FIXTURE_VERSIONS)
     expect(propertyNames(bodies[0])).toStrictEqual(expected.eventPropertyNames)
   })
 
@@ -279,7 +348,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     const bodies = JSON.parse(await posts[0].request.text()) as Record<string, unknown>[]
     expect(bodies).toHaveLength(coordinates.length)
     bodies.forEach((body, i) => {
-      expectCoordinates(body, expected[i], 'unused')
+      expectCoordinates(body, expected[i], FIXTURE_VERSIONS)
       expect(body.streamId).toBe('anon-gw-1')
     })
   })
@@ -307,7 +376,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
           const { event, mapping } = mapThroughPaths(input)
           const { bodies } = await sendOne(event, mapping, GATEWAY, mode)
 
-          expectCoordinates(bodies[0], expected, '3.1.0')
+          expectCoordinates(bodies[0], expected, FIXTURE_VERSIONS)
         })
       }
     }
@@ -578,6 +647,16 @@ describe('Inspected Fields (shared warehouse column vectors)', () => {
       withContext('msg-dup', { timezone: 'Europe/Oslo' })
     ])
     expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
+  })
+
+  // Web sources send no context.app, so their version has to come from an event property.
+  it('tells web sources to point App Version Property at the property carrying the version', () => {
+    const description = Destination.actions.sendSchemaToInspector.fields.originAppVersion.description
+    expect([
+      description.includes('`$.context.app.version`'),
+      description.includes('set the App Version Property setting'),
+      description.includes('`app_version`')
+    ]).toStrictEqual([true, true, true])
   })
 
   it('offers the shared scopes, defaulting to everything', () => {
