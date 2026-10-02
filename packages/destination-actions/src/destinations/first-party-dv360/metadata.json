@@ -1162,7 +1162,7 @@
             },
             "audienceType": {
               "label": "Audience Type",
-              "description": "The type of the audience to create.",
+              "description": "The type of the audience. When connecting to an existing audience, it must match that audience's type.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1182,16 +1182,7 @@
               "placeholder": null,
               "properties": null,
               "category": null,
-              "depends_on": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
-                  }
-                ]
-              },
+              "depends_on": null,
               "readOnly": null,
               "hidden": null,
               "minimum": null,

@@ -29,6 +29,50 @@ export interface CreateAudienceJSON {
   statsContext?: StatsContext
 }
 
+export interface AudienceInputs {
+  operation: 'create' | 'existing'
+  advertiserId?: string
+  audienceName?: string
+  audienceType?: string
+  membershipDurationDays?: string | number
+  description?: string
+  appId?: string
+  existingAudienceId?: string
+}
+
+export type ValidatedAudienceInputs =
+  | { error: string }
+  | {
+      operation: 'create'
+      advertiserId: string
+      audienceName: string
+      audienceType: string
+      membershipDurationDays: string
+      description?: string
+      appId?: string
+    }
+  | {
+      operation: 'existing'
+      advertiserId: string
+      existingAudienceId: string
+      audienceType: string
+    }
+
+export interface CreateOrConnectAudienceOptions {
+  statsName: string
+  token?: string
+  features?: Features
+  statsContext?: StatsContext
+}
+
+export interface CreateOrConnectAudienceResult {
+  audienceId: string
+  advertiserId: string
+  audienceType: string
+  appId?: string
+  outcome: 'created' | 'reconnected' | 'existing'
+}
+
 export interface CreateAudienceResult {
   audienceId: string
   connectedToExisting: boolean
@@ -68,9 +112,9 @@ export interface _CreateAudienceInput {
       refresh_token?: string
     }
   }
-  audienceSettings: {
-    advertiserId: string
-    audienceType: string
+  audienceSettings?: {
+    advertiserId?: string
+    audienceType?: string
     description?: string
     appId?: string
     membershipDurationDays?: string

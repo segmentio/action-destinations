@@ -325,7 +325,7 @@ describe('Audience Destination', () => {
 
     it('requires Membership Duration Days when creating a new audience', async () => {
       await expect(testDestination.createAudience(input({ membershipDurationDays: undefined }))).rejects.toThrowError(
-        'Missing membership duration days value.'
+        'Missing membership duration days value'
       )
     })
 

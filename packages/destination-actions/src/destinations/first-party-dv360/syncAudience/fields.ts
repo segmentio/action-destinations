@@ -262,12 +262,12 @@ export const retlHookInputFields: ActionHookDefinition<
   audienceType: {
     type: 'string',
     label: AUDIENCE_TYPE_LABEL,
-    description: 'The type of the audience to create.',
+    description:
+      "The type of the audience. When connecting to an existing audience, it must match that audience's type.",
     choices: [
       { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
       { label: 'CUSTOMER MATCH DEVICE ID', value: DEVICE_ID }
-    ],
-    depends_on: CREATE_OPERATION
+    ]
   },
   membershipDurationDays: {
     type: 'number',

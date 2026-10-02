@@ -156,17 +156,6 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     expect(result).toEqual(hookError('Invalid operation value. Must be create or existing.'))
   })
 
-  it('requires an app ID for a device ID audience', async () => {
-    const result = await performHook(request, inputs({ audienceType: 'CUSTOMER_MATCH_DEVICE_ID' }))
-
-    expect(result).toEqual({
-      error: {
-        message: 'App ID is required for CUSTOMER_MATCH_DEVICE_ID audiences',
-        code: 'RETL_ON_MAPPING_SAVE_FAILED'
-      }
-    })
-  })
-
   it.each([undefined, '', '   '])('requires an audience name when creating (%p)', async (audienceName) => {
     const result = await performHook(request, inputs({ audienceName }))
 
@@ -197,7 +186,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     })
   })
 
-  it('reads the audience type back when connecting to an existing audience', async () => {
+  it('connects to an existing audience whose type matches, saving its app ID', async () => {
     nock(DV360_HOST).get(GET_PATH).reply(200, {
       firstPartyAndPartnerAudienceId: AUDIENCE_ID,
       audienceType: 'CUSTOMER_MATCH_DEVICE_ID',
@@ -206,11 +195,16 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
 
     const result = await performHook(
       request,
-      inputs({ operation: 'existing', existingAudienceId: AUDIENCE_ID, audienceName: undefined })
+      inputs({
+        operation: 'existing',
+        existingAudienceId: AUDIENCE_ID,
+        audienceName: undefined,
+        audienceType: 'CUSTOMER_MATCH_DEVICE_ID'
+      })
     )
 
     expect(result).toEqual({
-      successMessage: `Connected to audience with ID: ${AUDIENCE_ID}`,
+      successMessage: `Connected to existing audience with ID: ${AUDIENCE_ID}`,
       savedData: {
         audienceId: AUDIENCE_ID,
         advertiserId: ADVERTISER_ID,
@@ -236,8 +230,10 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     })
   })
 
-  it('errors when the existing audience is not a Customer Match audience', async () => {
-    nock(DV360_HOST).get(GET_PATH).reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+  it('errors when the existing audience type does not match the Audience Type', async () => {
+    nock(DV360_HOST)
+      .get(GET_PATH)
+      .reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID, audienceType: 'CUSTOMER_MATCH_DEVICE_ID' })
 
     const result = await performHook(
       request,
@@ -246,7 +242,9 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
 
     expect(result).toEqual({
       error: {
-        message: `Audience ${AUDIENCE_ID} is not a Customer Match Contact Info or Mobile Device ID audience`,
+        message: expect.stringContaining(
+          `Could not connect to the existing Display & Video 360 audience with ID "${AUDIENCE_ID}": its type is CUSTOMER_MATCH_DEVICE_ID, but the Audience Type setting is CUSTOMER_MATCH_CONTACT_INFO.`
+        ),
         code: 'RETL_ON_MAPPING_SAVE_FAILED'
       }
     })

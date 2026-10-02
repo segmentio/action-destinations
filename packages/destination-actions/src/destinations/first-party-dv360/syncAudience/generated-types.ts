@@ -97,7 +97,7 @@ export interface RetlOnMappingSaveInputs {
    */
   audienceName?: string
   /**
-   * The type of the audience to create.
+   * The type of the audience. When connecting to an existing audience, it must match that audience's type.
    */
   audienceType?: string
   /**

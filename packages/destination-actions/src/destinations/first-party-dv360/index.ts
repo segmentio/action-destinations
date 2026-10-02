@@ -1,12 +1,11 @@
 import {
   AudienceDestinationDefinition,
-  ErrorCodes,
   IntegrationError,
   PayloadValidationError,
   defaultValues
 } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-import { createAudience, getAudience } from './functions'
+import { createOrConnectAudience, getAudience } from './audience-functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
 import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
@@ -115,52 +114,21 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     createAudience: async (_request, _CreateAudienceInput: _CreateAudienceInput) => {
       // Extract values from input
-      const { audienceSettings, statsContext, features } = _CreateAudienceInput
-      const audienceName = audienceSettings?.audienceDisplayName?.trim() || _CreateAudienceInput.audienceName?.trim()
-      const auth = _CreateAudienceInput.settings.oauth
-      const advertiserId = audienceSettings?.advertiserId?.trim()
-      const existingAudienceId = audienceSettings?.existingAudienceId?.trim()
-      const description = audienceSettings?.description?.trim()
-      const membershipDurationDays = audienceSettings?.membershipDurationDays
-      const audienceType = audienceSettings?.audienceType?.trim()
-      const appId = audienceSettings?.appId?.trim()
-
-      // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'createAudience' operation was invoked
-      const statsName = 'createAudience'
-      const { statsClient, tags: statsTags } = statsContext || {}
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
-
-      // Validate required fields and throws errors if any are missing.
-      if (!advertiserId) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!audienceType) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing audience type value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!existingAudienceId) {
-        if (!audienceName) {
-          statsTags?.push('error:missing-settings')
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
-        }
-
-        if (!membershipDurationDays) {
-          statsTags?.push('error:missing-settings')
-          statsClient?.incr(`${statsName}.error`, 1, statsTags)
-          throw new IntegrationError(
-            'Missing membership duration days value. It is required when creating a new audience. Alternatively, populate the "Existing Audience ID" setting to connect to an audience which already exists in Display & Video 360.',
-            'MISSING_REQUIRED_FIELD',
-            400
-          )
-        }
-      }
+      const {
+        audienceName,
+        audienceSettings: {
+          advertiserId,
+          audienceType,
+          audienceDisplayName,
+          existingAudienceId,
+          membershipDurationDays,
+          description,
+          appId
+        } = {},
+        settings: { oauth: auth } = {},
+        statsContext,
+        features
+      } = _CreateAudienceInput
 
       if (
         !auth?.refresh_token ||
@@ -182,49 +150,22 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const token = res.data.access_token
 
-      try {
-        if (existingAudienceId) {
-          const audience = await getAudience(_request, {
-            advertiserId,
-            audienceId: existingAudienceId,
-            token,
-            features,
-            statsContext
-          })
-
-          if (audience.audienceType !== audienceType) {
-            throw new IntegrationError(
-              `Could not connect to the existing Display & Video 360 audience with ID "${existingAudienceId}": its type is ${audience.audienceType}, but the Audience Type setting is ${audienceType}. Update the Audience Type setting to match, or leave "Existing Audience ID" blank to create a new audience.`,
-              ErrorCodes.GET_AUDIENCE_FAILED,
-              400
-            )
-          }
-
-          statsTags?.push('audience:existing')
-          statsClient?.incr(`${statsName}.success`, 1, statsTags)
-          return { externalId: existingAudienceId }
-        }
-
-        const { audienceId, connectedToExisting } = await createAudience(_request, {
+      const { audienceId } = await createOrConnectAudience(
+        _request,
+        {
+          operation: existingAudienceId?.trim() ? 'existing' : 'create',
           advertiserId,
-          audienceName,
-          description,
-          membershipDurationDays: membershipDurationDays as string,
+          audienceName: audienceDisplayName?.trim() || audienceName,
           audienceType,
+          membershipDurationDays,
+          description,
           appId,
-          token,
-          features,
-          statsContext
-        })
+          existingAudienceId
+        },
+        { statsName: 'createAudience', token, features, statsContext }
+      )
 
-        statsTags?.push(connectedToExisting ? 'audience:reconnected' : 'audience:created')
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
-        return { externalId: audienceId }
-      } catch (error) {
-        statsTags?.push(`error:${error instanceof IntegrationError ? error.code : 'unknown'}`)
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw error
-      }
+      return { externalId: audienceId }
     },
 
     getAudience: async (_request, _GetAudienceInput: _GetAudienceInput) => {
