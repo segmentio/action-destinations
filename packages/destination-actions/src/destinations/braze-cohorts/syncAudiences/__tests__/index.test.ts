@@ -1161,4 +1161,286 @@ describe('BrazeCohorts.syncAudiences', () => {
       ])
     })
   })
+
+  it('should not fail validation and should sync via External User ID when user_alias is partially filled (missing alias_name)', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+
+    // Corsair scenario: alias_label is a static string, alias_name is mapped from an
+    // absent anonymousId. The half-filled alias should be dropped and the user synced
+    // via External User ID (defaulted from userId) instead of failing validation.
+    const responses = await testDestination.testAction('syncAudiences', {
+      event: {
+        ...event,
+        anonymousId: null,
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        }
+      },
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7',
+        user_alias: {
+          alias_name: { '@path': '$.anonymousId' },
+          alias_label: 'segment_anonymous_id'
+        }
+      }
+    })
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: ['w8KWCsdTxe1Ydaf3s62UMc'],
+          aliases: [],
+          device_ids: []
+        })
+      ])
+    })
+  })
+
+  it('should throw a validation error when user_alias is partially filled and no other identifier is present', async () => {
+    // No userId/deviceId and only a static alias_label (alias_name resolves from an
+    // absent anonymousId). The alias is incomplete and there is no External User ID or
+    // Device ID to fall back on, so the user cannot be identified and the event is rejected.
+    await expect(
+      testDestination.testAction('syncAudiences', {
+        event: {
+          anonymousId: null,
+          properties: {
+            audience_key: 'j_o_jons__step_1_ns3i7',
+            j_o_jons__step_1_ns3i7: true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+              computation_key: 'j_o_jons__step_1_ns3i7'
+            }
+          },
+          timestamp: timestamp
+        },
+        settings: {
+          endpoint: 'https://rest.iad-01.braze.com',
+          client_secret: 'valid_client_secret_key'
+        },
+        useDefaultMappings: false,
+        mapping: {
+          enable_batching: true,
+          cohort_id: {
+            '@path': '$.context.personas.computation_id'
+          },
+          cohort_name: {
+            '@path': '$.context.personas.computation_key'
+          },
+          time: {
+            '@path': '$.timestamp'
+          },
+          event_properties: {
+            '@if': {
+              exists: { '@path': '$.properties' },
+              then: { '@path': '$.properties' },
+              else: { '@path': '$.traits' }
+            }
+          },
+          personas_audience_key: 'j_o_jons__step_1_ns3i7',
+          user_alias: {
+            alias_name: { '@path': '$.anonymousId' },
+            alias_label: 'segment_anonymous_id'
+          }
+        }
+      })
+    ).rejects.toThrowError(
+      'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
+    )
+  })
+
+  it('should reject only the unidentifiable event in a batch and still sync the valid siblings', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
+
+    // Event 0 is identifiable via External User ID and should sync. Event 1 has only a static
+    // alias_label (alias_name resolves from an absent anonymousId) and no External User ID /
+    // Device ID, so it is unidentifiable. The bad event must not poison the batch: it should be
+    // failed individually (400) while the valid event still syncs.
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        ...event,
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        }
+      }),
+      createTestEvent({
+        userId: null,
+        anonymousId: null,
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        timestamp: timestamp
+      })
+    ]
+
+    const responses = await testDestination.testBatchAction('syncAudiences', {
+      events,
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: {
+        personas_audience_key: 'j_o_jons__step_1_ns3i7',
+        user_alias: {
+          alias_name: { '@path': '$.anonymousId' },
+          alias_label: 'segment_anonymous_id'
+        }
+      },
+      features: {
+        'braze-cohorts-multistatus': true
+      }
+    })
+
+    // The valid event was still delivered to Braze (createCohort + batchUpdate).
+    expect(responses.length).toBe(2)
+    expect(responses[0].status).toBe(201)
+    expect(responses[1].status).toBe(201)
+    expect(responses[1].options.json).toMatchObject({
+      cohort_changes: expect.arrayContaining([
+        expect.objectContaining({
+          user_ids: ['w8KWCsdTxe1Ydaf3s62UMc'],
+          aliases: [],
+          device_ids: []
+        })
+      ])
+    })
+
+    // Per-event multi-status: index 0 succeeds, index 1 is rejected in isolation.
+    const multistatus = testDestination.results[0].multistatus
+    expect(multistatus).toBeDefined()
+    expect(multistatus![0]).toMatchObject({ status: 200 })
+    expect(multistatus![1]).toMatchObject({
+      status: 400,
+      errormessage:
+        'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
+    })
+  })
+
+  it('should fail the whole batch on an unidentifiable event when the multi-status flag is OFF (legacy behavior)', async () => {
+    // Feature flag disabled: the destination falls back to the previous whole-batch behavior,
+    // where a single unidentifiable event fails the entire performBatch call. This locks in the
+    // safe rollback path so we can toggle the flag off and get the pre-change behavior back.
+    const events: SegmentEvent[] = [
+      createTestEvent({
+        ...event,
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        }
+      }),
+      createTestEvent({
+        userId: null,
+        anonymousId: null,
+        context: {
+          personas: {
+            computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+            computation_key: 'j_o_jons__step_1_ns3i7'
+          }
+        },
+        properties: {
+          audience_key: 'j_o_jons__step_1_ns3i7',
+          j_o_jons__step_1_ns3i7: true
+        },
+        timestamp: timestamp
+      })
+    ]
+
+    await expect(
+      testDestination.testBatchAction('syncAudiences', {
+        events,
+        settings: {
+          endpoint: 'https://rest.iad-01.braze.com',
+          client_secret: 'valid_client_secret_key'
+        },
+        useDefaultMappings: true,
+        mapping: {
+          personas_audience_key: 'j_o_jons__step_1_ns3i7',
+          user_alias: {
+            alias_name: { '@path': '$.anonymousId' },
+            alias_label: 'segment_anonymous_id'
+          }
+        }
+      })
+    ).rejects.toThrowError(
+      'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
+    )
+  })
+
+  it('should reject an unidentifiable single event when the multi-status flag is ON', async () => {
+    // Feature flag enabled, single-event perform() path: an unidentifiable event still throws
+    // (there is no batch to isolate it in), preserving the loud single-event contract.
+    await expect(
+      testDestination.testAction('syncAudiences', {
+        event: {
+          anonymousId: null,
+          properties: {
+            audience_key: 'j_o_jons__step_1_ns3i7',
+            j_o_jons__step_1_ns3i7: true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+              computation_key: 'j_o_jons__step_1_ns3i7'
+            }
+          },
+          timestamp: timestamp
+        },
+        settings: {
+          endpoint: 'https://rest.iad-01.braze.com',
+          client_secret: 'valid_client_secret_key'
+        },
+        useDefaultMappings: false,
+        mapping: {
+          enable_batching: true,
+          cohort_id: {
+            '@path': '$.context.personas.computation_id'
+          },
+          cohort_name: {
+            '@path': '$.context.personas.computation_key'
+          },
+          time: {
+            '@path': '$.timestamp'
+          },
+          event_properties: {
+            '@if': {
+              exists: { '@path': '$.properties' },
+              then: { '@path': '$.properties' },
+              else: { '@path': '$.traits' }
+            }
+          },
+          personas_audience_key: 'j_o_jons__step_1_ns3i7',
+          user_alias: {
+            alias_name: { '@path': '$.anonymousId' },
+            alias_label: 'segment_anonymous_id'
+          }
+        },
+        features: {
+          'braze-cohorts-multistatus': true
+        }
+      })
+    ).rejects.toThrowError(
+      'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
+    )
+  })
 })
