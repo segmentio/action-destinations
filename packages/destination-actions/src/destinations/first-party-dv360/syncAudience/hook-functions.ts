@@ -5,16 +5,6 @@ import type { CreateAudienceResult, AudienceResponse } from '../types'
 import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 
-function errorDetail(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error ?? '')
-
-  return message ? `: ${message}` : ''
-}
-
-function errorMessage(error: unknown, fallback: string): string {
-  return error instanceof IntegrationError ? error.message : `${fallback}${errorDetail(error)}`
-}
-
 export async function performHook(
   request: RequestClient,
   hookInputs: RetlOnMappingSaveInputs,
@@ -100,7 +90,7 @@ export async function performHook(
     } catch (error) {
       return {
         error: {
-          message: errorMessage(error, 'Failed to create audience in Display & Video 360'),
+          message: (error as IntegrationError).message,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
@@ -140,13 +130,13 @@ export async function performHook(
     } catch (error) {
       return {
         error: {
-          message: errorMessage(error, `Failed to retrieve audience ${existingAudienceId} from Display & Video 360`),
+          message: (error as IntegrationError).message,
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
     }
 
-    if (!audience?.audienceType || (audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
+    if (!audience.audienceType ||(audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
       return {
         error: {
           message: `Audience ${existingAudienceId} is not a Customer Match Contact Info or Mobile Device ID audience`,

@@ -320,7 +320,7 @@ export async function editDeviceMobileIds(
   if (!response.data || !responseAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', allMobileDeviceIds.length, statsContext?.tags)
     throw new IntegrationError(
-      `API returned error: ${response.data?.error || 'Unknown error'}`,
+      `API returned error: ${response.data?.error?.message || 'Unknown error'}`,
       'API_REQUEST_ERROR',
       400
     )
