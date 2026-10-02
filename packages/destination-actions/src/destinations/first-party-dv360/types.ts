@@ -73,11 +73,6 @@ export interface CreateOrConnectAudienceResult {
   outcome: 'created' | 'reconnected' | 'existing'
 }
 
-export interface CreateAudienceResult {
-  audienceId: string
-  connectedToExisting: boolean
-}
-
 export interface GetAudienceParams {
   advertiserId: string
   audienceId: string

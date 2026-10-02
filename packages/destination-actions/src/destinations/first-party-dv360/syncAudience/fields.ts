@@ -288,7 +288,7 @@ export const retlHookInputFields: ActionHookDefinition<
     type: 'string',
     label: 'App ID',
     description:
-      'The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.',
+      'The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.',
     depends_on: CREATE_DEVICE_ID_OPERATION
   },
   existingAudienceId: {

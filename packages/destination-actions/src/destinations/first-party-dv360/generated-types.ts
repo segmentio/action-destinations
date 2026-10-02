@@ -25,7 +25,7 @@ export interface AudienceSettings {
    */
   description?: string
   /**
-   * The app ID matching the mobile device IDs being uploaded. **Required:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).
+   * The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).
    */
   appId?: string
   /**

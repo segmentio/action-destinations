@@ -12,7 +12,6 @@ import {
   AudienceInputs,
   AudienceResponse,
   CreateAudienceJSON,
-  CreateAudienceResult,
   CreateOrConnectAudienceOptions,
   CreateOrConnectAudienceResult,
   DV360Error,
@@ -47,7 +46,17 @@ export async function createOrConnectAudience(
     const result =
       validated.operation === 'existing'
         ? await connectToExistingAudience(request, validated, token, features, statsContext)
-        : await createNewAudience(request, validated, token, features, statsContext)
+        : await createAudience(request, {
+            advertiserId: validated.advertiserId,
+            audienceName: validated.audienceName,
+            audienceType: validated.audienceType,
+            membershipDurationDays: validated.membershipDurationDays,
+            description: validated.description,
+            appId: validated.appId,
+            token,
+            features,
+            statsContext
+          })
 
     statsClient?.incr(`${statsName}.success`, 1, [...tags, `audience:${result.outcome}`])
     return result
@@ -167,33 +176,10 @@ export async function getAudience(request: RequestClient, params: GetAudiencePar
   return response.data
 }
 
-async function createNewAudience(
-  request: RequestClient,
-  validated: Extract<ValidatedAudienceInputs, { operation: 'create' }>,
-  token?: string,
-  features?: Features,
-  statsContext?: StatsContext
-): Promise<CreateOrConnectAudienceResult> {
-  const { advertiserId, audienceName, audienceType, membershipDurationDays, description, appId } = validated
-  const { audienceId, connectedToExisting } = await createAudience(request, {
-    advertiserId,
-    audienceName,
-    audienceType,
-    membershipDurationDays,
-    description,
-    appId,
-    token,
-    features,
-    statsContext
-  })
-
-  return { audienceId, advertiserId, audienceType, appId, outcome: connectedToExisting ? 'reconnected' : 'created' }
-}
-
-export async function createAudience(
+async function createAudience(
   request: RequestClient,
   params: CreateAudienceJSON
-): Promise<CreateAudienceResult> {
+): Promise<CreateOrConnectAudienceResult> {
   const {
     advertiserId,
     audienceName,
@@ -230,7 +216,7 @@ export async function createAudience(
 
   const audienceId = response.data?.firstPartyAndPartnerAudienceId
   if (response.ok && audienceId) {
-    return { audienceId, connectedToExisting: false }
+    return { audienceId, advertiserId, audienceType, appId, outcome: 'created' }
   }
 
   if (DISPLAY_NAME_EXISTS.test(response.data?.error?.message ?? '')) {
@@ -265,7 +251,7 @@ export async function createAudience(
           400
         )
       }
-      return { audienceId: existingId, connectedToExisting: true }
+      return { audienceId: existingId, advertiserId, audienceType, appId, outcome: 'reconnected' }
     }
   }
 

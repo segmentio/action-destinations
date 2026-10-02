@@ -109,7 +109,7 @@ export interface RetlOnMappingSaveInputs {
    */
   description?: string
   /**
-   * The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.
+   * The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.
    */
   appId?: string
   /**

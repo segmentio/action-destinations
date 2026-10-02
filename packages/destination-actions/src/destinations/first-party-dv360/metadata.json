@@ -73,7 +73,7 @@
       },
       "appId": {
         "label": "App ID",
-        "description": "The app ID matching the mobile device IDs being uploaded. **Required:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).",
+        "description": "The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).",
         "type": "string",
         "required": false,
         "multiple": false,
@@ -1261,7 +1261,7 @@
             },
             "appId": {
               "label": "App ID",
-              "description": "The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.",
+              "description": "The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.",
               "type": "string",
               "required": false,
               "multiple": false,
