@@ -136,7 +136,7 @@ async function connectToExistingAudience(
   if (audience.audienceType !== audienceType) {
     throw new IntegrationError(
       `Could not connect to the existing Display & Video 360 audience with ID "${existingAudienceId}": its type is ${audience.audienceType}, but the Audience Type setting is ${audienceType}. Update the Audience Type setting to match, or create a new audience instead.`,
-      ErrorCodes.GET_AUDIENCE_FAILED,
+      ErrorCodes.CREATE_AUDIENCE_FAILED,
       400
     )
   }

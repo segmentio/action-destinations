@@ -524,7 +524,7 @@ describe('createOrConnectAudience', () => {
         message: expect.stringContaining(
           `Could not connect to the existing Display & Video 360 audience with ID "${AUDIENCE_ID}": its type is ${DEVICE_ID}, but the Audience Type setting is ${CONTACT_INFO}.`
         ),
-        code: 'GET_AUDIENCE_FAILED',
+        code: 'CREATE_AUDIENCE_FAILED',
         status: 400
       })
     })
