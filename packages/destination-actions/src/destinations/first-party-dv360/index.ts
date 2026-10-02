@@ -1,11 +1,12 @@
 import {
   AudienceDestinationDefinition,
+  ErrorCodes,
   IntegrationError,
   PayloadValidationError,
   defaultValues
 } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-import { createAudienceRequest, getAudienceRequest } from './functions'
+import { createAudience, getAudience } from './functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
 import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
@@ -56,8 +57,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       type: 'string',
       label: 'Advertiser ID',
       required: true,
-      description:
-        'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
+      description: 'The ID of your Display & Video 360 advertiser. **Required:** always.'
     },
     audienceType: {
       type: 'string',
@@ -67,27 +67,43 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         { label: 'CUSTOMER MATCH DEVICE ID', value: 'CUSTOMER_MATCH_DEVICE_ID' }
       ],
       required: true,
-      description: 'The type of the audience.'
+      description:
+        "The type of the audience. **Required:** always. When connecting to an existing audience, it must match that audience's type."
+    },
+    existingAudienceId: {
+      type: 'string',
+      label: 'Existing Audience ID',
+      required: false,
+      description:
+        'The ID of an audience which already exists in Display & Video 360. **Optional:** populate to connect to that audience instead of creating a new one. Leave blank to create a new audience.'
+    },
+    audienceDisplayName: {
+      type: 'string',
+      label: 'Audience Name',
+      required: false,
+      description:
+        'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser: if an audience of the same type with this name already exists, Segment connects to it. **Not required:** when connecting to an existing audience (ignored).'
     },
     description: {
       type: 'string',
       label: 'Description',
       required: false,
-      description: 'The description of the audience.'
+      description:
+        'The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).'
     },
     appId: {
       type: 'string',
       label: 'App ID',
       required: false,
       description:
-        'The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**'
+        'The app ID matching the mobile device IDs being uploaded. **Required:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).'
     },
     membershipDurationDays: {
       type: 'string',
       label: 'Membership Duration Days',
-      required: true,
+      required: false,
       description:
-        'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.'
+        'Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).'
     }
   },
 
@@ -99,13 +115,15 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     createAudience: async (_request, _CreateAudienceInput: _CreateAudienceInput) => {
       // Extract values from input
-      const { audienceName, audienceSettings, statsContext, features } = _CreateAudienceInput
+      const { audienceSettings, statsContext, features } = _CreateAudienceInput
+      const audienceName = audienceSettings?.audienceDisplayName?.trim() || _CreateAudienceInput.audienceName?.trim()
       const auth = _CreateAudienceInput.settings.oauth
       const advertiserId = audienceSettings?.advertiserId?.trim()
-      const description = audienceSettings?.description
+      const existingAudienceId = audienceSettings?.existingAudienceId?.trim()
+      const description = audienceSettings?.description?.trim()
       const membershipDurationDays = audienceSettings?.membershipDurationDays
-      const audienceType = audienceSettings?.audienceType
-      const appId = audienceSettings?.appId
+      const audienceType = audienceSettings?.audienceType?.trim()
+      const appId = audienceSettings?.appId?.trim()
 
       // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'createAudience' operation was invoked
       const statsName = 'createAudience'
@@ -114,28 +132,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       statsClient?.incr(`${statsName}.call`, 1, statsTags)
 
       // Validate required fields and throws errors if any are missing.
-      if (!audienceName) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
       if (!advertiserId) {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (!membershipDurationDays) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing membership duration days value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
       if (!audienceType) {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing audience type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (!existingAudienceId) {
+        if (!audienceName) {
+          statsTags?.push('error:missing-settings')
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
+          throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
+        }
+
+        if (!membershipDurationDays) {
+          statsTags?.push('error:missing-settings')
+          statsClient?.incr(`${statsName}.error`, 1, statsTags)
+          throw new IntegrationError(
+            'Missing membership duration days value. It is required when creating a new audience. Alternatively, populate the "Existing Audience ID" setting to connect to an audience which already exists in Display & Video 360.',
+            'MISSING_REQUIRED_FIELD',
+            400
+          )
+        }
       }
 
       if (
@@ -158,24 +182,48 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
       const token = res.data.access_token
 
-      // Make API request to create the audience
-      const response = await createAudienceRequest(_request, {
-        advertiserId,
-        audienceName,
-        description,
-        membershipDurationDays,
-        audienceType,
-        appId,
-        token,
-        features,
-        statsContext
-      })
+      try {
+        if (existingAudienceId) {
+          const audience = await getAudience(_request, {
+            advertiserId,
+            audienceId: existingAudienceId,
+            token,
+            features,
+            statsContext
+          })
 
-      // Parse and return the externalId
-      const r = await response.json()
-      statsClient?.incr(`${statsName}.success`, 1, statsTags)
-      return {
-        externalId: r.firstPartyAndPartnerAudienceId
+          if (audience.audienceType !== audienceType) {
+            throw new IntegrationError(
+              `Could not connect to the existing Display & Video 360 audience with ID "${existingAudienceId}": its type is ${audience.audienceType}, but the Audience Type setting is ${audienceType}. Update the Audience Type setting to match, or leave "Existing Audience ID" blank to create a new audience.`,
+              ErrorCodes.GET_AUDIENCE_FAILED,
+              400
+            )
+          }
+
+          statsTags?.push('audience:existing')
+          statsClient?.incr(`${statsName}.success`, 1, statsTags)
+          return { externalId: existingAudienceId }
+        }
+
+        const { audienceId, connectedToExisting } = await createAudience(_request, {
+          advertiserId,
+          audienceName,
+          description,
+          membershipDurationDays: membershipDurationDays as string,
+          audienceType,
+          appId,
+          token,
+          features,
+          statsContext
+        })
+
+        statsTags?.push(connectedToExisting ? 'audience:reconnected' : 'audience:created')
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return { externalId: audienceId }
+      } catch (error) {
+        statsTags?.push(`error:${error instanceof IntegrationError ? error.code : 'unknown'}`)
+        statsClient?.incr(`${statsName}.error`, 1, statsTags)
+        throw error
       }
     },
 
@@ -225,21 +273,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Failed to retrieve audience ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      // Make API request to get audience details
-      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token, features, statsContext })
-
-      if (!response.ok) {
-        // Handle non-OK responses
+      try {
+        const audience = await getAudience(_request, { advertiserId, audienceId, token, features, statsContext })
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return { externalId: audience.firstPartyAndPartnerAudienceId as string }
+      } catch (error) {
         statsTags?.push('error:api-request-failed')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Failed to retrieve audience details', 'API_REQUEST_FAILED', response.status)
-      }
-
-      // Parse and return the response
-      const audienceData = await response.json()
-      statsClient?.incr(`${statsName}.success`, 1, statsTags)
-      return {
-        externalId: audienceData.firstPartyAndPartnerAudienceId
+        throw error
       }
     }
   },

@@ -13,7 +13,9 @@ export interface _CreateAudienceInput {
     audienceType: string
     description?: string
     appId?: string
-    membershipDurationDays: string
+    membershipDurationDays?: string
+    existingAudienceId?: string
+    audienceDisplayName?: string
   }
   statsContext?: StatsContext
   features?: Features
@@ -31,7 +33,8 @@ export interface _GetAudienceInput {
     audienceType: string
     description?: string
     appId?: string
-    membershipDurationDays: string
+    membershipDurationDays?: string
+    existingAudienceId?: string
   }
   statsContext?: StatsContext
   features?: Features

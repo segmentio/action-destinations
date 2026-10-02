@@ -1,6 +1,6 @@
-import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
+import { RequestClient, ErrorCodes, Features, IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
-import { createAudienceRequest, getAudienceRequest } from '../functions'
+import { createAudience, getAudience } from '../functions'
 import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 import { DV360Audience } from './types'
@@ -9,6 +9,10 @@ function errorDetail(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error ?? '')
 
   return message ? `: ${message}` : ''
+}
+
+function errorMessage(error: unknown, fallback: string): string {
+  return error instanceof IntegrationError ? error.message : `${fallback}${errorDetail(error)}`
 }
 
 export async function performHook(
@@ -79,10 +83,10 @@ export async function performHook(
       }
     }
 
-    let audience: DV360Audience
+    let created: Awaited<ReturnType<typeof createAudience>>
 
     try {
-      const response = await createAudienceRequest(request, {
+      created = await createAudience(request, {
         advertiserId,
         audienceName,
         description,
@@ -93,30 +97,21 @@ export async function performHook(
         features,
         statsContext
       })
-
-      audience = (await response.json()) as DV360Audience
     } catch (error) {
       return {
         error: {
-          message: `Failed to create audience in Display & Video 360${errorDetail(error)}`,
+          message: errorMessage(error, 'Failed to create audience in Display & Video 360'),
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }
     }
 
-    const audienceId = audience?.firstPartyAndPartnerAudienceId
-
-    if (!audienceId) {
-      return {
-        error: {
-          message: audience?.error?.message ?? 'Failed to create audience in Display & Video 360',
-          code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
-        }
-      }
-    }
+    const { audienceId, connectedToExisting } = created
 
     return {
-      successMessage: `Audience created with ID: ${audienceId}`,
+      successMessage: connectedToExisting
+        ? `Connected to existing audience with ID: ${audienceId}`
+        : `Audience created with ID: ${audienceId}`,
       savedData: {
         audienceId,
         advertiserId,
@@ -136,18 +131,16 @@ export async function performHook(
     let audience: DV360Audience
 
     try {
-      const response = await getAudienceRequest(request, {
+      audience = await getAudience(request, {
         advertiserId,
         audienceId: existingAudienceId,
         features,
         statsContext
       })
-
-      audience = (await response.json()) as DV360Audience
     } catch (error) {
       return {
         error: {
-          message: `Failed to retrieve audience ${existingAudienceId} from Display & Video 360${errorDetail(error)}`,
+          message: errorMessage(error, `Failed to retrieve audience ${existingAudienceId} from Display & Video 360`),
           code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
         }
       }

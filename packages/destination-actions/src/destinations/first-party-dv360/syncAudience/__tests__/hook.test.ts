@@ -63,6 +63,54 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     })
   })
 
+  it('connects to the audience when one with the same name already exists', async () => {
+    nock(DV360_HOST)
+      .post(CREATE_PATH)
+      .reply(400, {
+        error: {
+          code: 400,
+          message: 'The following display name already exists: "My Audience".',
+          status: 'INVALID_ARGUMENT'
+        }
+      })
+    nock(DV360_HOST)
+      .get('/v4/firstPartyAndPartnerAudiences')
+      .query({ advertiserId: ADVERTISER_ID, filter: 'displayName:"My Audience"', pageSize: '200' })
+      .reply(200, {
+        firstPartyAndPartnerAudiences: [
+          {
+            firstPartyAndPartnerAudienceId: AUDIENCE_ID,
+            displayName: 'My Audience',
+            audienceType: 'CUSTOMER_MATCH_CONTACT_INFO'
+          }
+        ]
+      })
+
+    const result = await performHook(request, inputs())
+
+    expect(result).toEqual({
+      successMessage: `Connected to existing audience with ID: ${AUDIENCE_ID}`,
+      savedData: {
+        audienceId: AUDIENCE_ID,
+        advertiserId: ADVERTISER_ID,
+        audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+        appId: undefined
+      }
+    })
+  })
+
+  it('passes through the error message returned by Display & Video 360', async () => {
+    nock(DV360_HOST)
+      .post(CREATE_PATH)
+      .reply(403, { error: { code: 403, message: 'The caller does not have permission', status: 'PERMISSION_DENIED' } })
+
+    const result = await performHook(request, inputs())
+
+    expect(result).toEqual(
+      hookError('Failed to create audience in Display & Video 360: The caller does not have permission')
+    )
+  })
+
   // performHook is the only gate on these: the hook inputs are deliberately not marked
   // required, so that a missing value fails at mapping save with a message naming it
   // rather than blocking the mapping form.
@@ -212,7 +260,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
 })
 
 // The tests above call performHook with a bare request client, which cannot see the
-// Authorization header the hook depends on: createAudienceRequest and getAudienceRequest are
+// Authorization header the hook depends on: createAudience and getAudience are
 // called with no token, so the header comes from the destination's extendRequest instead.
 // executeHook builds the client the way core does, so these tests prove the token really
 // reaches Display & Video 360 on the hook's own path.
@@ -273,7 +321,9 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave, through executeHook', 
 
     const result = await executeHook(inputs())
 
-    expect(result).toEqual(hookError('Failed to create audience in Display & Video 360'))
+    expect(result).toEqual(
+      hookError('Failed to create audience in Display & Video 360: the response did not include an audience ID')
+    )
   })
 
   it('reports the message Display & Video 360 returns in a 200 body', async () => {
@@ -283,6 +333,6 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave, through executeHook', 
 
     const result = await executeHook(inputs())
 
-    expect(result).toEqual(hookError('Advertiser not found'))
+    expect(result).toEqual(hookError('Failed to create audience in Display & Video 360: Advertiser not found'))
   })
 })

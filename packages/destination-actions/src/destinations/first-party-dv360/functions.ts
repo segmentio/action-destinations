@@ -1,7 +1,8 @@
-import { Features, IntegrationError, RequestClient, StatsContext } from '@segment/actions-core'
+import { ErrorCodes, Features, IntegrationError, ModifiedResponse, RequestClient, StatsContext } from '@segment/actions-core'
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
+import { DV360Audience } from './syncAudience/types'
 import { FIRST_PARTY_DV360_API_VERSION, FIRST_PARTY_DV360_CANARY_API_VERSION } from './versioning-info'
 
 export const API_VERSION = FIRST_PARTY_DV360_API_VERSION
@@ -62,10 +63,110 @@ interface DV360editCustomerMatchResponse {
   ]
 }
 
-export const createAudienceRequest = (
+interface DV360ErrorResponse {
+  error?: {
+    code?: number
+    message?: string
+    status?: string
+  }
+}
+
+type DV360AudienceResponse = DV360Audience & DV360ErrorResponse
+
+interface DV360ListAudiencesResponse extends DV360ErrorResponse {
+  firstPartyAndPartnerAudiences?: DV360Audience[]
+  nextPageToken?: string
+}
+
+const DISPLAY_NAME_EXISTS = /display name already exists/i
+const LIST_PAGE_SIZE = 200
+const LIST_MAX_PAGES = 10
+
+function authHeaders(token?: string) {
+  return {
+    ...(token ? { authorization: `Bearer ${token}` } : {}),
+    'Content-Type': 'application/json; charset=utf-8'
+  }
+}
+
+function describeError(response: ModifiedResponse<DV360ErrorResponse>): string {
+  const message = response.data?.error?.message
+  if (message) {
+    return message
+  }
+  return response.ok ? 'the response did not include an audience ID' : `HTTP ${response.status}`
+}
+
+export async function getAudience(request: RequestClient, params: getAudienceParams): Promise<DV360Audience> {
+  const { advertiserId, audienceId, token, features, statsContext } = params
+
+  const version = getApiVersion(features, statsContext)
+  const endpoint = getAudienceEndpoint(version, advertiserId, audienceId)
+
+  const response = await request<DV360AudienceResponse>(endpoint, {
+    method: 'GET',
+    headers: authHeaders(token),
+    throwHttpErrors: false
+  })
+
+  if (!response.ok || !response.data?.firstPartyAndPartnerAudienceId) {
+    throw new IntegrationError(
+      `Failed to retrieve audience ${audienceId} from Display & Video 360: ${describeError(response)}`,
+      ErrorCodes.GET_AUDIENCE_FAILED,
+      response.ok ? 400 : response.status
+    )
+  }
+
+  return response.data
+}
+
+export async function findAudienceByName(
+  request: RequestClient,
+  params: Omit<createAudienceRequestParams, 'description' | 'membershipDurationDays' | 'appId' | 'audienceType'>
+): Promise<DV360Audience | undefined> {
+  const { advertiserId, audienceName, token, features, statsContext } = params
+
+  const version = getApiVersion(features, statsContext)
+  const filter = encodeURIComponent(`displayName:"${audienceName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`)
+  let pageToken: string | undefined
+
+  for (let page = 0; page < LIST_MAX_PAGES; page++) {
+    const endpoint = `${getAudienceEndpoint(version, advertiserId)}&filter=${filter}&pageSize=${LIST_PAGE_SIZE}${
+      pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''
+    }`
+
+    const response = await request<DV360ListAudiencesResponse>(endpoint, {
+      method: 'GET',
+      headers: authHeaders(token),
+      throwHttpErrors: false
+    })
+
+    if (!response.ok) {
+      throw new IntegrationError(
+        `Failed to look up existing audience "${audienceName}" in Display & Video 360: ${describeError(response)}`,
+        ErrorCodes.GET_AUDIENCE_FAILED,
+        response.status
+      )
+    }
+
+    const match = response.data?.firstPartyAndPartnerAudiences?.find((a) => a.displayName === audienceName)
+    if (match) {
+      return match
+    }
+
+    pageToken = response.data?.nextPageToken
+    if (!pageToken) {
+      return undefined
+    }
+  }
+
+  return undefined
+}
+
+export async function createAudience(
   request: RequestClient,
   params: createAudienceRequestParams
-): Promise<Response> => {
+): Promise<{ audienceId: string; connectedToExisting: boolean }> {
   const {
     advertiserId,
     audienceName,
@@ -81,12 +182,9 @@ export const createAudienceRequest = (
   const version = getApiVersion(features, statsContext)
   const endpoint = getAudienceEndpoint(version, advertiserId)
 
-  return request(endpoint, {
+  const response = await request<DV360AudienceResponse>(endpoint, {
     method: 'POST',
-    headers: {
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      'Content-Type': 'application/json; charset=utf-8'
-    },
+    headers: authHeaders(token),
     json: {
       displayName: audienceName,
       audienceType: audienceType,
@@ -95,23 +193,36 @@ export const createAudienceRequest = (
       audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
       firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
       appId: appId
-    }
+    },
+    throwHttpErrors: false
   })
-}
 
-export const getAudienceRequest = (request: RequestClient, params: getAudienceParams): Promise<Response> => {
-  const { advertiserId, audienceId, token, features, statsContext } = params
+  const audienceId = response.data?.firstPartyAndPartnerAudienceId
+  if (response.ok && audienceId) {
+    return { audienceId, connectedToExisting: false }
+  }
 
-  const version = getApiVersion(features, statsContext)
-  const endpoint = getAudienceEndpoint(version, advertiserId, audienceId)
+  if (response.status === 400 && DISPLAY_NAME_EXISTS.test(response.data?.error?.message ?? '')) {
+    const existing = await findAudienceByName(request, { advertiserId, audienceName, token, features, statsContext })
+    const existingId = existing?.firstPartyAndPartnerAudienceId
 
-  return request(endpoint, {
-    method: 'GET',
-    headers: {
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      'Content-Type': 'application/json; charset=utf-8'
+    if (existingId) {
+      if (existing.audienceType !== audienceType) {
+        throw new IntegrationError(
+          `An audience named "${audienceName}" already exists in Display & Video 360 (ID ${existingId}) but its type is ${existing.audienceType}, not ${audienceType}. Rename the audience, or connect to it by populating the "Existing Audience ID" setting with a matching Audience Type.`,
+          ErrorCodes.CREATE_AUDIENCE_FAILED,
+          400
+        )
+      }
+      return { audienceId: existingId, connectedToExisting: true }
     }
-  })
+  }
+
+  throw new IntegrationError(
+    `Failed to create audience in Display & Video 360: ${describeError(response)}`,
+    ErrorCodes.CREATE_AUDIENCE_FAILED,
+    response.ok ? 400 : response.status
+  )
 }
 
 export async function editDeviceMobileIds(
