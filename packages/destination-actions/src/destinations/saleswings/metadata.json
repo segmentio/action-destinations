@@ -27,6 +27,10 @@
             "label": "Helium (live environment)"
           },
           {
+            "value": "argon",
+            "label": "Argon (staging environment)"
+          },
+          {
             "value": "ozone",
             "label": "Ozone (test environment)"
           }
@@ -49,6 +53,32 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+        "messageID": {
+          "label": "Segment Message ID",
+          "description": "Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "kind": {
           "label": "Custom Event Kind",
           "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
@@ -350,6 +380,32 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+        "messageID": {
+          "label": "Segment Message ID",
+          "description": "Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "kind": {
           "label": "Custom Event Kind",
           "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
@@ -651,6 +707,32 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+        "messageID": {
+          "label": "Segment Message ID",
+          "description": "Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "userID": {
           "label": "Segment User ID",
           "description": "Permanent identifier of a Segment user the event is attributed to.",
@@ -721,6 +803,42 @@
               },
               "else": {
                 "@path": "$.context.page.url"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "title": {
+          "label": "Page Title",
+          "description": "Title of the page associated with the event.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.title"
+              },
+              "then": {
+                "@path": "$.properties.title"
+              },
+              "else": {
+                "@path": "$.context.page.title"
               }
             }
           },
@@ -840,6 +958,32 @@
       "hooks": null,
       "dynamicFields": null,
       "fields": {
+        "messageID": {
+          "label": "Segment Message ID",
+          "description": "Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "kind": {
           "label": "Custom Event Kind",
           "description": "Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as \"[[Kind]] Data\").",
@@ -1138,6 +1282,9 @@
       "partnerAction": "submitTrackEvent",
       "subscribe": "type = \"track\"",
       "mapping": {
+        "messageID": {
+          "@path": "$.messageId"
+        },
         "kind": "Track",
         "data": {
           "@path": "$.event"
@@ -1205,6 +1352,9 @@
       "partnerAction": "submitIdentifyEvent",
       "subscribe": "type = \"identify\"",
       "mapping": {
+        "messageID": {
+          "@path": "$.messageId"
+        },
         "kind": "Identify",
         "data": {
           "@path": "$.traits.email"
@@ -1272,6 +1422,9 @@
       "partnerAction": "submitPageEvent",
       "subscribe": "type = \"page\"",
       "mapping": {
+        "messageID": {
+          "@path": "$.messageId"
+        },
         "userID": {
           "@path": "$.userId"
         },
@@ -1288,6 +1441,19 @@
             },
             "else": {
               "@path": "$.context.page.url"
+            }
+          }
+        },
+        "title": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.title"
+            },
+            "then": {
+              "@path": "$.properties.title"
+            },
+            "else": {
+              "@path": "$.context.page.title"
             }
           }
         },
@@ -1319,6 +1485,9 @@
       "partnerAction": "submitScreenEvent",
       "subscribe": "type = \"screen\"",
       "mapping": {
+        "messageID": {
+          "@path": "$.messageId"
+        },
         "kind": "Screen",
         "data": {
           "@path": "$.name"
