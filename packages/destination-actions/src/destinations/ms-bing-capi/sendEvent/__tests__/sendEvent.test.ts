@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration, createTestEvent } from '@segment/actions-core'
 import destination from '../../index'
 import type { Settings } from '../../generated-types'
+import { ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG } from '../constants'
 
 function buildTrackEvent(overrides: Record<string, any> = {}) {
   return createTestEvent({
@@ -539,6 +540,72 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
       mapping: {
         data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
         userData: { anonymousId: 'anon-1', ph: rawPhone },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+  test('root continueOnValidationError omitted when feature flag is off, kept at event level', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.continueOnValidationError).toBeUndefined()
+        expect(body.data[0].continueOnValidationError).toBe(true)
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('root continueOnValidationError sent when feature flag is on, kept at event level', async () => {
+    const event = buildTrackEvent()
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.continueOnValidationError).toBe(true)
+        expect(body.data[0].continueOnValidationError).toBe(true)
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      features: { [ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG]: true },
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        timestamp: { '@path': '$.timestamp' }
+      }
+    })
+    expect(scope.isDone()).toBe(true)
+  })
+
+  test('batch: root continueOnValidationError sent once when feature flag is on', async () => {
+    const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+    const scope = nock('https://capi.uet.microsoft.com')
+      .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+        expect(body.continueOnValidationError).toBe(true)
+        expect(body.data).toHaveLength(2)
+        body.data.forEach((item: any) => expect(item.continueOnValidationError).toBe(true))
+        return true
+      })
+      .reply(200, {})
+    await testDestination.testBatchAction('sendEvent', {
+      events,
+      settings,
+      features: { [ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG]: true },
+      mapping: {
+        data: { eventType: 'custom', eventTime: '2024-01-01T00:00:00.000Z' },
+        userData: { anonymousId: 'anon-1' },
+        enable_batching: true,
         timestamp: { '@path': '$.timestamp' }
       }
     })
