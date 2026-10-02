@@ -113,7 +113,7 @@ export function validateAudienceInputs(inputs: AudienceInputs): ValidatedAudienc
     audienceType,
     membershipDurationDays: String(days),
     description,
-    appId
+    ...(audienceType === 'CUSTOMER_MATCH_DEVICE_ID' ? { appId } : {})
   }
 }
 
@@ -312,9 +312,9 @@ export async function getAudienceByName(
     }
   }
 
-  if (pageToken && matches.length === 0) {
+  if (pageToken) {
     throw new IntegrationError(
-      `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not retrieve it after searching ${LIST_MAX_PAGES} pages of results. Find the audience's ID in Display & Video 360 and connect to it directly by populating the "Existing Audience ID" setting, or choose a different Audience Name.`,
+      `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not confirm it is the only one after searching ${LIST_MAX_PAGES} pages of results. Find the audience's ID in Display & Video 360 and connect to it directly by populating the "Existing Audience ID" setting, or choose a different Audience Name.`,
       ErrorCodes.GET_AUDIENCE_FAILED,
       400
     )

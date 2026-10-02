@@ -81,7 +81,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Audience Name',
       required: false,
       description:
-        'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser: if an audience of the same type with this name already exists, Segment connects to it. **Not required:** when connecting to an existing audience (ignored).'
+        'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser. If one audience with this name already exists and its Audience Type, Membership Duration Days and (for device ID audiences) App ID match these settings, Segment connects to it; otherwise audience creation fails. **Not required:** when connecting to an existing audience (ignored).'
     },
     description: {
       type: 'string',
