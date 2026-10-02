@@ -111,7 +111,6 @@ describe('Audience Destination', () => {
     const listQuery = (extra: Record<string, string> = {}) => ({
       advertiserId: '12345',
       filter: `displayName:"${audienceName}"`,
-      pageSize: '200',
       ...extra
     })
     const nameExists = {
@@ -184,7 +183,9 @@ describe('Audience Destination', () => {
             {
               firstPartyAndPartnerAudienceId: 'existing-id',
               displayName: audienceName,
-              audienceType: 'CUSTOMER_MATCH_CONTACT_INFO'
+              audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+              membershipDurationDays: '30',
+              firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
             }
           ]
         })
@@ -209,7 +210,9 @@ describe('Audience Destination', () => {
             {
               firstPartyAndPartnerAudienceId: 'existing-id',
               displayName: audienceName,
-              audienceType: 'CUSTOMER_MATCH_CONTACT_INFO'
+              audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+              membershipDurationDays: '30',
+              firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
             }
           ]
         })
@@ -227,13 +230,15 @@ describe('Audience Destination', () => {
             {
               firstPartyAndPartnerAudienceId: 'existing-id',
               displayName: audienceName,
-              audienceType: 'CUSTOMER_MATCH_DEVICE_ID'
+              audienceType: 'CUSTOMER_MATCH_DEVICE_ID',
+              membershipDurationDays: '30',
+              firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
             }
           ]
         })
 
       await expect(testDestination.createAudience(input())).rejects.toThrowError(
-        `An audience named "${audienceName}" already exists in Display & Video 360 (ID existing-id) but its type is CUSTOMER_MATCH_DEVICE_ID, not CUSTOMER_MATCH_CONTACT_INFO.`
+        `An audience named "${audienceName}" already exists in Display & Video 360 (ID existing-id) but its settings differ: Audience Type is CUSTOMER_MATCH_DEVICE_ID (requested CUSTOMER_MATCH_CONTACT_INFO).`
       )
     })
 

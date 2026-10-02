@@ -75,13 +75,15 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
       })
     nock(DV360_HOST)
       .get('/v4/firstPartyAndPartnerAudiences')
-      .query({ advertiserId: ADVERTISER_ID, filter: 'displayName:"My Audience"', pageSize: '200' })
+      .query({ advertiserId: ADVERTISER_ID, filter: 'displayName:"My Audience"' })
       .reply(200, {
         firstPartyAndPartnerAudiences: [
           {
             firstPartyAndPartnerAudienceId: AUDIENCE_ID,
             displayName: 'My Audience',
-            audienceType: 'CUSTOMER_MATCH_CONTACT_INFO'
+            audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+            membershipDurationDays: '90',
+            firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
           }
         ]
       })

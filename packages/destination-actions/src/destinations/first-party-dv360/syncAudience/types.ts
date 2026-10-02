@@ -52,6 +52,8 @@ export interface DV360Audience {
   displayName?: string
   audienceType?: string
   appId?: string
+  membershipDurationDays?: string
+  firstPartyAndPartnerAudienceType?: string
   error?: {
     message?: string
   }
