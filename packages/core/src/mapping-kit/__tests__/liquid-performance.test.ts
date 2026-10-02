@@ -111,11 +111,31 @@ describeBench('@liquid performance', () => {
         const mapping: Record<string, unknown> = {}
         for (let f = 0; f < n; f++) mapping[`field_${f}`] = { '@liquid': tpl }
 
-        const start = process.hrtime.bigint()
+        let start = process.hrtime.bigint()
         transformBatch(mapping, events)
-        const ms = Number(process.hrtime.bigint() - start) / 1e6
+        const batchMs = Number(process.hrtime.bigint() - start) / 1e6
 
-        rows.push({ template: name, 'liquid fields': n, events: EVENTS, 'batch ms': ms.toFixed(0) })
+        // transformBatch calls parseAndRenderSync once per field per event, so repeat
+        // each step n × EVENTS times to split the batch time into parse and render
+        start = process.hrtime.bigint()
+        for (let i = 0; i < n * EVENTS; i++) engine.parse(tpl)
+        const parseMs = Number(process.hrtime.bigint() - start) / 1e6
+
+        const parsed = engine.parse(tpl)
+        start = process.hrtime.bigint()
+        for (const e of events) for (let f = 0; f < n; f++) engine.renderSync(parsed, e)
+        const renderMs = Number(process.hrtime.bigint() - start) / 1e6
+
+        rows.push({
+          template: name,
+          'liquid fields': n,
+          events: EVENTS,
+          'batch ms': batchMs.toFixed(0),
+          'parse ms': parseMs.toFixed(0),
+          'render ms': renderMs.toFixed(0),
+          // Mapping walk, validation, stats emits, and timing noise
+          'other ms': (batchMs - parseMs - renderMs).toFixed(0)
+        })
       }
     }
     console.table(rows)
