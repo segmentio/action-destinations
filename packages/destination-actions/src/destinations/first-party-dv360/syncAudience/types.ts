@@ -47,18 +47,6 @@ export type EditCustomerMatchMembersRequest = { advertiserId: string } & Exactly
   removedMobileDeviceIdList: MobileDeviceIdList
 }>
 
-export interface DV360Audience {
-  firstPartyAndPartnerAudienceId?: string
-  displayName?: string
-  audienceType?: string
-  appId?: string
-  membershipDurationDays?: string
-  firstPartyAndPartnerAudienceType?: string
-  error?: {
-    message?: string
-  }
-}
-
 export interface EditCustomerMatchMembersResponse {
   firstPartyAndPartnerAudienceId?: string
   error?: {

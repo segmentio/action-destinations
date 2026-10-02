@@ -1,10 +1,9 @@
 import { RequestClient, ErrorCodes, Features, IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createAudience, getAudience } from '../functions'
-import type { CreateAudienceResult } from '../types'
+import type { CreateAudienceResult, DV360Audience } from '../types'
 import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
-import { DV360Audience } from './types'
 
 function errorDetail(error: unknown): string {
   const message = error instanceof Error ? error.message : String(error ?? '')

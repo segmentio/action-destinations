@@ -10,10 +10,10 @@ import {
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
-import { DV360Audience } from './syncAudience/types'
 import {
   CreateAudienceRequestParams,
   CreateAudienceResult,
+  DV360Audience,
   DV360AudienceResponse,
   DV360EditCustomerMatchResponse,
   DV360ErrorResponse,

@@ -1,6 +1,14 @@
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
-import { DV360Audience } from './syncAudience/types'
+
+export interface DV360Audience {
+  firstPartyAndPartnerAudienceId?: string
+  displayName?: string
+  audienceType?: string
+  appId?: string
+  membershipDurationDays?: string
+  firstPartyAndPartnerAudienceType?: string
+}
 
 export interface CreateAudienceRequestParams {
   advertiserId: string
