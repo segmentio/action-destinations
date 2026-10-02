@@ -13,6 +13,7 @@ import { processHashing } from '../../lib/hashing-utils'
 import { DV360Audience } from './syncAudience/types'
 import {
   CreateAudienceRequestParams,
+  CreateAudienceResult,
   DV360AudienceResponse,
   DV360EditCustomerMatchResponse,
   DV360ErrorResponse,
@@ -183,7 +184,7 @@ export async function getAudienceByName(
 export async function createAudience(
   request: RequestClient,
   params: CreateAudienceRequestParams
-): Promise<{ audienceId: string; connectedToExisting: boolean }> {
+): Promise<CreateAudienceResult> {
   const {
     advertiserId,
     audienceName,

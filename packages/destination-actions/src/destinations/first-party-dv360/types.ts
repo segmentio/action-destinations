@@ -14,6 +14,11 @@ export interface CreateAudienceRequestParams {
   statsContext?: StatsContext
 }
 
+export interface CreateAudienceResult {
+  audienceId: string
+  connectedToExisting: boolean
+}
+
 export interface GetAudienceParams {
   advertiserId: string
   audienceId: string
