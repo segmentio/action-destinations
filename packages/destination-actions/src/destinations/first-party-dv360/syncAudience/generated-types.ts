@@ -97,7 +97,7 @@ export interface RetlOnMappingSaveInputs {
    */
   audienceName?: string
   /**
-   * The type of the audience to create.
+   * The type of the audience. When connecting to an existing audience, it must match that audience's type.
    */
   audienceType?: string
   /**
@@ -109,7 +109,7 @@ export interface RetlOnMappingSaveInputs {
    */
   description?: string
   /**
-   * The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.
+   * The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.
    */
   appId?: string
   /**

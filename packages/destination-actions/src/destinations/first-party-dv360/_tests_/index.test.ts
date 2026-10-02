@@ -20,6 +20,11 @@ const createAudienceInput = {
   }
 }
 
+const input = (audienceSettings: Record<string, string | undefined> = {}) => ({
+  ...createAudienceInput,
+  audienceSettings: { ...createAudienceInput.audienceSettings, ...audienceSettings }
+})
+
 const getAudienceInput = {
   settings: {
     oauth: {
@@ -74,8 +79,11 @@ describe('Audience Destination', () => {
     })
 
     it('errors out when no advertiser ID is provided', async () => {
-      createAudienceInput.audienceSettings.advertiserId = ''
-      await expect(testDestination.createAudience(createAudienceInput)).rejects.toThrowError(IntegrationError)
+      await expect(testDestination.createAudience(input({ advertiserId: '' }))).rejects.toMatchObject({
+        message: 'Missing advertiser ID value',
+        code: 'MISSING_REQUIRED_FIELD',
+        status: 400
+      })
     })
   })
 
@@ -101,6 +109,86 @@ describe('Audience Destination', () => {
       await expect(testDestination.getAudience(missingIdInput)).rejects.toThrowError(
         new IntegrationError('Failed to retrieve audience ID value', 'MISSING_REQUIRED_FIELD', 400)
       )
+    })
+
+    it('passes through the error when the audience cannot be read', async () => {
+      nock('https://displayvideo.googleapis.com')
+        .get('/v4/firstPartyAndPartnerAudiences/audience-id-123?advertiserId=12345')
+        .reply(404, { error: { code: 404, message: 'Requested entity was not found.', status: 'NOT_FOUND' } })
+
+      await expect(testDestination.getAudience(getAudienceInput)).rejects.toMatchObject({
+        message:
+          'Failed to retrieve audience audience-id-123 from Display & Video 360: Requested entity was not found.',
+        code: 'GET_AUDIENCE_FAILED',
+        status: 404
+      })
+    })
+  })
+
+  describe('createAudience audience settings', () => {
+    const DV360_HOST = 'https://displayvideo.googleapis.com'
+    const CREATE_PATH = '/v4/firstPartyAndPartnerAudiences?advertiserId=12345'
+
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    it('connects to the Existing Audience ID instead of creating an audience', async () => {
+      nock(DV360_HOST)
+        .get('/v4/firstPartyAndPartnerAudiences/existing-id?advertiserId=12345')
+        .matchHeader('Authorization', 'Bearer temp-token')
+        .reply(200, { firstPartyAndPartnerAudienceId: 'existing-id', audienceType: 'CUSTOMER_MATCH_CONTACT_INFO' })
+
+      const result = await testDestination.createAudience(
+        input({ existingAudienceId: ' existing-id ', membershipDurationDays: undefined, description: undefined })
+      )
+
+      expect(result).toEqual({ externalId: 'existing-id' })
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it('sends the access token when looking up an audience whose name already exists', async () => {
+      nock(DV360_HOST)
+        .post(CREATE_PATH)
+        .matchHeader('Authorization', 'Bearer temp-token')
+        .reply(400, { error: { code: 400, message: `The following display name already exists: "${audienceName}".` } })
+      nock(DV360_HOST)
+        .get('/v4/firstPartyAndPartnerAudiences')
+        .query({ advertiserId: '12345', filter: `displayName:"${audienceName}"` })
+        .matchHeader('Authorization', 'Bearer temp-token')
+        .reply(200, {
+          firstPartyAndPartnerAudiences: [
+            {
+              firstPartyAndPartnerAudienceId: 'existing-id',
+              displayName: audienceName,
+              audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+              membershipDurationDays: '30',
+              firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
+            }
+          ]
+        })
+
+      const result = await testDestination.createAudience(input())
+
+      expect(result).toEqual({ externalId: 'existing-id' })
+      expect(nock.isDone()).toBe(true)
+    })
+
+    it.each([
+      ['uses the Audience Name setting when provided', '  Custom Name  ', 'Custom Name'],
+      ['falls back to the Segment audience name when Audience Name is blank', '   ', audienceName]
+    ])('%s', async (_title: string, audienceDisplayName: string, expectedName: string) => {
+      let body: any
+      nock(DV360_HOST)
+        .post(CREATE_PATH, (b) => {
+          body = b
+          return true
+        })
+        .reply(200, { firstPartyAndPartnerAudienceId: 'audience-id-123' })
+
+      await testDestination.createAudience(input({ audienceDisplayName }))
+
+      expect(body.displayName).toBe(expectedName)
     })
   })
 

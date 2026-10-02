@@ -5,23 +5,31 @@ export interface Settings {}
 
 export interface AudienceSettings {
   /**
-   * The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.
+   * The ID of your Display & Video 360 advertiser. **Required:** always.
    */
   advertiserId: string
   /**
-   * The type of the audience.
+   * The type of the audience. **Required:** always. When connecting to an existing audience, it must match that audience's type.
    */
   audienceType: string
   /**
-   * The description of the audience.
+   * The ID of an audience which already exists in Display & Video 360. **Optional:** populate to connect to that audience instead of creating a new one. Leave blank to create a new audience.
+   */
+  existingAudienceId?: string
+  /**
+   * The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser. If one audience with this name already exists and its Audience Type, Membership Duration Days and (for device ID audiences) App ID match these settings, Segment connects to it; otherwise audience creation fails. **Not required:** when connecting to an existing audience (ignored).
+   */
+  audienceDisplayName?: string
+  /**
+   * The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).
    */
   description?: string
   /**
-   * The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**
+   * The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).
    */
   appId?: string
   /**
-   * The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.
+   * Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).
    */
-  membershipDurationDays: string
+  membershipDurationDays?: string
 }

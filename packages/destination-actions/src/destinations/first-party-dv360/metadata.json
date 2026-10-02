@@ -14,7 +14,7 @@
     "audienceFields": {
       "advertiserId": {
         "label": "Advertiser ID",
-        "description": "The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.",
+        "description": "The ID of your Display & Video 360 advertiser. **Required:** always.",
         "type": "string",
         "required": true,
         "multiple": false,
@@ -24,7 +24,7 @@
       },
       "audienceType": {
         "label": "Audience Type",
-        "description": "The type of the audience.",
+        "description": "The type of the audience. **Required:** always. When connecting to an existing audience, it must match that audience's type.",
         "type": "string",
         "required": true,
         "multiple": false,
@@ -41,9 +41,29 @@
         "default": null,
         "depends_on": null
       },
+      "existingAudienceId": {
+        "label": "Existing Audience ID",
+        "description": "The ID of an audience which already exists in Display & Video 360. **Optional:** populate to connect to that audience instead of creating a new one. Leave blank to create a new audience.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "audienceDisplayName": {
+        "label": "Audience Name",
+        "description": "The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser. If one audience with this name already exists and its Audience Type, Membership Duration Days and (for device ID audiences) App ID match these settings, Segment connects to it; otherwise audience creation fails. **Not required:** when connecting to an existing audience (ignored).",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
       "description": {
         "label": "Description",
-        "description": "The description of the audience.",
+        "description": "The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).",
         "type": "string",
         "required": false,
         "multiple": false,
@@ -53,7 +73,7 @@
       },
       "appId": {
         "label": "App ID",
-        "description": "The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**",
+        "description": "The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).",
         "type": "string",
         "required": false,
         "multiple": false,
@@ -63,9 +83,9 @@
       },
       "membershipDurationDays": {
         "label": "Membership Duration Days",
-        "description": "The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.",
+        "description": "Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).",
         "type": "string",
-        "required": true,
+        "required": false,
         "multiple": false,
         "choices": null,
         "default": null,
@@ -1142,7 +1162,7 @@
             },
             "audienceType": {
               "label": "Audience Type",
-              "description": "The type of the audience to create.",
+              "description": "The type of the audience. When connecting to an existing audience, it must match that audience's type.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1162,16 +1182,7 @@
               "placeholder": null,
               "properties": null,
               "category": null,
-              "depends_on": {
-                "match": "all",
-                "conditions": [
-                  {
-                    "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
-                  }
-                ]
-              },
+              "depends_on": null,
               "readOnly": null,
               "hidden": null,
               "minimum": null,
@@ -1250,7 +1261,7 @@
             },
             "appId": {
               "label": "App ID",
-              "description": "The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.",
+              "description": "The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.",
               "type": "string",
               "required": false,
               "multiple": false,

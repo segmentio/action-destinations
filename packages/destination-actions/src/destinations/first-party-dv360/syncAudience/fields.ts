@@ -259,15 +259,17 @@ export const retlHookInputFields: ActionHookDefinition<
     description: 'The display name of the audience to create in Display & Video 360.',
     depends_on: CREATE_OPERATION
   },
+  // Required for both operations, but not marked required: required hook inputs currently break the
+  // Engage mapping flow (a platform / app UI bug). validateAudienceInputs enforces it instead.
   audienceType: {
     type: 'string',
     label: AUDIENCE_TYPE_LABEL,
-    description: 'The type of the audience to create.',
+    description:
+      "The type of the audience. When connecting to an existing audience, it must match that audience's type.",
     choices: [
       { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
       { label: 'CUSTOMER MATCH DEVICE ID', value: DEVICE_ID }
-    ],
-    depends_on: CREATE_OPERATION
+    ]
   },
   membershipDurationDays: {
     type: 'number',
@@ -288,7 +290,7 @@ export const retlHookInputFields: ActionHookDefinition<
     type: 'string',
     label: 'App ID',
     description:
-      'The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.',
+      'The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.',
     depends_on: CREATE_DEVICE_ID_OPERATION
   },
   existingAudienceId: {
