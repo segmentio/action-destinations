@@ -138,7 +138,9 @@ describe('Audience Destination', () => {
     it('passes through the error message returned by Display & Video 360', async () => {
       nock(DV360_HOST)
         .post(CREATE_PATH)
-        .reply(403, { error: { code: 403, message: 'The caller does not have permission', status: 'PERMISSION_DENIED' } })
+        .reply(403, {
+          error: { code: 403, message: 'The caller does not have permission', status: 'PERMISSION_DENIED' }
+        })
 
       await expect(testDestination.createAudience(input())).rejects.toThrowError(
         new IntegrationError(

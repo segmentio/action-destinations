@@ -136,7 +136,7 @@ export async function performHook(
       }
     }
 
-    if (!audience.audienceType ||(audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
+    if (!audience.audienceType || (audience.audienceType !== CONTACT_INFO && audience.audienceType !== DEVICE_ID)) {
       return {
         error: {
           message: `Audience ${existingAudienceId} is not a Customer Match Contact Info or Mobile Device ID audience`,
