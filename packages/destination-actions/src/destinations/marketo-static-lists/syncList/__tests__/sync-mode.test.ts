@@ -20,7 +20,6 @@ const baseMapping = {
   data: { email: { '@path': '$.properties.email' } },
   field_value: { '@path': '$.properties.email' },
   enable_batching: true,
-  batch_size: 300,
   event_name: { '@path': '$.event' }
 }
 
