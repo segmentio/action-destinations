@@ -1,4 +1,4 @@
-import { RequestClient, ErrorCodes, Features, IntegrationError } from '@segment/actions-core'
+import { RequestClient, ErrorCodes, Features } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createOrConnectAudience } from '../audience-functions'
 import type { RetlOnMappingSaveInputs } from './generated-types'
@@ -60,9 +60,19 @@ export async function performHook(
   } catch (error) {
     return {
       error: {
-        message: (error as IntegrationError).message,
+        message: errorMessage(error),
         code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
       }
     }
   }
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === 'string') {
+    return error
+  }
+  return error === undefined || error === null ? 'unknown error' : JSON.stringify(error)
 }

@@ -224,8 +224,7 @@ async function createAudience(
     const existingId = existing?.firstPartyAndPartnerAudienceId
 
     if (existingId) {
-      const existingAppId = existing.appId || undefined
-      const requestedAppId = appId?.trim() || undefined
+      const existingAppId = trim(existing.appId)
       const mismatches = [
         ...(existing.audienceType !== audienceType
           ? [`Audience Type is ${existing.audienceType} (requested ${audienceType})`]
@@ -237,8 +236,8 @@ async function createAudience(
               } (requested ${membershipDurationDays})`
             ]
           : []),
-        ...(existingAppId !== requestedAppId
-          ? [`App ID is ${existingAppId ?? 'not set'} (requested ${requestedAppId ?? 'not set'})`]
+        ...(audienceType === 'CUSTOMER_MATCH_DEVICE_ID' && existingAppId !== appId
+          ? [`App ID is ${existingAppId ?? 'not set'} (requested ${appId ?? 'not set'})`]
           : [])
       ]
 
@@ -311,6 +310,14 @@ export async function getAudienceByName(
     if (!pageToken) {
       break
     }
+  }
+
+  if (pageToken && matches.length === 0) {
+    throw new IntegrationError(
+      `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not retrieve it after searching ${LIST_MAX_PAGES} pages of results. Find the audience's ID in Display & Video 360 and connect to it directly by populating the "Existing Audience ID" setting, or choose a different Audience Name.`,
+      ErrorCodes.GET_AUDIENCE_FAILED,
+      400
+    )
   }
 
   if (matches.length === 0) {
