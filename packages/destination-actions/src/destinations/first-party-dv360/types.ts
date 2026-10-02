@@ -1,16 +1,21 @@
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 
-export interface DV360Audience {
+export interface DV360AudienceResponse {
   firstPartyAndPartnerAudienceId?: string
   displayName?: string
   audienceType?: string
   appId?: string
   membershipDurationDays?: string
   firstPartyAndPartnerAudienceType?: string
+  error?: {
+    code?: number
+    message?: string
+    status?: string
+  }
 }
 
-export interface CreateAudienceRequestParams {
+export interface CreateAudienceJSON {
   advertiserId: string
   audienceName: string
   description?: string
@@ -54,19 +59,10 @@ export interface DV360EditCustomerMatchResponse {
   ]
 }
 
-export interface DV360ErrorResponse {
-  error?: {
-    code?: number
-    message?: string
-    status?: string
-  }
-}
-
-export type DV360AudienceResponse = DV360Audience & DV360ErrorResponse
-
-export interface DV360ListAudiencesResponse extends DV360ErrorResponse {
-  firstPartyAndPartnerAudiences?: DV360Audience[]
+export interface DV360ListAudiencesResponse {
+  firstPartyAndPartnerAudiences?: DV360AudienceResponse[]
   nextPageToken?: string
+  error?: DV360AudienceResponse['error']
 }
 
 export interface _CreateAudienceInput {

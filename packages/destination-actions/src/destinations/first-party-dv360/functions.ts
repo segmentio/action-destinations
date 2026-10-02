@@ -11,12 +11,10 @@ import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
 import {
-  CreateAudienceRequestParams,
+  CreateAudienceJSON,
   CreateAudienceResult,
-  DV360Audience,
   DV360AudienceResponse,
   DV360EditCustomerMatchResponse,
-  DV360ErrorResponse,
   DV360ListAudiencesResponse,
   GetAudienceByNameParams,
   GetAudienceParams
@@ -78,15 +76,15 @@ async function sendDV360Request<T>(
   }
 }
 
-function describeError(response: ModifiedResponse<DV360ErrorResponse>): string {
+function describeError(response: ModifiedResponse<{ error?: DV360AudienceResponse['error'] }>): string {
   return response.data?.error?.message ?? `HTTP ${response.status}`
 }
 
-function describeMissingAudienceId(response: ModifiedResponse<DV360ErrorResponse>): string {
+function describeMissingAudienceId(response: ModifiedResponse<DV360AudienceResponse>): string {
   return response.data?.error?.message ?? 'the response did not include an audience ID'
 }
 
-export async function getAudience(request: RequestClient, params: GetAudienceParams): Promise<DV360Audience> {
+export async function getAudience(request: RequestClient, params: GetAudienceParams): Promise<DV360AudienceResponse> {
   const { advertiserId, audienceId, token, features, statsContext } = params
 
   const version = getApiVersion(features, statsContext)
@@ -121,13 +119,13 @@ export async function getAudience(request: RequestClient, params: GetAudiencePar
 export async function getAudienceByName(
   request: RequestClient,
   params: GetAudienceByNameParams
-): Promise<DV360Audience | undefined> {
+): Promise<DV360AudienceResponse | undefined> {
   const { advertiserId, audienceName, token, features, statsContext } = params
 
   const version = getApiVersion(features, statsContext)
   const filter = encodeURIComponent(`displayName:"${audienceName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`)
   let pageToken: string | undefined
-  const matches: DV360Audience[] = []
+  const matches: DV360AudienceResponse[] = []
 
   for (let page = 0; page < LIST_MAX_PAGES; page++) {
     const endpoint = `${getAudienceEndpoint(version, advertiserId)}&filter=${filter}${
@@ -183,7 +181,7 @@ export async function getAudienceByName(
 
 export async function createAudience(
   request: RequestClient,
-  params: CreateAudienceRequestParams
+  params: CreateAudienceJSON
 ): Promise<CreateAudienceResult> {
   const {
     advertiserId,

@@ -1,7 +1,7 @@
 import { RequestClient, ErrorCodes, Features, IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { createAudience, getAudience } from '../functions'
-import type { CreateAudienceResult, DV360Audience } from '../types'
+import type { CreateAudienceResult, DV360AudienceResponse } from '../types'
 import { CONTACT_INFO, DEVICE_ID } from './constants'
 import type { RetlOnMappingSaveInputs } from './generated-types'
 
@@ -128,7 +128,7 @@ export async function performHook(
       }
     }
 
-    let audience: DV360Audience
+    let audience: DV360AudienceResponse
 
     try {
       audience = await getAudience(request, {

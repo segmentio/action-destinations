@@ -38,7 +38,7 @@ import {
   CountryCode,
   PhoneOptions,
   MobileDeviceIdList,
-  EditCustomerMatchMembersRequest,
+  EditCustomerMatchMembersJSON,
   EditCustomerMatchMembersResponse,
   HookOutputs
 } from './types'
@@ -391,7 +391,7 @@ export function buildJSON(
   members: Member[],
   isAdd: boolean,
   consent?: Consent
-): EditCustomerMatchMembersRequest {
+): EditCustomerMatchMembersJSON {
   const consentJSON = consent && Object.keys(consent).length > 0 ? { consent } : {}
 
   if (audienceType === CONTACT_INFO) {

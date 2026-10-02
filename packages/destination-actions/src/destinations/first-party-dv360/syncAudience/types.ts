@@ -40,7 +40,7 @@ type ExactlyOne<T> = {
 
 // Display & Video 360 rejects a request carrying more than one list: "An edit customer match
 // request can either add or remove customers. It cannot do both."
-export type EditCustomerMatchMembersRequest = { advertiserId: string } & ExactlyOne<{
+export type EditCustomerMatchMembersJSON ={ advertiserId: string } & ExactlyOne<{
   addedContactInfoList: ContactInfoList
   removedContactInfoList: ContactInfoList
   addedMobileDeviceIdList: MobileDeviceIdList
