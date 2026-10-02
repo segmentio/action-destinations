@@ -259,6 +259,8 @@ export const retlHookInputFields: ActionHookDefinition<
     description: 'The display name of the audience to create in Display & Video 360.',
     depends_on: CREATE_OPERATION
   },
+  // Required for both operations, but not marked required: required hook inputs currently break the
+  // Engage mapping flow (a platform / app UI bug). validateAudienceInputs enforces it instead.
   audienceType: {
     type: 'string',
     label: AUDIENCE_TYPE_LABEL,
