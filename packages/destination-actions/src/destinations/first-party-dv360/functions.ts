@@ -14,6 +14,7 @@ import {
   CreateAudienceJSON,
   CreateAudienceResult,
   AudienceResponse,
+  DV360Error,
   EditCustomerMatchResponse,
   ListAudiencesResponse,
   GetAudienceByNameParams,
@@ -76,7 +77,7 @@ async function sendDV360Request<T>(
   }
 }
 
-function describeError(response: ModifiedResponse<{ error?: AudienceResponse['error'] }>): string {
+function describeError(response: ModifiedResponse<{ error?: DV360Error }>): string {
   return response.data?.error?.message ?? `HTTP ${response.status}`
 }
 
