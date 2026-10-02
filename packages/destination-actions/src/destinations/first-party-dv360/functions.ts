@@ -13,9 +13,9 @@ import { processHashing } from '../../lib/hashing-utils'
 import {
   CreateAudienceJSON,
   CreateAudienceResult,
-  DV360AudienceResponse,
-  DV360EditCustomerMatchResponse,
-  DV360ListAudiencesResponse,
+  AudienceResponse,
+  EditCustomerMatchResponse,
+  ListAudiencesResponse,
   GetAudienceByNameParams,
   GetAudienceParams
 } from './types'
@@ -76,21 +76,21 @@ async function sendDV360Request<T>(
   }
 }
 
-function describeError(response: ModifiedResponse<{ error?: DV360AudienceResponse['error'] }>): string {
+function describeError(response: ModifiedResponse<{ error?: AudienceResponse['error'] }>): string {
   return response.data?.error?.message ?? `HTTP ${response.status}`
 }
 
-function describeMissingAudienceId(response: ModifiedResponse<DV360AudienceResponse>): string {
+function describeMissingAudienceId(response: ModifiedResponse<AudienceResponse>): string {
   return response.data?.error?.message ?? 'the response did not include an audience ID'
 }
 
-export async function getAudience(request: RequestClient, params: GetAudienceParams): Promise<DV360AudienceResponse> {
+export async function getAudience(request: RequestClient, params: GetAudienceParams): Promise<AudienceResponse> {
   const { advertiserId, audienceId, token, features, statsContext } = params
 
   const version = getApiVersion(features, statsContext)
   const endpoint = getAudienceEndpoint(version, advertiserId, audienceId)
 
-  const response = await sendDV360Request<DV360AudienceResponse>(
+  const response = await sendDV360Request<AudienceResponse>(
     request,
     endpoint,
     { method: 'GET', headers: authHeaders(token) },
@@ -119,20 +119,20 @@ export async function getAudience(request: RequestClient, params: GetAudiencePar
 export async function getAudienceByName(
   request: RequestClient,
   params: GetAudienceByNameParams
-): Promise<DV360AudienceResponse | undefined> {
+): Promise<AudienceResponse | undefined> {
   const { advertiserId, audienceName, token, features, statsContext } = params
 
   const version = getApiVersion(features, statsContext)
   const filter = encodeURIComponent(`displayName:"${audienceName.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`)
   let pageToken: string | undefined
-  const matches: DV360AudienceResponse[] = []
+  const matches: AudienceResponse[] = []
 
   for (let page = 0; page < LIST_MAX_PAGES; page++) {
     const endpoint = `${getAudienceEndpoint(version, advertiserId)}&filter=${filter}${
       pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''
     }`
 
-    const response = await sendDV360Request<DV360ListAudiencesResponse>(
+    const response = await sendDV360Request<ListAudiencesResponse>(
       request,
       endpoint,
       { method: 'GET', headers: authHeaders(token) },
@@ -198,7 +198,7 @@ export async function createAudience(
   const version = getApiVersion(features, statsContext)
   const endpoint = getAudienceEndpoint(version, advertiserId)
 
-  const response = await sendDV360Request<DV360AudienceResponse>(
+  const response = await sendDV360Request<AudienceResponse>(
     request,
     endpoint,
     {
@@ -308,7 +308,7 @@ export async function editDeviceMobileIds(
     ...(operation === 'add' ? { addedMobileDeviceIdList: mobileDeviceIdList } : {}),
     ...(operation === 'remove' ? { removedMobileDeviceIdList: mobileDeviceIdList } : {})
   })
-  const response = await request<DV360EditCustomerMatchResponse>(endpoint, {
+  const response = await request<EditCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8'
@@ -388,7 +388,7 @@ export async function editContactInfo(
   const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
   const version = getApiVersion(features, statsContext)
   const endpoint = getEditCustomerMatchMembersEndpoint(version, audienceId)
-  const response = await request<DV360EditCustomerMatchResponse>(endpoint, {
+  const response = await request<EditCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: requestPayload

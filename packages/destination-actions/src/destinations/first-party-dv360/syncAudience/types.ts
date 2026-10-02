@@ -47,15 +47,6 @@ export type EditCustomerMatchMembersJSON ={ advertiserId: string } & ExactlyOne<
   removedMobileDeviceIdList: MobileDeviceIdList
 }>
 
-export interface EditCustomerMatchMembersResponse {
-  firstPartyAndPartnerAudienceId?: string
-  error?: {
-    code?: number
-    message?: string
-    status?: string
-  }
-}
-
 export interface HookOutputs {
   retlOnMappingSave?: {
     outputs?: {

@@ -1,7 +1,7 @@
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 
-export interface DV360AudienceResponse {
+export interface AudienceResponse {
   firstPartyAndPartnerAudienceId?: string
   displayName?: string
   audienceType?: string
@@ -48,21 +48,15 @@ export interface GetAudienceByNameParams {
   statsContext?: StatsContext
 }
 
-export interface DV360EditCustomerMatchResponse {
+export interface EditCustomerMatchResponse {
   firstPartyAndPartnerAudienceId?: string
-  error: [
-    {
-      code: string
-      message: string
-      status: string
-    }
-  ]
+  error?: AudienceResponse['error']
 }
 
-export interface DV360ListAudiencesResponse {
-  firstPartyAndPartnerAudiences?: DV360AudienceResponse[]
+export interface ListAudiencesResponse {
+  firstPartyAndPartnerAudiences?: AudienceResponse[]
   nextPageToken?: string
-  error?: DV360AudienceResponse['error']
+  error?: AudienceResponse['error']
 }
 
 export interface _CreateAudienceInput {

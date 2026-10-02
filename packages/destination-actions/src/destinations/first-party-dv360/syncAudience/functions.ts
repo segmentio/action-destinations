@@ -39,9 +39,9 @@ import {
   PhoneOptions,
   MobileDeviceIdList,
   EditCustomerMatchMembersJSON,
-  EditCustomerMatchMembersResponse,
   HookOutputs
 } from './types'
+import type { EditCustomerMatchResponse } from '../types'
 
 export async function send(
   request: RequestClient,
@@ -52,7 +52,7 @@ export async function send(
   hookOutputs?: HookOutputs,
   statsContext?: StatsContext,
   features?: Features
-): Promise<MultiStatusResponse | ModifiedResponse<EditCustomerMatchMembersResponse>> {
+): Promise<MultiStatusResponse | ModifiedResponse<EditCustomerMatchResponse>> {
   const msResponse = new MultiStatusResponse()
 
   const { audienceDetails, audienceErrorMessage } = resolveAudienceDetails(payloads[0], audienceSettings, hookOutputs)
@@ -115,10 +115,10 @@ export async function send(
     const sentFor = (index: number) =>
       buildJSON(advertiserId, audienceType, membersByIndex[index], isAdd, consent) as unknown as JSONLikeObject
 
-    let response: ModifiedResponse<EditCustomerMatchMembersResponse>
+    let response: ModifiedResponse<EditCustomerMatchResponse>
 
     try {
-      response = await request<EditCustomerMatchMembersResponse>(endpoint, {
+      response = await request<EditCustomerMatchResponse>(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
         json: buildJSON(advertiserId, audienceType, members, isAdd, consent),
