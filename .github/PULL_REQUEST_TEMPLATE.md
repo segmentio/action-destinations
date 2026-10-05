@@ -17,13 +17,6 @@ _A summary of your pull request, including the what change you're making and why
      acceptable and will be flagged in review. Segmenter-only sections may be marked N/A by
      external/partner contributors. -->
 
-### Test Plan
-
-<!-- Environment(s) used and tests run / metrics verified. Segmenter changes must be tested in
-     staging first, with enough bake time for end-to-end tests to complete. Cover flag/gate states:
-     on, off, and partial rollout. For high-volume destinations (Facebook, Google, Snapchat), use a
-     feature flag to roll out safely. -->
-
 ### Deployment Plan
 
 <!-- How/where the change is deployed, and any linked PRs, flags, gates, or cob vars that must land
@@ -58,7 +51,6 @@ _A summary of your pull request, including the what change you're making and why
 
 ### Change Control Checklist
 
-- [ ] **Test Plan** documented — staging-first, sufficient bake time for E2E, flag/gate on/off/partial covered
 - [ ] **Deployment Plan** documented — steps, environments, and any linked PRs / flags / gates / cob vars
 - [ ] **Verification Plan** documented — dashboards / metrics / prod tests (aim for ~3 independent signals)
 - [ ] **Rollback Plan** documented — executable by any teammate
