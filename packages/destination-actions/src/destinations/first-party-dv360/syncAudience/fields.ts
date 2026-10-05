@@ -227,7 +227,7 @@ export const retlHookInputFields: ActionHookDefinition<
     type: 'string',
     label: 'Create or Connect Audience',
     description:
-      'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if exactly one audience with that name exists and its settings match. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).',
+      'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if that audience has the same Audience Type and Membership Duration Days. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).',
     choices: [
       { label: 'Create new audience', value: 'create' },
       { label: 'Create new audience, or connect to an existing one with the same name', value: 'create_or_connect' },
@@ -280,7 +280,7 @@ export const retlHookInputFields: ActionHookDefinition<
     type: 'string',
     label: 'App ID',
     description:
-      'The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences.',
+      'The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences. Ignored when connecting to an existing audience, including one with the same name.',
     depends_on: CREATE_DEVICE_ID_OPERATION
   },
   existingAudienceId: {

@@ -64,7 +64,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       default: 'create',
       required: false,
       description:
-        'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if exactly one audience with that name exists and its settings match. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).'
+        'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if that audience has the same Audience Type and Membership Duration Days. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).'
     },
     advertiserId: {
       type: 'string',
@@ -112,7 +112,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'App ID',
       required: false,
       description:
-        'The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).',
+        'The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience, including one with the same name (ignored).',
       depends_on: CREATE_DEVICE_ID_OPERATION
     },
     membershipDurationDays: {
