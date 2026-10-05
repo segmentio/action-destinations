@@ -136,6 +136,7 @@ export type {
   E2EDestinationConfig,
   E2EAudienceDestinationConfig,
   E2EAudienceConfig,
+  E2ECreateAudienceErrorExpectation,
   E2ETeardownContext,
   E2ETeardownAudienceContext,
   E2ESettingsSecretValue,

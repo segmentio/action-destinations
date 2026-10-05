@@ -263,7 +263,6 @@ async function createAudience(
     }
 
     if (existingId) {
-      const existingAppId = trim(existing.appId)
       const mismatches = [
         ...(existing.audienceType !== audienceType
           ? [`Audience Type is ${existing.audienceType} (requested ${audienceType})`]
@@ -274,9 +273,6 @@ async function createAudience(
                 existing.membershipDurationDays ?? 'not set'
               } (requested ${membershipDurationDays})`
             ]
-          : []),
-        ...(audienceType === 'CUSTOMER_MATCH_DEVICE_ID' && existingAppId !== appId
-          ? [`App ID is ${existingAppId ?? 'not set'} (requested ${appId ?? 'not set'})`]
           : [])
       ]
 

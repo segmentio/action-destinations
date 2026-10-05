@@ -324,6 +324,22 @@ export interface E2EAudienceConfig {
   getAudience: boolean
   /** When a function, the runner calls it after all tests to clean up the audience. Set to false to skip. */
   teardown: false | ((context: E2ETeardownAudienceContext) => Promise<void>)
+  /**
+   * When set, createAudience is expected to throw. The step passes if it throws as described, and
+   * the run carries on; the audience gets no id, so getAudience, teardown and any fixture selecting
+   * it have nothing to run against. Declare it after the audiences the run needs, since a create
+   * which fails unexpectedly stops the run.
+   */
+  expectCreateError?: E2ECreateAudienceErrorExpectation
+}
+
+export interface E2ECreateAudienceErrorExpectation {
+  /** The thrown error's name, e.g. 'IntegrationError'. */
+  errorType?: string
+  /** A substring of the thrown error's message, since it may carry ids which change between runs. */
+  errorMessageContains?: string
+  /** The status carried by the thrown error. */
+  httpStatus?: number
 }
 
 export interface E2EAudienceDestinationConfig extends E2EDestinationConfig {

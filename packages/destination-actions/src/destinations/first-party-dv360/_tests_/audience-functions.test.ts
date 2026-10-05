@@ -472,8 +472,8 @@ describe('createOrConnectAudience', () => {
       )
     })
 
-    it('connects to a device ID audience whose App ID matches, ignoring whitespace', async () => {
-      mockNameExists([firstParty({ audienceType: DEVICE_ID, appId: ' com.example.app ' })])
+    it('connects to a device ID audience whatever its App ID', async () => {
+      mockNameExists([firstParty({ audienceType: DEVICE_ID })])
 
       await expect(
         createOrConnectAudience(
@@ -488,34 +488,6 @@ describe('createOrConnectAudience', () => {
         appId: 'com.example.app',
         outcome: 'reconnected'
       })
-    })
-
-    it('connects to a device ID audience when neither side has an App ID', async () => {
-      mockNameExists([firstParty({ audienceType: DEVICE_ID })])
-
-      await expect(
-        createOrConnectAudience(request, reconnectInputs({ audienceType: DEVICE_ID }), options)
-      ).resolves.toMatchObject({ audienceId: 'existing-id', appId: undefined, outcome: 'reconnected' })
-    })
-
-    it('errors when a device ID audience has a different App ID', async () => {
-      mockNameExists([firstParty({ audienceType: DEVICE_ID, appId: 'com.other.app' })])
-
-      await expect(
-        createOrConnectAudience(
-          request,
-          reconnectInputs({ audienceType: DEVICE_ID, appId: 'com.example.app' }),
-          options
-        )
-      ).rejects.toThrowError('but its settings differ: App ID is com.other.app (requested com.example.app).')
-    })
-
-    it('ignores the App ID for contact info audiences', async () => {
-      mockNameExists([firstParty({ appId: 'com.other.app' })])
-
-      await expect(
-        createOrConnectAudience(request, reconnectInputs({ appId: 'com.example.app' }), options)
-      ).resolves.toMatchObject({ audienceId: 'existing-id', outcome: 'reconnected' })
     })
 
     it('lists every setting which differs', async () => {
