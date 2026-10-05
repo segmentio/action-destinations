@@ -63,7 +63,7 @@ _A summary of your pull request, including the what change you're making and why
 
 See the [Change Release Safety guidelines](https://docs.google.com/document/d/1N2MtcLtiI7MK_GgwEe1tXtDYrMZnbfJCVyFvVoof-Ss/edit?tab=t.0#heading=h.dyt1m85tc50l).
 
-- [ ] Required code review approvals obtained before merge
+- [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
 - [ ] AI deep review (Claude and Copilot) run on this PR, and Change Release Safety findings addressed
 - [ ] Any additional approvals required by the guidelines obtained (or N/A)
 
