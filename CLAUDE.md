@@ -185,6 +185,7 @@ To override automatic HTTP error handling, set `throwHttpErrors: false` on the r
 
 - Implement `performBatch` for high-volume destinations
 - Use appropriate batch keys with low cardinality to avoid inefficient batching
+- Test various batch sizes and edge cases
 
 #### batch_size vs batch_bytes
 
@@ -240,13 +241,13 @@ fields: {
 
 - Never expose or log sensitive information like auth tokens or PII
 - Use the `processHashing` utility for PII hashing rather than direct crypto calls
+- Mark sensitive fields with `type: 'password'`
 
 ### Performance
 
 - Be mindful of API rate limits when making external requests
 - Optimize code in action perform methods for high-volume event processing
-- Gate risky changes to critical high-volume destinations (e.g., Facebook, Google, Snapchat)
-  behind a feature flag — see **Change Release Safety** for the rollout policy
+- For critical high-volume destinations (e.g., Facebook, Google, Snapchat), use feature flags to safely roll out changes
 
 ## Development Workflow
 
@@ -331,19 +332,15 @@ expect(responses[0].status).toBe(200)
 
 ### Breaking Changes Prevention
 
-Breaking-change and customer-impact analysis, and feature-flag rollout for high-volume
-destinations, are reviewed under **Change Release Safety** below (items 5 and 6) — that
-is the single source of truth. When reviewing the diff specifically, flag:
-
-- Adding new required fields to existing action definitions
-- Changing field types in ways that could break existing integrations
-- Altering behavior of existing functionality customers rely on
+- Don't add new required fields to existing action definitions
+- Don't change field types in ways that could break existing integrations
+- Don't alter behavior of existing functionality customers rely on
+- For high-volume destinations, use feature flags for safe rollout
 
 ### PR Organization
 
 - Split changes to multiple destinations into separate PRs
-- Ensure PR descriptions clearly explain the changes (testing is covered by the Change
-  Release Safety Test Plan)
+- Ensure PR descriptions clearly explain changes and testing performed
 
 ### CI Checks
 
@@ -364,12 +361,13 @@ this change (e.g. the exact dashboards, metrics, or tests to watch). Reject plac
 answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards",
 "Revert PR and push", or "N/A".
 
-Each item corresponds to a checkbox in the PR template's Change Control Checklist
+Each item maps 1:1 to a checkbox in the PR template
 (`.github/PULL_REQUEST_TEMPLATE.md`).
 
 1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging
    first** with sufficient bake time for end-to-end tests to complete; covers flag/gate
-   states (on, off, and partial rollout).
+   states (on, off, and partial rollout). For high-volume destinations (e.g. Facebook,
+   Google, Snapchat), confirm a feature flag is used to roll out safely.
 2. **Deployment Plan** — deploy steps, environments, and any linked PRs / flags / gates /
    cob vars that must land or change together.
 3. **Verification Plan** — how the change is verified in production (dashboard links,
@@ -378,9 +376,7 @@ Each item corresponds to a checkbox in the PR template's Change Control Checklis
 4. **Rollback Plan** — clear steps any teammate can execute quickly; risky rollbacks
    should be tested in staging.
 5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature
-   flag/gate behavior and how it protects the change). For critical high-volume
-   destinations (e.g. Facebook, Google, Snapchat), confirm risky changes are gated behind a
-   flag that defaults to off.
+   flag/gate behavior and how it protects the change).
 6. **Breaking Change & Customer Impact** — whether the change alters behavior customers
    depend on (schema/field changes, new required fields, removed/renamed fields, changed
    defaults, API or version bumps, altered mapping output, auth or rate-limit changes,
@@ -397,9 +393,12 @@ Approval & process expectations (flag anything that looks bypassed):
    different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
 8. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
    changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
-   execution require at least one approval; pairing is mandatory for non-standard operational
-   work that cannot be staged and reviewed (script execution and DB writes/queries).
-9. **Director involvement / approval** for major/risky changes — skipping (or approving the
-   skip of) testing in staging for hotfixes, restoring DBs from backup, operations that could
-   cause data loss, COGS-driven infra changes, and any Statuspage maintenance window
-   (contractual customer-notice requirements apply).
+   execution require at least one approval; pairing is mandatory for script execution and
+   DB writes.
+9. **Pair programming** for non-standard operational work that cannot be staged and
+   reviewed (scripts, database queries).
+10. **Director involvement** for major/risky changes — skipping staging for hotfixes,
+   restoring DBs from backup, operations that could cause data loss, COGS-driven infra
+   changes, and maintenance windows.
+11. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
+    maintenance window (contractual customer-notice requirements apply).

@@ -53,12 +53,6 @@ _A summary of your pull request, including the what change you're making and why
 
 ### Change Control Checklist
 
-- [ ] **Test Plan** documented — staging-first, sufficient bake time for E2E, flag/gate on/off/partial covered
-- [ ] **Deployment Plan** documented — steps, environments, and any linked PRs / flags / gates / cob vars
-- [ ] **Verification Plan** documented — dashboards / metrics / prod tests (aim for ~3 independent signals)
-- [ ] **Rollback Plan** documented — executable by any teammate
-- [ ] **Risk Mitigation** described — what reduces the risk of this change
-- [ ] **Breaking change & customer impact** analyzed — whether behavior customers depend on changes, who is affected and how, and the backward-compatibility / migration path (or explicitly not a breaking change after analysis)
 - [ ] **Feature flag / gate** — risky or high-volume changes gated behind a flag that defaults to **off**; on / off / partial-rollout states tested; rollout & flag-cleanup plan documented (or N/A)
 - [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
 - [ ] **AI deep review** completed — Claude deep review and Copilot code review run on this PR, and their Change Release Safety findings addressed or explicitly resolved
