@@ -566,6 +566,37 @@ describe('Microsoft Bing CAPI (Actions) - sendEvent (updated)', () => {
     expect(scope.isDone()).toBe(true)
   })
 
+  test.each([
+    ['not provided', undefined],
+    ['explicitly false', { [ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG]: false }]
+  ])(
+    'batch: root continueOnValidationError omitted when feature flag is %s, kept at event level',
+    async (_, features) => {
+      const events = [buildTrackEvent({ messageId: 'm1' }), buildTrackEvent({ messageId: 'm2' })]
+      const scope = nock('https://capi.uet.microsoft.com')
+        .post(`/v1/${settings.UetTag}/events`, (body: any) => {
+          expect(body.continueOnValidationError).toBeUndefined()
+          expect(body.data).toHaveLength(2)
+          body.data.forEach((item: any) => expect(item.continueOnValidationError).toBe(true))
+          return true
+        })
+        .reply(200, {})
+      const responses: any = await testDestination.executeBatch('sendEvent', {
+        events,
+        settings,
+        features,
+        mapping: {
+          enable_batching: true,
+          data: { eventType: 'custom' },
+          userData: { anonymousId: 'anon-1' },
+          timestamp: { '@path': '$.timestamp' }
+        }
+      })
+      expect(responses.length).toBe(2)
+      expect(scope.isDone()).toBe(true)
+    }
+  )
+
   test('single event: root continueOnValidationError omitted even when feature flag is on', async () => {
     const event = buildTrackEvent()
     const scope = nock('https://capi.uet.microsoft.com')
