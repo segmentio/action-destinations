@@ -248,8 +248,9 @@ export const retlHookInputFields: ActionHookDefinition<
       'The display name of the audience to create in Display & Video 360. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists.',
     depends_on: CREATE_OPERATION
   },
-  // Required for both operations, but not marked required: required hook inputs currently break the
-  // Engage mapping flow (a platform / app UI bug). validateAudienceInputs enforces it instead.
+  // Required for every operation, but, like the other hook inputs, not marked required: required hook
+  // inputs currently break the Engage mapping flow (a platform / app UI bug). validateAudienceInputs
+  // enforces it instead.
   audienceType: {
     type: 'string',
     label: AUDIENCE_TYPE_LABEL,

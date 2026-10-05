@@ -116,8 +116,8 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
     )
   })
 
-  // performHook is the only gate on these: the hook inputs are deliberately not marked
-  // required, so that a missing value fails at mapping save with a message naming it
+  // validateAudienceInputs, called via performHook, is the only gate on these: the hook inputs are
+  // deliberately not marked required, so that a missing value fails at mapping save with a message naming it
   // rather than blocking the mapping form. The full validation rules are tested against
   // validateAudienceInputs in audience-functions.test.ts; this proves the hook reports them.
   it.each(['create', 'existing'])('returns validation errors as a mapping save error (%s)', async (operation) => {

@@ -105,7 +105,7 @@ export function validateAudienceInputs(inputs: AudienceInputs): ValidatedAudienc
 
   if (operation === 'existing') {
     if (!existingAudienceId) {
-      return { error: 'Missing audience ID value', reason: 'missing-audience-id' }
+      return { error: 'Missing Existing Audience ID value', reason: 'missing-audience-id' }
     }
     return { operation, advertiserId, existingAudienceId, audienceType }
   }
@@ -338,7 +338,9 @@ export async function getAudienceByName(
 
     if (!response.ok) {
       throw audienceError(
-        `Failed to look up existing audience "${audienceName}" in Display & Video 360: ${describeError(response)}`,
+        `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not look it up: ${describeError(
+          response
+        )}`,
         ErrorCodes.GET_AUDIENCE_FAILED,
         response.status,
         'name-exists-lookup-failed',

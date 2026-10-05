@@ -96,7 +96,7 @@ describe('validateAudienceInputs', () => {
 
   it('requires an audience ID when connecting to an existing audience', () => {
     expect(validateAudienceInputs(existingInputs({ existingAudienceId: '  ' }))).toEqual({
-      error: 'Missing audience ID value',
+      error: 'Missing Existing Audience ID value',
       reason: 'missing-audience-id'
     })
   })
@@ -357,7 +357,7 @@ describe('getAudienceByName', () => {
       .reply(403, { error: { code: 403, message: 'The caller does not have permission', status: 'PERMISSION_DENIED' } })
 
     await expect(getAudienceByName(request, params())).rejects.toMatchObject({
-      message: `Failed to look up existing audience "${AUDIENCE_NAME}" in Display & Video 360: The caller does not have permission`,
+      message: `An audience named "${AUDIENCE_NAME}" already exists in Display & Video 360, but Segment could not look it up: The caller does not have permission`,
       code: 'GET_AUDIENCE_FAILED',
       status: 403
     })

@@ -88,7 +88,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Existing Audience ID',
       required: false,
       description:
-        'The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID and create a new audience even if it is populated.',
+        'The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID.',
       depends_on: EXISTING_OPERATION
     },
     audienceDisplayName: {

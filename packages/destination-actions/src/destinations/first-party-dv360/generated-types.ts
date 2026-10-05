@@ -17,7 +17,7 @@ export interface AudienceSettings {
    */
   audienceType: string
   /**
-   * The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID and create a new audience even if it is populated.
+   * The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID.
    */
   existingAudienceId?: string
   /**
