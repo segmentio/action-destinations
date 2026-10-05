@@ -51,6 +51,7 @@ _A summary of your pull request, including the what change you're making and why
 
 ### Change Control Checklist
 
+- [ ] **Test Plan** documented — staging-first, sufficient bake time for E2E, flag/gate on/off/partial covered
 - [ ] **Deployment Plan** documented — steps, environments, and any linked PRs / flags / gates / cob vars
 - [ ] **Verification Plan** documented — dashboards / metrics / prod tests (aim for ~3 independent signals)
 - [ ] **Rollback Plan** documented — executable by any teammate
