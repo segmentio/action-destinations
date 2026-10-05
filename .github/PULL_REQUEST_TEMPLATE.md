@@ -75,7 +75,7 @@ _Please ensure sensitive data is properly protected in your integration._
 
 ## Feature flag / Rollout
 
-_[Segmenters] Risky or high-volume changes must be gated behind a feature flag. Confirm the details below. External/partner contributors can skip this section; Segment will handle any flagging and rollout._
+_Risky or high-volume changes must be gated behind a feature flag. Confirm the details below. External/partner contributors: work with your Segment engineer contact to decide whether a flag is needed and to plan the rollout._
 
 - [ ] This change is **not** gated behind a feature flag (N/A)
 - [ ] Flag name: `<flag-name>`
