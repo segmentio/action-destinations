@@ -82,7 +82,6 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
 
     const outputReference = gatewaySupport ? normalizeCoordinate(payload.outputReference) : undefined
     const originHint = gatewaySupport ? normalizeCoordinate(payload.originHint) : undefined
-    const originAppVersion = gatewaySupport ? normalizeCoordinate(payload.originAppVersion) : undefined
 
     // The event's own version: the App Version Property setting, then the App Version field. In
     // gateway mode a blank value counts as none, like every other coordinate; the legacy path keeps
@@ -93,10 +92,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
     const itemJSON: EventSchemaBody = {
       appName: appName ?? (pageUrl ? pageUrl.split('/')[2] : 'unnamed Segment app'),
       appVersion: gatewaySupport
-        ? resolveAppVersion(
-            originHint,
-            originAppVersion ?? versionCoordinate(propertyVersion) ?? versionCoordinate(payload.appVersion)
-          )
+        ? resolveAppVersion(originHint, versionCoordinate(propertyVersion) ?? versionCoordinate(payload.appVersion))
         : (legacyVersion() as string | undefined) ?? 'unversioned',
       libVersion: client.libVersion,
       libPlatform: client.libPlatform,
@@ -142,14 +138,14 @@ function normalizeCoordinate(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined
 }
 
-// Gateway mode. Segment forwards the event it received, so the event's own version is the default
-// originAppVersion, and an explicit Origin App Version overrides it. With an origin hint and no
-// origin app version the version is null; without a hint and none it is 'unversioned'.
-function resolveAppVersion(originHint: string | undefined, originAppVersion: string | undefined): string | null {
+// Gateway mode. Segment forwards the event it received, so the event's own version (the App Version
+// Property setting, then the App Version field) is the source's version. With an origin hint and no
+// version the version is null; without a hint and none it is 'unversioned'.
+function resolveAppVersion(originHint: string | undefined, version: string | undefined): string | null {
   if (originHint) {
-    return originAppVersion ?? null
+    return version ?? null
   }
-  return originAppVersion ?? 'unversioned'
+  return version ?? 'unversioned'
 }
 
 // The App Version Property setting can name a property of any type: send a number or boolean as

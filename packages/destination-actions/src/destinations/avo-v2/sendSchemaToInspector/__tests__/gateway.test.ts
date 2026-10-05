@@ -81,6 +81,24 @@ const checkpointFixtures = [
 // fixtureEvent() carries context.app.version 3.1.0 and no App Version Property is set.
 const FIXTURE_VERSIONS = { checkpointDefault: '3.1.0', eventVersion: '3.1.0' }
 
+// The shared vectors' originAppVersion is the version a sender is given. This destination takes it
+// through the App Version field (the event's own version, which App Version Property overrides). A
+// vector without one (absent, null or blank) leaves the default mapping in place.
+const isProvided = (value: unknown) =>
+  value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '')
+
+function vectorMapping(input: Record<string, unknown>): Record<string, unknown> {
+  const { originAppVersion, ...coordinates } = input
+  return isProvided(originAppVersion) ? { ...coordinates, appVersion: originAppVersion } : coordinates
+}
+
+// A provided version is the one sent, so the App Version Property setting is dropped for it.
+function vectorSettings(input: Record<string, unknown>, settings: Record<string, unknown>) {
+  if (!isProvided(input.originAppVersion)) return settings
+  const { appVersionPropertyName: _ignored, ...rest } = settings
+  return rest
+}
+
 const TOKENS: Record<string, 'checkpointDefault' | 'eventVersion'> = {
   '<CHECKPOINT_DEFAULT>': 'checkpointDefault',
   '<EVENT_VERSION_OR_NULL>': 'eventVersion'
@@ -101,7 +119,7 @@ function expectCoordinates(
       expect(Object.prototype.hasOwnProperty.call(body, key)).toBe(false)
     }
   }
-  // The mapping field name never leaks onto the wire; it only sets appVersion.
+  // The version is only ever sent as appVersion, never under the shared vectors' input name.
   expect(body).not.toHaveProperty('originAppVersion')
 }
 
@@ -141,8 +159,7 @@ describe('Avo.sendSchemaToInspector with Gateway Support off', () => {
   ]
   const allCoordinates = {
     outputReference: 'meta-x7k2q',
-    originHint: 'android',
-    originAppVersion: '4.2.0'
+    originHint: 'android'
   }
 
   it('the runtime does not fill in the setting default for an instance saved without it', async () => {
@@ -235,7 +252,12 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
       describe(`shared coordinate vectors (${mode}, checkpoint default from ${fixture.name})`, () => {
         for (const { name, input, expected } of vectors.coordinateCases) {
           it(name, async () => {
-            const { bodies } = await sendOne(fixture.event(), { ...input }, { ...fixture.settings, ...GATEWAY }, mode)
+            const { bodies } = await sendOne(
+              fixture.event(),
+              vectorMapping(input),
+              vectorSettings(input, { ...fixture.settings, ...GATEWAY }),
+              mode
+            )
 
             expect(bodies).toHaveLength(1)
             expectCoordinates(bodies[0], expected, fixture)
@@ -248,7 +270,7 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     }
   }
 
-  it('the event version standing in for an origin app version is trimmed, with or without a hint', async () => {
+  it('in gateway mode the event version is trimmed, with or without a hint', async () => {
     const padded = fixtureEvent({ context: { app: { name: 'Shop', version: ' 3.1.0 ' } } })
     const withHint = await sendOne(padded, { originHint: 'ios' }, GATEWAY)
     const withoutHint = await sendOne(padded, {}, GATEWAY)
@@ -295,14 +317,32 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     ])
   })
 
-  it('an explicit Origin App Version wins over the App Version Property setting and the App Version field', async () => {
+  it('in gateway mode a blank event version counts as none: null with a hint, unversioned without', async () => {
+    const blank = fixtureEvent({ context: { app: { name: 'Shop', version: '   ' } } })
+    const withHint = await sendOne(blank, { originHint: 'ios' }, GATEWAY)
+    const withoutHint = await sendOne(blank, {}, GATEWAY)
+    // Positive control: with Gateway Support off the blank value is sent as before.
+    const legacy = await sendOne(blank, {}, {})
+    expect([
+      withHint.bodies[0].appVersion,
+      withoutHint.bodies[0].appVersion,
+      legacy.bodies[0].appVersion
+    ]).toStrictEqual([null, 'unversioned', '   '])
+  })
+
+  it('has no Origin App Version field: the version is the App Version Property setting, then the App Version field', async () => {
     const event = fixtureEvent({ properties: { plan: 'pro', build: '88.0' } })
-    const { bodies } = await sendOne(
-      event,
-      { originHint: 'ios', originAppVersion: '7.0.1' },
-      { appVersionPropertyName: 'build', ...GATEWAY }
+    const withProperty = await sendOne(event, { originHint: 'ios' }, { appVersionPropertyName: 'build', ...GATEWAY })
+    const remappedField = await sendOne(
+      fixtureEvent({ properties: { plan: 'pro', app_version: '5.0.1' }, context: {} }),
+      { originHint: 'web', appVersion: { '@path': '$.properties.app_version' } },
+      GATEWAY
     )
-    expect(bodies[0].appVersion).toBe('7.0.1')
+    expect([
+      'originAppVersion' in Destination.actions.sendSchemaToInspector.fields,
+      withProperty.bodies[0].appVersion,
+      remappedField.bodies[0].appVersion
+    ]).toStrictEqual([false, '88.0', '5.0.1'])
   })
 
   it(vectors.propertyCollisionCase.name, async () => {
@@ -319,9 +359,9 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
 
   it('events that differ only in coordinates are sent in one request, each with its own coordinates', async () => {
     const coordinates = [
-      { outputReference: 'meta-x7k2q', originHint: 'android', originAppVersion: '4.2.0' },
-      { originHint: 'ios', originAppVersion: '7.0.1' },
-      { outputReference: 'ga4-p9d3m' }
+      { outputReference: 'meta-x7k2q', originHint: 'android', version: '4.2.0' },
+      { originHint: 'ios', version: '7.0.1' },
+      { outputReference: 'ga4-p9d3m', version: '3.1.0' }
     ]
     const expected = [
       { outputReference: 'meta-x7k2q', originHint: 'android', appVersion: '4.2.0' },
@@ -331,13 +371,12 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
     nock('https://api.avo.app').post(/.*/).times(coordinates.length).reply(200, {})
 
     const responses = await testDestination.testBatchAction('sendSchemaToInspector', {
-      events: coordinates.map((gateway) =>
-        fixtureEvent({ context: { app: { name: 'Shop', version: '3.1.0' }, gateway } })
+      events: coordinates.map(({ version, ...gateway }) =>
+        fixtureEvent({ context: { app: { name: 'Shop', version }, gateway } })
       ),
       mapping: {
         outputReference: { '@path': '$.context.gateway.outputReference' },
-        originHint: { '@path': '$.context.gateway.originHint' },
-        originAppVersion: { '@path': '$.context.gateway.originAppVersion' }
+        originHint: { '@path': '$.context.gateway.originHint' }
       },
       useDefaultMappings: true,
       settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY }
@@ -356,9 +395,15 @@ describe('Avo.sendSchemaToInspector gateway coordinates', () => {
   describe('non-string mapping values', () => {
     // Map each coordinate through a path to an event property holding the untyped value,
     // as a customer mapping such as `$.context.app.build` would.
+    // Each value reaches its field through a path. A provided originAppVersion goes through the App
+    // Version field, as in vectorMapping; one that isn't leaves the default App Version mapping.
     const mapThroughPaths = (input: Record<string, unknown>) => ({
       event: fixtureEvent({ properties: { plan: 'pro', ...input } }),
-      mapping: Object.fromEntries(Object.keys(input).map((key) => [key, { '@path': `$.properties.${key}` }]))
+      mapping: Object.fromEntries(
+        Object.keys(input)
+          .filter((key) => key !== 'originAppVersion' || isProvided(input[key]))
+          .map((key) => [key === 'originAppVersion' ? 'appVersion' : key, { '@path': `$.properties.${key}` }])
+      )
     })
     const hasStructuredValue = (input: Record<string, unknown>) =>
       Object.values(input).some((value) => typeof value === 'object' && value !== null)
@@ -651,7 +696,7 @@ describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
 
   // Web sources send no context.app, so their version has to come from an event property.
   it('tells web sources to point App Version Property at the property carrying the version', () => {
-    const description = Destination.actions.sendSchemaToInspector.fields.originAppVersion.description
+    const description = Destination.actions.sendSchemaToInspector.fields.originHint.description
     expect([
       description.includes('`$.context.app.version`'),
       description.includes('set the App Version Property setting'),
