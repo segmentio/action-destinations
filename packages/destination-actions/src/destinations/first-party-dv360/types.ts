@@ -1,3 +1,4 @@
+import { IntegrationError } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { Features } from '@segment/actions-core/mapping-kit'
 
@@ -41,7 +42,7 @@ export interface AudienceInputs {
 }
 
 export type ValidatedAudienceInputs =
-  | { error: string }
+  | { error: string; reason: string }
   | {
       operation: 'create'
       advertiserId: string
@@ -71,6 +72,11 @@ export interface CreateOrConnectAudienceResult {
   audienceType: string
   appId?: string
   outcome: 'created' | 'reconnected' | 'existing'
+}
+
+export type AudienceError = IntegrationError & {
+  reason: string
+  dv360Status?: number
 }
 
 export interface GetAudienceParams {

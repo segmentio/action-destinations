@@ -9,6 +9,7 @@ import {
 } from '@segment/actions-core'
 import { DV360API, getApiVersion } from './functions'
 import {
+  AudienceError,
   AudienceInputs,
   AudienceResponse,
   CreateAudienceJSON,
@@ -38,7 +39,7 @@ export async function createOrConnectAudience(
 
   const validated = validateAudienceInputs(inputs)
   if ('error' in validated) {
-    statsClient?.incr(`${statsName}.error`, 1, [...tags, 'error:missing-settings'])
+    statsClient?.incr(`${statsName}.error`, 1, [...tags, 'error:missing-settings', `reason:${validated.reason}`])
     throw new IntegrationError(validated.error, 'MISSING_REQUIRED_FIELD', 400)
   }
 
@@ -62,9 +63,25 @@ export async function createOrConnectAudience(
     return result
   } catch (error) {
     const code = error instanceof IntegrationError ? error.code : 'unknown'
-    statsClient?.incr(`${statsName}.error`, 1, [...tags, `error:${code}`])
+    const { reason = 'unknown', dv360Status } = error as Partial<AudienceError>
+    statsClient?.incr(`${statsName}.error`, 1, [
+      ...tags,
+      `error:${code}`,
+      `reason:${reason}`,
+      ...(dv360Status ? [`status:${dv360Status}`] : [])
+    ])
     throw error
   }
+}
+
+function audienceError(
+  message: string,
+  code: string,
+  status: number,
+  reason: string,
+  dv360Status?: number
+): AudienceError {
+  return Object.assign(new IntegrationError(message, code, status), { reason, dv360Status })
 }
 
 export function validateAudienceInputs(inputs: AudienceInputs): ValidatedAudienceInputs {
@@ -77,32 +94,35 @@ export function validateAudienceInputs(inputs: AudienceInputs): ValidatedAudienc
   const existingAudienceId = trim(inputs.existingAudienceId)
 
   if (!advertiserId) {
-    return { error: 'Missing advertiser ID value' }
+    return { error: 'Missing advertiser ID value', reason: 'missing-advertiser-id' }
   }
 
   if (!audienceType) {
-    return { error: 'Missing audience type value' }
+    return { error: 'Missing audience type value', reason: 'missing-audience-type' }
   }
 
   if (operation === 'existing') {
     if (!existingAudienceId) {
-      return { error: 'Missing audience ID value' }
+      return { error: 'Missing audience ID value', reason: 'missing-audience-id' }
     }
     return { operation, advertiserId, existingAudienceId, audienceType }
   }
 
   if (!audienceName) {
-    return { error: 'Missing audience name value' }
+    return { error: 'Missing audience name value', reason: 'missing-audience-name' }
   }
 
   const rawDays = typeof membershipDurationDays === 'string' ? membershipDurationDays.trim() : membershipDurationDays
   if (rawDays === undefined || rawDays === null || rawDays === '') {
-    return { error: 'Missing membership duration days value' }
+    return { error: 'Missing membership duration days value', reason: 'missing-membership-duration' }
   }
 
   const days = Number(rawDays)
   if (!Number.isInteger(days) || days < 1 || days > 540) {
-    return { error: 'Membership duration days must be a whole number greater than 0 and less than or equal to 540' }
+    return {
+      error: 'Membership duration days must be a whole number greater than 0 and less than or equal to 540',
+      reason: 'invalid-membership-duration'
+    }
   }
 
   // DV360 takes membershipDurationDays as an int64, which is a string over JSON.
@@ -134,10 +154,11 @@ async function connectToExistingAudience(
   })
 
   if (audience.audienceType !== audienceType) {
-    throw new IntegrationError(
+    throw audienceError(
       `Could not connect to the existing Display & Video 360 audience with ID "${existingAudienceId}": its type is ${audience.audienceType}, but the Audience Type setting is ${audienceType}. Update the Audience Type setting to match, or create a new audience instead.`,
       ErrorCodes.CREATE_AUDIENCE_FAILED,
-      400
+      400,
+      'existing-type-mismatch'
     )
   }
 
@@ -158,18 +179,22 @@ export async function getAudience(request: RequestClient, params: GetAudiencePar
   )
 
   if (!response.ok) {
-    throw new IntegrationError(
+    throw audienceError(
       `Failed to retrieve audience ${audienceId} from Display & Video 360: ${describeError(response)}`,
       ErrorCodes.GET_AUDIENCE_FAILED,
+      response.status,
+      'dv360-error',
       response.status
     )
   }
 
   if (!response.data?.firstPartyAndPartnerAudienceId) {
-    throw new IntegrationError(
+    throw audienceError(
       `Failed to retrieve audience ${audienceId} from Display & Video 360: ${describeMissingAudienceId(response)}`,
       ErrorCodes.GET_AUDIENCE_FAILED,
-      400
+      400,
+      'no-audience-id-in-response',
+      response.status
     )
   }
 
@@ -219,7 +244,8 @@ async function createAudience(
     return { audienceId, advertiserId, audienceType, appId, outcome: 'created' }
   }
 
-  if (DISPLAY_NAME_EXISTS.test(response.data?.error?.message ?? '')) {
+  const nameExists = DISPLAY_NAME_EXISTS.test(response.data?.error?.message ?? '')
+  if (nameExists) {
     const existing = await getAudienceByName(request, { advertiserId, audienceName, token, features, statsContext })
     const existingId = existing?.firstPartyAndPartnerAudienceId
 
@@ -242,12 +268,13 @@ async function createAudience(
       ]
 
       if (mismatches.length) {
-        throw new IntegrationError(
+        throw audienceError(
           `An audience named "${audienceName}" already exists in Display & Video 360 (ID ${existingId}) but its settings differ: ${mismatches.join(
             '; '
           )}. Update the audience settings to match, choose a different Audience Name, or connect to it with the "Existing Audience ID" setting.`,
           ErrorCodes.CREATE_AUDIENCE_FAILED,
-          400
+          400,
+          'name-exists-settings-mismatch'
         )
       }
       return { audienceId: existingId, advertiserId, audienceType, appId, outcome: 'reconnected' }
@@ -255,17 +282,21 @@ async function createAudience(
   }
 
   if (!response.ok) {
-    throw new IntegrationError(
+    throw audienceError(
       `Failed to create audience in Display & Video 360: ${describeError(response)}`,
       ErrorCodes.CREATE_AUDIENCE_FAILED,
+      response.status,
+      nameExists ? 'name-exists-not-found' : 'dv360-error',
       response.status
     )
   }
 
-  throw new IntegrationError(
+  throw audienceError(
     `Failed to create audience in Display & Video 360: ${describeMissingAudienceId(response)}`,
     ErrorCodes.CREATE_AUDIENCE_FAILED,
-    400
+    400,
+    'no-audience-id-in-response',
+    response.status
   )
 }
 
@@ -293,9 +324,11 @@ export async function getAudienceByName(
     )
 
     if (!response.ok) {
-      throw new IntegrationError(
+      throw audienceError(
         `Failed to look up existing audience "${audienceName}" in Display & Video 360: ${describeError(response)}`,
         ErrorCodes.GET_AUDIENCE_FAILED,
+        response.status,
+        'name-exists-lookup-failed',
         response.status
       )
     }
@@ -313,10 +346,11 @@ export async function getAudienceByName(
   }
 
   if (pageToken) {
-    throw new IntegrationError(
+    throw audienceError(
       `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not confirm it is the only one after searching ${LIST_MAX_PAGES} pages of results. Find the audience's ID in Display & Video 360 and connect to it directly by populating the "Existing Audience ID" setting, or choose a different Audience Name.`,
       ErrorCodes.GET_AUDIENCE_FAILED,
-      400
+      400,
+      'name-exists-page-limit'
     )
   }
 
@@ -330,10 +364,11 @@ export async function getAudienceByName(
       .map((a) => a.firstPartyAndPartnerAudienceId)
       .join(', ')
     const more = matches.length > MAX_IDS_IN_ERROR ? ` and ${matches.length - MAX_IDS_IN_ERROR} more` : ''
-    throw new IntegrationError(
+    throw audienceError(
       `More than one first party audience named "${audienceName}" exists in Display & Video 360 (IDs ${ids}${more}). Connect to the correct one with the "Existing Audience ID" setting, or choose a different Audience Name.`,
       ErrorCodes.CREATE_AUDIENCE_FAILED,
-      400
+      400,
+      'name-exists-multiple-matches'
     )
   }
 
@@ -364,10 +399,11 @@ async function sendDV360Request<T>(
   try {
     return await request<T>(url, { ...options, throwHttpErrors: false })
   } catch (error) {
-    throw new IntegrationError(
+    throw audienceError(
       `Could not reach Display & Video 360: ${error instanceof Error ? error.message : String(error)}`,
       errorCode,
-      500
+      500,
+      'network-error'
     )
   }
 }

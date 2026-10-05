@@ -1,5 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration, IntegrationError } from '@segment/actions-core'
+import { StatsContext } from '@segment/actions-core/destination-kit'
 import Destination from '../index'
 
 const audienceName = 'Test Audience'
@@ -83,6 +84,40 @@ describe('Audience Destination', () => {
         message: 'Missing advertiser ID value',
         code: 'MISSING_REQUIRED_FIELD',
         status: 400
+      })
+    })
+
+    describe('OAuth failure stats', () => {
+      const statsContextWith = () => {
+        const incr = jest.fn()
+        const statsContext = { statsClient: { incr }, tags: ['env:test'] } as unknown as StatsContext
+        return { incr, statsContext }
+      }
+
+      const expectOAuthStats = (incr: jest.Mock, reason: string) => {
+        const tags = ['env:test', 'slug:actions-first-party-dv360']
+        expect(incr).toHaveBeenCalledWith('createAudience.call', 1, tags)
+        expect(incr).toHaveBeenCalledWith('createAudience.error', 1, [...tags, 'error:oauth', `reason:${reason}`])
+      }
+
+      it('records a stat when OAuth credentials are missing', async () => {
+        const { incr, statsContext } = statsContextWith()
+
+        await expect(
+          testDestination.createAudience({ ...input(), settings: { oauth: {} }, statsContext })
+        ).rejects.toThrowError('Oauth credentials missing.')
+
+        expectOAuthStats(incr, 'oauth-credentials-missing')
+      })
+
+      it('records a stat when the token request fails', async () => {
+        nock.cleanAll()
+        nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(400, { error: 'invalid_grant' })
+        const { incr, statsContext } = statsContextWith()
+
+        await expect(testDestination.createAudience({ ...input(), statsContext })).rejects.toThrow()
+
+        expectOAuthStats(incr, 'oauth-token-request-failed')
       })
     })
   })

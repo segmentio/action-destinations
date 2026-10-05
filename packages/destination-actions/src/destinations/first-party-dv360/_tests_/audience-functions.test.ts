@@ -73,22 +73,31 @@ afterEach(() => {
 
 describe('validateAudienceInputs', () => {
   it.each([undefined, '', '   '])('requires an advertiser ID (%p)', (advertiserId) => {
-    expect(validateAudienceInputs(createInputs({ advertiserId }))).toEqual({ error: 'Missing advertiser ID value' })
-    expect(validateAudienceInputs(existingInputs({ advertiserId }))).toEqual({ error: 'Missing advertiser ID value' })
+    expect(validateAudienceInputs(createInputs({ advertiserId }))).toEqual({
+      error: 'Missing advertiser ID value',
+      reason: 'missing-advertiser-id'
+    })
+    expect(validateAudienceInputs(existingInputs({ advertiserId }))).toEqual({
+      error: 'Missing advertiser ID value',
+      reason: 'missing-advertiser-id'
+    })
   })
 
   it('requires an audience type for both operations', () => {
     expect(validateAudienceInputs(createInputs({ audienceType: '  ' }))).toEqual({
-      error: 'Missing audience type value'
+      error: 'Missing audience type value',
+      reason: 'missing-audience-type'
     })
     expect(validateAudienceInputs(existingInputs({ audienceType: undefined }))).toEqual({
-      error: 'Missing audience type value'
+      error: 'Missing audience type value',
+      reason: 'missing-audience-type'
     })
   })
 
   it('requires an audience ID when connecting to an existing audience', () => {
     expect(validateAudienceInputs(existingInputs({ existingAudienceId: '  ' }))).toEqual({
-      error: 'Missing audience ID value'
+      error: 'Missing audience ID value',
+      reason: 'missing-audience-id'
     })
   })
 
@@ -110,18 +119,23 @@ describe('validateAudienceInputs', () => {
   })
 
   it.each([undefined, '', '   '])('requires an audience name when creating (%p)', (audienceName) => {
-    expect(validateAudienceInputs(createInputs({ audienceName }))).toEqual({ error: 'Missing audience name value' })
+    expect(validateAudienceInputs(createInputs({ audienceName }))).toEqual({
+      error: 'Missing audience name value',
+      reason: 'missing-audience-name'
+    })
   })
 
   it.each([undefined, '', '   '])('requires a membership duration when creating (%p)', (membershipDurationDays) => {
     expect(validateAudienceInputs(createInputs({ membershipDurationDays }))).toEqual({
-      error: 'Missing membership duration days value'
+      error: 'Missing membership duration days value',
+      reason: 'missing-membership-duration'
     })
   })
 
   it.each([0, -1, 541, 90.5, 'abc'])('rejects a membership duration of %p', (membershipDurationDays) => {
     expect(validateAudienceInputs(createInputs({ membershipDurationDays }))).toEqual({
-      error: 'Membership duration days must be a whole number greater than 0 and less than or equal to 540'
+      error: 'Membership duration days must be a whole number greater than 0 and less than or equal to 540',
+      reason: 'invalid-membership-duration'
     })
   })
 
@@ -611,7 +625,8 @@ describe('createOrConnectAudience', () => {
       expect(incr).toHaveBeenCalledWith('testStat.error', 1, [
         'env:test',
         'slug:actions-first-party-dv360',
-        'error:missing-settings'
+        'error:missing-settings',
+        'reason:missing-audience-name'
       ])
     })
 
@@ -628,9 +643,100 @@ describe('createOrConnectAudience', () => {
       expect(incr).toHaveBeenCalledWith('testStat.error', 1, [
         'env:test',
         'slug:actions-first-party-dv360',
-        'error:CREATE_AUDIENCE_FAILED'
+        'error:CREATE_AUDIENCE_FAILED',
+        'reason:dv360-error',
+        'status:403'
       ])
     })
+
+    const mockCreateFails = (status: number, body: Record<string, unknown>) =>
+      nock(DV360_HOST).post(CREATE_PATH).reply(status, body)
+    const mockList = (audiences: Record<string, unknown>[]) =>
+      nock(DV360_HOST).get(LIST_PATH).query(listQuery()).reply(200, { firstPartyAndPartnerAudiences: audiences })
+
+    it.each([
+      ['network-error', undefined, createInputs(), () => nock(DV360_HOST).post(CREATE_PATH).replyWithError('boom')],
+      ['no-audience-id-in-response', 200, createInputs(), () => mockCreateFails(200, {})],
+      ['name-exists-not-found', 400, createInputs(), () => (mockCreateFails(400, nameExists), mockList([]))],
+      [
+        'name-exists-settings-mismatch',
+        undefined,
+        createInputs(),
+        () => (mockCreateFails(400, nameExists), mockList([firstParty({ membershipDurationDays: '540' })]))
+      ],
+      [
+        'name-exists-multiple-matches',
+        undefined,
+        createInputs(),
+        () => (
+          mockCreateFails(400, nameExists),
+          mockList([
+            firstParty({ firstPartyAndPartnerAudienceId: 'id-1' }),
+            firstParty({ firstPartyAndPartnerAudienceId: 'id-2' })
+          ])
+        )
+      ],
+      [
+        'name-exists-lookup-failed',
+        403,
+        createInputs(),
+        () => (
+          mockCreateFails(400, nameExists),
+          nock(DV360_HOST)
+            .get(LIST_PATH)
+            .query(listQuery())
+            .reply(403, { error: { message: 'Denied' } })
+        )
+      ],
+      [
+        'name-exists-page-limit',
+        undefined,
+        createInputs(),
+        () => {
+          mockCreateFails(400, nameExists)
+          for (let page = 0; page < 10; page++) {
+            nock(DV360_HOST)
+              .get(LIST_PATH)
+              .query(listQuery(AUDIENCE_NAME, page === 0 ? {} : { pageToken: `page-${page}` }))
+              .reply(200, { firstPartyAndPartnerAudiences: [], nextPageToken: `page-${page + 1}` })
+          }
+        }
+      ],
+      [
+        'existing-type-mismatch',
+        undefined,
+        existingInputs(),
+        () =>
+          nock(DV360_HOST)
+            .get(GET_PATH)
+            .reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID, audienceType: DEVICE_ID })
+      ],
+      [
+        'dv360-error',
+        404,
+        existingInputs(),
+        () =>
+          nock(DV360_HOST)
+            .get(GET_PATH)
+            .reply(404, { error: { message: 'Not found' } })
+      ]
+    ])(
+      'records reason:%s on the error stat',
+      async (reason: string, dv360Status: number | undefined, inputs: AudienceInputs, mock: () => unknown) => {
+        mock()
+        const { incr, statsContext } = statsContextWith()
+
+        await expect(
+          createOrConnectAudience(request, inputs, { statsName: 'testStat', statsContext })
+        ).rejects.toThrow()
+
+        const errorTags = incr.mock.calls.find(([name]) => name === 'testStat.error')?.[2] as string[]
+        expect(errorTags).toContain(`reason:${reason}`)
+        expect(errorTags.filter((tag) => tag.startsWith('status:'))).toEqual(
+          dv360Status ? [`status:${dv360Status}`] : []
+        )
+      }
+    )
 
     it('does not modify the tags of the stats context it is given', async () => {
       nock(DV360_HOST).post(CREATE_PATH).reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID })

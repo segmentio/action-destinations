@@ -130,11 +130,18 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         features
       } = _CreateAudienceInput
 
+      const recordOAuthErrorStat = (reason: string) => {
+        const tags = [...(statsContext?.tags ?? []), `slug:${destination.slug}`]
+        statsContext?.statsClient?.incr('createAudience.call', 1, tags)
+        statsContext?.statsClient?.incr('createAudience.error', 1, [...tags, 'error:oauth', `reason:${reason}`])
+      }
+
       if (
         !auth?.refresh_token ||
         !process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_ID ||
         !process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET
       ) {
+        recordOAuthErrorStat('oauth-credentials-missing')
         throw new PayloadValidationError('Oauth credentials missing.')
       }
 
@@ -146,6 +153,9 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           client_secret: process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET,
           grant_type: 'refresh_token'
         })
+      }).catch((error) => {
+        recordOAuthErrorStat('oauth-token-request-failed')
+        throw error
       })
 
       const token = res.data.access_token
