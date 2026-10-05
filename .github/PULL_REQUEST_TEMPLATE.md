@@ -19,6 +19,10 @@ _A summary of your pull request, including the what change you're making and why
      staging first, with enough bake time for end-to-end tests to complete. Cover flag/gate states:
      on, off, and partial rollout. -->
 
+- [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
+- [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
+- [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron.
+
 ### Deployment Plan
 
 <!-- How/where the change is deployed, and any linked PRs, flags, gates, or cob vars that must land
@@ -58,16 +62,6 @@ _A summary of your pull request, including the what change you're making and why
 - [ ] **AI deep review** completed — Claude deep review and Copilot code review run on this PR, and their Change Release Safety findings addressed or explicitly resolved
 - [ ] **Non-code production changes** (config, Flagon gates/flags, cob vars, Terraform, AWS console, prod DB reads/writes, scripts) have ≥1 approval; pairing for script execution & DB writes
 - [ ] **Director approval** obtained for major/risky changes (skipping staging, DB restore, possible data loss, COGS infra, maintenance windows) — or N/A
-
-## Testing
-
-_Include any additional information about the testing you have completed to
-ensure your changes behave as expected. For a speedy review, please check
-any of the tasks you completed below during your testing._
-
-- [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
-- [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
-- [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron.
 
 ## Security Review
 
