@@ -91,7 +91,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
         ]
       })
 
-    const result = await performHook(request, inputs())
+    const result = await performHook(request, inputs({ operation: 'create_or_connect' }))
 
     expect(result).toEqual({
       successMessage: `Connected to existing audience with ID: ${AUDIENCE_ID}`,
@@ -129,7 +129,7 @@ describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
   it.each([undefined, 'nonsense'])('rejects an invalid operation (%p)', async (operation) => {
     const result = await performHook(request, inputs({ operation }))
 
-    expect(result).toEqual(hookError('Invalid operation value. Must be create or existing.'))
+    expect(result).toEqual(hookError('Invalid operation value. Must be create, create_or_connect or existing.'))
   })
 
   // Sent to DV360 as the audience's display name, so stray whitespace is the customer's to see.

@@ -18,20 +18,33 @@ export interface AudienceResponse {
   error?: DV360Error
 }
 
-export interface CreateAudienceJSON {
+export interface CreateAudienceParams {
   advertiserId: string
   audienceName: string
   description?: string
   membershipDurationDays: string
   audienceType: string
   appId?: string
+  connectIfExists: boolean
   token?: string
   features?: Features
   statsContext?: StatsContext
 }
 
+export interface CreateAudienceJSON {
+  displayName: string
+  audienceType: string
+  membershipDurationDays: string
+  description?: string
+  audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED'
+  firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
+  appId?: string
+}
+
+export type AudienceOperation = 'create' | 'create_or_connect' | 'existing'
+
 export interface AudienceInputs {
-  operation: 'create' | 'existing'
+  operation: AudienceOperation
   advertiserId?: string
   audienceName?: string
   audienceType?: string
@@ -44,7 +57,7 @@ export interface AudienceInputs {
 export type ValidatedAudienceInputs =
   | { error: string; reason: string }
   | {
-      operation: 'create'
+      operation: 'create' | 'create_or_connect'
       advertiserId: string
       audienceName: string
       audienceType: string
@@ -114,6 +127,7 @@ export interface _CreateAudienceInput {
     }
   }
   audienceSettings?: {
+    operation?: string
     advertiserId?: string
     audienceType?: string
     description?: string

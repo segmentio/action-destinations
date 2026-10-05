@@ -167,6 +167,18 @@ describe('validateAudienceInputs', () => {
     })
   })
 
+  it('validates create_or_connect the same way as create, keeping the operation', () => {
+    expect(validateAudienceInputs(createInputs({ operation: 'create_or_connect' }))).toMatchObject({
+      operation: 'create_or_connect',
+      audienceName: AUDIENCE_NAME,
+      membershipDurationDays: '30'
+    })
+    expect(validateAudienceInputs(createInputs({ operation: 'create_or_connect', audienceName: '' }))).toEqual({
+      error: 'Missing audience name value',
+      reason: 'missing-audience-name'
+    })
+  })
+
   it('keeps the App ID for device ID audiences and drops it for contact info audiences', () => {
     expect(validateAudienceInputs(createInputs({ audienceType: DEVICE_ID, appId: 'com.example.app' }))).toMatchObject({
       appId: 'com.example.app'
@@ -299,7 +311,7 @@ describe('getAudienceByName', () => {
       })
 
     await expect(getAudienceByName(request, params())).rejects.toMatchObject({
-      message: `More than one first party audience named "${AUDIENCE_NAME}" exists in Display & Video 360 (IDs id-1, id-2). Connect to the correct one with the "Existing Audience ID" setting, or choose a different Audience Name.`,
+      message: `More than one first party audience named "${AUDIENCE_NAME}" exists in Display & Video 360 (IDs id-1, id-2). Set "Create or Connect Audience" to "Connect to existing audience" and enter the correct one as the Existing Audience ID, or choose a different Audience Name.`,
       code: 'CREATE_AUDIENCE_FAILED',
       status: 400
     })
@@ -332,7 +344,7 @@ describe('getAudienceByName', () => {
     }
 
     await expect(getAudienceByName(request, params())).rejects.toMatchObject({
-      message: `An audience named "${AUDIENCE_NAME}" already exists in Display & Video 360, but Segment could not confirm it is the only one after searching 10 pages of results. Find the audience's ID in Display & Video 360 and connect to it directly by populating the "Existing Audience ID" setting, or choose a different Audience Name.`,
+      message: `An audience named "${AUDIENCE_NAME}" already exists in Display & Video 360, but Segment could not confirm it is the only one after searching 10 pages of results. Find the audience's ID in Display & Video 360, set "Create or Connect Audience" to "Connect to existing audience" and enter it as the Existing Audience ID, or choose a different Audience Name.`,
       code: 'GET_AUDIENCE_FAILED',
       status: 400
     })
@@ -399,9 +411,26 @@ describe('createOrConnectAudience', () => {
         outcome: 'created'
       })
     })
+
+    it('does not connect to an audience with the same name, and names its ID in the error', async () => {
+      nock(DV360_HOST).post(CREATE_PATH).reply(400, nameExists)
+      nock(DV360_HOST)
+        .get(LIST_PATH)
+        .query(listQuery())
+        .reply(200, { firstPartyAndPartnerAudiences: [firstParty()] })
+
+      await expect(createOrConnectAudience(request, createInputs(), options)).rejects.toMatchObject({
+        message: `An audience named "${AUDIENCE_NAME}" already exists in Display & Video 360 (ID existing-id). To use it, set "Create or Connect Audience" to "Connect to existing audience" and enter existing-id as the Existing Audience ID, or choose "Create new audience, or connect to an existing one with the same name". Otherwise, choose a different Audience Name.`,
+        code: 'CREATE_AUDIENCE_FAILED',
+        status: 400
+      })
+      expect(nock.isDone()).toBe(true)
+    })
   })
 
   describe('reconnecting when the name already exists', () => {
+    const reconnectInputs = (overrides: Partial<AudienceInputs> = {}) =>
+      createInputs({ operation: 'create_or_connect', ...overrides })
     const mockNameExists = (existing: Record<string, unknown>[], status = 400) => {
       nock(DV360_HOST).post(CREATE_PATH).reply(status, nameExists)
       nock(DV360_HOST).get(LIST_PATH).query(listQuery()).reply(200, { firstPartyAndPartnerAudiences: existing })
@@ -410,7 +439,7 @@ describe('createOrConnectAudience', () => {
     it('connects to the existing audience', async () => {
       mockNameExists([firstParty()])
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).resolves.toEqual({
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).resolves.toEqual({
         audienceId: 'existing-id',
         advertiserId: ADVERTISER_ID,
         audienceType: CONTACT_INFO,
@@ -422,7 +451,7 @@ describe('createOrConnectAudience', () => {
     it('errors when the existing audience has a different type', async () => {
       mockNameExists([firstParty({ audienceType: DEVICE_ID })])
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).rejects.toThrowError(
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).rejects.toThrowError(
         `An audience named "${AUDIENCE_NAME}" already exists in Display & Video 360 (ID existing-id) but its settings differ: Audience Type is ${DEVICE_ID} (requested ${CONTACT_INFO}).`
       )
     })
@@ -430,7 +459,7 @@ describe('createOrConnectAudience', () => {
     it('errors when the existing audience has a different membership duration', async () => {
       mockNameExists([firstParty({ membershipDurationDays: '540' })])
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).rejects.toThrowError(
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).rejects.toThrowError(
         'but its settings differ: Membership Duration Days is 540 (requested 30).'
       )
     })
@@ -438,7 +467,7 @@ describe('createOrConnectAudience', () => {
     it('reports a membership duration which is not set on the existing audience', async () => {
       mockNameExists([firstParty({ membershipDurationDays: undefined })])
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).rejects.toThrowError(
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).rejects.toThrowError(
         'but its settings differ: Membership Duration Days is not set (requested 30).'
       )
     })
@@ -447,7 +476,11 @@ describe('createOrConnectAudience', () => {
       mockNameExists([firstParty({ audienceType: DEVICE_ID, appId: ' com.example.app ' })])
 
       await expect(
-        createOrConnectAudience(request, createInputs({ audienceType: DEVICE_ID, appId: 'com.example.app' }), options)
+        createOrConnectAudience(
+          request,
+          reconnectInputs({ audienceType: DEVICE_ID, appId: 'com.example.app' }),
+          options
+        )
       ).resolves.toEqual({
         audienceId: 'existing-id',
         advertiserId: ADVERTISER_ID,
@@ -461,7 +494,7 @@ describe('createOrConnectAudience', () => {
       mockNameExists([firstParty({ audienceType: DEVICE_ID })])
 
       await expect(
-        createOrConnectAudience(request, createInputs({ audienceType: DEVICE_ID }), options)
+        createOrConnectAudience(request, reconnectInputs({ audienceType: DEVICE_ID }), options)
       ).resolves.toMatchObject({ audienceId: 'existing-id', appId: undefined, outcome: 'reconnected' })
     })
 
@@ -469,7 +502,11 @@ describe('createOrConnectAudience', () => {
       mockNameExists([firstParty({ audienceType: DEVICE_ID, appId: 'com.other.app' })])
 
       await expect(
-        createOrConnectAudience(request, createInputs({ audienceType: DEVICE_ID, appId: 'com.example.app' }), options)
+        createOrConnectAudience(
+          request,
+          reconnectInputs({ audienceType: DEVICE_ID, appId: 'com.example.app' }),
+          options
+        )
       ).rejects.toThrowError('but its settings differ: App ID is com.other.app (requested com.example.app).')
     })
 
@@ -477,14 +514,14 @@ describe('createOrConnectAudience', () => {
       mockNameExists([firstParty({ appId: 'com.other.app' })])
 
       await expect(
-        createOrConnectAudience(request, createInputs({ appId: 'com.example.app' }), options)
+        createOrConnectAudience(request, reconnectInputs({ appId: 'com.example.app' }), options)
       ).resolves.toMatchObject({ audienceId: 'existing-id', outcome: 'reconnected' })
     })
 
     it('lists every setting which differs', async () => {
       mockNameExists([firstParty({ audienceType: DEVICE_ID, membershipDurationDays: '540' })])
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).rejects.toThrowError(
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).rejects.toThrowError(
         `but its settings differ: Audience Type is ${DEVICE_ID} (requested ${CONTACT_INFO}); Membership Duration Days is 540 (requested 30).`
       )
     })
@@ -492,7 +529,7 @@ describe('createOrConnectAudience', () => {
     it('reports the original error when the existing audience cannot be found', async () => {
       mockNameExists([])
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).rejects.toMatchObject({
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).rejects.toMatchObject({
         message: `Failed to create audience in Display & Video 360: ${nameExists.error.message}`,
         code: 'CREATE_AUDIENCE_FAILED',
         status: 400
@@ -503,7 +540,7 @@ describe('createOrConnectAudience', () => {
     it('reconnects whatever status the already exists error has', async () => {
       mockNameExists([firstParty()], 409)
 
-      await expect(createOrConnectAudience(request, createInputs(), options)).resolves.toMatchObject({
+      await expect(createOrConnectAudience(request, reconnectInputs(), options)).resolves.toMatchObject({
         audienceId: 'existing-id',
         outcome: 'reconnected'
       })
@@ -587,7 +624,10 @@ describe('createOrConnectAudience', () => {
       mock()
       const { incr, statsContext } = statsContextWith()
 
-      await createOrConnectAudience(request, createInputs(), { statsName: 'testStat', statsContext })
+      await createOrConnectAudience(request, createInputs({ operation: 'create_or_connect' }), {
+        statsName: 'testStat',
+        statsContext
+      })
 
       expect(incr).toHaveBeenCalledWith('testStat.call', 1, ['env:test', 'slug:actions-first-party-dv360'])
       expect(incr).toHaveBeenCalledWith('testStat.success', 1, [
@@ -657,11 +697,12 @@ describe('createOrConnectAudience', () => {
     it.each([
       ['network-error', undefined, createInputs(), () => nock(DV360_HOST).post(CREATE_PATH).replyWithError('boom')],
       ['no-audience-id-in-response', 200, createInputs(), () => mockCreateFails(200, {})],
+      ['name-exists', undefined, createInputs(), () => (mockCreateFails(400, nameExists), mockList([firstParty()]))],
       ['name-exists-not-found', 400, createInputs(), () => (mockCreateFails(400, nameExists), mockList([]))],
       [
         'name-exists-settings-mismatch',
         undefined,
-        createInputs(),
+        createInputs({ operation: 'create_or_connect' }),
         () => (mockCreateFails(400, nameExists), mockList([firstParty({ membershipDurationDays: '540' })]))
       ],
       [

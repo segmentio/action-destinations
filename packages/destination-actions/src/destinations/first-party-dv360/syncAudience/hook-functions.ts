@@ -20,10 +20,10 @@ export async function performHook(
     existingAudienceId
   } = hookInputs
 
-  if (operation !== 'create' && operation !== 'existing') {
+  if (operation !== 'create' && operation !== 'create_or_connect' && operation !== 'existing') {
     return {
       error: {
-        message: 'Invalid operation value. Must be create or existing.',
+        message: 'Invalid operation value. Must be create, create_or_connect or existing.',
         code: ErrorCodes.RETL_ON_MAPPING_SAVE_FAILED
       }
     }

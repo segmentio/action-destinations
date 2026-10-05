@@ -5,6 +5,7 @@ import {
   defaultValues
 } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
+import { CREATE_DEVICE_ID_OPERATION, CREATE_OPERATION, EXISTING_OPERATION } from './properties'
 import { createOrConnectAudience, getAudience } from './audience-functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
 import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
@@ -52,6 +53,19 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
+    operation: {
+      type: 'string',
+      label: 'Create or Connect Audience',
+      choices: [
+        { label: 'Create new audience', value: 'create' },
+        { label: 'Create new audience, or connect to an existing one with the same name', value: 'create_or_connect' },
+        { label: 'Connect to existing audience', value: 'existing' }
+      ],
+      default: 'create',
+      required: false,
+      description:
+        'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if exactly one audience with that name exists and its settings match. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).'
+    },
     advertiserId: {
       type: 'string',
       label: 'Advertiser ID',
@@ -74,35 +88,40 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       label: 'Existing Audience ID',
       required: false,
       description:
-        'The ID of an audience which already exists in Display & Video 360. **Optional:** populate to connect to that audience instead of creating a new one. Leave blank to create a new audience.'
+        'The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID and create a new audience even if it is populated.',
+      depends_on: EXISTING_OPERATION
     },
     audienceDisplayName: {
       type: 'string',
       label: 'Audience Name',
       required: false,
       description:
-        'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser. If one audience with this name already exists and its Audience Type, Membership Duration Days and (for device ID audiences) App ID match these settings, Segment connects to it; otherwise audience creation fails. **Not required:** when connecting to an existing audience (ignored).'
+        'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).',
+      depends_on: CREATE_OPERATION
     },
     description: {
       type: 'string',
       label: 'Description',
       required: false,
       description:
-        'The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).'
+        'The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).',
+      depends_on: CREATE_OPERATION
     },
     appId: {
       type: 'string',
       label: 'App ID',
       required: false,
       description:
-        'The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).'
+        'The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience (ignored).',
+      depends_on: CREATE_DEVICE_ID_OPERATION
     },
     membershipDurationDays: {
       type: 'string',
       label: 'Membership Duration Days',
       required: false,
       description:
-        'Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).'
+        'Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).',
+      depends_on: CREATE_OPERATION
     }
   },
 
@@ -117,6 +136,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const {
         audienceName,
         audienceSettings: {
+          operation,
           advertiserId,
           audienceType,
           audienceDisplayName,
@@ -163,7 +183,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       const { audienceId } = await createOrConnectAudience(
         _request,
         {
-          operation: existingAudienceId?.trim() ? 'existing' : 'create',
+          operation: operation === 'existing' || operation === 'create_or_connect' ? operation : 'create',
           advertiserId,
           audienceName: audienceDisplayName?.trim() || audienceName,
           audienceType,

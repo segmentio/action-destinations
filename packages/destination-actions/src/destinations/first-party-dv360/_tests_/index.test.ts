@@ -175,7 +175,12 @@ describe('Audience Destination', () => {
         .reply(200, { firstPartyAndPartnerAudienceId: 'existing-id', audienceType: 'CUSTOMER_MATCH_CONTACT_INFO' })
 
       const result = await testDestination.createAudience(
-        input({ existingAudienceId: ' existing-id ', membershipDurationDays: undefined, description: undefined })
+        input({
+          operation: 'existing',
+          existingAudienceId: ' existing-id ',
+          membershipDurationDays: undefined,
+          description: undefined
+        })
       )
 
       expect(result).toEqual({ externalId: 'existing-id' })
@@ -203,7 +208,7 @@ describe('Audience Destination', () => {
           ]
         })
 
-      const result = await testDestination.createAudience(input())
+      const result = await testDestination.createAudience(input({ operation: 'create_or_connect' }))
 
       expect(result).toEqual({ externalId: 'existing-id' })
       expect(nock.isDone()).toBe(true)

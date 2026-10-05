@@ -13,6 +13,7 @@ import {
   AudienceInputs,
   AudienceResponse,
   CreateAudienceJSON,
+  CreateAudienceParams,
   CreateOrConnectAudienceOptions,
   CreateOrConnectAudienceResult,
   DV360Error,
@@ -54,6 +55,7 @@ export async function createOrConnectAudience(
             membershipDurationDays: validated.membershipDurationDays,
             description: validated.description,
             appId: validated.appId,
+            connectIfExists: validated.operation === 'create_or_connect',
             token,
             features,
             statsContext
@@ -203,7 +205,7 @@ export async function getAudience(request: RequestClient, params: GetAudiencePar
 
 async function createAudience(
   request: RequestClient,
-  params: CreateAudienceJSON
+  params: CreateAudienceParams
 ): Promise<CreateOrConnectAudienceResult> {
   const {
     advertiserId,
@@ -212,6 +214,7 @@ async function createAudience(
     membershipDurationDays,
     audienceType,
     appId,
+    connectIfExists,
     token,
     features,
     statsContext
@@ -219,6 +222,15 @@ async function createAudience(
 
   const version = getApiVersion(features, statsContext)
   const endpoint = getAudienceEndpoint(version, advertiserId)
+  const json: CreateAudienceJSON = {
+    displayName: audienceName,
+    audienceType,
+    membershipDurationDays,
+    description,
+    audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
+    firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
+    appId
+  }
 
   const response = await sendDV360Request<AudienceResponse>(
     request,
@@ -226,15 +238,7 @@ async function createAudience(
     {
       method: 'POST',
       headers: authHeaders(token),
-      json: {
-        displayName: audienceName,
-        audienceType,
-        membershipDurationDays,
-        description,
-        audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-        firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
-        appId
-      }
+      json
     },
     ErrorCodes.CREATE_AUDIENCE_FAILED
   )
@@ -248,6 +252,15 @@ async function createAudience(
   if (nameExists) {
     const existing = await getAudienceByName(request, { advertiserId, audienceName, token, features, statsContext })
     const existingId = existing?.firstPartyAndPartnerAudienceId
+
+    if (existingId && !connectIfExists) {
+      throw audienceError(
+        `An audience named "${audienceName}" already exists in Display & Video 360 (ID ${existingId}). To use it, set "Create or Connect Audience" to "Connect to existing audience" and enter ${existingId} as the Existing Audience ID, or choose "Create new audience, or connect to an existing one with the same name". Otherwise, choose a different Audience Name.`,
+        ErrorCodes.CREATE_AUDIENCE_FAILED,
+        400,
+        'name-exists'
+      )
+    }
 
     if (existingId) {
       const existingAppId = trim(existing.appId)
@@ -271,7 +284,7 @@ async function createAudience(
         throw audienceError(
           `An audience named "${audienceName}" already exists in Display & Video 360 (ID ${existingId}) but its settings differ: ${mismatches.join(
             '; '
-          )}. Update the audience settings to match, choose a different Audience Name, or connect to it with the "Existing Audience ID" setting.`,
+          )}. Update the audience settings to match, choose a different Audience Name, or set "Create or Connect Audience" to "Connect to existing audience" and enter ${existingId} as the Existing Audience ID.`,
           ErrorCodes.CREATE_AUDIENCE_FAILED,
           400,
           'name-exists-settings-mismatch'
@@ -347,7 +360,7 @@ export async function getAudienceByName(
 
   if (pageToken) {
     throw audienceError(
-      `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not confirm it is the only one after searching ${LIST_MAX_PAGES} pages of results. Find the audience's ID in Display & Video 360 and connect to it directly by populating the "Existing Audience ID" setting, or choose a different Audience Name.`,
+      `An audience named "${audienceName}" already exists in Display & Video 360, but Segment could not confirm it is the only one after searching ${LIST_MAX_PAGES} pages of results. Find the audience's ID in Display & Video 360, set "Create or Connect Audience" to "Connect to existing audience" and enter it as the Existing Audience ID, or choose a different Audience Name.`,
       ErrorCodes.GET_AUDIENCE_FAILED,
       400,
       'name-exists-page-limit'
@@ -365,7 +378,7 @@ export async function getAudienceByName(
       .join(', ')
     const more = matches.length > MAX_IDS_IN_ERROR ? ` and ${matches.length - MAX_IDS_IN_ERROR} more` : ''
     throw audienceError(
-      `More than one first party audience named "${audienceName}" exists in Display & Video 360 (IDs ${ids}${more}). Connect to the correct one with the "Existing Audience ID" setting, or choose a different Audience Name.`,
+      `More than one first party audience named "${audienceName}" exists in Display & Video 360 (IDs ${ids}${more}). Set "Create or Connect Audience" to "Connect to existing audience" and enter the correct one as the Existing Audience ID, or choose a different Audience Name.`,
       ErrorCodes.CREATE_AUDIENCE_FAILED,
       400,
       'name-exists-multiple-matches'

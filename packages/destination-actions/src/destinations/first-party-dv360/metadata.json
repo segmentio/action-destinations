@@ -12,6 +12,29 @@
       "full_audience_sync": false
     },
     "audienceFields": {
+      "operation": {
+        "label": "Create or Connect Audience",
+        "description": "Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The \"connect to an existing one with the same name\" option only connects if exactly one audience with that name exists and its settings match. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Create new audience",
+            "value": "create"
+          },
+          {
+            "label": "Create new audience, or connect to an existing one with the same name",
+            "value": "create_or_connect"
+          },
+          {
+            "label": "Connect to existing audience",
+            "value": "existing"
+          }
+        ],
+        "default": "create",
+        "depends_on": null
+      },
       "advertiserId": {
         "label": "Advertiser ID",
         "description": "The ID of your Display & Video 360 advertiser. **Required:** always.",
@@ -43,23 +66,41 @@
       },
       "existingAudienceId": {
         "label": "Existing Audience ID",
-        "description": "The ID of an audience which already exists in Display & Video 360. **Optional:** populate to connect to that audience instead of creating a new one. Leave blank to create a new audience.",
+        "description": "The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is \"Connect to existing audience\". **Not required:** for the other Create or Connect Audience options, which ignore this ID and create a new audience even if it is populated.",
         "type": "string",
         "required": false,
         "multiple": false,
         "choices": null,
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "match": "all",
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is",
+              "value": "existing"
+            }
+          ]
+        }
       },
       "audienceDisplayName": {
         "label": "Audience Name",
-        "description": "The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser. If one audience with this name already exists and its Audience Type, Membership Duration Days and (for device ID audiences) App ID match these settings, Segment connects to it; otherwise audience creation fails. **Not required:** when connecting to an existing audience (ignored).",
+        "description": "The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).",
         "type": "string",
         "required": false,
         "multiple": false,
         "choices": null,
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "match": "all",
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            }
+          ]
+        }
       },
       "description": {
         "label": "Description",
@@ -69,7 +110,16 @@
         "multiple": false,
         "choices": null,
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "match": "all",
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            }
+          ]
+        }
       },
       "appId": {
         "label": "App ID",
@@ -79,7 +129,21 @@
         "multiple": false,
         "choices": null,
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "match": "all",
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            },
+            {
+              "fieldKey": "audienceType",
+              "operator": "is",
+              "value": "CUSTOMER_MATCH_DEVICE_ID"
+            }
+          ]
+        }
       },
       "membershipDurationDays": {
         "label": "Membership Duration Days",
@@ -89,7 +153,16 @@
         "multiple": false,
         "choices": null,
         "default": null,
-        "depends_on": null
+        "depends_on": {
+          "match": "all",
+          "conditions": [
+            {
+              "fieldKey": "operation",
+              "operator": "is_not",
+              "value": "existing"
+            }
+          ]
+        }
       }
     },
     "supportsAudienceFunctions": true
@@ -1071,8 +1144,8 @@
           "description": "When saving this mapping, Segment will either create a new Customer Match audience in Display & Video 360 or connect to an existing one.",
           "inputFields": {
             "operation": {
-              "label": "Create a new audience or connect to an existing one?",
-              "description": "Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.",
+              "label": "Create or Connect Audience",
+              "description": "Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The \"connect to an existing one with the same name\" option only connects if exactly one audience with that name exists and its settings match. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1081,11 +1154,15 @@
               "default": "create",
               "choices": [
                 {
-                  "label": "Create New Audience",
+                  "label": "Create new audience",
                   "value": "create"
                 },
                 {
-                  "label": "Connect to Existing Audience",
+                  "label": "Create new audience, or connect to an existing one with the same name",
+                  "value": "create_or_connect"
+                },
+                {
+                  "label": "Connect to existing audience",
                   "value": "existing"
                 }
               ],
@@ -1129,7 +1206,7 @@
             },
             "audienceName": {
               "label": "Audience Name",
-              "description": "The display name of the audience to create in Display & Video 360.",
+              "description": "The display name of the audience to create in Display & Video 360. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1145,8 +1222,8 @@
                 "conditions": [
                   {
                     "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
+                    "operator": "is_not",
+                    "value": "existing"
                   }
                 ]
               },
@@ -1211,8 +1288,8 @@
                 "conditions": [
                   {
                     "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
+                    "operator": "is_not",
+                    "value": "existing"
                   }
                 ]
               },
@@ -1244,8 +1321,8 @@
                 "conditions": [
                   {
                     "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
+                    "operator": "is_not",
+                    "value": "existing"
                   }
                 ]
               },
@@ -1277,8 +1354,8 @@
                 "conditions": [
                   {
                     "fieldKey": "operation",
-                    "operator": "is",
-                    "value": "create"
+                    "operator": "is_not",
+                    "value": "existing"
                   },
                   {
                     "fieldKey": "audienceType",
@@ -1299,7 +1376,7 @@
             },
             "existingAudienceId": {
               "label": "Existing Audience ID",
-              "description": "The ID of the audience in Display & Video 360 to connect this mapping to.",
+              "description": "The ID of the audience in Display & Video 360 to connect this mapping to. Only used when Create or Connect Audience is \"Connect to existing audience\".",
               "type": "string",
               "required": false,
               "multiple": false,
