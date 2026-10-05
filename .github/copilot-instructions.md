@@ -91,7 +91,7 @@ Feature flags follow consistent conventions in this repo, so you can detect them
 
 When reviewing a PR, post a short, friendly, **non-blocking** review comment (a suggestion, never "request changes") when either of the following applies. Prefer a single consolidated comment covering both.
 
-- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging / regression), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
+- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
 - **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered and **defaults to off**, and to describe the rollout / rollback plan.
 
 Keep these nudges advisory and encouraging — they help authors and reviewers, but they do not block merge.

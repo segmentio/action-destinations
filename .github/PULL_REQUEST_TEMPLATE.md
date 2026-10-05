@@ -72,7 +72,6 @@ any of the tasks you completed below during your testing._
 
 - [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
-- [ ] [Segmenters] [If applicable for this change] Tested for regression.
 
 ## Security Review
 
