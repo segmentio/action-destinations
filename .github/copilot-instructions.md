@@ -191,17 +191,46 @@ When implementing features or fixing bugs based on user prompts, follow these gu
 
 ## Change Release Safety (Change Control) — required review
 
-Reviewing changes against the Change Release Safety guidelines is a first-class part of every review.
+Context: Per the internal "Segment Change Release Safety" guidelines, nearly half of
+recent incidents were self-inflicted (defect escape or regression), with outsized
+impact on our largest enterprise customers. Reviewing changes against these guidelines
+is a first-class part of every review — not an afterthought.
 
-When you review a PR that can reach production, verify the PR description contains all of the items below, each in enough detail that another engineer with similar expertise could reproduce them. For each item, report its status (✅ present / ⚠️ too vague / ❌ missing), quote the relevant text from the description, and suggest concrete additions specific to this change (e.g. the exact dashboards, metrics, or tests to watch). Reject placeholder answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards", "Revert PR and push", or "N/A".
+When you review a PR that can reach production, verify the PR description contains all of
+the items below, each in enough detail that another engineer with similar expertise could
+reproduce them. For each item, report its status (✅ present / ⚠️ too vague / ❌ missing),
+quote the relevant text from the description, and suggest concrete additions specific to
+this change (e.g. the exact dashboards, metrics, or tests to watch). Reject placeholder
+answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards",
+"Revert PR and push", or "N/A".
 
-Each item maps to a section of the [PR template](./PULL_REQUEST_TEMPLATE.md).
+Each item maps 1:1 to a checkbox in the PR template
+(`.github/PULL_REQUEST_TEMPLATE.md`).
 
-1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging first** (Segment engineers) with sufficient bake time for end-to-end tests to complete; covers flag/gate states (on, off, and partial rollout). For high-volume destinations (e.g. Facebook, Google, Snapchat), confirm a feature flag is used to roll out safely.
-2. **Deployment Plan** — deploy steps, environments, and any linked PRs / flags / gates that must land or change together.
-3. **Verification Plan** — how the change is verified in production (dashboard links, metrics monitored, prod tests expected to pass); aim for ~3 independent signals. This is a required complement to the Test Plan, not a substitute for it.
-4. **Rollback Plan** — clear steps any teammate can execute quickly; risky rollbacks should be tested in staging.
-5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature flag/gate behavior and how it protects the change).
-6. **Breaking Change & Customer Impact** — whether the change alters behavior customers depend on (schema/field changes, new required fields, removed/renamed fields, changed defaults, API or version bumps, altered mapping output, auth or rate-limit changes, dropped events); who is affected (which destinations/integrations, customer segments, event volumes) and the customer-visible impact (data loss, delivery failures, duplicate/missing events, downstream schema breakage, silent behavior changes); and the backward-compatibility / migration path (gating, versioning, opt-in, deprecation notice). Treat new required fields as breaking. Reject a bare "no impact" — require the analysis behind it.
+1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging
+   first** with sufficient bake time for end-to-end tests to complete; covers flag/gate
+   states (on, off, and partial rollout). For high-volume destinations (e.g. Facebook,
+   Google, Snapchat), confirm a feature flag is used to roll out safely.
+2. **Deployment Plan** — deploy steps, environments, and any linked PRs / flags / gates /
+   cob vars that must land or change together.
+3. **Verification Plan** — how the change is verified in production (dashboard links,
+   metrics monitored, prod tests expected to pass); aim for ~3 independent signals. This
+   is a required complement to the Test Plan, not a substitute for it.
+4. **Rollback Plan** — clear steps any teammate can execute quickly; risky rollbacks
+   should be tested in staging.
+5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature
+   flag/gate behavior and how it protects the change).
+6. **Breaking Change & Customer Impact** — whether the change alters behavior customers
+   depend on (schema/field changes, new required fields, removed/renamed fields, changed
+   defaults, API or version bumps, altered mapping output, auth or rate-limit changes,
+   dropped events); who is affected (which destinations/integrations, customer segments,
+   event volumes — call out top enterprise customers) and the customer-visible impact
+   (data loss, delivery failures, duplicate/missing events, downstream schema breakage,
+   silent behavior changes); and the backward-compatibility / migration path (gating,
+   versioning, opt-in, deprecation notice). Treat new required fields as breaking. Reject a
+   bare "no impact" — require the analysis behind it.
 
-Approval expectation (flag anything that looks bypassed): **+2 code review approvals** before merge — two +1s from two different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
+Approval & process expectations (flag anything that looks bypassed):
+
+7. **+2 code review approvals** before merge to the protected branch — two +1s from two
+   different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
