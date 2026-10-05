@@ -359,7 +359,7 @@ describe('getAudienceByName', () => {
     await expect(getAudienceByName(request, params())).rejects.toMatchObject({
       message: `An audience named "${AUDIENCE_NAME}" already exists in Display & Video 360, but Segment could not look it up: The caller does not have permission`,
       code: 'GET_AUDIENCE_FAILED',
-      status: 403
+      status: 400
     })
   })
 })
@@ -559,7 +559,7 @@ describe('createOrConnectAudience', () => {
 
       await expect(createOrConnectAudience(request, existingInputs(), options)).rejects.toMatchObject({
         message: `Failed to retrieve audience ${AUDIENCE_ID} from Display & Video 360: Requested entity was not found.`,
-        status: 404
+        status: 400
       })
     })
   })
@@ -785,9 +785,9 @@ describe.each([
       403,
       { error: { code: 403, message: 'The caller does not have permission', status: 'PERMISSION_DENIED' } },
       'The caller does not have permission',
-      403
+      400
     ],
-    ['reports the HTTP status when there is no error message', 502, 'Bad Gateway', 'HTTP 502', 502],
+    ['reports the HTTP status when there is no error message', 502, 'Bad Gateway', 'HTTP 502', 400],
     ['fails when a 200 response has no audience ID', 200, {}, 'the response did not include an audience ID', 400],
     [
       'reports the message in a 200 response which has no audience ID',

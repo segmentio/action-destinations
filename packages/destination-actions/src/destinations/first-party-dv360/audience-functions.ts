@@ -184,7 +184,7 @@ export async function getAudience(request: RequestClient, params: GetAudiencePar
     throw audienceError(
       `Failed to retrieve audience ${audienceId} from Display & Video 360: ${describeError(response)}`,
       ErrorCodes.GET_AUDIENCE_FAILED,
-      response.status,
+      400,
       'dv360-error',
       response.status
     )
@@ -294,7 +294,7 @@ async function createAudience(
     throw audienceError(
       `Failed to create audience in Display & Video 360: ${describeError(response)}`,
       ErrorCodes.CREATE_AUDIENCE_FAILED,
-      response.status,
+      400,
       nameExists ? 'name-exists-not-found' : 'dv360-error',
       response.status
     )
@@ -338,7 +338,7 @@ export async function getAudienceByName(
           response
         )}`,
         ErrorCodes.GET_AUDIENCE_FAILED,
-        response.status,
+        400,
         'name-exists-lookup-failed',
         response.status
       )
