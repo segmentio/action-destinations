@@ -28,3 +28,5 @@ export const EBNotErrors = {
 export type RetryableErrorType = keyof typeof EBRetryableErrors
 export type NonRetryableErrorType = keyof typeof EBNotRetryableErrors
 export type NotAnErrorType = keyof typeof EBNotErrors
+
+export const FLAGON_NAME_RETRY_CLASSIFICATION_FIX = 'actions-amazon-eventbridge-retry-classification-fix'

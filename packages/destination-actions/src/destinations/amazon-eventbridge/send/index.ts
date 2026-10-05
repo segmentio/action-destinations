@@ -65,11 +65,11 @@ const action: ActionDefinition<Settings, Payload> = {
       ...ensureSourceIdHook
     }
   },
-  perform: (_, { payload, settings, hookOutputs }) => {
-    return send([payload], settings, hookOutputs)
+  perform: (_, { payload, settings, hookOutputs, features }) => {
+    return send([payload], settings, hookOutputs, features, false)
   },
-  performBatch: (_, { payload, settings, hookOutputs }) => {
-    return send(payload, settings, hookOutputs)
+  performBatch: (_, { payload, settings, hookOutputs, features }) => {
+    return send(payload, settings, hookOutputs, features)
   }
 }
 
