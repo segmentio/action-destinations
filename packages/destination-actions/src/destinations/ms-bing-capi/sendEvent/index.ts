@@ -68,7 +68,9 @@ async function send(
     json.push(jsonItem)
   })
 
-  const sendRootContinueOnValidationError = Boolean(features?.[ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG])
+  // Only batches need partial acceptance. The single-event path returns the raw response, so a 200 carrying
+  // per-event errors in error.details would be reported as delivered.
+  const sendRootContinueOnValidationError = isBatch && Boolean(features?.[ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG])
 
   const response = await request<MSMultiStatusResponse>(`${API_URL}${settings.UetTag}/events`, {
     method: 'post',
