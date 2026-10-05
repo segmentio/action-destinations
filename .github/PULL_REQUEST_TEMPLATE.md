@@ -24,6 +24,9 @@ _A summary of your pull request, including the what change you're making and why
      on, off, and partial rollout. For high-volume destinations (Facebook, Google, Snapchat), use a
      feature flag to roll out safely. -->
 
+- [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
+- [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
+
 ### Deployment Plan
 
 <!-- How/where the change is deployed, and any linked PRs, flags, or gates that must land
@@ -63,15 +66,6 @@ See the [Change Release Safety guidelines](https://docs.google.com/document/d/1N
 - [ ] Required code review approvals obtained before merge
 - [ ] AI deep review (Claude and Copilot) run on this PR, and Change Release Safety findings addressed
 - [ ] Any additional approvals required by the guidelines obtained (or N/A)
-
-## Testing
-
-_Include any additional information about the testing you have completed to
-ensure your changes behave as expected. For a speedy review, please check
-any of the tasks you completed below during your testing._
-
-- [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
-- [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
 
 ## Security Review
 

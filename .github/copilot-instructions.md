@@ -48,7 +48,7 @@ When reviewing pull requests, thoroughly check the following areas:
   - Test External
   - Code coverage
 - Beyond the gating status checks above, also confirm the PR meets the author-facing
-  review bar covered in **PR Author Nudges** below (Testing section filled in, and
+  review bar covered in **PR Author Nudges** below (Test Plan filled in, and
   feature-flag rollout details when a flag is introduced). These are advisory, not
   gating checks, but should be raised as review comments when missing.
 
@@ -91,7 +91,7 @@ Feature flags follow consistent conventions in this repo, so you can detect them
 
 When reviewing a PR, post a short, friendly, **non-blocking** review comment (a suggestion, never "request changes") when either of the following applies. Prefer a single consolidated comment covering both.
 
-- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
+- **Test Plan not filled in** — the PR description's `### Test Plan` section is empty or a placeholder (e.g. "Tested in stage"), and none of its testing checkboxes (`- [x]`) are checked. Ask the author to describe the environments and tests run, or check the testing task(s) they completed (unit tests / local end-to-end). See the [PR template](./PULL_REQUEST_TEMPLATE.md).
 - **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered and **defaults to off**, and to describe the rollout / rollback plan.
 
 Keep these nudges advisory and encouraging — they help authors and reviewers, but they do not block merge.
