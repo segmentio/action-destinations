@@ -101,7 +101,8 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Track Calls',
-      subscribe: 'type = "track" and event != "Order Completed" and event != "Checkout Started" and event != "Order Refunded" and event != "Order Cancelled" and event != "Product Viewed" and event != "Product Added" and event != "Product Removed"',
+      subscribe:
+        'type = "track" and event != "Order Completed" and event != "Checkout Started" and event != "Order Refunded" and event != "Order Cancelled" and event != "Product Viewed" and event != "Product Added" and event != "Product Removed"',
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
       type: 'automatic'
@@ -110,9 +111,9 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Order Placed (beta)',
       subscribe: 'event = "Order Completed"',
       partnerAction: 'ecommerce',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.ORDER_PLACED, 
+        name: EVENT_NAMES.ORDER_PLACED,
         metadata: {
           order_status_url: { '@path': '$.properties.order_status_url' }
         }
@@ -123,9 +124,9 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Checkout Started (beta)',
       subscribe: 'event = "Checkout Started"',
       partnerAction: 'ecommerce',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.CHECKOUT_STARTED, 
+        name: EVENT_NAMES.CHECKOUT_STARTED,
         metadata: {
           checkout_url: { '@path': '$.properties.checkout_url' }
         }
@@ -136,9 +137,9 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Order Refunded (beta)',
       subscribe: 'event = "Order Refunded"',
       partnerAction: 'ecommerce',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.ORDER_REFUNDED, 
+        name: EVENT_NAMES.ORDER_REFUNDED,
         metadata: {
           order_status_url: { '@path': '$.properties.order_status_url' }
         }
@@ -149,9 +150,9 @@ const destination: DestinationDefinition<Settings> = {
       name: 'Order Cancelled (beta)',
       subscribe: 'event = "Order Cancelled"',
       partnerAction: 'ecommerce',
-      mapping: { 
+      mapping: {
         ...defaultValues(ecommerce.fields),
-        name: EVENT_NAMES.ORDER_CANCELLED, 
+        name: EVENT_NAMES.ORDER_CANCELLED,
         metadata: {
           order_status_url: { '@path': '$.properties.order_status_url' }
         }
