@@ -191,15 +191,4 @@ When implementing features or fixing bugs based on user prompts, follow these gu
 
 ## Change Release Safety (Change Control) — required review
 
-PRs that can reach production must follow the [Segment Change Release Safety guidelines](https://docs.google.com/document/d/1N2MtcLtiI7MK_GgwEe1tXtDYrMZnbfJCVyFvVoof-Ss/edit?tab=t.0#heading=h.dyt1m85tc50l).
-
-When reviewing a PR, verify the description contains each of the following, with enough detail that another engineer could reproduce it. Report each as ✅ present / ⚠️ too vague / ❌ missing, quote the relevant text, and suggest concrete additions specific to the change. Reject placeholder answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards", "Revert PR and push", or "N/A".
-
-1. **Test Plan** — environments used, tests and metrics verified, staging first, and flag/gate states covered (on, off, partial rollout).
-2. **Deployment Plan** — deploy steps, environments, and any linked PRs or flags that must land together.
-3. **Verification Plan** — how the change is verified in production (dashboards, metrics, prod tests).
-4. **Rollback Plan** — steps any teammate can execute quickly.
-5. **Risk Mitigation** — actions taken to reduce risk, such as feature flag behavior.
-6. **Breaking Change & Customer Impact** — whether behavior customers depend on changes, who is affected, the customer-visible impact, and the backward-compatibility path. Treat new required fields as breaking. Reject a bare "no impact".
-
-For high-volume destinations (e.g. Facebook, Google, Snapchat), confirm a feature flag is used for rollout. Flag anything that looks like the guidelines' approval requirements were bypassed.
+PRs that can reach production must fill in the Change Release Safety sections of the [PR template](./PULL_REQUEST_TEMPLATE.md): Test, Deployment, Verification and Rollback Plans, Risk Mitigation, and Breaking Change & Customer Impact. When reviewing, report each as present, too vague, or missing, and suggest concrete additions. Reject placeholders such as "Tested in stage", "Auto deployed" or "N/A". Treat new required fields as breaking changes. For high-volume destinations (e.g. Facebook, Google, Snapchat), confirm a feature flag is used. Flag PRs that look like they bypassed the required review approvals.
