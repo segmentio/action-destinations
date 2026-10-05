@@ -59,7 +59,7 @@ _A summary of your pull request, including the what change you're making and why
        (gating, versioning, opt-in, deprecation notice / comms).
      Write "Not a breaking change - no customer impact" only after doing this analysis. -->
 
-### Change Control Checklist
+## Approvals & Review
 
 See the [Change Release Safety guidelines](https://docs.google.com/document/d/1N2MtcLtiI7MK_GgwEe1tXtDYrMZnbfJCVyFvVoof-Ss/edit?tab=t.0#heading=h.dyt1m85tc50l).
 
