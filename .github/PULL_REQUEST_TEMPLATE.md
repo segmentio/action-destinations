@@ -1,9 +1,5 @@
 <!-- Hello and thank you for contributing to Segment action-destinations! -->
 
-<!-- Before opening your pull request, make sure you have added and ran unit
-     tests and tested your change locally. Refer to our testing
-     documentation for more information: https://github.com/segmentio/action-destinations/blob/main/docs/testing.md -->
-
 <!-- If you have questions or issues please open a new issue or create a new discussion
      post in Github. -->
 
@@ -21,8 +17,7 @@ _A summary of your pull request, including the what change you're making and why
 
 <!-- Environment(s) used and tests run / metrics verified. Segmenter changes must be tested in
      staging first, with enough bake time for end-to-end tests to complete. Cover flag/gate states:
-     on, off, and partial rollout. For high-volume destinations (Facebook, Google, Snapchat), use a
-     feature flag to roll out safely. -->
+     on, off, and partial rollout. -->
 
 ### Deployment Plan
 
@@ -62,7 +57,7 @@ _A summary of your pull request, including the what change you're making and why
 - [ ] **Deployment Plan** documented — steps, environments, and any linked PRs / flags / gates / cob vars
 - [ ] **Verification Plan** documented — dashboards / metrics / prod tests (aim for ~3 independent signals)
 - [ ] **Rollback Plan** documented — executable by any teammate
-- [ ] **Risk Mitigation** described — feature flags/gates and how they protect the change
+- [ ] **Risk Mitigation** described — what reduces the risk of this change
 - [ ] **Breaking change & customer impact** analyzed — whether behavior customers depend on changes, who is affected and how, and the backward-compatibility / migration path (or explicitly not a breaking change after analysis)
 - [ ] **Feature flag / gate** — risky or high-volume changes gated behind a flag that defaults to **off**; on / off / partial-rollout states tested; rollout & flag-cleanup plan documented (or N/A)
 - [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
@@ -80,18 +75,11 @@ any of the tasks you completed below during your testing._
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
 - [ ] [Segmenters] [If applicable for this change] Tested for regression with Hadron.
 
-<!-- Staging bake time, flag/gate states, and backward-compatibility are covered under
-     Change Release Safety above (Test Plan and Breaking Change & Customer Impact). -->
-
 ## Security Review
 
 _Please ensure sensitive data is properly protected in your integration._
 
 - [ ] **Reviewed all field definitions** for sensitive data (API keys, tokens, passwords, client secrets) and confirmed they use `type: 'password'`
-
-<!-- Feature-flag / rollout details (flag name, Flagon registration, defaults-off, rollout &
-     cleanup plan) belong in the Change Release Safety section above — see the Risk Mitigation
-     narrative and the "Feature flag / gate" item in the Change Control Checklist. -->
 
 ## New Destination Checklist
 

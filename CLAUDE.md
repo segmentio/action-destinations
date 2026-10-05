@@ -185,7 +185,6 @@ To override automatic HTTP error handling, set `throwHttpErrors: false` on the r
 
 - Implement `performBatch` for high-volume destinations
 - Use appropriate batch keys with low cardinality to avoid inefficient batching
-- Test various batch sizes and edge cases
 
 #### batch_size vs batch_bytes
 
@@ -241,7 +240,6 @@ fields: {
 
 - Never expose or log sensitive information like auth tokens or PII
 - Use the `processHashing` utility for PII hashing rather than direct crypto calls
-- Mark sensitive fields with `type: 'password'`
 
 ### Performance
 
@@ -334,7 +332,7 @@ expect(responses[0].status).toBe(200)
 ### Breaking Changes Prevention
 
 Breaking-change and customer-impact analysis, and feature-flag rollout for high-volume
-destinations, are reviewed under **Change Release Safety** below (items 1, 5, and 6) — that
+destinations, are reviewed under **Change Release Safety** below (items 5 and 6) — that
 is the single source of truth. When reviewing the diff specifically, flag:
 
 - Adding new required fields to existing action definitions
@@ -371,8 +369,7 @@ Each item corresponds to a checkbox in the PR template's Change Control Checklis
 
 1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging
    first** with sufficient bake time for end-to-end tests to complete; covers flag/gate
-   states (on, off, and partial rollout). For high-volume destinations (e.g. Facebook,
-   Google, Snapchat), confirm a feature flag is used to roll out safely.
+   states (on, off, and partial rollout).
 2. **Deployment Plan** — deploy steps, environments, and any linked PRs / flags / gates /
    cob vars that must land or change together.
 3. **Verification Plan** — how the change is verified in production (dashboard links,
@@ -381,7 +378,9 @@ Each item corresponds to a checkbox in the PR template's Change Control Checklis
 4. **Rollback Plan** — clear steps any teammate can execute quickly; risky rollbacks
    should be tested in staging.
 5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature
-   flag/gate behavior and how it protects the change).
+   flag/gate behavior and how it protects the change). For critical high-volume
+   destinations (e.g. Facebook, Google, Snapchat), confirm risky changes are gated behind a
+   flag that defaults to off.
 6. **Breaking Change & Customer Impact** — whether the change alters behavior customers
    depend on (schema/field changes, new required fields, removed/renamed fields, changed
    defaults, API or version bumps, altered mapping output, auth or rate-limit changes,
