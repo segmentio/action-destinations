@@ -319,7 +319,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         'By default, sessions time out after 30 minutes of inactivity. Provide a value for this configuration option to override that default with a value of your own.'
     }
   },
-  initialize: async ({ settings }, dependencies) => {
+  initialize: async ({ settings, analytics }, dependencies) => {
     try {
       const {
         endpoint,
@@ -369,12 +369,7 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             return true
           }
 
-          // When deferring, only initialize once an identify with a userId has been
-          // observed in the current page load. We intentionally do NOT read
-          // analytics.user().id() here: that resolves from the persisted ajs_user_id
-          // in localStorage, which stays set across sessions and would let the SDK
-          // open an anonymous session on page loads where no identify actually fired.
-          if (deferUntilIdentified && deferredUserId === undefined) {
+          if (deferUntilIdentified && typeof analytics.user().id() !== 'string') {
             return false
           }
 
