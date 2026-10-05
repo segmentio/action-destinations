@@ -1,20 +1,10 @@
-import {
-  ActionDefinition,
-  RequestClient,
-  PayloadValidationError,
-  MultiStatusResponse,
-  JSONLikeObject,
-  ErrorCodes
-} from '@segment/actions-core'
+import { ActionDefinition, RequestClient, PayloadValidationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges, UserAlias } from '../braze-cohorts-types'
 import { StateContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
-
-const UNIDENTIFIABLE_USER_ERROR =
-  'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audience',
@@ -33,7 +23,7 @@ const action: ActionDefinition<Settings, Payload> = {
     user_alias: {
       label: 'User Alias Object',
       description:
-        'Alternate unique user identifier, this is required if External User ID or Device ID is not set. Both `Alias Name` and `Alias Label` must be provided together; if either is missing the alias is ignored in favor of External User ID or Device ID. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.',
+        'Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.',
       type: 'object',
       properties: {
         alias_name: {
@@ -121,60 +111,19 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, [payload], stateContext, false)
+    return processPayload(request, settings, [payload], stateContext)
   },
   performBatch: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, payload, stateContext, true)
+    return processPayload(request, settings, payload, stateContext)
   }
 }
 async function processPayload(
   request: RequestClient,
   settings: Settings,
   payloads: Payload[],
-  stateContext: StateContext | undefined,
-  isBatch: boolean
+  stateContext?: StateContext
 ) {
-  // Batch-wide invariant: cohort_name and personas_audience_key are configuration values
-  // that are identical for every event in the batch, so a mismatch is a whole-batch failure.
   validate(payloads)
-
-  const multiStatusResponse = new MultiStatusResponse()
-
-  // Classify each payload:
-  //  - 'sync'   : has a usable identifier (External User ID, Device ID, or a complete User
-  //               Alias Object) and is sent to Braze.
-  //  - 'reject' : a User Alias Object was provided but is incomplete (missing alias_name or
-  //               alias_label) and there is no External User ID / Device ID to fall back on,
-  //               so the user cannot be identified. In a batch we fail ONLY this index; for a
-  //               single event we throw (preserving the previous perform() behavior).
-  //  - 'noop'   : no identifier at all. Historically a no-op that succeeds without syncing a
-  //               user, so we preserve that (200 in a batch, early return for a single event).
-  const payloadsToSync: Payload[] = []
-  const succeededIndices: number[] = []
-
-  payloads.forEach((payload, index) => {
-    switch (classifyPayload(payload)) {
-      case 'sync':
-        payloadsToSync.push(payload)
-        succeededIndices.push(index)
-        break
-      case 'noop':
-        succeededIndices.push(index)
-        break
-      case 'reject':
-        if (!isBatch) {
-          throw new PayloadValidationError(UNIDENTIFIABLE_USER_ERROR)
-        }
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-          errormessage: UNIDENTIFIABLE_USER_ERROR,
-          body: payload as unknown as JSONLikeObject
-        })
-        break
-    }
-  })
-
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
   const cohortChanges: Array<CohortChanges> = []
@@ -184,11 +133,19 @@ async function processPayload(
     //setting cohort_name in cache context with ttl 0 so that it can keep the value as long as possible.
     stateContext?.setResponseContext?.(`cohort_name`, cohort_name, {})
   }
-  const { addUsers, removeUsers } = extractUsers(payloadsToSync)
+  const { addUsers, removeUsers } = extractUsers(payloads)
 
   const hasAddUsers = hasUsersToAddOrRemove(addUsers)
   const hasRemoveUsers = hasUsersToAddOrRemove(removeUsers)
 
+  // We should never hit this condition because at least an user_id or device_id
+  // or user_alias is required in each payload, but if we do, returning early
+  // rather than hitting Cohort's API (with no data) is more efficient.
+  // The monoservice will interpret this early return as a 200.
+
+  if (!hasAddUsers && !hasRemoveUsers) {
+    return
+  }
   if (hasAddUsers) {
     cohortChanges.push(addUsers)
   }
@@ -196,45 +153,13 @@ async function processPayload(
     cohortChanges.push(removeUsers)
   }
 
-  // The whole batch is delivered to Braze in a single request. If that request fails it
-  // throws here and propagates, failing the batch as a whole — which is correct, because
-  // every synced event shared that one request (and 5xx failures stay retryable).
-  const response =
-    cohortChanges.length > 0 ? await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges) : undefined
-
-  // Single-event path keeps its original contract: return the API response (or undefined
-  // when there was nothing to send).
-  if (!isBatch) {
-    return response
-  }
-
-  // The aggregated request succeeded (or there was nothing to send): mark every synced and
-  // no-op event as accepted. Rejected indices already hold their per-event 400.
-  for (const index of succeededIndices) {
-    multiStatusResponse.setSuccessResponseAtIndex(index, {
-      status: 200,
-      sent: payloads[index] as unknown as JSONLikeObject,
-      body: (response?.data ?? {}) as JSONLikeObject
-    })
-  }
-
-  return multiStatusResponse
+  return await syncAudiencesApiClient.batchUpdate(settings, cohort_id, cohortChanges)
 }
 
 function validate(payloads: Payload[]): void {
   if (payloads[0].cohort_name !== payloads[0].personas_audience_key) {
     throw new PayloadValidationError('The value of `personas computation key` and `personas_audience_key` must match.')
   }
-}
-
-function classifyPayload({ external_id, device_id, user_alias }: Payload): 'sync' | 'reject' | 'noop' {
-  if (external_id || device_id || (user_alias?.alias_name && user_alias?.alias_label)) {
-    return 'sync'
-  }
-  // No External User ID / Device ID and no complete alias. If an alias object was supplied
-  // but is incomplete, it is a rejectable misconfiguration; otherwise the event simply has
-  // no identifier and is a no-op.
-  return user_alias ? 'reject' : 'noop'
 }
 
 function extractUsers(payloads: Payload[]) {
@@ -260,7 +185,7 @@ function extractUsers(payloads: Payload[]) {
       user?.user_ids?.add(external_id)
     } else if (device_id && !addUsers.device_ids?.has(device_id) && !removeUsers.device_ids?.has(device_id)) {
       user?.device_ids?.add(device_id)
-    } else if (user_alias?.alias_name && user_alias?.alias_label) {
+    } else if (user_alias) {
       const aliasKey = `${user_alias.alias_name}:${user_alias.alias_label}`
       if (!addUsers.aliases?.has(aliasKey) && !removeUsers.aliases?.has(aliasKey)) {
         user?.aliases?.set(aliasKey, user_alias)
