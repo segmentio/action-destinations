@@ -81,7 +81,6 @@ _Risky or high-volume changes must be gated behind a feature flag. Confirm the d
 - [ ] This change is **not** gated behind a feature flag (N/A)
 - [ ] Flag name: `<flag-name>`
 - [ ] Flag is registered and defaults to **off**
-- [ ] Rollout, rollback, and flag-cleanup plan described in the Deployment and Rollback Plans above
 
 ## New Destination Checklist
 
