@@ -22,7 +22,7 @@ export interface Settings {
    */
   gatewaySupport?: boolean
   /**
-   * For gateways only. Requires Gateway Support. What Avo Inspector inspects for each event, named the way a warehouse stores it. "Event properties" inspects the event properties only. "Event properties and context" also inspects every context field, as a column such as context_page_path. "Everything" also inspects anonymous_id, user_id, id, event, timestamp, original_timestamp, sent_at and received_at. Avo receives the names and types of these fields, never their values.
+   * For gateways only. Requires Gateway Support. What Avo Inspector inspects for each event, named the way a warehouse stores it. "Event properties" inspects the event properties only. "Event properties and context" also inspects every context field, as a column such as context_page_path. "Everything the warehouse stores" also inspects anonymous_id, user_id, id, event, timestamp, original_timestamp, sent_at and received_at. Avo receives the names and types of these fields, never their values.
    */
   inspectedFields?: string
 }

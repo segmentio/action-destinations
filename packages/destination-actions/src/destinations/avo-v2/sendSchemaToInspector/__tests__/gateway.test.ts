@@ -453,7 +453,7 @@ const schemaOf = (body: Record<string, unknown>) =>
     ])
   )
 
-describe('Inspected Fields (shared warehouse column vectors)', () => {
+describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
   const cases = vectors.warehouseColumnCases.cases
 
   it('the vector table carries every warehouse-column case', () => {
@@ -493,7 +493,7 @@ describe('Inspected Fields (shared warehouse column vectors)', () => {
   const everything = cases[2]
   const eventOnly = cases[0]
 
-  it('without Gateway Support, Inspected Fields is ignored', async () => {
+  it('without Gateway Support, Gateway Inspection Scope is ignored', async () => {
     const { url, bodies } = await sendOne(
       everything.event as unknown as SegmentEvent,
       {},
@@ -505,7 +505,7 @@ describe('Inspected Fields (shared warehouse column vectors)', () => {
     expect(schemaOf(bodies[0])).toStrictEqual(eventOnly.expectedSchema)
   })
 
-  it('a destination saved before Inspected Fields existed inspects the event properties only', async () => {
+  it('a destination saved before Gateway Inspection Scope existed inspects the event properties only', async () => {
     const { bodies } = await sendOne(everything.event as unknown as SegmentEvent, {}, GATEWAY)
     expect(schemaOf(bodies[0])).toStrictEqual(eventOnly.expectedSchema)
   })
@@ -542,7 +542,7 @@ describe('Inspected Fields (shared warehouse column vectors)', () => {
     expect(columns.filter((p) => p.encryptedPropertyValue !== undefined || p.children !== undefined)).toStrictEqual([])
   })
 
-  it('a mapping saved before Inspected Fields existed still gets the columns', async () => {
+  it('a mapping saved before Gateway Inspection Scope existed still gets the columns', async () => {
     nock('https://api.avo.app').post(/.*/).reply(200, {})
     const responses = await testDestination.testAction('sendSchemaToInspector', {
       event: asSent(everything.event) as unknown as SegmentEvent,
@@ -659,12 +659,14 @@ describe('Inspected Fields (shared warehouse column vectors)', () => {
     ]).toStrictEqual([true, true, true])
   })
 
-  it('offers the shared scopes, defaulting to everything', () => {
+  // Avo's Inspector setup tab and docs quote these labels.
+  it('is labelled Gateway Inspection Scope and offers the shared scopes, defaulting to everything', () => {
     const setting = Destination.authentication?.fields.inspectedFields
+    expect(setting?.label).toBe('Gateway Inspection Scope')
     expect(setting?.choices).toStrictEqual([
       { label: 'Event properties', value: 'event' },
       { label: 'Event properties and context', value: 'event+context' },
-      { label: 'Everything', value: 'everything' }
+      { label: 'Everything the warehouse stores', value: 'everything' }
     ])
     expect(setting?.default).toBe('everything')
   })
