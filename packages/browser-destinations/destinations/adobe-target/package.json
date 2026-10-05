@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-adobe-target",
-  "version": "1.110.0",
+  "version": "1.110.1-staging-d2491b830.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
