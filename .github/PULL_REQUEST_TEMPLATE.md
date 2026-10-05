@@ -21,8 +21,8 @@ _A summary of your pull request, including the what change you're making and why
 
 <!-- Environment(s) used and tests run / metrics verified. Segmenter changes must be tested in
      staging first, with enough bake time for end-to-end tests to complete. Cover flag/gate states:
-     on, off, and partial rollout. For high-volume destinations (Facebook, Google, Snapchat), use a
-     feature flag to roll out safely. -->
+     on, off, and partial rollout. For high-volume destinations (Facebook, Google, Snapchat),
+     Segmenters should use a feature flag to roll out safely. -->
 
 - [ ] Added [unit tests](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing) for new functionality
 - [ ] Tested end-to-end using the [local server](https://github.com/segmentio/action-destinations/blob/main/docs/testing.md#local-end-to-end-testing)
@@ -75,7 +75,7 @@ _Please ensure sensitive data is properly protected in your integration._
 
 ## Feature flag / Rollout
 
-_Risky or high-volume changes must be gated behind a feature flag. Confirm the details below._
+_[Segmenters] Risky or high-volume changes must be gated behind a feature flag. Confirm the details below. External/partner contributors can skip this section; Segment will handle any flagging and rollout._
 
 - [ ] This change is **not** gated behind a feature flag (N/A)
 - [ ] Flag name: `<flag-name>`
