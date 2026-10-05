@@ -47,6 +47,10 @@ When reviewing pull requests, thoroughly check the following areas:
   - Required Field Check
   - Test External
   - Code coverage
+- Beyond the gating status checks above, also confirm the PR meets the author-facing
+  review bar covered in **PR Author Nudges** below (Testing section filled in, and
+  feature-flag rollout details when a flag is introduced). These are advisory, not
+  gating checks, but should be raised as review comments when missing.
 
 ### 2. Code Quality and Standards
 
@@ -66,10 +70,31 @@ When reviewing pull requests, thoroughly check the following areas:
   - Adding new required fields to existing action definitions
   - Changing field types in ways that could break existing integrations
   - Altering the behavior of existing functionality that customers rely on
-- For critical high-volume destinations (e.g., Facebook, Google, Snapchat), recommend using feature flags to safely roll out changes
+- For critical high-volume destinations (e.g., Facebook, Google, Snapchat, TikTok), recommend using feature flags to safely roll out changes
   - This allows testing in production with limited exposure
   - Helps identify potential issues before affecting all customers
   - Provides a quick rollback mechanism if problems are discovered
+
+#### Recognizing feature flags in a diff
+
+Feature flags follow consistent conventions in this repo, so you can detect them when reviewing a diff:
+
+- Flags are **kebab-case string literals**, usually defined as an exported constant whose name contains `FLAGON`, `FEATURE_FLAG`, `_FLAG`, or `FLAG_` (e.g. `S3_HASHING_FEATURE_FLAG`, `FLAGON_NAME`), or occasionally inlined as a literal.
+- They are read off the perform bundle as `features?.['flag-name']` or `features['flag-name']` inside `perform` / `performBatch`.
+- A flag should **default to off** and be registered in Flagon before rollout.
+- Real examples for reference:
+  - [`mixpanel/trackEvent/index.ts`](../packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts) — `mixpanel-multistatus`
+  - [`hubspot/upsertObject/index.ts`](../packages/destination-actions/src/destinations/hubspot/upsertObject/index.ts) — `actions-hubspot-lists-association-support`
+  - [`s3/constants.ts`](../packages/destination-actions/src/destinations/s3/constants.ts) — `S3_HASHING_FEATURE_FLAG`
+
+### 3a. PR Author Nudges
+
+When reviewing a PR, post a short, friendly, **non-blocking** review comment (a suggestion, never "request changes") when either of the following applies. Prefer a single consolidated comment covering both.
+
+- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging / Hadron regression), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
+- **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered in Flagon and **defaults to off**, and to describe the rollout / rollback plan.
+
+Keep these nudges advisory and encouraging — they help authors and reviewers, but they do not block merge.
 
 ### 4. PR Organization
 
@@ -163,3 +188,60 @@ When implementing features or fixing bugs based on user prompts, follow these gu
 3. Review the code changes in detail, focusing on logic and potential issues
 4. Provide specific, actionable feedback on areas for improvement
 5. Suggest alternatives where appropriate, with example code if helpful
+
+## Change Release Safety (Change Control) — required review
+
+Context: Per the internal "Segment Change Release Safety" guidelines, nearly half of
+recent incidents were self-inflicted (defect escape or regression), with outsized
+impact on our largest enterprise customers. Reviewing changes against these guidelines
+is a first-class part of every review — not an afterthought.
+
+When you review a PR that can reach production, verify the PR description contains all of
+the items below, each in enough detail that another engineer with similar expertise could
+reproduce them. For each item, report its status (✅ present / ⚠️ too vague / ❌ missing),
+quote the relevant text from the description, and suggest concrete additions specific to
+this change (e.g. the exact dashboards, metrics, or tests to watch). Reject placeholder
+answers such as "Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards",
+"Revert PR and push", or "N/A".
+
+Each item maps 1:1 to a checkbox in the PR template
+(`.github/PULL_REQUEST_TEMPLATE.md`).
+
+1. **Test Plan** — environment(s) used and tests/metrics verified; tested in **staging
+   first** with sufficient bake time for end-to-end tests to complete; covers flag/gate
+   states (on, off, and partial rollout). For high-volume destinations (e.g. Facebook,
+   Google, Snapchat), confirm a feature flag is used to roll out safely.
+2. **Deployment Plan** — deploy steps, environments, and any linked PRs / flags / gates /
+   cob vars that must land or change together.
+3. **Verification Plan** — how the change is verified in production (dashboard links,
+   metrics monitored, prod tests expected to pass); aim for ~3 independent signals. This
+   is a required complement to the Test Plan, not a substitute for it.
+4. **Rollback Plan** — clear steps any teammate can execute quickly; risky rollbacks
+   should be tested in staging.
+5. **Risk Mitigation** — actions taken to reduce the risk of the change (e.g. feature
+   flag/gate behavior and how it protects the change).
+6. **Breaking Change & Customer Impact** — whether the change alters behavior customers
+   depend on (schema/field changes, new required fields, removed/renamed fields, changed
+   defaults, API or version bumps, altered mapping output, auth or rate-limit changes,
+   dropped events); who is affected (which destinations/integrations, customer segments,
+   event volumes — call out top enterprise customers) and the customer-visible impact
+   (data loss, delivery failures, duplicate/missing events, downstream schema breakage,
+   silent behavior changes); and the backward-compatibility / migration path (gating,
+   versioning, opt-in, deprecation notice). Treat new required fields as breaking. Reject a
+   bare "no impact" — require the analysis behind it.
+
+Approval & process expectations (flag anything that looks bypassed):
+
+7. **+2 code review approvals** before merge to the protected branch — two +1s from two
+   different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
+8. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
+   changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
+   execution require at least one approval; pairing is mandatory for script execution and
+   DB writes.
+9. **Pair programming** for non-standard operational work that cannot be staged and
+   reviewed (scripts, database queries).
+10. **Director involvement** for major/risky changes — skipping staging for hotfixes,
+   restoring DBs from backup, operations that could cause data loss, COGS-driven infra
+   changes, and maintenance windows.
+11. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
+    maintenance window (contractual customer-notice requirements apply).

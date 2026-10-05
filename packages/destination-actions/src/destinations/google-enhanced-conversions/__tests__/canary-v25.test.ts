@@ -51,7 +51,7 @@ describe('Google Enhanced Conversions — Canary v25', () => {
       expect(responses[0].url).toContain(CANARY_API_VERSION)
     })
 
-    it('single event: uses stable v22 URL when flagon is disabled', async () => {
+    it('single event: uses stable API version URL when flagon is disabled', async () => {
       const event = createTestEvent({
         timestamp,
         event: 'Test Event',
@@ -78,8 +78,11 @@ describe('Google Enhanced Conversions — Canary v25', () => {
 
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(201)
-      expect(responses[0].url).toContain(API_VERSION)
-      expect(responses[0].url).not.toContain(CANARY_API_VERSION)
+      // Assert the full stable URL rather than `not.toContain(CANARY_API_VERSION)`: once stable
+      // catches up to canary the two constants are equal, and a negative assertion would be unsatisfiable.
+      expect(responses[0].url).toBe(
+        `https://googleads.googleapis.com/${API_VERSION}/customers/${customerId}:uploadClickConversions`
+      )
     })
 
     it('batch event: uses canary v25 URL when flagon is enabled', async () => {
@@ -300,11 +303,15 @@ describe('Google Enhanced Conversions — Canary v25', () => {
       expect(CANARY_API_VERSION).toBe('v25')
     })
 
-    it('CANARY_API_VERSION differs from stable API_VERSION', async () => {
+    it('CANARY_API_VERSION never trails the stable API_VERSION', async () => {
       const { API_VERSION } = await import('../functions')
-      expect(CANARY_API_VERSION).not.toBe(API_VERSION)
-      expect(CANARY_API_VERSION).toBe('v25')
-      expect(API_VERSION).toBe('v22')
+      expect(API_VERSION).toMatch(/^v\d+$/)
+      expect(CANARY_API_VERSION).toMatch(/^v\d+$/)
+
+      // Canary is bumped first and stable catches up later, so canary may equal stable
+      // but must never point at an older version than stable.
+      const versionNumber = (version: string) => Number(version.slice(1))
+      expect(versionNumber(CANARY_API_VERSION)).toBeGreaterThanOrEqual(versionNumber(API_VERSION))
     })
 
     it('FLAGON_NAME is the correct feature flag key', () => {

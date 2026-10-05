@@ -1,17 +1,29 @@
-import { Client, clearCredentialsCache, isAWSError } from '../syncToS3/client'
-import { S3Client, _Error as AWSError } from '@aws-sdk/client-s3'
+import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
+import { S3Client, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
+import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
+import {
+  APIError,
+  ErrorCodes,
+  IntegrationError,
+  RetryableError,
+  RequestTimeoutError,
+  PayloadValidationError,
+  InvalidAuthenticationError
+} from '@segment/actions-core'
 import type { Features, StatsContext } from '@segment/actions-core'
 import { Settings } from '../generated-types'
-import { S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
+import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from '../syncToS3/constants'
 
-// Controllable STS send mock so the caching tests can control credential responses.
+// Controllable STS send mock so tests can control assume-role responses/failures.
 const mockStsSend = jest.fn()
+// Controllable S3 send mock so tests can simulate PUT failures.
+const mockS3Send = jest.fn()
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
   S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn()
+    send: mockS3Send
   })),
   PutObjectCommand: jest.fn(),
   _Error: jest.fn()
@@ -23,6 +35,32 @@ jest.mock('@aws-sdk/client-sts', () => ({
   })),
   AssumeRoleCommand: jest.fn()
 }))
+
+// Client.assumeRole() reads these to build the intermediary (first-hop) AssumeRole call. Set them
+// for the WHOLE file so no describe runs with them unset — otherwise the earlier describes would
+// build the intermediary command with RoleArn/ExternalId of `undefined`, and behavior could depend
+// on test execution order.
+const ORIGINAL_ROLE_ADDRESS = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
+const ORIGINAL_EXTERNAL_ID = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
+beforeAll(() => {
+  process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
+  process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
+})
+afterAll(() => {
+  process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = ORIGINAL_ROLE_ADDRESS
+  process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = ORIGINAL_EXTERNAL_ID
+})
+
+// Reset BOTH AWS send mocks (and the shared credential cache) before every test. Previously the
+// first describe reset only mockStsSend, so mockS3Send state could leak across describes — an
+// order-dependence hazard. Describe-level beforeEach hooks still run after this one and re-apply
+// their own per-suite defaults.
+beforeEach(() => {
+  mockStsSend.mockReset()
+  mockS3Send.mockReset()
+  mockS3Send.mockResolvedValue({})
+  clearCredentialsCache()
+})
 
 describe('isAWSError', () => {
   it('should return true for a valid AWS error', () => {
@@ -70,6 +108,539 @@ describe('isAWSError', () => {
   })
 })
 
+describe('Client STS assume-role error handling', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+
+  const flagOn: Features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  beforeEach(() => {
+    mockStsSend.mockReset()
+  })
+
+  it('is off by default: an STS failure is NOT wrapped and escapes unclassified (prior behavior)', async () => {
+    const rawError = new Error('Could not load credentials from any providers')
+    mockStsSend.mockRejectedValue(rawError)
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    // The raw rejection propagates as-is — not mapped to any Segment error class.
+    expect(err).toBe(rawError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect(err).not.toBeInstanceOf(APIError)
+  })
+
+  // Regression: STS failures used to escape uploadS3's try/catch (assumeRole ran before it), so
+  // they reached the platform unwrapped (no status/code), got classified type:internal and were
+  // force-retried. When enabled, they must be mapped to a Segment error class with a status.
+  it('when enabled, wraps a "could not load credentials" STS failure in a classified RetryableError', async () => {
+    mockStsSend.mockRejectedValue(new Error('Could not load credentials from any providers'))
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toContain('Could not load credentials from any providers')
+    expect((err as RetryableError).status).toBeDefined()
+  })
+
+  // Regression: permanent authorization failures from STS must NOT be force-retried when enabled —
+  // but only for the CUSTOMER role assumption. The intermediary (Segment-internal) hop resolves
+  // successfully here so this test isolates the customer-hop classification.
+  it('when enabled, maps a permanent STS access-denied failure on the CUSTOMER role to a non-retryable 403 error', async () => {
+    const stsError = Object.assign(new Error('User is not authorized to perform sts:AssumeRole'), {
+      name: 'AccessDenied',
+      $fault: 'client',
+      $metadata: { httpStatusCode: 403 }
+    })
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      .mockRejectedValueOnce(stsError)
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(403)
+  })
+
+  // Regression: a transient/permission hiccup on Segment's OWN intermediary role must always be
+  // retryable — it's not a customer misconfiguration, so it must not get the strict customer-facing
+  // classification (which could otherwise permanently reject it).
+  it('when enabled, always treats an intermediary-role STS failure as retryable, even with an access-denied shape', async () => {
+    const stsError = Object.assign(new Error('User is not authorized to perform sts:AssumeRole'), {
+      name: 'AccessDenied',
+      $fault: 'client',
+      $metadata: { httpStatusCode: 403 }
+    })
+    mockStsSend.mockRejectedValueOnce(stsError)
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect(err).not.toBeInstanceOf(APIError)
+  })
+
+  // errorMessage() String(err) branch: a non-Error intermediary-role rejection is stringified into
+  // the retryable message rather than read via `.message`.
+  it('when enabled, stringifies a non-Error intermediary-role rejection into the retryable message', async () => {
+    mockStsSend.mockRejectedValueOnce({ toString: () => 'weird-sts-failure' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toBe('Failed to assume intermediary AWS role: weird-sts-failure')
+  })
+})
+
+describe('uploadS3 incomplete-credentials guard (independent of the error-classification flag)', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  // Regression: the "Failed to assume role" completeness check (client.ts:185-193) sits AFTER the
+  // flag-gated STS send, so it must reject on malformed STS credentials whether or not the
+  // error-classification flag is on. Previously only the flag-on path exercised it.
+  it('is off by default: rejects a non-retryable 403 InvalidAuthentication error when STS omits a credential field', async () => {
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      // Customer hop is missing SessionToken -> fails the completeness check.
+      .mockResolvedValueOnce({ Credentials: { AccessKeyId: 'AKIA_CUSTOMER', SecretAccessKey: 'secret' } })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as IntegrationError).status).toBe(403)
+    expect((err as IntegrationError).code).toBe(ErrorCodes.INVALID_AUTHENTICATION)
+    expect((err as Error).message).toBe('Failed to assume role')
+  })
+
+  it('also rejects with the same 403 guard when the classification flag is on', async () => {
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'secret', SessionToken: 'token' }
+      })
+      .mockResolvedValueOnce({ Credentials: undefined })
+
+    const err = await upload(newClient({ [S3_STS_ERROR_CLASSIFICATION_FLAG]: true })).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(403)
+  })
+})
+
+describe('AssumeRole command inputs and intermediary -> customer credential chaining', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, undefined)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  it('builds each hop with the right RoleArn/ExternalId + a shared RoleSessionName, and feeds the intermediary creds into the customer-hop STS client', async () => {
+    ;(AssumeRoleCommand as unknown as jest.Mock).mockClear()
+    ;(STSClient as unknown as jest.Mock).mockClear()
+    mockStsSend
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_INTERMEDIARY', SecretAccessKey: 'int-secret', SessionToken: 'int-token' }
+      })
+      .mockResolvedValueOnce({
+        Credentials: { AccessKeyId: 'AKIA_CUSTOMER', SecretAccessKey: 'cust-secret', SessionToken: 'cust-token' }
+      })
+
+    await upload(newClient())
+
+    const assumeCalls = (AssumeRoleCommand as unknown as jest.Mock).mock.calls
+    expect(assumeCalls).toHaveLength(2)
+
+    // Hop 1: Segment's intermediary role, from the env vars set for this file.
+    expect(assumeCalls[0][0]).toMatchObject({
+      RoleArn: 'arn:aws:iam::555555555555:role/segment-intermediary',
+      ExternalId: 'segment-intermediary-external-id'
+    })
+    expect(typeof assumeCalls[0][0].RoleSessionName).toBe('string')
+    expect(assumeCalls[0][0].RoleSessionName.length).toBeGreaterThan(0)
+
+    // Hop 2: the customer's configured role + external id.
+    expect(assumeCalls[1][0]).toMatchObject({
+      RoleArn: settings.iam_role_arn,
+      ExternalId: settings.iam_external_id
+    })
+    // Both hops reuse the single per-Client session name.
+    expect(assumeCalls[1][0].RoleSessionName).toBe(assumeCalls[0][0].RoleSessionName)
+
+    // Credential chaining: the first STS client is built with no credentials; the second MUST be
+    // built with the intermediary hop's freshly minted credentials.
+    const stsCtorCalls = (STSClient as unknown as jest.Mock).mock.calls
+    expect(stsCtorCalls).toHaveLength(2)
+    expect(stsCtorCalls[0][0].credentials).toBeUndefined()
+    expect(stsCtorCalls[1][0].credentials).toEqual({
+      accessKeyId: 'AKIA_INTERMEDIARY',
+      secretAccessKey: 'int-secret',
+      sessionToken: 'int-token'
+    })
+  })
+})
+
+describe('uploadS3 PUT error classification (flag-off legacy path parity)', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  beforeEach(() => {
+    mockStsSend.mockReset()
+    mockS3Send.mockReset()
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA_TEST', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+  })
+
+  // Regression: mapAWSError's accessDeniedCodes set (flag-on) adds ExpiredToken/ExpiredTokenException/
+  // AccessDeniedException on top of the original codes, but the flag-off legacy path must keep using
+  // ONLY the original set — otherwise flag-off would silently start classifying these as 403 where main
+  // never did, breaking the "flag off == main behavior" guarantee this whole re-ship depends on.
+  it.each(['ExpiredToken', 'ExpiredTokenException', 'AccessDeniedException'])(
+    'is off by default: does NOT classify %s as a non-retryable 403 via the legacy path',
+    async (code) => {
+      mockS3Send.mockRejectedValue({ Code: code, Message: 'nope' })
+
+      const err = await upload(newClient()).catch((e: unknown) => e)
+
+      expect(err).not.toBeInstanceOf(APIError)
+      expect(err).toBeInstanceOf(RetryableError)
+    }
+  )
+
+  // Flag off (default): the inline legacy classification must map an actual S3 PUT rejection the
+  // same way main did. These drive the real uploadS3 catch (client.ts:292-302) end to end, not
+  // mapAWSError in isolation.
+  it.each([
+    ['AccessDenied', 403],
+    ['AccountProblem', 403],
+    ['NoSuchBucket', 404],
+    ['SlowDown', 429]
+  ])(
+    'is off by default: classifies a %s PUT failure as an APIError %d (not a RetryableError)',
+    async (code, status) => {
+      mockS3Send.mockRejectedValue({ Code: code, Message: 'nope' })
+
+      const err = await upload(newClient()).catch((e: unknown) => e)
+
+      expect(err).toBeInstanceOf(APIError)
+      expect(err).not.toBeInstanceOf(RetryableError)
+      expect((err as APIError).status).toBe(status)
+    }
+  )
+
+  it('is off by default: wraps a non-AWS PUT failure as an APIError 500 (not a RetryableError)', async () => {
+    // Not an AWS `_Error` (no Code/Message), so it falls to the legacy else branch -> 500.
+    mockS3Send.mockRejectedValue(new Error('socket hang up'))
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(500)
+  })
+
+  // Exercises the `err.Message || err.Code` fallback (message defaults to the Code when Message is
+  // empty) for each legacy branch.
+  it.each([
+    ['AccessDenied', 403],
+    ['NoSuchBucket', 404],
+    ['SlowDown', 429]
+  ])(
+    'is off by default: falls back to err.Code as the message for a %s PUT failure with no Message',
+    async (code, status) => {
+      mockS3Send.mockRejectedValue({ Code: code, Message: '' })
+
+      const err = await upload(newClient()).catch((e: unknown) => e)
+
+      expect(err).toBeInstanceOf(APIError)
+      expect((err as APIError).status).toBe(status)
+      expect((err as Error).message).toContain(code)
+    }
+  )
+
+  it('is off by default: falls back to err.Code for an unclassified AWS PUT failure with no Message', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'WeirdError', Message: '' })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toContain('WeirdError')
+  })
+
+  it('is off by default: falls back to a generic message for an AWS PUT failure with neither Code nor Message', async () => {
+    // Both keys present (so isAWSError is true) but empty -> the final `|| 'Unknown AWS Put error'`.
+    mockS3Send.mockRejectedValue({ Code: '', Message: '' })
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as Error).message).toContain('Unknown AWS Put error')
+  })
+})
+
+describe('uploadS3 PUT error classification (flag on -> mapAWSError wiring) and abort handling', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const flagOn: Features = { [S3_STS_ERROR_CLASSIFICATION_FLAG]: true }
+  const newClient = (features?: Features) =>
+    new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, features)
+  const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
+
+  beforeEach(() => {
+    // STS succeeds for both hops so the PUT is reached; the file-level beforeEach already reset
+    // both send mocks, so each test only sets its own S3 rejection.
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA_TEST', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+  })
+
+  // Regression: with the flag ON, a PUT rejection must be routed through mapAWSError in the
+  // uploadS3 catch (client.ts:284-285) — previously only mapAWSError-in-isolation was tested, so
+  // the wiring itself had zero coverage. mapAWSError prefixes the detail with the context string.
+  it('when enabled, routes an AccessDenied PUT failure through mapAWSError as a non-retryable APIError 403', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'AccessDenied', Message: 'nope' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(403)
+    expect((err as Error).message).toContain('AWS PUT failed')
+  })
+
+  it('when enabled, routes a NoSuchBucket PUT failure through mapAWSError as a non-retryable APIError 404', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'NoSuchBucket', Message: 'no bucket' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(APIError)
+    expect((err as APIError).status).toBe(404)
+  })
+
+  it('when enabled, routes a throttling PUT failure through mapAWSError as a retryable 429', async () => {
+    mockS3Send.mockRejectedValue({ Code: 'SlowDown', Message: 'slow down' })
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as RetryableError).status).toBe(429)
+  })
+
+  // The abort path is flag-independent: an in-flight PUT cancelled via AbortSignal is detected by
+  // the `name === 'AbortError'` check (client.ts:279-281) BEFORE any classification, and surfaces
+  // as a retryable RequestTimeoutError in both flag states.
+  it('maps an AbortError PUT rejection to a RequestTimeoutError (flag off)', async () => {
+    mockS3Send.mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }))
+
+    const err = await upload(newClient()).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
+  it('maps an AbortError PUT rejection to a RequestTimeoutError (flag on)', async () => {
+    mockS3Send.mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }))
+
+    const err = await upload(newClient(flagOn)).catch((e: unknown) => e)
+
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+})
+
+describe('mapAWSError', () => {
+  it('classifies access-denied AWS errors as non-retryable 403', () => {
+    const err = mapAWSError({ Code: 'AccessDenied', Message: 'nope' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(APIError)
+    expect((err as APIError).status).toBe(403)
+  })
+
+  it('classifies throttling as a retryable 429', () => {
+    const err = mapAWSError({ name: 'ThrottlingException', message: 'slow down' }, 'Failed to assume AWS role')
+    expect(err).toBeInstanceOf(RetryableError)
+    expect((err as RetryableError).status).toBe(429)
+  })
+
+  it('classifies a client fault (4xx) as a non-retryable IntegrationError', () => {
+    const err = mapAWSError(
+      { name: 'ValidationError', message: 'bad', $fault: 'client', $metadata: { httpStatusCode: 400 } },
+      'Failed to assume AWS role'
+    )
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as IntegrationError).status).toBe(400)
+  })
+
+  it('classifies a wrong-region PermanentRedirect (301) as a non-retryable 401, not the raw 3xx, and does not mislabel it as an auth error', () => {
+    const err = mapAWSError(
+      {
+        Code: 'PermanentRedirect',
+        Message: 'The bucket you are attempting to access must be addressed using the specified endpoint.',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 301 }
+      },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(InvalidAuthenticationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as InvalidAuthenticationError).status).toBe(401)
+    // Regression: a region mismatch is a config problem, not a credentials problem — must not be
+    // stamped with INVALID_AUTHENTICATION, which would misdirect customers/on-call toward rotating
+    // credentials instead of fixing s3_aws_region.
+    expect((err as InvalidAuthenticationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
+  })
+
+  it('includes the AWS request id in the error detail when present, for incident correlation', () => {
+    const err = mapAWSError(
+      { Code: 'AccessDenied', Message: 'nope', $metadata: { requestId: 'req-123' } },
+      'AWS PUT failed'
+    )
+    expect(err.message).toContain('req-123')
+  })
+
+  it('never surfaces a non-4xx status from the generic client-fault branch (clamps to 400)', () => {
+    // A client-fault error carrying a 3xx status must not leak that 3xx as the error status.
+    const err = mapAWSError(
+      { name: 'SomeRedirect', message: 'moved', $fault: 'client', $metadata: { httpStatusCode: 302 } },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(400)
+  })
+
+  it('treats unclassified / server-side failures as retryable', () => {
+    const err = mapAWSError(new Error('Could not load credentials from any providers'), 'Failed to assume AWS role')
+    expect(err).toBeInstanceOf(RetryableError)
+    expect(err.message).toContain('Could not load credentials from any providers')
+  })
+
+  it('classifies NoSuchBucket as a non-retryable 404', () => {
+    const err = mapAWSError({ Code: 'NoSuchBucket', Message: 'no such bucket' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(APIError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as APIError).status).toBe(404)
+  })
+
+  // The object key (folder + filename_prefix) exceeded AWS's 1024-byte limit -- a workspace
+  // configuration problem, not a transient failure. Classified as PAYLOAD_VALIDATION_FAILED
+  // rather than falling into the generic unclassified-client-fault bucket.
+  it('classifies KeyTooLongError as a non-retryable payload validation failure', () => {
+    const err = mapAWSError({ Code: 'KeyTooLongError', Message: 'Your key is too long' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(PayloadValidationError)
+    expect(err).not.toBeInstanceOf(RetryableError)
+    expect((err as PayloadValidationError).status).toBe(400)
+    expect((err as PayloadValidationError).code).toBe(ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+  })
+
+  // Regression: these carry a 4xx status but AWS documents them as transient/safe to retry, so
+  // they must not fall into the generic "4xx is permanent" branch. Surfaced as RequestTimeoutError
+  // (a retryable timeout class) rather than the raw permanent client-fault bucket.
+  it('treats OperationAborted (409) as a retryable timeout despite its 4xx status', () => {
+    const err = mapAWSError(
+      {
+        Code: 'OperationAborted',
+        Message: 'conflicting operation in progress',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 409 }
+      },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
+  it('treats RequestTimeout (400) as a retryable timeout despite its 4xx status', () => {
+    const err = mapAWSError(
+      { Code: 'RequestTimeout', Message: 'upload stalled', $fault: 'client', $metadata: { httpStatusCode: 400 } },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
+  it('treats ConditionalRequestConflict (409) as a retryable timeout despite its 4xx status', () => {
+    // AWS: "A conflicting operation occurred. If using PutObject you can retry the request." — so it
+    // must not fall into the generic permanent-4xx bucket.
+    const err = mapAWSError(
+      {
+        Code: 'ConditionalRequestConflict',
+        Message: 'A conflicting operation occurred',
+        $fault: 'client',
+        $metadata: { httpStatusCode: 409 }
+      },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RequestTimeoutError)
+  })
+
+  it('does not mislabel an unclassified 4xx client fault as an authentication error', () => {
+    const err = mapAWSError(
+      { name: 'ValidationError', message: 'bad', $fault: 'client', $metadata: { httpStatusCode: 400 } },
+      'Failed to assume AWS role'
+    )
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).code).not.toBe(ErrorCodes.INVALID_AUTHENTICATION)
+  })
+
+  it('treats a $fault: server error with a 5xx status as retryable, not a client fault', () => {
+    const err = mapAWSError(
+      { name: 'InternalError', message: 'internal', $fault: 'server', $metadata: { httpStatusCode: 500 } },
+      'AWS PUT failed'
+    )
+    expect(err).toBeInstanceOf(RetryableError)
+  })
+
+  it('clamps to 400 when $fault is client and $metadata is entirely absent', () => {
+    const err = mapAWSError({ name: 'SomeClientFault', message: 'bad', $fault: 'client' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(IntegrationError)
+    expect((err as IntegrationError).status).toBe(400)
+  })
+
+  it('uses the AWS Code as the message when Message and message are both absent', () => {
+    // Exercises `e?.Message ?? e?.message ?? code` falling through to `code`.
+    const err = mapAWSError({ Code: 'AccessDenied' }, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(APIError)
+    expect((err as APIError).status).toBe(403)
+    expect(err.message).toContain('AccessDenied')
+  })
+
+  it('does not throw on a null error value and classifies it as retryable (defensive fallback)', () => {
+    // Exercises the `e?.*` null branches and the final `?? String(err)` message fallback.
+    const err = mapAWSError(null, 'AWS PUT failed')
+    expect(err).toBeInstanceOf(RetryableError)
+    expect(err.message).toContain('AWS PUT failed')
+  })
+})
+
 describe('STS credential caching', () => {
   const settings: Settings = {
     iam_role_arn: 'arn:aws:iam::123456789012:role/test',
@@ -95,24 +666,13 @@ describe('STS credential caching', () => {
     new Client(settings.s3_aws_region, roleArn, settings.iam_external_id, undefined, features)
   const upload = (client: Client) => client.uploadS3(settings, 'content', 'file', '', 'csv')
 
-  // Client.assumeRole() reads these to build the intermediary hop; set them for real (rather than
-  // leaving them undefined) so the intermediary hop's cache key/behavior in these tests matches
-  // what a real deployment would see.
-  const originalRoleAddress = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
-  const originalExternalId = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
-  beforeAll(() => {
-    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
-    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
-  })
-  afterAll(() => {
-    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = originalRoleAddress
-    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = originalExternalId
-  })
-
+  // The intermediary-role env vars are set file-wide (see the top-level beforeAll), so this suite's
+  // intermediary hop sees the same identity a real deployment would.
   beforeEach(() => {
-    mockStsSend.mockReset()
+    // The file-level beforeEach already reset both send mocks, defaulted the PUT to success and
+    // cleared the cache; this suite only needs to clear the S3Client constructor-call history it
+    // asserts on.
     ;(S3Client as unknown as jest.Mock).mockClear()
-    clearCredentialsCache()
   })
 
   it('is off by default: calls STS on every upload without caching', async () => {
@@ -163,7 +723,7 @@ describe('STS credential caching', () => {
     expect(mockStsSend).toHaveBeenCalledTimes(2)
   })
 
-  it('when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop\'s', async () => {
+  it("when enabled, a cache hit actually returns the cached CUSTOMER-hop credentials to S3Client, not the intermediary hop's", async () => {
     // Distinguishable per-hop credentials so a cache-key mixup (e.g. customer lookup returning the
     // intermediary's cached entry) would be caught by asserting the exact values used, not just call counts.
     mockStsSend
@@ -288,7 +848,7 @@ describe('STS credential caching', () => {
   // iam_role_arn/iam_external_id equal to the intermediary's, forcing its customer hop's cache
   // lookup to collide with the (always-populated-first) intermediary entry and receive Segment's
   // shared intermediary credentials without AWS ever checking the customer role's trust policy.
-  it('when enabled, does not let a customer-configured role/externalId alias the intermediary hop\'s cache entry', async () => {
+  it("when enabled, does not let a customer-configured role/externalId alias the intermediary hop's cache entry", async () => {
     // Attacker sets their own iam_role_arn/iam_external_id equal to the (effectively public)
     // intermediary role identity set up for the whole suite above, hoping the customer hop's
     // cache lookup collides with the intermediary hop's entry and returns its shared credentials.
@@ -380,5 +940,77 @@ describe('STS credential caching', () => {
       mockStsSend.mockResolvedValue(stsOk())
       await expect(upload(newClient())).resolves.toBeDefined()
     })
+
+    // Telemetry must never fail the upload it only observes: if the stats client throws, safeIncr
+    // swallows it and logs a warning (client.ts:81) rather than propagating.
+    it('does not fail the upload when the stats client throws, and logs a warning instead', async () => {
+      mockStsSend.mockResolvedValue(stsOk())
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const incr = jest.fn(() => {
+        throw new Error('statsd unavailable')
+      })
+      const statsContext = { statsClient: { incr }, tags: ['dest:s3'] } as unknown as StatsContext
+
+      try {
+        await expect(upload(clientWithStats(statsContext))).resolves.toBeDefined()
+        expect(warn).toHaveBeenCalledWith('[s3] failed to emit metric', expect.any(String), expect.any(Error))
+      } finally {
+        // Restore via finally so a mid-test failure can't leak the console spy into later suites.
+        warn.mockRestore()
+      }
+    })
+  })
+})
+
+describe('uploadS3 object key generation', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, undefined)
+
+  beforeEach(() => {
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+  })
+
+  const keyOf = () => (PutObjectCommand as unknown as jest.Mock).mock.calls[0][0].Key as string
+
+  // Characterization tests for the filename_prefix-ends-with-.csv/.txt branch (client.ts:238-240).
+  // NOTE: these pin the CURRENT, known-buggy behavior — `filename_prefix.replace(fileExtension, ...)`
+  // replaces the FIRST occurrence of the extension substring, inserting a stray dot
+  // ('myfile.csv' -> 'myfile._<date>.csv'). This is the deferred breaking-change finding #1 from
+  // the deep review; we are NOT fixing it here, only documenting today's output so any future fix
+  // must consciously update these expectations.
+  it('inserts the date suffix via string replace when filename_prefix already ends in .csv', async () => {
+    await newClient().uploadS3(settings, 'content', 'myfile.csv', '', 'csv')
+    expect(keyOf()).toMatch(/^myfile\._.*\.csv$/)
+  })
+
+  it('inserts the date suffix via string replace when filename_prefix already ends in .txt', async () => {
+    await newClient().uploadS3(settings, 'content', 'notes.txt', '', 'txt')
+    expect(keyOf()).toMatch(/^notes\._.*\.txt$/)
+  })
+
+  it('uses just the date suffix + extension when filename_prefix is empty', async () => {
+    // else-branch, falsy filename_prefix: `${dateSuffix}.${ext}` (no leading prefix/underscore).
+    await newClient().uploadS3(settings, 'content', '', '', 'csv')
+    const key = keyOf()
+    expect(key).toMatch(/\.csv$/)
+    expect(key).not.toMatch(/^_/)
+  })
+
+  it('uses the folder name as-is when it already ends in a slash', async () => {
+    await newClient().uploadS3(settings, 'content', 'file', 'myfolder/', 'csv')
+    expect(keyOf()).toMatch(/^myfolder\/file_.*\.csv$/)
+  })
+
+  it('appends a trailing slash to a folder name that lacks one', async () => {
+    await newClient().uploadS3(settings, 'content', 'file', 'myfolder', 'csv')
+    expect(keyOf()).toMatch(/^myfolder\/file_.*\.csv$/)
   })
 })
