@@ -35,7 +35,7 @@ _A summary of your pull request, including the what change you're making and why
 
 ### Risk Mitigation
 
-<!-- Actions taken to reduce risk (e.g. feature flag/gate behavior and how it protects the change). -->
+<!-- Actions taken to reduce the risk of this change. -->
 
 ### Breaking Change & Customer Impact
 
@@ -53,7 +53,7 @@ _A summary of your pull request, including the what change you're making and why
 
 ### Change Control Checklist
 
-- [ ] **Feature flag / gate** — risky or high-volume changes gated behind a flag that defaults to **off**; on / off / partial-rollout states tested; rollout & flag-cleanup plan documented (or N/A)
+- [ ] **Feature flag / gate** — risky or high-volume changes gated behind a flag: name `<flag-name>`, registered in Flagon, defaults to **off**; rollout & flag-cleanup plan documented (or N/A)
 - [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
 - [ ] **AI deep review** completed — Claude deep review and Copilot code review run on this PR, and their Change Release Safety findings addressed or explicitly resolved
 - [ ] **Non-code production changes** (config, Flagon gates/flags, cob vars, Terraform, AWS console, prod DB reads/writes, scripts) have ≥1 approval; pairing for script execution & DB writes
