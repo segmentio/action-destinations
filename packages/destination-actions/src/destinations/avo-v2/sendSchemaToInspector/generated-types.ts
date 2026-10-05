@@ -44,9 +44,27 @@ export interface Payload {
    */
   outputReference?: string
   /**
-   * Optional, for gateways only. Requires Gateway Support. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as "ios-app". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. The app version is the event's own: the App Version Property setting, then the App Version field (`$.context.app.version`, which only mobile sources send). For a web source, set the App Version Property setting to the event property that carries its version, such as `app_version`. With an origin hint and no version, the event is sent without an app version. On a regular source, leave this field empty.
+   * Optional. Requires Gateway Support. Names the source that produced each event, such as "ios-app", so Avo can tell apart apps flowing through a gateway. See https://www.avo.app/docs/inspector/connect-inspector-to-segment-gateway.
    */
   originHint?: string
+  /**
+   * Requires Gateway Support. The event context, used by Gateway Inspection Scope.
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
+   * Requires Gateway Support. Used by Gateway Inspection Scope.
+   */
+  originalTimestamp?: string
+  /**
+   * Requires Gateway Support. Used by Gateway Inspection Scope.
+   */
+  sentAt?: string
+  /**
+   * Requires Gateway Support. Used by Gateway Inspection Scope.
+   */
+  receivedAt?: string
   /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */

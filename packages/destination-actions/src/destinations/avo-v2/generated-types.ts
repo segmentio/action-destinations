@@ -18,7 +18,7 @@ export interface Settings {
    */
   appVersionPropertyName?: string
   /**
-   * Sends events to Avo Inspector's current endpoint, which supports Avo gateways and the Output Reference and Origin Hint fields. On by default for new destinations. Destinations added before this option existed keep using the previous endpoint until you turn it on.
+   * Turn on if the Avo Inspector API Key belongs to a gateway in Avo.
    */
   gatewaySupport?: boolean
   /**

@@ -15,7 +15,7 @@ import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../../generated-types'
 import { extractSchema } from './schema-functions'
-import { rawEventsForPayloads, warehouseColumns } from './warehouse-columns'
+import { warehouseColumns } from './warehouse-columns'
 import { createEncryptionSession, EncryptionSession } from './encryption-functions'
 import { validateEvent } from './event-validator-functions'
 import { Payload } from '../generated-types'
@@ -36,7 +36,7 @@ const LEGACY_CLIENT = {
   libVersion: '2.0.0'
 }
 
-export const send = async (request: RequestClient, settings: Settings, payloads: Payload[], rawEvents?: unknown[]) => {
+export const send = async (request: RequestClient, settings: Settings, payloads: Payload[]) => {
   const anonymousId = payloads[0]?.anonymousId
   const userId = payloads[0]?.userId
   const streamId = anonymousId ? anonymousId : userId ? processHashing(userId, 'sha256', 'hex') : 'unknown'
@@ -61,15 +61,14 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
   }
 
   const inspectedFields = gatewaySupport ? settings.inspectedFields : undefined
-  const rawEventByIndex = rawEventsForPayloads(payloads, rawEvents)
 
-  const json = payloads.map((payload, index) => {
+  const json = payloads.map((payload) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
     // Warehouse columns add names and types only: their values are never encrypted or sent.
     const eventProperties = [
       ...extractSchema(payload.properties, encryptionSession),
-      ...extractSchema(warehouseColumns(rawEventByIndex[index], properties, inspectedFields))
+      ...extractSchema(warehouseColumns(warehouseFields(payload), properties, inspectedFields))
     ]
     const eventSpec = eventSpecMap?.get(event) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined
@@ -136,6 +135,21 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
 function normalizeCoordinate(value: string | undefined): string | undefined {
   const trimmed = value?.trim()
   return trimmed ? trimmed : undefined
+}
+
+// The event's context and envelope as the mapping provides them, keyed like a Segment event.
+function warehouseFields(payload: Payload): Record<string, unknown> {
+  return {
+    context: payload.context,
+    anonymousId: payload.anonymousId,
+    userId: payload.userId,
+    messageId: payload.messageId,
+    event: payload.event,
+    timestamp: payload.createdAt,
+    originalTimestamp: payload.originalTimestamp,
+    sentAt: payload.sentAt,
+    receivedAt: payload.receivedAt
+  }
 }
 
 // Gateway mode. Segment forwards the event it received, so the event's own version (the App Version

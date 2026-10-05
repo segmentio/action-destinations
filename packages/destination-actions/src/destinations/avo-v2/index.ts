@@ -43,8 +43,7 @@ const destination: DestinationDefinition<Settings> = {
       },
       gatewaySupport: {
         label: 'Gateway Support',
-        description:
-          "Sends events to Avo Inspector's current endpoint, which supports Avo gateways and the Output Reference and Origin Hint fields. On by default for new destinations. Destinations added before this option existed keep using the previous endpoint until you turn it on.",
+        description: 'Turn on if the Avo Inspector API Key belongs to a gateway in Avo.',
         type: 'boolean',
         required: false,
         default: true

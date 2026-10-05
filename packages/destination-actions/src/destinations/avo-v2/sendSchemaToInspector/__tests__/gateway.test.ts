@@ -521,19 +521,45 @@ describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
     ...event
   })
 
+  // The Context field is an object, so Segment's payload validation rejects an event whose context
+  // is not one before the destination runs; the scripts that share these vectors inspect it.
+  const hasObjectContext = (event: Record<string, unknown>) =>
+    !('context' in event) || (typeof event.context === 'object' && event.context !== null)
+
   for (const mode of ['single', 'batch'] as Mode[]) {
     for (const { name, scope, event, expectedSchema } of cases) {
       it(`${mode}: ${name}`, async () => {
-        const { bodies } = await sendOne(
-          asSent(event) as unknown as SegmentEvent,
-          {},
-          { ...GATEWAY, inspectedFields: scope },
-          mode
-        )
-        expect(schemaOf(bodies[0])).toStrictEqual(expectedSchema)
+        const send = sendOne(asSent(event) as unknown as SegmentEvent, {}, { ...GATEWAY, inspectedFields: scope }, mode)
+        if (hasObjectContext(event)) {
+          const { bodies } = await send
+          expect(schemaOf(bodies[0])).toStrictEqual(expectedSchema)
+        } else {
+          await expect(send).rejects.toThrow(mode === 'single' ? /Context/ : /expected one track request, got 0/)
+        }
       })
     }
   }
+
+  it('the vectors include a non-object context, which this destination rejects', () => {
+    expect(cases.filter(({ event }) => !hasObjectContext(event))).toHaveLength(1)
+  })
+
+  it('reads the enriched fields through mapping fields with default paths', () => {
+    const fields = Destination.actions.sendSchemaToInspector.fields
+    expect([
+      fields.context?.type,
+      fields.context?.default,
+      fields.originalTimestamp?.default,
+      fields.sentAt?.default,
+      fields.receivedAt?.default
+    ]).toStrictEqual([
+      'object',
+      { '@path': '$.context' },
+      { '@path': '$.originalTimestamp' },
+      { '@path': '$.sentAt' },
+      { '@path': '$.receivedAt' }
+    ])
+  })
 
   const everything = cases[2]
   const eventOnly = cases[0]
@@ -587,7 +613,7 @@ describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
     expect(columns.filter((p) => p.encryptedPropertyValue !== undefined || p.children !== undefined)).toStrictEqual([])
   })
 
-  it('a mapping saved before Gateway Inspection Scope existed still gets the columns', async () => {
+  it('the columns come from the mapping: without the new fields there are no context or timestamp columns', async () => {
     nock('https://api.avo.app').post(/.*/).reply(200, {})
     const responses = await testDestination.testAction('sendSchemaToInspector', {
       event: asSent(everything.event) as unknown as SegmentEvent,
@@ -604,7 +630,15 @@ describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
     })
     const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
     const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
-    expect(schemaOf(bodies[0])).toStrictEqual(everything.expectedSchema)
+    // The event's own properties (one is named context_locale) are not columns.
+    const names = Object.keys(schemaOf(bodies[0])).filter((n) => !(n in eventOnly.expectedSchema))
+    // Positive control: the columns the mapping does provide are inspected.
+    expect([
+      names.includes('anonymous_id'),
+      names.includes('id'),
+      names.some((n) => n.startsWith('context_')),
+      names.includes('sent_at')
+    ]).toStrictEqual([true, true, false, false])
   })
 
   it('in a batch, each event gets its own columns even when another event fails validation', async () => {
@@ -638,22 +672,7 @@ describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
     ])
   })
 
-  const contextColumnsByBody = async (events: Record<string, unknown>[], mapping: Record<string, unknown> = {}) => {
-    nock('https://api.avo.app').post(/.*/).reply(200, {})
-    const responses = await testDestination.testBatchAction('sendSchemaToInspector', {
-      events: events as unknown as SegmentEvent[],
-      useDefaultMappings: true,
-      mapping,
-      settings: { apiKey: 'test-api-key', env: 'prod', ...GATEWAY, inspectedFields: 'event+context' }
-    })
-    const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
-    const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
-    return bodies.map((body) => Object.keys(schemaOf(body)).filter((n) => n.startsWith('context_')))
-  }
-  const withContext = (messageId: string, context: Record<string, unknown>) =>
-    asSent({ ...everything.event, messageId, properties: { plan: 'pro' }, context })
-
-  it('a single event gets its columns even when Message ID is mapped to another field', async () => {
+  it('the id column follows the Message ID mapping', async () => {
     nock('https://api.avo.app').post(/.*/).reply(200, {})
     const responses = await testDestination.testAction('sendSchemaToInspector', {
       event: asSent(everything.event) as unknown as SegmentEvent,
@@ -663,45 +682,19 @@ describe('Gateway Inspection Scope (shared warehouse column vectors)', () => {
     })
     const post = responses.find((r) => r.options.method?.toLowerCase() === 'post')
     const bodies = JSON.parse(await (post?.request.text() ?? Promise.resolve('[]'))) as Record<string, unknown>[]
-    // Positive control: the remapped Message ID really differs from the raw event's.
+    // Positive control: the remapped Message ID really differs from the event's.
     expect(bodies[0].messageId).not.toBe(everything.event.messageId)
     expect(Object.keys(schemaOf(bodies[0])).sort()).toStrictEqual(Object.keys(everything.expectedSchema).sort())
   })
 
-  it('in a batch with no failed events, each event gets its own columns even when Message ID is remapped', async () => {
-    const columns = await contextColumnsByBody(
-      [withContext('msg-a', { locale: 'de-DE' }), withContext('msg-b', { timezone: 'Europe/Oslo' })],
-      { messageId: { '@path': '$.properties.plan' } }
-    )
-    expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
-  })
-
-  it('in a batch, events sharing a Message ID each get their own columns', async () => {
-    const columns = await contextColumnsByBody([
-      withContext('msg-dup', { locale: 'de-DE' }),
-      withContext('msg-dup', { timezone: 'Europe/Oslo' })
-    ])
-    expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
-  })
-
-  it('in a batch with a failed event, events sharing a Message ID each get their own columns', async () => {
-    const invalid = { ...asSent(everything.event), messageId: 'msg-invalid', event: undefined }
-    const columns = await contextColumnsByBody([
-      invalid,
-      withContext('msg-dup', { locale: 'de-DE' }),
-      withContext('msg-dup', { timezone: 'Europe/Oslo' })
-    ])
-    expect(columns).toStrictEqual([['context_locale'], ['context_timezone']])
-  })
-
-  // Web sources send no context.app, so their version has to come from an event property.
-  it('tells web sources to point App Version Property at the property carrying the version', () => {
-    const description = Destination.actions.sendSchemaToInspector.fields.originHint.description
+  it('keeps the gateway descriptions short, linking to the docs for details', () => {
+    const originHint = Destination.actions.sendSchemaToInspector.fields.originHint.description
+    const gatewaySupport = Destination.authentication?.fields.gatewaySupport.description
     expect([
-      description.includes('`$.context.app.version`'),
-      description.includes('set the App Version Property setting'),
-      description.includes('`app_version`')
-    ]).toStrictEqual([true, true, true])
+      originHint.includes('https://www.avo.app/docs/inspector/connect-inspector-to-segment-gateway'),
+      originHint.length < 250,
+      gatewaySupport
+    ]).toStrictEqual([true, true, 'Turn on if the Avo Inspector API Key belongs to a gateway in Avo.'])
   })
 
   // Avo's Inspector setup tab and docs quote these labels.

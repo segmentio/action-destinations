@@ -1,11 +1,7 @@
-import type { ActionDefinition, ExecuteInput } from '@segment/actions-core'
+import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { send } from './functions/functions'
-
-// The runtime passes the unmapped event as rawData, which ExecuteInput does not declare; the same
-// extension liveramp-audiences uses.
-type ExecuteInputRaw<P, R> = ExecuteInput<Settings, P> & { rawData?: R }
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track Schema From Event',
@@ -105,8 +101,36 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Origin Hint',
       type: 'string',
       description:
-        'Optional, for gateways only. Requires Gateway Support. Identifies the source that produced each event, so Avo can tell apart events from different apps flowing through a gateway. Usually a static label naming this Segment source, such as "ios-app". If one source carries events from several apps or platforms, map a path instead, such as `$.context.app.name` or `$.context.library.name`. The app version is the event\'s own: the App Version Property setting, then the App Version field (`$.context.app.version`, which only mobile sources send). For a web source, set the App Version Property setting to the event property that carries its version, such as `app_version`. With an origin hint and no version, the event is sent without an app version. On a regular source, leave this field empty.',
+        'Optional. Requires Gateway Support. Names the source that produced each event, such as "ios-app", so Avo can tell apart apps flowing through a gateway. See https://www.avo.app/docs/inspector/connect-inspector-to-segment-gateway.',
       required: false
+    },
+    context: {
+      label: 'Context',
+      type: 'object',
+      description: 'Requires Gateway Support. The event context, used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.context' }
+    },
+    originalTimestamp: {
+      label: 'Original Timestamp',
+      type: 'string',
+      description: 'Requires Gateway Support. Used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.originalTimestamp' }
+    },
+    sentAt: {
+      label: 'Sent At',
+      type: 'string',
+      description: 'Requires Gateway Support. Used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.sentAt' }
+    },
+    receivedAt: {
+      label: 'Received At',
+      type: 'string',
+      description: 'Requires Gateway Support. Used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.receivedAt' }
     },
     batch_size: {
       label: 'Batch Size',
@@ -127,11 +151,11 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, settings, rawData }: ExecuteInputRaw<Payload, unknown>) => {
-    return send(request, settings, [payload], [rawData])
+  perform: async (request, { payload, settings }) => {
+    return send(request, settings, [payload])
   },
-  performBatch: async (request, { payload, settings, rawData }: ExecuteInputRaw<Payload[], unknown[]>) => {
-    return send(request, settings, payload, rawData)
+  performBatch: async (request, { payload, settings }) => {
+    return send(request, settings, payload)
   }
 }
 export default action

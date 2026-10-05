@@ -1,6 +1,6 @@
 // The fields a gateway inspects besides the event properties, named the way a warehouse stores
-// them as columns. They are read from the raw event, not the mapped payload, so a mapping saved
-// before this existed still yields them and the mapping UI gains no fields. The rules are pinned
+// them as columns. They come from the mapping's fields (Context, the timestamps and the identity
+// fields), keyed like a Segment event, so a customer's remapping changes what is inspected. The rules are pinned
 // by the shared gateway vectors (`warehouseColumnCases`), which Avo's generated Segment Insert
 // Functions and RudderStack scripts assert too: context paths joined with "_", camelCase as
 // snake_case (an acronym run ends before its last capital: ABTest is ab_test), prefixed
@@ -55,18 +55,18 @@ const ENVELOPE_COLUMNS: Array<[string, string]> = [
 ]
 
 // The warehouse columns to inspect for this scope, minus any the event's own properties already
-// name. Builds a new object; neither the raw event nor the properties are changed.
-export function warehouseColumns(rawEvent: unknown, properties: unknown, inspectedFields: string | undefined): Columns {
-  if (!isPlainObject(rawEvent) || (inspectedFields !== 'event+context' && inspectedFields !== 'everything')) {
+// name. Builds a new object; neither the fields nor the properties are changed.
+export function warehouseColumns(fields: unknown, properties: unknown, inspectedFields: string | undefined): Columns {
+  if (!isPlainObject(fields) || (inspectedFields !== 'event+context' && inspectedFields !== 'everything')) {
     return {}
   }
   const columns: Columns = {}
-  if (isPlainObject(rawEvent.context)) {
-    addContextColumns(columns, 'context', rawEvent.context)
+  if (isPlainObject(fields.context)) {
+    addContextColumns(columns, 'context', fields.context)
   }
   if (inspectedFields === 'everything') {
     for (const [field, name] of ENVELOPE_COLUMNS) {
-      const value = rawEvent[field]
+      const value = fields[field]
       if (value !== undefined && value !== null) {
         columns[name] = value
       }
@@ -79,28 +79,4 @@ export function warehouseColumns(rawEvent: unknown, properties: unknown, inspect
     }
   }
   return columns
-}
-
-// The raw event behind each payload, by index. A batch's payloads drop events that fail
-// validation while its raw events do not, so positions line up only when nothing was dropped;
-// otherwise payloads are matched by messageId, in order, so events sharing one stay distinct.
-// A payload whose messageId is remapped in a batch that dropped events gets no raw event.
-export function rawEventsForPayloads(payloads: { messageId?: unknown }[], rawEvents: unknown[] | undefined): unknown[] {
-  if (!rawEvents) {
-    return []
-  }
-  if (rawEvents.length === payloads.length) {
-    return rawEvents
-  }
-  const queues = new Map<string, unknown[]>()
-  for (const rawEvent of rawEvents) {
-    if (isPlainObject(rawEvent) && typeof rawEvent.messageId === 'string') {
-      const queue = queues.get(rawEvent.messageId) ?? []
-      queue.push(rawEvent)
-      queues.set(rawEvent.messageId, queue)
-    }
-  }
-  return payloads.map((payload) =>
-    typeof payload.messageId === 'string' ? queues.get(payload.messageId)?.shift() : undefined
-  )
 }
