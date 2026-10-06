@@ -243,7 +243,7 @@ export const retlHookInputFields: ActionHookDefinition<
   },
   audienceName: {
     type: 'string',
-    label: 'Audience Name',
+    label: 'Audience Display Name',
     description:
       'The display name of the audience to create in Display & Video 360. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists.',
     depends_on: CREATE_OPERATION
