@@ -354,13 +354,6 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
       }
 
       let initialized = false
-      // userId captured from an identify seen during the current page load (set via
-      // `setDeferredUser` from the updateUserProfile action). Undefined until an
-      // identify actually fires this load.
-      let deferredUserId: string | undefined
-      // SDK Authentication signature captured from that same identify, so the deferred
-      // `changeUser` below can be authenticated on its first call.
-      let deferredSdkAuthSignature: string | undefined
 
       const client: BrazeDestinationClient = {
         instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
@@ -413,22 +406,9 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             }
           }
 
-          // Attribute the session to the identified user before opening it so Braze
-          // does not create a separate, un-mergeable anonymous profile for this device.
-          // Gated on `deferUntilIdentified` so behavior is provably unchanged when the
-          // setting is off: in that path attribution is handled by updateUserProfile's
-          // own changeUser() on identify, and the session opens as before.
-          if (deferUntilIdentified && deferredUserId !== undefined) {
-            client.identifyUser(deferredUserId, deferredSdkAuthSignature)
-          }
-
           client.instance.openSession()
 
           return (initialized = true)
-        },
-        setDeferredUser: (userId: string, sdkAuthSignature?: string) => {
-          deferredUserId = userId
-          deferredSdkAuthSignature = sdkAuthSignature
         },
         identifyUser: (userId: string, sdkAuthSignature?: string) => {
           // The setting is the gate. With SDK Authentication off, a mapped token is ignored

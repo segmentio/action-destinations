@@ -34,14 +34,18 @@ function stubInstance(overrides: Record<string, unknown> = {}) {
 
 async function initClient(
   settings: Partial<Settings> = {},
-  instanceOverrides: Record<string, unknown> = {}
+  instanceOverrides: Record<string, unknown> = {},
+  knownUserId: string | null = null
 ): Promise<{ client: BrazeDestinationClient; instance: ReturnType<typeof stubInstance> }> {
   const instance = stubInstance(instanceOverrides)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(window as any).braze = instance
 
+  // Only Track Known Users gates initialization on analytics.js's own user id, so tests can
+  // model a known (persisted or identified) user or an anonymous visitor.
+  const analytics = { user: () => ({ id: () => knownUserId }) }
   const client = await initialize(
-    { settings: { ...baseSettings, ...settings } },
+    { settings: { ...baseSettings, ...settings }, analytics },
     { loadScript: jest.fn(), resolveWhen: jest.fn() }
   )
 
@@ -160,25 +164,37 @@ describe('Braze SDK Authentication', () => {
     })
   })
 
-  describe('deferUntilIdentified', () => {
-    test('authenticates the deferred changeUser that attributes the session', async () => {
-      const { client, instance } = await initClient({ deferUntilIdentified: true, enableSdkAuthentication: true })
+  describe('deferUntilIdentified (Only Track Known Users)', () => {
+    test('signs the identify for a known user without changing how the gate opens', async () => {
+      const { client, instance } = await initClient(
+        { deferUntilIdentified: true, enableSdkAuthentication: true },
+        {},
+        'user-1'
+      )
 
-      // Nothing initializes until an identify is seen in this page load.
-      expect(client.ready()).toBe(false)
-      expect(instance.initialize).not.toHaveBeenCalled()
+      // The gate reads analytics.js's user id, so a known user initializes the SDK as before.
+      expect(instance.initialize).toHaveBeenCalledTimes(1)
 
       identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-1' })
 
       expect(instance.changeUser).toHaveBeenCalledWith('user-1', 'jwt-1')
-      // The signed changeUser must land before the session is opened, so Braze does not
-      // open an unauthenticated session for the identified user.
-      expect(instance.changeUser.mock.invocationCallOrder[0]).toBeLessThan(
-        instance.openSession.mock.invocationCallOrder[0]
+      expect(instance.setSdkAuthenticationSignature).toHaveBeenCalledWith('jwt-1')
+    })
+
+    test('an anonymous visitor still initializes nothing, token or not', async () => {
+      const { client, instance } = await initClient(
+        { deferUntilIdentified: true, enableSdkAuthentication: true },
+        {},
+        null
       )
-      expect(instance.setSdkAuthenticationSignature.mock.invocationCallOrder[0]).toBeLessThan(
-        instance.openSession.mock.invocationCallOrder[0]
-      )
+
+      identify(client, { external_id: 'user-1', sdk_auth_signature: 'jwt-1' })
+
+      // A mapped token must never open the gate on its own: initialization is decided only by
+      // whether analytics.js knows the user.
+      expect(instance.initialize).not.toHaveBeenCalled()
+      expect(instance.changeUser).not.toHaveBeenCalled()
+      expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
     })
   })
 

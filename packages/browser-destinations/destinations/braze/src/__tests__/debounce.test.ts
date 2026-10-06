@@ -137,6 +137,7 @@ describe('debounce', () => {
       endpoint: 'endpoint',
       doNotLoadFontAwesome: true,
       sdkVersion: '4.1',
+      enableSdkAuthentication: true,
       subscriptions: [
         {
           partnerAction: 'debounce',
@@ -166,5 +167,33 @@ describe('debounce', () => {
       { integrations: { 'Braze Web Mode (Actions)': { sdk_auth_signature: 'jwt-1' } } }
     )
     expect(sameCtx.event.integrations['Braze Web Mode (Actions)']).toBe(false)
+  })
+
+  test('with SDK Authentication off, still overwrites integration options with true', async () => {
+    const [debounce] = await brazeDestination({
+      api_key: 'b_123',
+      endpoint: 'endpoint',
+      doNotLoadFontAwesome: true,
+      sdkVersion: '4.1',
+      subscriptions: [
+        {
+          partnerAction: 'debounce',
+          name: 'Debounce',
+          enabled: true,
+          subscribe: 'type = "identify"',
+          mapping: {}
+        }
+      ]
+    })
+
+    await ajs.register(debounce)
+
+    // Customers who have not opted in see debounce behave exactly as it did before.
+    const ctx = await ajs.identify(
+      'hasbulla',
+      { goat: true },
+      { integrations: { 'Braze Web Mode (Actions)': { sdk_auth_signature: 'jwt-1' } } }
+    )
+    expect(ctx.event.integrations['Braze Web Mode (Actions)']).toBe(true)
   })
 })
