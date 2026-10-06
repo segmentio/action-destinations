@@ -1,5 +1,6 @@
-# Enforces that PRs modifying actions-core (packages/core, destination-subscriptions)
-# are approved by at least two members of strategic-connections-team before merging.
+# Enforces that every PR is approved by at least two members of
+# strategic-connections-team before merging, unless a team member has applied the
+# `sme-approval` label.
 # Mark the "actions-core-review-check" job as a required status check in branch
 # protection to block merges that do not meet this requirement.
 
@@ -7,7 +8,7 @@ name: Actions Core Review Check
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
   pull_request_review:
     types: [submitted, dismissed]
 
@@ -18,10 +19,15 @@ jobs:
     permissions:
       contents: read
       pull-requests: read
+      issues: read
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          # Always run the base branch's copy of the script: on pull_request_review
+          # the default checkout is the PR merge ref, which would let a PR rewrite
+          # the check (and read the PAT below).
+          ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
       - name: Check actions-core approvals
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
