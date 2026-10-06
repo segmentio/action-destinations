@@ -5,7 +5,16 @@ import uploadCallConversion from './uploadCallConversion'
 import uploadClickConversion from './uploadClickConversion'
 import uploadConversionAdjustment from './uploadConversionAdjustment'
 import { CreateAudienceInput, GetAudienceInput, UserListResponse } from './types'
-import { createGoogleAudience, getGoogleAudience, verifyCustomerId } from './functions'
+import {
+  createGoogleAudience,
+  getGoogleAudience,
+  verifyCustomerId,
+  FLAGON_NAME_DATA_MANAGER_API,
+  exchangeForAccessToken,
+  createDataManagerPartnerLink,
+  createDataManagerUserList,
+  getDataManagerUserList
+} from './functions'
 import uploadCallConversion2 from './uploadCallConversion2'
 import userList from './userList'
 import uploadClickConversion2 from './uploadClickConversion2'
@@ -151,15 +160,38 @@ const destination: AudienceDestinationDefinition<Settings> = {
       createAudienceInput.settings.customerId = verifyCustomerId(createAudienceInput.settings.customerId)
       const auth = createAudienceInput.settings.oauth
 
+      const useDataManager = createAudienceInput.features?.[FLAGON_NAME_DATA_MANAGER_API]
+
       let userListId
       try {
-        userListId = await createGoogleAudience(
-          request,
-          createAudienceInput,
-          auth,
-          createAudienceInput.features,
-          createAudienceInput.statsContext
-        )
+        if (useDataManager) {
+          const customerId = createAudienceInput.settings.customerId
+          const loginCustomerId = createAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+
+          // Best-effort partner link creation — errors must not block audience creation
+          if (auth?.refresh_token) {
+            try {
+              const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+              await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+            } catch (_) {
+              // intentionally swallowed
+            }
+          }
+          userListId = await createDataManagerUserList(
+            request,
+            createAudienceInput,
+            auth,
+            createAudienceInput.statsContext
+          )
+        } else {
+          userListId = await createGoogleAudience(
+            request,
+            createAudienceInput,
+            auth,
+            createAudienceInput.features,
+            createAudienceInput.statsContext
+          )
+        }
       } catch (err) {
         let status = err.status || err.code
         if (!status && err.response && err.response.status) {
@@ -189,6 +221,32 @@ const destination: AudienceDestinationDefinition<Settings> = {
         }
       }
       getAudienceInput.settings.customerId = verifyCustomerId(getAudienceInput.settings.customerId)
+
+      const useDataManager = getAudienceInput.features?.[FLAGON_NAME_DATA_MANAGER_API]
+
+      if (useDataManager) {
+        const customerId = getAudienceInput.settings.customerId
+        const loginCustomerId = getAudienceInput.settings.loginCustomerId?.trim().replace(/-/g, '') || undefined
+        const auth = getAudienceInput.settings.oauth
+
+        if (auth?.refresh_token) {
+          try {
+            const customerAccessToken = await exchangeForAccessToken(request, auth.refresh_token)
+            await createDataManagerPartnerLink(request, customerId, customerAccessToken, loginCustomerId)
+          } catch (_) {
+            // intentionally swallowed
+          }
+        }
+        const userList = await getDataManagerUserList(
+          request,
+          getAudienceInput.settings,
+          getAudienceInput.externalId,
+          getAudienceInput.settings.oauth,
+          getAudienceInput.statsContext
+        )
+        return { externalId: userList.id }
+      }
+
       const response: UserListResponse = await getGoogleAudience(
         request,
         getAudienceInput.settings,
