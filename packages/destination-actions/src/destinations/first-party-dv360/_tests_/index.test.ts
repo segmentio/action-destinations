@@ -155,7 +155,7 @@ describe('Audience Destination', () => {
         message:
           'Failed to retrieve audience audience-id-123 from Display & Video 360: Requested entity was not found.',
         code: 'GET_AUDIENCE_FAILED',
-        status: 404
+        status: 400
       })
     })
   })
