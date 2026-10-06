@@ -14,15 +14,185 @@ import { StateContext } from '@segment/actions-core/destination-kit'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { LinkedInAudiences } from '../api'
-import type { AudienceAction, AudienceJSON, DMPSegment, LinkedInCompanyAudienceElement, ValidCompanyPayload } from './types'
-import { AUDIENCE_ACTION, AUDIENCE_SOURCE, ORGANIZATION_URN_PREFIX, RETRYABLE_STATUSES, SEGMENT_TYPES } from './constants'
+import type {
+  AudienceAction,
+  AudienceJSON,
+  DMPSegment,
+  LinkedInCompanyAudienceElement,
+  NormalizedIdentifiers,
+  NormalizedTraits,
+  ValidCompanyPayload
+} from './types'
+import {
+  AUDIENCE_ACTION,
+  AUDIENCE_SOURCE,
+  COUNTRY_CODES,
+  LINKEDIN_HOST,
+  MAX_CITY_LENGTH,
+  MAX_COMPANY_PAGE_URL_LENGTH,
+  MAX_INDUSTRIES,
+  MAX_INDUSTRY_LENGTH,
+  MAX_POSTAL_CODE_LENGTH,
+  MAX_STATE_LENGTH,
+  MAX_STOCK_SYMBOL_LENGTH,
+  ORGANIZATION_URN_PREFIX,
+  RETRYABLE_STATUSES,
+  SEGMENT_TYPES
+} from './constants'
 
-export function toOrganizationUrn(linkedInCompanyId: string): string {
-  let id = linkedInCompanyId.trim()
-  while (id.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)) {
-    id = id.slice(ORGANIZATION_URN_PREFIX.length).trim()
+const HTTP_SCHEME = /^https?:\/\//i
+const QUERY_OR_FRAGMENT = /[?#]/
+const PATH_QUERY_OR_FRAGMENT = /[/?#]/
+const ORGANIZATION_URN_PREFIXES = new RegExp(`^(?:${ORGANIZATION_URN_PREFIX})+`, 'i')
+const ORGANIZATION_ID = /^\d+$/
+const WHITESPACE = /\s/
+
+// remove slashes in a linear way
+function withoutTrailingSlashes(value: string): string {
+  let end = value.length
+  while (end > 0 && value.charCodeAt(end - 1) === 47) end--
+  return end === value.length ? value : value.slice(0, end)
+}
+
+export function toOrganizationUrn(linkedInCompanyId?: string): string | undefined {
+  const id = trimmed(linkedInCompanyId)?.replace(ORGANIZATION_URN_PREFIXES, '').trim()
+  return id && ORGANIZATION_ID.test(id) ? `${ORGANIZATION_URN_PREFIX}${id}` : undefined
+}
+
+// An accented letter can be stored two ways in Unicode: as one character, 'ü', or as a plain
+// 'u' plus a separate accent mark. The two look identical on screen but are different data, and
+// LinkedIn matches company values exactly without cleaning up what it is sent, so only one of
+// them matches. NFC is the one-character form, which is what LinkedIn expects.
+//
+// Case folding does not preserve NFC, so anything that lower- or upper-cases a value has to
+// normalize again afterwards rather than relying on this.
+function trimmed(value?: string): string | undefined {
+  return value?.normalize('NFC').trim() || undefined
+}
+
+function withinLength(value: string | undefined, max: number): string | undefined {
+  return value && value.length <= max ? value : undefined
+}
+
+export function normalizeDomain(value?: string): string | undefined {
+  const host = trimmed(value)
+    ?.toLowerCase()
+    .replace(HTTP_SCHEME, '')
+    .split(PATH_QUERY_OR_FRAGMENT)[0]
+    .split('@')
+    .pop()
+    ?.split(':')[0]
+    .trim()
+    .normalize('NFC')
+
+  if (!host || !host.includes('.') || WHITESPACE.test(host)) {
+    return undefined
   }
-  return `${ORGANIZATION_URN_PREFIX}${id}`
+
+  return isLinkedInHost(host) ? undefined : host
+}
+
+function isLinkedInHost(hostname: string): boolean {
+  return hostname === LINKEDIN_HOST || hostname.endsWith(`.${LINKEDIN_HOST}`)
+}
+
+export function normalizeCompanyPageUrl(value?: string): string | undefined {
+  const stripped = trimmed(value)
+    ?.toLowerCase()
+    .normalize('NFC')
+    .replace(HTTP_SCHEME, '')
+    .split(QUERY_OR_FRAGMENT)[0]
+
+  const pageUrl = withinLength(stripped && withoutTrailingSlashes(stripped), MAX_COMPANY_PAGE_URL_LENGTH)
+  if (!pageUrl) {
+    return undefined
+  }
+
+  // Parsed only to decide whether to send it, never to build what is sent, because the parser
+  // percent-encodes a non-ascii slug.
+  let url: URL
+  try {
+    url = new URL(`https://${pageUrl}`)
+  } catch {
+    return undefined
+  }
+
+  return isLinkedInHost(url.hostname) && pageUrl.startsWith(`${url.hostname}/`) ? pageUrl : undefined
+}
+
+export function normalizeIndustries(values?: string[] | string): string[] | undefined {
+  const list = typeof values === 'string' ? values.split(',') : values ?? []
+
+  // An array entry can itself be comma delimited
+  const parts = list.flatMap((industry) => industry.split(','))
+
+  const cleaned = parts
+    .map((industry) => trimmed(industry))
+    .filter((industry): industry is string => !!industry && industry.length <= MAX_INDUSTRY_LENGTH)
+
+  const seen = new Set<string>()
+  const industries = cleaned
+    .filter((industry) => {
+      const key = industry.toLowerCase()
+      const duplicate = seen.has(key)
+      seen.add(key)
+      return !duplicate
+    })
+    .slice(0, MAX_INDUSTRIES)
+
+  return industries.length ? industries : undefined
+}
+
+export function normalizeCountry(value?: string): string | undefined {
+  const country = trimmed(value)?.toUpperCase()
+  return country && COUNTRY_CODES.has(country) ? country : undefined
+}
+
+export function normalizeIdentifiers(payload: Payload): NormalizedIdentifiers {
+  const identifiers = payload.identifiers
+
+  const organizationUrn = toOrganizationUrn(identifiers.linkedInCompanyId)
+  const companyName = trimmed(identifiers.companyName)
+  const companyDomain = normalizeDomain(identifiers.companyDomain)
+  const companyEmailDomain = normalizeDomain(identifiers.companyEmailDomain)
+  const companyPageUrl = normalizeCompanyPageUrl(identifiers.companyPageUrl)
+
+  return {
+    ...(companyName && { companyName }),
+    ...(companyDomain && { companyDomain }),
+    ...(companyEmailDomain && { companyEmailDomain }),
+    ...(organizationUrn && { organizationUrn }),
+    ...(companyPageUrl && { companyPageUrl })
+  }
+}
+
+export function normalizeTraits(payload: Payload): NormalizedTraits | undefined {
+  const company_traits = payload.company_traits
+
+  if (!payload.send_company_traits) {
+    return undefined
+  }
+
+  const industries = normalizeIndustries(company_traits?.industries)
+  const city = withinLength(trimmed(company_traits?.city), MAX_CITY_LENGTH)
+  const state = withinLength(trimmed(company_traits?.state), MAX_STATE_LENGTH)
+  const country = normalizeCountry(company_traits?.country)
+  const postalCode = withinLength(trimmed(company_traits?.postalCode), MAX_POSTAL_CODE_LENGTH)
+  const stockSymbol = withinLength(
+    trimmed(company_traits?.stockSymbol)?.toUpperCase().normalize('NFC'),
+    MAX_STOCK_SYMBOL_LENGTH
+  )
+
+  const traits: NormalizedTraits = {
+    ...(industries && { industries }),
+    ...(city && { city }),
+    ...(state && { state }),
+    ...(country && { country }),
+    ...(postalCode && { postalCode }),
+    ...(stockSymbol && { stockSymbol })
+  }
+
+  return Object.keys(traits).length ? traits : undefined
 }
 
 export function validate(
@@ -33,16 +203,15 @@ export function validate(
   const validPayloads: ValidCompanyPayload[] = []
 
   payloads.forEach((payload, index) => {
-    const companyDomain = payload.identifiers?.companyDomain?.trim().toLowerCase() || undefined
-    const rawCompanyId = payload.identifiers?.linkedInCompanyId?.trim() || undefined
-    const idWithoutPrefix = rawCompanyId?.toLowerCase().startsWith(ORGANIZATION_URN_PREFIX)
-      ? rawCompanyId.slice(ORGANIZATION_URN_PREFIX.length).trim()
-      : rawCompanyId
-    const linkedInCompanyId = idWithoutPrefix || undefined
+    const identifiers = normalizeIdentifiers(payload)
 
     let message: string | undefined
-    if (!companyDomain && !linkedInCompanyId) {
-      message = "At least one of 'Company Domain' or 'LinkedIn Company ID' is required in the 'Identifiers' field."
+    if (!Object.keys(identifiers).length) {
+      // Mapping a value that normalization then rejects looks identical to mapping nothing at
+      // all, so say which of the two happened.
+      message = Object.values(payload.identifiers).some((identifier) => trimmed(identifier))
+        ? `Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', and must not be a linkedin.com address — map a LinkedIn page to 'LinkedIn Company Page URL' instead. A 'LinkedIn Company ID' must be numeric, with or without the URN prefix. A 'LinkedIn Company Page URL' must be a company's page on linkedin.com, of ${MAX_COMPANY_PAGE_URL_LENGTH} characters or fewer.`
+        : "At least one of 'Company Name', 'Company Domain', 'Company Email Domain', 'LinkedIn Company ID' or 'LinkedIn Company Page URL' is required in the 'Identifiers' field."
     } else if (
       payload.dmp_company_action !== AUDIENCE_ACTION.ADD &&
       payload.dmp_company_action !== AUDIENCE_ACTION.REMOVE
@@ -61,33 +230,50 @@ export function validate(
         throw new PayloadValidationError(message)
       }
     } else {
-      validPayloads.push({ ...payload, identifiers: { companyDomain, linkedInCompanyId }, index })
+      validPayloads.push({
+        ...payload,
+        // Narrowed by the check above; the generated Payload type keeps `choices` as a string.
+        dmp_company_action: payload.dmp_company_action as AudienceAction,
+        identifiers,
+        company_traits: normalizeTraits(payload),
+        index
+      })
     }
   })
 
   return validPayloads
 }
 
+// Every identifier we send belongs in the key. Two payloads that would produce different request
+// elements must not collapse onto one another, or one of them is silently dropped. Traits are
+// deliberately excluded, as is the 'Send Company Traits' toggle that enables them: the toggle is
+// the customer's acknowledgement that only one company's traits are sent, which keeps this at one
+// element per company.
 export function companyKey(payload: ValidCompanyPayload): string {
-  const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
-  const domain = companyDomain ?? ''
-  const urn = linkedInCompanyId ? toOrganizationUrn(linkedInCompanyId) : ''
-  return `${payload.dmp_company_action}::${domain}::${urn}`
+  const { companyName, companyDomain, companyEmailDomain, organizationUrn, companyPageUrl } = payload.identifiers
+
+  return JSON.stringify({
+    action: payload.dmp_company_action,
+    companyName,
+    companyDomain,
+    companyEmailDomain,
+    organizationUrn,
+    companyPageUrl
+  })
 }
 
 export function buildJSON(payloads: ValidCompanyPayload[]): AudienceJSON<LinkedInCompanyAudienceElement> {
   const elements: LinkedInCompanyAudienceElement[] = payloads.map((payload) => {
-    const { companyDomain, linkedInCompanyId } = payload.identifiers ?? {}
-    const element: LinkedInCompanyAudienceElement = {
-      action: payload.dmp_company_action as AudienceAction
+    const { companyName, companyDomain, companyEmailDomain, organizationUrn, companyPageUrl } = payload.identifiers
+    return {
+      action: payload.dmp_company_action,
+      ...(companyName && { companyName }),
+      ...(companyDomain && { companyWebsiteDomain: companyDomain }),
+      ...(companyEmailDomain && { companyEmailDomain }),
+      ...(organizationUrn && { organizationUrn }),
+      ...(companyPageUrl && { companyPageUrl }),
+      ...payload.company_traits
     }
-    if (companyDomain) {
-      element.companyWebsiteDomain = companyDomain
-    }
-    if (linkedInCompanyId) {
-      element.organizationUrn = toOrganizationUrn(linkedInCompanyId)
-    }
-    return element
   })
 
   return { elements }
@@ -233,8 +419,8 @@ function handleRequestError(status: number, statsContext: StatsContext | undefin
 export function resolveSourceSegmentId(payload: ValidCompanyPayload): string {
   const key =
     payload.audience_source === AUDIENCE_SOURCE.CONNECTIONS
-      ? payload.segment_name?.trim()
-      : payload.computation_key?.trim()
+      ? trimmed(payload.segment_name)
+      : trimmed(payload.computation_key)
 
   if (!key) {
     const message =
