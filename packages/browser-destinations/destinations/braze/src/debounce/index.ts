@@ -59,13 +59,17 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     // Only send the event to Braze if a trait has changed
     // Target all possible Braze integration names
     const shouldSend = shouldSendToBraze(event)
+    // Only customers who have turned SDK Authentication on need their options kept; for
+    // everyone else debounce behaves exactly as before, so this change is opt-in like the
+    // rest of SDK Authentication.
+    const preserveOptions = Boolean(data.settings.enableSdkAuthentication)
     for (const name of BRAZE_INTEGRATION_NAMES) {
       // Writing `true` here would discard any per-destination options the caller set under
       // this key, and that is where the SDK Authentication signature is supplied. An object
       // is already truthy, so keeping it sends the event exactly as `true` would; only the
       // `false` skip signal has to overwrite.
       const existing = event.integrations?.[name]
-      const value = shouldSend && isObject(existing) ? existing : shouldSend
+      const value = shouldSend && preserveOptions && isObject(existing) ? existing : shouldSend
       ctx.updateEvent(`integrations.${name}`, value)
     }
 
