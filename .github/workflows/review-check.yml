@@ -1,10 +1,10 @@
 # Enforces that every PR is approved by at least two members of
 # strategic-connections-team before merging, unless a team member has applied the
 # `sme-approval` label.
-# Mark the "actions-core-review-check" job as a required status check in branch
+# Mark the "review-check" job as a required status check in branch
 # protection to block merges that do not meet this requirement.
 
-name: Actions Core Review Check
+name: Review Check
 
 on:
   pull_request_target:
@@ -13,7 +13,7 @@ on:
     types: [submitted, dismissed]
 
 jobs:
-  actions-core-review-check:
+  review-check:
     runs-on: ubuntu-latest-large
     timeout-minutes: 5
     permissions:
@@ -29,7 +29,7 @@ jobs:
           # the check (and read the PAT below).
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
-      - name: Check actions-core approvals
+      - name: Check review approvals
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           # Required to read strategic-connections-team membership.
