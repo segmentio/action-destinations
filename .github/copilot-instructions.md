@@ -48,7 +48,7 @@ When reviewing pull requests, thoroughly check the following areas:
   - Test External
   - Code coverage
 - Beyond the gating status checks above, also confirm the PR meets the author-facing
-  review bar covered in **PR Author Nudges** below (Testing section filled in, and
+  review bar covered in **PR Author Nudges** below (Test Plan filled in, and
   feature-flag rollout details when a flag is introduced). These are advisory, not
   gating checks, but should be raised as review comments when missing.
 
@@ -81,7 +81,7 @@ Feature flags follow consistent conventions in this repo, so you can detect them
 
 - Flags are **kebab-case string literals**, usually defined as an exported constant whose name contains `FLAGON`, `FEATURE_FLAG`, `_FLAG`, or `FLAG_` (e.g. `S3_HASHING_FEATURE_FLAG`, `FLAGON_NAME`), or occasionally inlined as a literal.
 - They are read off the perform bundle as `features?.['flag-name']` or `features['flag-name']` inside `perform` / `performBatch`.
-- A flag should **default to off** and be registered in Flagon before rollout.
+- A flag should **default to off** and be registered before rollout.
 - Real examples for reference:
   - [`mixpanel/trackEvent/index.ts`](../packages/destination-actions/src/destinations/mixpanel/trackEvent/index.ts) — `mixpanel-multistatus`
   - [`hubspot/upsertObject/index.ts`](../packages/destination-actions/src/destinations/hubspot/upsertObject/index.ts) — `actions-hubspot-lists-association-support`
@@ -91,8 +91,8 @@ Feature flags follow consistent conventions in this repo, so you can detect them
 
 When reviewing a PR, post a short, friendly, **non-blocking** review comment (a suggestion, never "request changes") when either of the following applies. Prefer a single consolidated comment covering both.
 
-- **Testing section not filled in** — the PR description's `## Testing` section has **no** checked boxes (`- [x]`). Remind the author to check the testing task(s) they actually completed (unit tests / local end-to-end / backward compatibility / staging / Hadron regression), or to describe the testing they performed. See the [PR template](./PULL_REQUEST_TEMPLATE.md).
-- **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered in Flagon and **defaults to off**, and to describe the rollout / rollback plan.
+- **Test Plan not filled in** — the PR description's `### Test Plan` section is empty or a placeholder (e.g. "Tested in stage"), and none of its testing checkboxes (`- [x]`) are checked. Ask the author to describe the environments and tests run, or check the testing task(s) they completed (unit tests / local end-to-end). See the [PR template](./PULL_REQUEST_TEMPLATE.md).
+- **Feature-flag change without rollout details** — the diff **adds or changes a feature-flag reference** (per the conventions in "Recognizing feature flags in a diff" above) but the PR description's `## Feature flag / Rollout` section is not filled in. Remind the author to confirm the flag name, that the flag is registered and **defaults to off**, and to describe the rollout / rollback plan.
 
 Keep these nudges advisory and encouraging — they help authors and reviewers, but they do not block merge.
 
@@ -234,14 +234,3 @@ Approval & process expectations (flag anything that looks bypassed):
 
 7. **+2 code review approvals** before merge to the protected branch — two +1s from two
    different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
-8. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
-   changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
-   execution require at least one approval; pairing is mandatory for script execution and
-   DB writes.
-9. **Pair programming** for non-standard operational work that cannot be staged and
-   reviewed (scripts, database queries).
-10. **Director involvement** for major/risky changes — skipping staging for hotfixes,
-   restoring DBs from backup, operations that could cause data loss, COGS-driven infra
-   changes, and maintenance windows.
-11. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
-    maintenance window (contractual customer-notice requirements apply).
