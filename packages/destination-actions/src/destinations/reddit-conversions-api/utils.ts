@@ -1,3 +1,4 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload as StandardEvent } from './standardEvent/generated-types'
@@ -10,7 +11,7 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { processHashing } from '../../lib/hashing-utils'
+import { isAlreadyHashed, processHashing } from '../../lib/hashing-utils'
 import { LEGACY_API_VERSION } from './versioning-info'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
@@ -58,7 +59,7 @@ function createRedditPayload(payloads: (StandardEvent | CustomEvent)[], settings
       },
       click_id: clean(click_id),
       event_metadata: getMetadata(event_metadata, products, conversion_id, resolvedTrackingType),
-      user: getUser(user, data_processing_options, screen_dimensions)
+      user: getUser(user, data_processing_options, screen_dimensions, false)
     }
 
     payloadItems.push(payloadItem)
@@ -139,7 +140,7 @@ export function getAdId(
 ): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  const hashedAdId = smartHash(advertising_id)
+  const hashedAdId = smartHashIdentifier(advertising_id, undefined, { lowercase: true })
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
@@ -172,21 +173,41 @@ export function getScreen(height?: number, width?: number): { height: number; wi
 export function getUser(
   user: UserType,
   dataProcessingOptions: DataProcessingOptionsType,
-  screenDimensions: ScreenDimensionsType
+  screenDimensions: ScreenDimensionsType,
+  throwIfInvalidEmail = true
 ): User | undefined {
   if (!user) return
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: smartHash(user.email, canonicalizeEmail),
-    external_id: smartHash(user.external_id, (value) => value.trim()),
-    ip_address: smartHash(user.ip_address, (value) => value.trim()),
+    email: hashEmail(user.email, throwIfInvalidEmail),
+    external_id: smartHashIdentifier(user.external_id, undefined, { convertBase64: false }),
+    ip_address: smartHashIdentifier(user.ip_address),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
     screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
-    phone_number: smartHash(user.phone_number, cleanPhoneNumber)
+    phone_number: smartHashIdentifier(user.phone_number, cleanPhoneNumber, { lowercase: true })
   }
+}
+
+const INVALID_EMAIL_MESSAGE =
+  'Email must be a valid email address or a SHA-256 hash given as 64 hexadecimal characters. Base64 encoded hashes are converted automatically; other formats are not supported.'
+
+function hashEmail(email: string | undefined, throwIfInvalid: boolean): string | undefined {
+  const trimmed = email?.trim()
+  if (!trimmed) return
+
+  const value = base64Sha256ToHex(trimmed) ?? trimmed
+  const isEmail = value.includes('@')
+  const isHexHash = isAlreadyHashed(value, 'sha256', 'hex')
+
+  if (isEmail || isHexHash) {
+    return smartHashIdentifier(value, canonicalizeEmail, { lowercase: true })
+  }
+
+  if (throwIfInvalid) throw new PayloadValidationError(INVALID_EMAIL_MESSAGE)
+  return
 }
 
 export function canonicalizeEmail(value: string): string {
@@ -202,6 +223,27 @@ export const smartHash = (
 ): string | undefined => {
   if (value === undefined) return
   return processHashing(value, 'sha256', 'hex', cleaningFunction)
+}
+
+const BASE64_SHA256 = /^[A-Za-z0-9+/]{43}=$/
+
+export function base64Sha256ToHex(value: string): string | undefined {
+  if (!BASE64_SHA256.test(value)) return
+  const bytes = Buffer.from(value, 'base64')
+  return bytes.length === 32 && bytes.toString('base64') === value ? bytes.toString('hex') : undefined
+}
+
+export const smartHashIdentifier = (
+  value: string | undefined,
+  cleaningFunction?: (value: string) => string,
+  { lowercase = false, convertBase64 = true }: { lowercase?: boolean; convertBase64?: boolean } = {}
+): string | undefined => {
+  if (value === undefined) return
+  const trimmed = value.trim()
+  if (trimmed === '') return
+  const input = convertBase64 ? base64Sha256ToHex(trimmed) ?? trimmed : trimmed
+  const hashed = smartHash(input, cleaningFunction)
+  return lowercase ? hashed?.toLowerCase() : hashed
 }
 
 export function cleanPhoneNumber(phoneNumber: string): string {
