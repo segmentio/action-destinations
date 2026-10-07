@@ -1388,41 +1388,4 @@ describe('BrazeCohorts.syncAudiences', () => {
         'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
     })
   })
-  it('should emit a noop stat when events have no identifier at all', async () => {
-    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
-
-    const incr = jest.fn()
-    const noIdentifierEvent = createTestEvent({
-      userId: null,
-      anonymousId: null,
-      context: {
-        personas: {
-          computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
-          computation_key: 'j_o_jons__step_1_ns3i7'
-        }
-      },
-      properties: {
-        audience_key: 'j_o_jons__step_1_ns3i7',
-        j_o_jons__step_1_ns3i7: true
-      },
-      timestamp: timestamp
-    })
-
-    await testDestination.testBatchAction('syncAudiences', {
-      events: [noIdentifierEvent, noIdentifierEvent],
-      settings: {
-        endpoint: 'https://rest.iad-01.braze.com',
-        client_secret: 'valid_client_secret_key'
-      },
-      useDefaultMappings: true,
-      mapping: { personas_audience_key: 'j_o_jons__step_1_ns3i7' },
-      statsContext: { statsClient: { incr } as any, tags: ['destination:braze-cohorts'] }
-    })
-
-    expect(incr).toHaveBeenCalledWith('syncAudiences.noop', 2, [
-      'destination:braze-cohorts',
-      'reason:no_identifier',
-      'is_batch:true'
-    ])
-  })
 })

@@ -181,7 +181,7 @@ async function processPayload(
   // Events with no identifier at all are silently accepted without syncing a user; emit a
   // counter so the volume of these no-ops can be analysed later.
   if (noopCount > 0) {
-    statsContext?.statsClient?.incr('syncAudiences.noop', noopCount, [
+    statsContext?.statsClient?.incr('braze_cohorts.syncAudiences.noop', noopCount, [
       ...(statsContext.tags ?? []),
       'reason:no_identifier',
       `is_batch:${isBatch}`
