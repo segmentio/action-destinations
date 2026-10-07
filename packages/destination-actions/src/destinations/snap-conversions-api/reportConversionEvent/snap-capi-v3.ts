@@ -604,8 +604,6 @@ const normalizeActionSource = (payload: Payload): string | undefined => {
 }
 
 const buildPayloadData = (payload: Payload, settings: Settings) => {
-  // event_conversion_type is a required parameter whose value is enforced as
-  // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
   const action_source = normalizeActionSource(payload)
 
   // Snaps CAPI v3 supports the legacy v2 events so don't bother
