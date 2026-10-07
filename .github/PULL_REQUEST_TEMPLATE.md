@@ -68,7 +68,6 @@ See the [Change Release Safety guidelines](https://docs.google.com/document/d/1N
 - [ ] **Deep review run twice** by the author: `/review-toolkit:deepreview` before requesting review (noted in this description), and `/review-toolkit:deepreview-pr <pr-url>` before merge. All critical/high findings fixed, or closed on the PR with a rationale a reviewer accepted
 - [ ] Author commented on the PR, verbatim, after the pre-merge run: "A deep review was performed on the PR before merging, and no critical or high priority issues were flagged"
 - [ ] **Non-code production changes** (config, Flagon gates/flags, cob vars, Terraform, AWS console, prod DB reads/writes, scripts) have at least one approval; pairing is mandatory for script execution and DB writes (or N/A)
-- [ ] **Director (or higher) approval** obtained for major/risky changes: skipping staging, DB restore, possible data loss, COGS-driven infra changes, maintenance windows (or N/A)
 
 ## Security Review
 
