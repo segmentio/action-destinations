@@ -1,0 +1,35 @@
+# Enforces that a deep AI review (review-toolkit comment on the current head
+# commit, plus a Copilot review) was run on every non-draft PR.
+# Mark the "ai-review-check" job as a required status check in branch
+# protection. Comments do not trigger this workflow, so re-run the job after
+# posting the review (the script reads fresh PR data on every run).
+
+name: AI Review Check
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted, dismissed]
+
+jobs:
+  ai-review-check:
+    runs-on: ubuntu-latest-large
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Always run the target branch's copy of the script, never the PR's.
+          ref: ${{ github.event.pull_request.base.ref }}
+          persist-credentials: false
+      - name: Check AI review evidence
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const script = require('./scripts/github-action/check-ai-review.js')
+            await script({ github, context, core })
