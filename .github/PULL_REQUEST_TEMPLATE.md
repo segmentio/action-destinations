@@ -65,9 +65,8 @@ _A summary of your pull request, including the what change you're making and why
 See the [Change Release Safety guidelines](https://docs.google.com/document/d/1N2MtcLtiI7MK_GgwEe1tXtDYrMZnbfJCVyFvVoof-Ss/edit?tab=t.0#heading=h.dyt1m85tc50l).
 
 - [ ] **+2 code review approvals** before merge (two +1s from different reviewers, or one +2 from an SME)
-- [ ] **Deep review run twice** by the author: `/review-toolkit:deepreview` before requesting review (noted in this description), and `/review-toolkit:deepreview-pr <pr-url>` before merge. All critical/high findings fixed, or closed on the PR with a rationale a reviewer accepted
-- [ ] Author commented on the PR, verbatim, after the pre-merge run: "A deep review was performed on the PR before merging, and no critical or high priority issues were flagged"
-- [ ] **Non-code production changes** (config, Flagon gates/flags, cob vars, Terraform, AWS console, prod DB reads/writes, scripts) have at least one approval; pairing is mandatory for script execution and DB writes (or N/A)
+- [ ] AI deep review (Claude and Copilot) run on this PR before requesting review and again before merge, Change Release Safety findings addressed, and the attestation comment posted
+- [ ] Any additional approvals required by the guidelines obtained (or N/A)
 
 ## Security Review
 
