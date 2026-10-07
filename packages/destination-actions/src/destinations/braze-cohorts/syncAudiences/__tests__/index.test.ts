@@ -1419,7 +1419,7 @@ describe('BrazeCohorts.syncAudiences', () => {
       statsContext: { statsClient: { incr } as any, tags: ['destination:braze-cohorts'] }
     })
 
-    expect(incr).toHaveBeenCalledWith('syncAudiences.noop', 2, [
+    expect(incr).toHaveBeenCalledWith('braze_cohorts.syncAudiences.noop', 2, [
       'destination:braze-cohorts',
       'reason:no_identifier',
       'is_batch:true'
