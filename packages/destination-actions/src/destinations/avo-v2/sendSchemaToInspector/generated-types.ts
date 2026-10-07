@@ -40,6 +40,32 @@ export interface Payload {
    */
   userId?: string
   /**
+   * Optional, for gateways only. Requires Gateway Support. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.
+   */
+  outputReference?: string
+  /**
+   * Optional. Requires Gateway Support. Names the source that produced each event, such as "ios-app", so Avo can tell apart apps flowing through a gateway. See https://www.avo.app/docs/inspector/connect-inspector-to-segment-gateway.
+   */
+  originHint?: string
+  /**
+   * Requires Gateway Support. The event context, used by Gateway Inspection Scope.
+   */
+  context?: {
+    [k: string]: unknown
+  }
+  /**
+   * Requires Gateway Support. Used by Gateway Inspection Scope.
+   */
+  originalTimestamp?: string
+  /**
+   * Requires Gateway Support. Used by Gateway Inspection Scope.
+   */
+  sentAt?: string
+  /**
+   * Requires Gateway Support. Used by Gateway Inspection Scope.
+   */
+  receivedAt?: string
+  /**
    * Maximum number of events to include in each batch. Actual batch sizes may be lower.
    */
   batch_size?: number
