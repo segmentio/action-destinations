@@ -99,6 +99,50 @@ describe('Braze SDK Authentication', () => {
       expect(instance.changeUser.mock.calls[0]).toHaveLength(1)
       expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
     })
+
+    test.each([
+      ['a number', 12345],
+      ['an object', { token: 'jwt-secret' }],
+      ['a Promise', Promise.resolve('jwt-secret')]
+    ])('identifies without a signature when %s is mapped', async (_label, value) => {
+      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const { client, instance } = await initClient({ enableSdkAuthentication: true })
+
+      identify(client, { external_id: 'user-1', sdk_auth_signature: value })
+
+      // Braze's changeUser returns without switching the user when the signature is not a
+      // string, so the profile writes that follow would land on the previous user. The user
+      // switch must still happen, exactly as on the no-token path.
+      expect(instance.changeUser).toHaveBeenCalledWith('user-1')
+      expect(instance.changeUser.mock.calls[0]).toHaveLength(1)
+      expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
+      expect(consoleWarn).toHaveBeenCalledTimes(1)
+      expect(consoleWarn.mock.calls[0][0]).not.toContain('jwt-secret')
+      consoleWarn.mockRestore()
+    })
+
+    test('treats a blank signature as none, without a warning', async () => {
+      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const { client, instance } = await initClient({ enableSdkAuthentication: true })
+
+      identify(client, { external_id: 'user-1', sdk_auth_signature: '   ' })
+
+      expect(instance.changeUser.mock.calls[0]).toEqual(['user-1'])
+      expect(instance.setSdkAuthenticationSignature).not.toHaveBeenCalled()
+      expect(consoleWarn).not.toHaveBeenCalled()
+      consoleWarn.mockRestore()
+    })
+
+    test('does not warn about a non-string signature when SDK Authentication is off', async () => {
+      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      const { client, instance } = await initClient({ enableSdkAuthentication: false })
+
+      identify(client, { external_id: 'user-1', sdk_auth_signature: { token: 'jwt-secret' } })
+
+      expect(instance.changeUser.mock.calls[0]).toEqual(['user-1'])
+      expect(consoleWarn).not.toHaveBeenCalled()
+      consoleWarn.mockRestore()
+    })
   })
 
   describe('token refresh', () => {
@@ -161,6 +205,17 @@ describe('Braze SDK Authentication', () => {
       expect(logged).toContain('22')
       expect(logged).toContain('The token provided has expired')
       expect(logged).not.toContain('jwt-secret')
+    })
+
+    test('does not throw when the SDK passes no error object', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      const { instance } = await initClient({ enableSdkAuthentication: true })
+
+      const subscriber = instance.subscribeToSdkAuthenticationFailures.mock.calls[0][0] as (error?: unknown) => void
+
+      expect(() => subscriber(undefined)).not.toThrow()
+      expect(consoleError).toHaveBeenCalledTimes(1)
+      consoleError.mockRestore()
     })
   })
 
