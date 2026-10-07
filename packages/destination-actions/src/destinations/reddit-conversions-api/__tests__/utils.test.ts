@@ -45,6 +45,7 @@ const PHONE_HEX = 'e5b124c58580eb16bd959b8d0cac12b12c952e2ceae0203d416cff94f10b9
 const PHONE_BASE64 = '5bEkxYWA6xa9lZuNDKwSsSyVLizq4CA9QWz/lPELmUo='
 const EXTERNAL_ID_HEX = 'a4cc2fc5adf58a029291c1514d273989113a1d05e1d753c1d0c3a848af7109cc'
 const EXTERNAL_ID_BASE64 = 'pMwvxa31igKSkcFRTSc5iRE6HQXh11PB0MOoSK9xCcw='
+const EXTERNAL_ID_BASE64_HASHED_AS_RAW = '7b275682fe68513801d48382a082010482e1f0dd68811cc2e4b03dad0d6b6624'
 const IDFA_HEX = '70574fa9c8f498a7b2e5c8712b1126de7b1406fd02fdc591821c5bd33092fd1c'
 const IDFA_BASE64 = 'cFdPqcj0mKey5chxKxEm3nsUBv0C/cWRghxb0zCS/Rw='
 const AAID_HEX = 'f23b554b2a8fb732a8b973733832e70f018da7bc294dfea289735a07d5dd2c9f'
@@ -70,12 +71,11 @@ describe('base64Sha256ToHex', () => {
 })
 
 describe('getUser hashing', () => {
-  it('converts Base64 SHA-256 values to the expected hex for every identifier', () => {
+  it('converts Base64 SHA-256 values to the expected hex for every identifier except external_id', () => {
     const user = getUser(
       {
         email: ALICE_BASE64,
         phone_number: PHONE_BASE64,
-        external_id: EXTERNAL_ID_BASE64,
         ip_address: IP_BASE64,
         device_type: 'ios',
         advertising_id: IDFA_BASE64
@@ -86,10 +86,14 @@ describe('getUser hashing', () => {
     expect(user).toMatchObject({
       email: ALICE_HEX,
       phone_number: PHONE_HEX,
-      external_id: EXTERNAL_ID_HEX,
       ip_address: IP_HEX,
       idfa: IDFA_HEX
     })
+  })
+
+  it('hashes a Base64 looking external_id as a raw value instead of treating it as a hash', () => {
+    const user = getUser({ external_id: EXTERNAL_ID_BASE64 }, undefined, undefined)
+    expect(user?.external_id).toBe(EXTERNAL_ID_BASE64_HASHED_AS_RAW)
   })
 
   it('converts a Base64 Android advertising ID to the expected aaid hex', () => {

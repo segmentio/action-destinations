@@ -140,7 +140,7 @@ export function getAdId(
 ): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  const hashedAdId = smartHashIdentifier(advertising_id, undefined, true)
+  const hashedAdId = smartHashIdentifier(advertising_id, undefined, { lowercase: true })
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
@@ -181,13 +181,13 @@ export function getUser(
   return {
     ...getAdId(user.device_type, user.advertising_id),
     email: hashEmail(user.email, throwIfInvalidEmail),
-    external_id: smartHashIdentifier(user.external_id),
+    external_id: smartHashIdentifier(user.external_id, undefined, { convertBase64: false }),
     ip_address: smartHashIdentifier(user.ip_address),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
     screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
-    phone_number: smartHashIdentifier(user.phone_number, cleanPhoneNumber, true)
+    phone_number: smartHashIdentifier(user.phone_number, cleanPhoneNumber, { lowercase: true })
   }
 }
 
@@ -203,7 +203,7 @@ function hashEmail(email: string | undefined, throwIfInvalid: boolean): string |
   const isHexHash = isAlreadyHashed(value, 'sha256', 'hex')
 
   if (isEmail || isHexHash) {
-    return smartHashIdentifier(value, canonicalizeEmail, true)
+    return smartHashIdentifier(value, canonicalizeEmail, { lowercase: true })
   }
 
   if (throwIfInvalid) throw new PayloadValidationError(INVALID_EMAIL_MESSAGE)
@@ -236,12 +236,13 @@ export function base64Sha256ToHex(value: string): string | undefined {
 export const smartHashIdentifier = (
   value: string | undefined,
   cleaningFunction?: (value: string) => string,
-  lowercase = false
+  { lowercase = false, convertBase64 = true }: { lowercase?: boolean; convertBase64?: boolean } = {}
 ): string | undefined => {
   if (value === undefined) return
   const trimmed = value.trim()
   if (trimmed === '') return
-  const hashed = smartHash(base64Sha256ToHex(trimmed) ?? trimmed, cleaningFunction)
+  const input = convertBase64 ? base64Sha256ToHex(trimmed) ?? trimmed : trimmed
+  const hashed = smartHash(input, cleaningFunction)
   return lowercase ? hashed?.toLowerCase() : hashed
 }
 
