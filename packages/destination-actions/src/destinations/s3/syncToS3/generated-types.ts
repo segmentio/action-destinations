@@ -102,11 +102,11 @@ export interface Payload {
    */
   s3_aws_folder_name?: string
   /**
-   * Prefix to append to the name of the uploaded file.
+   * Prefix to append to the name of the uploaded file. Don't include a file extension; use the File Extension field instead, otherwise files may be overwritten.
    */
   filename_prefix?: string
   /**
-   * Character used to separate tokens in the resulting file.
+   * Character used to separate tokens in the resulting file. Column names must not contain the delimiter, quotes, or newlines.
    */
   delimiter: string
   /**

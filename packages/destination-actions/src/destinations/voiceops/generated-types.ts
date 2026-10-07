@@ -6,7 +6,7 @@ export interface Settings {
    */
   accessToken: string
   /**
-   * Your Voiceops base URL.
+   * Your Voiceops base URL. Defaults to https://projectfrontline.net when omitted or blank.
    */
-  baseUrl: string
+  baseUrl?: string
 }
