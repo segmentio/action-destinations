@@ -1260,6 +1260,61 @@ describe('BrazeCohorts.syncAudiences', () => {
     )
   })
 
+  it('should throw a validation error when user_alias is missing alias_label and no other identifier is present', async () => {
+    // No userId/deviceId and only a static alias_label (alias_name resolves from an
+    // absent anonymousId). The alias is incomplete and there is no External User ID or
+    // Device ID to fall back on, so the user cannot be identified and the event is rejected.
+    await expect(
+      testDestination.testAction('syncAudiences', {
+        event: {
+          anonymousId: null,
+          properties: {
+            audience_key: 'j_o_jons__step_1_ns3i7',
+            j_o_jons__step_1_ns3i7: true
+          },
+          context: {
+            personas: {
+              computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+              computation_key: 'j_o_jons__step_1_ns3i7'
+            }
+          },
+          timestamp: timestamp
+        },
+        settings: {
+          endpoint: 'https://rest.iad-01.braze.com',
+          client_secret: 'valid_client_secret_key'
+        },
+        useDefaultMappings: false,
+        mapping: {
+          enable_batching: true,
+          cohort_id: {
+            '@path': '$.context.personas.computation_id'
+          },
+          cohort_name: {
+            '@path': '$.context.personas.computation_key'
+          },
+          time: {
+            '@path': '$.timestamp'
+          },
+          event_properties: {
+            '@if': {
+              exists: { '@path': '$.properties' },
+              then: { '@path': '$.properties' },
+              else: { '@path': '$.traits' }
+            }
+          },
+          personas_audience_key: 'j_o_jons__step_1_ns3i7',
+          user_alias: {
+            alias_name: 'some_alias_name',
+            alias_label: { '@path': '$.context.traits.missing_label' }
+          }
+        }
+      })
+    ).rejects.toThrowError(
+      'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
+    )
+  })
+
   it('should reject only the unidentifiable event in a batch and still sync the valid siblings', async () => {
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
     nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts/users').reply(201, {})
@@ -1332,5 +1387,42 @@ describe('BrazeCohorts.syncAudiences', () => {
       errormessage:
         'User Alias Object requires both Alias Name and Alias Label when External User ID and Device ID are not set.'
     })
+  })
+  it('should emit a noop stat when events have no identifier at all', async () => {
+    nock('https://rest.iad-01.braze.com').post('/partners/segment/cohorts').reply(201, {})
+
+    const incr = jest.fn()
+    const noIdentifierEvent = createTestEvent({
+      userId: null,
+      anonymousId: null,
+      context: {
+        personas: {
+          computation_id: 'aud_23WNzkzsTS3ydnKz5H71SEhMxls',
+          computation_key: 'j_o_jons__step_1_ns3i7'
+        }
+      },
+      properties: {
+        audience_key: 'j_o_jons__step_1_ns3i7',
+        j_o_jons__step_1_ns3i7: true
+      },
+      timestamp: timestamp
+    })
+
+    await testDestination.testBatchAction('syncAudiences', {
+      events: [noIdentifierEvent, noIdentifierEvent],
+      settings: {
+        endpoint: 'https://rest.iad-01.braze.com',
+        client_secret: 'valid_client_secret_key'
+      },
+      useDefaultMappings: true,
+      mapping: { personas_audience_key: 'j_o_jons__step_1_ns3i7' },
+      statsContext: { statsClient: { incr } as any, tags: ['destination:braze-cohorts'] }
+    })
+
+    expect(incr).toHaveBeenCalledWith('syncAudiences.noop', 2, [
+      'destination:braze-cohorts',
+      'reason:no_identifier',
+      'is_batch:true'
+    ])
   })
 })
