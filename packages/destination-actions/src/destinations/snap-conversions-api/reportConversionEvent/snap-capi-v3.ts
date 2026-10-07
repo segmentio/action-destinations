@@ -588,31 +588,25 @@ const buildCustomData = (payload: Payload) => {
   })
 }
 
-const eventConversionTypeToActionSource: { [k in string]?: string } = {
-  WEB: 'website',
-  MOBILE_APP: 'app',
-
-  // Use the snap event_conversion_type for offline events
-  OFFLINE: 'OFFLINE'
+const ACTION_SOURCES: { [k in string]?: string } = {
+  WEB: 'WEB',
+  MOBILE_APP: 'MOBILE_APP',
+  OFFLINE: 'OFFLINE',
+  website: 'WEB',
+  app: 'MOBILE_APP'
 }
 
-const getSupportedActionSource = (action_source: string | undefined): string | undefined => {
-  const normalizedActionSource = emptyStringToUndefined(action_source)
+const normalizeActionSource = (payload: Payload): string | undefined => {
+  const actionSource = emptyStringToUndefined(payload.action_source)
+  const eventConversionType = emptyStringToUndefined(payload.event_conversion_type) ?? ''
 
-  // Snap doesn't support all the defined action sources, so fall back to OFFLINE if specified.
-  return ['website', 'app'].indexOf(normalizedActionSource ?? '') > -1
-    ? normalizedActionSource
-    : normalizedActionSource != null
-    ? 'OFFLINE'
-    : undefined
+  return actionSource !== undefined ? ACTION_SOURCES[actionSource] ?? 'OFFLINE' : ACTION_SOURCES[eventConversionType]
 }
 
 const buildPayloadData = (payload: Payload, settings: Settings) => {
   // event_conversion_type is a required parameter whose value is enforced as
   // always OFFLINE, WEB, or MOBILE_APP, so in practice action_source will always have a value.
-  const action_source =
-    getSupportedActionSource(payload.action_source) ??
-    eventConversionTypeToActionSource[payload.event_conversion_type ?? '']
+  const action_source = normalizeActionSource(payload)
 
   // Snaps CAPI v3 supports the legacy v2 events so don't bother
   // translating them
@@ -626,7 +620,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
   const event_time_date_time = parseDateSafe(payload_event_time ?? '')
   const event_time = event_time_date_time ?? event_time_number
 
-  const app_data = action_source === 'app' ? buildAppData(payload, settings) : undefined
+  const app_data = action_source === 'MOBILE_APP' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
   const custom_data = buildCustomData(payload)
 
@@ -659,12 +653,12 @@ const validateSettingsConfig = (settings: Settings, action_source: string | unde
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    action_source === 'app' && isNullOrUndefined(snapAppID),
+    action_source === 'MOBILE_APP' && isNullOrUndefined(snapAppID),
     'If event conversion type is "MOBILE_APP" then Snap App ID must be defined'
   )
 
   raiseMisconfiguredRequiredFieldErrorIf(
-    action_source === 'website' && isNullOrUndefined(snapPixelID),
+    action_source === 'WEB' && isNullOrUndefined(snapPixelID),
     `If event conversion type is "WEB" then Pixel ID must be defined`
   )
 }
@@ -677,10 +671,10 @@ const buildRequestURL = (settings: Settings, action_source: string | undefined, 
   const appOrPixelID = emptyStringToUndefined(
     (() => {
       switch (action_source) {
-        case 'website':
+        case 'WEB':
         case 'OFFLINE':
           return pixel_id
-        case 'app':
+        case 'MOBILE_APP':
           return snap_app_id
         default:
           return undefined
