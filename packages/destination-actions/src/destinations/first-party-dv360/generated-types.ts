@@ -5,23 +5,35 @@ export interface Settings {}
 
 export interface AudienceSettings {
   /**
-   * The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.
+   * Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if that audience has the same Audience Type and Membership Duration Days. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).
+   */
+  operation?: string
+  /**
+   * The ID of your Display & Video 360 advertiser. **Required:** always.
    */
   advertiserId: string
   /**
-   * The type of the audience.
+   * The type of the audience. **Required:** always. When connecting to an existing audience, it must match that audience's type.
    */
   audienceType: string
   /**
-   * The description of the audience.
+   * The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID.
+   */
+  existingAudienceId?: string
+  /**
+   * The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).
+   */
+  audienceDisplayName?: string
+  /**
+   * The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).
    */
   description?: string
   /**
-   * The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**
+   * The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience, including one with the same name (ignored).
    */
   appId?: string
   /**
-   * The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.
+   * Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).
    */
-  membershipDurationDays: string
+  membershipDurationDays?: string
 }
