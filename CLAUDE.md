@@ -391,14 +391,3 @@ Approval & process expectations (flag anything that looks bypassed):
 
 7. **+2 code review approvals** before merge to the protected branch — two +1s from two
    different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
-8. **Non-code production changes** — configuration changes, Flagon gates/flags, cob var
-   changes, Terraform, infra via the AWS console, direct prod DB reads/writes, and script
-   execution require at least one approval; pairing is mandatory for script execution and
-   DB writes.
-9. **Pair programming** for non-standard operational work that cannot be staged and
-   reviewed (scripts, database queries).
-10. **Director involvement** for major/risky changes — skipping staging for hotfixes,
-    restoring DBs from backup, operations that could cause data loss, COGS-driven infra
-    changes, and maintenance windows.
-11. **Director (or higher) approval** to skip testing in staging, and for any Statuspage
-    maintenance window (contractual customer-notice requirements apply).
