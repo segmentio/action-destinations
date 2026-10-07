@@ -25,6 +25,8 @@ export function resetUserCache() {
 }
 
 const BRAZE_INTEGRATION_NAMES = ['Braze Web Mode (Actions)', 'Braze Cloud Mode (Actions)', 'Appboy']
+// The integration key the SDK Authentication signature is read from (see updateUserProfile).
+const SDK_AUTH_INTEGRATION_NAME = 'Braze Web Mode (Actions)'
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -67,9 +69,12 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
       // Writing `true` here would discard any per-destination options the caller set under
       // this key, and that is where the SDK Authentication signature is supplied. An object
       // is already truthy, so keeping it sends the event exactly as `true` would; only the
-      // `false` skip signal has to overwrite.
+      // `false` skip signal has to overwrite. Only this destination's own key carries the
+      // signature, so the other Braze keys keep the old `true`, rather than carrying the token
+      // further with the event.
       const existing = event.integrations?.[name]
-      const value = shouldSend && preserveOptions && isObject(existing) ? existing : shouldSend
+      const keep = shouldSend && preserveOptions && name === SDK_AUTH_INTEGRATION_NAME && isObject(existing)
+      const value = keep ? existing : shouldSend
       ctx.updateEvent(`integrations.${name}`, value)
     }
 
