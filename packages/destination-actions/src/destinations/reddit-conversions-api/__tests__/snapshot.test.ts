@@ -6,7 +6,20 @@ import nock from 'nock'
 const testDestination = createTestIntegration(destination)
 const destinationSlug = 'actions-reddit-conversions-api'
 
+// The seeded generator emits this fixed event_at, which the v3 freshness check
+// would reject. Pin Date.now() to just after it so the check passes and the
+// snapshots stay byte-identical.
+const GENERATED_EVENT_AT = 1612137600000
+
 describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
+  beforeEach(() => {
+    jest.spyOn(Date, 'now').mockReturnValue(GENERATED_EVENT_AT + 1000)
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   for (const actionSlug in destination.actions) {
     it(`${actionSlug} action - required fields`, async () => {
       const seedName = `${destinationSlug}#${actionSlug}`
