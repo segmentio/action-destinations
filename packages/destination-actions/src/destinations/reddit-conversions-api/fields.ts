@@ -57,6 +57,14 @@ const API_VERSION_IS_V3 = {
   conditions: [{ fieldKey: 'api_version', operator: 'is' as const, value: LATEST_API_VERSION }]
 }
 
+const API_VERSION_IS_V3_AND_ACTION_SOURCE_IS_WEBSITE = {
+  match: 'all' as const,
+  conditions: [
+    { fieldKey: 'api_version', operator: 'is' as const, value: LATEST_API_VERSION },
+    { fieldKey: 'action_source', operator: 'is' as const, value: 'WEBSITE' }
+  ]
+}
+
 export const action_source: InputField = {
   label: 'Action Source',
   description:
@@ -70,10 +78,10 @@ export const action_source: InputField = {
 export const event_source_url: InputField = {
   label: 'Event Source URL',
   description:
-    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta).',
+    'The URL of the page where the event occurred. Reddit parses the domain for attribution. Include the click ID in the URL to improve match rates. Only applies to Reddit Conversions API V3 (Beta) when Action Source is Website.',
   type: 'string',
   required: false,
-  depends_on: API_VERSION_IS_V3,
+  depends_on: API_VERSION_IS_V3_AND_ACTION_SOURCE_IS_WEBSITE,
   default: { '@path': '$.context.page.url' }
 }
 
@@ -94,9 +102,9 @@ export const click_id: InputField = {
 export const conversion_id: InputField = {
   label: 'Conversion ID',
   description:
-    'The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication.',
+    'The unique conversion ID that corresponds to a distinct conversion event. Use this for event deduplication. Required for Reddit Conversions API V3 (Beta).',
   type: 'string',
-  required: false,
+  required: API_VERSION_IS_V3,
   default: { '@path': '$.messageId' },
   category: 'hashedPII'
 }
@@ -318,7 +326,7 @@ export const products: InputField = {
   properties: {
     category: {
       label: 'Category',
-      description: "The category the product is in; for example, a label from Google's product taxonomy. Required.",
+      description: "The category the product is in; for example, a label from Google's product taxonomy.",
       type: 'string',
       required: false
     },
@@ -336,13 +344,13 @@ export const products: InputField = {
     },
     quantity: {
       label: 'Quantity',
-      description: 'The number of this product in the event. Only applies to Reddit Conversions API V3 (Beta).',
+      description: 'The number of this product in the event.',
       type: 'integer',
       required: false
     },
     item_price: {
       label: 'Item Price',
-      description: 'The unit price of the product. Only applies to Reddit Conversions API V3 (Beta).',
+      description: 'The unit price of the product.',
       type: 'number',
       required: false
     }
@@ -447,6 +455,17 @@ export const user: InputField = {
       }
     }
   }
+}
+
+export const batch_size: InputField = {
+  label: 'Batch Size',
+  description:
+    'Maximum number of events to include in each batch. Actual batch sizes may be lower. Reddit accepts at most 1000 events per request.',
+  type: 'number',
+  required: false,
+  default: 1000,
+  maximum: 1000,
+  unsafe_hidden: true
 }
 
 export const data_processing_options: InputField = {

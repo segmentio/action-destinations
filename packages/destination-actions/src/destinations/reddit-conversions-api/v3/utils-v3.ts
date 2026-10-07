@@ -4,7 +4,16 @@ import type { Settings } from '../generated-types'
 import type { Payload as StandardEvent } from '../standardEvent/generated-types'
 import type { Payload as CustomEvent } from '../customEvent/generated-types'
 import { EventItemV3, PayloadV3, MetadataV3, ProductV3, ActionSourceV3, EventTypeV3 } from './types-v3'
-import { ACTION_SOURCE_V3_LABELS, TRACKING_TYPE_V3 } from './constants'
+import {
+  ACTION_SOURCE_V3_LABELS,
+  TRACKING_TYPE_V3,
+  ISO_4217,
+  CUSTOM_EVENT_NAME_MAX_LENGTH,
+  EVENT_AT_MAX_AGE_MS,
+  SUPPORTS_VALUE_METADATA,
+  SUPPORTS_ITEM_COUNT,
+  MATCH_KEYS
+} from './constants'
 import { clean, cleanNum, getUser, smartHash } from '../utils'
 import { LATEST_API_VERSION } from '../versioning-info'
 
@@ -27,7 +36,7 @@ export async function sendV3(
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${settings.conversion_token}` },
-        json: JSON.parse(JSON.stringify(data))
+        json: data
       }
     )
     if (!isBatch) {
@@ -44,7 +53,6 @@ export function createRedditPayloadV3(
   multiStatusResponse: MultiStatusResponse,
   isBatch: boolean
 ): PayloadV3 {
-  const indices: number[] = []
   const events: EventItemV3[] = []
 
   payloads.forEach((payload, index) => {
@@ -65,24 +73,49 @@ export function createRedditPayloadV3(
       const custom_event_name = clean((payload as CustomEvent).custom_event_name)
       const tracking_type = custom_event_name ? 'Custom' : (payload as StandardEvent).tracking_type
 
+      if (custom_event_name !== undefined && [...custom_event_name].length > CUSTOM_EVENT_NAME_MAX_LENGTH) {
+        throw new PayloadValidationError(
+          `Custom Event Name must be at most ${CUSTOM_EVENT_NAME_MAX_LENGTH} characters. Reddit silently truncates longer names, which merges distinct events.`
+        )
+      }
+
+      const cleanEventSourceUrl = clean(event_source_url ?? '')
+      const cleanedClickId = clean(click_id)
+      const userObj = getUser(user, data_processing_options, screen_dimensions)
+      const hasMatchKey = userObj !== undefined && MATCH_KEYS.some((key) => userObj[key] !== undefined)
+
+      if (!cleanedClickId && !hasMatchKey) {
+        throw new PayloadValidationError(
+          'Either Click ID or at least one User match key is required for Reddit Conversions API v3 events. Supported user match keys are: ' +
+            MATCH_KEYS.join(', ')
+        )
+      }
+
+      const eventAt = toEpochMs(event_at)
+
+      if (Date.now() - eventAt > EVENT_AT_MAX_AGE_MS) {
+        throw new PayloadValidationError(
+          'Event At is more than 7 days old. Reddit rejects these, and one stale event fails the whole request it is batched into.'
+        )
+      }
+
       const event: EventItemV3 = {
-        event_at: toEpochMs(event_at),
+        event_at: eventAt,
         action_source: toActionSourceV3(action_source),
-        event_source_url: clean(event_source_url),
-        click_id: clean(click_id),
+        ...(action_source === 'WEBSITE' && cleanEventSourceUrl ? { event_source_url: cleanEventSourceUrl } : {}),
+        ...(cleanedClickId ? { click_id: cleanedClickId } : {}),
         type: {
           tracking_type: toV3TrackingType(tracking_type),
           custom_event_name
         },
-        event_metadata: getMetadata(event_metadata, products, conversion_id),
-        user: getUser(user, data_processing_options, screen_dimensions)
+        metadata: getMetadata(event_metadata, products, conversion_id, tracking_type),
+        user: userObj
       }
 
-      indices.push(index)
       events.push(event)
       multiStatusResponse.setSuccessResponseAtIndex(index, {
         status: 200,
-        sent: events[indices.indexOf(index)] as unknown as JSONLikeObject,
+        sent: event as unknown as JSONLikeObject,
         body: { success: true }
       })
     } catch (err) {
@@ -135,13 +168,25 @@ export function toActionSourceV3(action_source: string | undefined): ActionSourc
 
 export function getProducts(products: ProductsType): ProductV3[] | undefined {
   if (!products) return undefined
-  return products.map((product) => ({
-    category: clean(product.category),
-    id: toProductIdV3(product.id),
-    name: clean(product.name),
-    quantity: cleanNum(product.quantity),
-    item_price: cleanNum(product.item_price)
-  }))
+
+  const items = products
+    .filter((product) => Object.values(product).some((value) => value !== undefined && value !== null && value !== ''))
+    .map((product) => {
+      const category = clean(product.category)
+      const name = clean(product.name)
+      const quantity = cleanNum(product.quantity)
+      const item_price = cleanNum(product.item_price)
+
+      return {
+        ...(category ? { category } : {}),
+        id: toProductIdV3(product.id),
+        ...(name ? { name } : {}),
+        ...(typeof quantity === 'number' ? { quantity } : {}),
+        ...(typeof item_price === 'number' ? { item_price } : {})
+      }
+    })
+
+  return items.length > 0 ? items : undefined
 }
 
 export function toProductIdV3(id: string | undefined): string {
@@ -153,16 +198,35 @@ export function toProductIdV3(id: string | undefined): string {
 export function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
-  conversion_id: ConversionIdType
-): MetadataV3 | undefined {
-  if (!metadata && !products && !conversion_id) return undefined
+  conversion_id: ConversionIdType,
+  trackingType?: string
+): MetadataV3 {
+  const type = trackingType ?? ''
+  const itemCount = SUPPORTS_ITEM_COUNT.has(type) ? cleanNum(metadata?.item_count) : undefined
+  const productList = getProducts(products)
+
+  const hashedConversionId = smartHash(conversion_id, (value) => value.trim())
+  if (!hashedConversionId) {
+    throw new PayloadValidationError('Conversion ID is required for Reddit Conversions API v3 events')
+  }
+
+  const valueMetadataSupported = SUPPORTS_VALUE_METADATA.has(type)
+  const valueDecimal = valueMetadataSupported ? cleanNum(metadata?.value_decimal) : undefined
+  const currency = valueMetadataSupported ? clean(metadata?.currency) : undefined
+  const hasCurrency = currency !== undefined && ISO_4217.test(currency)
+  const hasValue = valueDecimal !== undefined
+
+  if (hasCurrency !== hasValue) {
+    throw new PayloadValidationError(
+      `Event Metadata Currency and Value must be sent together - ${hasCurrency ? 'Value' : 'Currency'} is missing`
+    )
+  }
+
   return {
-    currency: clean(metadata?.currency),
-    item_count: cleanNum(metadata?.item_count),
-    // The Segment-facing field is still named `value_decimal` (unchanged from v2, so existing
-    // mappings keep working) - only the wire-level key sent to Reddit v3 renames to `value`.
-    value: cleanNum(metadata?.value_decimal),
-    products: getProducts(products),
-    conversion_id: smartHash(conversion_id, (value) => value.trim())
+    ...(hasCurrency ? { currency } : {}),
+    ...(typeof itemCount === 'number' ? { item_count: itemCount } : {}),
+    ...(typeof valueDecimal === 'number' ? { value: valueDecimal } : {}),
+    ...(productList && productList.length > 0 ? { products: productList } : {}),
+    conversion_id: hashedConversionId
   }
 }

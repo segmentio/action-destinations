@@ -148,8 +148,8 @@ const destination: DestinationDefinition<Settings> = {
         tracking_type: 'AddToCart',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
-          itemCount: { '@path': '$.properties.quantity' },
-          value: { '@path': '$.properties.price' }
+          item_count: { '@path': '$.properties.quantity' },
+          value_decimal: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'
@@ -164,8 +164,8 @@ const destination: DestinationDefinition<Settings> = {
         tracking_type: 'AddToWishlist',
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
-          itemCount: { '@path': '$.properties.quantity' },
-          value: { '@path': '$.properties.price' }
+          item_count: { '@path': '$.properties.quantity' },
+          value_decimal: { '@path': '$.properties.price' }
         }
       },
       type: 'automatic'

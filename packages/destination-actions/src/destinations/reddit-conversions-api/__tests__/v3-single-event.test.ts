@@ -5,6 +5,17 @@ import { Settings } from '../generated-types'
 
 const testDestination = createTestIntegration(Definition)
 const timestamp = '2024-01-08T13:52:50.212Z'
+
+// The fixtures use a fixed event_at, which the v3 freshness check would reject.
+// Pin Date.now() to just after it so the fixtures stay deterministic.
+beforeEach(() => {
+  jest.spyOn(Date, 'now').mockReturnValue(1704721970212 + 1000)
+})
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
+
 const settings: Settings = {
   ad_account_id: 'ad_account_id_1',
   conversion_token: 'conversion_token_1'
@@ -61,7 +72,7 @@ describe('Reddit Conversions Api - V3 single event', () => {
             type: {
               tracking_type: 'PURCHASE'
             },
-            event_metadata: {
+            metadata: {
               currency: 'USD',
               item_count: 10,
               value: 100,
@@ -167,6 +178,7 @@ describe('Reddit Conversions Api - V3 single event', () => {
       userId: 'user_id_1',
       properties: {
         revenue: 100,
+        currency: 'USD',
         products: [{ category: 'category_1', name: 'name_1' }]
       }
     })

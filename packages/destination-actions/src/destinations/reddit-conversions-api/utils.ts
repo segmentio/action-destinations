@@ -1,3 +1,4 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import type { RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import type { Payload as StandardEvent } from './standardEvent/generated-types'
@@ -10,7 +11,7 @@ import {
   EventMetadata,
   DatapProcessingOptions
 } from './types'
-import { processHashing } from '../../lib/hashing-utils'
+import { isAlreadyHashed, processHashing } from '../../lib/hashing-utils'
 import { LEGACY_API_VERSION } from './versioning-info'
 
 type EventMetadataType = StandardEvent['event_metadata'] | CustomEvent['event_metadata']
@@ -20,7 +21,7 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(request: RequestClient, settings: Settings, payload: StandardEvent[] | CustomEvent[]) {
+export async function send(request: RequestClient, settings: Settings, payload: (StandardEvent | CustomEvent)[]) {
   const data = createRedditPayload(payload, settings)
   return request(`https://ads-api.reddit.com/api/${LEGACY_API_VERSION}/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
@@ -29,7 +30,7 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   })
 }
 
-function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings: Settings): StandardEventPayload {
+function createRedditPayload(payloads: (StandardEvent | CustomEvent)[], settings: Settings): StandardEventPayload {
   const payloadItems: StandardEventPayloadItem[] = []
 
   payloads.forEach((payload) => {
@@ -46,18 +47,19 @@ function createRedditPayload(payloads: StandardEvent[] | CustomEvent[], settings
 
     const custom_event_name = (payload as CustomEvent).custom_event_name
     const tracking_type = (payload as StandardEvent).tracking_type
+    const resolvedTrackingType = custom_event_name ? 'Custom' : tracking_type
 
     const payloadItem: StandardEventPayloadItem = {
       event_at: event_at as string,
       event_type: {
         // if custom_event_name is present, tracking_type is 'Custom'
         // if custom_event_name not present then we know the event is a StandardEvent
-        tracking_type: custom_event_name ? 'Custom' : tracking_type,
+        tracking_type: resolvedTrackingType,
         custom_event_name: clean(custom_event_name)
       },
       click_id: clean(click_id),
-      event_metadata: getMetadata(event_metadata, products, conversion_id),
-      user: getUser(user, data_processing_options, screen_dimensions)
+      event_metadata: getMetadata(event_metadata, products, conversion_id, resolvedTrackingType),
+      user: getUser(user, data_processing_options, screen_dimensions, false)
     }
 
     payloadItems.push(payloadItem)
@@ -80,6 +82,20 @@ export function cleanNum(num: number | undefined): number | undefined {
   return num
 }
 
+// Per https://business.reddithelp.com/s/article/about-event-metadata: PageVisit/ViewContent/Search
+// don't support currency/value/item_count at all (conversion_id/products are still fine), and
+// Lead/SignUp support currency/value but not item_count.
+const TRACKING_TYPES_WITHOUT_VALUE_METADATA = new Set(['PageVisit', 'ViewContent', 'Search'])
+const TRACKING_TYPES_WITHOUT_ITEM_COUNT = new Set(['Lead', 'SignUp'])
+
+export function supportsValueMetadata(trackingType: string | undefined): boolean {
+  return !TRACKING_TYPES_WITHOUT_VALUE_METADATA.has(trackingType ?? '')
+}
+
+export function supportsItemCount(trackingType: string | undefined): boolean {
+  return supportsValueMetadata(trackingType) && !TRACKING_TYPES_WITHOUT_ITEM_COUNT.has(trackingType ?? '')
+}
+
 function getProducts(products: ProductsType): Product[] | undefined {
   if (!products) {
     return undefined
@@ -96,19 +112,23 @@ function getProducts(products: ProductsType): Product[] | undefined {
   })
 }
 
-function getMetadata(
+export function getMetadata(
   metadata: EventMetadataType,
   products: ProductsType,
-  conversion_id: ConversionIdType
+  conversion_id: ConversionIdType,
+  trackingType?: string
 ): EventMetadata | undefined {
   if (!metadata && !products && !conversion_id) {
     return undefined
   }
 
+  const valueMetadataSupported = supportsValueMetadata(trackingType)
+  const itemCountSupported = supportsItemCount(trackingType)
+
   return {
-    currency: clean(metadata?.currency),
-    item_count: cleanNum(metadata?.item_count),
-    value_decimal: cleanNum(metadata?.value_decimal),
+    currency: valueMetadataSupported ? clean(metadata?.currency) : undefined,
+    item_count: itemCountSupported ? cleanNum(metadata?.item_count) : undefined,
+    value_decimal: valueMetadataSupported ? cleanNum(metadata?.value_decimal) : undefined,
     products: getProducts(products),
     conversion_id: smartHash(conversion_id, (value) => value.trim())
   }
@@ -120,7 +140,7 @@ export function getAdId(
 ): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  const hashedAdId = smartHash(advertising_id)
+  const hashedAdId = smartHashIdentifier(advertising_id, undefined, { lowercase: true })
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
@@ -128,10 +148,17 @@ export function getDataProcessingOptions(
   dataProcessingOptions: DataProcessingOptionsType
 ): DatapProcessingOptions | undefined {
   if (!dataProcessingOptions) return undefined
+
+  const country = clean(dataProcessingOptions.country)
+  const modes = dataProcessingOptions.modes?.split(',').map((mode) => mode.trim())
+  const region = clean(dataProcessingOptions.region)
+
+  if (country === undefined && modes === undefined && region === undefined) return undefined
+
   return {
-    country: clean(dataProcessingOptions.country),
-    modes: dataProcessingOptions.modes?.split(',').map((mode) => mode.trim()),
-    region: clean(dataProcessingOptions.region)
+    ...(country ? { country } : {}),
+    ...(modes ? { modes } : {}),
+    ...(region ? { region } : {})
   }
 }
 
@@ -146,21 +173,41 @@ export function getScreen(height?: number, width?: number): { height: number; wi
 export function getUser(
   user: UserType,
   dataProcessingOptions: DataProcessingOptionsType,
-  screenDimensions: ScreenDimensionsType
+  screenDimensions: ScreenDimensionsType,
+  throwIfInvalidEmail = true
 ): User | undefined {
   if (!user) return
 
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: smartHash(user.email, canonicalizeEmail),
-    external_id: smartHash(user.external_id, (value) => value.trim()),
-    ip_address: smartHash(user.ip_address, (value) => value.trim()),
+    email: hashEmail(user.email, throwIfInvalidEmail),
+    external_id: smartHashIdentifier(user.external_id, undefined, { convertBase64: false }),
+    ip_address: smartHashIdentifier(user.ip_address),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
     screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
-    phone_number: smartHash(user.phone_number, cleanPhoneNumber)
+    phone_number: smartHashIdentifier(user.phone_number, cleanPhoneNumber, { lowercase: true })
   }
+}
+
+const INVALID_EMAIL_MESSAGE =
+  'Email must be a valid email address or a SHA-256 hash given as 64 hexadecimal characters. Base64 encoded hashes are converted automatically; other formats are not supported.'
+
+function hashEmail(email: string | undefined, throwIfInvalid: boolean): string | undefined {
+  const trimmed = email?.trim()
+  if (!trimmed) return
+
+  const value = base64Sha256ToHex(trimmed) ?? trimmed
+  const isEmail = value.includes('@')
+  const isHexHash = isAlreadyHashed(value, 'sha256', 'hex')
+
+  if (isEmail || isHexHash) {
+    return smartHashIdentifier(value, canonicalizeEmail, { lowercase: true })
+  }
+
+  if (throwIfInvalid) throw new PayloadValidationError(INVALID_EMAIL_MESSAGE)
+  return
 }
 
 export function canonicalizeEmail(value: string): string {
@@ -176,6 +223,27 @@ export const smartHash = (
 ): string | undefined => {
   if (value === undefined) return
   return processHashing(value, 'sha256', 'hex', cleaningFunction)
+}
+
+const BASE64_SHA256 = /^[A-Za-z0-9+/]{43}=$/
+
+export function base64Sha256ToHex(value: string): string | undefined {
+  if (!BASE64_SHA256.test(value)) return
+  const bytes = Buffer.from(value, 'base64')
+  return bytes.length === 32 && bytes.toString('base64') === value ? bytes.toString('hex') : undefined
+}
+
+export const smartHashIdentifier = (
+  value: string | undefined,
+  cleaningFunction?: (value: string) => string,
+  { lowercase = false, convertBase64 = true }: { lowercase?: boolean; convertBase64?: boolean } = {}
+): string | undefined => {
+  if (value === undefined) return
+  const trimmed = value.trim()
+  if (trimmed === '') return
+  const input = convertBase64 ? base64Sha256ToHex(trimmed) ?? trimmed : trimmed
+  const hashed = smartHash(input, cleaningFunction)
+  return lowercase ? hashed?.toLowerCase() : hashed
 }
 
 export function cleanPhoneNumber(phoneNumber: string): string {

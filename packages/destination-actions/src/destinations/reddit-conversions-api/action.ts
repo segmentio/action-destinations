@@ -14,6 +14,7 @@ import {
   user,
   data_processing_options,
   screen_dimensions,
+  batch_size,
   event_metadata,
   conversion_id,
   api_version,
@@ -38,9 +39,12 @@ function buildEventAction<Payload extends StandardEvent | CustomEvent>(
     description,
     defaultSubscription,
     fields: {
+      api_version,
+      action_source,
       event_at,
       ...(trackingTypeField ? { tracking_type: trackingTypeField } : {}),
       ...(customEventNameField ? { custom_event_name: customEventNameField } : {}),
+      event_source_url,
       click_id,
       products,
       user,
@@ -48,18 +52,16 @@ function buildEventAction<Payload extends StandardEvent | CustomEvent>(
       screen_dimensions,
       event_metadata,
       conversion_id,
-      api_version,
-      action_source,
-      event_source_url
+      batch_size
     },
     perform: async (request, { settings, payload }) => {
-      const resolvedPayload = resolvePayload(payload) as StandardEvent
+      const resolvedPayload = resolvePayload(payload)
       return resolveVersion(payload.api_version) === LATEST_API_VERSION
         ? sendV3(request, settings, [resolvedPayload], false)
         : send(request, settings, [resolvedPayload])
     },
     performBatch: async (request, { settings, payload }) => {
-      const resolvedPayloads = payload.map(resolvePayload) as StandardEvent[]
+      const resolvedPayloads = payload.map(resolvePayload)
 
       // api_version is a static per-mapping setting, not derived from event data, so a batch is
       // always homogeneously all-V2 or all-V3 - checking the first payload is enough.
