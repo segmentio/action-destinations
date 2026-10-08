@@ -53,9 +53,9 @@ export const CANARY_API_VERSION = GOOGLE_ENHANCED_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'google-enhanced-canary-version'
 export const FLAGON_NAME_PHONE_VALIDATION_CHECK = 'google-enhanced-phone-validation-check'
 export const FLAGON_NAME_DATA_MANAGER_API = 'actions-google-ec-data-manager-api'
+const PARTNER_ACCOUNT_ID = '262932431'
 import { PhoneNumberUtil, PhoneNumberFormat } from 'google-libphonenumber'
 export const DATA_MANAGER_BASE_URL = 'https://datamanager.googleapis.com/v1'
-const PARTNER_ACCOUNT_ID = '262932431'
 
 const RETRYABLE_DATA_MANAGER_GRPC_STATUSES = new Set([
   'UNAVAILABLE',
