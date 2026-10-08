@@ -93,6 +93,66 @@ const fixtures: E2EFixture[] = [
       'Proves the migration safety net: a mapping saved before api_version existed has no value for it, which must resolve to LEGACY_API_VERSION (V2) at runtime, not V3.'
   },
 
+  {
+    description: 'V2: a Base64 SHA-256 email is converted to hex and the event is accepted (previously a 500)',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...defaultValues(standardEvent.fields),
+      api_version: LEGACY_API_VERSION,
+      tracking_type: 'Purchase'
+    },
+    mode: 'single',
+    event: createE2EEvent('track', 'Order Completed', {
+      userId: nextUser(),
+      properties: { email: 'pwGHlU1vCTeR0+St5QKraBJ2bOGk8L8Ewn/yBxFrE0Y=', revenue: 20, currency: 'USD' }
+    }),
+    expect: { status: 'success', httpStatus: 200 }
+  },
+  {
+    description: 'V2: an upper case hex SHA-256 email is lowercased and the event is accepted',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...defaultValues(standardEvent.fields),
+      api_version: LEGACY_API_VERSION,
+      tracking_type: 'Purchase'
+    },
+    mode: 'single',
+    event: createE2EEvent('track', 'Order Completed', {
+      userId: nextUser(),
+      properties: {
+        email: 'A70187954D6F093791D3E4ADE502AB6812766CE1A4F0BF04C27FF207116B1346',
+        revenue: 20,
+        currency: 'USD'
+      }
+    }),
+    expect: { status: 'success', httpStatus: 200 }
+  },
+  {
+    description: 'V2: a batch containing an invalid email drops that email and still delivers every event',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...defaultValues(standardEvent.fields),
+      api_version: LEGACY_API_VERSION,
+      tracking_type: 'AddToCart'
+    },
+    mode: 'batch',
+    events: [
+      createE2EEvent('track', 'Product Added', {
+        userId: nextUser(),
+        properties: { email: 'not-an-email-or-a-hash' },
+        context: { ip: '203.0.113.10', userAgent: 'e2e-reddit-agent' }
+      }),
+      createE2EEvent('track', 'Product Added', {
+        userId: nextUser(),
+        properties: { email: 'pwGHlU1vCTeR0+St5QKraBJ2bOGk8L8Ewn/yBxFrE0Y=' },
+        context: { ip: '203.0.113.11', userAgent: 'e2e-reddit-agent' }
+      })
+    ],
+    expect: { status: 'success', httpStatus: 200 },
+    verboseFailureHint:
+      'V2 has no per-event error reporting, so an invalid email must be dropped (not thrown) or the whole batch fails.'
+  },
+
   // --- V3 -------------------------------------------------------------------------------------
   {
     description: 'V3: successfully sends a Purchase event with action_source, event_source_url, and product pricing',
@@ -159,6 +219,75 @@ const fixtures: E2EFixture[] = [
     }
   },
   {
+    description: 'V3: a Base64 SHA-256 email is converted to hex and the event is accepted',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...defaultValues(standardEvent.fields),
+      api_version: LATEST_API_VERSION,
+      tracking_type: 'Purchase',
+      action_source: 'WEBSITE',
+      event_source_url: 'https://example.com/checkout'
+    },
+    mode: 'single',
+    event: createE2EEvent('track', 'Order Completed', {
+      userId: nextUser(),
+      properties: { email: 'pwGHlU1vCTeR0+St5QKraBJ2bOGk8L8Ewn/yBxFrE0Y=', revenue: 20, currency: 'USD' },
+      context: { page: { url: 'https://example.com/checkout' } }
+    }),
+    expect: { status: 'success', httpStatus: 200, bodyContains: 'Successfully processed' }
+  },
+  {
+    description:
+      'V3: batch with one valid event and one invalid email - MultiStatusResponse fails only the invalid one with a 400',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...defaultValues(standardEvent.fields),
+      api_version: LATEST_API_VERSION,
+      tracking_type: 'AddToCart',
+      action_source: 'WEBSITE'
+    },
+    mode: 'batchWithMultistatus',
+    events: [
+      createE2EEvent('track', 'Product Added', {
+        userId: nextUser(),
+        properties: { email: 'pwGHlU1vCTeR0+St5QKraBJ2bOGk8L8Ewn/yBxFrE0Y=' }
+      }),
+      createE2EEvent('track', 'Product Added', {
+        userId: nextUser(),
+        properties: { email: 'not-an-email-or-a-hash' }
+      })
+    ],
+    expect: {
+      status: 'success',
+      jsonContains: [
+        { status: 200 },
+        {
+          status: 400,
+          errormessage:
+            'Email must be a valid email address or a SHA-256 hash given as 64 hexadecimal characters. Base64 encoded hashes are converted automatically; other formats are not supported.'
+        }
+      ]
+    }
+  },
+  {
+    description: 'V3: a single event with an invalid email fails with a non-retryable 400 before any request is sent',
+    subscribe: 'type = "track"',
+    mapping: {
+      ...defaultValues(standardEvent.fields),
+      api_version: LATEST_API_VERSION,
+      tracking_type: 'Purchase',
+      action_source: 'WEBSITE'
+    },
+    mode: 'single',
+    event: createE2EEvent('track', 'Order Completed', {
+      userId: nextUser(),
+      properties: { email: 'not-an-email-or-a-hash', revenue: 10 }
+    }),
+    expect: { status: 'error', errorType: 'PayloadValidationError', httpStatus: 400 },
+    verboseFailureHint:
+      'If errorType does not match on first run, check the real thrown error name: the V3 single-event path rethrows the per-event error as a PayloadValidationError.'
+  },
+  {
     description: 'V3: rejects the mapping when action_source is not set (conditionally required only for V3)',
     subscribe: 'type = "track"',
     mapping: (() => {
@@ -184,4 +313,6 @@ const fixtures: E2EFixture[] = [
   }
 ]
 
-export default fixtures
+export default process.env.E2E_REDDIT_SKIP_V3
+  ? fixtures.filter((fixture) => !fixture.description.startsWith('V3:'))
+  : fixtures

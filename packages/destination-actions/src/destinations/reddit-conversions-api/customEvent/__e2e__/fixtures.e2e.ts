@@ -79,4 +79,6 @@ const fixtures: E2EFixture[] = [
   }
 ]
 
-export default fixtures
+export default process.env.E2E_REDDIT_SKIP_V3
+  ? fixtures.filter((fixture) => !fixture.description.startsWith('V3:'))
+  : fixtures
