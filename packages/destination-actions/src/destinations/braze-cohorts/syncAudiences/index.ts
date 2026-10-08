@@ -10,7 +10,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { SyncAudiences } from '../api'
 import { CohortChanges, UserAlias } from '../braze-cohorts-types'
-import { StateContext } from '@segment/actions-core/destination-kit'
+import { StateContext, StatsContext } from '@segment/actions-core/destination-kit'
 import isEmpty from 'lodash/isEmpty'
 
 const UNIDENTIFIABLE_USER_ERROR =
@@ -120,11 +120,11 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false
     }
   },
-  perform: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, [payload], stateContext, false)
+  perform: async (request, { settings, payload, stateContext, statsContext }) => {
+    return processPayload(request, settings, [payload], stateContext, false, statsContext)
   },
-  performBatch: async (request, { settings, payload, stateContext }) => {
-    return processPayload(request, settings, payload, stateContext, true)
+  performBatch: async (request, { settings, payload, stateContext, statsContext }) => {
+    return processPayload(request, settings, payload, stateContext, true, statsContext)
   }
 }
 async function processPayload(
@@ -132,7 +132,8 @@ async function processPayload(
   settings: Settings,
   payloads: Payload[],
   stateContext: StateContext | undefined,
-  isBatch: boolean
+  isBatch: boolean,
+  statsContext?: StatsContext
 ) {
   // Batch-wide invariant: cohort_name and personas_audience_key are configuration values
   // that are identical for every event in the batch, so a mismatch is a whole-batch failure.
@@ -151,6 +152,7 @@ async function processPayload(
   //               user, so we preserve that (200 in a batch, early return for a single event).
   const payloadsToSync: Payload[] = []
   const succeededIndices: number[] = []
+  let noopCount = 0
 
   payloads.forEach((payload, index) => {
     switch (classifyPayload(payload)) {
@@ -159,6 +161,7 @@ async function processPayload(
         succeededIndices.push(index)
         break
       case 'noop':
+        noopCount++
         succeededIndices.push(index)
         break
       case 'reject':
@@ -174,6 +177,16 @@ async function processPayload(
         break
     }
   })
+
+  // Events with no identifier at all are silently accepted without syncing a user; emit a
+  // counter so the volume of these no-ops can be analysed later.
+  if (noopCount > 0) {
+    statsContext?.statsClient?.incr('braze_cohorts.syncAudiences.noop', noopCount, [
+      ...(statsContext.tags ?? []),
+      'reason:no_identifier',
+      `is_batch:${isBatch}`
+    ])
+  }
 
   const syncAudiencesApiClient: SyncAudiences = new SyncAudiences(request, settings)
   const { cohort_name, cohort_id } = payloads[0]
@@ -227,8 +240,13 @@ function validate(payloads: Payload[]): void {
   }
 }
 
+// Braze rejects an alias object unless both alias_name and alias_label are present.
+function hasCompleteAlias(user_alias: Payload['user_alias']): user_alias is UserAlias {
+  return Boolean(user_alias?.alias_name && user_alias?.alias_label)
+}
+
 function classifyPayload({ external_id, device_id, user_alias }: Payload): 'sync' | 'reject' | 'noop' {
-  if (external_id || device_id || (user_alias?.alias_name && user_alias?.alias_label)) {
+  if (external_id || device_id || hasCompleteAlias(user_alias)) {
     return 'sync'
   }
   // No External User ID / Device ID and no complete alias. If an alias object was supplied
@@ -260,7 +278,7 @@ function extractUsers(payloads: Payload[]) {
       user?.user_ids?.add(external_id)
     } else if (device_id && !addUsers.device_ids?.has(device_id) && !removeUsers.device_ids?.has(device_id)) {
       user?.device_ids?.add(device_id)
-    } else if (user_alias?.alias_name && user_alias?.alias_label) {
+    } else if (user_alias && hasCompleteAlias(user_alias)) {
       const aliasKey = `${user_alias.alias_name}:${user_alias.alias_label}`
       if (!addUsers.aliases?.has(aliasKey) && !removeUsers.aliases?.has(aliasKey)) {
         user?.aliases?.set(aliasKey, user_alias)
