@@ -10,6 +10,7 @@ import removeFromAudContactInfo from './removeFromAudContactInfo'
 import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
 import addToAudMobileDeviceId from './addToAudMobileDeviceId'
+import syncAudience from './syncAudience'
 import { _CreateAudienceInput, _GetAudienceInput } from './types'
 
 export interface RefreshTokenResponse {
@@ -247,7 +248,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     addToAudContactInfo,
     addToAudMobileDeviceId,
     removeFromAudContactInfo,
-    removeFromAudMobileDeviceId
+    removeFromAudMobileDeviceId,
+    syncAudience
   },
   presets: [
     {
@@ -284,6 +286,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(addToAudContactInfo.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'syncAudience',
+      mapping: defaultValues(syncAudience.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
   ]
 }

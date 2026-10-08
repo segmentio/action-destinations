@@ -20,7 +20,7 @@ import type {
   AudienceMembership
 } from './types'
 import { syncModeTypes } from './types'
-import { HTTPError, NormalizedOptions } from '../request-client'
+import { HTTPError, NormalizedOptions, isRetryableNetworkError } from '../request-client'
 import type { JSONSchema4 } from 'json-schema'
 import { validateSchema } from '../schema-validation'
 import { AuthTokens } from './parse-settings'
@@ -1061,16 +1061,13 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     try {
       performBatchResponse = await this.definition.performBatch(requestClient, data)
     } catch (error) {
-      // Handle action errors and convert them into a multi-status response for the entire batch
-      // If an unhandled error is thrown, it gets propagated to the caller
-      this.parseBatchError(error, {
+      // Classifies the error into per-row responses and returns the same status for the top-level job.
+      const errorStatus = this.parseBatchError(error, {
         multiStatusResponse,
         invalidPayloadIndices,
         batchPayloadLength,
         filteredPayloads: payloads
       })
-
-      const errorStatus = (error as HTTPError)?.response?.status ?? (error as IntegrationError)?.status ?? 500
       return { jobId: undefined, status: errorStatus, multiStatusResponse }
     }
 
@@ -1135,7 +1132,15 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
     }
 
     const requestClient = this.createRequestClient(dataBundle)
-    return this.definition.performPoll(requestClient, dataBundle)
+    try {
+      return await this.definition.performPoll(requestClient, dataBundle)
+    } catch (error) {
+      // Transient network failure while polling
+      if (isRetryableNetworkError(error)) {
+        return { jobId: dataBundle.payload.jobId, status: 500, jobStatus: 'RETRYABLE_ERROR' }
+      }
+      throw error
+    }
   }
 
   private parseBatchError(
@@ -1146,24 +1151,34 @@ export class AsyncAction<Settings, Payload extends JSONLikeObject, AudienceSetti
       batchPayloadLength: number
       filteredPayloads?: JSONLikeObject[]
     }
-  ): void {
+  ): number {
+    let status: number
+    let errormessage: string
+
     if (error instanceof HTTPError) {
-      this.fillMultiStatusWithErrorResponse({ ...input, status: error.response.status, errormessage: error.message })
-      return
+      status = error.response.status
+      errormessage = error.message
+    } else if (error instanceof IntegrationError) {
+      status = error.status ?? 400
+      errormessage = error.message
+    } else if (error instanceof RetryableError || error instanceof InvalidAuthenticationError) {
+      status = error.status
+      errormessage = error.message
+    } else if (isRetryableNetworkError(error)) {
+      // Transient network failure
+      status = 500
+      errormessage = (error as Error)?.message ?? 'Network error'
+    } else {
+      // Unclassified/unexpected error -- almost always a programming or runtime bug. Rethrow so it
+      // fails fast and stays visible (surfaced to the caller's logging/Sentry) instead of being
+      // silently swallowed as a terminal batch result. A destination that wants a specific error
+      // treated as terminal should throw an IntegrationError with an explicit status rather than
+      // let it reach here.
+      throw error
     }
 
-    if (error instanceof IntegrationError) {
-      this.fillMultiStatusWithErrorResponse({ ...input, status: error.status ?? 400, errormessage: error.message })
-      return
-    }
-
-    if (error instanceof RetryableError || error instanceof InvalidAuthenticationError) {
-      this.fillMultiStatusWithErrorResponse({ ...input, status: error.status, errormessage: error.message })
-      return
-    }
-
-    // Throw unhandled errors to be caught by the caller
-    throw error
+    this.fillMultiStatusWithErrorResponse({ ...input, status, errormessage })
+    return status
   }
 
   private fillMultiStatusWithErrorResponse(input: {
@@ -1196,6 +1211,19 @@ export class MultiStatusResponse {
 
   public length(): number {
     return this.responses.length
+  }
+
+  // Number of response slots currently held (alias of length() as a getter, Map/Set-style).
+  public get size(): number {
+    return this.responses.length
+  }
+
+  // True when no response has been recorded yet.
+  // Use this instead of a truthiness check on the instance: a MultiStatusResponse is always
+  // a truthy object even when it holds zero entries, so `if (multiStatusResponse)` reports
+  // "present" for an empty result. isEmpty() distinguishes "no per-record detail" from "has data".
+  public isEmpty(): boolean {
+    return this.responses.length === 0
   }
 
   // Pushes a Generic Response at the end of the responses array

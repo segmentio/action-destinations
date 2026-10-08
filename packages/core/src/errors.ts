@@ -25,23 +25,16 @@ export class IntegrationError extends CustomError {
   }
 }
 
-type RetryableStatusCodes =
-  | 408
-  | 423
-  | 429
-  | 500
-  | 502
-  | 503
-  | 504
-  | 505
-  | 506
-  | 507
-  | 508
-  | 509
-  | 510
-  | 511
-  | 598
-  | 599
+const RETRYABLE_STATUS_CODES = [408, 423, 429, 500, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 598, 599] as const
+
+export type RetryableStatusCodes = typeof RETRYABLE_STATUS_CODES[number]
+
+/**
+ * Whether an HTTP status is one Segment will retry.
+ */
+export function isRetryableStatus(status: number): status is RetryableStatusCodes {
+  return (RETRYABLE_STATUS_CODES as readonly number[]).includes(status)
+}
 
 /**
  * Error that should halt execution but allows the request to be retried automatically.
