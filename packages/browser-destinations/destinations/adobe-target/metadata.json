@@ -59,16 +59,6 @@
         "choices": null,
         "default": null,
         "depends_on": null
-      },
-      "library_url": {
-        "label": "Self-Hosted at.js URL",
-        "description": "The URL of a self-hosted `at.js` library to load instead of downloading it from Adobe's admin endpoint. Adobe rate-limits the admin download endpoint, so high-traffic sites should host their own copy of `at.js` (see [Adobe docs](https://experienceleague.adobe.com/en/docs/target-dev/developer/client-side/at-js-implementation/deploy-at-js/implement-target-without-a-tag-manager)). When set, this URL is loaded as-is and the Client Code, Admin number, and ATJS Version settings are ignored.",
-        "type": "string",
-        "required": false,
-        "multiple": false,
-        "choices": null,
-        "default": null,
-        "depends_on": null
       }
     }
   },
