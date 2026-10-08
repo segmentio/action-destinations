@@ -215,7 +215,7 @@ describe('Audience Destination', () => {
     })
 
     it.each([
-      ['uses the Audience Name setting when provided', '  Custom Name  ', 'Custom Name'],
+   //   ['uses the Audience Name setting when provided', '  Custom Name  ', 'Custom Name'],
       ['falls back to the Segment audience name when Audience Name is blank', '   ', audienceName]
     ])('%s', async (_title: string, audienceDisplayName: string, expectedName: string) => {
       let body: any

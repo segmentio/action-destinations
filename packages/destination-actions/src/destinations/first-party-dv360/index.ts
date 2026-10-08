@@ -91,14 +91,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         'The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID.',
       depends_on: EXISTING_OPERATION
     },
-    audienceDisplayName: {
-      type: 'string',
-      label: 'Audience Display Name',
-      required: false,
-      description:
-        'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).',
-      depends_on: CREATE_OPERATION
-    },
+    // audienceDisplayName: {
+    //   type: 'string',
+    //   label: 'Audience Display Name',
+    //   required: false,
+    //   description:
+    //     'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).',
+    //   depends_on: CREATE_OPERATION
+    // },
     description: {
       type: 'string',
       label: 'Description',
@@ -139,7 +139,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           operation,
           advertiserId,
           audienceType,
-          audienceDisplayName,
+          //audienceDisplayName,
           existingAudienceId,
           membershipDurationDays,
           description,
@@ -185,7 +185,8 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         {
           operation: operation === 'existing' || operation === 'create_or_connect' ? operation : 'create',
           advertiserId,
-          audienceName: audienceDisplayName?.trim() || audienceName,
+          // audienceName: audienceDisplayName?.trim() || audienceName,
+          audienceName: audienceName,
           audienceType,
           membershipDurationDays,
           description,
