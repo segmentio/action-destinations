@@ -152,8 +152,31 @@ describe('Hubspot.upsertObject associations identified by hs_object_id', () => {
       expect(nock.pendingMocks()).toHaveLength(4)
     })
 
-    it('rejects for the update sync mode as well, because the associated record mode is independent', async () => {
+    it('rejects for the add sync mode, which reaches the association step like upsert', async () => {
       mockAllEndpoints()
+
+      await expect(
+        testDestination.testAction('upsertObject', {
+          event: createTestEvent(payload),
+          settings,
+          useDefaultMappings: true,
+          mapping: { ...mapping, __segment_internal_sync_mode: 'add' }
+        })
+      ).rejects.toThrow(PayloadValidationError)
+
+      expect(nock.pendingMocks()).toHaveLength(4)
+    })
+
+    it('does not reject for the update sync mode, where the event succeeds today and the association step is never reached', async () => {
+      // HubSpot's batch/update response omits the identifier property, so the main record is not matched back to
+      // its payload and no association request follows. Rejecting here would turn a working mapping into a failing one.
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/read')
+        .reply(200, { results: [{ id: '62102303560', properties: { email: 'test@test.com' } }] })
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/update')
+        .reply(200, { results: [{ id: '62102303560', properties: { hs_object_id: '62102303560' } }] })
+      nock(HUBSPOT_BASE_URL).post('/crm/v3/objects/company/batch/upsert').reply(400, { category: 'VALIDATION_ERROR' })
 
       await expect(
         testDestination.testAction('upsertObject', {
@@ -162,9 +185,10 @@ describe('Hubspot.upsertObject associations identified by hs_object_id', () => {
           useDefaultMappings: true,
           mapping: { ...mapping, __segment_internal_sync_mode: 'update' }
         })
-      ).rejects.toThrow(PayloadValidationError)
+      ).resolves.not.toThrow()
 
-      expect(nock.pendingMocks()).toHaveLength(4)
+      // the main record was read and updated; the company upsert, the call that always 400s, was never made
+      expect(nock.pendingMocks()).toEqual([`POST ${HUBSPOT_BASE_URL}:443/crm/v3/objects/company/batch/upsert`])
     })
 
     it('does not reject when the identifier value is missing from the event, because the association is never sent', async () => {
