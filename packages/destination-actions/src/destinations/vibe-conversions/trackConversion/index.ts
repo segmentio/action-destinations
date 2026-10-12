@@ -29,29 +29,15 @@ const action: ActionDefinition<Settings, Payload> = {
       description:
         'Timestamp of the event, in ISO 8601 format or UNIX milliseconds. Must be within the last 7 days. Sent to Vibe as UNIX milliseconds.',
       type: 'datetime',
-      required: false,
+      required: true,
       default: { '@path': '$.timestamp' }
     },
     ip: {
       label: 'IP Address',
-      description: 'IP address of the user who performed the action. Must be IPv4. Required if Email is not provided.',
+      description: 'IP address of the user who performed the action. Must be IPv4.',
       type: 'string',
-      required: false,
+      required: true,
       default: { '@path': '$.context.ip' }
-    },
-    em: {
-      label: 'Email',
-      description: 'User email address. Required if IP Address is not provided.',
-      type: 'string',
-      format: 'email',
-      required: false,
-      default: {
-        '@if': {
-          exists: { '@path': '$.context.traits.email' },
-          then: { '@path': '$.context.traits.email' },
-          else: { '@path': '$.properties.email' }
-        }
-      }
     },
     ed: {
       label: 'Event Data',

@@ -5,6 +5,7 @@ export interface CreateAudienceRequest {
   subtype: 'CUSTOM'
   description?: string
   customer_file_source: 'BOTH_USER_AND_PARTNER_PROVIDED'
+  audience_labels?: string[]
 }
 
 export interface CreateAudienceResponse {
@@ -30,12 +31,12 @@ export interface FacebookResponseError {
         error_user_msg?: string
       }
     }
-  },
+  }
   message?: string
 }
 
-export interface NonFacebookError { 
-  message: string 
+export interface NonFacebookError {
+  message: string
   code: keyof typeof ErrorCodes | string
 }
 

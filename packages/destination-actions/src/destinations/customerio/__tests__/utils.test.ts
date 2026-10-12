@@ -1,4 +1,4 @@
-import { convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
+import { convertAttributeTimestamps, convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -35,6 +35,32 @@ describe('isIsoDate', () => {
     expect(isIsoDate('2023-13-25')).toBe(false) // invalid month
     expect(isIsoDate('2023-12-32')).toBe(false) // invalid day
     expect(isIsoDate('2023-12-25T25:30:45')).toBe(false) // invalid hour
+  })
+
+  describe('when Date.parse rejects long fractional seconds (STRATCONN-4121 prod runtime)', () => {
+    // Mocks prod's Date.parse, which rejects >5-digit fractional seconds locally accepted.
+    const realParse = Date.parse
+
+    beforeEach(() => {
+      jest.spyOn(Date, 'parse').mockImplementation((value: string) => {
+        const fraction = /\.(\d+)/.exec(value)
+        return fraction && fraction[1].length > 5 ? NaN : realParse(value)
+      })
+    })
+
+    afterEach(() => jest.restoreAllMocks())
+
+    it('should return true for a 7-digit fractional second timestamp', () => {
+      expect(isIsoDate('2024-08-14T20:36:48.6527521Z')).toBe(true)
+    })
+
+    it('should return true for a 9-digit fractional second timestamp', () => {
+      expect(isIsoDate('2024-08-14T20:36:48.652752100Z')).toBe(true)
+    })
+
+    it('should still return true for a standard 3-digit millisecond timestamp', () => {
+      expect(isIsoDate('2024-08-14T20:36:48.652Z')).toBe(true)
+    })
   })
 })
 
@@ -83,5 +109,55 @@ describe('resolveIdentifiers', () => {
 describe('convertValidTimestamp', () => {
   it('should leave decimal unix timestamps unchanged', () => {
     expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
+  })
+
+  it('should convert a 7-digit fractional second ISO timestamp to unix', () => {
+    expect(convertValidTimestamp('2024-08-14T20:36:48.6527521Z')).toBe(1723667808)
+  })
+})
+
+describe('convertAttributeTimestamps — sub-millisecond fractional seconds (STRATCONN-4121)', () => {
+  const realParse = Date.parse
+
+  beforeEach(() => {
+    jest.spyOn(Date, 'parse').mockImplementation((value: string) => {
+      const fraction = /\.(\d+)/.exec(value)
+      return fraction && fraction[1].length > 5 ? NaN : realParse(value)
+    })
+  })
+
+  afterEach(() => jest.restoreAllMocks())
+
+  it('converts a 7-digit fractional second timestamp when Date.parse rejects long fractions (prod runtime)', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.6527521Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('converts a 9-digit fractional second timestamp when Date.parse rejects long fractions (prod runtime)', () => {
+    const result = convertAttributeTimestamps({ ts: '2024-08-14T20:36:48.652752100Z' })
+    expect(result.ts).toBe(1723667808)
+  })
+
+  it('still converts a standard 3-digit millisecond timestamp', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.652Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('leaves non-date strings unchanged', () => {
+    const result = convertAttributeTimestamps({ name: 'Acme Corp' })
+    expect(result.name).toBe('Acme Corp')
+  })
+
+  it('converts a 5-digit fractional second timestamp and dates nested in an object', () => {
+    const result = convertAttributeTimestamps({
+      createdat: '2024-08-14T20:36:48.65275Z',
+      address: {
+        movedinat: '2023-01-01T00:00:00Z',
+        movedoutat: '2024-08-14T20:36:48.652Z'
+      }
+    })
+    expect(result.createdat).toBe(1723667808)
+    expect(result.address.movedinat).toBe(1672531200)
+    expect(result.address.movedoutat).toBe(1723667808)
   })
 })

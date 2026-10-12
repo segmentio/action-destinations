@@ -684,7 +684,7 @@
         },
         "filename_prefix": {
           "label": "Filename prefix",
-          "description": "Prefix to append to the name of the uploaded file.",
+          "description": "Prefix to append to the name of the uploaded file. Don't include a file extension; use the File Extension field instead, otherwise files may be overwritten.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -713,7 +713,7 @@
         },
         "delimiter": {
           "label": "Delimeter",
-          "description": "Character used to separate tokens in the resulting file.",
+          "description": "Character used to separate tokens in the resulting file. Column names must not contain the delimiter, quotes, or newlines.",
           "type": "string",
           "required": true,
           "multiple": false,

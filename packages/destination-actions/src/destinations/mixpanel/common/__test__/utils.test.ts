@@ -1,4 +1,5 @@
-import { getBrowser, getBrowserVersion } from '../utils'
+import { getBrowser, getBrowserVersion, getImportApiCredential, FLAGS } from '../utils'
+import { Settings } from '../../generated-types'
 
 const userAgentToBrowserTestCase = [
   {
@@ -50,5 +51,30 @@ describe('Mixpanel Browser Utility Functions', () => {
     it(`return undefined for unknown browser`, () => {
       expect(getBrowserVersion(`unknown userAgent Version/118.0`)).toBeUndefined()
     })
+  })
+})
+
+describe('getImportApiCredential', () => {
+  const settings: Settings = {
+    projectToken: 'my-project-token',
+    apiSecret: 'my-api-secret'
+  }
+
+  it('returns projectToken when the PROJECT_TOKEN_AUTH flag is on, even if apiSecret is set', () => {
+    expect(getImportApiCredential(settings, { [FLAGS.PROJECT_TOKEN_AUTH]: true })).toEqual('my-project-token')
+  })
+
+  it('returns apiSecret when the flag is off and apiSecret is set', () => {
+    expect(getImportApiCredential(settings)).toEqual('my-api-secret')
+  })
+
+  it('falls back to projectToken when apiSecret is undefined', () => {
+    const noSecretSettings: Settings = { projectToken: 'my-project-token' }
+    expect(getImportApiCredential(noSecretSettings)).toEqual('my-project-token')
+  })
+
+  it('falls back to projectToken when apiSecret is an empty string', () => {
+    const emptySecretSettings: Settings = { projectToken: 'my-project-token', apiSecret: '' }
+    expect(getImportApiCredential(emptySecretSettings)).toEqual('my-project-token')
   })
 })

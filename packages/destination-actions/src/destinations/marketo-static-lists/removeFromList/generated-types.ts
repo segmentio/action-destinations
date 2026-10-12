@@ -6,11 +6,11 @@ export interface Payload {
    */
   external_id?: string
   /**
-   * The lead field to use for deduplication and filtering. This field must be apart of the Lead Info Fields below.
+   * The lead field to use for deduplication and filtering. This field must be a part of the Lead Info Fields below.
    */
   lookup_field: string
   /**
-   * The value cooresponding to the lookup field.
+   * The value corresponding to the lookup field.
    */
   field_value: string
   /**

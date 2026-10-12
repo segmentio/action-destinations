@@ -104,14 +104,14 @@ export interface ClickConversionRequestObjectInterface {
 export type KeyValuePairList = Array<KeyValueItem>
 
 export type KeyValueItem = {
-  sessionAttributeKey: 
-    'gad_source' 
-  | 'gad_campaignid' 
-  | 'landing_page_url' 
-  | 'session_start_time_usec' 
-  | 'landing_page_referrer' 
-  | 'landing_page_user_agent'
-  sessionAttributeValue?: string 
+  sessionAttributeKey:
+    | 'gad_source'
+    | 'gad_campaignid'
+    | 'landing_page_url'
+    | 'session_start_time_usec'
+    | 'landing_page_referrer'
+    | 'landing_page_user_agent'
+  sessionAttributeValue?: string
 }
 
 export interface ConversionActionId {
@@ -157,6 +157,7 @@ export interface CreateAudienceInput {
   audienceName: string
   settings: {
     customerId?: string
+    loginCustomerId?: string
     conversionTrackingId?: string
     oauth?: {
       refresh_token?: string
@@ -171,10 +172,53 @@ export interface CreateAudienceInput {
   features?: Features
 }
 
+export interface PartnerLinkResponse {
+  name: string
+  partnerLinkId: string
+  owningAccount: {
+    accountId: string
+    accountType: string
+  }
+  partnerAccount: {
+    accountId: string
+    accountType: string
+  }
+}
+
+export interface DataManagerErrorDetail {
+  '@type': string
+  // Present when '@type' is '...google.rpc.BadRequest'
+  fieldViolations?: Array<{ field: string; description: string; reason?: string }>
+  // Present when '@type' is '...google.rpc.RequestInfo'
+  requestId?: string
+}
+
+export interface DataManagerErrorResponse {
+  error: {
+    code: number
+    message: string
+    status: string
+    details?: DataManagerErrorDetail[]
+  }
+}
+
+export interface DataManagerUserList {
+  name: string
+  id: string
+  displayName?: string
+  membershipDuration?: string
+  membershipStatus?: string
+  ingestedUserListInfo?: {
+    uploadKeyTypes?: string[]
+    mobileIdInfo?: { appId?: string }
+  }
+}
+
 export interface GetAudienceInput {
   externalId: string
   settings: {
     customerId?: string
+    loginCustomerId?: string
     conversionTrackingId?: string
     oauth?: {
       refresh_token?: string
@@ -186,6 +230,29 @@ export interface GetAudienceInput {
   }
   statsContext?: StatsContext
   features?: Features
+}
+
+export interface DataManagerAudienceMember {
+  userData?: {
+    userIdentifiers: Array<{
+      emailAddress?: string
+      phoneNumber?: string
+      address?: {
+        givenName?: string
+        familyName?: string
+        regionCode: string
+        postalCode: string
+      }
+    }>
+  }
+  mobileData?: { mobileIds: string[] }
+  userIdData?: { userId: string }
+  consent?: { adUserData?: string; adPersonalization?: string }
+}
+
+export interface DataManagerIngestResponse {
+  requestId: string
+  fieldWarnings?: Array<{ field: string; description: string }>
 }
 
 export interface CreateGoogleAudienceResponse {

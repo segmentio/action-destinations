@@ -27,7 +27,7 @@ function getAudienceEndpoint(version: string, advertiserId: string, audienceId?:
   }
 }
 
-function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
+export function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
   return DV360API + `${version}/firstPartyAndPartnerAudiences/` + audienceId + ':editCustomerMatchMembers'
 }
 
@@ -84,7 +84,7 @@ export const createAudienceRequest = (
   return request(endpoint, {
     method: 'POST',
     headers: {
-      authorization: `Bearer ${token}`,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json; charset=utf-8'
     },
     json: {
@@ -108,7 +108,7 @@ export const getAudienceRequest = (request: RequestClient, params: getAudiencePa
   return request(endpoint, {
     method: 'GET',
     headers: {
-      authorization: `Bearer ${token}`,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json; charset=utf-8'
     }
   })

@@ -1,0 +1,288 @@
+import nock from 'nock'
+import { createTestIntegration } from '@segment/actions-core'
+import createRequestClient from '../../../../../../core/src/create-request-client'
+import Destination from '../../index'
+import { performHook } from '../hook-functions'
+import type { RetlOnMappingSaveInputs } from '../generated-types'
+
+const ADVERTISER_ID = '12345'
+const AUDIENCE_ID = '98765'
+const DV360_HOST = 'https://displayvideo.googleapis.com'
+const CREATE_PATH = `/v4/firstPartyAndPartnerAudiences?advertiserId=${ADVERTISER_ID}`
+const GET_PATH = `/v4/firstPartyAndPartnerAudiences/${AUDIENCE_ID}?advertiserId=${ADVERTISER_ID}`
+
+const request = createRequestClient()
+
+const testDestination = createTestIntegration(Destination)
+
+const inputs = (overrides: Partial<RetlOnMappingSaveInputs> = {}): RetlOnMappingSaveInputs =>
+  ({
+    operation: 'create',
+    advertiserId: ADVERTISER_ID,
+    audienceName: 'My Audience',
+    audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+    membershipDurationDays: 90,
+    ...overrides
+  } as RetlOnMappingSaveInputs)
+
+const hookError = (message: string) => ({ error: { message, code: 'RETL_ON_MAPPING_SAVE_FAILED' } })
+
+afterEach(() => {
+  nock.cleanAll()
+})
+
+describe('FirstPartyDv360.syncAudience retlOnMappingSave', () => {
+  it('creates an audience and saves what perform needs', async () => {
+    let body: any
+    nock(DV360_HOST)
+      .post(CREATE_PATH, (b) => {
+        body = b
+        return true
+      })
+      .reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+
+    const result = await performHook(request, inputs({ description: 'A description' }))
+
+    expect(body).toEqual({
+      displayName: 'My Audience',
+      audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+      // Sent as a string: DV360 types this as an int64.
+      membershipDurationDays: '90',
+      description: 'A description',
+      audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
+      firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY'
+    })
+    expect(result).toEqual({
+      successMessage: `Audience created with ID: ${AUDIENCE_ID}`,
+      savedData: {
+        audienceId: AUDIENCE_ID,
+        advertiserId: ADVERTISER_ID,
+        audienceType: 'CUSTOMER_MATCH_CONTACT_INFO',
+        appId: undefined
+      }
+    })
+  })
+
+  // performHook is the only gate on these: the hook inputs are deliberately not marked
+  // required, so that a missing value fails at mapping save with a message naming it
+  // rather than blocking the mapping form.
+  it.each([undefined, '', '   '])('requires an advertiser ID, whatever the operation (%p)', async (advertiserId) => {
+    for (const operation of ['create', 'existing'] as const) {
+      const result = await performHook(request, inputs({ advertiserId, operation }))
+
+      expect(result).toEqual(hookError('Missing advertiser ID value'))
+    }
+  })
+
+  it('requires an audience type when creating', async () => {
+    const result = await performHook(request, inputs({ audienceType: undefined }))
+
+    expect(result).toEqual(hookError('Missing audience type value'))
+  })
+
+  it('requires a membership duration when creating', async () => {
+    const result = await performHook(request, inputs({ membershipDurationDays: undefined }))
+
+    expect(result).toEqual(hookError('Missing membership duration days value'))
+  })
+
+  it.each([0, -1, 541, 90.5])('rejects a membership duration of %p', async (membershipDurationDays) => {
+    const result = await performHook(request, inputs({ membershipDurationDays }))
+
+    expect(result).toEqual(
+      hookError('Membership duration days must be a whole number greater than 0 and less than or equal to 540')
+    )
+  })
+
+  it('requires an audience ID when connecting to an existing audience', async () => {
+    const result = await performHook(request, inputs({ operation: 'existing', existingAudienceId: undefined }))
+
+    expect(result).toEqual(hookError('Missing audience ID value'))
+  })
+
+  it('rejects a missing operation', async () => {
+    const result = await performHook(request, inputs({ operation: undefined }))
+
+    expect(result).toEqual(hookError('Invalid operation value. Must be create or existing.'))
+  })
+
+  it('requires an app ID for a device ID audience', async () => {
+    const result = await performHook(request, inputs({ audienceType: 'CUSTOMER_MATCH_DEVICE_ID' }))
+
+    expect(result).toEqual({
+      error: {
+        message: 'App ID is required for CUSTOMER_MATCH_DEVICE_ID audiences',
+        code: 'RETL_ON_MAPPING_SAVE_FAILED'
+      }
+    })
+  })
+
+  it.each([undefined, '', '   '])('requires an audience name when creating (%p)', async (audienceName) => {
+    const result = await performHook(request, inputs({ audienceName }))
+
+    expect(result).toEqual(hookError('Missing audience name value'))
+  })
+
+  // Sent to DV360 as the audience's display name, so stray whitespace is the customer's to see.
+  it('trims the audience name and description before creating', async () => {
+    let body: any
+    nock(DV360_HOST)
+      .post(CREATE_PATH, (b) => {
+        body = b
+        return true
+      })
+      .reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+
+    await performHook(request, inputs({ audienceName: '  My Audience  ', description: '  A description  ' }))
+
+    expect(body.displayName).toBe('My Audience')
+    expect(body.description).toBe('A description')
+  })
+
+  it('requires an audience name when creating', async () => {
+    const result = await performHook(request, inputs({ audienceName: undefined }))
+
+    expect(result).toEqual({
+      error: { message: 'Missing audience name value', code: 'RETL_ON_MAPPING_SAVE_FAILED' }
+    })
+  })
+
+  it('reads the audience type back when connecting to an existing audience', async () => {
+    nock(DV360_HOST).get(GET_PATH).reply(200, {
+      firstPartyAndPartnerAudienceId: AUDIENCE_ID,
+      audienceType: 'CUSTOMER_MATCH_DEVICE_ID',
+      appId: 'com.example.app'
+    })
+
+    const result = await performHook(
+      request,
+      inputs({ operation: 'existing', existingAudienceId: AUDIENCE_ID, audienceName: undefined })
+    )
+
+    expect(result).toEqual({
+      successMessage: `Connected to audience with ID: ${AUDIENCE_ID}`,
+      savedData: {
+        audienceId: AUDIENCE_ID,
+        advertiserId: ADVERTISER_ID,
+        audienceType: 'CUSTOMER_MATCH_DEVICE_ID',
+        appId: 'com.example.app'
+      }
+    })
+  })
+
+  it('errors when the existing audience cannot be read', async () => {
+    nock(DV360_HOST).get(GET_PATH).reply(404, {})
+
+    const result = await performHook(
+      request,
+      inputs({ operation: 'existing', existingAudienceId: AUDIENCE_ID, audienceName: undefined })
+    )
+
+    expect(result).toEqual({
+      error: {
+        message: expect.stringContaining(`Failed to retrieve audience ${AUDIENCE_ID} from Display & Video 360:`),
+        code: 'RETL_ON_MAPPING_SAVE_FAILED'
+      }
+    })
+  })
+
+  it('errors when the existing audience is not a Customer Match audience', async () => {
+    nock(DV360_HOST).get(GET_PATH).reply(200, { firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+
+    const result = await performHook(
+      request,
+      inputs({ operation: 'existing', existingAudienceId: AUDIENCE_ID, audienceName: undefined })
+    )
+
+    expect(result).toEqual({
+      error: {
+        message: `Audience ${AUDIENCE_ID} is not a Customer Match Contact Info or Mobile Device ID audience`,
+        code: 'RETL_ON_MAPPING_SAVE_FAILED'
+      }
+    })
+  })
+
+  it('rejects an invalid operation', async () => {
+    const result = await performHook(request, inputs({ operation: 'nonsense' }))
+
+    expect(result).toEqual({
+      error: { message: 'Invalid operation value. Must be create or existing.', code: 'RETL_ON_MAPPING_SAVE_FAILED' }
+    })
+  })
+})
+
+// The tests above call performHook with a bare request client, which cannot see the
+// Authorization header the hook depends on: createAudienceRequest and getAudienceRequest are
+// called with no token, so the header comes from the destination's extendRequest instead.
+// executeHook builds the client the way core does, so these tests prove the token really
+// reaches Display & Video 360 on the hook's own path.
+describe('FirstPartyDv360.syncAudience retlOnMappingSave, through executeHook', () => {
+  const auth = { accessToken: 'temp-token', refreshToken: 'refresh-token' }
+  const executeHook = (hookInputs: RetlOnMappingSaveInputs) =>
+    testDestination.actions.syncAudience.executeHook('retlOnMappingSave', {
+      settings: {},
+      auth,
+      hookInputs,
+      payload: {}
+    })
+
+  // The header is captured and asserted rather than matched on the interceptor: an unmatched
+  // interceptor fails the request instead, which performHook turns into a mapping save error,
+  // and the test would then fail on the result shape without naming the missing header.
+  const captureAuthHeader = (body: Record<string, unknown>) => {
+    const captured: { authorization?: string } = {}
+
+    return {
+      captured,
+      // nock hands every header back as an array.
+      reply: function (this: { req: { headers: Record<string, string | string[]> } }) {
+        const header = this.req.headers.authorization
+
+        captured.authorization = Array.isArray(header) ? header[0] : header
+        return body
+      }
+    }
+  }
+
+  it('sends the access token when creating an audience', async () => {
+    const { captured, reply } = captureAuthHeader({ firstPartyAndPartnerAudienceId: AUDIENCE_ID })
+    nock(DV360_HOST).post(CREATE_PATH).reply(200, reply)
+
+    const result = await executeHook(inputs())
+
+    expect(captured.authorization).toBe(`Bearer ${auth.accessToken}`)
+    expect(result).toMatchObject({ savedData: { audienceId: AUDIENCE_ID } })
+  })
+
+  it('sends the access token when connecting to an existing audience', async () => {
+    const { captured, reply } = captureAuthHeader({
+      firstPartyAndPartnerAudienceId: AUDIENCE_ID,
+      audienceType: 'CUSTOMER_MATCH_CONTACT_INFO'
+    })
+    nock(DV360_HOST).get(GET_PATH).reply(200, reply)
+
+    await executeHook(inputs({ operation: 'existing', existingAudienceId: AUDIENCE_ID, audienceName: undefined }))
+
+    expect(captured.authorization).toBe(`Bearer ${auth.accessToken}`)
+  })
+
+  // Saving the mapping has to fail here. A mapping saved without an audience ID would send every
+  // event to an audience which does not exist.
+  it('fails the mapping save when Display & Video 360 answers 200 with no audience ID', async () => {
+    nock(DV360_HOST).post(CREATE_PATH).reply(200, {})
+
+    const result = await executeHook(inputs())
+
+    expect(result).toEqual(hookError('Failed to create audience in Display & Video 360'))
+  })
+
+  it('reports the message Display & Video 360 returns in a 200 body', async () => {
+    nock(DV360_HOST)
+      .post(CREATE_PATH)
+      .reply(200, { error: { message: 'Advertiser not found', code: 404, status: 'NOT_FOUND' } })
+
+    const result = await executeHook(inputs())
+
+    expect(result).toEqual(hookError('Advertiser not found'))
+  })
+})

@@ -505,4 +505,24 @@ describe('Voiceops.sendCallCompleted', () => {
 
     expect(responses[0].status).toBe(200)
   })
+
+  it.each([undefined, '', ' \t\n '])(
+    'uses the default base URL for an omitted or blank setting %p',
+    async (baseUrl) => {
+      const scope = nock(DEFAULT_VOICEOPS_BASE_URL)
+        .post('/frontline-api/integrations/v1/segment/calls')
+        .matchHeader('authorization', 'Bearer voiceops-token')
+        .reply(200, {})
+
+      const settings: Settings = { accessToken: 'voiceops-token', baseUrl }
+      const responses = await testDestination.testAction('sendCallCompleted', {
+        event: createCallCompletedEvent(),
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(scope.isDone()).toBe(true)
+    }
+  )
 })

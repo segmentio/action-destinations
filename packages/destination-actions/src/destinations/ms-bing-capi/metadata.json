@@ -1843,7 +1843,7 @@
             "price": {
               "label": "Item Price",
               "description": "The price of the item, after discounts.",
-              "type": "integer",
+              "type": "number",
               "required": false,
               "multiple": false,
               "allowNull": false,

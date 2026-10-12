@@ -12,15 +12,11 @@ export interface Payload {
   /**
    * Timestamp of the event, in ISO 8601 format or UNIX milliseconds. Must be within the last 7 days. Sent to Vibe as UNIX milliseconds.
    */
-  ts?: string | number
+  ts: string | number
   /**
-   * IP address of the user who performed the action. Must be IPv4. Required if Email is not provided.
+   * IP address of the user who performed the action. Must be IPv4.
    */
-  ip?: string
-  /**
-   * User email address. Required if IP Address is not provided.
-   */
-  em?: string
+  ip: string
   /**
    * Additional event data to send with the event.
    */
