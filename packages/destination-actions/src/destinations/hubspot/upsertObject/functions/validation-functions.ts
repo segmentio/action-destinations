@@ -74,13 +74,25 @@ export function validate(payloads: Payload[]): Payload[] {
  * associated records with batch/upsert, which has no valid request shape for hs_object_id and always fails with a
  * 400. Fail fast with an actionable message before any request is sent, so the main record is not written first.
  *
+ * Associations without an identifier value are not checked, because they are never sent.
  * Dissociations are not checked, because they always resolve records with batch/read, which accepts hs_object_id.
  */
+// Mirrors the filter in createAssociationPayloads: an association without an identifier value is never sent, so it
+// cannot trigger the HubSpot error. validate() only drops null and '', so an undefined value (the field is missing
+// from the event) still reaches this check and must not be counted.
+function hasIdentifierValue(association: Association): boolean {
+  return (
+    association.id_field_value !== undefined && association.id_field_value !== null && association.id_field_value !== ''
+  )
+}
+
 function validateAssociationIdentifiers(payloads: Payload[]): void {
   const hasUnsupportedAssociation = payloads.some(
     (payload) =>
       payload.association_sync_mode === AssociationSyncMode.Upsert &&
-      payload.associations?.some((association) => association.id_field_name === HS_OBJECT_ID)
+      payload.associations?.some(
+        (association) => association.id_field_name === HS_OBJECT_ID && hasIdentifierValue(association)
+      )
   )
 
   if (hasUnsupportedAssociation) {
