@@ -167,6 +167,24 @@ describe('Hubspot.upsertObject associations identified by hs_object_id', () => {
       expect(nock.pendingMocks()).toHaveLength(4)
     })
 
+    it('does not reject when the identifier value is missing from the event, because the association is never sent', async () => {
+      // No company_record_id in the event: the association has no value, is dropped before any request, and cannot fail.
+      nock(HUBSPOT_BASE_URL)
+        .post('/crm/v3/objects/contact/batch/upsert', upsertContactReq)
+        .reply(200, upsertContactResp)
+
+      const withoutCompany = { ...payload, properties: { email: 'test@test.com' } }
+      const responses = await testDestination.testAction('upsertObject', {
+        event: createTestEvent(withoutCompany),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(responses.length).toBe(1)
+      expect(nock.isDone()).toBe(true)
+    })
+
     it('still upserts the associated record for a custom unique property', async () => {
       nock(HUBSPOT_BASE_URL)
         .post('/crm/v3/objects/contact/batch/upsert', upsertContactReq)

@@ -2,6 +2,8 @@ import { PayloadValidationError } from '@segment/actions-core'
 import { validate } from '../functions/validation-functions'
 import { Payload } from '../generated-types'
 
+type Association = NonNullable<Payload['associations']>[number]
+
 const association = {
   object_type: 'company',
   association_label: 'HUBSPOT_DEFINED:279',
@@ -112,6 +114,35 @@ describe('Hubspot.upsertObject validate: hs_object_id as an associated record id
       })
 
       expect(() => validate([payload])).not.toThrow()
+    })
+
+    it('ignores an hs_object_id association whose value is missing (undefined), because it is never sent', () => {
+      const missing = {
+        object_type: 'company',
+        association_label: 'HUBSPOT_DEFINED:279',
+        id_field_name: 'hs_object_id'
+      }
+      const payload = makePayload({
+        associations: [missing as unknown as Association]
+      })
+
+      expect(() => validate([payload])).not.toThrow()
+    })
+
+    it('still throws when one hs_object_id association has a value and another is missing', () => {
+      const missing = {
+        object_type: 'company',
+        association_label: 'HUBSPOT_DEFINED:279',
+        id_field_name: 'hs_object_id'
+      }
+      const payload = makePayload({
+        associations: [
+          missing as unknown as Association,
+          { ...association, id_field_name: 'hs_object_id', id_field_value: '123' }
+        ]
+      })
+
+      expect(() => validate([payload])).toThrow(PayloadValidationError)
     })
 
     it('does not check dissociations, which always read records', () => {
