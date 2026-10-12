@@ -1,6 +1,7 @@
 import { PayloadValidationError } from '@segment/actions-core'
 import { validate } from '../functions/validation-functions'
 import { Payload } from '../generated-types'
+import { SyncMode } from '../types'
 
 type Association = NonNullable<Payload['associations']>[number]
 
@@ -182,6 +183,25 @@ describe('Hubspot.upsertObject validate: hs_object_id as an associated record id
   })
 
   describe('when the Associated Record Sync Mode is not a known value', () => {
+    it.each([[SyncMode.Upsert], [SyncMode.Add], [undefined]])(
+      'throws when the main record sync mode is %s',
+      (syncMode) => {
+        const payload = makePayload({
+          associations: [{ ...association, id_field_name: 'hs_object_id', id_field_value: '123' }]
+        })
+
+        expect(() => validate([payload], syncMode)).toThrow(PayloadValidationError)
+      }
+    )
+
+    it('does not throw when the main record sync mode is Update, because those events never reach the association step', () => {
+      const payload = makePayload({
+        associations: [{ ...association, id_field_name: 'hs_object_id', id_field_value: '123' }]
+      })
+
+      expect(() => validate([payload], SyncMode.Update)).not.toThrow()
+    })
+
     it('does not throw, matching how the fixture in validate.test.ts uses an arbitrary mode', () => {
       const payload = makePayload({
         association_sync_mode: 'sync',

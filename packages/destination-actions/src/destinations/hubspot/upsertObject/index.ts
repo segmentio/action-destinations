@@ -75,7 +75,7 @@ const send = async (
   } = payloads[0]
 
   const client = new Client(request, objectType, features)
-  const validPayloads = validate(payloads)
+  const validPayloads = validate(payloads, syncMode)
   const listName = getListName(payloads[0])
 
   const schema = objectSchema(validPayloads, objectType)
