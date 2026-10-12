@@ -288,7 +288,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(5)
@@ -329,7 +330,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(5)
@@ -372,7 +374,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(6)
@@ -411,7 +414,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(5)
@@ -452,7 +456,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(5)
@@ -502,6 +507,7 @@ describe('Hubspot.upsertObject', () => {
         settings,
         useDefaultMappings: true,
         mapping,
+        features: { 'actions-hubspot-lists-association-support': true },
         subscriptionMetadata
       })
 
@@ -523,6 +529,7 @@ describe('Hubspot.upsertObject', () => {
         settings,
         useDefaultMappings: true,
         mapping,
+        features: { 'actions-hubspot-lists-association-support': true },
         subscriptionMetadata
       })
 
@@ -596,7 +603,8 @@ describe('Hubspot.upsertObject', () => {
         events: [modifiedPayload, modifiedPayload2],
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(3)
@@ -672,7 +680,8 @@ describe('Hubspot.upsertObject', () => {
         events: [modifiedPayload, modifiedPayload2],
         settings,
         useDefaultMappings: true,
-        mapping
+        mapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(4)
@@ -740,7 +749,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: modifiedMapping
+        mapping: modifiedMapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(5)
@@ -806,7 +816,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: modifiedMapping
+        mapping: modifiedMapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(5)
@@ -873,7 +884,8 @@ describe('Hubspot.upsertObject', () => {
         event,
         settings,
         useDefaultMappings: true,
-        mapping: modifiedMapping
+        mapping: modifiedMapping,
+        features: { 'actions-hubspot-lists-association-support': true }
       })
 
       expect(responses.length).toBe(6)
@@ -938,7 +950,8 @@ describe('Hubspot.upsertObject', () => {
           events: [modifiedPayload, modifiedPayload2, modifiedPayload3],
           settings,
           useDefaultMappings: true,
-          mapping: modifiedMapping
+          mapping: modifiedMapping,
+          features: { 'actions-hubspot-lists-association-support': true }
         })
       } catch (err) {
         expect((err as Error).message).toBe(

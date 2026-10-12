@@ -270,3 +270,57 @@ describe('date-based API version: upsertObject', () => {
     expect(responses.length).toBe(4)
   })
 })
+
+describe('date-based API version: upsertCompany', () => {
+  const groupId = 'test-group-id'
+  const companyId = '1000000000'
+  const contactId = '123456789'
+  const event = createTestEvent({ type: 'group', groupId, traits: { name: 'Test Company' } })
+  const mapping = {
+    groupid: { '@path': '$.groupId' },
+    createNewCompany: true,
+    associateContact: true,
+    name: { '@path': '$.traits.name' }
+  }
+  const transactionContext = { transaction: { contact_id: contactId }, setTransaction: () => undefined }
+
+  it('associates the contact using the numeric type ID on /crm/objects/2026-03', async () => {
+    const updateScope = nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/objects/2026-03/companies/${groupId}?idProperty=segment_group_id`)
+      .reply(200, { id: companyId, properties: {} })
+    const associateScope = nock(HUBSPOT_BASE_URL)
+      .put(`/crm/objects/2026-03/companies/${companyId}/associations/contacts/${contactId}/2`)
+      .reply(200, {})
+
+    await testDestination.testAction('upsertCompany', {
+      event,
+      mapping,
+      settings,
+      transactionContext,
+      features: dateBased
+    })
+
+    expect(updateScope.isDone()).toBe(true)
+    expect(associateScope.isDone()).toBe(true)
+  })
+
+  it('still associates with the legacy type name on /crm/v3 when the flag is off', async () => {
+    const updateScope = nock(HUBSPOT_BASE_URL)
+      .patch(`/crm/v3/objects/companies/${groupId}?idProperty=segment_group_id`)
+      .reply(200, { id: companyId, properties: {} })
+    const associateScope = nock(HUBSPOT_BASE_URL)
+      .put(`/crm/v3/objects/companies/${companyId}/associations/contacts/${contactId}/company_to_contact`)
+      .reply(200, {})
+
+    await testDestination.testAction('upsertCompany', {
+      event,
+      mapping,
+      settings,
+      transactionContext,
+      features: legacy
+    })
+
+    expect(updateScope.isDone()).toBe(true)
+    expect(associateScope.isDone()).toBe(true)
+  })
+})

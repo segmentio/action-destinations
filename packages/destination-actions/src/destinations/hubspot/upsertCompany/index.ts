@@ -1,7 +1,7 @@
 import { ActionDefinition, RequestClient, ModifiedResponse, HTTPError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE } from '../properties'
+import { SEGMENT_UNIQUE_IDENTIFIER, ASSOCIATION_TYPE, ASSOCIATION_TYPE_ID } from '../properties'
 import {
   HubSpotError,
   MissingIdentityCallThrowableError,
@@ -13,7 +13,7 @@ import {
 } from '../errors'
 import { flattenObject, ResponseInfo, SearchResponse, UpsertRecordResponse } from '../utils'
 import { Hubspot } from '../api'
-import { HubspotUrls, hubspotUrls } from '../versioning-info'
+import { HubspotUrls, hubspotUrls, useDateBasedApiVersion } from '../versioning-info'
 
 interface CompanyProperty {
   name: string
@@ -342,7 +342,7 @@ const action: ActionDefinition<Settings, Payload> = {
         urls,
         companyId,
         transactionContext.transaction.contact_id,
-        ASSOCIATION_TYPE
+        useDateBasedApiVersion(features) ? String(ASSOCIATION_TYPE_ID) : ASSOCIATION_TYPE
       )
     }
   }
