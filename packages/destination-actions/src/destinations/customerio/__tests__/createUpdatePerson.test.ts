@@ -35,6 +35,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -81,6 +82,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -126,6 +128,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -173,6 +176,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -227,6 +231,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId,
             created_at: dayjs(timestamp).unix(),
@@ -295,6 +300,7 @@ describe('CustomerIO', () => {
 
           expect(response).toEqual({
             action: 'identify',
+            customer_ip: '8.8.8.8',
             attributes: {
               ...traits,
               anonymous_id: anonymousId,
@@ -335,6 +341,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId,
             created_at: testTimestamps.created_at
@@ -366,6 +373,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId,
             created_at: testTimestamps.created_at
@@ -397,6 +405,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: event.anonymousId
@@ -441,6 +450,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -480,6 +490,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -524,6 +535,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -580,6 +592,7 @@ describe('CustomerIO', () => {
         delete traits.object_type_id
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -617,6 +630,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId
           },
@@ -657,6 +671,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
@@ -712,6 +727,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
@@ -774,6 +790,7 @@ describe('CustomerIO', () => {
 
         expect(response).toStrictEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
@@ -796,6 +813,65 @@ describe('CustomerIO', () => {
           timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
+      })
+
+      it('should send context.ip as customer_ip at the root of the request', async () => {
+        const userId = 'abc123'
+        const ip = '203.0.113.9'
+        const event = createTestEvent({
+          userId,
+          traits: { email: 'test@example.com' },
+          context: { ip }
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toMatchObject({
+          action: 'identify',
+          customer_ip: ip,
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+        expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should not send customer_ip if context.ip is absent', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: {}
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).not.toHaveProperty('customer_ip')
+        expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should not send customer_ip if the field is unmapped', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip: '203.0.113.9' }
+        })
+
+        const mapping = getDefaultMappings('createUpdatePerson')
+        delete mapping.customer_ip
+
+        const response = await action('createUpdatePerson', { event, mapping, settings })
+
+        expect(response).not.toHaveProperty('customer_ip')
+        expect(response.attributes).not.toHaveProperty('customer_ip')
       })
     })
   })

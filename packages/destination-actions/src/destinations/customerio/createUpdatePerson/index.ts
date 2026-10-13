@@ -93,6 +93,15 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: true
     },
+    customer_ip: {
+      label: 'IP Address',
+      description:
+        "The person's IP address. Customer.io uses it to derive geolocation attributes (city, region, country, timezone) when geolocation is enabled in your workspace. Defaults to `context.ip`.",
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
     object_type_id: {
       label: 'Object Type Id',
       description:

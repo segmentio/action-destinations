@@ -42,6 +42,10 @@ export interface Payload {
    */
   convert_timestamp?: boolean
   /**
+   * The person's IP address. Customer.io uses it to derive geolocation attributes (city, region, country, timezone) when geolocation is enabled in your workspace. Defaults to `context.ip`.
+   */
+  customer_ip?: string
+  /**
    * The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).
    */
   object_type_id?: string

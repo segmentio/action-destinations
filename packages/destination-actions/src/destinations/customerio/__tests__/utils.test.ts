@@ -1,4 +1,10 @@
-import { convertAttributeTimestamps, convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
+import {
+  buildPayload,
+  convertAttributeTimestamps,
+  convertValidTimestamp,
+  resolveIdentifiers,
+  isIsoDate
+} from '../utils'
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -159,5 +165,42 @@ describe('convertAttributeTimestamps — sub-millisecond fractional seconds (STR
     expect(result.createdat).toBe(1723667808)
     expect(result.address.movedinat).toBe(1672531200)
     expect(result.address.movedoutat).toBe(1723667808)
+  })
+})
+
+describe('buildPayload', () => {
+  const settings = {}
+
+  it('should add customer_ip to the root of identify requests', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: { person_id: 'abc123', customer_ip: '203.0.113.9', attributes: { name: 'Test' } }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'identify',
+      customer_ip: '203.0.113.9',
+      attributes: { name: 'Test' },
+      identifiers: { id: 'abc123' }
+    })
+  })
+
+  it('should not add customer_ip to other actions', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'event',
+      payload: { person_id: 'abc123', customer_ip: '203.0.113.9', name: 'purchase' }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'event',
+      name: 'purchase',
+      identifiers: { id: 'abc123' }
+    })
   })
 })
