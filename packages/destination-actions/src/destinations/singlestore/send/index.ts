@@ -132,11 +132,11 @@ const action: ActionDefinition<Settings, Payload> = {
       unsafe_hidden: true
     }
   },
-  perform: async (request, { payload, settings }) => {
-    return await send(request, [payload], settings)
+  perform: async (request, { payload, settings, features }) => {
+    return await send(request, [payload], settings, features)
   },
-  performBatch: async (request, { payload, settings }) => {
-    return await send(request, payload, settings)
+  performBatch: async (request, { payload, settings, features }) => {
+    return await send(request, payload, settings, features)
   }
 }
 
