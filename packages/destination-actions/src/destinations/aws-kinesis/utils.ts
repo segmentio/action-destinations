@@ -7,7 +7,7 @@ import {
   PutRecordsRequestEntry,
   PutRecordsCommandOutput
 } from '@aws-sdk/client-kinesis'
-import { assumeRole } from '../../lib/AWS/sts'
+import { assumeRole, StsLogging } from '../../lib/AWS/sts'
 import { APP_AWS_REGION } from '../../lib/AWS/utils'
 import { RequestTimeoutError, MultiStatusResponse, IntegrationError, JSONLikeObject } from '@segment/actions-core'
 
@@ -26,9 +26,10 @@ const transformPayloads = (payloads: Payload[]): PutRecordsRequestEntry[] => {
 const createKinesisClient = async (
   iamRoleArn: string,
   iamExternalId: string,
-  awsRegion: string
+  awsRegion: string,
+  logging?: StsLogging
 ): Promise<KinesisClient> => {
-  const credentials = await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION)
+  const credentials = await assumeRole(iamRoleArn, iamExternalId, APP_AWS_REGION, logging)
   return new KinesisClient({
     region: awsRegion,
     credentials: credentials
@@ -40,29 +41,63 @@ export const send = async (
   payloads: Payload[],
   statsContext: StatsContext | undefined,
   logger: Logger | undefined,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  advancedLogging = false
 ): Promise<MultiStatusResponse> => {
   const { iamRoleArn, iamExternalId } = settings
   const { streamName, awsRegion } = payloads[0]
   const entries = transformPayloads(payloads)
+  const tags = statsContext?.tags
 
-  statsContext?.statsClient?.histogram('actions_kinesis.batch_size', entries?.length, statsContext?.tags)
-  statsContext?.statsClient?.incr('actions_kinesis.request_hit', 1, statsContext?.tags)
+  statsContext?.statsClient?.histogram('actions_kinesis.batch_size', entries?.length, tags)
+  statsContext?.statsClient?.incr('actions_kinesis.request_hit', 1, tags)
 
+  // Track the in-flight phase so we can attribute an execution-deadline abort to the STS
+  // assume-role step vs. the Kinesis PutRecords call. See STRATCONN-6690.
+  const start = Date.now()
+  let phase: 'sts' | 'kinesis' = 'sts'
   try {
-    const client = await createKinesisClient(iamRoleArn, iamExternalId, awsRegion)
+    const client = await createKinesisClient(iamRoleArn, iamExternalId, awsRegion, {
+      advancedLogging,
+      logger,
+      statsContext
+    })
+    if (advancedLogging) {
+      statsContext?.statsClient?.histogram('actions_kinesis.sts_assume_role_ms', Date.now() - start, tags)
+    }
+
+    phase = 'kinesis'
+    const putRecordsStart = Date.now()
     const command = new PutRecordsCommand({
       StreamName: streamName,
       Records: entries
     })
 
     const response = await client.send(command, { abortSignal: signal })
+    if (advancedLogging) {
+      const durationMs = Date.now() - putRecordsStart
+      statsContext?.statsClient?.histogram('actions_kinesis.kinesis_put_records_ms', durationMs, tags)
+      logger?.info(
+        `[aws-kinesis] put_records ok durationMs=${durationMs} totalMs=${
+          Date.now() - start
+        } stream=${streamName} region=${awsRegion} batch=${entries.length}`
+      )
+    }
     const multiResp = handleMultiStatusResponse(response, statsContext, payloads)
     return multiResp
   } catch (error) {
     // Handle abort signal error: https://aws.amazon.com/blogs/developer/abortcontroller-in-modular-aws-sdk-for-javascript/
     if ((error as Error).name === 'AbortError') {
-      // Handle abort error
+      // Handle abort error. This is the 504 / execution-deadline case, which was previously
+      // silent (thrown before any log or metric) — hence no signal in Grafana. See STRATCONN-6690.
+      if (advancedLogging) {
+        statsContext?.statsClient?.incr('actions_kinesis.request_timeout', 1, tags)
+        logger?.error(
+          `[aws-kinesis] aborted (execution deadline exceeded) phase=${phase} elapsedMs=${
+            Date.now() - start
+          } stream=${streamName} region=${awsRegion} batch=${entries.length}`
+        )
+      }
       throw new RequestTimeoutError()
     }
 
