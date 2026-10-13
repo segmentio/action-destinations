@@ -22,6 +22,8 @@ import {
   event_source_url
 } from './fields'
 
+const BASE64_HASHING_FLAG = 'actions-reddit-conversions-api-base64-hashing'
+
 export function resolveVersion(apiVersion: string | undefined): ApiVersion {
   return apiVersion === LATEST_API_VERSION ? LATEST_API_VERSION : LEGACY_API_VERSION
 }
@@ -54,20 +56,22 @@ function buildEventAction<Payload extends StandardEvent | CustomEvent>(
       conversion_id,
       batch_size
     },
-    perform: async (request, { settings, payload }) => {
+    perform: async (request, { settings, payload, features }) => {
       const resolvedPayload = resolvePayload(payload)
+      const base64Hashing = Boolean(features?.[BASE64_HASHING_FLAG])
       return resolveVersion(payload.api_version) === LATEST_API_VERSION
-        ? sendV3(request, settings, [resolvedPayload], false)
-        : send(request, settings, [resolvedPayload])
+        ? sendV3(request, settings, [resolvedPayload], false, base64Hashing)
+        : send(request, settings, [resolvedPayload], base64Hashing)
     },
-    performBatch: async (request, { settings, payload }) => {
+    performBatch: async (request, { settings, payload, features }) => {
       const resolvedPayloads = payload.map(resolvePayload)
+      const base64Hashing = Boolean(features?.[BASE64_HASHING_FLAG])
 
       // api_version is a static per-mapping setting, not derived from event data, so a batch is
       // always homogeneously all-V2 or all-V3 - checking the first payload is enough.
       return resolveVersion(resolvedPayloads[0]?.api_version) === LATEST_API_VERSION
-        ? sendV3(request, settings, resolvedPayloads, true)
-        : send(request, settings, resolvedPayloads)
+        ? sendV3(request, settings, resolvedPayloads, true, base64Hashing)
+        : send(request, settings, resolvedPayloads, base64Hashing)
     }
   }
 }
