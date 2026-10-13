@@ -20,9 +20,14 @@ const destination: DestinationDefinition<Settings> = {
     }
   },
   extendRequest: ({ settings, payload }) => {
-    const payloadData = payload.length ? payload[0]['data'] : payload['data']
-    if (settings.sharedSecret && payloadData) {
-      const digest = createHmac('sha1', settings.sharedSecret).update(JSON.stringify(payloadData), 'utf8').digest('hex')
+    // In batch mode `payload` is an array and the request body is the array of
+    // each event's `data`; in single mode it's a single event and the body is
+    // its `data`. Sign the exact body that will be sent so the X-Signature HMAC
+    // matches whether or not batching is enabled.
+    const signedBody = Array.isArray(payload) ? payload.map((p) => p['data']) : payload['data']
+    const hasBody = Array.isArray(payload) ? payload.length > 0 : Boolean(signedBody)
+    if (settings.sharedSecret && hasBody) {
+      const digest = createHmac('sha1', settings.sharedSecret).update(JSON.stringify(signedBody), 'utf8').digest('hex')
       return { headers: { 'X-Signature': digest } }
     }
     return {}
