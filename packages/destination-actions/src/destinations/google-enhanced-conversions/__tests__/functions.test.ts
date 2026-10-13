@@ -7,7 +7,9 @@ import {
   commonEmailValidation,
   convertTimestamp,
   timestampToEpochMicroseconds,
-  handlePartialFailureResponse
+  handlePartialFailureResponse,
+  handleGoogleAdsAPIErrorResponse,
+  handleJobExecutionError
 } from '../functions'
 import destination from '../index'
 
@@ -380,5 +382,103 @@ describe('handlePartialFailureResponse', () => {
       status: 500,
       errortype: 'RETRYABLE_BATCH_FAILURE'
     })
+  })
+})
+
+// `request`/`options` stand in for the fields on a real HTTPError that carry the outgoing
+// `developer-token` auth header - they must never end up in a reported body.
+const buildHttpError = (data: unknown, message = 'Bad Request') => ({
+  message,
+  response: { data },
+  request: { headers: { 'developer-token': 'super-secret-token' } },
+  options: { headers: { 'developer-token': 'super-secret-token' } }
+})
+
+describe('handleGoogleAdsAPIErrorResponse', () => {
+  const validPayloadIndicesBitmap = [0, 2]
+  const payload = { operations: [{ id: 'op-1' }] }
+
+  it('should attribute the response data to every item without leaking the raw error object', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const error = buildHttpError(
+      { error: { code: 401, message: 'Request had invalid authentication credentials.' } },
+      'Unauthorized'
+    )
+
+    handleGoogleAdsAPIErrorResponse(
+      error,
+      validPayloadIndicesBitmap,
+      multiStatusResponse,
+      payload,
+      failedPayloadIndices
+    )
+
+    expect(failedPayloadIndices).toEqual(new Set([0, 2]))
+
+    const first = multiStatusResponse.getResponseAtIndex(0).value() as Record<string, unknown>
+    expect(first.sent).toEqual(payload)
+    expect(first.body).toEqual(error.response.data)
+    expect(JSON.stringify(first.body)).not.toContain('super-secret-token')
+
+    const second = multiStatusResponse.getResponseAtIndex(2).value() as Record<string, unknown>
+    expect(second.body).toEqual(error.response.data)
+  })
+
+  it('should fall back to a minimal safe body when there is no response data at all', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const error = buildHttpError(undefined, 'socket hang up')
+
+    handleGoogleAdsAPIErrorResponse(error, validPayloadIndicesBitmap, multiStatusResponse, payload)
+
+    const response = multiStatusResponse.getResponseAtIndex(0).value() as Record<string, unknown>
+    expect(response.body).toEqual({ message: 'socket hang up' })
+  })
+})
+
+describe('handleJobExecutionError', () => {
+  const validPayloadIndicesBitmap = [0, 1]
+  const sentBody = '/customers/1234/userLists/1234:run'
+
+  it('should attribute the response data to every item without leaking the raw error object', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const error = buildHttpError(
+      { error: { code: 400, message: 'Request contains an invalid argument.' } },
+      'Bad Request'
+    )
+    const executedJob = { success: false, error }
+
+    handleJobExecutionError(executedJob, validPayloadIndicesBitmap, multiStatusResponse, sentBody, failedPayloadIndices)
+
+    const first = multiStatusResponse.getResponseAtIndex(0).value() as Record<string, unknown>
+    expect(first.sent).toEqual(sentBody)
+    expect(first.body).toEqual(error.response.data)
+    expect(JSON.stringify(first.body)).not.toContain('super-secret-token')
+
+    const second = multiStatusResponse.getResponseAtIndex(1).value() as Record<string, unknown>
+    expect(second.body).toEqual(error.response.data)
+  })
+
+  it('should fall back to a minimal safe body when there is no response data at all', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>()
+    const executedJob = { success: false, error: buildHttpError(undefined, 'socket hang up') }
+
+    handleJobExecutionError(executedJob, validPayloadIndicesBitmap, multiStatusResponse, sentBody, failedPayloadIndices)
+
+    const response = multiStatusResponse.getResponseAtIndex(0).value() as Record<string, unknown>
+    expect(response.body).toEqual({ message: 'socket hang up' })
+  })
+
+  it('should skip indices already reported by a partial-failure branch', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const failedPayloadIndices = new Set<number>([0])
+    const executedJob = { success: false, error: buildHttpError({ error: { code: 400 } }) }
+
+    handleJobExecutionError(executedJob, validPayloadIndicesBitmap, multiStatusResponse, sentBody, failedPayloadIndices)
+
+    expect(multiStatusResponse.isErrorResponseAtIndex(0)).toBe(false)
+    expect(multiStatusResponse.isErrorResponseAtIndex(1)).toBe(true)
   })
 })
