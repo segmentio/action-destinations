@@ -187,7 +187,7 @@ export function getUser(
   dataProcessingOptions: DataProcessingOptionsType,
   screenDimensions: ScreenDimensionsType,
   throwIfInvalidEmail = true,
-  base64Hashing = false
+  base64Hashing = true
 ): User | undefined {
   if (!user) return
 
