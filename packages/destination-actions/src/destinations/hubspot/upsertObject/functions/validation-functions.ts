@@ -88,9 +88,12 @@ function hasIdentifierValue(association: Association): boolean {
  * Not checked:
  * - Associations without an identifier value, because they are never sent.
  * - Dissociations, because they always resolve records with batch/read, which accepts hs_object_id.
- * - Main records in "Update" mode. The update response omits the identifier property, so the main record is not
- *   matched back to its payload and the association step is never reached. Those events succeed today (without
- *   creating the association), and rejecting them would turn a working mapping into a failing one.
+ * - Main records in "Update" mode. When the main record is identified by a property other than hs_object_id, the
+ *   update response omits that property, so the main record is not matched back to its payload and the association
+ *   step is never reached. Those events succeed today (without creating the association), and rejecting them would
+ *   turn a working mapping into a failing one. When the main record is identified by hs_object_id the response does
+ *   include it, so the association step runs and HubSpot rejects the batch/upsert, as it does today. That case is
+ *   not checked here either.
  */
 function validateAssociationIdentifiers(payloads: Payload[], syncMode?: SyncMode): void {
   if (syncMode === SyncMode.Update) {
