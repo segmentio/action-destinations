@@ -42,5 +42,23 @@ describe('Qualtrics', () => {
 
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(/401/)
     })
+
+    it('throw error when datacenter contains URL injection characters', async () => {
+      const authData = {
+        apiToken: 'VALID_API_TOKEN_VALUE',
+        datacenter: 'attacker.com/path?x='
+      }
+
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(/Invalid datacenter ID/)
+    })
+
+    it('throw error when datacenter contains @ injection', async () => {
+      const authData = {
+        apiToken: 'VALID_API_TOKEN_VALUE',
+        datacenter: 'attacker.com@legitimate'
+      }
+
+      await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(/Invalid datacenter ID/)
+    })
   })
 })
