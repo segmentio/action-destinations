@@ -21,8 +21,13 @@ type DataProcessingOptionsType = StandardEvent['data_processing_options'] | Cust
 type UserType = StandardEvent['user'] | CustomEvent['user']
 type ScreenDimensionsType = StandardEvent['screen_dimensions'] | CustomEvent['screen_dimensions']
 
-export async function send(request: RequestClient, settings: Settings, payload: (StandardEvent | CustomEvent)[]) {
-  const data = createRedditPayload(payload, settings)
+export async function send(
+  request: RequestClient,
+  settings: Settings,
+  payload: (StandardEvent | CustomEvent)[],
+  base64Hashing = false
+) {
+  const data = createRedditPayload(payload, settings, base64Hashing)
   return request(`https://ads-api.reddit.com/api/${LEGACY_API_VERSION}/conversions/events/${settings.ad_account_id}`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${settings.conversion_token}` },
@@ -30,7 +35,11 @@ export async function send(request: RequestClient, settings: Settings, payload: 
   })
 }
 
-function createRedditPayload(payloads: (StandardEvent | CustomEvent)[], settings: Settings): StandardEventPayload {
+function createRedditPayload(
+  payloads: (StandardEvent | CustomEvent)[],
+  settings: Settings,
+  base64Hashing: boolean
+): StandardEventPayload {
   const payloadItems: StandardEventPayloadItem[] = []
 
   payloads.forEach((payload) => {
@@ -59,7 +68,7 @@ function createRedditPayload(payloads: (StandardEvent | CustomEvent)[], settings
       },
       click_id: clean(click_id),
       event_metadata: getMetadata(event_metadata, products, conversion_id, resolvedTrackingType),
-      user: getUser(user, data_processing_options, screen_dimensions, false)
+      user: getUser(user, data_processing_options, screen_dimensions, false, base64Hashing)
     }
 
     payloadItems.push(payloadItem)
@@ -136,11 +145,14 @@ export function getMetadata(
 
 export function getAdId(
   device_type?: string,
-  advertising_id?: string
+  advertising_id?: string,
+  base64Hashing = false
 ): { [key: string]: string | undefined } | undefined {
   if (!device_type) return undefined
   if (!advertising_id) return undefined
-  const hashedAdId = smartHashIdentifier(advertising_id, undefined, { lowercase: true })
+  const hashedAdId = base64Hashing
+    ? smartHashIdentifier(advertising_id, undefined, { lowercase: true })
+    : smartHash(advertising_id)
   return device_type === 'ios' ? { idfa: hashedAdId } : { aaid: hashedAdId }
 }
 
@@ -174,20 +186,35 @@ export function getUser(
   user: UserType,
   dataProcessingOptions: DataProcessingOptionsType,
   screenDimensions: ScreenDimensionsType,
-  throwIfInvalidEmail = true
+  throwIfInvalidEmail = true,
+  base64Hashing = true
 ): User | undefined {
   if (!user) return
 
+  if (base64Hashing) {
+    return {
+      ...getAdId(user.device_type, user.advertising_id, true),
+      email: hashEmail(user.email, throwIfInvalidEmail),
+      external_id: smartHashIdentifier(user.external_id, undefined, { convertBase64: false }),
+      ip_address: smartHashIdentifier(user.ip_address),
+      user_agent: clean(user.user_agent),
+      uuid: clean(user.uuid),
+      data_processing_options: getDataProcessingOptions(dataProcessingOptions),
+      screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
+      phone_number: smartHashIdentifier(user.phone_number, cleanPhoneNumber, { lowercase: true })
+    }
+  }
+
   return {
     ...getAdId(user.device_type, user.advertising_id),
-    email: hashEmail(user.email, throwIfInvalidEmail),
-    external_id: smartHashIdentifier(user.external_id, undefined, { convertBase64: false }),
-    ip_address: smartHashIdentifier(user.ip_address),
+    email: smartHash(user.email, canonicalizeEmail),
+    external_id: smartHash(user.external_id, (value) => value.trim()),
+    ip_address: smartHash(user.ip_address, (value) => value.trim()),
     user_agent: clean(user.user_agent),
     uuid: clean(user.uuid),
     data_processing_options: getDataProcessingOptions(dataProcessingOptions),
     screen_dimensions: getScreen(screenDimensions?.height, screenDimensions?.width),
-    phone_number: smartHashIdentifier(user.phone_number, cleanPhoneNumber, { lowercase: true })
+    phone_number: smartHash(user.phone_number, cleanPhoneNumber)
   }
 }
 
