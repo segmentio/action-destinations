@@ -1,7 +1,18 @@
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
-import { PayloadValidationError, MultiStatusResponse, RetryableError, IntegrationError } from '@segment/actions-core'
-import { SEGMENT_PARTNER_NAME, EBRetryableErrors, EBNotRetryableErrors } from './constants'
+import {
+  PayloadValidationError,
+  MultiStatusResponse,
+  RetryableError,
+  IntegrationError,
+  Features
+} from '@segment/actions-core'
+import {
+  SEGMENT_PARTNER_NAME,
+  EBRetryableErrors,
+  EBNotRetryableErrors,
+  FLAGON_NAME_RETRY_CLASSIFICATION_FIX
+} from './constants'
 import {
   PutPartnerEventsResultEntry,
   EventBridgeClient,
@@ -13,13 +24,17 @@ import { PutPartnerEventsCommandJSON, HookOutputs } from './types'
 export async function send(
   payloads: Payload[],
   settings: Settings,
-  hookOutputs?: HookOutputs
+  hookOutputs?: HookOutputs,
+  features?: Features,
+  isBatch = true
 ): Promise<MultiStatusResponse> {
   const sourceId = getSourceId(hookOutputs)
 
   const { region } = settings
 
-  const client = new EventBridgeClient({ region })
+  const client = getClient(region)
+
+  const classificationFix = Boolean(features?.[FLAGON_NAME_RETRY_CLASSIFICATION_FIX])
 
   const commandJSON = createCommandJSON(payloads, sourceId)
 
@@ -30,10 +45,28 @@ export async function send(
   try {
     response = await client.send(command)
   } catch (error) {
+    if (classificationFix) {
+      throwClassifiedError(error, `client.send`)
+    }
     throwError(error, `client.send`)
   }
 
-  return buildMultiStatusResponse(response, payloads)
+  if (classificationFix && !isBatch) {
+    throwIfEntryFailed(response.Entries?.[0])
+  }
+
+  return buildMultiStatusResponse(response, payloads, classificationFix)
+}
+
+const clients = new Map<string, EventBridgeClient>()
+
+function getClient(region: string): EventBridgeClient {
+  let client = clients.get(region)
+  if (!client) {
+    client = new EventBridgeClient({ region })
+    clients.set(region, client)
+  }
+  return client
 }
 
 function getSourceId(hookOutputs?: HookOutputs): string {
@@ -46,14 +79,18 @@ function getSourceId(hookOutputs?: HookOutputs): string {
   return hookSourceId
 }
 
-function buildMultiStatusResponse(response: PutPartnerEventsCommandOutput, payloads: Payload[]): MultiStatusResponse {
+function buildMultiStatusResponse(
+  response: PutPartnerEventsCommandOutput,
+  payloads: Payload[],
+  classificationFix: boolean
+): MultiStatusResponse {
   const entries: PutPartnerEventsResultEntry[] = response.Entries ?? []
   const multiStatusResponse = new MultiStatusResponse()
   payloads.forEach((event, index) => {
     const entry = entries[index] ?? {}
     if (entry.ErrorCode || entry.ErrorMessage) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
-        status: 400,
+        status: classificationFix ? getEntryErrorStatus(entry.ErrorCode) : 400,
         errormessage: entry.ErrorMessage ?? 'Unknown Error',
         sent: JSON.stringify(event),
         body: JSON.stringify(entry)
@@ -114,4 +151,48 @@ function throwError(error: unknown, context: string): never {
   } else {
     throw new IntegrationError(`Unknown error in ${context}: ${JSON.stringify(error)}`, 'UnknownError', 400)
   }
+}
+
+function getErrorName(error: unknown): string | undefined {
+  if (typeof error === 'object' && error !== null && 'name' in error) {
+    const { name } = error as { name: unknown }
+    return typeof name === 'string' ? name : undefined
+  }
+  return undefined
+}
+
+function getEntryErrorStatus(errorCode?: string): number {
+  if (errorCode === 'ThrottlingException') {
+    return 429
+  }
+  if (errorCode && errorCode in EBRetryableErrors) {
+    return 500
+  }
+  return 400
+}
+
+function throwClassifiedError(error: unknown, context: string): never {
+  const name = getErrorName(error) ?? 'UnknownError'
+  const message = (error as { message?: string } | null)?.message ?? 'No error message returned'
+
+  if (name === 'ThrottlingException') {
+    throw new RetryableError(`Retryable error ${name} in ${context}. Message: ${message}`, 429)
+  }
+  if (name in EBNotRetryableErrors) {
+    throw new IntegrationError(`Non-retryable error ${name} in ${context}. Message: ${message}`, name, 400)
+  }
+  throw new RetryableError(`Retryable error ${name} in ${context}. Message: ${message}`)
+}
+
+function throwIfEntryFailed(entry?: PutPartnerEventsResultEntry): void {
+  if (!entry?.ErrorCode && !entry?.ErrorMessage) {
+    return
+  }
+  const code = entry.ErrorCode ?? 'UnknownError'
+  const message = `Entry failed with ${code}. Message: ${entry.ErrorMessage ?? 'Unknown Error'}`
+  const status = getEntryErrorStatus(entry.ErrorCode)
+  if (status === 429 || status === 500) {
+    throw new RetryableError(message, status)
+  }
+  throw new IntegrationError(message, code, 400)
 }
