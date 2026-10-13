@@ -76,9 +76,10 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     updateOnly: {
       label: 'Update Only',
-      description: 'When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.',
+      description:
+        'When enabled, Segment will only update existing users in Iterable. New users will not be created. This is only applicable when batching is enabled. Talk to your Iterable representative to enable this feature on the Iterable side.',
       type: 'boolean',
-      required: false, 
+      required: false,
       disabledInputMethods: ['variable', 'function', 'freeform', 'enrichment'],
       depends_on: {
         match: 'all',

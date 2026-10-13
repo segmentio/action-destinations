@@ -36,7 +36,6 @@ describe('Mixpanel.trackPageView', () => {
   beforeEach(async () => {
     jest.restoreAllMocks()
     jest.spyOn(destination, 'initialize').mockImplementation(() => {
-
       mockGroup = {
         set: jest.fn(),
         set_once: jest.fn(),
@@ -72,32 +71,32 @@ describe('Mixpanel.trackPageView', () => {
         mapping: {
           event_name: undefined,
           properties: { '@path': '$.properties' },
-          unique_id:{ '@path': '$.userId' },
-          user_profile_properties_to_set: { 
-              name: { '@path': '$.context.traits.user.name' },
-              first_name: { '@path': '$.context.traits.user.first_name' },
-              last_name: { '@path': '$.context.traits.user.last_name' },
-              email: { '@path': '$.context.traits.user.email' },
-              phone: { '@path': '$.context.traits.user.phone' },
-              avatar: { '@path': '$.context.traits.user.avatar' },
-              created: { '@path': '$.context.traits.user.created' }
+          unique_id: { '@path': '$.userId' },
+          user_profile_properties_to_set: {
+            name: { '@path': '$.context.traits.user.name' },
+            first_name: { '@path': '$.context.traits.user.first_name' },
+            last_name: { '@path': '$.context.traits.user.last_name' },
+            email: { '@path': '$.context.traits.user.email' },
+            phone: { '@path': '$.context.traits.user.phone' },
+            avatar: { '@path': '$.context.traits.user.avatar' },
+            created: { '@path': '$.context.traits.user.created' }
           },
           user_profile_properties_to_set_once: {
-              set_once_trait: { '@path': '$.context.traits.user.set_once_trait_1' },
+            set_once_trait: { '@path': '$.context.traits.user.set_once_trait_1' }
           },
           user_profile_properties_to_increment: {
-              increment_property: { '@path': '$.context.traits.user.increment_property_1' }
+            increment_property: { '@path': '$.context.traits.user.increment_property_1' }
           },
           group_details: {
-              group_key: { '@path': '$.context.traits.company.group_key' },
-              group_id: { '@path': '$.context.groupId' }
+            group_key: { '@path': '$.context.traits.company.group_key' },
+            group_id: { '@path': '$.context.groupId' }
           },
-          group_profile_properties_to_set: { 
-              company_name: { '@path': '$.context.traits.company.company_name' },
-              number_employees: { '@path': '$.context.traits.company.number_employees' }
+          group_profile_properties_to_set: {
+            company_name: { '@path': '$.context.traits.company.company_name' },
+            number_employees: { '@path': '$.context.traits.company.number_employees' }
           },
           group_profile_properties_to_set_once: {
-              set_once_trait: { '@path': '$.context.traits.company.set_once_trait_1' },
+            set_once_trait: { '@path': '$.context.traits.company.set_once_trait_1' }
           },
           group_profile_properties_to_union: { '@path': '$.context.traits.company.union_properties' }
         }
@@ -114,7 +113,7 @@ describe('Mixpanel.trackPageView', () => {
         prop2: 2,
         prop3: true,
         prop4: [1, 2, 3],
-        prop5: { subprop1: 'subvalue1', subprop2: 22}
+        prop5: { subprop1: 'subvalue1', subprop2: 22 }
       },
       context: {
         groupId: 'groupId1',
@@ -153,8 +152,8 @@ describe('Mixpanel.trackPageView', () => {
     await event.load(Context.system(), {} as Analytics)
     await event.group?.(context)
 
-    // Identify related calls 
-    expect(mockMPP.identify).toHaveBeenCalledWith("userId1")
+    // Identify related calls
+    expect(mockMPP.identify).toHaveBeenCalledWith('userId1')
     expect(mockMPP.people.set).toHaveBeenCalledWith({
       $name: 'User Name',
       $last_name: 'Last',
@@ -171,7 +170,7 @@ describe('Mixpanel.trackPageView', () => {
       increment_property: 5
     })
 
-    // Group related calls 
+    // Group related calls
     expect(mockMPP.set_group).toHaveBeenCalledWith('company', 'groupId1')
     expect(mockMPP.get_group).toHaveBeenCalledWith('company', 'groupId1')
     expect(mockGroup.set).toHaveBeenCalledWith({
@@ -191,7 +190,7 @@ describe('Mixpanel.trackPageView', () => {
       prop2: 2,
       prop3: true,
       prop4: [1, 2, 3],
-      prop5: { subprop1: 'subvalue1', subprop2: 22}
+      prop5: { subprop1: 'subvalue1', subprop2: 22 }
     })
   })
 
@@ -215,13 +214,13 @@ describe('Mixpanel.trackPageView', () => {
       anonymousId: 'anonymousId',
       userId: 'userId1',
       properties: {
-        event_name: "Dis be an event name",
+        event_name: 'Dis be an event name',
         other_props: {
           prop1: 'value1',
           prop2: 2,
           prop3: true,
           prop4: [1, 2, 3],
-          prop5: { subprop1: 'subvalue1', subprop2: 22}
+          prop5: { subprop1: 'subvalue1', subprop2: 22 }
         }
       }
     })
@@ -236,15 +235,17 @@ describe('Mixpanel.trackPageView', () => {
     await event.group?.(context)
 
     // Track Page View related calls
-    expect(mockMPP.track_pageview).toHaveBeenCalledWith({
-      prop1: 'value1',
-      prop2: 2,
-      prop3: true,
-      prop4: [1, 2, 3],
-      prop5: { subprop1: 'subvalue1', subprop2: 22}
-    }, 
-    {
-      event_name: "Dis be an event name"
-    })
+    expect(mockMPP.track_pageview).toHaveBeenCalledWith(
+      {
+        prop1: 'value1',
+        prop2: 2,
+        prop3: true,
+        prop4: [1, 2, 3],
+        prop5: { subprop1: 'subvalue1', subprop2: 22 }
+      },
+      {
+        event_name: 'Dis be an event name'
+      }
+    )
   })
 })
