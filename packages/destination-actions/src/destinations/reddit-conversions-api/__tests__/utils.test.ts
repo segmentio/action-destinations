@@ -81,7 +81,9 @@ describe('getUser hashing', () => {
         advertising_id: IDFA_BASE64
       },
       undefined,
-      undefined
+      undefined,
+      true,
+      true
     )
     expect(user).toMatchObject({
       email: ALICE_HEX,
@@ -92,12 +94,12 @@ describe('getUser hashing', () => {
   })
 
   it('hashes a Base64 looking external_id as a raw value instead of treating it as a hash', () => {
-    const user = getUser({ external_id: EXTERNAL_ID_BASE64 }, undefined, undefined)
+    const user = getUser({ external_id: EXTERNAL_ID_BASE64 }, undefined, undefined, true, true)
     expect(user?.external_id).toBe(EXTERNAL_ID_BASE64_HASHED_AS_RAW)
   })
 
   it('converts a Base64 Android advertising ID to the expected aaid hex', () => {
-    const user = getUser({ device_type: 'android', advertising_id: AAID_BASE64 }, undefined, undefined)
+    const user = getUser({ device_type: 'android', advertising_id: AAID_BASE64 }, undefined, undefined, true, true)
     expect(user?.aaid).toBe(AAID_HEX)
   })
 
@@ -105,13 +107,21 @@ describe('getUser hashing', () => {
     const user = getUser(
       { email: ALICE_BASE64, phone_number: PHONE_HEX, external_id: 'customer12345' },
       undefined,
-      undefined
+      undefined,
+      true,
+      true
     )
     expect(user).toMatchObject({ email: ALICE_HEX, phone_number: PHONE_HEX, external_id: EXTERNAL_ID_HEX })
   })
 
   it('trims whitespace around Base64 and hex values before checking them', () => {
-    const user = getUser({ email: ` ${ALICE_BASE64}\n`, phone_number: ` ${PHONE_HEX} ` }, undefined, undefined)
+    const user = getUser(
+      { email: ` ${ALICE_BASE64}\n`, phone_number: ` ${PHONE_HEX} ` },
+      undefined,
+      undefined,
+      true,
+      true
+    )
     expect(user).toMatchObject({ email: ALICE_HEX, phone_number: PHONE_HEX })
   })
 
@@ -126,7 +136,9 @@ describe('getUser hashing', () => {
         ip_address: IP_HEX.toUpperCase()
       },
       undefined,
-      undefined
+      undefined,
+      true,
+      true
     )
     expect(user).toMatchObject({
       email: ALICE_HEX,
@@ -141,7 +153,9 @@ describe('getUser hashing', () => {
     const user = getUser(
       { email: 'Al.ice+Apple@Example.Com', phone_number: '+1 (555) 444-1234', external_id: 'customer12345' },
       undefined,
-      undefined
+      undefined,
+      true,
+      true
     )
     expect(user).toMatchObject({ email: ALICE_HEX, phone_number: PHONE_HEX, external_id: EXTERNAL_ID_HEX })
   })
@@ -150,7 +164,9 @@ describe('getUser hashing', () => {
     const user = getUser(
       { email: '', phone_number: '   ', external_id: '\n', ip_address: '', device_type: 'ios', advertising_id: ' ' },
       undefined,
-      undefined
+      undefined,
+      true,
+      true
     )
     expect(user?.email).toBeUndefined()
     expect(user?.phone_number).toBeUndefined()
@@ -160,7 +176,7 @@ describe('getUser hashing', () => {
   })
 
   it('throws a PayloadValidationError for an email that is neither a valid address nor a recognised hash', () => {
-    const run = () => getUser({ email: ALICE_BASE64.slice(0, -1) }, undefined, undefined)
+    const run = () => getUser({ email: ALICE_BASE64.slice(0, -1) }, undefined, undefined, true, true)
     expect(run).toThrow(PayloadValidationError)
     expect(run).toThrow('Email must be a valid email address or a SHA-256 hash')
   })
