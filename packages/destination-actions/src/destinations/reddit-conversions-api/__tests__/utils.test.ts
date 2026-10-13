@@ -1,5 +1,5 @@
 import { PayloadValidationError } from '@segment/actions-core'
-import { base64Sha256ToHex, getDataProcessingOptions, getMetadata, getUser } from '../utils'
+import { base64Sha256ToHex, getAdId, getDataProcessingOptions, getMetadata, getUser } from '../utils'
 
 describe('getMetadata', () => {
   it('drops currency/value_decimal/item_count for tracking types that don\'t support any event metadata', () => {
@@ -70,9 +70,12 @@ describe('base64Sha256ToHex', () => {
   })
 })
 
+type GetUserArgs = Parameters<typeof getUser>
+const getUserHashing = (...args: GetUserArgs) => getUser(args[0], args[1], args[2], true, true)
+
 describe('getUser hashing', () => {
   it('converts Base64 SHA-256 values to the expected hex for every identifier except external_id', () => {
-    const user = getUser(
+    const user = getUserHashing(
       {
         email: ALICE_BASE64,
         phone_number: PHONE_BASE64,
@@ -92,17 +95,17 @@ describe('getUser hashing', () => {
   })
 
   it('hashes a Base64 looking external_id as a raw value instead of treating it as a hash', () => {
-    const user = getUser({ external_id: EXTERNAL_ID_BASE64 }, undefined, undefined)
+    const user = getUserHashing({ external_id: EXTERNAL_ID_BASE64 }, undefined, undefined)
     expect(user?.external_id).toBe(EXTERNAL_ID_BASE64_HASHED_AS_RAW)
   })
 
   it('converts a Base64 Android advertising ID to the expected aaid hex', () => {
-    const user = getUser({ device_type: 'android', advertising_id: AAID_BASE64 }, undefined, undefined)
+    const user = getUserHashing({ device_type: 'android', advertising_id: AAID_BASE64 }, undefined, undefined)
     expect(user?.aaid).toBe(AAID_HEX)
   })
 
   it('judges each identifier on its own, mixing Base64, hex and raw values', () => {
-    const user = getUser(
+    const user = getUserHashing(
       { email: ALICE_BASE64, phone_number: PHONE_HEX, external_id: 'customer12345' },
       undefined,
       undefined
@@ -111,12 +114,12 @@ describe('getUser hashing', () => {
   })
 
   it('trims whitespace around Base64 and hex values before checking them', () => {
-    const user = getUser({ email: ` ${ALICE_BASE64}\n`, phone_number: ` ${PHONE_HEX} ` }, undefined, undefined)
+    const user = getUserHashing({ email: ` ${ALICE_BASE64}\n`, phone_number: ` ${PHONE_HEX} ` }, undefined, undefined)
     expect(user).toMatchObject({ email: ALICE_HEX, phone_number: PHONE_HEX })
   })
 
   it('lowercases uppercase hex for email, phone_number and advertising ID only', () => {
-    const user = getUser(
+    const user = getUserHashing(
       {
         email: ALICE_HEX.toUpperCase(),
         phone_number: PHONE_HEX.toUpperCase(),
@@ -138,7 +141,7 @@ describe('getUser hashing', () => {
   })
 
   it('still canonicalizes and hashes raw values', () => {
-    const user = getUser(
+    const user = getUserHashing(
       { email: 'Al.ice+Apple@Example.Com', phone_number: '+1 (555) 444-1234', external_id: 'customer12345' },
       undefined,
       undefined
@@ -147,7 +150,7 @@ describe('getUser hashing', () => {
   })
 
   it('drops empty and whitespace-only identifiers instead of sending an empty string', () => {
-    const user = getUser(
+    const user = getUserHashing(
       { email: '', phone_number: '   ', external_id: '\n', ip_address: '', device_type: 'ios', advertising_id: ' ' },
       undefined,
       undefined
@@ -160,8 +163,76 @@ describe('getUser hashing', () => {
   })
 
   it('throws a PayloadValidationError for an email that is neither a valid address nor a recognised hash', () => {
-    const run = () => getUser({ email: ALICE_BASE64.slice(0, -1) }, undefined, undefined)
+    const run = () => getUserHashing({ email: ALICE_BASE64.slice(0, -1) }, undefined, undefined)
     expect(run).toThrow(PayloadValidationError)
     expect(run).toThrow('Email must be a valid email address or a SHA-256 hash')
+  })
+})
+
+describe('getUser with base64Hashing off', () => {
+  const getUserLegacy = (...args: GetUserArgs) => getUser(args[0], args[1], args[2], true, false)
+
+  it('canonicalizes and hashes raw values as before', () => {
+    const user = getUserLegacy(
+      { email: 'Al.ice+Apple@Example.Com', phone_number: '+1 (555) 444-1234', external_id: 'customer12345' },
+      undefined,
+      undefined
+    )
+    expect(user).toMatchObject({ email: ALICE_HEX, phone_number: PHONE_HEX, external_id: EXTERNAL_ID_HEX })
+  })
+
+  it('does not lowercase pre-hashed hex values', () => {
+    const user = getUserLegacy(
+      {
+        email: ALICE_HEX.toUpperCase(),
+        phone_number: PHONE_HEX.toUpperCase(),
+        device_type: 'ios',
+        advertising_id: IDFA_HEX.toUpperCase()
+      },
+      undefined,
+      undefined
+    )
+    expect(user).toMatchObject({
+      email: ALICE_HEX.toUpperCase(),
+      phone_number: PHONE_HEX.toUpperCase(),
+      idfa: IDFA_HEX.toUpperCase()
+    })
+  })
+
+  it('does not convert Base64 values to hex', () => {
+    const user = getUserLegacy(
+      { ip_address: IP_BASE64, device_type: 'android', advertising_id: AAID_BASE64 },
+      undefined,
+      undefined
+    )
+    expect(user?.ip_address).not.toBe(IP_HEX)
+    expect(user?.aaid).not.toBe(AAID_HEX)
+  })
+
+  it('does not trim before the already-hashed check', () => {
+    const user = getUserLegacy({ ip_address: ` ${IP_HEX} ` }, undefined, undefined)
+    expect(user?.ip_address).not.toBe(IP_HEX)
+  })
+
+  it('does not throw a PayloadValidationError for an email without a recognised format', () => {
+    const run = () => getUserLegacy({ email: 'not-an-email-or-a-hash' }, undefined, undefined)
+    expect(run).not.toThrow(PayloadValidationError)
+  })
+
+  it('is the default when no flag argument is passed', () => {
+    const user = getUser({ email: ALICE_HEX.toUpperCase() }, undefined, undefined)
+    expect(user?.email).toBe(ALICE_HEX.toUpperCase())
+  })
+})
+
+describe('getAdId', () => {
+  it('lowercases hex and converts Base64 when base64Hashing is on', () => {
+    expect(getAdId('ios', IDFA_HEX.toUpperCase(), true)).toEqual({ idfa: IDFA_HEX })
+    expect(getAdId('android', AAID_BASE64, true)).toEqual({ aaid: AAID_HEX })
+  })
+
+  it('leaves hex as is and does not convert Base64 when base64Hashing is off', () => {
+    expect(getAdId('ios', IDFA_HEX.toUpperCase())).toEqual({ idfa: IDFA_HEX.toUpperCase() })
+    expect(getAdId('android', AAID_BASE64, false)).not.toEqual({ aaid: AAID_HEX })
   })
 })
