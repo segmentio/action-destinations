@@ -1074,6 +1074,14 @@ describe('buildTimestampedFilename', () => {
   it('preserves multi-byte unicode characters', () => {
     expect(buildTimestampedFilename('résumé_📁.csv', D, 'csv')).toBe(`résumé_📁_${D}.csv`)
   })
+
+  it('documents behavior for separator and extension edge cases', () => {
+    expect(buildTimestampedFilename('folder/', D, 'csv')).toBe(`folder/_${D}.csv`)
+    expect(buildTimestampedFilename('folder/.csv', D, 'csv')).toBe(`folder/_${D}.csv`)
+    expect(buildTimestampedFilename('a//b', D, 'csv')).toBe(`a//b_${D}.csv`)
+    expect(buildTimestampedFilename('x.csv.csv', D, 'csv')).toBe(`x.csv_${D}.csv`)
+    expect(buildTimestampedFilename('.', D, 'csv')).toBe(`__${D}.csv`)
+  })
 })
 
 describe('uploadS3 fix_filename_extension opt-in', () => {
@@ -1116,11 +1124,25 @@ describe('uploadS3 fix_filename_extension opt-in', () => {
     expect(keyOf()).toMatch(/^report_.*\.csv$/)
   })
 
+  it('true replaces period-only segments in the prefix and keeps the folder in the final key', async () => {
+    await newClient().uploadS3(settings, 'c', '../x.csv', 'folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^folder\/_\/x_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+  })
+
+  it('true with an empty prefix gives just the timestamp, with and without a folder', async () => {
+    await newClient().uploadS3(settings, 'c', '', '', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await newClient().uploadS3(settings, 'c', '', 'folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^folder\/\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+  })
+
   it('a prefix without a dot is identical with the flag on and off', async () => {
+    const shape = /^export_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/
     await newClient().uploadS3(settings, 'c', 'export', '', 'csv', undefined, true)
-    const on = keyOf().replace(/_[^_]*$/, '')
+    expect(keyOf()).toMatch(shape)
     ;(PutObjectCommand as unknown as jest.Mock).mockClear()
     await newClient().uploadS3(settings, 'c', 'export', '', 'csv')
-    expect(keyOf().replace(/_[^_]*$/, '')).toBe(on)
+    expect(keyOf()).toMatch(shape)
   })
 })

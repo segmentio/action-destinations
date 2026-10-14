@@ -8,6 +8,7 @@ import {
   send
 } from '../functions'
 import { Client } from '../client'
+import { commonFields } from '../fields'
 import { Payload } from '../generated-types'
 import { Settings } from '../../generated-types'
 import { ColumnHeader, ColumnTransform, RawMapping } from '../types'
@@ -680,5 +681,30 @@ describe('fix_filename_extension wiring', () => {
   it.each([[false], [undefined]])('passes false when %s (legacy)', async (value) => {
     await send([{ ...base, fix_filename_extension: value }], settings, rawMapping, {})
     expect(lastArgs()[6]).toBe(false)
+  })
+  it('follows payloads[0] in a mixed batch (like the other file-level fields)', async () => {
+    await send(
+      [
+        { ...base, fix_filename_extension: false },
+        { ...base, fix_filename_extension: true }
+      ],
+      settings,
+      rawMapping,
+      {}
+    )
+    expect(lastArgs()[6]).toBe(false)
+    await send(
+      [
+        { ...base, fix_filename_extension: true },
+        { ...base, fix_filename_extension: false }
+      ],
+      settings,
+      rawMapping,
+      {}
+    )
+    expect(lastArgs()[6]).toBe(true)
+  })
+  it('declares an optional boolean field that defaults to true for new mappings', () => {
+    expect(commonFields.fix_filename_extension).toMatchObject({ type: 'boolean', required: false, default: true })
   })
 })
