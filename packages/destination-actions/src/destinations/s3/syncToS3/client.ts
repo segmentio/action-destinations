@@ -82,31 +82,6 @@ function safeIncr(statsClient: StatsContext['statsClient'] | undefined, metric: 
   }
 }
 
-/**
- * Insert a timestamp suffix into the filename, immediately before the extension.
- *
- * If the prefix already ends with an extension (`.<fileExtension>` or any other
- * `.<ext>`-shaped suffix), the suffix is inserted just before it, replacing a mismatched
- * extension rather than doubling it (e.g. a `.txt` prefix with `file_extension: csv` becomes
- * `..._<date>.csv`, not `...txt_<date>.csv`); otherwise the suffix and extension are appended.
- * We strip the trailing extension by length/regex rather than `String.prototype.replace`,
- * because `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
- * in the name (e.g. the leading "csv" in "csv_export.csv"), corrupting the filename.
- *
- * `filenamePrefix` is customer-controlled free text with no format validation, and becomes part
- * of the literal S3 object key — path separators and `..` segments are neutralized (replaced,
- * not rejected, so a customer's upload doesn't start failing) rather than passed through, as
- * defense in depth against path traversal / unexpected key injection.
- */
-export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
-  const safePrefix = filenamePrefix.replace(/[/\\]/g, '_').replace(/\.\./g, '_')
-  const ext = `.${fileExtension}`
-  const base = safePrefix.endsWith(ext)
-    ? safePrefix.slice(0, safePrefix.length - ext.length)
-    : safePrefix.replace(/\.[^./]+$/, '')
-  return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
-}
-
 export class Client {
   roleArn: string
   roleSessionName: string
@@ -260,22 +235,15 @@ export class Client {
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
-    // STRATCONN-6986 / INC 20659 — this fix was part of the reverted release cluster.
-    // if (features?.[S3_FILENAME_FIX_FLAG]) {
-    //   filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
-    // } else {
-    // Flag off (default): original (buggy) behavior, kept as-is. `replace` with a string
-    // replaces the FIRST occurrence of fileExtension anywhere in the name (e.g. the leading
-    // "csv" in "csv_export.csv"), which can corrupt the filename — see STRATCONN-6988.
     if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
+      // Insert the date suffix before the extension
       filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
     } else {
+      // Append the date suffix followed by the extension
       filename_prefix = filename_prefix
         ? `${filename_prefix}_${dateSuffix}.${fileExtension}`
         : `${dateSuffix}.${fileExtension}`
     }
-    // }
 
     const bucketName = settings.s3_aws_bucket_name
     const folderName = ['', null, undefined].includes(s3_aws_folder_name)
@@ -283,25 +251,6 @@ export class Client {
       : s3_aws_folder_name?.endsWith('/')
       ? s3_aws_folder_name
       : `${s3_aws_folder_name}/`
-    const contentType = fileExtension === 'csv' ? 'text/csv' : 'text/plain'
-    const objectKey = folderName ? `${folderName}${filename_prefix}` : filename_prefix
-
-    // Reject over-long keys up front with a clear, non-retryable validation error, rather than
-    // letting the PUT fail late and opaquely (and storm retries) with a raw AWS error.
-    // Gated behind a feature flag (default off) for a gradual, per-workspace rollout after
-    // STRATCONN-6986 / INC 20659 — this guard was part of the reverted release cluster.
-    // if (features?.[S3_KEY_LENGTH_GUARD_FLAG]) {
-    //   // Measure bytes, not characters: multi-byte UTF-8 chars count for more than one byte.
-    //   const objectKeyBytes = Buffer.byteLength(objectKey, 'utf8')
-    //   if (objectKeyBytes > MAX_S3_OBJECT_KEY_BYTES) {
-    //     // Do not include the key content in the message — it may contain PII.
-    //     throw new PayloadValidationError(
-    //       `S3 object key exceeds the AWS limit of ${MAX_S3_OBJECT_KEY_BYTES} bytes (got ${objectKeyBytes} bytes). ` +
-    //         `Shorten the folder name and/or filename prefix.`
-    //     )
-    //   }
-    // }
-
     const credentials = await this.assumeRole(signal)
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     const s3Client = new S3Client({
@@ -312,6 +261,8 @@ export class Client {
         sessionToken: credentials.sessionToken
       }
     })
+    const contentType = fileExtension === 'csv' ? 'text/csv' : 'text/plain'
+    const objectKey = folderName ? `${folderName}${filename_prefix}` : filename_prefix
     const uploadParams: PutObjectCommandInput = {
       Bucket: bucketName,
       Key: objectKey,

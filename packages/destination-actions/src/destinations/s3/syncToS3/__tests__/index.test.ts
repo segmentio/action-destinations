@@ -15,23 +15,12 @@ import { PayloadValidationError } from '@segment/actions-core'
 import { S3_HASHING_FEATURE_FLAG, S3_STS_ERROR_CLASSIFICATION_FLAG } from '../../constants'
 import { processHashing } from '../../../../lib/hashing-utils'
 
-// Mock AWS SDK before any imports to avoid initialization issues
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn()
-  })),
-  PutObjectCommand: jest.fn()
-}))
-
-jest.mock('@aws-sdk/client-sts', () => ({
-  STSClient: jest.fn(),
-  AssumeRoleCommand: jest.fn()
-}))
-
-// Mock the S3 Client so send() can complete without hitting AWS. The flag guard under test
-// throws before the Client is ever constructed, so this only matters for the non-throwing cases.
-// mockUploadS3 is shared across instances so tests can assert on what send() actually passed
-// through to uploadS3 (e.g. the features object), not just that the call resolved.
+// `../client` is mocked wholesale below, so client.ts never executes and the AWS SDK is never
+// imported through this test — no `@aws-sdk/*` mocks are needed here (the previous ones were dead).
+//
+// A single module-level uploadS3 mock, shared across every mocked Client instance, lets tests
+// assert on the exact file content / prefix / folder / extension that send() hands to the client,
+// not merely that the call resolved.
 const mockUploadS3 = jest.fn().mockResolvedValue({ statusCode: 200, message: 'Upload successful' })
 jest.mock('../client', () => ({
   Client: jest.fn().mockImplementation(() => ({

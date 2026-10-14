@@ -17,16 +17,15 @@ import { CREDENTIALS_EXPIRY_BUFFER_MS } from '../syncToS3/constants'
 
 // Controllable STS send mock so tests can control assume-role responses/failures.
 const mockStsSend = jest.fn()
+// Controllable S3 send mock so tests can simulate PUT failures.
+const mockS3Send = jest.fn()
 
 // Mock AWS SDK before any imports to avoid initialization issues
 jest.mock('@aws-sdk/client-s3', () => ({
   S3Client: jest.fn().mockImplementation(() => ({
     send: mockS3Send
   })),
-  // Called with `new`; returning the input object from the mock implementation makes that
-  // object the result of the `new` expression (a constructor call that returns an object
-  // overrides `this`), so tests can read the Key straight off the S3Client.send() call args.
-  PutObjectCommand: jest.fn().mockImplementation((input: unknown) => input),
+  PutObjectCommand: jest.fn(),
   _Error: jest.fn()
 }))
 
