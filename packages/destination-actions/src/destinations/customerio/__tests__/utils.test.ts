@@ -2,6 +2,7 @@ import {
   buildPayload,
   convertAttributeTimestamps,
   convertValidTimestamp,
+  isClientSideLibrary,
   resolveIdentifiers,
   isIsoDate
 } from '../utils'
@@ -168,15 +169,112 @@ describe('convertAttributeTimestamps — sub-millisecond fractional seconds (STR
   })
 })
 
+describe('isClientSideLibrary', () => {
+  it('should be true for Segment web and mobile libraries', () => {
+    for (const name of [
+      'analytics.js',
+      'analytics-ios',
+      'analytics-android',
+      'analytics-swift',
+      'analytics-kotlin',
+      'analytics-react-native',
+      'analytics-flutter',
+      'Analytics.js',
+      'analytics-swift-consumer'
+    ]) {
+      expect(isClientSideLibrary(name)).toBe(true)
+    }
+  })
+
+  it('should be false for server-side libraries, the HTTP API, and unknown values', () => {
+    for (const name of [
+      'analytics-node',
+      'analytics-python',
+      'analytics-go',
+      'analytics-java',
+      'analytics-ruby',
+      'analytics-php',
+      'analytics.NET',
+      'analytics-csharp',
+      'unknown',
+      '',
+      undefined
+    ]) {
+      expect(isClientSideLibrary(name)).toBe(false)
+    }
+  })
+})
+
 describe('buildPayload', () => {
   const settings = {}
 
-  it('should add customer_ip to the root of identify requests', () => {
+  it('should add customer_ip to the root of identify requests from client-side libraries', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics.js',
+        attributes: { name: 'Test' }
+      }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'identify',
+      customer_ip: '203.0.113.9',
+      attributes: { name: 'Test' },
+      identifiers: { id: 'abc123' }
+    })
+  })
+
+  it('should drop customer_ip for server-side libraries by default', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics-node',
+        forward_server_ip: false,
+        attributes: { name: 'Test' }
+      }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'identify',
+      attributes: { name: 'Test' },
+      identifiers: { id: 'abc123' }
+    })
+  })
+
+  it('should drop customer_ip when the library is unknown', () => {
     const body = buildPayload({
       settings,
       type: 'person',
       action: 'identify',
       payload: { person_id: 'abc123', customer_ip: '203.0.113.9', attributes: { name: 'Test' } }
+    })
+
+    expect(body).not.toHaveProperty('customer_ip')
+  })
+
+  it('should add customer_ip for server-side libraries when forward_server_ip is enabled', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics-node',
+        forward_server_ip: true,
+        attributes: { name: 'Test' }
+      }
     })
 
     expect(body).toEqual({
@@ -193,7 +291,13 @@ describe('buildPayload', () => {
       settings,
       type: 'person',
       action: 'event',
-      payload: { person_id: 'abc123', customer_ip: '203.0.113.9', name: 'purchase' }
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics.js',
+        forward_server_ip: true,
+        name: 'purchase'
+      }
     })
 
     expect(body).toEqual({

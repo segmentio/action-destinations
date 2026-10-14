@@ -821,7 +821,7 @@ describe('CustomerIO', () => {
         const event = createTestEvent({
           userId,
           traits: { email: 'test@example.com' },
-          context: { ip }
+          context: { ip, library: { name: 'analytics.js', version: '2.11.1' } }
         })
 
         const response = await action('createUpdatePerson', {
@@ -856,6 +856,76 @@ describe('CustomerIO', () => {
 
         expect(response).not.toHaveProperty('customer_ip')
         expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should send customer_ip for events from Segment mobile libraries', async () => {
+        const ip = '203.0.113.9'
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip, library: { name: 'analytics-swift', version: '1.6.0' } }
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toMatchObject({ action: 'identify', customer_ip: ip })
+      })
+
+      it('should not send customer_ip for events from Segment server-side libraries by default', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip: '203.0.113.9', library: { name: 'analytics-node', version: '6.2.0' } }
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).not.toHaveProperty('customer_ip')
+        expect(response).not.toHaveProperty('forward_server_ip')
+        expect(response).not.toHaveProperty('source_library')
+        expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should not send customer_ip when the event has no library (HTTP API)', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip: '203.0.113.9' }
+        })
+        delete event.context?.library
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).not.toHaveProperty('customer_ip')
+      })
+
+      it('should send customer_ip for server-side libraries when forward_server_ip is enabled', async () => {
+        const ip = '203.0.113.9'
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip, library: { name: 'analytics-node', version: '6.2.0' } }
+        })
+
+        const mapping = { ...getDefaultMappings('createUpdatePerson'), forward_server_ip: true }
+
+        const response = await action('createUpdatePerson', { event, mapping, settings })
+
+        expect(response).toMatchObject({ action: 'identify', customer_ip: ip })
+        expect(response).not.toHaveProperty('forward_server_ip')
+        expect(response).not.toHaveProperty('source_library')
       })
 
       it('should not send customer_ip if the field is unmapped', async () => {
