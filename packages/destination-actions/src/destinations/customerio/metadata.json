@@ -1140,7 +1140,7 @@
       "title": "Track Event",
       "description": "Track an event for a known or anonymous person.",
       "platform": "cloud",
-      "defaultSubscription": "\n    type = \"track\"\n    and event != \"Application Installed\"\n    and event != \"Application Opened\"\n    and event != \"Application Uninstalled\"\n    and event != \"Device Created or Updated\"\n    and event != \"Device Deleted\"\n    and event != \"Relationship Deleted\"\n    and event != \"User Deleted\"\n    and event != \"User Suppressed\"\n    and event != \"User Unsuppressed\"\n    and event != \"Object Deleted\"\n    and event != \"Report Delivery Event\"\n    and event != \"Report Content Event\"\n  ",
+      "defaultSubscription": "\n    type = \"track\"\n    and event != \"Application Installed\"\n    and event != \"Application Opened\"\n    and event != \"Application Uninstalled\"\n    and event != \"Device Created or Updated\"\n    and event != \"Device Deleted\"\n    and event != \"Relationship Deleted\"\n    and event != \"User Deleted\"\n    and event != \"User Suppressed\"\n    and event != \"User Unsuppressed\"\n    and event != \"Object Deleted\"\n    and event != \"Report Delivery Event\"\n    and event != \"Report Content Event\"\n    and event != \"Subscription Preferences Updated\"\n  ",
       "hidden": false,
       "hasPerformBatch": true,
       "syncMode": null,
@@ -2932,6 +2932,259 @@
           "additionalProperties": false
         }
       }
+    },
+    "updateSubscriptionPreferences": {
+      "title": "Update Subscription Preferences",
+      "description": "Update a person's subscription preferences in Customer.io: topic and channel preferences used by the subscription center, and the global unsubscribe flag. Only the preferences you send are changed; all others are preserved.",
+      "platform": "cloud",
+      "defaultSubscription": "event = \"Subscription Preferences Updated\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "id": {
+          "label": "Person ID",
+          "description": "The ID used to uniquely identify a person in Customer.io. [Learn more](https://customer.io/docs/identifying-people/#identifiers).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymous_id": {
+          "label": "Anonymous ID",
+          "description": "An optional anonymous ID, used to identify the person when no Person ID or email is provided. [Learn more](https://customer.io/docs/anonymous-events/).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email Address",
+          "description": "The person's email address, used to identify the person when no Person ID is provided.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "topics": {
+          "label": "Topic Preferences",
+          "description": "An object mapping subscription topic IDs to `true` (subscribed) or `false` (unsubscribed), for example `{\"topic_1\": true, \"topic_2\": false}`. Keys are topic IDs from your Subscription Center settings, written as `topic_<id>`; bare numeric IDs like `\"1\"` are converted to `topic_1`. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.topics"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "channels": {
+          "label": "Channel Preferences",
+          "description": "An object mapping channel types (`email`, `sms`, `push`, `in_app`, `whatsapp`, `slack`, `line`, `inbox`) to `true` (subscribed) or `false` (unsubscribed), for example `{\"sms\": false}`. Channels that are not included keep their current preference.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.channels"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        },
+        "unsubscribed": {
+          "label": "Globally Unsubscribed",
+          "description": "Sets the person's reserved `unsubscribed` attribute. `true` unsubscribes the person from all messages; `false` resubscribes them. Leave empty to keep the current value.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.unsubscribed"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "A timestamp of when the preferences were changed. Default is current date and time. Used for ordering updates to the person.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Enable Batching",
+          "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 50,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": 2,
+          "maximum": 100,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
     }
   },
   "presets": [
@@ -3129,7 +3382,7 @@
       "name": "Track Event",
       "type": "automatic",
       "partnerAction": "trackEvent",
-      "subscribe": "\n        type = \"track\"\n        and event != \"Application Installed\"\n        and event != \"Application Opened\"\n        and event != \"Application Uninstalled\"\n        and event != \"Device Created or Updated\"\n        and event != \"Device Deleted\"\n        and event != \"Relationship Deleted\"\n        and event != \"User Deleted\"\n        and event != \"User Suppressed\"\n        and event != \"User Unsuppressed\"\n        and event != \"Object Deleted\"\n        and event != \"Report Delivery Event\"\n        and event != \"Report Content Event\"\n      ",
+      "subscribe": "\n        type = \"track\"\n        and event != \"Application Installed\"\n        and event != \"Application Opened\"\n        and event != \"Application Uninstalled\"\n        and event != \"Device Created or Updated\"\n        and event != \"Device Deleted\"\n        and event != \"Relationship Deleted\"\n        and event != \"User Deleted\"\n        and event != \"User Suppressed\"\n        and event != \"User Unsuppressed\"\n        and event != \"Object Deleted\"\n        and event != \"Report Delivery Event\"\n        and event != \"Report Content Event\"\n        and event != \"Subscription Preferences Updated\"\n      ",
       "mapping": {
         "id": {
           "@path": "$.userId"
@@ -3367,6 +3620,48 @@
           "@path": "$.properties"
         },
         "convert_timestamp": true,
+        "enable_batching": true,
+        "batch_size": 50
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Update Subscription Preferences",
+      "type": "automatic",
+      "partnerAction": "updateSubscriptionPreferences",
+      "subscribe": "event = \"Subscription Preferences Updated\"",
+      "mapping": {
+        "id": {
+          "@path": "$.userId"
+        },
+        "anonymous_id": {
+          "@path": "$.anonymousId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.context.traits.email"
+            }
+          }
+        },
+        "topics": {
+          "@path": "$.properties.topics"
+        },
+        "channels": {
+          "@path": "$.properties.channels"
+        },
+        "unsubscribed": {
+          "@path": "$.properties.unsubscribed"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
         "enable_batching": true,
         "batch_size": 50
       },
