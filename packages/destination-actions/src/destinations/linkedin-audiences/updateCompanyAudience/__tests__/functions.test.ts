@@ -9,7 +9,7 @@ import {
 } from '../functions'
 import { COUNTRY_CODES, MAX_COMPANY_PAGE_URL_LENGTH } from '../constants'
 import type { Payload } from '../generated-types'
-import type { NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
+import type { AudienceAction, NormalizedIdentifiers, NormalizedTraits, ValidCompanyPayload } from '../types'
 
 const payload = (overrides: Partial<Payload> = {}): Payload =>
   ({
@@ -23,7 +23,7 @@ const payload = (overrides: Partial<Payload> = {}): Payload =>
 // the original batch; companyKey ignores it, but the type requires it, so it is fixed at 0 here.
 const keyed = (
   identifiers: NormalizedIdentifiers,
-  action = 'ADD',
+  action: AudienceAction = 'ADD',
   company_traits?: NormalizedTraits
 ): ValidCompanyPayload => ({
   dmp_company_action: action,
@@ -34,16 +34,22 @@ const keyed = (
 })
 
 describe('normalizeDomain', () => {
-  // The three shapes a customer maps into this field. Everything below the host — scheme,
-  // userinfo, port, path, query, fragment — is the URL parser's job, so one case each is enough;
-  // what is worth pinning is that we reduce all three to the same host.
+  // The shapes a customer maps into this field, all reduced to the host. Nothing below the host
+  // is interpreted: the value is sent as written once the scheme, the path and any email local
+  // part are removed.
   describe('reduces each mapped shape to the host', () => {
     it.each([
       ['a bare domain', 'microsoft.com', 'microsoft.com'],
       ['an email address', 'joe.bloggs@microsoft.com', 'microsoft.com'],
       ['a page url', 'https://www.microsoft.com/about?a=1#top', 'www.microsoft.com'],
+      ['a company website with a path, which is not refused', 'https://microsoft.com/about', 'microsoft.com'],
       ['a subdomain and a multi-part tld', 'mail.microsoft.co.uk', 'mail.microsoft.co.uk'],
       ['case and whitespace', '  MICROSOFT.COM  ', 'microsoft.com'],
+      ['mailto, which has no slashes after the colon', 'mailto:joe@microsoft.com', 'microsoft.com'],
+      ['a query string with no path before it', 'https://microsoft.com?utm_source=google', 'microsoft.com'],
+      ['a fragment with no path before it', 'microsoft.com#about', 'microsoft.com'],
+      ['a port', 'www.microsoft.com:8080', 'www.microsoft.com'],
+      ['spaces around the @', 'joe @ microsoft.com', 'microsoft.com'],
       ['all of it at once', '  HTTPS://joe@WWW.Microsoft.com:8080/a/b?c=1#top  ', 'www.microsoft.com']
     ])('takes the host from %s', (_label: string, input: string, expected: string) => {
       expect(normalizeDomain(input)).toBe(expected)
@@ -53,22 +59,23 @@ describe('normalizeDomain', () => {
       expect(normalizeDomain('weird@name@microsoft.com')).toBe('microsoft.com')
     })
 
-    it('handles mailto, which has no slashes after the colon', () => {
-      expect(normalizeDomain('mailto:joe@microsoft.com')).toBe('microsoft.com')
+    // The @ split runs on the host, never on the whole value, so a domain in the query string
+    // cannot displace the real one.
+    it('ignores an @ that is below the host', () => {
+      expect(normalizeDomain('https://microsoft.com?a=b@evil.com')).toBe('microsoft.com')
     })
+  })
 
-    it('handles a protocol-relative url', () => {
-      expect(normalizeDomain('//microsoft.com/about')).toBe('microsoft.com')
-    })
-
-    // Our choice, not the parser's: the canonical DNS spelling is sent. Blocked on LinkedIn
-    // confirming they match this form. See STRATCONN-7046.
-    it('converts an internationalized domain to punycode', () => {
-      expect(normalizeDomain('müller.de')).toBe('xn--mller-kva.de')
-    })
-
-    it('removes a trailing dot, so the two spellings do not sync as separate companies', () => {
-      expect(normalizeDomain('microsoft.com.')).toBe('microsoft.com')
+  // Sent as written, not canonicalised. A customer mapping one company in several spellings gets
+  // several companies, which is their business rather than something to guess at here.
+  describe('sends the host as written', () => {
+    it.each([
+      ['an internationalized domain, not converted to punycode', 'müller.de'],
+      ['a www prefix', 'www.microsoft.com'],
+      ['a trailing dot', 'microsoft.com.'],
+      ['an IP address', '192.168.0.1']
+    ])('keeps %s', (_label: string, input: string) => {
+      expect(normalizeDomain(input)).toBe(input)
     })
   })
 
@@ -79,44 +86,63 @@ describe('normalizeDomain', () => {
     ['an email with no domain', 'joe@'],
     ['a scheme with nothing after it', 'https://'],
     ['only a path', '/about'],
-    ['spaces around the @, which is not a parseable url', 'joe @ microsoft.com']
+    ['a company name that happens to contain a dot', 'Acme Inc.'],
+    // The field used to invite a page URL, and a column of them reduces every company to the
+    // same host, so the whole batch collapses onto one element that matches nothing.
+    ['a linkedin company page url, which is not the company website', 'https://www.linkedin.com/company/microsoft'],
+    ['the same without a scheme', 'www.linkedin.com/company/microsoft'],
+    ['a linkedin member profile', 'https://www.linkedin.com/in/joe-bloggs'],
+    ['a bare linkedin.com, since it is nobody\'s own website domain', 'linkedin.com'],
+    ['a bare www.linkedin.com', 'https://www.linkedin.com'],
+    ['a company name with a dot mid-string', 'St. Jude Medical'],
+    ['a domain with a space inside it', 'micro soft.com'],
+    // The guard is /\\s/, not a space test: these are the shapes spreadsheet- and web-copied data
+    // actually carries, and every one of them passes an `includes(' ')` check.
+    ['a domain with a non-breaking space', 'Acme\u00A0Inc.'],
+    ['a domain with a tab', 'micro\tsoft.com'],
+    ['a domain with an ideographic space', 'micro\u3000soft.com']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeDomain(input)).toBeUndefined()
   })
 
-  // A company email domain is always fully qualified, so anything without a dot is not one.
+  // The one rule: a domain has a dot in it.
   describe('requires a dot', () => {
     it.each([
       ['a company name mapped into this field by mistake', 'Microsoft'],
-      ['a single label', 'localhost:3000']
-    ])('drops %s', (_label: string, input: string) => {
-      expect(normalizeDomain(input)).toBeUndefined()
-    })
-  })
-
-  // IP addresses are not company domains. IPv6 is bracketed and so has no dot; IPv4 is all dots,
-  // so it is rejected explicitly.
-  describe('does not accept an IP address', () => {
-    it.each([
-      ['an IPv6 literal, caught by the dot check', '[::1]'],
-      ['an IPv6 literal with a port and path', 'https://[2001:db8::1]:8080/about'],
-      ['an IPv4 address, which the dot check alone would let through', '192.168.0.1'],
-      ['an IPv4 address behind a scheme', 'https://10.0.0.1/about']
+      ['a single label', 'localhost:3000'],
+      ['an IPv6 literal, which is bracketed and so has no dot', '[::1]']
     ])('drops %s', (_label: string, input: string) => {
       expect(normalizeDomain(input)).toBeUndefined()
     })
 
-    it('still accepts a domain whose labels are numeric', () => {
+    it('accepts a domain whose labels are numeric', () => {
       expect(normalizeDomain('123.com')).toBe('123.com')
     })
   })
 })
 
 describe('normalizeCompanyPageUrl', () => {
-  // Only values carrying a scheme are tested: the field is declared format: 'uri', so anything
-  // without one is rejected before it reaches here.
+  // The field carries no format, so a value with or without a scheme reaches here. Only http(s)
+  // is stripped, so any other scheme stays attached and becomes part of the host segment, which
+  // then fails the linkedin.com check.
   it.each([
     ['https', 'https://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    [
+      'a percent sign in the slug, sent as written',
+      'https://linkedin.com/company/100%-growth',
+      'linkedin.com/company/100%-growth'
+    ],
+    ['no scheme at all', 'linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
+    [
+      "LinkedIn's own documented example, which carries no scheme",
+      'www.linkedin.com/company/linkedin',
+      'www.linkedin.com/company/linkedin'
+    ],
+    [
+      'a non-ascii slug, sent as written rather than percent-encoded',
+      'https://www.linkedin.com/company/société-générale',
+      'www.linkedin.com/company/société-générale'
+    ],
     ['http', 'http://linkedin.com/company/microsoft', 'linkedin.com/company/microsoft'],
     ['an upper case scheme and host', 'HTTPS://LinkedIn.com/company/Microsoft', 'linkedin.com/company/microsoft'],
     ['www', 'https://www.linkedin.com/company/microsoft', 'www.linkedin.com/company/microsoft'],
@@ -142,16 +168,6 @@ describe('normalizeCompanyPageUrl', () => {
       'linkedin.com/company/microsoft'
     ],
     [
-      'a user, which is not part of the page',
-      'https://joe@www.linkedin.com/company/microsoft',
-      'www.linkedin.com/company/microsoft'
-    ],
-    [
-      'a port, which is not part of the page',
-      'https://linkedin.com:8080/company/microsoft',
-      'linkedin.com/company/microsoft'
-    ],
-    [
       'case, path, query and trailing slashes together',
       'HTTPS://WWW.LinkedIn.com/company/Microsoft//?trk=x#about',
       'www.linkedin.com/company/microsoft'
@@ -160,7 +176,36 @@ describe('normalizeCompanyPageUrl', () => {
     expect(normalizeCompanyPageUrl(input)).toBe(expected)
   })
 
+  it('strips a long run of trailing slashes', () => {
+    const slug = 'linkedin.com/company/microsoft'
+    expect(normalizeCompanyPageUrl(`${slug}${'/'.repeat(50000)}`)).toBe(slug)
+  })
+
+  // The strip used to be an unanchored /\\/+$/, which backtracks quadratically only when
+  // something FOLLOWS the run — with the run at the end it matches in one pass and is linear.
+  // So the trailing character is what makes this a regression test rather than a no-op: the old
+  // regex takes seconds on this input, where the case above costs it nothing.
+  it('does not stall when the run of slashes is followed by another character', () => {
+    const value = `linkedin.com/company/microsoft${'/'.repeat(50000)}a`
+    const started = process.hrtime.bigint()
+
+    expect(normalizeCompanyPageUrl(value)).toBeUndefined()
+    expect(Number(process.hrtime.bigint() - started) / 1e6).toBeLessThan(250)
+  })
+
   describe('length limit', () => {
+    // Lower-casing 'J' + combining caron yields 'j' + caron, which NFC then composes to one code
+    // point — so the value shrinks AFTER the case fold. If the cap were applied before composing,
+    // this 61-character identifier would be dropped for breaching a 100-character limit.
+    it('measures the composed length, not the length before the case fold composes it', () => {
+      const slug = `linkedin.com/company/${'J\u030C'.repeat(40)}`
+      const sent = normalizeCompanyPageUrl(slug)
+
+      expect(slug.length).toBeGreaterThan(MAX_COMPANY_PAGE_URL_LENGTH)
+      expect(sent).toHaveLength(61)
+      expect(sent).toBe(`linkedin.com/company/${'\u01F0'.repeat(40)}`)
+    })
+
     const prefix = 'linkedin.com/company/'
     const bareUrlOfLength = (length: number) => `${prefix}${'a'.repeat(length - prefix.length)}`
 
@@ -172,6 +217,13 @@ describe('normalizeCompanyPageUrl', () => {
     it('drops a url one character over the limit rather than truncating it', () => {
       const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH + 1)
       expect(normalizeCompanyPageUrl(`https://${bare}`)).toBeUndefined()
+    })
+
+    // Same reasoning as the query string below: length is measured on the value actually sent,
+    // so a trailing slash the code strips anyway cannot cost the identifier.
+    it('keeps a url of exactly the limit that carries a trailing slash', () => {
+      const bare = bareUrlOfLength(MAX_COMPANY_PAGE_URL_LENGTH)
+      expect(normalizeCompanyPageUrl(`https://${bare}/`)).toBe(bare)
     })
 
     it('measures length after the scheme is removed, so the scheme cannot push a url over', () => {
@@ -202,11 +254,28 @@ describe('normalizeCompanyPageUrl', () => {
     ['a host that merely ends in the same letters', 'https://notlinkedin.com/company/microsoft'],
     ['a lookalike host that only starts with linkedin.com', 'https://linkedin.com.example.com/company/microsoft'],
     ['a single-label host', 'https://intranet/company/x'],
-    ['a bare host with no path, which is linkedin.com itself rather than a company', 'https://linkedin.com'],
-    ['a bare host with only a trailing slash', 'https://www.linkedin.com/'],
-    ['a mailto, which the uri format accepts and which parses to a linkedin host', 'mailto:joe@linkedin.com/company/x'],
+    ['a mailto, which parses with a linkedin.com host read from its userinfo', 'mailto:joe@linkedin.com/company/x'],
     ['a non-http scheme', 'ftp://linkedin.com/company/x'],
-    ['a scheme-less value, which the field schema rejects before this point', 'linkedin.com/company/microsoft']
+    ['a port, which is not a linkedin.com host', 'linkedin.com:8080/company/microsoft'],
+    // A parser reports no port for a scheme's default, so :443 has to be caught by the host
+    // prefix test rather than by url.port.
+    ['the https default port, which url.port reports as empty', 'linkedin.com:443/company/microsoft'],
+    // A WHATWG parser ends the authority at a backslash while an RFC 3986 one does not, so a
+    // value that merely starts with linkedin.com must not pass: the real authority here is
+    // evil.example, which is what any non-WHATWG consumer of the identifier would read.
+    ['a backslash after the host, hiding another authority', 'https://linkedin.com\\@evil.example/company/acme'],
+    ['the same without a scheme', 'linkedin.com\\@evil.example/company/acme'],
+    ['a backslash standing in for the path separator', 'linkedin.com\\evil.example'],
+    ['a protocol-relative url, whose host segment is empty', '//linkedin.com/company/microsoft'],
+    // A URL parser ends the authority at a backslash, so a string check on the first '/' segment
+    // sees 'evil.com\\.linkedin.com' as the host while the value resolves to evil.com.
+    ['a backslash before the linkedin.com suffix', 'https://evil.example\\.linkedin.com/company/acme'],
+    ['a backslash and a user prefix', 'https://evil.example\\@www.linkedin.com/company/acme'],
+    ['an encoded backslash', 'https://evil.example%5C.linkedin.com/company/acme'],
+    ['a user prefix, which is not part of the host', 'https://joe@www.linkedin.com/company/microsoft'],
+    // The host on its own names no company, so it cannot be a company's page.
+    ['a bare host with no path', 'https://linkedin.com'],
+    ['a host with only a trailing slash', 'https://www.linkedin.com/']
   ])('returns undefined for %s', (_label: string, input: string | undefined) => {
     expect(normalizeCompanyPageUrl(input)).toBeUndefined()
   })
@@ -368,10 +437,8 @@ describe('normalizeCountry', () => {
 })
 
 describe('normalizeIdentifiers', () => {
-  // Note linkedInCompanyId comes back as the bare id with the urn prefix removed. That is the
-  // internal form only: buildJSON and companyKey both put the prefix back, so a customer who maps
-  // the full 'urn:li:organization:1035' gets exactly that sent to LinkedIn. See the round trip
-  // asserted below.
+  // The company id is normalized straight to the urn LinkedIn is sent, so every spelling a
+  // customer might map collapses to one value here rather than being converted again downstream.
   it('normalizes all five identifiers', () => {
     expect(
       normalizeIdentifiers(
@@ -389,7 +456,7 @@ describe('normalizeIdentifiers', () => {
       companyName: 'Microsoft Corporation',
       companyDomain: 'microsoft.com',
       companyEmailDomain: 'microsoft.com',
-      linkedInCompanyId: '1035',
+      organizationUrn: 'urn:li:organization:1035',
       companyPageUrl: 'www.linkedin.com/company/microsoft'
     })
   })
@@ -400,10 +467,26 @@ describe('normalizeIdentifiers', () => {
     ).toEqual({ companyName: "McDonald's", companyDomain: 'mcd.com' })
   })
 
-  it('strips the urn prefix from a LinkedIn company id', () => {
-    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: 'urn:li:organization:1035' } }))).toEqual({
-      linkedInCompanyId: '1035'
+  it('normalizes a bare company id to the organization urn', () => {
+    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: '1035' } }))).toEqual({
+      organizationUrn: 'urn:li:organization:1035'
     })
+  })
+
+  // A LinkedIn organization id is a number, and this is the identifier a customer is most likely
+  // to map from the wrong column: the label invites the vanity slug, which is not an id.
+  it.each([
+    ['a company name', 'Acme Corp'],
+    ['a vanity slug', 'microsoft'],
+    ['a negative number', '-1'],
+    ['a different urn type', 'urn:li:organizationBrand:99'],
+    ['an id with a stray character', '1035x']
+  ])('drops a company id that is not numeric: %s', (_label: string, linkedInCompanyId: string) => {
+    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId } }))).toEqual({})
+  })
+
+  it('drops a company id that is only the urn prefix, with no id behind it', () => {
+    expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId: 'urn:li:organization:' } }))).toEqual({})
   })
 
   // Customers map this field from whatever their warehouse holds, which may be a bare id or a
@@ -412,9 +495,9 @@ describe('normalizeIdentifiers', () => {
   describe('accepts a bare id and a full urn interchangeably', () => {
     const spellings = ['1035', 'urn:li:organization:1035', 'URN:LI:ORGANIZATION:1035', '  urn:li:organization:1035  ']
 
-    it.each(spellings)('normalizes %s to the same bare id', (linkedInCompanyId: string) => {
+    it.each(spellings)('normalizes %s to the same urn', (linkedInCompanyId: string) => {
       expect(normalizeIdentifiers(payload({ identifiers: { linkedInCompanyId } }))).toEqual({
-        linkedInCompanyId: '1035'
+        organizationUrn: 'urn:li:organization:1035'
       })
     })
 
@@ -467,6 +550,16 @@ describe('normalizeTraits', () => {
     stockSymbol: 'msft'
   }
 
+  // U+0390 is NFC-stable but upper-cases to three code units, so without the post-fold normalize
+  // the value measures 6 and MAX_STOCK_SYMBOL_LENGTH drops the trait entirely. Composed it is 4
+  // and survives — so this pins data being kept, not merely its spelling.
+  it('normalizes a stock symbol after upper-casing it, so the length limit sees the sent form', () => {
+    const traits = { stockSymbol: '\u0390\u0390' }
+    expect(normalizeTraits(payload({ send_company_traits: true, company_traits: traits }))).toEqual({
+      stockSymbol: '\u03AA\u0301\u03AA\u0301'
+    })
+  })
+
   it('returns undefined when the toggle is off, even if traits are mapped', () => {
     expect(normalizeTraits(payload({ send_company_traits: false, company_traits: traits }))).toBeUndefined()
   })
@@ -509,7 +602,9 @@ describe('normalizeTraits', () => {
 
 describe('companyKey', () => {
   it('names its parts, so it can be read directly when debugging', () => {
-    expect(JSON.parse(companyKey(keyed({ companyDomain: 'microsoft.com', linkedInCompanyId: '1035' })))).toEqual({
+    expect(
+      JSON.parse(companyKey(keyed({ companyDomain: 'microsoft.com', organizationUrn: 'urn:li:organization:1035' })))
+    ).toEqual({
       action: 'ADD',
       companyDomain: 'microsoft.com',
       organizationUrn: 'urn:li:organization:1035'
@@ -520,7 +615,7 @@ describe('companyKey', () => {
     ['name', { companyName: 'Microsoft' }, { companyName: 'Microsoft Corp' }],
     ['domain', { companyDomain: 'a.com' }, { companyDomain: 'b.com' }],
     ['email domain', { companyEmailDomain: 'a.com' }, { companyEmailDomain: 'b.com' }],
-    ['company id', { linkedInCompanyId: '1' }, { linkedInCompanyId: '2' }],
+    ['company id', { organizationUrn: 'urn:li:organization:1' }, { organizationUrn: 'urn:li:organization:2' }],
     ['page url', { companyPageUrl: 'linkedin.com/company/a' }, { companyPageUrl: 'linkedin.com/company/b' }]
   ])(
     'separates two companies that differ only by %s',
@@ -553,7 +648,7 @@ describe('companyKey', () => {
       companyKey(keyed({ companyName: 'a', companyDomain: 'b::c' }))
     )
     expect(companyKey(keyed({ companyName: 'urn:li:organization:1035' }))).not.toBe(
-      companyKey(keyed({ linkedInCompanyId: '1035' }))
+      companyKey(keyed({ organizationUrn: 'urn:li:organization:1035' }))
     )
   })
 
@@ -561,5 +656,82 @@ describe('companyKey', () => {
     const seattle = keyed({ companyName: 'Microsoft' }, 'ADD', { city: 'Seattle' })
     const austin = keyed({ companyName: 'Microsoft' }, 'ADD', { city: 'Austin' })
     expect(companyKey(seattle)).toBe(companyKey(austin))
+  })
+})
+
+// 'ü' can be stored two ways: as the single character 'ü', or as a plain 'u' followed by a
+// separate accent mark. They look identical but are different data, and LinkedIn matches
+// exactly without cleaning up what it is sent, so we always send the single-character form.
+describe('unicode normalization', () => {
+  // Each pair is the same text twice. Written as escapes on purpose: the two spellings render
+  // identically, so as literal characters they would be indistinguishable here. \u00FC is the
+  // single character 'u-umlaut'; \u0308 is the umlaut on its own, which renders on top of the
+  // plain 'u' before it.
+  const domain = { asOneCharacter: 'm\u00FCller.de', asAccentMark: 'mu\u0308ller.de' }
+  const city = { asOneCharacter: 'Z\u00FCrich', asAccentMark: 'Zu\u0308rich' }
+
+  it('uses two spellings that really are different data', () => {
+    expect(domain.asAccentMark).not.toBe(domain.asOneCharacter)
+    expect(domain.asAccentMark).toHaveLength(domain.asOneCharacter.length + 1)
+  })
+
+  it('converts a company domain', () => {
+    expect(normalizeDomain(domain.asAccentMark)).toBe(domain.asOneCharacter)
+  })
+
+  it('converts a company email domain', () => {
+    expect(normalizeDomain(`joe@${domain.asAccentMark}`)).toBe(domain.asOneCharacter)
+  })
+
+  it('converts a company page url', () => {
+    expect(normalizeCompanyPageUrl(`linkedin.com/company/${city.asAccentMark}`)).toBe(
+      `linkedin.com/company/${city.asOneCharacter.toLowerCase()}`
+    )
+  })
+
+  it('converts a company name', () => {
+    expect(normalizeIdentifiers(payload({ identifiers: { companyName: city.asAccentMark } }))).toEqual({
+      companyName: city.asOneCharacter
+    })
+  })
+
+  it('converts a city and an industry', () => {
+    const company_traits = { city: city.asAccentMark, industries: [city.asAccentMark] }
+
+    expect(normalizeTraits(payload({ send_company_traits: true, company_traits }))).toEqual({
+      city: city.asOneCharacter,
+      industries: [city.asOneCharacter]
+    })
+  })
+
+  // Without this, one company mapped in both spellings would sync as two companies. companyKey
+  // is given already-normalized identifiers, so the key is taken the way validate() takes it.
+  it('treats a company written both ways as one company', () => {
+    const fromAccentMark = normalizeIdentifiers(payload({ identifiers: { companyDomain: domain.asAccentMark } }))
+    const fromOneCharacter = normalizeIdentifiers(payload({ identifiers: { companyDomain: domain.asOneCharacter } }))
+
+    expect(companyKey(keyed(fromAccentMark))).toBe(companyKey(keyed(fromOneCharacter)))
+  })
+
+  it('leaves an ascii value exactly as it is', () => {
+    expect(normalizeDomain('microsoft.com')).toBe('microsoft.com')
+  })
+
+  // Every pair above is a letter that has a precomposed form, so composing it and leaving it in
+  // NFC amount to the same thing. These two do not: lower-casing them produces a form that is
+  // composable but not composed, so they fail unless the value is normalized after the case fold
+  // rather than only before it.
+  it('normalizes a domain after the case fold, not only before it', () => {
+    expect(normalizeDomain('H\u0331ELLO.de')).toBe('\u1E96ello.de')
+  })
+
+  it('normalizes a page url after the case fold, not only before it', () => {
+    expect(normalizeCompanyPageUrl('linkedin.com/company/J\u030COHN')).toBe('linkedin.com/company/\u01F0ohn')
+  })
+
+  // Guards the two cases above: if either expected value were itself left decomposed, the
+  // assertions would pass while pinning the wrong form.
+  it.each(['\u1E96ello.de', 'linkedin.com/company/\u01F0ohn'])('expects a composed value: %s', (expected: string) => {
+    expect(expected.normalize('NFC')).toBe(expected)
   })
 })

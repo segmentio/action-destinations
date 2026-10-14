@@ -10,19 +10,19 @@ export interface Payload {
      */
     companyName?: string
     /**
-     * The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.
+     * The company's website domain, e.g. 'microsoft.com'. A domain, an email address, or a URL on the company's own website are all accepted, and only the domain part is sent.
      */
     companyDomain?: string
     /**
-     * The company's email domain, which is sometimes different from its website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.
+     * The company's email domain, e.g. 'microsoft.com'. A domain, an email address, or a URL on the company's own website are all accepted, and only the domain part is sent.
      */
     companyEmailDomain?: string
     /**
-     * The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn.
+     * The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn. The ID is a number, so a value that is not one, such as a company's LinkedIn vanity name, is not sent.
      */
     linkedInCompanyId?: string
     /**
-     * The company's page on LinkedIn, as a full URL including the scheme, e.g. 'https://www.linkedin.com/company/microsoft'. A value without a scheme fails validation and the event is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
+     * The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. Entries longer than 100 characters are not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.
      */
     companyPageUrl?: string
   }

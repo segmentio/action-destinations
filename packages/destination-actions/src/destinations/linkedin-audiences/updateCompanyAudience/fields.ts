@@ -1,5 +1,15 @@
 import { InputField } from '@segment/actions-core'
-import { AUDIENCE_ACTION, AUDIENCE_SOURCE, MAX_INDUSTRIES } from './constants'
+import {
+  AUDIENCE_ACTION,
+  AUDIENCE_SOURCE,
+  MAX_CITY_LENGTH,
+  MAX_COMPANY_PAGE_URL_LENGTH,
+  MAX_INDUSTRIES,
+  MAX_INDUSTRY_LENGTH,
+  MAX_POSTAL_CODE_LENGTH,
+  MAX_STATE_LENGTH,
+  MAX_STOCK_SYMBOL_LENGTH
+} from './constants'
 
 export const fields: Record<string, InputField> = {
   identifiers: {
@@ -19,27 +29,26 @@ export const fields: Record<string, InputField> = {
       companyDomain: {
         label: 'Company Domain',
         description:
-          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.",
+          "The company's website domain, e.g. 'microsoft.com'. A domain, an email address, or a URL on the company's own website are all accepted, and only the domain part is sent.",
         type: 'string'
       },
       companyEmailDomain: {
         label: 'Company Email Domain',
         description:
-          "The company's email domain, which is sometimes different from its website domain, e.g. 'microsoft.com'. A domain, an email address or a page URL are all accepted, and only the domain part is sent. A value that is not a fully qualified domain, such as a company name, is not sent.",
+          "The company's email domain, e.g. 'microsoft.com'. A domain, an email address, or a URL on the company's own website are all accepted, and only the domain part is sent.",
         type: 'string'
       },
       linkedInCompanyId: {
         label: 'LinkedIn Company ID',
         description:
-          "The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn.",
+          "The company's LinkedIn organization ID or organization URN, e.g. '1035' or 'urn:li:organization:1035'. A bare ID is automatically converted to a URN before being sent to LinkedIn. The ID is a number, so a value that is not one, such as a company's LinkedIn vanity name, is not sent.",
         type: 'string'
       },
       companyPageUrl: {
         label: 'LinkedIn Company Page URL',
         description:
-          "The company's page on LinkedIn, as a full URL including the scheme, e.g. 'https://www.linkedin.com/company/microsoft'. A value without a scheme fails validation and the event is not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.",
-        type: 'string',
-        format: 'uri'
+          `The company's page on LinkedIn, e.g. 'https://www.linkedin.com/company/microsoft' or 'linkedin.com/company/microsoft'. Entries longer than ${MAX_COMPANY_PAGE_URL_LENGTH} characters are not sent. See the [Company Identifiers documentation](https://segment.com/docs/connections/destinations/catalog/actions-linkedin-audiences/#company-identifiers) for details.`,
+        type: 'string'
       }
     },
     default: {
@@ -88,18 +97,18 @@ export const fields: Record<string, InputField> = {
     properties: {
       industries: {
         label: 'Industries',
-        description: `The company's industries, as free text. Accepts either a list or a single comma-separated value, e.g. 'software, technology'. LinkedIn accepts at most ${MAX_INDUSTRIES}; any beyond that are not sent. Entries longer than 50 characters are not sent.`,
+        description: `The company's industries, as free text. Accepts either a list or a single comma-separated value, e.g. 'software, technology'. LinkedIn accepts at most ${MAX_INDUSTRIES}; any beyond that are not sent. Entries longer than ${MAX_INDUSTRY_LENGTH} characters are not sent.`,
         type: 'string',
         multiple: true
       },
       city: {
         label: 'City',
-        description: "The company's city, e.g. 'Seattle'. Values longer than 50 characters are not sent.",
+        description: `The company's city, e.g. 'Seattle'. Values longer than ${MAX_CITY_LENGTH} characters are not sent.`,
         type: 'string'
       },
       state: {
         label: 'State or Province',
-        description: "The company's state or province, e.g. 'WA'. Values longer than 50 characters are not sent.",
+        description: `The company's state or province, e.g. 'WA'. Values longer than ${MAX_STATE_LENGTH} characters are not sent.`,
         type: 'string'
       },
       country: {
@@ -110,12 +119,12 @@ export const fields: Record<string, InputField> = {
       },
       postalCode: {
         label: 'Postal Code',
-        description: "The company's postal code, e.g. '98101'. Values longer than 20 characters are not sent.",
+        description: `The company's postal code, e.g. '98101'. Values longer than ${MAX_POSTAL_CODE_LENGTH} characters are not sent.`,
         type: 'string'
       },
       stockSymbol: {
         label: 'Stock Symbol',
-        description: "The company's stock ticker symbol, e.g. 'MSFT'. Values longer than 5 characters are not sent.",
+        description: `The company's stock ticker symbol, e.g. 'MSFT'. Values longer than ${MAX_STOCK_SYMBOL_LENGTH} characters are not sent.`,
         type: 'string'
       }
     }

@@ -418,7 +418,7 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           mapping: { dmp_company_action: 'ADD', ...baseMapping }
         })
       ).rejects.toThrow(
-        "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must be fully qualified, such as 'microsoft.com', a 'LinkedIn Company ID' must have an id after the URN prefix, and a 'LinkedIn Company Page URL' must be a page on linkedin.com of 100 characters or fewer."
+        "Every value in the 'Identifiers' field was rejected. Check each against the format it expects: a domain must contain a dot and no spaces, such as 'microsoft.com', and must not be a linkedin.com address — map a LinkedIn page to 'LinkedIn Company Page URL' instead. A 'LinkedIn Company ID' must be numeric, with or without the URN prefix. A 'LinkedIn Company Page URL' must be a company's page on linkedin.com, of 100 characters or fewer."
       )
     })
 
@@ -892,24 +892,31 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
         expect(element).toEqual({ action: 'ADD', companyPageUrl: 'linkedin.com/company/microsoft' })
       })
 
-      // The field carries format: 'uri', so a scheme-less url never reaches perform. The whole
-      // event is rejected, not just the identifier, which is why the description asks for a full
-      // url rather than normalizing one.
-      it('rejects the event when the company page url has no scheme', async () => {
-        mockLookup()
-        mockBatch()
-        await expect(
-          testDestination.testAction('updateCompanyAudience', {
-            event: { type: 'track', traits: {} } as any,
-            settings,
-            auth,
-            useDefaultMappings: true,
-            mapping: {
-              ...companyFieldsBase,
-              identifiers: { companyDomain: 'microsoft.com', companyPageUrl: 'linkedin.com/company/microsoft' }
-            }
-          })
-        ).rejects.toThrow(/uri/i)
+      it('accepts a company page url with no scheme', async () => {
+        const element = await sendOne({ identifiers: { companyPageUrl: 'linkedin.com/company/microsoft' } })
+        expect(element).toEqual({ action: 'ADD', companyPageUrl: 'linkedin.com/company/microsoft' })
+      })
+
+      // A page url the action cannot use is dropped like any other identifier, so a sparse or
+      // mis-mapped column never costs the company its other identifiers.
+      it.each([
+        ['blank', ''],
+        ['whitespace', '   '],
+        ['a url on another website', 'https://microsoft.com/about'],
+        ['a mailto, which parses with a linkedin.com host from its userinfo', 'mailto:joe@linkedin.com/company/x']
+      ])('drops a page url that is %s and still syncs the company', async (_label: string, companyPageUrl: string) => {
+        const element = await sendOne({ identifiers: { companyDomain: 'microsoft.com', companyPageUrl } })
+        expect(element).toEqual({ action: 'ADD', companyWebsiteDomain: 'microsoft.com' })
+      })
+
+      it('sends a non-ascii company slug as the customer wrote it', async () => {
+        const element = await sendOne({
+          identifiers: { companyPageUrl: 'https://www.linkedin.com/company/société-générale' }
+        })
+        expect(element).toEqual({
+          action: 'ADD',
+          companyPageUrl: 'www.linkedin.com/company/société-générale'
+        })
       })
 
       it('accepts a company email domain on its own', async () => {
@@ -1129,9 +1136,8 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           })
           .reply(200, { elements: [{ status: 201 }] })
 
-        // Same company, but every trait disagrees between the two profiles.
+        // Same company, but every trait disagrees between the two profiles below.
         const seattleProfile = { city: 'Seattle', state: 'WA', postalCode: '98101' }
-        const austinProfile = { city: 'Austin', state: 'TX', postalCode: '78701' }
 
         const events = [
           { type: 'track', traits: { company_name: 'Microsoft', city: 'Seattle', state: 'WA', zip: '98101' } },
@@ -1162,11 +1168,11 @@ describe('LinkedinAudiences.updateCompanyAudience', () => {
           postalCode: sentBody.elements[0].postalCode
         }
 
-        // One profile wins outright and its traits travel together. The test accepts either
-        // profile because which one wins is not stable — it depends on the order the batch
-        // happens to arrive in — but it must be one of them whole. A merged result such as
-        // Seattle's city with Texas's state would fail here, and would describe no real place.
-        expect([seattleProfile, austinProfile]).toContainEqual(sentTraits)
+        // The first payload for a company wins: the dedup keeps the first occurrence of a key and
+        // validate preserves event order. Its traits travel together, so a merged result such as
+        // Seattle's city with Texas's state would fail here and would describe no real place.
+        // Across syncs the winner can still differ, because batch composition is not stable.
+        expect(sentTraits).toEqual(seattleProfile)
 
         // Both events still report their own status, even though one profile's traits were dropped.
         expect(response[0].status).toBe(201)
