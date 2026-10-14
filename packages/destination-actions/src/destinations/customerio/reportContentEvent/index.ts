@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { sendBatch, sendSingle } from '../utils'
+import { sendBatch, sendSingle, validateIdentifiers } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -67,7 +67,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: payload.actionType, payload: mapPayload(payload), settings, type: 'person' })
+    const body = mapPayload(payload)
+    validateIdentifiers(body, ['Anonymous ID'])
+
+    return sendSingle(request, { action: payload.actionType, payload: body, settings, type: 'person' })
   }
 }
 

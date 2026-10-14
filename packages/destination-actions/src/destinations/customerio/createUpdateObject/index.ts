@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { convertAttributeTimestamps, sendSingle, sendBatch, resolveIdentifiers } from '../utils'
+import { convertAttributeTimestamps, sendSingle, sendBatch, resolveIdentifiers, validateIdentifiers } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
 type Action = 'identify' | 'identify_anonymous'
@@ -122,6 +122,8 @@ const action: ActionDefinition<Settings, Payload> = {
 
   perform: (request, { payload, settings }) => {
     const { action, body } = mapPayload(payload)
+    // Only the object identifies an object request; the person in `body` is used for `cio_relationships`.
+    validateIdentifiers({ object_id: body.object_id, object_type_id: body.object_type_id }, ['Object ID'])
 
     return sendSingle(request, { action, payload: body, settings, type: 'object' })
   }
