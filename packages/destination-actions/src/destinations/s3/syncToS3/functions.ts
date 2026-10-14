@@ -73,7 +73,9 @@ export async function send(
     payloads[0]?.filename_prefix ?? '',
     payloads[0]?.s3_aws_folder_name ?? '',
     payloads[0]?.file_extension,
-    signal
+    signal,
+    // Opt-in: only an explicit true enables the filename fix. Missing/false keeps legacy naming.
+    payloads[0]?.fix_filename_extension === true
   )
 }
 
