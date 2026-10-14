@@ -19,18 +19,27 @@ import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
 /**
- * Builds the uploaded filename: `<base>_<dateSuffix>.<fileExtension>`.
+ * Insert a timestamp suffix into the filename, immediately before the extension.
  *
- * A trailing `.<fileExtension>` on the prefix is removed first, so it is not duplicated. Only that
- * exact, configured extension is removed: a prefix ending in a different extension (`report.txt`
- * with `csv`) keeps it and gets the configured one appended, so no data is silently overwritten.
- * Path characters in the prefix are left as-is, matching the legacy behavior.
+ * If the prefix already ends with an extension (`.<fileExtension>` or any other
+ * `.<ext>`-shaped suffix), the suffix is inserted just before it, replacing a mismatched
+ * extension rather than doubling it (e.g. a `.txt` prefix with `file_extension: csv` becomes
+ * `..._<date>.csv`, not `...txt_<date>.csv`); otherwise the suffix and extension are appended.
+ * We strip the trailing extension by length/regex rather than `String.prototype.replace`,
+ * because `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
+ * in the name (e.g. the leading "csv" in "csv_export.csv"), corrupting the filename.
+ *
+ * `filenamePrefix` is customer-controlled free text with no format validation, and becomes part
+ * of the literal S3 object key — path separators and `..` segments are neutralized (replaced,
+ * not rejected, so a customer's upload doesn't start failing) rather than passed through, as
+ * defense in depth against path traversal / unexpected key injection.
  */
 export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
+  const safePrefix = filenamePrefix.replace(/[/\\]/g, '_').replace(/\.\./g, '_')
   const ext = `.${fileExtension}`
-  const base = filenamePrefix.endsWith(ext)
-    ? filenamePrefix.slice(0, filenamePrefix.length - ext.length)
-    : filenamePrefix
+  const base = safePrefix.endsWith(ext)
+    ? safePrefix.slice(0, safePrefix.length - ext.length)
+    : safePrefix.replace(/\.[^./]+$/, '')
   return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
 }
 

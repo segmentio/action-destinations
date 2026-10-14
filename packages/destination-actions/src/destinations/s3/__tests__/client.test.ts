@@ -1016,33 +1016,89 @@ describe('uploadS3 object key generation', () => {
 })
 
 describe('buildTimestampedFilename', () => {
-  const D = '2026-09-02T11-23-42-574Z'
+  const DATE = '2026-09-02T11-23-42-574Z'
 
-  it.each<[string, string, string]>([
-    ['export.csv', 'csv', `export_${D}.csv`],
-    ['export', 'csv', `export_${D}.csv`],
-    ['', 'csv', `${D}.csv`],
-    ['.csv', 'csv', `${D}.csv`],
-    ['notes.txt', 'txt', `notes_${D}.txt`],
-    ['a.b.c.csv', 'csv', `a.b.c_${D}.csv`]
-  ])('%j with %s -> %s', (prefix, ext, expected) => {
-    expect(buildTimestampedFilename(prefix, D, ext)).toBe(expected)
+  it('inserts the date suffix before the extension for a plain name', () => {
+    expect(buildTimestampedFilename('export.csv', DATE, 'csv')).toBe(`export_${DATE}.csv`)
   })
 
-  it('does not corrupt a name containing the extension string elsewhere (STRATCONN-6988)', () => {
-    expect(buildTimestampedFilename('csv_export.csv', D, 'csv')).toBe(`csv_export_${D}.csv`)
-    expect(buildTimestampedFilename('my_txt_report.txt', D, 'txt')).toBe(`my_txt_report_${D}.txt`)
-    expect(buildTimestampedFilename('mycsvfile', D, 'csv')).toBe(`mycsvfile_${D}.csv`)
+  it('does NOT corrupt a name whose base contains the extension string (regression: STRATCONN-6988)', () => {
+    // The old code did filename_prefix.replace('csv', ...), which replaced the
+    // leading "csv" in "csv_export" and produced "_<date>.csv_export.csv".
+    expect(buildTimestampedFilename('csv_export.csv', DATE, 'csv')).toBe(`csv_export_${DATE}.csv`)
+    expect(buildTimestampedFilename('my_txt_report.txt', DATE, 'txt')).toBe(`my_txt_report_${DATE}.txt`)
   })
 
-  it('keeps a different trailing extension and appends the configured one (no overwrite of other files)', () => {
-    expect(buildTimestampedFilename('report.txt', D, 'csv')).toBe(`report.txt_${D}.csv`)
-    expect(buildTimestampedFilename('data.csv', D, 'txt')).toBe(`data.csv_${D}.txt`)
+  it('appends suffix and extension when the prefix has no extension', () => {
+    expect(buildTimestampedFilename('export', DATE, 'csv')).toBe(`export_${DATE}.csv`)
   })
 
-  it('is case-sensitive and leaves path characters untouched', () => {
-    expect(buildTimestampedFilename('export.CSV', D, 'csv')).toBe(`export.CSV_${D}.csv`)
-    expect(buildTimestampedFilename('a/b.csv', D, 'csv')).toBe(`a/b_${D}.csv`)
+  it('uses only the date suffix when the prefix is empty', () => {
+    expect(buildTimestampedFilename('', DATE, 'csv')).toBe(`${DATE}.csv`)
+  })
+
+  // Regression: previously the mismatched-extension case fell through to naive appending,
+  // producing a double-extension key (`report.txt_<date>.csv`) — the same "corrupted-looking
+  // filename" symptom this whole fix targets, just for a different input shape. Now any trailing
+  // extension-like suffix is replaced by the configured one instead of doubled.
+  it('replaces a mismatched trailing extension with the configured one, instead of doubling it', () => {
+    expect(buildTimestampedFilename('report.txt', DATE, 'csv')).toBe(`report_${DATE}.csv`)
+  })
+
+  it('neutralizes path separators and `..` segments in the prefix (defense in depth against S3 key injection)', () => {
+    expect(buildTimestampedFilename('../../etc/passwd', DATE, 'csv')).toBe(`____etc_passwd_${DATE}.csv`)
+    expect(buildTimestampedFilename('folder/nested.csv', DATE, 'csv')).toBe(`folder_nested_${DATE}.csv`)
+  })
+
+  it('neutralizes backslash path separators too', () => {
+    expect(buildTimestampedFilename('folder\\nested.csv', DATE, 'csv')).toBe(`folder_nested_${DATE}.csv`)
+  })
+
+  it('treats a prefix that is only the extension (no base) as empty', () => {
+    expect(buildTimestampedFilename('.csv', DATE, 'csv')).toBe(`${DATE}.csv`)
+  })
+
+  it('keeps earlier dot-segments intact and only strips the trailing extension-shaped one', () => {
+    expect(buildTimestampedFilename('a.b.c.csv', DATE, 'csv')).toBe(`a.b.c_${DATE}.csv`)
+    // Mismatched configured extension: only the final ".txt" segment is stripped, not "a.b".
+    expect(buildTimestampedFilename('a.b.txt', DATE, 'csv')).toBe(`a.b_${DATE}.csv`)
+  })
+
+  it('leaves a bare trailing dot with nothing after it untouched (no extension-shaped suffix to strip)', () => {
+    expect(buildTimestampedFilename('name.', DATE, 'csv')).toBe(`name._${DATE}.csv`)
+  })
+
+  it('extension matching is case-sensitive: an uppercase extension is treated as mismatched, not matching', () => {
+    expect(buildTimestampedFilename('export.CSV', DATE, 'csv')).toBe(`export_${DATE}.csv`)
+  })
+
+  it('does not corrupt a name with no dot at all, whether or not it contains the extension as a substring', () => {
+    expect(buildTimestampedFilename('plainname', DATE, 'csv')).toBe(`plainname_${DATE}.csv`)
+    // Core regression case without a dot: "csv" appears in the name but there's no ".csv" to match/strip.
+    expect(buildTimestampedFilename('mycsvfile', DATE, 'csv')).toBe(`mycsvfile_${DATE}.csv`)
+  })
+
+  it('works symmetrically in the other direction: a .csv prefix with file_extension txt', () => {
+    expect(buildTimestampedFilename('data.csv', DATE, 'txt')).toBe(`data_${DATE}.txt`)
+  })
+
+  it('is not hardcoded to csv/txt -- works for any configured extension value', () => {
+    expect(buildTimestampedFilename('export.json', DATE, 'json')).toBe(`export_${DATE}.json`)
+    expect(buildTimestampedFilename('export.txt', DATE, 'json')).toBe(`export_${DATE}.json`)
+  })
+
+  it('handles runs of multiple dots without crashing, still landing on a safe, non-traversal-looking name', () => {
+    expect(buildTimestampedFilename('..', DATE, 'csv')).toBe(`__${DATE}.csv`)
+    expect(buildTimestampedFilename('...', DATE, 'csv')).toBe(`_._${DATE}.csv`)
+    expect(buildTimestampedFilename('....', DATE, 'csv')).toBe(`___${DATE}.csv`)
+    // A leading ".." immediately followed by the real extension: neutralized before extension
+    // matching runs, so it's treated as a plain (mismatched, dot-less) base rather than re-forming
+    // a ".csv"-ending string that would trip the exact-match branch.
+    expect(buildTimestampedFilename('..csv', DATE, 'csv')).toBe(`_csv_${DATE}.csv`)
+  })
+
+  it('preserves multi-byte unicode characters in the base untouched', () => {
+    expect(buildTimestampedFilename('résumé_📁.csv', DATE, 'csv')).toBe(`résumé_📁_${DATE}.csv`)
   })
 })
 
@@ -1081,9 +1137,9 @@ describe('uploadS3 fix_filename_extension opt-in', () => {
     expect(keyOf()).toMatch(/^folder\/csv_export_.*\.csv$/)
   })
 
-  it('true with a mismatched extension never reuses the original name', async () => {
+  it('true with a mismatched extension replaces it and never reuses the original name', async () => {
     await newClient().uploadS3(settings, 'c', 'report.txt', '', 'csv', undefined, true)
-    expect(keyOf()).toMatch(/^report\.txt_.*\.csv$/)
+    expect(keyOf()).toMatch(/^report_.*\.csv$/)
   })
 
   it('a prefix without a dot is identical with the flag on and off', async () => {
