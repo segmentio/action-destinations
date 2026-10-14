@@ -18,6 +18,22 @@ import { Credentials } from './types'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
+/**
+ * Builds the uploaded filename: `<base>_<dateSuffix>.<fileExtension>`.
+ *
+ * A trailing `.<fileExtension>` on the prefix is removed first, so it is not duplicated. Only that
+ * exact, configured extension is removed: a prefix ending in a different extension (`report.txt`
+ * with `csv`) keeps it and gets the configured one appended, so no data is silently overwritten.
+ * Path characters in the prefix are left as-is, matching the legacy behavior.
+ */
+export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
+  const ext = `.${fileExtension}`
+  const base = filenamePrefix.endsWith(ext)
+    ? filenamePrefix.slice(0, filenamePrefix.length - ext.length)
+    : filenamePrefix
+  return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
+}
+
 // Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
 // live at once; this is a generous cap that still bounds memory growth in a long-lived process.
 const MAX_CACHE_ENTRIES = 1000
@@ -231,12 +247,18 @@ export class Client {
     filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    fixFilenameExtension = false
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
-      // Insert the date suffix before the extension
+    if (fixFilenameExtension) {
+      filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
+    } else if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
+      // Legacy: `replace` with a string replaces the FIRST occurrence of fileExtension anywhere in
+      // the name (e.g. the leading "csv" in "csv_export.csv") and does nothing useful when the
+      // prefix extension differs from the configured one. Kept as-is for mappings that have not
+      // opted in to fix_filename_extension (STRATCONN-6988).
       filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
     } else {
       // Append the date suffix followed by the extension

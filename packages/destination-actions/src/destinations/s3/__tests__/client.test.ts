@@ -1,4 +1,4 @@
-import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
+import { Client, clearCredentialsCache, isAWSError, mapAWSError, buildTimestampedFilename } from '../syncToS3/client'
 import { S3Client, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import {
@@ -1012,5 +1012,85 @@ describe('uploadS3 object key generation', () => {
   it('appends a trailing slash to a folder name that lacks one', async () => {
     await newClient().uploadS3(settings, 'content', 'file', 'myfolder', 'csv')
     expect(keyOf()).toMatch(/^myfolder\/file_.*\.csv$/)
+  })
+})
+
+describe('buildTimestampedFilename', () => {
+  const D = '2026-09-02T11-23-42-574Z'
+
+  it.each<[string, string, string]>([
+    ['export.csv', 'csv', `export_${D}.csv`],
+    ['export', 'csv', `export_${D}.csv`],
+    ['', 'csv', `${D}.csv`],
+    ['.csv', 'csv', `${D}.csv`],
+    ['notes.txt', 'txt', `notes_${D}.txt`],
+    ['a.b.c.csv', 'csv', `a.b.c_${D}.csv`]
+  ])('%j with %s -> %s', (prefix, ext, expected) => {
+    expect(buildTimestampedFilename(prefix, D, ext)).toBe(expected)
+  })
+
+  it('does not corrupt a name containing the extension string elsewhere (STRATCONN-6988)', () => {
+    expect(buildTimestampedFilename('csv_export.csv', D, 'csv')).toBe(`csv_export_${D}.csv`)
+    expect(buildTimestampedFilename('my_txt_report.txt', D, 'txt')).toBe(`my_txt_report_${D}.txt`)
+    expect(buildTimestampedFilename('mycsvfile', D, 'csv')).toBe(`mycsvfile_${D}.csv`)
+  })
+
+  it('keeps a different trailing extension and appends the configured one (no overwrite of other files)', () => {
+    expect(buildTimestampedFilename('report.txt', D, 'csv')).toBe(`report.txt_${D}.csv`)
+    expect(buildTimestampedFilename('data.csv', D, 'txt')).toBe(`data.csv_${D}.txt`)
+  })
+
+  it('is case-sensitive and leaves path characters untouched', () => {
+    expect(buildTimestampedFilename('export.CSV', D, 'csv')).toBe(`export.CSV_${D}.csv`)
+    expect(buildTimestampedFilename('a/b.csv', D, 'csv')).toBe(`a/b_${D}.csv`)
+  })
+})
+
+describe('uploadS3 fix_filename_extension opt-in', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, undefined)
+  const keyOf = () => (PutObjectCommand as unknown as jest.Mock).mock.calls[0][0].Key as string
+
+  beforeEach(() => {
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+  })
+
+  it('omitted/false keeps the legacy (mangled) name', async () => {
+    await newClient().uploadS3(settings, 'c', 'csv_export.csv', '', 'csv')
+    expect(keyOf()).toMatch(/^_.*\.csv_export\.csv$/)
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await newClient().uploadS3(settings, 'c', 'csv_export.csv', '', 'csv', undefined, false)
+    expect(keyOf()).toMatch(/^_.*\.csv_export\.csv$/)
+  })
+
+  it('legacy: a mismatched prefix extension still collides with the unchanged name (data-loss case)', async () => {
+    await newClient().uploadS3(settings, 'c', 'report.txt', '', 'csv')
+    expect(keyOf()).toBe('report.txt')
+  })
+
+  it('true produces a clean timestamped name and keeps the folder', async () => {
+    await newClient().uploadS3(settings, 'c', 'csv_export.csv', 'folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^folder\/csv_export_.*\.csv$/)
+  })
+
+  it('true with a mismatched extension never reuses the original name', async () => {
+    await newClient().uploadS3(settings, 'c', 'report.txt', '', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^report\.txt_.*\.csv$/)
+  })
+
+  it('a prefix without a dot is identical with the flag on and off', async () => {
+    await newClient().uploadS3(settings, 'c', 'export', '', 'csv', undefined, true)
+    const on = keyOf().replace(/_[^_]*$/, '')
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await newClient().uploadS3(settings, 'c', 'export', '', 'csv')
+    expect(keyOf().replace(/_[^_]*$/, '')).toBe(on)
   })
 })

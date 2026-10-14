@@ -655,3 +655,30 @@ describe('send uploads the generated file content to the client', () => {
     expect(text).not.toContain('test@test.com')
   })
 })
+
+describe('fix_filename_extension wiring', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const rawMapping: RawMapping = { columns: { email: 'email' } }
+  const base: Payload = {
+    columns: { email: 'e' },
+    delimiter: ',',
+    enable_batching: true,
+    file_extension: 'csv',
+    filename_prefix: 'csv_export.csv'
+  }
+  const lastArgs = () => mockUploadS3.mock.calls[mockUploadS3.mock.calls.length - 1]
+
+  it('passes true only when explicitly true', async () => {
+    await send([{ ...base, fix_filename_extension: true }], settings, rawMapping, {})
+    expect(lastArgs()[6]).toBe(true)
+  })
+  it.each([[false], [undefined]])('passes false when %s (legacy)', async (value) => {
+    await send([{ ...base, fix_filename_extension: value }], settings, rawMapping, {})
+    expect(lastArgs()[6]).toBe(false)
+  })
+})

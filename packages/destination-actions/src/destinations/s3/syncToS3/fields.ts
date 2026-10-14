@@ -234,6 +234,14 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     ],
     default: 'csv'
   },
+  fix_filename_extension: {
+    label: 'Fix Filename Extension',
+    description:
+      'When enabled, a trailing extension on the filename prefix that matches the selected File Extension is removed before the timestamp is added, so it is never duplicated or mangled (for example "csv_export.csv" becomes "csv_export_<timestamp>.csv"). A prefix ending in a different extension keeps it and the selected extension is appended (for example "report.txt" with csv becomes "report.txt_<timestamp>.csv"). When disabled, the legacy naming is used.',
+    type: 'boolean',
+    required: false,
+    default: true
+  },
   columns_to_transform: {
     label: 'Columns to Hash or Normalize',
     description: 'Columns whose values will be normalized and/or hashed before writing to the file.',

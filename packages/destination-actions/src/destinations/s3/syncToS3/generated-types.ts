@@ -114,6 +114,10 @@ export interface Payload {
    */
   file_extension: string
   /**
+   * When enabled, a trailing extension on the filename prefix that matches the selected File Extension is removed before the timestamp is added, so it is never duplicated or mangled (for example "csv_export.csv" becomes "csv_export_<timestamp>.csv"). A prefix ending in a different extension keeps it and the selected extension is appended (for example "report.txt" with csv becomes "report.txt_<timestamp>.csv"). When disabled, the legacy naming is used.
+   */
+  fix_filename_extension?: boolean
+  /**
    * Columns whose values will be normalized and/or hashed before writing to the file.
    */
   columns_to_transform?: {
