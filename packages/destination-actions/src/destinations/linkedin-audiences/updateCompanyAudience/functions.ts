@@ -419,8 +419,8 @@ function handleRequestError(status: number, statsContext: StatsContext | undefin
 export function resolveSourceSegmentId(payload: ValidCompanyPayload): string {
   const key =
     payload.audience_source === AUDIENCE_SOURCE.CONNECTIONS
-      ? trimmed(payload.segment_name)
-      : trimmed(payload.computation_key)
+      ? payload.segment_name?.trim()
+      : payload.computation_key?.trim()
 
   if (!key) {
     const message =
