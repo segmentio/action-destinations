@@ -237,7 +237,7 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
   fix_filename_extension: {
     label: 'Fix Filename Extension',
     description:
-      'When enabled, the timestamp is inserted before the file extension and a trailing extension on the filename prefix is replaced by the selected File Extension instead of being duplicated or mangled (for example "csv_export.csv" becomes "csv_export_<timestamp>.csv" and "report.txt" with csv becomes "report_<timestamp>.csv"). Path separators and ".." in the prefix are replaced with "_". When disabled, the legacy naming is used.',
+      'When enabled, the timestamp is inserted before the file extension and a trailing .csv or .txt on the filename prefix is replaced by the selected File Extension instead of being duplicated or mangled (for example "csv_export.csv" becomes "csv_export_<timestamp>.csv" and "report.txt" with csv becomes "report_<timestamp>.csv"). Other dotted names such as "2026.01.export" are kept. Period-only path segments ("." and "..") in the prefix are replaced with "_". When disabled, the legacy naming is used.',
     type: 'boolean',
     required: false,
     default: true

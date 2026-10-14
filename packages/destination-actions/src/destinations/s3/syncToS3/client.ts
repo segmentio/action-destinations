@@ -21,25 +21,27 @@ import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '
 /**
  * Insert a timestamp suffix into the filename, immediately before the extension.
  *
- * If the prefix already ends with an extension (`.<fileExtension>` or any other
- * `.<ext>`-shaped suffix), the suffix is inserted just before it, replacing a mismatched
- * extension rather than doubling it (e.g. a `.txt` prefix with `file_extension: csv` becomes
- * `..._<date>.csv`, not `...txt_<date>.csv`); otherwise the suffix and extension are appended.
- * We strip the trailing extension by length/regex rather than `String.prototype.replace`,
- * because `replace` with a string replaces the FIRST occurrence of `fileExtension` anywhere
- * in the name (e.g. the leading "csv" in "csv_export.csv"), corrupting the filename.
+ * Extension: a trailing `.<fileExtension>`, `.csv` or `.txt` (the supported file extensions) is
+ * removed before the timestamp is added, so it is never duplicated or mangled (a `.txt` prefix
+ * with `file_extension: csv` becomes `..._<date>.csv`). Any other dotted suffix is part of the
+ * name and is kept (`2026.01.export` stays intact). We strip by suffix rather than with
+ * `String.prototype.replace`, because `replace` with a string replaces the FIRST occurrence of
+ * `fileExtension` anywhere in the name (e.g. the leading "csv" in "csv_export.csv").
  *
- * `filenamePrefix` is customer-controlled free text with no format validation, and becomes part
- * of the literal S3 object key — path separators and `..` segments are neutralized (replaced,
- * not rejected, so a customer's upload doesn't start failing) rather than passed through, as
- * defense in depth against path traversal / unexpected key injection.
+ * Path: `/` is valid in an S3 key (a folder prefix) and is kept. Period-only path segments (`.`
+ * and `..`) are replaced with `_`: S3 rejects keys whose relative segments climb above the first
+ * element (`../../etc/passwd`), and SDKs/tools normalize them, which breaks the request signature.
+ * Names that merely contain dots (`v1..2`, `..backup`) are untouched.
  */
 export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
-  const safePrefix = filenamePrefix.replace(/[/\\]/g, '_').replace(/\.\./g, '_')
+  const safePrefix = filenamePrefix
+    .split('/')
+    .map((segment) => (segment === '.' || segment === '..' ? '_' : segment))
+    .join('/')
   const ext = `.${fileExtension}`
   const base = safePrefix.endsWith(ext)
     ? safePrefix.slice(0, safePrefix.length - ext.length)
-    : safePrefix.replace(/\.[^./]+$/, '')
+    : safePrefix.replace(/\.(csv|txt)$/, '')
   return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
 }
 
