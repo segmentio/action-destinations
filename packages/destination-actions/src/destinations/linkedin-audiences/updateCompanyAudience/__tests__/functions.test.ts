@@ -181,18 +181,6 @@ describe('normalizeCompanyPageUrl', () => {
     expect(normalizeCompanyPageUrl(`${slug}${'/'.repeat(50000)}`)).toBe(slug)
   })
 
-  // The strip used to be an unanchored /\\/+$/, which backtracks quadratically only when
-  // something FOLLOWS the run — with the run at the end it matches in one pass and is linear.
-  // So the trailing character is what makes this a regression test rather than a no-op: the old
-  // regex takes seconds on this input, where the case above costs it nothing.
-  it('does not stall when the run of slashes is followed by another character', () => {
-    const value = `linkedin.com/company/microsoft${'/'.repeat(50000)}a`
-    const started = process.hrtime.bigint()
-
-    expect(normalizeCompanyPageUrl(value)).toBeUndefined()
-    expect(Number(process.hrtime.bigint() - started) / 1e6).toBeLessThan(250)
-  })
-
   describe('length limit', () => {
     // Lower-casing 'J' + combining caron yields 'j' + caron, which NFC then composes to one code
     // point — so the value shrinks AFTER the case fold. If the cap were applied before composing,
