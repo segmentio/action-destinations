@@ -53,7 +53,7 @@ const failed = (sent: object, status: number, errortype: string, message: string
   body: { status, message, index }
 })
 
-const batchResponse = (size: number, errorResponses: { status: number; message: string; index: number }[]) => ({
+const batchResponse = (size: number, errorResponses: unknown[]) => ({
   itemsProcessed: size,
   success: size - errorResponses.length,
   error: errorResponses.length,
@@ -110,5 +110,49 @@ describe('SalesWings batch results', () => {
 
   it('fails the whole batch when SalesWings rejects the request', async () => {
     await expect(sendBatch(batches[0], 2, 404, { message: 'Unknown project' })).rejects.toThrow('Not Found')
+  })
+
+  describe('with bad data from SalesWings', () => {
+    it('reports a failure without a valid error status as 500, which Segment retries', async () => {
+      const statuses = [undefined, 0, '400', 200, 600, 400.5]
+      const errorResponses = statuses.map((status, index) => ({ status, message: `Failure ${index}`, index }))
+      const { sent, results } = await sendBatch(batches[0], 6, 207, batchResponse(6, errorResponses))
+      expect(results).toEqual(
+        statuses.map((_, index) => failed(sent[index], 500, 'INTERNAL_SERVER_ERROR', `Failure ${index}`, index))
+      )
+    })
+
+    it('ignores the entries that cannot be matched to an event of the batch', async () => {
+      const failure = { status: 400, message: 'Not an event of the batch' }
+      const errorResponses = [
+        failure,
+        { ...failure, index: -1 },
+        { ...failure, index: 2 },
+        { ...failure, index: '0' },
+        { ...failure, index: 0.5 }
+      ]
+      const { sent, results } = await sendBatch(batches[0], 2, 207, batchResponse(2, errorResponses))
+      expect(results).toEqual(sent.map(accepted))
+    })
+
+    it('reports a failure without a message with a generic message', async () => {
+      const errorResponses = [
+        { status: 400, index: 0 },
+        { status: 400, message: '', index: 1 }
+      ]
+      const { sent, results } = await sendBatch(batches[0], 2, 207, batchResponse(2, errorResponses))
+      expect(results).toEqual(
+        [0, 1].map((index) => failed(sent[index], 400, 'BAD_REQUEST', 'SalesWings did not accept the event', index))
+      )
+    })
+
+    it('reports one result for an event that is listed twice, from its last entry', async () => {
+      const errorResponses = [
+        { status: 400, message: 'First failure', index: 0 },
+        { status: 500, message: 'Second failure', index: 0 }
+      ]
+      const { sent, results } = await sendBatch(batches[0], 2, 207, batchResponse(2, errorResponses))
+      expect(results).toEqual([failed(sent[0], 500, 'INTERNAL_SERVER_ERROR', 'Second failure', 0), accepted(sent[1])])
+    })
   })
 })
