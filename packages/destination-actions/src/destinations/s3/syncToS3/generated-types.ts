@@ -114,6 +114,10 @@ export interface Payload {
    */
   file_extension: string
   /**
+   * When enabled, column names are written to the header row unchanged. A header cell is wrapped in double quotes only if it contains the delimiter, a double quote or a line break. When disabled, the first delimiter is silently removed from column names and header cells are never quoted.
+   */
+  sanitize_headers?: boolean
+  /**
    * Columns whose values will be normalized and/or hashed before writing to the file.
    */
   columns_to_transform?: {
