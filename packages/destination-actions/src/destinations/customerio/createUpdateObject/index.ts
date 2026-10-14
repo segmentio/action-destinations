@@ -4,8 +4,6 @@ import type { Payload } from './generated-types'
 import { convertAttributeTimestamps, sendSingle, sendBatch, resolveIdentifiers } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
-type Action = 'identify' | 'identify_anonymous'
-
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Object',
   description: 'Create an object in Customer.io or update them if they exist.',
@@ -92,32 +90,16 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: (request, { payload: payloads, settings }) => {
-    const payloadsByAction: Record<Action, Record<string, unknown>[]> = {
-      identify: [],
-      identify_anonymous: []
-    }
+    // Send `identify` and `identify_anonymous` entries in a single batch request, preserving the
+    // original payload order so the per-entry multi-status response lines up with `payloads`.
+    return sendBatch(
+      request,
+      payloads.map((payload) => {
+        const { action, body } = mapPayload(payload)
 
-    for (const payload of payloads) {
-      const { action, body } = mapPayload(payload)
-
-      payloadsByAction[action as Action].push(body)
-    }
-
-    return Promise.all([
-      sendBatch(
-        request,
-        payloadsByAction.identify.map((payload) => ({ action: 'identify', payload, settings, type: 'object' }))
-      ),
-      sendBatch(
-        request,
-        payloadsByAction.identify_anonymous.map((payload) => ({
-          action: 'identify_anonymous',
-          payload,
-          settings,
-          type: 'object'
-        }))
-      )
-    ])
+        return { action, payload: body, settings, type: 'object' }
+      })
+    )
   },
 
   perform: (request, { payload, settings }) => {
