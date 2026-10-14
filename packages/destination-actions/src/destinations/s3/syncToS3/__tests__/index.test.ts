@@ -4,6 +4,7 @@ import {
   getNormalizer,
   clean,
   encodeString,
+  quoteHeaderIfNeeded,
   getAudienceAction,
   send
 } from '../functions'
@@ -653,5 +654,110 @@ describe('send uploads the generated file content to the client', () => {
     const expectedHash = processHashing('test@test.com', 'sha256', 'hex')
     expect(text).toContain(expectedHash)
     expect(text).not.toContain('test@test.com')
+  })
+})
+
+describe('sanitize_headers (opt-in minimal header quoting)', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const header = () =>
+    (mockUploadS3.mock.calls[mockUploadS3.mock.calls.length - 1][1] as Buffer).toString().split('\n')[0]
+  const base = (extra: Partial<Payload>): Payload => ({
+    columns: {},
+    delimiter: ',',
+    enable_batching: true,
+    file_extension: 'csv',
+    ...extra
+  })
+
+  describe('clean', () => {
+    it('keeps the name intact when minimal quoting is on', () => {
+      expect(clean(',', 'a,b,c', true)).toBe('a,b,c')
+      expect(clean('|', 'a|b', true)).toBe('a|b')
+    })
+    it('is unchanged when off or omitted', () => {
+      expect(clean(',', 'a,b,c')).toBe('ab,c')
+      expect(clean(',', 'a,b,c', false)).toBe('ab,c')
+    })
+  })
+
+  describe('quoteHeaderIfNeeded', () => {
+    it('leaves plain names untouched', () => {
+      expect(quoteHeaderIfNeeded('email', ',')).toBe('email')
+      expect(quoteHeaderIfNeeded('first name', ',')).toBe('first name')
+    })
+    it('quotes names with the delimiter, a quote or a line break', () => {
+      expect(quoteHeaderIfNeeded('a,b', ',')).toBe('"a,b"')
+      expect(quoteHeaderIfNeeded('a|b', '|')).toBe('"a|b"')
+      expect(quoteHeaderIfNeeded('a\tb', 'tab')).toBe('"a\tb"')
+      expect(quoteHeaderIfNeeded('say "hi"', ',')).toBe('"say ""hi"""')
+      expect(quoteHeaderIfNeeded('a\nb', ',')).toBe('"a\nb"')
+      expect(quoteHeaderIfNeeded('a\rb', ',')).toBe('"a\rb"')
+    })
+    it('does not quote a name containing a different delimiter', () => {
+      expect(quoteHeaderIfNeeded('a|b', ',')).toBe('a|b')
+    })
+  })
+
+  describe('generateFile', () => {
+    const headers: ColumnHeader[] = [
+      { cleanName: 'plain', originalName: 'plain' },
+      { cleanName: 'a,b,c', originalName: 'a,b,c' }
+    ]
+    const payloads = [base({ columns: { plain: 'x', 'a,b,c': 'y' } })]
+
+    it('quotes only the headers that need it and leaves data always-quoted', () => {
+      const out = generateFile(payloads, headers, ',', undefined, undefined, new Map(), true).toString()
+      expect(out).toBe('plain,"a,b,c"\n"x","y"')
+    })
+    it('writes headers raw when off (legacy)', () => {
+      const out = generateFile(payloads, headers, ',').toString()
+      expect(out).toBe('plain,a,b,c\n"x","y"')
+    })
+  })
+
+  describe('send', () => {
+    const rawMapping: RawMapping = { columns: { email: 'email', 'a,b,c': 'x' } }
+    const columns = { email: 'e', 'a,b,c': 'v' }
+
+    it('only an explicit true activates minimal quoting', async () => {
+      await send([base({ columns, sanitize_headers: true })], settings, rawMapping, {})
+      expect(header()).toBe('email,"a,b,c"')
+    })
+    it('false keeps legacy output', async () => {
+      await send([base({ columns, sanitize_headers: false })], settings, rawMapping, {})
+      expect(header()).toBe('email,ab,c')
+    })
+    it('missing (existing mappings) keeps legacy output', async () => {
+      await send([base({ columns })], settings, rawMapping, {})
+      expect(header()).toBe('email,ab,c')
+    })
+    it('leaves headers without special characters byte-identical to legacy when on', async () => {
+      const plain: RawMapping = { columns: { email: 'email', user_id: 'user_id' } }
+      await send([base({ columns: { email: 'e', user_id: 'u' }, sanitize_headers: true })], settings, plain, {})
+      const on = header()
+      await send([base({ columns: { email: 'e', user_id: 'u' } })], settings, plain, {})
+      expect(on).toBe(header())
+    })
+    it('applies to audience-action and batch-size column names', async () => {
+      await send(
+        [
+          base({
+            columns: { email: 'e' },
+            audience_action_column_name: 'in,aud',
+            batch_size_column_name: 'size',
+            sanitize_headers: true
+          })
+        ],
+        settings,
+        { columns: { email: 'email' } },
+        {}
+      )
+      expect(header()).toBe('email,"in,aud",size')
+    })
   })
 })
