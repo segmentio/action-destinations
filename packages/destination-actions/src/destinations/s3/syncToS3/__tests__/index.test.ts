@@ -720,6 +720,54 @@ describe('sanitize_headers (opt-in minimal header quoting)', () => {
     })
   })
 
+  describe.each([
+    [',', ','],
+    ['|', '|'],
+    [';', ';'],
+    [':', ':'],
+    ['tab', '\t']
+  ])('delimiter %s', (delimiter, char) => {
+    const names = ['plain', `has${char}delim`, 'has"quote', 'has\nnewline', `two${char}${char}delims`]
+    const headers: ColumnHeader[] = names.map((n) => ({ cleanName: n, originalName: n }))
+    const payloads = [base({ delimiter, columns: Object.fromEntries(names.map((n) => [n, 'v'])) })]
+
+    it('writes plain names raw and quotes/escapes only the special ones; data row stays aligned', () => {
+      const out = generateFile(payloads, headers, delimiter, undefined, undefined, new Map(), true).toString()
+      const [headerLine] = out.split('\n"v"')
+      expect(headerLine).toBe(
+        ['plain', `"has${char}delim"`, '"has""quote"', '"has\nnewline"', `"two${char}${char}delims"`].join(char)
+      )
+    })
+
+    it('legacy header (flag off) is unchanged', () => {
+      const out = generateFile(payloads, headers, delimiter).toString()
+      expect(out.startsWith(`${names.join(char)}\n`)).toBe(true)
+    })
+
+    it('a delimiter-free name is byte-identical with the flag on and off', () => {
+      const h: ColumnHeader[] = [{ cleanName: 'email', originalName: 'email' }]
+      const p = [base({ delimiter, columns: { email: 'e' } })]
+      expect(generateFile(p, h, delimiter, undefined, undefined, new Map(), true).toString()).toBe(
+        generateFile(p, h, delimiter).toString()
+      )
+    })
+  })
+
+  describe('whole-object columns mapping ({"@path": "$."})', () => {
+    // send() reads header names from the RAW mapping keys, so a directive key becomes a literal header.
+    const raw = { columns: { '@path': '$.' } } as unknown as RawMapping
+    const payload = base({ columns: { email: 'e', name: 'n' } })
+
+    it('produces the same output with the flag on and off', async () => {
+      await send([payload], settings, raw, {})
+      const off = (mockUploadS3.mock.calls[mockUploadS3.mock.calls.length - 1][1] as Buffer).toString()
+      await send([{ ...payload, sanitize_headers: true }], settings, raw, {})
+      const on = (mockUploadS3.mock.calls[mockUploadS3.mock.calls.length - 1][1] as Buffer).toString()
+      expect(on).toBe(off)
+      expect(on).toBe('@path\n""')
+    })
+  })
+
   describe('send', () => {
     const rawMapping: RawMapping = { columns: { email: 'email', 'a,b,c': 'x' } }
     const columns = { email: 'e', 'a,b,c': 'v' }
