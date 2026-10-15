@@ -50,7 +50,7 @@ export function send(request: RequestClient, settings: Settings, json: Inflectio
   return request(getEndpoint(settings), {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${settings.apiKey}`
+      Authorization: `Basic ${Buffer.from(`${settings.apiKey}:`).toString('base64')}`
     },
     json
   })

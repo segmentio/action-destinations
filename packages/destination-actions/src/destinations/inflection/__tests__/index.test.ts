@@ -11,7 +11,7 @@ describe('Inflection', () => {
   afterEach(() => nock.cleanAll())
 
   describe('track', () => {
-    it('sends the expected payload with bearer auth', async () => {
+    it('sends the expected payload with basic auth', async () => {
       nock(PRODUCTION_URL).post('/').reply(200, {})
 
       const responses = await testDestination.testAction('track', {
@@ -29,7 +29,7 @@ describe('Inflection', () => {
         useDefaultMappings: true
       })
 
-      expect(responses[0].options.headers?.get('authorization')).toBe('Bearer test-key')
+      expect(responses[0].options.headers?.get('authorization')).toBe('Basic dGVzdC1rZXk6')
       expect(responses[0].options.json).toEqual({
         type: 'track',
         event: 'Signed Up',
