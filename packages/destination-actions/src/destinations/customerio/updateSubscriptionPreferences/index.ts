@@ -87,9 +87,19 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: (request, { payload: payloads, settings }) => {
-    // Payloads without any preference to update are dropped rather than sent as empty identify calls.
+    // Payloads without any preference to update, or with invalid topic keys, are dropped rather than failing the
+    // whole batch. Per-item reporting belongs with the MultiStatus batch handling.
     const options = payloads
-      .map((payload) => buildRequestPayload(payload))
+      .map((payload) => {
+        try {
+          return buildRequestPayload(payload)
+        } catch (error) {
+          if (error instanceof PayloadValidationError) {
+            return undefined
+          }
+          throw error
+        }
+      })
       .filter((payload): payload is NonNullable<ReturnType<typeof buildRequestPayload>> => payload !== undefined)
       .map((payload) => ({ action: 'identify', payload, settings, type: 'person' }))
 
@@ -123,8 +133,26 @@ function toBoolean(value: unknown): boolean | undefined {
   return undefined
 }
 
+const TOPIC_KEY_PATTERN = /^topic_\d+$/
+
 function normalizeTopicKey(key: string): string {
   return /^\d+$/.test(key) ? `topic_${key}` : key
+}
+
+// Customer.io silently discards preference keys that are not `topic_<id>`, so reject them here with a clear
+// message instead of returning a 200 for an update that never happens.
+function validateTopicKeys(topics: Record<string, unknown> | undefined): void {
+  const invalid = Object.keys(topics ?? {})
+    .map((key) => normalizeTopicKey(key.trim()))
+    .filter((key) => key && !TOPIC_KEY_PATTERN.test(key))
+
+  if (invalid.length > 0) {
+    throw new PayloadValidationError(
+      `Topic Preferences keys must be Subscription Center topic IDs written as topic_<id> (for example topic_1). Invalid keys: ${invalid.join(
+        ', '
+      )}.`
+    )
+  }
 }
 
 // Customer.io overwrites every preference when the full `cio_subscription_preferences` object is sent through
@@ -153,6 +181,8 @@ function flattenPreferences(
 
 function buildRequestPayload(payload: Payload) {
   const { id, topics, channels, unsubscribed, ...rest } = payload
+
+  validateTopicKeys(topics)
 
   const attributes: Record<string, boolean> = {
     ...flattenPreferences('topics', topics, normalizeTopicKey),

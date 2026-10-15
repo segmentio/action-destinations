@@ -1,8 +1,10 @@
-import { createTestEvent } from '@segment/actions-core'
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import { testRunner } from '../test-helper'
 import dayjs from '../../../lib/dayjs'
 import destination from '../index'
+import { AccountRegion } from '../utils'
 
 const EVENT_NAME = 'Subscription Preferences Updated'
 
@@ -196,6 +198,24 @@ describe('CustomerIO', () => {
         expect(response.attributes).toEqual({ unsubscribed: true })
       })
 
+      it('should reject topic keys that are not topic_<id>', async () => {
+        const event = createTestEvent({
+          event: EVENT_NAME,
+          userId: 'abc123',
+          properties: {
+            topics: { topic_1: true, newsletter: true, 'topic-2': false }
+          }
+        })
+
+        await expect(
+          action('updateSubscriptionPreferences', {
+            event,
+            settings,
+            useDefaultMappings: true
+          })
+        ).rejects.toThrow('Invalid keys: newsletter, topic-2.')
+      })
+
       it('should reject events without any preference to update', async () => {
         const event = createTestEvent({
           event: EVENT_NAME,
@@ -212,6 +232,38 @@ describe('CustomerIO', () => {
             useDefaultMappings: true
           })
         ).rejects.toThrow('At least one of Topic Preferences, Channel Preferences, or Globally Unsubscribed')
+      })
+    })
+  })
+
+  describe('updateSubscriptionPreferences batch', () => {
+    it('drops payloads with invalid topic keys and sends the rest', async () => {
+      const testDestination = createTestIntegration(destination)
+      const settings: Settings = { siteId: '12345', apiKey: 'abcde', accountRegion: AccountRegion.US }
+      let body: { batch: Array<Record<string, unknown>> } | undefined
+      nock('https://track.customer.io')
+        .post('/api/v2/batch', (requestBody) => {
+          body = requestBody
+          return true
+        })
+        .reply(200, {})
+
+      const events = [
+        createTestEvent({ event: EVENT_NAME, userId: 'valid', properties: { topics: { topic_1: true } } }),
+        createTestEvent({ event: EVENT_NAME, userId: 'invalid', properties: { topics: { newsletter: true } } })
+      ]
+
+      const responses = await testDestination.testBatchAction('updateSubscriptionPreferences', {
+        events,
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(responses[0].status).toBe(200)
+      expect(body?.batch).toHaveLength(1)
+      expect(body?.batch[0]).toMatchObject({
+        identifiers: { id: 'valid' },
+        attributes: { 'cio_subscription_preferences.topics.topic_1': true }
       })
     })
   })
