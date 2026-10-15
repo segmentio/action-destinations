@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your Inflection API key. Contact Inflection support to have one generated for your account.
+   * Your Inflection API key. In Inflection, go to Connections, then Data Connections, then Add new connection. Under CDP, select Segment, then create the API key.
    */
   apiKey: string
   /**

@@ -17,7 +17,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       apiKey: {
         label: 'API Key',
-        description: 'Your Inflection API key. Contact Inflection support to have one generated for your account.',
+        description:
+          'Your Inflection API key. In Inflection, go to Connections, then Data Connections, then Add new connection. Under CDP, select Segment, then create the API key.',
         type: 'password',
         required: true
       },
