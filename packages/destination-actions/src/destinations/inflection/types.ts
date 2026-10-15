@@ -1,3 +1,6 @@
+import type { Payload as IdentifyPayload } from './identify/generated-types'
+import type { Payload as TrackPayload } from './track/generated-types'
+
 export type FlatValue = string | number | boolean
 
 export type FlatRecord = Record<string, FlatValue>
@@ -6,6 +9,12 @@ export interface NestedValueOptions {
   objects?: string
   arrays?: string
 }
+
+export type TraitsOrProperties = IdentifyPayload['traits'] | TrackPayload['properties']
+
+export type MaybeAudiencePayload = IdentifyPayload | TrackPayload
+
+export type Audience = Required<NonNullable<MaybeAudiencePayload['audienceDetails']>>
 
 interface BaseJSON {
   messageId: string

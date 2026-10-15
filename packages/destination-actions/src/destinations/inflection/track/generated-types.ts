@@ -44,4 +44,21 @@ export interface Payload {
   properties?: {
     [k: string]: unknown
   }
+  /**
+   * Send audience membership as a regular boolean trait or property named after the audience. Engage audiences are sent automatically. For Reverse ETL, enter an Audience Name.
+   */
+  audienceDetails?: {
+    /**
+     * The name of the trait or property to send. By default this is the Engage audience key, which is the snake_cased audience name. Enter a value to override it.
+     */
+    audienceName?: string
+    /**
+     * Whether the user is in the audience. If you leave this unset, Segment uses the Engage membership, or the Sync Mode for Reverse ETL.
+     */
+    audienceMembership?: boolean
+  }
+  /**
+   * The key of the Engage audience. Used to avoid sending the audience twice when the name is overridden.
+   */
+  engageAudienceKey?: string
 }

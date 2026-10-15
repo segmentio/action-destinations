@@ -1,4 +1,5 @@
-import type { InputField } from '@segment/actions-core'
+import type { ActionDefinition, InputField } from '@segment/actions-core'
+import type { Settings } from './generated-types'
 import { ARRAY_HANDLING, OBJECT_HANDLING } from './constants'
 
 export const messageId: InputField = {
@@ -37,6 +38,65 @@ export const groupId: InputField = {
   description: 'The unique identifier of the group the user belongs to.',
   type: 'string',
   default: { '@path': '$.context.groupId' }
+}
+
+export const audienceDetails: InputField = {
+  label: 'Audience Details',
+  description:
+    'Send audience membership as a regular boolean trait or property named after the audience. Engage audiences are sent automatically. For Reverse ETL, enter an Audience Name.',
+  type: 'object',
+  defaultObjectUI: 'object',
+  additionalProperties: false,
+  properties: {
+    audienceName: {
+      label: 'Audience Name',
+      description:
+        'The name of the trait or property to send. By default this is the Engage audience key, which is the snake_cased audience name. Enter a value to override it.',
+      type: 'string'
+    },
+    audienceMembership: {
+      label: 'Audience Membership',
+      description:
+        'Whether the user is in the audience. If you leave this unset, Segment uses the Engage membership, or the Sync Mode for Reverse ETL.',
+      type: 'boolean'
+    }
+  },
+  default: {
+    audienceName: { '@path': '$.context.personas.computation_key' }
+  }
+}
+
+export const engageAudienceKey: InputField = {
+  label: 'Engage Audience Key',
+  description: 'The key of the Engage audience. Used to avoid sending the audience twice when the name is overridden.',
+  type: 'string',
+  unsafe_hidden: true,
+  default: { '@path': '$.context.personas.computation_key' }
+}
+
+export const syncMode: ActionDefinition<Settings>['syncMode'] = {
+  label: 'Sync Mode',
+  description: 'Specify how Segment should sync data to Inflection when connected to a database Source.',
+  default: 'mirror',
+  choices: [
+    { label: 'Add - triggers when a row is added', value: 'add' },
+    {
+      label: 'Update - triggers when a row is updated',
+      value: 'update'
+    },
+    {
+      label: 'Upsert - triggers when a row is added or updated',
+      value: 'upsert'
+    },
+    {
+      label: 'Delete - triggers when a row is deleted',
+      value: 'delete'
+    },
+    {
+      label: 'Mirror - triggers when a row is added, updated, or deleted',
+      value: 'mirror'
+    }
+  ]
 }
 
 export const nestedValueHandling: InputField = {

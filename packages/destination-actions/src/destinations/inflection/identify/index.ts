@@ -1,13 +1,23 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { anonymousId, messageId, timestamp, userId, nestedValueHandling } from '../fields'
-import { flattenValues, optionalString, requiredString, send } from '../functions'
+import {
+  anonymousId,
+  audienceDetails,
+  engageAudienceKey,
+  messageId,
+  nestedValueHandling,
+  syncMode,
+  timestamp,
+  userId
+} from '../fields'
+import { buildAttributes, optionalString, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
   description: 'Send an identify event to Inflection to create or update a contact.',
   defaultSubscription: 'type = "identify"',
+  syncMode,
   fields: {
     userId,
     anonymousId,
@@ -28,25 +38,19 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.traits' }
-    }
+    },
+    audienceDetails,
+    engageAudienceKey
   },
-  perform: (request, { settings, payload }) => {
+  perform: (request, { settings, payload, audienceMembership }) => {
     const anonymousId = optionalString(payload.anonymousId)
-    const traits = Object.fromEntries(
-      Object.entries(
-        flattenValues(payload.traits, {
-          objects: payload.nestedValueHandling?.objectHandling,
-          arrays: payload.nestedValueHandling?.arrayHandling
-        }) ?? {}
-      ).filter(([key]) => key.toLowerCase() !== 'email')
-    )
     return send(request, settings, {
       type: 'identify',
       userId: requiredString(payload.userId, 'User ID'),
       messageId: requiredString(payload.messageId, 'Message ID'),
       timestamp: payload.timestamp,
       traits: {
-        ...traits,
+        ...buildAttributes(payload.traits, payload, audienceMembership, 'email'),
         email: requiredString(payload.email, 'Email')
       },
       ...(anonymousId ? { anonymousId } : {})

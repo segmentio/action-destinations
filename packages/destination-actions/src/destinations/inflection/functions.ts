@@ -9,7 +9,15 @@ import {
   PRODUCTION_URL,
   TESTING_URL
 } from './constants'
-import type { FlatRecord, FlatValue, InflectionJSON, NestedValueOptions } from './types'
+import type {
+  MaybeAudiencePayload,
+  Audience,
+  FlatRecord,
+  FlatValue,
+  InflectionJSON,
+  NestedValueOptions,
+  TraitsOrProperties
+} from './types'
 
 export function getEndpoint(settings: Settings): string {
   return settings.environment === ENVIRONMENT.TESTING ? TESTING_URL : PRODUCTION_URL
@@ -79,6 +87,37 @@ export function flattenValues(
   }
   const entries = Object.entries(values).flatMap(([key, value]) => collectEntries(key, value, options))
   return entries.length > 0 ? Object.fromEntries(entries) : undefined
+}
+
+function getAudience({ audienceDetails }: MaybeAudiencePayload, resolvedMembership?: boolean): Audience | undefined {
+  const audienceName = optionalString(audienceDetails?.audienceName)
+  const audienceMembership = audienceDetails?.audienceMembership ?? resolvedMembership
+  return audienceName && typeof audienceMembership === 'boolean' ? { audienceName, audienceMembership } : undefined
+}
+
+export function buildAttributes(
+  traitsOrProperties: TraitsOrProperties,
+  payload: MaybeAudiencePayload,
+  resolvedMembership?: boolean,
+  reservedKey?: string
+): FlatRecord | undefined {
+  const audience = getAudience(payload, resolvedMembership)
+  const engageKey = optionalString(payload.engageAudienceKey)
+  const flattened = flattenValues(traitsOrProperties, {
+    objects: payload.nestedValueHandling?.objectHandling,
+    arrays: payload.nestedValueHandling?.arrayHandling
+  })
+
+  const attributes = Object.entries({
+    ...flattened,
+    ...(audience ? { [audience.audienceName]: audience.audienceMembership } : {})
+  }).filter(([key]) => {
+    const isOverriddenEngageKey = audience && key === engageKey && key !== audience.audienceName
+    const isReserved = reservedKey && key.toLowerCase() === reservedKey.toLowerCase()
+    return !isOverriddenEngageKey && !isReserved
+  })
+
+  return attributes.length > 0 ? Object.fromEntries(attributes) : undefined
 }
 
 export function send(request: RequestClient, settings: Settings, json: InflectionJSON) {

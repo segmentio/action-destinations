@@ -1,13 +1,24 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { anonymousId, groupId, messageId, timestamp, userId, nestedValueHandling } from '../fields'
-import { flattenValues, optionalString, requiredString, send } from '../functions'
+import {
+  anonymousId,
+  audienceDetails,
+  engageAudienceKey,
+  groupId,
+  messageId,
+  nestedValueHandling,
+  syncMode,
+  timestamp,
+  userId
+} from '../fields'
+import { buildAttributes, optionalString, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
   description: 'Send a track event to Inflection.',
   defaultSubscription: 'type = "track"',
+  syncMode,
   fields: {
     userId,
     anonymousId,
@@ -28,15 +39,14 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'object',
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.properties' }
-    }
+    },
+    audienceDetails,
+    engageAudienceKey
   },
-  perform: (request, { settings, payload }) => {
+  perform: (request, { settings, payload, audienceMembership }) => {
     const anonymousId = optionalString(payload.anonymousId)
     const groupId = optionalString(payload.groupId)
-    const properties = flattenValues(payload.properties, {
-      objects: payload.nestedValueHandling?.objectHandling,
-      arrays: payload.nestedValueHandling?.arrayHandling
-    })
+    const properties = buildAttributes(payload.properties, payload, audienceMembership)
     return send(request, settings, {
       type: 'track',
       userId: requiredString(payload.userId, 'User ID'),

@@ -670,6 +670,136 @@ describe('Inflection', () => {
     })
   })
 
+  describe('audience details', () => {
+    const personas = (computation_key = 'high_value_customers') => ({
+      personas: { computation_class: 'audience', computation_key }
+    })
+    const identifyTraits = async (event: object, mapping: object = {}) => {
+      nock(PRODUCTION_URL).post('/').reply(200, {})
+      const responses = await testDestination.testAction('identify', {
+        settings,
+        event: createTestEvent({ type: 'identify', userId: '583', timestamp, ...event }),
+        useDefaultMappings: true,
+        mapping
+      })
+      return (responses[0].options.json as { traits: Record<string, unknown> }).traits
+    }
+    const trackProperties = async (event: object, mapping: object = {}) => {
+      nock(PRODUCTION_URL).post('/').reply(200, {})
+      const responses = await testDestination.testAction('track', {
+        settings,
+        event: createTestEvent({ type: 'track', event: 'Audience Entered', userId: '583', timestamp, ...event }),
+        useDefaultMappings: true,
+        mapping
+      })
+      return (responses[0].options.json as { properties?: Record<string, unknown> }).properties
+    }
+
+    it('sends an Engage identify audience as a boolean trait', async () => {
+      const traits = await identifyTraits({
+        context: personas(),
+        traits: { email: 'a@example.com', high_value_customers: true }
+      })
+      expect(traits).toEqual({ email: 'a@example.com', high_value_customers: true })
+    })
+
+    it('sends false when the user leaves an Engage identify audience', async () => {
+      const traits = await identifyTraits({
+        context: personas(),
+        traits: { email: 'a@example.com', high_value_customers: false }
+      })
+      expect(traits).toEqual({ email: 'a@example.com', high_value_customers: false })
+    })
+
+    it('sends an Engage track audience as a boolean property', async () => {
+      const properties = await trackProperties({
+        context: personas(),
+        properties: { audience_key: 'high_value_customers', high_value_customers: true }
+      })
+      expect(properties).toEqual({ audience_key: 'high_value_customers', high_value_customers: true })
+    })
+
+    it('renames the audience and removes the original Engage key when the name is overridden', async () => {
+      const traits = await identifyTraits(
+        { context: personas(), traits: { email: 'a@example.com', high_value_customers: true } },
+        { audienceDetails: { audienceName: 'vip' } }
+      )
+      expect(traits).toEqual({ email: 'a@example.com', vip: true })
+    })
+
+    it('lets the membership field override the Engage value', async () => {
+      const traits = await identifyTraits(
+        { context: personas(), traits: { email: 'a@example.com', high_value_customers: true } },
+        { audienceDetails: { audienceName: 'high_value_customers', audienceMembership: false } }
+      )
+      expect(traits).toEqual({ email: 'a@example.com', high_value_customers: false })
+    })
+
+    it('uses the sync mode for a Reverse ETL add', async () => {
+      const properties = await trackProperties(
+        { event: 'new', properties: { plan: 'pro' } },
+        { __segment_internal_sync_mode: 'add', audienceDetails: { audienceName: 'pro_users' } }
+      )
+      expect(properties).toEqual({ plan: 'pro', pro_users: true })
+    })
+
+    it('uses the sync mode for a Reverse ETL delete', async () => {
+      const properties = await trackProperties(
+        { event: 'deleted', properties: { plan: 'pro' } },
+        { __segment_internal_sync_mode: 'delete', audienceDetails: { audienceName: 'pro_users' } }
+      )
+      expect(properties).toEqual({ plan: 'pro', pro_users: false })
+    })
+
+    it('sends the audience alone when there are no other properties', async () => {
+      const properties = await trackProperties(
+        { event: 'new', properties: {} },
+        { __segment_internal_sync_mode: 'add', audienceDetails: { audienceName: 'pro_users' } }
+      )
+      expect(properties).toEqual({ pro_users: true })
+    })
+
+    it('sends no audience when there is a name but no membership', async () => {
+      const properties = await trackProperties(
+        { properties: { plan: 'pro' } },
+        { audienceDetails: { audienceName: 'pro_users' } }
+      )
+      expect(properties).toEqual({ plan: 'pro' })
+    })
+
+    it('sends no audience when there is a membership but no name', async () => {
+      const properties = await trackProperties(
+        { properties: { plan: 'pro' } },
+        { audienceDetails: { audienceMembership: true } }
+      )
+      expect(properties).toEqual({ plan: 'pro' })
+    })
+
+    it('trims the audience name', async () => {
+      const properties = await trackProperties(
+        { properties: {} },
+        { audienceDetails: { audienceName: '  pro_users  ', audienceMembership: true } }
+      )
+      expect(properties).toEqual({ pro_users: true })
+    })
+
+    it('never lets an audience named email replace the email trait', async () => {
+      const traits = await identifyTraits(
+        { traits: { email: 'a@example.com' } },
+        { audienceDetails: { audienceName: 'Email', audienceMembership: true } }
+      )
+      expect(traits).toEqual({ email: 'a@example.com' })
+    })
+
+    it('lets the audience win over a trait with the same name', async () => {
+      const traits = await identifyTraits(
+        { traits: { email: 'a@example.com', pro_users: 'maybe' } },
+        { audienceDetails: { audienceName: 'pro_users', audienceMembership: true } }
+      )
+      expect(traits).toEqual({ email: 'a@example.com', pro_users: true })
+    })
+  })
+
   describe('environment', () => {
     it('posts to the testing URL when the testing environment is selected', async () => {
       nock(TESTING_URL).post('/').reply(200, {})
