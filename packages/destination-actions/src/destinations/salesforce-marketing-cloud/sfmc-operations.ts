@@ -573,6 +573,33 @@ export const selectOrCreateDataExtension = async (
   }
 }
 
+// Errors from dynamic field requests do not always carry an HTTP response (timeouts,
+// connection resets, DNS failures), so every access to err.response must be guarded.
+const getDynamicFieldError = (err: any): { message: string; code: string } => {
+  const data = err?.response?.data
+  const code = data?.errorcode !== undefined && data?.errorcode !== null ? String(data.errorcode) : ''
+  const message: string = data?.message ?? err?.message ?? 'Request to Salesforce Marketing Cloud failed'
+  return { message, code }
+}
+
+const getAccessTokenForDynamicField = async (
+  request: RequestClient,
+  settings: Settings
+): Promise<{ accessToken?: string; error?: DynamicFieldError }> => {
+  try {
+    const { accessToken } = await getAccessToken(request, settings)
+    return { accessToken }
+  } catch (err) {
+    const { message, code } = getDynamicFieldError(err)
+    return {
+      error: {
+        message: `Failed to authenticate with Salesforce Marketing Cloud: ${message}`,
+        code: code || 'BAD_REQUEST'
+      }
+    }
+  }
+}
+
 const getDataExtensionsRequest = async (
   request: RequestClient,
   searchQuery: string,
@@ -607,11 +634,7 @@ const getDataExtensionsRequest = async (
       })
     }
   } catch (err) {
-    const errorCode: string =
-      typeof err.response.data.errorcode === 'number'
-        ? err.response.data.errorcode.toString()
-        : err.response.data.errorcode
-    const errorMessage = err.response.data.message
+    const { message: errorMessage, code: errorCode } = getDynamicFieldError(err)
 
     if (errorCode === '20002') {
       return {
@@ -622,7 +645,7 @@ const getDataExtensionsRequest = async (
       }
     }
 
-    return { error: { message: err.response.data.message, code: errorCode || 'BAD_REQUEST' } }
+    return { error: { message: errorMessage, code: errorCode || 'BAD_REQUEST' } }
   }
 }
 
@@ -637,7 +660,10 @@ export const getDataExtensions = async (
     searchQuery = query
   }
 
-  const { accessToken } = await getAccessToken(request, settings)
+  const { accessToken, error: authError } = await getAccessTokenForDynamicField(request, settings)
+  if (authError || !accessToken) {
+    return { choices: [], error: authError ?? { message: 'Missing access token', code: 'BAD_REQUEST' } }
+  }
 
   const { results, error } = await getDataExtensionsRequest(request, searchQuery, { subdomain, accessToken })
 
@@ -689,7 +715,8 @@ const getDataExtensionFieldsRequest = async (
 
     return { results: choices }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    const { message, code } = getDynamicFieldError(err)
+    return { error: { message, code: code || 'BAD_REQUEST' } }
   }
 }
 
@@ -703,7 +730,10 @@ export const getDataExtensionFields = async (
   if (!dataExtensionID) {
     return { choices: [], error: { message: 'No Data Extension ID provided', code: 'BAD_REQUEST' } }
   }
-  const { accessToken } = await getAccessToken(request, settings)
+  const { accessToken, error: authError } = await getAccessTokenForDynamicField(request, settings)
+  if (authError || !accessToken) {
+    return { choices: [], error: authError ?? { message: 'Missing access token', code: 'BAD_REQUEST' } }
+  }
 
   const { results, error } = await getDataExtensionFieldsRequest(
     request,
