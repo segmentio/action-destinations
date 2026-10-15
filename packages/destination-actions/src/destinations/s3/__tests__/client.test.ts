@@ -1129,6 +1129,11 @@ describe('uploadS3 fix_filename_extension opt-in', () => {
     expect(keyOf()).toMatch(/^folder\/_\/x_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
   })
 
+  it('does not sanitize s3_aws_folder_name: period-only folder segments are passed through as configured', async () => {
+    await newClient().uploadS3(settings, 'c', 'x.csv', '../folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^\.\.\/folder\/x_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+  })
+
   it('true with an empty prefix gives just the timestamp, with and without a folder', async () => {
     await newClient().uploadS3(settings, 'c', '', '', 'csv', undefined, true)
     expect(keyOf()).toMatch(/^\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
