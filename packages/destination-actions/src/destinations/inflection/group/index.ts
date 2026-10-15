@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { anonymousId, messageId, timestamp, userId } from '../fields'
+import { anonymousId, messageId, timestamp, userId, nestedValueHandling } from '../fields'
 import { flattenValues, optionalString, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -20,9 +20,10 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.groupId' }
     },
+    nestedValueHandling,
     traits: {
       label: 'Traits',
-      description: 'Traits of the group. Nested objects and arrays are sent as JSON strings.',
+      description: 'Traits of the group.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.traits' }
@@ -30,7 +31,10 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const anonymousId = optionalString(payload.anonymousId)
-    const traits = flattenValues(payload.traits)
+    const traits = flattenValues(payload.traits, {
+      objects: payload.nestedValueHandling?.objectHandling,
+      arrays: payload.nestedValueHandling?.arrayHandling
+    })
     return send(request, settings, {
       type: 'group',
       userId: requiredString(payload.userId, 'User ID'),

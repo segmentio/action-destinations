@@ -2,6 +2,11 @@ export type FlatValue = string | number | boolean
 
 export type FlatRecord = Record<string, FlatValue>
 
+export interface NestedValueOptions {
+  objects?: string
+  arrays?: string
+}
+
 interface BaseJSON {
   messageId: string
   timestamp: string | number

@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { anonymousId, messageId, timestamp, userId } from '../fields'
+import { anonymousId, messageId, timestamp, userId, nestedValueHandling } from '../fields'
 import { flattenValues, optionalString, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -21,9 +21,10 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: { '@path': '$.traits.email' }
     },
+    nestedValueHandling,
     traits: {
       label: 'Traits',
-      description: 'Traits of the user. Nested objects and arrays are sent as JSON strings.',
+      description: 'Traits of the user.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.traits' }
@@ -36,7 +37,13 @@ const action: ActionDefinition<Settings, Payload> = {
       userId: requiredString(payload.userId, 'User ID'),
       messageId: requiredString(payload.messageId, 'Message ID'),
       timestamp: payload.timestamp,
-      traits: { ...flattenValues(payload.traits), email: requiredString(payload.email, 'Email') },
+      traits: {
+        ...flattenValues(payload.traits, {
+          objects: payload.nestedValueHandling?.objectHandling,
+          arrays: payload.nestedValueHandling?.arrayHandling
+        }),
+        email: requiredString(payload.email, 'Email')
+      },
       ...(anonymousId ? { anonymousId } : {})
     })
   }

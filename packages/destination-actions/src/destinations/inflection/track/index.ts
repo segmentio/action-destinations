@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { anonymousId, groupId, messageId, timestamp, userId } from '../fields'
+import { anonymousId, groupId, messageId, timestamp, userId, nestedValueHandling } from '../fields'
 import { flattenValues, optionalString, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -21,9 +21,10 @@ const action: ActionDefinition<Settings, Payload> = {
     messageId,
     timestamp,
     groupId,
+    nestedValueHandling,
     properties: {
       label: 'Properties',
-      description: 'Properties of the event. Nested objects and arrays are sent as JSON strings.',
+      description: 'Properties of the event.',
       type: 'object',
       defaultObjectUI: 'keyvalue',
       default: { '@path': '$.properties' }
@@ -32,7 +33,10 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { settings, payload }) => {
     const anonymousId = optionalString(payload.anonymousId)
     const groupId = optionalString(payload.groupId)
-    const properties = flattenValues(payload.properties)
+    const properties = flattenValues(payload.properties, {
+      objects: payload.nestedValueHandling?.objectHandling,
+      arrays: payload.nestedValueHandling?.arrayHandling
+    })
     return send(request, settings, {
       type: 'track',
       userId: requiredString(payload.userId, 'User ID'),

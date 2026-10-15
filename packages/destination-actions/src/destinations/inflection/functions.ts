@@ -1,10 +1,18 @@
 import { PayloadValidationError, RequestClient } from '@segment/actions-core'
 import type { Settings } from './generated-types'
-import { PRODUCTION_URL, TESTING_URL } from './constants'
-import type { FlatRecord, FlatValue, InflectionJSON } from './types'
+import {
+  ARRAY_HANDLING,
+  ARRAY_JOIN_DELIMITER,
+  ENVIRONMENT,
+  KEY_SEPARATOR,
+  OBJECT_HANDLING,
+  PRODUCTION_URL,
+  TESTING_URL
+} from './constants'
+import type { FlatRecord, FlatValue, InflectionJSON, NestedValueOptions } from './types'
 
 export function getEndpoint(settings: Settings): string {
-  return settings.environment === 'testing' ? TESTING_URL : PRODUCTION_URL
+  return settings.environment === ENVIRONMENT.TESTING ? TESTING_URL : PRODUCTION_URL
 }
 
 export function requiredString(value: string, label: string): string {
@@ -19,7 +27,7 @@ export function optionalString(value?: string): string | undefined {
   return value?.trim() || undefined
 }
 
-function flattenValue(value: unknown): FlatValue | undefined {
+function stringifyValue(value: unknown): FlatValue | undefined {
   if (value === null || value === undefined) {
     return undefined
   }
@@ -35,14 +43,41 @@ function flattenValue(value: unknown): FlatValue | undefined {
   return JSON.stringify(value)
 }
 
-export function flattenValues(values?: Record<string, unknown>): FlatRecord | undefined {
+function joinArray(values: unknown[]): string | undefined {
+  const joined = values
+    .filter((item) => item !== null && item !== undefined)
+    .map((item) => (typeof item === 'object' ? JSON.stringify(item) : String(item).trim()))
+    .filter(Boolean)
+    .join(ARRAY_JOIN_DELIMITER)
+  return joined || undefined
+}
+
+function collectEntries(key: string, value: unknown, options: NestedValueOptions): Array<[string, FlatValue]> {
+  if (Array.isArray(value)) {
+    if (options.arrays === ARRAY_HANDLING.FLATTEN) {
+      return value.flatMap((item, index) => collectEntries(`${key}${KEY_SEPARATOR}${index}`, item, options))
+    }
+    if (options.arrays === ARRAY_HANDLING.JOIN) {
+      const joined = joinArray(value)
+      return joined === undefined ? [] : [[key, joined]]
+    }
+  } else if (typeof value === 'object' && value !== null && options.objects === OBJECT_HANDLING.FLATTEN) {
+    return Object.entries(value).flatMap(([childKey, child]) =>
+      collectEntries(`${key}${KEY_SEPARATOR}${childKey}`, child, options)
+    )
+  }
+  const flat = stringifyValue(value)
+  return flat === undefined ? [] : [[key, flat]]
+}
+
+export function flattenValues(
+  values?: Record<string, unknown>,
+  options: NestedValueOptions = {}
+): FlatRecord | undefined {
   if (!values) {
     return undefined
   }
-  const entries = Object.entries(values).flatMap(([key, value]) => {
-    const flat = flattenValue(value)
-    return flat === undefined ? [] : [[key, flat] as const]
-  })
+  const entries = Object.entries(values).flatMap(([key, value]) => collectEntries(key, value, options))
   return entries.length > 0 ? Object.fromEntries(entries) : undefined
 }
 

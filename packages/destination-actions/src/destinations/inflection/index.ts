@@ -1,6 +1,7 @@
 import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
+import { ENVIRONMENT } from './constants'
 
 import track from './track'
 import identify from './identify'
@@ -26,10 +27,10 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         required: true,
         choices: [
-          { label: 'Production', value: 'production' },
-          { label: 'Testing', value: 'testing' }
+          { label: 'Production', value: ENVIRONMENT.PRODUCTION },
+          { label: 'Testing', value: ENVIRONMENT.TESTING }
         ],
-        default: 'production'
+        default: ENVIRONMENT.PRODUCTION
       }
     }
   },
