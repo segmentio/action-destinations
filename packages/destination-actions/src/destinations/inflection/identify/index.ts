@@ -32,16 +32,21 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: (request, { settings, payload }) => {
     const anonymousId = optionalString(payload.anonymousId)
+    const traits = Object.fromEntries(
+      Object.entries(
+        flattenValues(payload.traits, {
+          objects: payload.nestedValueHandling?.objectHandling,
+          arrays: payload.nestedValueHandling?.arrayHandling
+        }) ?? {}
+      ).filter(([key]) => key.toLowerCase() !== 'email')
+    )
     return send(request, settings, {
       type: 'identify',
       userId: requiredString(payload.userId, 'User ID'),
       messageId: requiredString(payload.messageId, 'Message ID'),
       timestamp: payload.timestamp,
       traits: {
-        ...flattenValues(payload.traits, {
-          objects: payload.nestedValueHandling?.objectHandling,
-          arrays: payload.nestedValueHandling?.arrayHandling
-        }),
+        ...traits,
         email: requiredString(payload.email, 'Email')
       },
       ...(anonymousId ? { anonymousId } : {})

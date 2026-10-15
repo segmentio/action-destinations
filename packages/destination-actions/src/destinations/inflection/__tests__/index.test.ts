@@ -650,6 +650,24 @@ describe('Inflection', () => {
         contact_email: 'other@example.com'
       })
     })
+
+    it('sends the email once, dropping email traits that differ only by case', async () => {
+      nock(PRODUCTION_URL).post('/').reply(200, {})
+      const responses = await testDestination.testAction('identify', {
+        settings,
+        event: createTestEvent({
+          type: 'identify',
+          userId: '583',
+          timestamp,
+          traits: { email: 'a@example.com', Email: 'b@example.com', EMAIL: 'c@example.com', plan: 'pro' }
+        }),
+        useDefaultMappings: true
+      })
+      expect((responses[0].options.json as { traits: Record<string, unknown> }).traits).toEqual({
+        email: 'a@example.com',
+        plan: 'pro'
+      })
+    })
   })
 
   describe('environment', () => {
