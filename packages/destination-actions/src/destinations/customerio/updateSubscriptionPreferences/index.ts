@@ -68,7 +68,7 @@ const action: ActionDefinition<Settings, Payload> = {
     unsubscribed: {
       label: 'Globally Unsubscribed',
       description:
-        "Sets the person's reserved `unsubscribed` attribute. `true` unsubscribes the person from all messages; `false` resubscribes them. Leave empty to keep the current value.",
+        "Sets the person's reserved `unsubscribed` attribute. `true` unsubscribes the person from all messages and clears their topic and channel preferences; `false` resubscribes them but does not restore cleared preferences, so send them again if needed. Leave empty to keep the current value.",
       type: 'boolean',
       default: {
         '@path': '$.properties.unsubscribed'
