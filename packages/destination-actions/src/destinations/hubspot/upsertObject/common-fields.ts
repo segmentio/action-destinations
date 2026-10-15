@@ -68,7 +68,7 @@ export const commonFields: Record<string, InputField> = {
   association_sync_mode: {
     label: 'Associated Record Sync Mode',
     description:
-      'Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.',
+      'Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation. "Create" cannot be used when the identifier is Hubspot Record ID (hs_object_id), because Hubspot generates record IDs. Use "Do not create" to link to existing records by Hubspot Record ID.',
     type: 'string',
     default: 'upsert',
     required: true,
@@ -173,7 +173,8 @@ export const commonFields: Record<string, InputField> = {
   },
   list_details: {
     label: 'List Details (BETA)',
-    description: 'Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.',
+    description:
+      'Details of the list to add or remove the record from. This feature is currently in Beta and should not be used with production data.',
     type: 'object',
     required: false,
     defaultObjectUI: 'keyvalue:only',
