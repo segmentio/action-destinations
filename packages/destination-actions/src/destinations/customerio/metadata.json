@@ -1086,6 +1086,35 @@
           "format": null,
           "additionalProperties": false
         },
+        "update_only": {
+          "label": "Update Existing People Only",
+          "description": "When enabled, Segment will only update people who already exist in Customer.io and will not create new people. Customer.io does not create a profile for an unknown person; the update is dropped and recorded as a failed attribute change in your activity log. [Learn more](https://docs.customer.io/integrations/api/track/tag/track-customers/identify/).",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "freeform",
+            "enrichment"
+          ],
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "enable_batching": {
           "label": "Enable Batching",
           "description": "Set as true to ensure Segment sends data to Customer.io in batches.",
@@ -2999,6 +3028,7 @@
             }
           }
         },
+        "update_only": false,
         "enable_batching": true,
         "batch_size": 50
       },
@@ -3551,6 +3581,7 @@
             }
           }
         },
+        "update_only": false,
         "enable_batching": true,
         "batch_size": 50
       },

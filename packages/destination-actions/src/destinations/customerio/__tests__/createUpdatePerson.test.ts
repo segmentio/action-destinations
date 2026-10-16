@@ -1,6 +1,9 @@
-import { createTestEvent } from '@segment/actions-core'
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
+import CustomerIO from '../index'
+import { AccountRegion } from '../utils'
 import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
@@ -796,6 +799,174 @@ describe('CustomerIO', () => {
           timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
+      })
+
+      describe('update_only', () => {
+        const userId = 'abc123'
+        const anonymousId = 'unknown_123'
+        const timestamp = dayjs.utc().toISOString()
+        const traits = {
+          full_name: 'Test User',
+          email: 'test@example.com',
+          plan: 'pro'
+        }
+
+        const hasKeyDeep = (value: unknown, key: string): boolean => {
+          if (Array.isArray(value)) {
+            return value.some((item) => hasKeyDeep(item, key))
+          }
+          if (value && typeof value === 'object') {
+            return Object.entries(value).some(([k, v]) => k === key || hasKeyDeep(v, key))
+          }
+          return false
+        }
+
+        it('should add `_update: true` to attributes when update_only is true', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response.attributes._update).toBe(true)
+          expect(hasKeyDeep(response, 'update_only')).toBe(false)
+        })
+
+        it('should keep other attributes and email alongside `_update`', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response).toStrictEqual({
+            action: 'identify',
+            attributes: {
+              _update: true,
+              anonymous_id: anonymousId,
+              email: traits.email,
+              full_name: traits.full_name,
+              plan: traits.plan
+            },
+            identifiers: {
+              id: userId
+            },
+            timestamp: dayjs.utc(timestamp).unix(),
+            type: 'person'
+          })
+        })
+
+        it('should keep `_update` alongside object relationships', async () => {
+          const groupId = 'g12345'
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits: { ...traits, objectId: groupId } })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response.attributes._update).toBe(true)
+          expect(response.attributes.email).toBe(traits.email)
+          expect(response.cio_relationships).toStrictEqual([
+            { identifiers: { object_type_id: '1', object_id: groupId } }
+          ])
+          expect(hasKeyDeep(response, 'update_only')).toBe(false)
+        })
+
+        it('should not add `_update` when update_only is false', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: false }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(hasKeyDeep(response, '_update')).toBe(false)
+          expect(hasKeyDeep(response, 'update_only')).toBe(false)
+          expect(response.attributes).toStrictEqual({
+            anonymous_id: anonymousId,
+            email: traits.email,
+            full_name: traits.full_name,
+            plan: traits.plan
+          })
+        })
+
+        it('should not add `_update` when update_only is unset', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits })
+          const mapping = getDefaultMappings('createUpdatePerson')
+          delete mapping.update_only
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(hasKeyDeep(response, '_update')).toBe(false)
+          expect(hasKeyDeep(response, 'update_only')).toBe(false)
+        })
+
+        it('should overwrite a user-supplied `_update` trait when update_only is true', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits: { ...traits, _update: false } })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response.attributes._update).toBe(true)
+        })
+
+        it('should pass a user-supplied `_update` trait through unchanged when update_only is false', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits: { ...traits, _update: 'yes' } })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: false }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response.attributes._update).toBe('yes')
+        })
+
+        it('should not add `_update` with default mappings', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits })
+
+          const response = await action('createUpdatePerson', { event, settings, useDefaultMappings: true })
+
+          expect(hasKeyDeep(response, '_update')).toBe(false)
+          expect(hasKeyDeep(response, 'update_only')).toBe(false)
+        })
+      })
+    })
+
+    describe('update_only batch body', () => {
+      it('should add `_update: true` to every batched identify when update_only is true', async () => {
+        const testDestination = createTestIntegration(CustomerIO)
+        const settings: Settings = { siteId: '12345', apiKey: 'abcde', accountRegion: AccountRegion.US }
+        const timestamp = dayjs.utc().toISOString()
+        let body: { batch: Array<Record<string, any>> } | undefined
+        nock('https://track.customer.io')
+          .post('/api/v2/batch', (requestBody) => {
+            body = requestBody
+            return true
+          })
+          .reply(200, {})
+
+        const events = [
+          createTestEvent({ userId: 'user-1', anonymousId: undefined, timestamp, traits: { plan: 'pro' } }),
+          createTestEvent({ userId: 'user-2', anonymousId: undefined, timestamp, traits: { plan: 'free' } })
+        ]
+
+        const responses = await testDestination.testBatchAction('createUpdatePerson', {
+          events,
+          settings,
+          mapping: { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+        })
+
+        expect(responses[0].status).toBe(200)
+        expect(body?.batch).toStrictEqual([
+          {
+            action: 'identify',
+            type: 'person',
+            identifiers: { id: 'user-1' },
+            timestamp: dayjs.utc(timestamp).unix(),
+            attributes: { plan: 'pro', _update: true }
+          },
+          {
+            action: 'identify',
+            type: 'person',
+            identifiers: { id: 'user-2' },
+            timestamp: dayjs.utc(timestamp).unix(),
+            attributes: { plan: 'free', _update: true }
+          }
+        ])
+        nock.cleanAll()
       })
     })
   })
