@@ -16,7 +16,7 @@ import orderCompleted from './orderCompleted'
 import subscribeProfile from './subscribeProfile'
 import { buildHeaders } from './functions'
 import removeProfile from './removeProfile'
-import addOrRemoveProfilesFromList from './syncList'
+import addOrRemoveProfilesFromList from './addOrRemoveProfilesFromList'
 
 import unsubscribeProfile from './unsubscribeProfile'
 
