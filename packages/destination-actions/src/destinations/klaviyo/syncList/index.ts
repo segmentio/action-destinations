@@ -65,6 +65,19 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     external_id: { ...external_id },
     enable_batching: { ...enable_batching },
+    // DECISION (STRATCONN-7024): max batch size is 1000, and batches are keyed on list_id only, so a single batch
+    // can mix adds and removes.
+    // Adds and removes use different Klaviyo API calls with different limits:
+    //   - add:    POST /profile-bulk-import-jobs/ (Bulk Import Profiles), up to 10,000 profiles per call
+    //   - remove: DELETE /lists/{id}/relationships/profiles/ (Remove Profiles from List), up to 1,000 per call
+    // Segment batches before performBatch runs and cannot split a batch into adds vs removes, so one limit has to
+    // cover both. We settled on the lower one (1000, the remove limit); the add path could otherwise take 10,000.
+    // This was agreed as a deliberate trade-off for the initial release rather than adding an integrations-go
+    // override up front.
+    // Monitor: Klaviyo 429s on this action. Klaviyo is a Tier 1 destination, so alerts fire if 429s spike.
+    // Remediation if needed: add an integrations-go override giving a variable max batch size and splitting
+    // batches into adds vs removes, the same approach as the Marketo change
+    // (https://github.com/segmentio/integrations-go/pull/491).
     batch_size: { ...batch_size, default: 1000, minimum: 100, maximum: 1000 },
     first_name: { ...first_name },
     last_name: { ...last_name },
