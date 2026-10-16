@@ -297,4 +297,53 @@ describe('RedditPixel init', () => {
       })
     )
   })
+
+  describe.each([
+    ['Add to Cart', 'Product Added', 'AddToCart'],
+    ['Add to Wishlist', 'Product Added to Wishlist', 'AddToWishlist'],
+    ['View Content', 'Product Viewed', 'ViewContent']
+  ])('%s preset products mapping', (presetName, eventName, trackingType) => {
+    const trackWithPreset = async (properties: Record<string, unknown>) => {
+      const preset = destination.presets?.find((p) => p.name === presetName) as any
+      const subscriptions: Subscription[] = [
+        {
+          partnerAction: preset.partnerAction,
+          name: preset.name,
+          enabled: true,
+          subscribe: preset.subscribe,
+          mapping: preset.mapping
+        }
+      ]
+
+      const [webEvent] = await RedditDestination({ ...settings, subscriptions })
+      await webEvent.load(Context.system(), {} as Analytics)
+      await webEvent.track?.(
+        new Context({
+          messageId: 'ajs-71f386523ee5dfa90c7d0fda28b6b5c6',
+          type: 'track',
+          event: eventName,
+          anonymousId: 'anonymousId',
+          properties
+        })
+      )
+    }
+
+    test('maps flat product_id, category and name properties to a one-item products array', async () => {
+      await trackWithPreset({
+        product_id: '507f1f77bcf86cd799439011',
+        category: 'Games',
+        name: 'Monopoly: 3rd Edition',
+        price: 18.99,
+        quantity: 1,
+        currency: 'USD'
+      })
+
+      expect(mockRdt.track).toHaveBeenCalledWith(
+        trackingType,
+        expect.objectContaining({
+          products: [{ id: '507f1f77bcf86cd799439011', category: 'Games', name: 'Monopoly: 3rd Edition' }]
+        })
+      )
+    })
+  })
 })
