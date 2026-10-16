@@ -20,7 +20,7 @@ export const list_id: InputField = {
 
 export const email: InputField = {
   label: 'Email',
-  description: `The user's email to send to Klavio.`,
+  description: `The user's email to send to Klaviyo.`,
   type: 'string',
   default: {
     '@path': '$.context.traits.email'
@@ -131,7 +131,7 @@ export const location: InputField = {
       allowNull: true
     },
     longitude: {
-      label: 'Longitide',
+      label: 'Longitude',
       type: 'string',
       allowNull: true
     },
