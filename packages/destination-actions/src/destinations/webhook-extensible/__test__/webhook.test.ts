@@ -672,6 +672,61 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
 
         expect(token).toEqual({ accessToken: mockResponse.access_token })
       })
+
+      describe('scope handling', () => {
+        const mockResponse = { access_token: 'accessToken123', refresh_token: 'refreshToken123' }
+
+        // Some token endpoints (e.g. Salesforce client credentials) reject any `scope`, so it must be omitted when not set.
+        it.each([
+          ['undefined', undefined],
+          ['an empty string', ''],
+          ['whitespace only', '   ']
+        ])('omits scope for clientCredentials when scopes is %s', async (_label, scopes) => {
+          const newSettings = JSON.parse(JSON.stringify(settings))
+          newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+          newSettings.dynamicAuthSettings.oauth.scopes = scopes
+          nock(`https://www.webhook-extensible/refresh_token`)
+            .post('', 'grant_type=client_credentials')
+            .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+            .reply(200, mockResponse)
+
+          const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+          expect(token).toEqual({ accessToken: mockResponse.access_token })
+        })
+
+        it.each([
+          ['undefined', undefined],
+          ['an empty string', ''],
+          ['whitespace only', '   ']
+        ])('omits scope for authCode refresh when scopes is %s', async (_label, scopes) => {
+          const newSettings = JSON.parse(JSON.stringify(settings))
+          newSettings.dynamicAuthSettings.oauth.scopes = scopes
+          const { scope: _scope, ...expectedWithoutScope } = expectedRequest
+          nock(`https://www.webhook-extensible/refresh_token`)
+            .post('', new URLSearchParams(expectedWithoutScope).toString())
+            .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+            .reply(200, mockResponse)
+
+          const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+          expect(token).toEqual({ accessToken: mockResponse.access_token, refreshToken: mockResponse.refresh_token })
+        })
+
+        it('still sends scope as configured when it is set', async () => {
+          const newSettings = JSON.parse(JSON.stringify(settings))
+          newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+          newSettings.dynamicAuthSettings.oauth.scopes = 'api'
+          nock(`https://www.webhook-extensible/refresh_token`)
+            .post('', 'grant_type=client_credentials&scope=api')
+            .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+            .reply(200, mockResponse)
+
+          const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+          expect(token).toEqual({ accessToken: mockResponse.access_token })
+        })
+      })
     })
   })
 }

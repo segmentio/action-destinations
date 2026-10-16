@@ -56,6 +56,12 @@ const getRequestUrl = (oauth: any, customQuery: any) => {
   return url
 }
 
+// Some token endpoints (e.g. Salesforce client credentials) reject any `scope` parameter, so only send it when set.
+const getScopeParam = (oauth: any) => {
+  const scopes = oauth?.scopes
+  return typeof scopes === 'string' && scopes.trim() !== '' ? { scope: scopes } : {}
+}
+
 const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customBody: object): RequestOptions => {
   let bodyParams = {}
   const clientId = oauth?.clientId ?? auth?.clientId
@@ -70,7 +76,7 @@ const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customB
     bodyParams = {
       grant_type: 'refresh_token',
       refresh_token: auth.refreshToken ?? oauth.access.refresh_token,
-      scope: oauth.scopes,
+      ...getScopeParam(oauth),
       client_id: clientId,
       client_secret: clientSecret,
       ...customBody
@@ -78,7 +84,7 @@ const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customB
   } else {
     bodyParams = {
       grant_type: 'client_credentials',
-      scope: oauth.scopes,
+      ...getScopeParam(oauth),
       ...customBody
     }
   }
