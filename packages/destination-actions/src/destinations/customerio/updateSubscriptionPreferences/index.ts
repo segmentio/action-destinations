@@ -48,21 +48,75 @@ const action: ActionDefinition<Settings, Payload> = {
     topics: {
       label: 'Topic Preferences',
       description:
-        'An object mapping subscription topic IDs to `true` (subscribed) or `false` (unsubscribed), for example `{"topic_1": true, "topic_2": false}`. Keys are topic IDs from your Subscription Center settings, written as `topic_<id>`; bare numeric IDs like `"1"` are converted to `topic_1`. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).',
+        'Subscription preference per topic. Topic IDs come from your Subscription Center settings. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).',
       type: 'object',
-      additionalProperties: true,
+      multiple: true,
+      defaultObjectUI: 'arrayeditor',
+      additionalProperties: false,
+      properties: {
+        topic_id: {
+          label: 'Topic ID',
+          description:
+            'The numeric ID of the topic, shown in the left column of your Subscription Center setup page. Enter the number only (for example `1`), not `topic_1`.',
+          type: 'integer',
+          required: true
+        },
+        subscribed: {
+          label: 'Subscribed',
+          description: '`true` = subscribed, `false` = unsubscribed.',
+          type: 'boolean',
+          required: true
+        }
+      },
       default: {
-        '@path': '$.properties.topics'
+        '@arrayPath': [
+          '$.properties.topics',
+          {
+            topic_id: { '@path': '$.topic_id' },
+            subscribed: { '@path': '$.subscribed' }
+          }
+        ]
       }
     },
     channels: {
       label: 'Channel Preferences',
-      description:
-        'An object mapping channel types (`email`, `sms`, `push`, `in_app`, `whatsapp`, `slack`, `line`, `inbox`) to `true` (subscribed) or `false` (unsubscribed), for example `{"sms": false}`. Channels that are not included keep their current preference.',
+      description: 'Subscription preference per channel. Channels that are not included keep their current preference.',
       type: 'object',
-      additionalProperties: true,
+      multiple: true,
+      defaultObjectUI: 'arrayeditor',
+      additionalProperties: false,
+      properties: {
+        channel_type: {
+          label: 'Channel Type',
+          description: 'The channel to update.',
+          type: 'string',
+          required: true,
+          choices: [
+            { label: 'Email', value: 'email' },
+            { label: 'SMS', value: 'sms' },
+            { label: 'Push', value: 'push' },
+            { label: 'In-App', value: 'in_app' },
+            { label: 'WhatsApp', value: 'whatsapp' },
+            { label: 'Slack', value: 'slack' },
+            { label: 'LINE', value: 'line' },
+            { label: 'Inbox', value: 'inbox' }
+          ]
+        },
+        subscribed: {
+          label: 'Subscribed',
+          description: '`true` = subscribed, `false` = unsubscribed.',
+          type: 'boolean',
+          required: true
+        }
+      },
       default: {
-        '@path': '$.properties.channels'
+        '@arrayPath': [
+          '$.properties.channels',
+          {
+            channel_type: { '@path': '$.channel_type' },
+            subscribed: { '@path': '$.subscribed' }
+          }
+        ]
       }
     },
     unsubscribed: {
@@ -87,21 +141,12 @@ const action: ActionDefinition<Settings, Payload> = {
   },
 
   performBatch: (request, { payload: payloads, settings }) => {
-    // Payloads without any preference to update, or with invalid topic keys, are dropped rather than failing the
-    // whole batch. Per-item reporting belongs with the MultiStatus batch handling.
-    const options = payloads
-      .map((payload) => {
-        try {
-          return buildRequestPayload(payload)
-        } catch (error) {
-          if (error instanceof PayloadValidationError) {
-            return undefined
-          }
-          throw error
-        }
-      })
-      .filter((payload): payload is NonNullable<ReturnType<typeof buildRequestPayload>> => payload !== undefined)
-      .map((payload) => ({ action: 'identify', payload, settings, type: 'person' }))
+    const options = payloads.map((payload) => ({
+      action: 'identify',
+      payload: buildRequestPayload(payload),
+      settings,
+      type: 'person'
+    }))
 
     return sendBatch(request, options)
   },
@@ -109,7 +154,7 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: (request, { payload, settings }) => {
     const body = buildRequestPayload(payload)
 
-    if (!body) {
+    if (Object.keys(body.attributes).length === 0) {
       throw new PayloadValidationError(
         'At least one of Topic Preferences, Channel Preferences, or Globally Unsubscribed must be provided.'
       )
@@ -119,83 +164,23 @@ const action: ActionDefinition<Settings, Payload> = {
   }
 }
 
-function toBoolean(value: unknown): boolean | undefined {
-  if (typeof value === 'boolean') {
-    return value
-  }
-
-  if (typeof value === 'string') {
-    const normalized = value.trim().toLowerCase()
-    if (normalized === 'true') return true
-    if (normalized === 'false') return false
-  }
-
-  return undefined
-}
-
-const TOPIC_KEY_PATTERN = /^topic_\d+$/
-
-function normalizeTopicKey(key: string): string {
-  return /^\d+$/.test(key) ? `topic_${key}` : key
-}
-
-// Customer.io silently discards preference keys that are not `topic_<id>`, so reject them here with a clear
-// message instead of returning a 200 for an update that never happens.
-function validateTopicKeys(topics: Record<string, unknown> | undefined): void {
-  const invalid = Object.keys(topics ?? {})
-    .map((key) => normalizeTopicKey(key.trim()))
-    .filter((key) => key && !TOPIC_KEY_PATTERN.test(key))
-
-  if (invalid.length > 0) {
-    throw new PayloadValidationError(
-      `Topic Preferences keys must be Subscription Center topic IDs written as topic_<id> (for example topic_1). Invalid keys: ${invalid.join(
-        ', '
-      )}.`
-    )
-  }
-}
-
 // Customer.io overwrites every preference when the full `cio_subscription_preferences` object is sent through
 // the Track API, but updates only the named preferences when dot-notated keys are used. Emit dot-notated keys so a
 // partial update never clobbers preferences that were not part of the event.
-function flattenPreferences(
-  group: 'topics' | 'channels',
-  preferences: Record<string, unknown> | undefined,
-  normalizeKey: (key: string) => string = (key) => key
-): Record<string, boolean> {
-  const attributes: Record<string, boolean> = {}
-
-  for (const [key, value] of Object.entries(preferences ?? {})) {
-    const preference = toBoolean(value)
-    const normalizedKey = normalizeKey(key.trim())
-
-    if (preference === undefined || !normalizedKey) {
-      continue
-    }
-
-    attributes[`${PREFERENCES_ATTRIBUTE}.${group}.${normalizedKey}`] = preference
-  }
-
-  return attributes
-}
-
 function buildRequestPayload(payload: Payload) {
   const { id, topics, channels, unsubscribed, ...rest } = payload
+  const attributes: Record<string, boolean> = {}
 
-  validateTopicKeys(topics)
-
-  const attributes: Record<string, boolean> = {
-    ...flattenPreferences('topics', topics, normalizeTopicKey),
-    ...flattenPreferences('channels', channels)
+  for (const { topic_id, subscribed } of topics ?? []) {
+    attributes[`${PREFERENCES_ATTRIBUTE}.topics.topic_${topic_id}`] = subscribed
   }
 
-  const unsubscribedValue = toBoolean(unsubscribed)
-  if (unsubscribedValue !== undefined) {
-    attributes[UNSUBSCRIBED_ATTRIBUTE] = unsubscribedValue
+  for (const { channel_type, subscribed } of channels ?? []) {
+    attributes[`${PREFERENCES_ATTRIBUTE}.channels.${channel_type}`] = subscribed
   }
 
-  if (Object.keys(attributes).length === 0) {
-    return undefined
+  if (unsubscribed !== undefined) {
+    attributes[UNSUBSCRIBED_ATTRIBUTE] = unsubscribed
   }
 
   return {

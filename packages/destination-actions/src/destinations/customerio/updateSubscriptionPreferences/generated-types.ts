@@ -14,19 +14,33 @@ export interface Payload {
    */
   email?: string
   /**
-   * An object mapping subscription topic IDs to `true` (subscribed) or `false` (unsubscribed), for example `{"topic_1": true, "topic_2": false}`. Keys are topic IDs from your Subscription Center settings, written as `topic_<id>`; bare numeric IDs like `"1"` are converted to `topic_1`. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).
+   * Subscription preference per topic. Topic IDs come from your Subscription Center settings. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).
    */
   topics?: {
-    [k: string]: unknown
-  }
+    /**
+     * The numeric ID of the topic, shown in the left column of your Subscription Center setup page. Enter the number only (for example `1`), not `topic_1`.
+     */
+    topic_id: number
+    /**
+     * `true` = subscribed, `false` = unsubscribed.
+     */
+    subscribed: boolean
+  }[]
   /**
-   * An object mapping channel types (`email`, `sms`, `push`, `in_app`, `whatsapp`, `slack`, `line`, `inbox`) to `true` (subscribed) or `false` (unsubscribed), for example `{"sms": false}`. Channels that are not included keep their current preference.
+   * Subscription preference per channel. Channels that are not included keep their current preference.
    */
   channels?: {
-    [k: string]: unknown
-  }
+    /**
+     * The channel to update.
+     */
+    channel_type: string
+    /**
+     * `true` = subscribed, `false` = unsubscribed.
+     */
+    subscribed: boolean
+  }[]
   /**
-   * Sets the person's reserved `unsubscribed` attribute. `true` unsubscribes the person from all messages; `false` resubscribes them. Leave empty to keep the current value.
+   * Sets the person's reserved `unsubscribed` attribute. `true` unsubscribes the person from all messages and clears their topic and channel preferences; `false` resubscribes them but does not restore cleared preferences, so send them again if needed. Leave empty to keep the current value.
    */
   unsubscribed?: boolean
   /**
