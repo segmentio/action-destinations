@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { syncList, syncListBatch } from './functions'
+import { addOrRemoveProfilesFromList, addOrRemoveProfilesFromListBatch } from './functions'
 import {
   email,
   external_id,
@@ -21,7 +21,7 @@ import {
 import { retlOnMappingSaveHook } from '../retlOnMappingSaveHook'
 
 const action: ActionDefinition<Settings, Payload> = {
-  title: 'Sync List',
+  title: 'Add or Remove Profiles from List',
   description: 'Add or remove a profile from a list in Klaviyo, based on their audience membership status',
   defaultSubscription: 'type = track or type = identify',
   syncMode: {
@@ -101,10 +101,10 @@ const action: ActionDefinition<Settings, Payload> = {
     retlOnMappingSave: retlOnMappingSaveHook<Payload>()
   },
   perform: async (request, { payload, audienceMembership, hookOutputs }) => {
-    return syncList(request, payload, audienceMembership, hookOutputs?.retlOnMappingSave?.outputs)
+    return addOrRemoveProfilesFromList(request, payload, audienceMembership, hookOutputs?.retlOnMappingSave?.outputs)
   },
   performBatch: async (request, { payload, audienceMembership, statsContext, hookOutputs }) => {
-    return syncListBatch(
+    return addOrRemoveProfilesFromListBatch(
       request,
       payload,
       audienceMembership ?? [],

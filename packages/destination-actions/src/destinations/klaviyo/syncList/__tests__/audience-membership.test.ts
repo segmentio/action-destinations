@@ -25,7 +25,7 @@ function legacyJourneysEvent(email: string) {
   })
 }
 
-describe('Klaviyo.syncList - legacy JourneysV1 audience membership', () => {
+describe('Klaviyo.addOrRemoveProfilesFromList - legacy JourneysV1 audience membership', () => {
   beforeEach(() => nock.cleanAll())
 
   it('always adds the user when the legacy journeys flag is enabled and no membership boolean is present', async () => {
@@ -38,7 +38,7 @@ describe('Klaviyo.syncList - legacy JourneysV1 audience membership', () => {
       .post('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE1' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: legacyJourneysEvent(email),
       settings,
       mapping: { list_id: listId, email },
@@ -54,7 +54,7 @@ describe('Klaviyo.syncList - legacy JourneysV1 audience membership', () => {
     const email = 'legacy-user@example.com'
 
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event: legacyJourneysEvent(email),
         settings,
         mapping: { list_id: listId, email }

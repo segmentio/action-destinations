@@ -24,7 +24,7 @@ import {
 export const NO_LIST_ID_ERROR =
   'No list ID found in payload. When connecting this action to a reverse ETL (database) Source, Segment cannot infer a list automatically - you must select an existing Klaviyo list or provide a name for a new one in the "Connect to a static list in Klaviyo" step when saving the mapping.'
 
-export async function syncList(
+export async function addOrRemoveProfilesFromList(
   request: RequestClient,
   payload: Payload,
   audienceMembership: AudienceMembership,
@@ -88,7 +88,7 @@ export async function syncList(
   throw new PayloadValidationError('Audience Membership must be a boolean')
 }
 
-export async function syncListBatch(
+export async function addOrRemoveProfilesFromListBatch(
   request: RequestClient,
   payloads: Payload[],
   audienceMembership: AudienceMembership[],
@@ -130,7 +130,7 @@ export async function syncListBatch(
     } else {
       // sendBatchedProfileImportJobRequest (add path) already validates email format and external_id length
       // internally. removeBulkProfilesFromList (remove path) already validates external_id length, but not
-      // email format - so we check it here to match syncList()'s single-event remove branch.
+      // email format - so we check it here to match addOrRemoveProfilesFromList()'s single-event remove branch.
       if (effectivePayload.email && !validateEmail(effectivePayload.email)) {
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,

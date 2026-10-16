@@ -24,7 +24,7 @@ const hookMapping = {
   }
 }
 
-describe('Klaviyo.syncList - retlOnMappingSave hook output as list id', () => {
+describe('Klaviyo.addOrRemoveProfilesFromList - retlOnMappingSave hook output as list id', () => {
   beforeEach(() => nock.cleanAll())
 
   it('uses the saved hook list id for the add branch', async () => {
@@ -37,7 +37,7 @@ describe('Klaviyo.syncList - retlOnMappingSave hook output as list id', () => {
       .post('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE1' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: retlRowEvent('new', email),
       settings,
       mapping: { ...hookMapping, email }
@@ -57,7 +57,7 @@ describe('Klaviyo.syncList - retlOnMappingSave hook output as list id', () => {
       .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE2' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: retlRowEvent('deleted', email),
       settings,
       mapping: { ...hookMapping, email }

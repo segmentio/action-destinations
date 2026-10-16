@@ -26,7 +26,7 @@ function membershipEvent(
   })
 }
 
-describe('Klaviyo.syncList', () => {
+describe('Klaviyo.addOrRemoveProfilesFromList', () => {
   beforeEach(() => nock.cleanAll())
 
   it('adds a profile to the list when audienceMembership is true (Engage classic audience)', async () => {
@@ -39,7 +39,7 @@ describe('Klaviyo.syncList', () => {
       .post('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE1' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: membershipEvent(email, true, 'audience'),
       settings,
       mapping: { list_id: listId, email }
@@ -58,7 +58,7 @@ describe('Klaviyo.syncList', () => {
       .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE1' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: membershipEvent(email, false, 'audience'),
       settings,
       mapping: { list_id: listId, email }
@@ -77,7 +77,7 @@ describe('Klaviyo.syncList', () => {
       .post('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE2' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: membershipEvent(email, true, 'journey_step'),
       settings,
       mapping: { list_id: listId, email }
@@ -96,7 +96,7 @@ describe('Klaviyo.syncList', () => {
       .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE2' }] })
       .reply(200, {})
 
-    const r = await testDestination.testAction('syncList', {
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
       event: membershipEvent(email, false, 'journey_step'),
       settings,
       mapping: { list_id: listId, email }
@@ -107,7 +107,7 @@ describe('Klaviyo.syncList', () => {
 
   it('throws when no identifier is provided on the add branch', async () => {
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event: membershipEvent('', true),
         settings,
         mapping: { list_id: listId }
@@ -117,7 +117,7 @@ describe('Klaviyo.syncList', () => {
 
   it('throws when no identifier is provided on the remove branch', async () => {
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event: membershipEvent('', false),
         settings,
         mapping: { list_id: listId }
@@ -127,7 +127,7 @@ describe('Klaviyo.syncList', () => {
 
   it('throws for an invalid email on the add branch', async () => {
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event: membershipEvent('user@domain.c', true),
         settings,
         mapping: { list_id: listId, email: 'user@domain.c' }
@@ -142,7 +142,7 @@ describe('Klaviyo.syncList', () => {
       .reply(200, { data: [] })
 
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event: membershipEvent(email, false),
         settings,
         mapping: { list_id: listId, email }
@@ -152,7 +152,7 @@ describe('Klaviyo.syncList', () => {
 
   it('throws the expanded no-list-id error when neither the hook nor list_id supplies one', async () => {
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event: membershipEvent('no-list@example.com', true),
         settings,
         mapping: { email: 'no-list@example.com' }
@@ -164,7 +164,7 @@ describe('Klaviyo.syncList', () => {
     const event = createTestEvent({ type: 'track', properties: { email: 'no-membership@example.com' } })
 
     await expect(
-      testDestination.testAction('syncList', {
+      testDestination.testAction('addOrRemoveProfilesFromList', {
         event,
         settings,
         mapping: { list_id: listId, email: 'no-membership@example.com' }
