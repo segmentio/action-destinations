@@ -1,6 +1,9 @@
-import { createTestEvent } from '@segment/actions-core'
+import nock from 'nock'
+import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { Settings } from '../generated-types'
 import dayjs from '../../../lib/dayjs'
+import CustomerIO from '../index'
+import { AccountRegion } from '../utils'
 import { getDefaultMappings, testRunner } from '../test-helper'
 
 describe('CustomerIO', () => {
@@ -893,6 +896,24 @@ describe('CustomerIO', () => {
           expect(hasKeyDeep(response, 'update_only')).toBe(false)
         })
 
+        it('should overwrite a user-supplied `_update` trait when update_only is true', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits: { ...traits, _update: false } })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response.attributes._update).toBe(true)
+        })
+
+        it('should pass a user-supplied `_update` trait through unchanged when update_only is false', async () => {
+          const event = createTestEvent({ userId, anonymousId, timestamp, traits: { ...traits, _update: 'yes' } })
+          const mapping = { ...getDefaultMappings('createUpdatePerson'), update_only: false }
+
+          const response = await action('createUpdatePerson', { event, mapping, settings })
+
+          expect(response.attributes._update).toBe('yes')
+        })
+
         it('should not add `_update` with default mappings', async () => {
           const event = createTestEvent({ userId, anonymousId, timestamp, traits })
 
@@ -901,6 +922,51 @@ describe('CustomerIO', () => {
           expect(hasKeyDeep(response, '_update')).toBe(false)
           expect(hasKeyDeep(response, 'update_only')).toBe(false)
         })
+      })
+    })
+
+    describe('update_only batch body', () => {
+      it('should add `_update: true` to every batched identify when update_only is true', async () => {
+        const testDestination = createTestIntegration(CustomerIO)
+        const settings: Settings = { siteId: '12345', apiKey: 'abcde', accountRegion: AccountRegion.US }
+        const timestamp = dayjs.utc().toISOString()
+        let body: { batch: Array<Record<string, any>> } | undefined
+        nock('https://track.customer.io')
+          .post('/api/v2/batch', (requestBody) => {
+            body = requestBody
+            return true
+          })
+          .reply(200, {})
+
+        const events = [
+          createTestEvent({ userId: 'user-1', anonymousId: undefined, timestamp, traits: { plan: 'pro' } }),
+          createTestEvent({ userId: 'user-2', anonymousId: undefined, timestamp, traits: { plan: 'free' } })
+        ]
+
+        const responses = await testDestination.testBatchAction('createUpdatePerson', {
+          events,
+          settings,
+          mapping: { ...getDefaultMappings('createUpdatePerson'), update_only: true }
+        })
+
+        expect(responses[0].status).toBe(200)
+        expect(body?.batch).toStrictEqual([
+          {
+            action: 'identify',
+            type: 'person',
+            identifiers: { id: 'user-1' },
+            timestamp: dayjs.utc(timestamp).unix(),
+            attributes: { plan: 'pro', _update: true }
+          },
+          {
+            action: 'identify',
+            type: 'person',
+            identifiers: { id: 'user-2' },
+            timestamp: dayjs.utc(timestamp).unix(),
+            attributes: { plan: 'free', _update: true }
+          }
+        ])
+        nock.cleanAll()
       })
     })
   })
