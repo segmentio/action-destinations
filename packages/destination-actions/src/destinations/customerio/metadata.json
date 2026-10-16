@@ -3034,55 +3034,206 @@
         },
         "topics": {
           "label": "Topic Preferences",
-          "description": "An object mapping subscription topic IDs to `true` (subscribed) or `false` (unsubscribed), for example `{\"topic_1\": true, \"topic_2\": false}`. Keys are topic IDs from your Subscription Center settings, written as `topic_<id>`; bare numeric IDs like `\"1\"` are converted to `topic_1`. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).",
+          "description": "Subscription preference per topic. Topic IDs come from your Subscription Center settings. Topics that are not included keep their current preference. [Learn more](https://docs.customer.io/messaging/channels/subscriptions/set-preferences-outside-center/).",
           "type": "object",
           "required": false,
-          "multiple": false,
+          "multiple": true,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.properties.topics"
+            "@arrayPath": [
+              "$.properties.topics",
+              {
+                "topic_id": {
+                  "@path": "$.topic_id"
+                },
+                "subscribed": {
+                  "@path": "$.subscribed"
+                }
+              }
+            ]
           },
           "choices": null,
           "placeholder": null,
-          "properties": null,
+          "properties": {
+            "topic_id": {
+              "label": "Topic ID",
+              "description": "The numeric ID of the topic, shown in the left column of your Subscription Center setup page. Enter the number only (for example `1`), not `topic_1`.",
+              "type": "integer",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "subscribed": {
+              "label": "Subscribed",
+              "description": "`true` = subscribed, `false` = unsubscribed.",
+              "type": "boolean",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
           "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": null,
+          "defaultObjectUI": "arrayeditor",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "channels": {
           "label": "Channel Preferences",
-          "description": "An object mapping channel types (`email`, `sms`, `push`, `in_app`, `whatsapp`, `slack`, `line`, `inbox`) to `true` (subscribed) or `false` (unsubscribed), for example `{\"sms\": false}`. Channels that are not included keep their current preference.",
+          "description": "Subscription preference per channel. Channels that are not included keep their current preference.",
           "type": "object",
           "required": false,
-          "multiple": false,
+          "multiple": true,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@path": "$.properties.channels"
+            "@arrayPath": [
+              "$.properties.channels",
+              {
+                "channel_type": {
+                  "@path": "$.channel_type"
+                },
+                "subscribed": {
+                  "@path": "$.subscribed"
+                }
+              }
+            ]
           },
           "choices": null,
           "placeholder": null,
-          "properties": null,
+          "properties": {
+            "channel_type": {
+              "label": "Channel Type",
+              "description": "The channel to update.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Email",
+                  "value": "email"
+                },
+                {
+                  "label": "SMS",
+                  "value": "sms"
+                },
+                {
+                  "label": "Push",
+                  "value": "push"
+                },
+                {
+                  "label": "In-App",
+                  "value": "in_app"
+                },
+                {
+                  "label": "WhatsApp",
+                  "value": "whatsapp"
+                },
+                {
+                  "label": "Slack",
+                  "value": "slack"
+                },
+                {
+                  "label": "LINE",
+                  "value": "line"
+                },
+                {
+                  "label": "Inbox",
+                  "value": "inbox"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "subscribed": {
+              "label": "Subscribed",
+              "description": "`true` = subscribed, `false` = unsubscribed.",
+              "type": "boolean",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
           "category": null,
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": null,
+          "defaultObjectUI": "arrayeditor",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": true
+          "additionalProperties": false
         },
         "unsubscribed": {
           "label": "Globally Unsubscribed",
@@ -3651,10 +3802,30 @@
           }
         },
         "topics": {
-          "@path": "$.properties.topics"
+          "@arrayPath": [
+            "$.properties.topics",
+            {
+              "topic_id": {
+                "@path": "$.topic_id"
+              },
+              "subscribed": {
+                "@path": "$.subscribed"
+              }
+            }
+          ]
         },
         "channels": {
-          "@path": "$.properties.channels"
+          "@arrayPath": [
+            "$.properties.channels",
+            {
+              "channel_type": {
+                "@path": "$.channel_type"
+              },
+              "subscribed": {
+                "@path": "$.subscribed"
+              }
+            }
+          ]
         },
         "unsubscribed": {
           "@path": "$.properties.unsubscribed"
