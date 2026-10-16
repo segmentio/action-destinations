@@ -25,7 +25,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       nock(/.*/).persist().delete(/.*/).reply(200, {})
       const event = createTestEvent({
         properties: eventData,
-        ...(actionSlug === 'syncList' && {
+        ...(actionSlug === 'addOrRemoveProfilesFromList' && {
           context: { personas: { computation_class: 'audience', computation_key: 'test_audience' } },
           properties: { ...eventData, test_audience: true }
         })

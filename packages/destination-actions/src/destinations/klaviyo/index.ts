@@ -16,7 +16,7 @@ import orderCompleted from './orderCompleted'
 import subscribeProfile from './subscribeProfile'
 import { buildHeaders } from './functions'
 import removeProfile from './removeProfile'
-import syncList from './syncList'
+import addOrRemoveProfilesFromList from './syncList'
 
 import unsubscribeProfile from './unsubscribeProfile'
 
@@ -154,7 +154,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     subscribeProfile,
     unsubscribeProfile,
     removeProfile,
-    syncList
+    addOrRemoveProfilesFromList
   },
   presets: [
     {
@@ -219,6 +219,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       mapping: defaultValues(unsubscribeProfile.fields),
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'addOrRemoveProfilesFromList',
+      mapping: defaultValues(addOrRemoveProfilesFromList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
   ]
 }

@@ -1,5 +1,50 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Testing snapshot for actions-klaviyo destination: addOrRemoveProfilesFromList action - all fields 1`] = `
+Object {
+  "data": Object {
+    "attributes": Object {
+      "email": "capu@lotetuc.to",
+      "external_id": "!WB%zN9rVxjw7kPS",
+      "first_name": "!WB%zN9rVxjw7kPS",
+      "image": "!WB%zN9rVxjw7kPS",
+      "last_name": "!WB%zN9rVxjw7kPS",
+      "location": Object {
+        "address1": "!WB%zN9rVxjw7kPS",
+        "address2": "!WB%zN9rVxjw7kPS",
+        "city": "!WB%zN9rVxjw7kPS",
+        "country": "!WB%zN9rVxjw7kPS",
+        "latitude": "!WB%zN9rVxjw7kPS",
+        "longitude": "!WB%zN9rVxjw7kPS",
+        "region": "!WB%zN9rVxjw7kPS",
+        "zip": "!WB%zN9rVxjw7kPS",
+      },
+      "organization": "!WB%zN9rVxjw7kPS",
+      "phone_number": "+5003598130",
+      "properties": Object {
+        "testType": "!WB%zN9rVxjw7kPS",
+      },
+      "title": "!WB%zN9rVxjw7kPS",
+    },
+    "type": "profile",
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-klaviyo destination: addOrRemoveProfilesFromList action - batch keys 1`] = `
+Object {
+  "default": Array [
+    "list_id",
+  ],
+  "description": "The keys to use for batching the events.",
+  "label": "Batch Keys",
+  "multiple": true,
+  "required": false,
+  "type": "string",
+  "unsafe_hidden": true,
+}
+`;
+
 exports[`Testing snapshot for actions-klaviyo destination: addProfileToList action - all fields 1`] = `
 Object {
   "data": Object {
@@ -163,51 +208,6 @@ Object {
     "list_id",
     "custom_source",
     "historical_import",
-  ],
-  "description": "The keys to use for batching the events.",
-  "label": "Batch Keys",
-  "multiple": true,
-  "required": false,
-  "type": "string",
-  "unsafe_hidden": true,
-}
-`;
-
-exports[`Testing snapshot for actions-klaviyo destination: syncList action - all fields 1`] = `
-Object {
-  "data": Object {
-    "attributes": Object {
-      "email": "sohajtug@ukomo.pn",
-      "external_id": "c%tdYKQTZ@aMD",
-      "first_name": "c%tdYKQTZ@aMD",
-      "image": "c%tdYKQTZ@aMD",
-      "last_name": "c%tdYKQTZ@aMD",
-      "location": Object {
-        "address1": "c%tdYKQTZ@aMD",
-        "address2": "c%tdYKQTZ@aMD",
-        "city": "c%tdYKQTZ@aMD",
-        "country": "c%tdYKQTZ@aMD",
-        "latitude": "c%tdYKQTZ@aMD",
-        "longitude": "c%tdYKQTZ@aMD",
-        "region": "c%tdYKQTZ@aMD",
-        "zip": "c%tdYKQTZ@aMD",
-      },
-      "organization": "c%tdYKQTZ@aMD",
-      "phone_number": "+6699256632",
-      "properties": Object {
-        "testType": "c%tdYKQTZ@aMD",
-      },
-      "title": "c%tdYKQTZ@aMD",
-    },
-    "type": "profile",
-  },
-}
-`;
-
-exports[`Testing snapshot for actions-klaviyo destination: syncList action - batch keys 1`] = `
-Object {
-  "default": Array [
-    "list_id",
   ],
   "description": "The keys to use for batching the events.",
   "label": "Batch Keys",

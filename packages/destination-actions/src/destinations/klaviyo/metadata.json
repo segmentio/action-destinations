@@ -10992,8 +10992,8 @@
         }
       }
     },
-    "syncList": {
-      "title": "Sync List",
+    "addOrRemoveProfilesFromList": {
+      "title": "Add or Remove Profiles from List",
       "description": "Add or remove a profile from a list in Klaviyo, based on their audience membership status",
       "platform": "cloud",
       "defaultSubscription": "type = track or type = identify",
@@ -13142,6 +13142,93 @@
         "batch_size": 100
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "addOrRemoveProfilesFromList",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "phone_number": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.phone"
+            },
+            "then": {
+              "@path": "$.context.traits.phone"
+            },
+            "else": {
+              "@path": "$.traits.phone"
+            }
+          }
+        },
+        "list_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.personas.audience_settings.listId"
+            },
+            "then": {
+              "@path": "$.context.personas.audience_settings.listId"
+            },
+            "else": {
+              "@path": "$.context.personas.external_audience_id"
+            }
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 1000,
+        "first_name": {
+          "@path": "$.properties.firstName"
+        },
+        "last_name": {
+          "@path": "$.properties.lastName"
+        },
+        "image": {
+          "@path": "$.properties.avatar"
+        },
+        "title": {
+          "@path": "$.properties.title"
+        },
+        "organization": {
+          "@path": "$.properties.company.name"
+        },
+        "location": {
+          "city": {
+            "@path": "$.properties.address.city"
+          },
+          "region": {
+            "@path": "$.properties.address.state"
+          },
+          "zip": {
+            "@path": "$.properties.address.postal_code"
+          },
+          "address1": {
+            "@path": "$.properties.address.street"
+          },
+          "country": {
+            "@path": "$.properties.address.country"
+          }
+        },
+        "properties": {
+          "@path": "$.properties.properties"
+        },
+        "batch_keys": [
+          "list_id"
+        ]
+      },
+      "eventSlug": "journey_step_all_events_track"
     }
   ]
 }

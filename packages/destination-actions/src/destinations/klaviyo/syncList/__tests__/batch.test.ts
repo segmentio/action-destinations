@@ -26,7 +26,7 @@ function membershipEvent(email: string, membership: boolean) {
 
 // Has an email (so schema validation passes) but no context.personas at all, and the batch's
 // mapping carries no `__segment_internal_sync_mode` => resolveAudienceMembership (core) returns
-// undefined for this event. It reaches syncListBatch, which sets its own per-index MultiStatus
+// undefined for this event. It reaches addOrRemoveProfilesFromListBatch, which sets its own per-index MultiStatus
 // validation error - never sent to the destination API.
 function businessInvalidEvent(email: string) {
   return createTestEvent({ type: 'track', properties: { email } })
@@ -45,7 +45,7 @@ const interleavedMapping = {
   external_id: { '@path': '$.properties.external_id' }
 }
 
-describe('Klaviyo.syncList - batch', () => {
+describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
   beforeEach(() => nock.cleanAll())
 
   it('calls the add API once for an all-add batch and never calls remove', async () => {
@@ -63,7 +63,7 @@ describe('Klaviyo.syncList - batch', () => {
       })
       .reply(200, { data: { id: 'job1' } })
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: { list_id: listId, email: { '@path': '$.properties.email' } }
@@ -90,7 +90,7 @@ describe('Klaviyo.syncList - batch', () => {
       })
       .reply(200, {})
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: { list_id: listId, email: { '@path': '$.properties.email' } }
@@ -150,7 +150,7 @@ describe('Klaviyo.syncList - batch', () => {
       })
       .reply(200, {})
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: interleavedMapping
@@ -172,7 +172,7 @@ describe('Klaviyo.syncList - batch', () => {
     expect(responses[1]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
     expect(responses[6]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
 
-    // --- Business-invalid (rejected inside syncListBatch itself): 3, 7 ---
+    // --- Business-invalid (rejected inside addOrRemoveProfilesFromListBatch itself): 3, 7 ---
     expect(responses[3]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
@@ -211,7 +211,7 @@ describe('Klaviyo.syncList - batch', () => {
       })
       .reply(200, { data: { id: 'job1' } })
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: {
@@ -233,7 +233,7 @@ describe('Klaviyo.syncList - batch', () => {
   it('makes no destination API calls at all when every item in the batch is invalid', async () => {
     const events = [businessInvalidEvent('u0@example.com'), businessInvalidEvent('u1@example.com')]
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: { list_id: listId, email: { '@path': '$.properties.email' } }
@@ -267,7 +267,7 @@ describe('Klaviyo.syncList - batch', () => {
       })
       .reply(200, {})
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: { list_id: listId, email: { '@path': '$.properties.email' } }
@@ -300,7 +300,7 @@ describe('Klaviyo.syncList - batch', () => {
       .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'P1' }] })
       .reply(200, {})
 
-    const responses = await testDestination.executeBatch('syncList', {
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
       events,
       settings,
       mapping: {
