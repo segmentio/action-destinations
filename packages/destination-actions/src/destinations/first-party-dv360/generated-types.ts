@@ -21,10 +21,6 @@ export interface AudienceSettings {
    */
   existingAudienceId?: string
   /**
-   * The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).
-   */
-  audienceDisplayName?: string
-  /**
    * The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).
    */
   description?: string
