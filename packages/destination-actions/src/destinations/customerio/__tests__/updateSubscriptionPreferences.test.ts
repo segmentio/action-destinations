@@ -145,12 +145,15 @@ describe('CustomerIO', () => {
         })
       })
 
-      it('should reject a topic id that is not a positive integer', async () => {
+      it.each([
+        ['a string', 'topic_1'],
+        ['a float', 1.5]
+      ])('should reject a topic id that is %s', async (_label, topic_id) => {
         const event = createTestEvent({
           event: EVENT_NAME,
           userId: 'abc123',
           properties: {
-            topics: [{ topic_id: 'topic_1', subscribed: true }]
+            topics: [{ topic_id, subscribed: true }]
           }
         })
 
@@ -158,6 +161,26 @@ describe('CustomerIO', () => {
           action('updateSubscriptionPreferences', { event, settings, useDefaultMappings: true })
         ).rejects.toThrow()
       })
+
+      // The framework applies `minimum` to `number` fields only, so a non-positive integer passes field validation.
+      // It is sent as written and Customer.io discards the unknown topic without an error.
+      it.each([0, -1])(
+        'should pass a non-positive topic id (%s) through for Customer.io to discard',
+        async (topic_id) => {
+          const event = createTestEvent({
+            event: EVENT_NAME,
+            userId: 'abc123',
+            anonymousId: undefined,
+            properties: {
+              topics: [{ topic_id, subscribed: true }]
+            }
+          })
+
+          const response = await action('updateSubscriptionPreferences', { event, settings, useDefaultMappings: true })
+
+          expect(response.attributes).toEqual({ [`cio_subscription_preferences.topics.topic_${topic_id}`]: true })
+        }
+      )
 
       it('should reject a channel type that is not a Customer.io channel', async () => {
         const event = createTestEvent({
