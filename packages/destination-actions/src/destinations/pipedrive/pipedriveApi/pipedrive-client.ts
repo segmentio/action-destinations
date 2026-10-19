@@ -1,7 +1,8 @@
 import { Settings } from '../generated-types'
-import type { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import type { ExecuteInput, Features, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import get from 'lodash/get'
 import { ActivityTypes, PipedriveFields } from './domain'
+import { FLAGON_NAME_VALIDATE_DOMAIN, validateDomain } from '../utils'
 import { DynamicFieldResponse } from '@segment/actions-core'
 
 interface SearchFieldTypes {
@@ -51,7 +52,10 @@ class PipedriveClient {
   private settings: Settings
   private _request: RequestClient
 
-  constructor(settings: Settings, request: RequestClient) {
+  constructor(settings: Settings, request: RequestClient, features?: Features) {
+    if (features?.[FLAGON_NAME_VALIDATE_DOMAIN]) {
+      validateDomain(settings.domain)
+    }
     this.settings = settings
     this._request = request
   }
@@ -161,8 +165,8 @@ class PipedriveClient {
   }
 
   static fieldHandler(fieldType: keyof PipedriveFieldTypes) {
-    return async (request: RequestClient, { settings }: ExecuteInput<Settings, unknown>) => {
-      const client = new PipedriveClient(settings, request)
+    return async (request: RequestClient, { settings, features }: ExecuteInput<Settings, unknown>) => {
+      const client = new PipedriveClient(settings, request, features)
       return client.getFields(fieldType)
     }
   }
