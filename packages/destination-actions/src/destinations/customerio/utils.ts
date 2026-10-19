@@ -367,7 +367,7 @@ const buildBatchMultiStatusResponse = (
         errortype: 'BAD_REQUEST',
         errormessage,
         sent,
-        body: { errors: entryErrors } as unknown as JSONLikeObject
+        body: { errors: entryErrors } as JSONLikeObject
       })
     } else {
       multiStatusResponse.setSuccessResponseAtIndex(index, {
@@ -414,7 +414,7 @@ const buildBatchMultiStatusErrorResponse = (
       status,
       errormessage: entryErrors ? entryErrors.map(formatBatchError).join('; ') : requestLevelMessage,
       sent,
-      body: { errors: entryErrors ?? requestLevel } as unknown as JSONLikeObject
+      body: { errors: entryErrors ?? requestLevel } as JSONLikeObject
     })
   })
 
