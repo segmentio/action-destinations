@@ -32,8 +32,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request: RequestClient, input) => {
-      validateDatacenter(input.settings.datacenter)
-      const apiClient = new QualtricsApiClient(input.settings.datacenter, input.settings.apiToken, request)
+      const datacenter = input.settings.datacenter || 'iad1'
+      validateDatacenter(datacenter)
+      const apiClient = new QualtricsApiClient(datacenter, input.settings.apiToken, request)
       const response = await apiClient.whoaAmI()
       return response.userName !== undefined
     }
