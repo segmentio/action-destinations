@@ -1,4 +1,5 @@
-import { RequestClient } from '@segment/actions-core'
+import { Features, RequestClient } from '@segment/actions-core'
+import { FLAGON_NAME_VALIDATE_DATACENTER, validateDatacenter } from './utils'
 
 export type SupportedMethods = 'get' | 'post'
 
@@ -124,8 +125,11 @@ export default class QualtricsApiClient {
   private apiToken: string
   private request: RequestClient
 
-  constructor(dc: string, apiToken: string, request: RequestClient) {
+  constructor(dc: string, apiToken: string, request: RequestClient, features?: Features) {
     const datacenter = dc || 'iad1'
+    if (features?.[FLAGON_NAME_VALIDATE_DATACENTER]) {
+      validateDatacenter(datacenter)
+    }
     this.baseUrl = `https://${datacenter}.qualtrics.com`
     this.apiToken = apiToken
     this.request = request
