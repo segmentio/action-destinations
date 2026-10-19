@@ -170,10 +170,14 @@ describe('Avo.sendSchemaToInspector event spec fetch with gateway coordinates', 
 
       expect(specUrls).toHaveLength(3)
       expect(scope.isDone()).toBe(true)
+      // Each value fails every spec but its own, so no failures plus spec metadata (a spec was
+      // found) means the event was matched to its own checkpoint's spec, not to none.
       expect(failedIds(bodies[0])).toBeUndefined()
+      expect(bodies[0].eventSpecMetadata).toEqual(metadata)
       expect(failedIds(bodies[1])).toEqual(['evt_in'])
       expect(failedIds(bodies[2])).toEqual(['evt_out'])
       expect(failedIds(bodies[3])).toBeUndefined()
+      expect(bodies[3].eventSpecMetadata).toEqual(metadata)
     })
   })
 
