@@ -156,6 +156,12 @@ describe('CustomerIO batch multi-status handling', () => {
     await expect(executeTrackEventBatch()).rejects.toThrow('Service Unavailable')
   })
 
+  it('lets 429 errors bubble up for a whole-batch retry even when the body has an errors array', async () => {
+    trackService.post('/batch').reply(429, { errors: [{ batch_index: 0, message: 'rate limited' }] })
+
+    await expect(executeTrackEventBatch()).rejects.toThrow('Too Many Requests')
+  })
+
   it('lets 4xx errors without an errors array bubble up unchanged', async () => {
     trackService.post('/batch').reply(401, { meta: { error: 'Unauthorized request' } })
 
