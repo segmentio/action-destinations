@@ -17,19 +17,33 @@ import {
   removeBulkProfilesFromList,
   removeProfileFromList,
   sendBatchedProfileImportJobRequest,
-  validateEmail,
-  validateExternalId
+  validateEmail
 } from '../functions'
 
 export const NO_LIST_ID_ERROR =
   'No list ID found in payload. When connecting this action to a reverse ETL (database) Source, Segment cannot infer a list automatically - you must select an existing Klaviyo list or provide a name for a new one in the "Connect to a static list in Klaviyo" step when saving the mapping.'
 
+function trimIdentifiers<T extends { email?: string; phone_number?: string; external_id?: string }>(payload: T): T {
+  const { email, phone_number, external_id, ...rest } = payload
+  const trimmedEmail = email?.trim()
+  const trimmedPhone = phone_number?.trim()
+  const trimmedExternalId = external_id?.trim()
+
+  return {
+    ...rest,
+    ...(trimmedEmail && { email: trimmedEmail }),
+    ...(trimmedPhone && { phone_number: trimmedPhone }),
+    ...(trimmedExternalId && { external_id: trimmedExternalId })
+  } as T
+}
+
 export async function addOrRemoveProfilesFromList(
   request: RequestClient,
-  payload: Payload,
+  rawPayload: Payload,
   audienceMembership: AudienceMembership,
   hookOutputs?: { id?: string; name?: string }
 ) {
+  const payload = trimIdentifiers(rawPayload)
   const list_id = hookOutputs?.id ?? payload.list_id
   if (!list_id) {
     throw new PayloadValidationError(NO_LIST_ID_ERROR)
@@ -55,7 +69,6 @@ export async function addOrRemoveProfilesFromList(
     if (email && !validateEmail(email)) {
       throw new PayloadValidationError('Email must be a valid email address.')
     }
-    validateExternalId(external_id)
 
     const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
     return await addProfileToList(request, profileId, list_id)
@@ -68,10 +81,6 @@ export async function addOrRemoveProfilesFromList(
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
     }
-    if (email && !validateEmail(email)) {
-      throw new PayloadValidationError('Email must be a valid email address.')
-    }
-    validateExternalId(external_id)
 
     const profileIds = await getProfiles(
       request,
@@ -113,7 +122,8 @@ export async function addOrRemoveProfilesFromListBatch(
       return
     }
 
-    const effectivePayload = hookOutputs?.id ? { ...payload, list_id: hookOutputs.id } : payload
+    const trimmedPayload = trimIdentifiers(payload)
+    const effectivePayload = hookOutputs?.id ? { ...trimmedPayload, list_id: hookOutputs.id } : trimmedPayload
 
     if (!effectivePayload.list_id) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
@@ -128,17 +138,6 @@ export async function addOrRemoveProfilesFromListBatch(
       addIndices.push(index)
       addPayloads.push(effectivePayload as AddProfileToListPayload)
     } else {
-      // sendBatchedProfileImportJobRequest (add path) already validates email format and external_id length
-      // internally. removeBulkProfilesFromList (remove path) already validates external_id length, but not
-      // email format - so we check it here to match addOrRemoveProfilesFromList()'s single-event remove branch.
-      if (effectivePayload.email && !validateEmail(effectivePayload.email)) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-          errormessage: 'Email must be a valid email address.'
-        })
-        return
-      }
       removeIndices.push(index)
       removePayloads.push(effectivePayload as RemoveProfileFromListPayload)
     }

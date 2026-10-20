@@ -26,14 +26,14 @@ const action: ActionDefinition<Settings, Payload> = {
   defaultSubscription: 'type = track or type = identify',
   syncMode: {
     label: 'Sync Mode',
-    description: 'Specify how Segment should sync data to Klaviyo when connected to a database Source.',
+    description: 'Specify when Segment should sync data to Klaviyo when connected to a Revert ETL Source.',
     default: 'mirror',
     choices: [
-      { label: 'Add - triggers when a row is added', value: 'add' },
-      { label: 'Update - triggers when a row is updated', value: 'update' },
-      { label: 'Upsert - triggers when a row is added or updated', value: 'upsert' },
-      { label: 'Delete - triggers when a row is deleted', value: 'delete' },
-      { label: 'Mirror - triggers when a row is added, updated, or deleted', value: 'mirror' }
+      { label: 'Row added', value: 'add' },
+      { label: 'Row updated', value: 'update' },
+      { label: 'Row upserted', value: 'upsert' },
+      { label: 'Row deleted', value: 'delete' },
+      { label: 'Row added, updated or deleted', value: 'mirror' }
     ]
   },
   fields: {
