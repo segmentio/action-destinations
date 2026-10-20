@@ -230,6 +230,30 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
     expect(addScope.isDone()).toBe(true)
   })
 
+  it('trims external_id before the remove lookup and treats a whitespace-only external_id as missing', async () => {
+    const events = [
+      createTestEvent({ type: 'track', properties: { my_audience: false, external_id: '  ext-1  ' }, context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } } }),
+      createTestEvent({ type: 'track', properties: { my_audience: false, external_id: '   ' }, context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } } })
+    ]
+
+    nock(`${API_URL}/profiles`)
+      .get('/?filter=any(external_id,["ext-1"])')
+      .reply(200, { data: [{ id: 'P0' }] })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'P0' }] })
+      .reply(200, {})
+
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
+      events,
+      settings,
+      mapping: { list_id: listId, external_id: { '@path': '$.properties.external_id' } }
+    })
+
+    expect(responses[0]).toMatchObject({ status: 200 })
+    expect(responses[1]).toMatchObject({ status: 400 })
+  })
+
   it('makes no destination API calls at all when every item in the batch is invalid', async () => {
     const events = [businessInvalidEvent('u0@example.com'), businessInvalidEvent('u1@example.com')]
 

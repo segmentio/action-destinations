@@ -154,6 +154,46 @@ describe('Klaviyo.addOrRemoveProfilesFromList', () => {
     ).rejects.toThrow('Email must be a valid email address.')
   })
 
+  it.each([true, false])('rejects an external_id over 255 characters (audienceMembership %s)', async (membership) => {
+    const external_id = 'a'.repeat(256)
+
+    await expect(
+      testDestination.testAction('addOrRemoveProfilesFromList', {
+        event: membershipEvent('', membership),
+        settings,
+        mapping: { list_id: listId, external_id }
+      })
+    ).rejects.toThrow(/external_id|255/)
+  })
+
+  it.each([true, false])('treats a whitespace-only external_id as missing (audienceMembership %s)', async (membership) => {
+    await expect(
+      testDestination.testAction('addOrRemoveProfilesFromList', {
+        event: membershipEvent('', membership),
+        settings,
+        mapping: { list_id: listId, external_id: '   ' }
+      })
+    ).rejects.toThrow('One of External ID, Phone Number or Email is required.')
+  })
+
+  it('trims external_id before looking up profiles on the remove branch', async () => {
+    nock(`${API_URL}/profiles`)
+      .get('/?filter=any(external_id,["ext-1"])')
+      .reply(200, { data: [{ id: 'PROFILE1' }] })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE1' }] })
+      .reply(200, {})
+
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
+      event: membershipEvent('', false),
+      settings,
+      mapping: { list_id: listId, external_id: '  ext-1  ' }
+    })
+
+    expect(r[0].status).toBe(200)
+  })
+
   it('throws when no profiles are found on the remove branch', async () => {
     const email = 'missing@example.com'
     nock(`${API_URL}/profiles`)
