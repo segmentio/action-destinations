@@ -25,11 +25,10 @@ export async function sendV3(
   request: RequestClient,
   settings: Settings,
   payloads: (StandardEvent | CustomEvent)[],
-  isBatch: boolean,
-  base64Hashing = false
+  isBatch: boolean
 ) {
   const multiStatusResponse = new MultiStatusResponse()
-  const data = createRedditPayloadV3(payloads, settings, multiStatusResponse, isBatch, base64Hashing)
+  const data = createRedditPayloadV3(payloads, settings, multiStatusResponse, isBatch)
 
   if (data.data.events.length) {
     const response = await request(
@@ -52,8 +51,7 @@ export function createRedditPayloadV3(
   payloads: (StandardEvent | CustomEvent)[],
   settings: Settings,
   multiStatusResponse: MultiStatusResponse,
-  isBatch: boolean,
-  base64Hashing = false
+  isBatch: boolean
 ): PayloadV3 {
   const events: EventItemV3[] = []
 
@@ -83,7 +81,7 @@ export function createRedditPayloadV3(
 
       const cleanEventSourceUrl = clean(event_source_url ?? '')
       const cleanedClickId = clean(click_id)
-      const userObj = getUser(user, data_processing_options, screen_dimensions, true, base64Hashing)
+      const userObj = getUser(user, data_processing_options, screen_dimensions, true)
       const hasMatchKey = userObj !== undefined && MATCH_KEYS.some((key) => userObj[key] !== undefined)
 
       if (!cleanedClickId && !hasMatchKey) {
