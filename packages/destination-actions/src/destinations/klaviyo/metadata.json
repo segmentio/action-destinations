@@ -11002,27 +11002,27 @@
       "syncMode": {
         "default": "mirror",
         "label": "Sync Mode",
-        "description": "Specify how Segment should sync data to Klaviyo when connected to a database Source.",
+        "description": "Specify when Segment should sync data to Klaviyo when connected to a Revert ETL Source.",
         "choices": [
           {
             "value": "add",
-            "label": "Add - triggers when a row is added"
+            "label": "Row added"
           },
           {
             "value": "update",
-            "label": "Update - triggers when a row is updated"
+            "label": "Row updated"
           },
           {
             "value": "upsert",
-            "label": "Upsert - triggers when a row is added or updated"
+            "label": "Row upserted"
           },
           {
             "value": "delete",
-            "label": "Delete - triggers when a row is deleted"
+            "label": "Row deleted"
           },
           {
             "value": "mirror",
-            "label": "Mirror - triggers when a row is added, updated, or deleted"
+            "label": "Row added, updated or deleted"
           }
         ]
       },
