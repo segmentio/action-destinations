@@ -67,6 +67,25 @@ describe('Klaviyo.addOrRemoveProfilesFromList', () => {
     expect(r[0].status).toBe(200)
   })
 
+  it('removes a profile whose email the strict add-path regex would reject (remove branch does not apply it)', async () => {
+    const email = "john.o'brien@example.com"
+    nock(`${API_URL}/profiles`)
+      .get(`/?filter=any(email,["${email}"])`)
+      .reply(200, { data: [{ id: 'PROFILE1' }] })
+
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/', { data: [{ type: 'profile', id: 'PROFILE1' }] })
+      .reply(200, {})
+
+    const r = await testDestination.testAction('addOrRemoveProfilesFromList', {
+      event: membershipEvent(email, false, 'audience'),
+      settings,
+      mapping: { list_id: listId, email }
+    })
+
+    expect(r[0].status).toBe(200)
+  })
+
   it('adds a profile when audienceMembership is true (JourneysV2 - journey_step with membership boolean present)', async () => {
     const email = 'jv2-add@example.com'
     nock(API_URL)

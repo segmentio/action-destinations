@@ -68,9 +68,6 @@ export async function addOrRemoveProfilesFromList(
     if (!email && !external_id && !phone_number) {
       throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
     }
-    if (email && !validateEmail(email)) {
-      throw new PayloadValidationError('Email must be a valid email address.')
-    }
     validateExternalId(external_id)
 
     const profileIds = await getProfiles(
@@ -128,17 +125,6 @@ export async function addOrRemoveProfilesFromListBatch(
       addIndices.push(index)
       addPayloads.push(effectivePayload as AddProfileToListPayload)
     } else {
-      // sendBatchedProfileImportJobRequest (add path) already validates email format and external_id length
-      // internally. removeBulkProfilesFromList (remove path) already validates external_id length, but not
-      // email format - so we check it here to match addOrRemoveProfilesFromList()'s single-event remove branch.
-      if (effectivePayload.email && !validateEmail(effectivePayload.email)) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-          errormessage: 'Email must be a valid email address.'
-        })
-        return
-      }
       removeIndices.push(index)
       removePayloads.push(effectivePayload as RemoveProfileFromListPayload)
     }

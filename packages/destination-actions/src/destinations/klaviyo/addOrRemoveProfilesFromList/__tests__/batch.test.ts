@@ -246,22 +246,23 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
     expect(nock.pendingMocks().length).toBe(0)
   })
 
-  it('sets a per-index error and skips the destination API call when email is invalid for one item in an otherwise valid remove batch', async () => {
+  it('does not apply the strict add-path email regex on the remove branch, so addresses Klaviyo accepts can be removed', async () => {
     const events = [
       membershipEvent('u0@example.com', false),
-      membershipEvent('user@domain.c', false), // fails EMAIL_REGEX (TLD too short)
+      membershipEvent("john.o'brien@example.com", false), // rejected by EMAIL_REGEX, accepted by Klaviyo
       membershipEvent('u2@example.com', false)
     ]
 
-    const removeEmails = ['u0@example.com', 'u2@example.com']
+    const removeEmails = ['u0@example.com', "john.o'brien@example.com", 'u2@example.com']
     const getProfilesScope = nock(`${API_URL}/profiles`)
       .get(`/?filter=any(email,["${removeEmails.join('","')}"])`)
-      .reply(200, { data: [{ id: 'P0' }, { id: 'P2' }] })
+      .reply(200, { data: [{ id: 'P0' }, { id: 'P1' }, { id: 'P2' }] })
 
     const deleteProfilesScope = nock(`${API_URL}/lists/${listId}`)
       .delete('/relationships/profiles/', {
         data: [
           { type: 'profile', id: 'P0' },
+          { type: 'profile', id: 'P1' },
           { type: 'profile', id: 'P2' }
         ]
       })
@@ -274,11 +275,7 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
     })
 
     expect(responses[0]).toMatchObject({ status: 200 })
-    expect(responses[1]).toMatchObject({
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'Email must be a valid email address.'
-    })
+    expect(responses[1]).toMatchObject({ status: 200 })
     expect(responses[2]).toMatchObject({ status: 200 })
     expect(getProfilesScope.isDone()).toBe(true)
     expect(deleteProfilesScope.isDone()).toBe(true)
