@@ -49,23 +49,28 @@ export async function addOrRemoveProfilesFromList(
     throw new PayloadValidationError(NO_LIST_ID_ERROR)
   }
 
-  if (audienceMembership === true) {
-    const {
-      email,
-      phone_number: initialPhoneNumber,
-      list_id: _listId,
-      external_id,
-      enable_batching,
-      batch_size,
-      country_code,
-      batch_keys,
-      ...additionalAttributes
-    } = payload
-    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+  if (typeof audienceMembership !== 'boolean') {
+    throw new PayloadValidationError('Audience Membership must be a boolean')
+  }
 
-    if (!email && !external_id && !phone_number) {
-      throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
-    }
+  const {
+    email,
+    phone_number: initialPhoneNumber,
+    list_id: _listId,
+    external_id,
+    enable_batching,
+    batch_size,
+    country_code,
+    batch_keys,
+    ...additionalAttributes
+  } = payload
+  const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+
+  if (!email && !external_id && !phone_number) {
+    throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
+  }
+
+  if (audienceMembership) {
     if (email && !validateEmail(email)) {
       throw new PayloadValidationError('Email must be a valid email address.')
     }
@@ -74,27 +79,16 @@ export async function addOrRemoveProfilesFromList(
     return await addProfileToList(request, profileId, list_id)
   }
 
-  if (audienceMembership === false) {
-    const { email, external_id, phone_number: initialPhoneNumber, country_code } = payload
-    const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
-
-    if (!email && !external_id && !phone_number) {
-      throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
-    }
-
-    const profileIds = await getProfiles(
-      request,
-      email ? [email] : undefined,
-      external_id ? [external_id] : undefined,
-      phone_number ? [phone_number] : undefined
-    )
-    if (!profileIds?.length) {
-      throw new PayloadValidationError('No profiles found for the provided identifiers.')
-    }
-    return await removeProfileFromList(request, profileIds, list_id)
+  const profileIds = await getProfiles(
+    request,
+    email ? [email] : undefined,
+    external_id ? [external_id] : undefined,
+    phone_number ? [phone_number] : undefined
+  )
+  if (!profileIds?.length) {
+    throw new PayloadValidationError('No profiles found for the provided identifiers.')
   }
-
-  throw new PayloadValidationError('Audience Membership must be a boolean')
+  return await removeProfileFromList(request, profileIds, list_id)
 }
 
 export async function addOrRemoveProfilesFromListBatch(
