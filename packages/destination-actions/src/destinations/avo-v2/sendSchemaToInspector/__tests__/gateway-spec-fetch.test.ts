@@ -82,8 +82,19 @@ describe('Avo.sendSchemaToInspector event spec fetch with gateway coordinates', 
     })
 
     it('prod never fetches a spec, with or without coordinates', async () => {
-      const { specUrls } = await run([fixtureEvent()], { originHint: 'ios-app' }, { ...GATEWAY, env: 'prod' })
+      // A spec is on offer, so a wrongful fetch would be answered (and consumed) rather than
+      // swallowed by the fetch's catch.
+      const spec = nock('https://api.avo.app').get(SPEC_PATH).query(true).reply(200, specAllowing('evt_src', 'pro'))
+      const { specUrls, bodies } = await run([fixtureEvent()], { originHint: 'ios-app' }, { ...GATEWAY, env: 'prod' })
       expect(specUrls).toEqual([])
+      expect(spec.isDone()).toBe(false)
+      expect(bodies[0]).not.toHaveProperty('eventSpecMetadata')
+    })
+
+    it('staging fetches the spec with the coordinates, like dev', async () => {
+      nock('https://api.avo.app').get(SPEC_PATH).query(true).reply(200, specAllowing('evt_in', 'pro'))
+      const { specUrls } = await run([fixtureEvent()], { originHint: 'ios-app' }, { ...GATEWAY, env: 'staging' })
+      expect(specUrls).toEqual([`${LEGACY_URL}&originHint=ios-app`])
     })
   })
 
@@ -178,6 +189,31 @@ describe('Avo.sendSchemaToInspector event spec fetch with gateway coordinates', 
       expect(failedIds(bodies[2])).toEqual(['evt_out'])
       expect(failedIds(bodies[3])).toBeUndefined()
       expect(bodies[3].eventSpecMetadata).toEqual(metadata)
+    })
+    it('in a batch, one checkpoint answering 404 leaves the others validated', async () => {
+      const scope = nock('https://api.avo.app')
+      scope
+        .get(SPEC_PATH)
+        .query((q) => q.originHint === undefined)
+        .once()
+        .reply(404, { error: 'event_not_found', name: 'Checkout Started' })
+      scope
+        .get(SPEC_PATH)
+        .query((q) => q.originHint === 'ios')
+        .once()
+        .reply(200, specAllowing('evt_in', 'free'))
+
+      const { bodies } = await run(
+        [fixtureEvent({ properties: { plan: 'pro' } }), fixtureEvent({ properties: { plan: 'pro', hint: 'ios' } })],
+        { originHint: { '@path': '$.properties.hint' } },
+        GATEWAY
+      )
+
+      expect(scope.isDone()).toBe(true)
+      expect(bodies[0]).not.toHaveProperty('eventSpecMetadata')
+      expect(failedIds(bodies[0])).toBeUndefined()
+      expect(failedIds(bodies[1])).toEqual(['evt_in'])
+      expect(bodies[1].eventSpecMetadata).toEqual(metadata)
     })
   })
 
