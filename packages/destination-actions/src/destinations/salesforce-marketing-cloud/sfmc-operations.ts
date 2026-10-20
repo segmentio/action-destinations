@@ -577,10 +577,6 @@ export const selectOrCreateDataExtension = async (
   }
 }
 
-// Accounts with hundreds of Data Extensions time out when the dropdown fetches them all at once.
-// Users can still find any Data Extension beyond the first page by typing a search query.
-const DATA_EXTENSIONS_PAGE_SIZE = 100
-
 const getDataExtensionsRequest = async (
   request: RequestClient,
   searchQuery: string,
@@ -592,9 +588,7 @@ const getDataExtensionsRequest = async (
       {
         method: 'get',
         searchParams: {
-          $search: searchQuery,
-          $page: 1,
-          $pagesize: DATA_EXTENSIONS_PAGE_SIZE
+          $search: searchQuery
         },
         headers: {
           authorization: `Bearer ${auth.accessToken}`
