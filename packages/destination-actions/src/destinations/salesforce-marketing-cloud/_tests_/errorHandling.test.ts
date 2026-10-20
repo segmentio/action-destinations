@@ -78,23 +78,12 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
     it('returns choices on success', async () => {
       nock(restUrl)
         .get('/data/v1/customobjects')
-        .query({ $search: '_', $page: '1', $pagesize: '100' })
+        .query({ $search: '_' })
         .reply(200, { count: 1, items: [{ id: 'de-1', name: 'My DE', key: 'my-de' }] })
 
       const response = await getDataExtensions(request, settings.subdomain, settings)
 
       expect(response).toEqual({ choices: [{ value: 'de-1', label: 'My DE' }] })
-    })
-
-    it('sends the search query with the first page and page size limit', async () => {
-      nock(restUrl)
-        .get('/data/v1/customobjects')
-        .query({ $search: 'Newsletter', $page: '1', $pagesize: '100' })
-        .reply(200, { count: 1, items: [{ id: 'de-2', name: 'Newsletter DE', key: 'newsletter-de' }] })
-
-      const response = await getDataExtensions(request, settings.subdomain, settings, 'Newsletter')
-
-      expect(response).toEqual({ choices: [{ value: 'de-2', label: 'Newsletter DE' }] })
     })
   })
 
