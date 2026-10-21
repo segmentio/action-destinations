@@ -40,11 +40,15 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
   const anonymousId = payloads[0]?.anonymousId
   const userId = payloads[0]?.userId
   const streamId = anonymousId ? anonymousId : userId ? processHashing(userId, 'sha256', 'hex') : 'unknown'
-  const eventSpecMap = await fetchEventSpecsForBatch(request, settings, payloads, streamId)
 
   const { appVersionPropertyName, publicEncryptionKey, env, apiKey } = settings
   const gatewaySupport = settings.gatewaySupport === true
   const client = gatewaySupport ? GATEWAY_CLIENT : LEGACY_CLIENT
+
+  // The gateway coordinates of each event, normalized once: they go on the track body and
+  // select the spec the event is validated against.
+  const coordinates = payloads.map((payload) => gatewayCoordinates(payload, gatewaySupport))
+  const eventSpecMap = await fetchEventSpecsForBatch(request, settings, payloads, coordinates, streamId)
 
   // Create one encryption session for the entire batch — EC key generation happens
   // once here rather than once per event or once per property value.
@@ -62,7 +66,7 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
 
   const inspectedFields = gatewaySupport ? settings.inspectedFields : undefined
 
-  const json = payloads.map((payload) => {
+  const json = payloads.map((payload, index) => {
     const { event, pageUrl, appName, properties, messageId, createdAt } = payload
 
     // Warehouse columns add names and types only: their values are never encrypted or sent.
@@ -70,7 +74,8 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       ...extractSchema(payload.properties, encryptionSession),
       ...extractSchema(warehouseColumns(warehouseFields(payload), properties, inspectedFields))
     ]
-    const eventSpec = eventSpecMap?.get(event) ?? null
+    const { outputReference, originHint } = coordinates[index]
+    const eventSpec = eventSpecMap?.get(eventSpecKey(event, coordinates[index])) ?? null
     let eventSpecMetadata: EventSpecMetadata | undefined
 
     if (eventSpec) {
@@ -78,9 +83,6 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
       mergeValidationResults(eventProperties, validationResult.propertyResults)
       eventSpecMetadata = validationResult.metadata
     }
-
-    const outputReference = gatewaySupport ? normalizeCoordinate(payload.outputReference) : undefined
-    const originHint = gatewaySupport ? normalizeCoordinate(payload.originHint) : undefined
 
     // The event's own version: the App Version Property setting, then the App Version field. In
     // gateway mode a blank value counts as none, like every other coordinate; the legacy path keeps
@@ -130,6 +132,30 @@ export const send = async (request: RequestClient, settings: Settings, payloads:
   })
 }
 
+interface GatewayCoordinates {
+  outputReference?: string
+  originHint?: string
+}
+
+// Without Gateway Support the mapped coordinates are ignored, so they are neither sent on the
+// body nor used to fetch the spec.
+function gatewayCoordinates(payload: Payload, gatewaySupport: boolean): GatewayCoordinates {
+  if (!gatewaySupport) {
+    return {}
+  }
+  return {
+    outputReference: normalizeCoordinate(payload.outputReference),
+    originHint: normalizeCoordinate(payload.originHint)
+  }
+}
+
+// One spec per event name and checkpoint: a gateway-input spec (hint only), an output spec
+// (hint and output) and a source spec (neither) for the same event name never share an entry.
+// JSON keeps the parts apart whatever characters they contain.
+export function eventSpecKey(eventName: string, { originHint, outputReference }: GatewayCoordinates): string {
+  return JSON.stringify([eventName, originHint ?? null, outputReference ?? null])
+}
+
 // Gateway coordinates are trimmed; a blank value counts as not provided, and its key is
 // omitted from the body rather than sent as null or "".
 function normalizeCoordinate(value: string | undefined): string | undefined {
@@ -175,6 +201,7 @@ async function fetchEventSpecsForBatch(
   request: RequestClient,
   settings: Settings,
   payload: Payload[],
+  coordinates: GatewayCoordinates[],
   streamId: string
 ): Promise<Map<string, EventSpec | null> | null> {
   const { env, apiKey } = settings
@@ -184,13 +211,28 @@ async function fetchEventSpecsForBatch(
   }
 
   const eventSpecMap = new Map<string, EventSpec | null>()
-  const uniqueEventNames = [...new Set(payload.map((p) => p.event))]
-  const requests = uniqueEventNames.map(async (eventName) => {
+  // One fetch per distinct (event name, origin hint, output reference) in the batch.
+  const uniqueLookups = new Map<string, { eventName: string } & GatewayCoordinates>()
+  payload.forEach((p, index) => {
+    const key = eventSpecKey(p.event, coordinates[index])
+    if (!uniqueLookups.has(key)) {
+      uniqueLookups.set(key, { eventName: p.event, ...coordinates[index] })
+    }
+  })
+  const requests = [...uniqueLookups.entries()].map(async ([key, { eventName, originHint, outputReference }]) => {
     const queryParams = new URLSearchParams({
       apiKey,
       streamId,
       eventName
     })
+    // Without coordinates the URL is exactly the one sent before gateways existed. A source
+    // key ignores these params; a gateway key needs originHint to find a spec at all.
+    if (originHint) {
+      queryParams.append('originHint', originHint)
+    }
+    if (outputReference) {
+      queryParams.append('outputReference', outputReference)
+    }
     const url = `${DEFAULT_BASE_URL}/trackingPlan/eventSpec?${queryParams.toString()}`
 
     try {
@@ -221,15 +263,17 @@ async function fetchEventSpecsForBatch(
           }
         })
       }
-      return { eventName, spec: eventSpec }
+      return { key, spec: eventSpec }
     } catch {
-      return { eventName, spec: null }
+      // No spec (including the 404 a gateway key answers without an origin hint): the event
+      // is still sent, just without value checks.
+      return { key, spec: null }
     }
   })
 
   const results = await Promise.all(requests)
-  for (const { eventName, spec } of results) {
-    eventSpecMap.set(eventName, spec)
+  for (const { key, spec } of results) {
+    eventSpecMap.set(key, spec)
   }
 
   return eventSpecMap
