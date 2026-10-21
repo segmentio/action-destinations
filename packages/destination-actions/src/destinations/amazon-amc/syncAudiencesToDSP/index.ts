@@ -2,7 +2,6 @@ import { ActionDefinition } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { processBatchPayload, processPayload } from '../function'
-import { FLAG_AUDIENCE_MEMBERSHIP } from '../utils'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Sync Audiences to DSP',
@@ -181,10 +180,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload, audienceSettings, features, audienceMembership }) => {
-    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings, features, features?.[FLAG_AUDIENCE_MEMBERSHIP] ? audienceMembership : undefined)
+    return processPayload(request, settings, [payload], audienceSettings as AudienceSettings, features, audienceMembership)
   },
   performBatch: async (request, { settings, payload: payloads, audienceSettings, features, audienceMembership }) => {
-    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings, features, features?.[FLAG_AUDIENCE_MEMBERSHIP] ? audienceMembership : undefined)
+    return await processBatchPayload(request, settings, payloads, audienceSettings as AudienceSettings, features, audienceMembership)
   }
 }
 

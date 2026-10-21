@@ -1,9 +1,11 @@
 import { createPayloadToUploadRecords, processBatchPayload } from '../function'
 import type { RequestClient } from '@segment/actions-core'
 import type { Payload } from '../syncAudiencesToDSP/generated-types'
+import { FLAG_AUDIENCE_MEMBERSHIP } from '../utils'
 import type { AudienceSettings, Settings } from '../generated-types'
 
 const audienceSettings = { countryCode: 'US' } as AudienceSettings
+const features = { [FLAG_AUDIENCE_MEMBERSHIP]: true }
 const settings = { region: 'https://advertising-api.amazon.com' } as Settings
 
 const payload = (event_name?: string, externalUserId = 'user-1'): Payload => ({
@@ -19,7 +21,7 @@ describe('Amazon AMC audience action resolution', () => {
       const { records } = createPayloadToUploadRecords(
         [payload('Audience Entered'), payload('Audience Exited')],
         audienceSettings,
-        undefined,
+        features,
         [false, true]
       )
       expect(records.map((r) => r.action)).toEqual(['CREATE', 'DELETE'])
@@ -29,14 +31,14 @@ describe('Amazon AMC audience action resolution', () => {
       const { records } = createPayloadToUploadRecords(
         [payload('Some Other Event'), payload(undefined)],
         audienceSettings,
-        undefined,
+        features,
         [true, false]
       )
       expect(records.map((r) => r.action)).toEqual(['CREATE', 'DELETE'])
     })
 
     it('defaults to DELETE when neither event_name nor audienceMembership resolve', () => {
-      const { records } = createPayloadToUploadRecords([payload(undefined)], audienceSettings)
+      const { records } = createPayloadToUploadRecords([payload(undefined)], audienceSettings, features)
       expect(records[0].action).toBe('DELETE')
     })
   })
@@ -49,7 +51,7 @@ describe('Amazon AMC audience action resolution', () => {
         settings,
         [payload('Audience Entered', 'user-1'), payload(undefined, 'user-2'), payload(undefined, 'user-3')],
         audienceSettings,
-        undefined,
+        features,
         [false, true, false]
       )
       const body = JSON.parse(request.mock.calls[0][1].body as string)
@@ -63,7 +65,7 @@ describe('Amazon AMC audience action resolution', () => {
         settings,
         [payload(undefined, 'user-1'), payload(undefined, 'bad id!'), payload(undefined, 'user-3')],
         audienceSettings,
-        undefined,
+        features,
         [true, true, false]
       )
       const body = JSON.parse(request.mock.calls[0][1].body as string)
