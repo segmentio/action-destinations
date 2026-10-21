@@ -2,7 +2,7 @@ import type { DestinationDefinition } from '@segment/actions-core'
 import { defaultValues } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
-import { DEFAULT_ENVIRONMENT, INTEGRATION_HEADER, INTEGRATION_HEADER_VALUE } from './versioning-info'
+import { DEFAULT_ENVIRONMENT, INTEGRATION_HEADER, INTEGRATION_HEADER_VALUE } from './constants'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Tatari Web Events',

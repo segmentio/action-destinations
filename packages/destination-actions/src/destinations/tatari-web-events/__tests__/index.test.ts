@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, defaultValues } from '@segment/actions-core'
 import Definition from '../index'
 import sendEvent from '../sendEvent'
-import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE, MAX_BATCH_BYTES, MAX_BATCH_SIZE } from '../versioning-info'
+import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE, MAX_BATCH_BYTES, MAX_BATCH_SIZE } from '../constants'
 
 const testDestination = createTestIntegration(Definition)
 

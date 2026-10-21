@@ -9,7 +9,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import type { BatchResponse, TatariWebEvent } from './types'
 import { applyBatchResponse, buildEvent } from './functions'
-import { batchUrl, MAX_BATCH_BYTES, MAX_BATCH_SIZE, trackUrl } from '../versioning-info'
+import { batchUrl, MAX_BATCH_BYTES, MAX_BATCH_SIZE, trackUrl } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Web Event',
