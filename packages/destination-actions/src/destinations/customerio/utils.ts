@@ -209,10 +209,8 @@ export const sendBatch = async <Payload extends BasePayload>(
   request: Function,
   options: RequestPayload<Payload>[]
 ): Promise<MultiStatusResponse> => {
-  const multiStatusResponse = new MultiStatusResponse()
-
   if (!options?.length) {
-    return multiStatusResponse
+    return new MultiStatusResponse()
   }
 
   const [{ settings }] = options
@@ -275,14 +273,10 @@ const formatBatchError = (error: CustomerIOBatchError): string => {
   return parts.length ? parts.join(' - ') : 'Unknown error'
 }
 
-const getBatchErrors = (data: unknown): CustomerIOBatchError[] | undefined => {
-  const errors = isRecord(data) ? data.errors : undefined
+const getBatchErrors = (data?: CustomerIOBatchResponse): CustomerIOBatchError[] | undefined => {
+  const errors = data?.errors
 
-  if (!Array.isArray(errors)) {
-    return undefined
-  }
-
-  return errors.filter(isRecord) as CustomerIOBatchError[]
+  return Array.isArray(errors) ? errors : undefined
 }
 
 // Groups errors by the batch entry they refer to. Errors with a missing or out-of-range
@@ -309,10 +303,12 @@ const buildBatchMultiStatusResponse = (
   response: ModifiedResponse<CustomerIOBatchResponse>
 ): MultiStatusResponse => {
   const multiStatusResponse = new MultiStatusResponse()
-  const { byIndex } = groupBatchErrors(getBatchErrors(response?.data) ?? [], batch.length)
+  const { byIndex, requestLevel } = groupBatchErrors(getBatchErrors(response?.data) ?? [], batch.length)
 
   batch.forEach((sent, index) => {
-    const entryErrors = byIndex.get(index)
+    // An error that cannot be tied to an entry (missing or out-of-range `batch_index`) is treated as a
+    // request-level failure: every entry without an error of its own fails with that message.
+    const entryErrors = byIndex.get(index) ?? (requestLevel.length ? requestLevel : undefined)
 
     if (entryErrors) {
       const errormessage = entryErrors.map(formatBatchError).join('; ')
@@ -354,7 +350,9 @@ const buildBatchMultiStatusErrorResponse = (
 
   const errors = getBatchErrors((error.response as ModifiedResponse<CustomerIOBatchResponse>)?.data)
 
-  if (!errors) {
+  // No `errors` array, or an empty one, is not the Track API validation shape: rethrow so the
+  // framework handles the whole batch.
+  if (!errors?.length) {
     return undefined
   }
 
