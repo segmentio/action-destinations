@@ -1,7 +1,7 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { API_URL } from '../../config'
+import { API_URL, KLAVIYO_PAGINATE_GET_PROFILES_FLAG } from '../../config'
 import { NO_LIST_ID_ERROR } from '../functions'
 
 const testDestination = createTestIntegration(Destination)
@@ -232,8 +232,16 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
 
   it('trims external_id before the remove lookup and treats a whitespace-only external_id as missing', async () => {
     const events = [
-      createTestEvent({ type: 'track', properties: { my_audience: false, external_id: '  ext-1  ' }, context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } } }),
-      createTestEvent({ type: 'track', properties: { my_audience: false, external_id: '   ' }, context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } } })
+      createTestEvent({
+        type: 'track',
+        properties: { my_audience: false, external_id: '  ext-1  ' },
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } }
+      }),
+      createTestEvent({
+        type: 'track',
+        properties: { my_audience: false, external_id: '   ' },
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } }
+      })
     ]
 
     nock(`${API_URL}/profiles`)
@@ -333,5 +341,59 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
     expect(responses).toMatchObject([{ status: 200 }, { status: 200 }])
     expect(addScope.isDone()).toBe(true)
     expect(removeScope.isDone()).toBe(true)
+  })
+})
+
+describe('Klaviyo.addOrRemoveProfilesFromList - batch removals with getProfiles pagination flag', () => {
+  beforeEach(() => nock.cleanAll())
+
+  const mapping = { list_id: listId, email: { '@path': '$.properties.email' } }
+  const emails = Array.from({ length: 150 }, (_, i) => `user${i}@example.com`)
+  const events = emails.map((email) => membershipEvent(email, false))
+
+  function mockGetProfiles() {
+    const getUrls: string[] = []
+    nock(`${API_URL}/profiles`)
+      .persist()
+      .get(/.*/)
+      .reply(200, function (uri) {
+        getUrls.push(decodeURIComponent(uri))
+        const values = [...decodeURIComponent(uri).matchAll(/"([^"]+)"/g)].map((match) => match[1])
+        return { data: values.map((value) => ({ id: `id-${value}` })) }
+      })
+    return getUrls
+  }
+
+  it('looks up emails in chunks of 100 and removes all profiles when the flag is on', async () => {
+    const getUrls = mockGetProfiles()
+    const removedIds: string[] = []
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/')
+      .reply(200, (_uri, body: any) => {
+        removedIds.push(...body.data.map((profile: any) => profile.id))
+        return {}
+      })
+
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
+      events,
+      settings,
+      mapping,
+      features: { [KLAVIYO_PAGINATE_GET_PROFILES_FLAG]: true }
+    })
+
+    expect(responses.every((response: any) => response.status === 200)).toBe(true)
+    expect(getUrls).toHaveLength(2)
+    getUrls.forEach((url) => expect(url).toContain('page[size]=100'))
+    expect(removedIds).toHaveLength(150)
+  })
+
+  it('keeps the single unpaginated lookup when the flag is off', async () => {
+    const getUrls = mockGetProfiles()
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/').reply(200, {})
+
+    await testDestination.executeBatch('addOrRemoveProfilesFromList', { events, settings, mapping })
+
+    expect(getUrls).toHaveLength(1)
+    expect(getUrls[0]).not.toContain('page[size]')
   })
 })
