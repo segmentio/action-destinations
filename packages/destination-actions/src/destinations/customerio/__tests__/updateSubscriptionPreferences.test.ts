@@ -210,6 +210,29 @@ describe('CustomerIO', () => {
         ).rejects.toThrow()
       })
 
+      it('should identify by user id when both a user id and an email are present', async () => {
+        const email = 'both@bar.com'
+        const event = createTestEvent({
+          event: EVENT_NAME,
+          userId: 'abc123',
+          anonymousId: undefined,
+          context: { traits: { email } },
+          properties: {
+            email,
+            topics: [{ topic_id: 1, subscribed: true }]
+          }
+        })
+
+        const response = await action('updateSubscriptionPreferences', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response.identifiers).toEqual({ id: 'abc123' })
+        expect(response.attributes).toEqual({ 'cio_subscription_preferences.topics.topic_1': true })
+      })
+
       it('should identify by email when there is no user id', async () => {
         const email = 'foo@bar.com'
         const event = createTestEvent({
