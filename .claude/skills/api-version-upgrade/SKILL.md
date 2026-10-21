@@ -1,0 +1,1420 @@
+---
+name: api-version-upgrade
+description: Upgrade API versions for Segment Action Destinations with feature flags, comprehensive breaking change analysis, automated testing, and PR creation.
+version: 1.0.0
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - WebFetch
+  - AskUserQuestion
+  - Bash
+disable-model-invocation: false
+---
+
+# API Version Upgrade Workflow
+
+This skill automates the complete process of upgrading API versions for Segment Action Destinations, ensuring safe rollouts with feature flags and comprehensive testing.
+
+## Console Output Standard
+
+**MANDATORY**: At the start of every step, print the step header exactly as shown below. At the end of every step, print the completion line. Do not summarize inline — use the structured format consistently.
+
+### Step header format
+
+Steps are numbered 0–8 with one sub-step (5.5), giving 10 total headers. Use the exact step label shown in each section (e.g. `0/8`, `5.5/8`).
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP N/8] <STEP TITLE>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Step completion format
+
+```
+✅ Step N complete: <one-line summary of what was done>
+```
+
+### Inline status items
+
+For individual checks or actions within a step, use:
+
+```
+  • <action or check>: <result>
+```
+
+### Error format
+
+```
+❌ Step N failed: <reason>
+   → <what to do next>
+```
+
+This format must be used verbatim every run so output is easy to scan and consistent across destinations.
+
+## Overview
+
+API version upgrades in action-destinations follow a **canary pattern**:
+
+- Stable production version remains unchanged
+- New version is deployed behind a feature flag
+- Gradual rollout allows safe testing and rollback
+- Full breaking changes analysis before merge
+
+## ⚠️ MANDATORY REQUIREMENTS ⚠️
+
+**EVERY API version upgrade MUST include:**
+
+1. **versioning-info.ts file** - If it doesn't exist, CREATE IT. No exceptions. (Both cloud and browser modes)
+2. **Version control mechanism** - Depends on mode:
+   - **Cloud mode**: Runtime feature flag with `getApiVersion(features)` helper
+   - **Browser mode**: Opt-in via settings dropdown, no runtime feature flag
+3. **Version tests** - Test both stable (default) and new version:
+   - **Cloud mode**: Feature flag tests with `features` parameter
+   - **Browser mode**: SDK loading tests with explicit version selection
+
+These are not optional. They are required for safe, gradual rollouts and instant rollback capability.
+
+## Step 0: Pre-flight Tool Check
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 0/8] PRE-FLIGHT TOOL CHECK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+Before doing anything else, verify all required tools are installed. Run each check and report the results in a summary table.
+
+```bash
+which git && git --version
+which gh && gh --version
+which yarn && yarn --version
+which node && node --version
+which nvm || (source ~/.nvm/nvm.sh && nvm --version)
+```
+
+| Tool   | Required | Purpose                            |
+| ------ | -------- | ---------------------------------- |
+| `git`  | REQUIRED | Branch management, commits         |
+| `gh`   | REQUIRED | Pull request creation              |
+| `yarn` | REQUIRED | Running tests                      |
+| `node` | REQUIRED | Running tests (v18.17+ or v22.13+) |
+| `nvm`  | OPTIONAL | Switching Node versions            |
+
+**If any REQUIRED tool is missing, stop immediately and tell the user:**
+
+```
+❌ Pre-flight check failed.
+
+Missing required tools:
+- <tool>: <install instructions>
+
+Please install the missing tools and re-run the skill.
+```
+
+Install hints:
+
+- `gh` not found: `brew install gh` (Mac) or see https://cli.github.com
+- `yarn` not found: `npm install -g yarn`
+- `git` not found: `brew install git` or install Xcode Command Line Tools
+- `node` not found: install via https://nodejs.org or `nvm install 22`
+- `nvm` not found (optional): `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
+
+If `nvm` is missing but node is already at v18.17+ or v22.13+, that is acceptable — skip the `nvm use` step later.
+
+Only continue to the next step after all REQUIRED tools are confirmed present.
+
+Print after checks complete:
+
+```
+  • git:  <version or MISSING>
+  • gh:   <version or MISSING>
+  • yarn: <version or MISSING>
+  • node: <version or MISSING>
+  • nvm:  <version or not found (optional)>
+✅ Step 0 complete: all required tools present
+```
+
+Or on failure:
+
+```
+❌ Step 0 failed: missing required tools: <list>
+   → Install missing tools and re-run
+```
+
+## Prerequisites Check
+
+Before starting, verify:
+
+1. You're in the action-destinations repository root
+2. Node version is compatible (v18.17+ or v22.13+)
+3. Git working directory is clean
+4. User has provided:
+   - Destination name (e.g., "klaviyo", "google-campaign-manager-360")
+   - Target API version (e.g., "2026-01-15", "v5")
+
+If any information is missing, ask the user before proceeding.
+
+## Step 1: Information Gathering
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 1/8] INFORMATION GATHERING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 1.1 Collect Required Information
+
+Ask the user for:
+
+```
+- Destination name: [e.g., klaviyo]
+- Current version: [will auto-detect if not provided]
+- Target version: [user must provide]
+- Changelog URL (optional): [base URL for API docs]
+```
+
+### 1.2 Detect Destination Mode
+
+Determine if this is a cloud-mode or browser-mode destination:
+
+```bash
+# Check for cloud-mode destination
+if [ -d "packages/destination-actions/src/destinations/<destination-name>" ]; then
+  echo "CLOUD"
+  DEST_PATH="packages/destination-actions/src/destinations/<destination-name>"
+# Check for browser-mode destination
+elif [ -d "packages/browser-destinations/destinations/<destination-name>" ]; then
+  echo "BROWSER"
+  DEST_PATH="packages/browser-destinations/destinations/<destination-name>/src"
+else
+  echo "NOT FOUND"
+fi
+```
+
+**Critical difference:**
+
+- **CLOUD mode**: Version used internally in API calls, controlled by runtime feature flag
+- **BROWSER mode**: Customer selects SDK version from dropdown, loaded from external CDN
+
+If both paths exist or neither exists, ask the user to clarify.
+
+### 1.3 Locate Destination Files
+
+Key files to check (paths vary by mode):
+
+**Cloud Mode** (`packages/destination-actions/src/destinations/<destination>/`):
+
+- `versioning-info.ts` - version constants (CREATE if missing)
+- `config.ts` - may have version constants
+- `functions.ts` or `utils.ts` - API request building with version
+- `index.ts` - main destination definition
+- `__tests__/` - test files (action-specific)
+
+**Browser Mode** (`packages/browser-destinations/destinations/<destination>/src/`):
+
+- `versioning-info.ts` - version constants (CREATE if missing)
+- `index.ts` - destination with `settings.sdkVersion.choices` array
+- `__tests__/initialization.test.ts` - SDK loading tests
+
+### 1.4 Detect Current Version
+
+Search for version constants in this order:
+
+1. `versioning-info.ts` (preferred pattern)
+2. `config.ts` (simple pattern)
+3. Hardcoded in `utils.ts` or `functions.ts`
+
+Common patterns:
+
+```typescript
+// Pattern 1: versioning-info.ts (PREFERRED - Google CM360 style)
+export const DESTINATION_API_VERSION = 'v4'
+export const DESTINATION_CANARY_API_VERSION = 'v5'
+
+// Pattern 2: config.ts (Klaviyo style) - MIGRATE TO versioning-info.ts
+export const REVISION_DATE = '2025-01-15'
+export const API_URL = 'https://api.example.com'
+
+// Pattern 3: Inline constant - MIGRATE TO versioning-info.ts
+const API_VERSION = 'v3'
+const BASE_URL = `https://api.example.com/${API_VERSION}`
+```
+
+**If versioning-info.ts does NOT exist, you MUST create it in Step 4A or 4B (depending on mode).**
+
+Print after step completes:
+
+```
+  • Destination:        <destination-name>
+  • Mode:               CLOUD | BROWSER
+  • Directory:          <full-path-to-destination>
+  • Current version:    <current-version>
+  • Target version:     <target-version>
+  • versioning-info.ts: <EXISTS | MISSING — will be created in Step 4>
+
+  → Next: Proceed to Step 2 (Changelog Analysis)
+  → Then: Step 4A (Cloud Mode) | Step 4B (Browser Mode)
+✅ Step 1 complete: destination located, versions identified, mode detected
+```
+
+## Step 2: Changelog Analysis
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 2/8] CHANGELOG ANALYSIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 2.1 Determine Changelog Location
+
+Check if `versioning-info.ts` has a changelog URL comment:
+
+```typescript
+/** DESTINATION_API_VERSION
+ * API version documentation.
+ * Changelog: https://developers.example.com/changelog
+ */
+```
+
+If not present, ask user for changelog URL or look for common patterns:
+
+- `https://developers.{destination}.com/changelog`
+- `https://developers.{destination}.com/docs/api-versions`
+- `https://{destination}.com/api/reference`
+
+### 2.2 Fetch Changelog
+
+Use WebFetch to retrieve changelog for the version range:
+
+```bash
+# Fetch the main changelog page
+<use WebFetch tool for changelog URL>
+
+# Look for version-specific pages if needed
+<use WebFetch for version-specific documentation>
+```
+
+### 2.3 Deep Breaking Changes Analysis
+
+**CRITICAL: This analysis must be thorough. We cannot afford discrepancies.**
+
+For each API change between current and target version, check:
+
+#### Request Changes
+
+- [ ] New required parameters
+- [ ] Removed or deprecated parameters
+- [ ] Changed parameter types or formats
+- [ ] Modified validation rules
+- [ ] Different authentication methods
+- [ ] New headers required
+- [ ] Changed request body structure
+
+#### Response Changes
+
+- [ ] Modified response schema
+- [ ] Removed response fields
+- [ ] Changed field types
+- [ ] Different error codes
+- [ ] New error response formats
+- [ ] Pagination changes
+
+#### Behavioral Changes
+
+- [ ] Rate limiting differences
+- [ ] Batching size limits
+- [ ] Timeout changes
+- [ ] Retry logic requirements
+- [ ] Idempotency key handling
+
+#### Endpoint Changes
+
+- [ ] URL pattern changes
+- [ ] Method changes (GET → POST, etc.)
+- [ ] Deprecated endpoints
+- [ ] New endpoints replacing old ones
+
+Create a structured breaking changes document:
+
+```markdown
+## Breaking Changes Analysis: {Current Version} → {Target Version}
+
+### Summary
+
+[High-level overview of changes]
+
+### Critical Breaking Changes
+
+1. **[Category]**: [Description]
+   - **Impact**: [How this affects our implementation]
+   - **Required Action**: [What needs to be changed]
+   - **Risk Level**: HIGH/MEDIUM/LOW
+
+### Non-Breaking Changes
+
+- [List of additive or compatible changes]
+
+### Deprecation Warnings
+
+- [Features deprecated but still functional]
+
+### Testing Requirements
+
+- [Specific scenarios that must be tested]
+```
+
+Save this analysis to `breaking-changes-analysis.md` in the destination directory.
+
+Print after step completes:
+
+```
+  • Changelog URL:           <url or "not found">
+  • Pages fetched:           <N>
+  • Critical breaking changes: <N>
+  • Medium priority changes:   <N>
+  • Low priority changes:      <N>
+  • Analysis saved to:       breaking-changes-analysis.md
+✅ Step 2 complete: breaking changes analysis written
+```
+
+## Step 3: Git Branch Setup
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 3/8] GIT BRANCH SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 3.1 Pull Latest Main
+
+```bash
+git fetch origin
+git checkout main
+git pull origin main
+```
+
+### 3.2 Create Feature Branch
+
+Use naming convention: `{destination}-api-{target-version}`
+
+```bash
+git checkout -b klaviyo-api-2026-01-15
+# or
+git checkout -b google-cm360-api-v5
+```
+
+Print after step completes:
+
+```
+  • Base branch:  main (<commit-sha>)
+  • New branch:   <branch-name>
+✅ Step 3 complete: on branch <branch-name>, up to date with main
+```
+
+## Step 4: Implement Version Upgrade
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 4/8] IMPLEMENT VERSION UPGRADE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### Routing: Choose Implementation Path
+
+Based on the destination mode detected in Step 1:
+
+- **CLOUD mode** → Proceed to **Step 4A** (Feature Flag Implementation)
+- **BROWSER mode** → Proceed to **Step 4B** (Opt-In Version Selection)
+
+---
+
+## Step 4A: Cloud Mode - Feature Flag Implementation
+
+**Use this section ONLY for CLOUD-MODE destinations.**
+
+### ⚠️ CRITICAL: Feature Flag is MANDATORY for Cloud Destinations ⚠️
+
+**ALL cloud-mode API version upgrades MUST be behind a feature flag.**
+**If versioning-info.ts does NOT exist, you MUST create it.**
+
+There is NO option to upgrade the version directly without a feature flag.
+
+### 4.1 Check if versioning-info.ts Exists
+
+```bash
+ls packages/destination-actions/src/destinations/{destination}/versioning-info.ts
+```
+
+**Two possible scenarios:**
+
+---
+
+### 4.2 Scenario A: versioning-info.ts EXISTS
+
+If `versioning-info.ts` already exists, update it:
+
+**Step 1**: Update `versioning-info.ts` with new canary version:
+
+```typescript
+/** DESTINATION_API_VERSION
+ * {Destination} API version (stable/production).
+ * Changelog: {URL}
+ */
+export const DESTINATION_API_VERSION = '{current-version}'
+
+/** DESTINATION_CANARY_API_VERSION
+ * {Destination} API version (canary/feature-flagged).
+ * Testing new version {target-version} behind feature flag.
+ */
+export const DESTINATION_CANARY_API_VERSION = '{target-version}'
+```
+
+**Step 2**: Verify or create helper in `utils.ts` or `functions.ts`:
+
+```typescript
+import { Features } from '@segment/actions-core'
+import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
+
+export const API_VERSION = DESTINATION_API_VERSION
+export const CANARY_API_VERSION = DESTINATION_CANARY_API_VERSION
+export const FLAGON_NAME = '{destination-slug}-canary-version'
+
+export function getApiVersion(features?: Features): string {
+  return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+}
+```
+
+**Step 3**: Update all API calls to use `getApiVersion(features)`:
+
+```typescript
+// Before
+const response = await request(`${API_URL}/${API_VERSION}/endpoint`)
+
+// After
+const version = getApiVersion(features)
+const response = await request(`${API_URL}/${version}/endpoint`)
+```
+
+**Step 4**: Ensure `features` parameter is passed through actions:
+
+```typescript
+// In action's perform or performBatch
+async perform(request, { payload, settings, features }) {
+  const version = getApiVersion(features)
+  // use version in API calls
+}
+
+async performBatch(request, { payload, settings, features }) {
+  const version = getApiVersion(features)
+  // use version in API calls
+}
+```
+
+---
+
+### 4.3 Scenario B: versioning-info.ts DOES NOT EXIST
+
+**If versioning-info.ts doesn't exist, you MUST create it. This is mandatory.**
+
+**Step 1**: Create `versioning-info.ts` file:
+
+```typescript
+/** DESTINATION_API_VERSION
+ * {Destination} API version (stable/production).
+ * Changelog: {changelog-url}
+ */
+export const DESTINATION_API_VERSION = '{current-version}'
+
+/** DESTINATION_CANARY_API_VERSION
+ * {Destination} API version (canary/feature-flagged).
+ * Testing new version {target-version} behind feature flag.
+ */
+export const DESTINATION_CANARY_API_VERSION = '{target-version}'
+```
+
+**Step 2**: Find where the current version is defined:
+
+Search for version constants:
+
+```bash
+grep -r "REVISION_DATE\|API_VERSION\|VERSION" --include="*.ts" packages/destination-actions/src/destinations/{destination}/ | grep -v test | grep -v node_modules
+```
+
+Common locations:
+
+- `config.ts`: `export const REVISION_DATE = '2025-01-15'`
+- `utils.ts`: `const API_VERSION = 'v4'`
+- Inline in API calls: `https://api.example.com/v4/endpoint`
+
+**Step 3**: Update the file with the old version constant:
+
+If in `config.ts`:
+
+```typescript
+// Before
+export const REVISION_DATE = '2025-01-15'
+
+// After - import from versioning-info
+import { DESTINATION_API_VERSION } from './versioning-info'
+export const REVISION_DATE = DESTINATION_API_VERSION
+```
+
+If in `utils.ts`:
+
+```typescript
+// Before
+const API_VERSION = 'v4'
+
+// After - import from versioning-info
+import { DESTINATION_API_VERSION } from './versioning-info'
+export const API_VERSION = DESTINATION_API_VERSION
+```
+
+**Step 4**: Add feature flag helper to `utils.ts` or `functions.ts`:
+
+> ⚠️ **Import order**: Keep all `import` statements grouped at the top. Add `FLAGON_NAME` and `getApiVersion` after the last import rather than between imports — this matches the repository's usual style and avoids confusing the reader.
+
+```typescript
+// All imports first
+import { Features } from '@segment/actions-core'
+import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
+// ... all other imports ...
+
+// Exports after all imports
+export const API_VERSION = DESTINATION_API_VERSION
+export const CANARY_API_VERSION = DESTINATION_CANARY_API_VERSION
+export const FLAGON_NAME = '{destination-slug}-canary-version'
+
+export function getApiVersion(features?: Features): string {
+  return features && features[FLAGON_NAME] ? CANARY_API_VERSION : API_VERSION
+}
+```
+
+**Step 5**: Update all places where version is used:
+
+Find all usage sites:
+
+```bash
+grep -r "{old-version-constant}" --include="*.ts" packages/destination-actions/src/destinations/{destination}/
+```
+
+Update them to use `getApiVersion(features)`:
+
+```typescript
+// Example 1: Direct API call
+// Before
+const response = await request(`https://api.example.com/v4/endpoint`)
+
+// After
+const version = getApiVersion(features)
+const response = await request(`https://api.example.com/${version}/endpoint`)
+
+// Example 2: In a helper function
+// Before
+export function buildUrl(path: string) {
+  return `https://api.example.com/v4/${path}`
+}
+
+// After
+export function buildUrl(path: string, features?: Features) {
+  const version = getApiVersion(features)
+  return `https://api.example.com/${version}/${path}`
+}
+```
+
+**Step 6**: Update `extendRequest` in `index.ts` if needed:
+
+If the version is used in headers or base URL:
+
+```typescript
+// Add features parameter
+extendRequest({ settings, features }) {
+  const version = getApiVersion(features)
+  return {
+    headers: {
+      'api-version': version,
+      // ... other headers
+    }
+  }
+}
+```
+
+**Step 7**: Update action perform functions to pass `features`:
+
+```typescript
+// In each action file (e.g., conversionUpload/index.ts)
+async perform(request, { payload, settings, features }) {
+  // Make sure to pass features to any helper functions
+  return await sendRequest(request, settings, payload, features)
+}
+
+async performBatch(request, { payload, settings, features }) {
+  return await sendRequest(request, settings, payload, features)
+}
+```
+
+---
+
+### 4.4 Verify Feature Flag Implementation
+
+**MANDATORY CHECKLIST** - verify ALL items before proceeding:
+
+```markdown
+- [ ] versioning-info.ts file EXISTS with both DESTINATION_API_VERSION and DESTINATION_CANARY_API_VERSION
+- [ ] FLAGON_NAME constant defined with format '{destination-slug}-canary-version'
+- [ ] FLAGON_NAME and getApiVersion are placed AFTER all import statements (import/first lint rule)
+- [ ] getApiVersion(features) helper function implemented in utils.ts or functions.ts
+- [ ] All API calls use getApiVersion(features) instead of hardcoded version
+- [ ] extendRequest passes features parameter if version is used there
+- [ ] All action perform/performBatch functions accept features parameter
+- [ ] Features parameter is passed to all helper functions that need it
+- [ ] No hardcoded version strings remain in the codebase
+- [ ] Tests can toggle feature flag
+```
+
+**If ANY item is not checked, the implementation is INCOMPLETE.**
+
+Print after step completes:
+
+```
+  • versioning-info.ts:    <created | updated>
+  • Scenario:              <A (existed) | B (created new)>
+  • FLAGON_NAME:           <flagon-name>
+  • getApiVersion helper:  <file where added>
+  • API call sites updated: <N files>
+  • Actions updated:       <list of action names>
+✅ Step 4A complete: feature flag implemented, all API calls use getApiVersion()
+```
+
+---
+
+## Step 4B: Browser Mode - Opt-In Version Selection
+
+**Use this section ONLY for BROWSER-MODE destinations.**
+
+### Architecture Note
+
+Browser destinations work fundamentally differently from cloud destinations:
+
+- **Version Selection**: Customers explicitly choose SDK version from a dropdown in settings
+- **SDK Loading**: Version determines which SDK is loaded from external CDN (e.g., `https://js.appboycdn.com/web-sdk/{version}/...`)
+- **No Runtime Feature Flag**: Browser destinations don't receive `features` parameter in actions
+- **"Canary" Pattern**: Means "newly available option for customers to opt-in to"
+- **Safe Rollout**: Keep default at stable version, add new version to choices array
+
+### 4B.1 Check if versioning-info.ts Exists
+
+```bash
+ls packages/browser-destinations/destinations/{destination}/src/versioning-info.ts
+```
+
+### 4B.2 Create or Update versioning-info.ts
+
+Create the file with version constants:
+
+```typescript
+/** DESTINATION_API_VERSION
+ * {Destination} SDK version (stable/default for new installations).
+ * This is the default version selected for new destination configurations.
+ * Changelog: {URL}
+ */
+export const DESTINATION_API_VERSION = '{current-version}'
+
+/** DESTINATION_CANARY_API_VERSION
+ * {Destination} SDK version (newly available option).
+ * Version {target-version} is available for customers to explicitly select in settings.
+ * This allows customers to opt-in to the latest version before it becomes the default.
+ */
+export const DESTINATION_CANARY_API_VERSION = '{target-version}'
+```
+
+### 4B.3 Update index.ts
+
+**Step 1**: Import version constant and re-export for tests:
+
+```typescript
+// At top of file
+import { DESTINATION_API_VERSION } from './versioning-info'
+
+// Re-export for tests (after imports, before other code)
+export { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from './versioning-info'
+```
+
+**Step 2**: Update defaultVersion to use constant:
+
+```typescript
+// Before
+const defaultVersion = '6.1'
+
+// After
+// Default version for new installations (stable)
+// Customers can explicitly select DESTINATION_CANARY_API_VERSION from settings
+const defaultVersion = DESTINATION_API_VERSION
+```
+
+**Step 3**: Add new version to settings choices:
+
+Find the `settings` object with the version dropdown (usually `sdkVersion` or similar field):
+
+```typescript
+settings: {
+  sdkVersion: {
+    label: 'SDK Version',
+    type: 'string',
+    choices: [
+      // ... existing versions ...
+      {
+        value: '{current-version}',
+        label: '{current-version}'
+      },
+      // ADD THIS:
+      {
+        value: '{target-version}',
+        label: '{target-version}'
+      }
+    ],
+    default: defaultVersion,
+    required: true
+  },
+  // ... other settings ...
+}
+```
+
+### 4B.4 Verification Checklist
+
+**MANDATORY CHECKLIST** - verify ALL items:
+
+```markdown
+- [ ] versioning-info.ts file EXISTS with both DESTINATION_API_VERSION and DESTINATION_CANARY_API_VERSION
+- [ ] DESTINATION_API_VERSION set to current stable version
+- [ ] DESTINATION_CANARY_API_VERSION set to new target version
+- [ ] index.ts imports DESTINATION_API_VERSION
+- [ ] index.ts re-exports both constants for tests
+- [ ] defaultVersion uses DESTINATION_API_VERSION (not hardcoded)
+- [ ] New version added to settings choices array
+- [ ] Default version remains stable (not changed to canary)
+- [ ] No getApiVersion() function (not needed for browser mode)
+- [ ] No FLAGON_NAME constant (not needed for browser mode)
+- [ ] No Features import or usage (browser actions don't receive features)
+```
+
+**If ANY item is not checked, the implementation is INCOMPLETE.**
+
+Print after step completes:
+
+```
+  • versioning-info.ts:    <created | updated>
+  • DESTINATION_API_VERSION: <stable-version>
+  • DESTINATION_CANARY_API_VERSION: <new-version>
+  • Settings choices updated: added {target-version}
+  • Default version:       remains {stable-version} (safe rollout)
+  • Pattern:               Opt-in selection (no runtime feature flag)
+✅ Step 4B complete: new version available for customer selection
+```
+
+---
+
+## Step 5: Update Tests
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 5/8] UPDATE TESTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 5.1 Auto-Detect Test Pattern
+
+Test paths vary by mode:
+
+**Cloud Mode:**
+
+```
+packages/destination-actions/src/destinations/{destination}/__tests__/
+```
+
+**Browser Mode:**
+
+```
+packages/browser-destinations/destinations/{destination}/src/__tests__/
+```
+
+Find test files:
+
+```bash
+# Cloud mode
+find packages/destination-actions/src/destinations/{destination} -name "*.test.ts" -o -name "*.test.js"
+
+# Browser mode
+find packages/browser-destinations/destinations/{destination}/src -name "*.test.ts" -o -name "*.test.js"
+```
+
+### 5.2 Update Existing Tests
+
+Update existing tests to use `API_VERSION` constant instead of hardcoded version strings:
+
+```typescript
+// Before
+import Destination from '../../index'
+
+nock('https://api.example.com/v4/endpoint').post('').reply(200, {})
+
+// After
+import Destination from '../../index'
+import { API_VERSION } from '../../utils'
+
+nock(`https://api.example.com/${API_VERSION}/endpoint`).post('').reply(200, {})
+```
+
+### 5.3 Add Version Tests (MANDATORY)
+
+Choose the appropriate test pattern based on destination mode:
+
+#### For Cloud Mode: Feature Flag Tests
+
+**Add a new test suite** for feature flag behavior:
+
+```typescript
+describe('API Version Feature Flag', () => {
+  it('should use stable API version by default', async () => {
+    const event = createTestEvent({
+      // ... event data
+    })
+
+    nock(`https://api.example.com/${API_VERSION}/endpoint`).post('').reply(200, {})
+
+    const responses = await testDestination.testAction('actionName', {
+      event,
+      mapping: {
+        // ... required mappings
+      },
+      useDefaultMappings: true,
+      settings
+      // NO features parameter = uses stable version
+    })
+
+    expect(responses[0].status).toBe(200)
+  })
+
+  it('should use canary API version when feature flag is enabled', async () => {
+    const event = createTestEvent({
+      // ... same event data
+    })
+
+    // Should call canary version endpoint
+    nock(`https://api.example.com/${CANARY_API_VERSION}/endpoint`).post('').reply(200, {})
+
+    const responses = await testDestination.testAction('actionName', {
+      event,
+      mapping: {
+        // ... same mappings
+      },
+      useDefaultMappings: true,
+      settings,
+      features: { [FLAGON_NAME]: true } // Feature flag enabled
+    })
+
+    expect(responses[0].status).toBe(200)
+  })
+})
+```
+
+**IMPORTANT**: Add these tests for EVERY action in the destination (conversionUpload, identify, track, etc.)
+
+#### For Browser Mode: SDK Version Loading Tests
+
+**Add tests to `__tests__/initialization.test.ts`**:
+
+```typescript
+import { DESTINATION_API_VERSION, DESTINATION_CANARY_API_VERSION } from '../versioning-info'
+
+describe('SDK Version Tests', () => {
+  test('uses stable SDK version by default', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'test_key',
+      endpoint: 'sdk.example.com',
+      // sdkVersion not specified - should use default
+      subscriptions: [
+        /* ... */
+      ]
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    const sdkScript = Array.from(scripts).find((script) => script.src.includes('cdn.example.com'))
+
+    expect(sdkScript?.src).toBe(`https://cdn.example.com/sdk/${DESTINATION_API_VERSION}/sdk.min.js`)
+  })
+
+  test('can load canary SDK version when explicitly selected', async () => {
+    const [event] = await brazeDestination({
+      api_key: 'test_key',
+      endpoint: 'sdk.example.com',
+      sdkVersion: DESTINATION_CANARY_API_VERSION, // Explicitly select new version
+      subscriptions: [
+        /* ... */
+      ]
+    })
+
+    await event.load(Context.system(), {} as Analytics)
+
+    const scripts = window.document.querySelectorAll('script')
+    const sdkScript = Array.from(scripts).find((script) => script.src.includes('cdn.example.com'))
+
+    expect(sdkScript?.src).toBe(`https://cdn.example.com/sdk/${DESTINATION_CANARY_API_VERSION}/sdk.min.js`)
+  })
+
+  test('verifies new SDK version is available in settings choices', () => {
+    const sdkVersionField = destination.settings.sdkVersion
+    const choices = sdkVersionField?.choices || []
+    const hasNewVersion = choices.some((choice) => choice.value === DESTINATION_CANARY_API_VERSION)
+
+    expect(hasNewVersion).toBe(true)
+    expect(sdkVersionField?.default).toBe(DESTINATION_API_VERSION)
+  })
+})
+```
+
+**Key differences for browser mode:**
+
+- No `features` parameter
+- Test SDK loading from CDN (check script src)
+- Verify version in settings choices array
+- Usually in initialization.test.ts (not action-specific tests)
+
+### 5.4 Run Tests
+
+Switch to compatible Node version and run tests based on mode:
+
+**Cloud Mode:**
+
+```bash
+# Switch Node version if needed
+source ~/.nvm/nvm.sh && nvm use 22.13.1
+
+# Run destination-specific tests
+TZ=UTC yarn cloud test --testPathPattern=src/destinations/{destination} --no-coverage
+```
+
+**Browser Mode:**
+
+```bash
+# Switch Node version if needed
+source ~/.nvm/nvm.sh && nvm use 22.13.1
+
+# Run browser destination tests
+TZ=UTC yarn test --testPathPattern="destinations/{destination}" --no-coverage
+```
+
+**Expected outcome**: All tests must pass. If tests fail:
+
+1. Review breaking changes analysis
+2. Update implementation to handle differences
+3. Re-run tests until all pass
+
+### 5.5 Handle Test Failures
+
+If tests fail due to breaking changes:
+
+1. **Identify failure cause** from test output
+2. **Check breaking changes analysis** for related changes
+3. **Update implementation**:
+
+   - Modify request/response handling
+   - Add new required fields
+   - Update validation logic
+   - Adjust error handling
+
+4. **Add regression tests** for the specific breaking change
+5. **Re-run tests**
+
+Repeat until all tests pass.
+
+Print after step completes:
+
+```
+  • Test files found:       <N>
+  • Existing tests updated: <N>
+  • Feature flag tests added: <N> (stable + canary per action)
+  • Test suites:            <N passed> / <N total>
+  • Tests:                  <N passed> / <N total>
+  • Duration:               <Xs>
+✅ Step 5 complete: all tests passing
+```
+
+Or on failure:
+
+```
+❌ Step 5 failed: <N> tests failing
+   → <summary of failure cause>
+```
+
+## Step 5.5: Run API Validation Against Real Endpoints
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 5.5/8] API VALIDATION AGAINST REAL ENDPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Note**: This step applies primarily to **CLOUD-MODE** destinations where we make server-to-server API calls. For **BROWSER-MODE** destinations, skip this step as the SDK is loaded from an external CDN and validation would require browser automation.
+
+This step makes real HTTP calls to both the stable and canary revisions and structurally diffs the responses. It catches breaking changes that mocked unit tests cannot detect.
+
+### Prerequisites
+
+- `KLAVIYO_TEST_API_KEY` (or equivalent) set in env — use a test account, never production
+- A pre-existing test list ID for the destination
+
+### Run the validation script
+
+This step is **optional** and requires you to first create a validation script at a path of your choosing (e.g. `packages/destination-actions/src/destinations/{destination}/validate.ts`). There is no pre-existing `__validation__` directory in this repo — you must create the script if you want live endpoint validation.
+
+```bash
+DESTINATION_TEST_API_KEY=xxx \
+npx ts-node packages/destination-actions/src/destinations/{destination}/validate.ts
+```
+
+When chamber is available:
+
+```bash
+chamber exec {destination}-test -- npx ts-node .../validate.ts
+```
+
+### What it does
+
+- Fires each fixture against **both** revisions sequentially (stable first, then canary)
+- Each write fixture uses revision-scoped identifiers so calls never conflict
+- Normalizes non-deterministic fields (IDs, timestamps) before diffing
+- Exits non-zero if any structural differences are found
+
+### Expected outcome
+
+```
+✅ All N endpoints are structurally identical across both revisions. Safe to promote canary.
+```
+
+If differences are found, review the script output for the specific fields that changed and update the implementation accordingly before proceeding.
+
+### Notes
+
+- If you produce a validation report, include a **sanitized summary** in the PR description rather than committing raw output (it may contain PII or sensitive API responses)
+- The script should use a timestamp-based `RUN_ID` so repeated runs never collide on the same test profiles/events
+
+Print after step completes:
+
+```
+  • Endpoints validated:    <N>
+  • Structural differences: <N>
+  • Validation report:      __validation__/validation-report.md
+✅ Step 5.5 complete: <all N endpoints structurally identical | N differences found — see report>
+```
+
+## Step 6: Commit Changes
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 6/8] COMMIT CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 6.1 Review Changes
+
+```bash
+git status
+git diff
+```
+
+Verify:
+
+- versioning-info.ts created or updated correctly
+- Feature flag implemented properly
+- All usages updated to use getApiVersion()
+- Tests updated and passing
+- No unintended changes
+
+### 6.2 Stage and Commit
+
+```bash
+# Stage all changes
+git add packages/destination-actions/src/destinations/{destination}/
+
+# Commit with descriptive message
+git commit -m "feat({destination}): upgrade API to {target-version} behind feature flag
+
+- Add/update versioning-info.ts with canary version {target-version}
+- Implement feature flag '{flagon-name}'
+- Update API calls to use getApiVersion() helper
+- Add tests for both stable and canary versions
+- All tests passing
+
+Breaking changes analysis in breaking-changes-analysis.md
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+```
+
+Print after step completes:
+
+```
+  • Files staged:   <N>
+  • Commit SHA:     <sha>
+✅ Step 6 complete: changes committed on <branch-name>
+```
+
+## Step 7: Push and Create PR
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 7/8] PUSH AND CREATE PR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 7.1 Push Branch
+
+```bash
+git push origin {branch-name} -u
+```
+
+### 7.2 Create Pull Request
+
+Use GitHub CLI to create PR with comprehensive description:
+
+```bash
+gh pr create --title "feat({destination}): Upgrade API to {target-version} with feature flag" --body "$(cat <<'EOF'
+## Summary
+
+Upgrades {Destination} API from **{current-version}** to **{target-version}**, deployed behind feature flag `{flagon-name}`.
+
+## Changes
+
+### Version Management
+- ✅ Created/updated `versioning-info.ts` with canary pattern
+- ✅ Implemented `getApiVersion(features)` helper function
+- ✅ Updated all API calls to use feature-flagged version
+- ✅ Added feature flag constant: `{flagon-name}`
+
+### Testing
+- ✅ All existing tests pass
+- ✅ Added tests for both stable and canary versions
+- ✅ Test pattern: `destinations/{destination}`
+- ✅ Test results: **{X} test suites passed, {Y} tests passed**
+
+## Breaking Changes
+
+{Insert breaking changes analysis here - read from breaking-changes-analysis.md}
+
+### Critical Breaking Changes
+{List high-priority breaking changes}
+
+### Medium Priority Changes
+{List medium-priority changes}
+
+### Low Priority / Informational
+{List low-priority changes}
+
+## Testing Plan
+
+### Manual Testing Required
+- [ ] Test with feature flag disabled (stable version)
+- [ ] Test with feature flag enabled (canary version)
+- [ ] Verify no regression in existing functionality
+- [ ] Test edge cases identified in breaking changes
+
+### Automated Testing
+- [x] Unit tests passing
+- [x] Integration tests passing (if applicable)
+- [x] Snapshot tests updated (if applicable)
+
+## Rollout Plan
+
+1. **Phase 1**: Merge PR, feature flag off by default
+2. **Phase 2**: Enable for internal testing
+3. **Phase 3**: Gradual rollout to subset of customers
+4. **Phase 4**: Full rollout, promote canary to stable
+5. **Phase 5**: Remove feature flag, clean up old version
+
+## Risk Assessment
+
+**Risk Level**: {HIGH/MEDIUM/LOW}
+
+**Mitigation**:
+- Feature flag allows instant rollback
+- Comprehensive test coverage
+- Breaking changes documented and addressed
+- Gradual rollout prevents widespread impact
+
+## Additional Notes
+
+{Any additional context, concerns, or considerations}
+
+---
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+### 7.3 Update Breaking Changes Section
+
+After creating PR, read `breaking-changes-analysis.md` and manually insert the detailed breaking changes into the PR description by editing it:
+
+```bash
+gh pr edit --body "$(cat <updated-description-with-breaking-changes>)"
+```
+
+Print after step completes:
+
+```
+  • Branch pushed:   <branch-name>
+  • PR URL:          <pr-url>
+✅ Step 7 complete: PR created and ready for review
+```
+
+## Step 8: Final Verification
+
+Print at start:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[STEP 8/8] FINAL VERIFICATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+### 8.1 Verify PR Created Successfully
+
+```bash
+gh pr view --web
+```
+
+Check:
+
+- PR title is descriptive
+- Breaking changes section is complete
+- All checkboxes are present
+- Test results are included
+- Feature flag name is documented
+
+### 8.2 Report to User
+
+Print the final summary using exactly this format:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ API VERSION UPGRADE COMPLETE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Destination:       <destination>
+  Version:           <current-version> → <target-version>
+  Feature flag:      <flagon-name>
+  Branch:            <branch-name>
+  PR:                <pr-url>
+
+  Test results:      <X> suites, <Y> tests — all passing
+  Breaking changes:  <N> identified and documented
+
+  Next steps:
+  1. Review PR and breaking-changes-analysis.md
+  2. Manual smoke test with feature flag on/off
+  3. Enable flag for internal testing
+  4. Gradual rollout → promote canary to stable
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: Tests fail with authentication errors
+
+- **Solution**: Check if auth headers changed in new version
+- **Action**: Update authentication implementation
+
+**Issue**: Tests fail with schema validation errors
+
+- **Solution**: Review request/response schema changes
+- **Action**: Update payload types and validation
+
+**Issue**: Can't find current version
+
+- **Solution**: Search more broadly for version strings
+- **Action**: Check all .ts files in destination directory
+
+**Issue**: Feature flag not working
+
+- **Solution**: Verify features parameter is passed through
+- **Action**: Check extendRequest and perform functions
+
+**Issue**: Breaking changes analysis incomplete
+
+- **Solution**: Fetch additional documentation pages
+- **Action**: Search for migration guides, release notes
+
+## Best Practices
+
+1. **Always create versioning-info.ts if it doesn't exist** - No exceptions
+2. **Always use feature flags for version upgrades** - No direct version changes
+3. **Always add tests for both versions** - Stable and canary
+4. **Never skip breaking changes analysis** - Be thorough
+5. **Run tests multiple times** to ensure consistency
+6. **Document all assumptions** in PR description
+7. **Keep stable version unchanged** until canary is validated
+8. **Use descriptive feature flag names** with destination prefix
+9. **Update changelog URL** in versioning-info.ts comments
+10. **Plan gradual rollout** in PR description
+
+## Success Criteria
+
+Before marking complete, verify:
+
+- [ ] versioning-info.ts file exists (created or updated)
+- [ ] Feature flag implemented correctly
+- [ ] getApiVersion(features) helper function exists
+- [ ] All API calls use getApiVersion(features)
+- [ ] Tests for both stable and canary versions added
+- [ ] All tests passing (100% pass rate)
+- [ ] Breaking changes documented thoroughly
+- [ ] PR created with comprehensive description
+- [ ] Branch pushed to remote
+- [ ] No merge conflicts
+- [ ] Code review requested (automatic)
+- [ ] User understands rollout plan
+
+## Reference Files
+
+The skill may need to read these for context:
+
+- `references/common-patterns.md` - Common destination patterns
+- `references/feature-flags.md` - Feature flag best practices
+- `references/testing-guide.md` - Testing strategies
+
+## Notes
+
+- **versioning-info.ts is MANDATORY** - Create it if it doesn't exist
+- **Feature flags are MANDATORY** - All upgrades must be behind a flag
+- **Tests for both versions are MANDATORY** - No exceptions
+- Feature flags are managed by Segment's infrastructure team
+- Reviewer assignment is automatic via CODEOWNERS
+- Breaking changes analysis is the most critical step
+- When in doubt, be more thorough, not less
+- This workflow protects production systems - don't rush
