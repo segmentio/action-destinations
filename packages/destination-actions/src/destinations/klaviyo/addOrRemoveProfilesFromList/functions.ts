@@ -1,6 +1,7 @@
 import {
   AudienceMembership,
   ErrorCodes,
+  Features,
   MultiStatusResponse,
   PayloadValidationError,
   RequestClient,
@@ -96,7 +97,8 @@ export async function addOrRemoveProfilesFromListBatch(
   payloads: Payload[],
   audienceMembership: AudienceMembership[],
   statsContext?: StatsContext,
-  hookOutputs?: { id?: string; name?: string }
+  hookOutputs?: { id?: string; name?: string },
+  features?: Features
 ): Promise<MultiStatusResponse> {
   const multiStatusResponse = new MultiStatusResponse()
   const addIndices: number[] = []
@@ -139,7 +141,7 @@ export async function addOrRemoveProfilesFromListBatch(
 
   const [addResult, removeResult] = await Promise.all([
     addPayloads.length > 0 ? sendBatchedProfileImportJobRequest(request, addPayloads, statsContext) : undefined,
-    removePayloads.length > 0 ? removeBulkProfilesFromList(request, removePayloads, statsContext) : undefined
+    removePayloads.length > 0 ? removeBulkProfilesFromList(request, removePayloads, features, statsContext) : undefined
   ])
 
   if (addResult) {

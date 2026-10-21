@@ -8,9 +8,19 @@ import {
   HTTPError,
   MultiStatusResponse,
   ErrorCodes,
-  StatsContext
+  StatsContext,
+  Features
 } from '@segment/actions-core'
-import { API_URL, REVISION_DATE, MAX_EXTERNAL_ID_LENGTH } from './config'
+import {
+  API_URL,
+  REVISION_DATE,
+  MAX_EXTERNAL_ID_LENGTH,
+  GET_PROFILES_MAX_FILTER_VALUES,
+  GET_PROFILES_PAGE_SIZE,
+  GET_PROFILES_MAX_PAGES_PER_CHUNK,
+  REMOVE_PROFILES_MAX_PER_REQUEST,
+  KLAVIYO_PAGINATE_GET_PROFILES_FLAG
+} from './config'
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -208,12 +218,79 @@ export const sendImportJobRequest = async (request: RequestClient, importJobPayl
   })
 }
 
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size))
+  }
+  return chunks
+}
+
+type ProfileIdentifierField = 'external_id' | 'email' | 'phone_number'
+
+/**
+ * Fetches the profile IDs matching one chunk of identifier values (at most GET_PROFILES_MAX_FILTER_VALUES),
+ * following `links.next` in case a value matches more than one profile.
+ */
+async function getProfileIdsForChunk(
+  request: RequestClient,
+  field: ProfileIdentifierField,
+  values: string[],
+  statsContext?: StatsContext
+): Promise<string[]> {
+  const profileIds: string[] = []
+  const filter = `${field},["${values.join('","')}"]`
+  let url: string | undefined = `${API_URL}/profiles/?filter=any(${filter})&page[size]=${GET_PROFILES_PAGE_SIZE}`
+
+  for (let page = 0; url; page++) {
+    if (page >= GET_PROFILES_MAX_PAGES_PER_CHUNK) {
+      statsContext?.statsClient?.incr('actions-klaviyo.get_profiles.page_cap_hit', 1, statsContext.tags)
+      break
+    }
+
+    const response = await request(url, { method: 'GET' })
+    const res: GetProfileResponse = await response.json()
+
+    const pageProfileIds = res.data.map((profile: Profile) => profile.id)
+    profileIds.push(...pageProfileIds)
+
+    url = res.links?.next || undefined
+  }
+
+  return profileIds
+}
+
 export async function getProfiles(
   request: RequestClient,
   emails: string[] | undefined,
   external_ids: string[] | undefined,
-  phoneNumbers: string[] | undefined
+  phoneNumbers: string[] | undefined,
+  options?: { paginate?: boolean; statsContext?: StatsContext }
 ): Promise<string[]> {
+  if (options?.paginate) {
+    // Klaviyo returns 20 profiles per page by default and rejects any() filters with more than 100 values,
+    // so look up each identifier type in sequential chunks of 100 values, 100 profiles per page.
+    const profileIdentifiers = [
+      { field: 'external_id', values: external_ids },
+      { field: 'email', values: emails },
+      { field: 'phone_number', values: phoneNumbers }
+    ] as const
+
+    const allProfileIds: string[] = []
+
+    for (const { field, values } of profileIdentifiers) {
+      const uniqueValues = Array.from(new Set(values ?? []))
+      const chunks = chunkArray(uniqueValues, GET_PROFILES_MAX_FILTER_VALUES)
+
+      for (const chunk of chunks) {
+        const chunkProfileIds = await getProfileIdsForChunk(request, field, chunk, options.statsContext)
+        allProfileIds.push(...chunkProfileIds)
+      }
+    }
+
+    return Array.from(new Set(allProfileIds))
+  }
+
   const profileIds: string[] = []
 
   if (external_ids?.length) {
@@ -527,8 +604,10 @@ export async function updateMultiStatusWithKlaviyoErrors(
 export async function removeBulkProfilesFromList(
   request: RequestClient,
   payloads: RemoveProfilePayload[],
+  features?: Features,
   statsContext?: StatsContext
 ) {
+  const paginate = Boolean(features?.[KLAVIYO_PAGINATE_GET_PROFILES_FLAG])
   const multiStatusResponse = new MultiStatusResponse()
 
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
@@ -554,10 +633,21 @@ export async function removeBulkProfilesFromList(
   const listId = filteredPayloads[0]?.list_id as string
 
   try {
-    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers)
+    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers, {
+      paginate,
+      statsContext
+    })
     let response = null
     if (profileIds.length) {
-      response = await removeProfileFromList(request, profileIds, listId)
+      if (paginate) {
+        // Klaviyo accepts at most 1000 profiles per remove request
+        const idChunks = chunkArray(profileIds, REMOVE_PROFILES_MAX_PER_REQUEST)
+        for (const idChunk of idChunks) {
+          response = await removeProfileFromList(request, idChunk, listId)
+        }
+      } else {
+        response = await removeProfileFromList(request, profileIds, listId)
+      }
     }
     updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (error) {
