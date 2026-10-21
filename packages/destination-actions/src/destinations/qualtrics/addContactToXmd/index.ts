@@ -90,7 +90,7 @@ const action: ActionDefinition<Settings, Payload> = {
     directoryId: getDirectoryIds
   },
   perform: (request, data) => {
-    const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)
+    const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request, data.features)
     const payload = {
       firstName: data.payload.firstName,
       lastName: data.payload.lastName,

@@ -125,4 +125,72 @@ describe('addContactToXmd', () => {
       })
     ).rejects.toThrow()
   })
+
+  describe('datacenter validation flag', () => {
+    const FLAG = { 'actions-qualtrics-validate-datacenter': true }
+    const event = createTestEvent({
+      userId: CONTACT_INFO.extRef,
+      traits: { directoryId: DIRECTORY_ID, email: CONTACT_INFO.email }
+    })
+    const mapping = { directoryId: { '@path': '$.traits.directoryId' } }
+
+    it.each(['a.b', 'attacker.com/path?x=', 'attacker.com@legitimate'])(
+      'rejects datacenter %j and sends no request when the flag is on',
+      async (datacenter) => {
+        await expect(
+          testDestination.testAction('addContactToXmd', {
+            event,
+            settings: { ...SETTINGS, datacenter },
+            features: FLAG,
+            useDefaultMappings: true,
+            mapping
+          })
+        ).rejects.toThrowError(/Invalid datacenter ID/)
+      }
+    )
+
+    it('does not validate the datacenter when the flag is off', async () => {
+      nock('https://a.b.qualtrics.com').post(`/API/v3/directories/${DIRECTORY_ID}/contacts`).reply(200, {})
+
+      const response = await testDestination.testAction('addContactToXmd', {
+        event,
+        settings: { ...SETTINGS, datacenter: 'a.b' },
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(response[0].status).toBe(200)
+    })
+
+    it.each(['testdc', 'g1-cmh', 'UR_4tSrdGD2uXOeP5W'])(
+      'accepts datacenter %j when the flag is on',
+      async (datacenter) => {
+        nock(`https://${datacenter}.qualtrics.com`).post(`/API/v3/directories/${DIRECTORY_ID}/contacts`).reply(200, {})
+
+        const response = await testDestination.testAction('addContactToXmd', {
+          event,
+          settings: { ...SETTINGS, datacenter },
+          features: FLAG,
+          useDefaultMappings: true,
+          mapping
+        })
+
+        expect(response[0].status).toBe(200)
+      }
+    )
+
+    it('falls back to iad1 for an empty datacenter when the flag is on', async () => {
+      nock('https://iad1.qualtrics.com').post(`/API/v3/directories/${DIRECTORY_ID}/contacts`).reply(200, {})
+
+      const response = await testDestination.testAction('addContactToXmd', {
+        event,
+        settings: { ...SETTINGS, datacenter: '' },
+        features: FLAG,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(response[0].status).toBe(200)
+    })
+  })
 })
