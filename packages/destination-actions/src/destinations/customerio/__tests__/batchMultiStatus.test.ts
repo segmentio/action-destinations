@@ -86,12 +86,11 @@ describe('CustomerIO batch multi-status handling', () => {
     })
   })
 
-  it('combines multiple 207 errors for the same entry and ignores out-of-range indices', async () => {
+  it('combines multiple 207 errors for the same entry', async () => {
     trackService.post('/batch').reply(207, {
       errors: [
         { batch_index: 1, reason: 'invalid', field: 'name', message: 'name is required' },
-        { batch_index: 1, reason: 'invalid', field: 'timestamp', message: 'timestamp is too old' },
-        { batch_index: 7, reason: 'invalid', message: 'not in this batch' }
+        { batch_index: 1, reason: 'invalid', field: 'timestamp', message: 'timestamp is too old' }
       ]
     })
 
@@ -104,6 +103,35 @@ describe('CustomerIO batch multi-status handling', () => {
       sent: { name: 'Event 1' }
     })
     expect(response[2]).toMatchObject({ status: 200 })
+  })
+
+  it('fails every entry without its own error when a 207 carries an error that cannot be tied to an entry', async () => {
+    trackService.post('/batch').reply(207, {
+      errors: [
+        { batch_index: 1, reason: 'invalid', field: 'name', message: 'name is required' },
+        { batch_index: 7, reason: 'invalid', message: 'not in this batch' },
+        { reason: 'invalid', message: 'no index at all' }
+      ]
+    })
+
+    const response = await executeTrackEventBatch()
+
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'BAD_REQUEST',
+      errormessage: 'invalid - not in this batch; invalid - no index at all',
+      sent: { name: 'Event 0' }
+    })
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errormessage: 'invalid - field: name - name is required',
+      sent: { name: 'Event 1' }
+    })
+    expect(response[2]).toMatchObject({
+      status: 400,
+      errormessage: 'invalid - not in this batch; invalid - no index at all',
+      sent: { name: 'Event 2' }
+    })
   })
 
   it('maps batch_index errors to their entries on a 400 response and fails the rest with the response status', async () => {
@@ -166,6 +194,12 @@ describe('CustomerIO batch multi-status handling', () => {
     trackService.post('/batch').reply(401, { meta: { error: 'Unauthorized request' } })
 
     await expect(executeTrackEventBatch()).rejects.toThrow('Unauthorized')
+  })
+
+  it('lets 4xx errors with an empty errors array bubble up unchanged', async () => {
+    trackService.post('/batch').reply(400, { errors: [] })
+
+    await expect(executeTrackEventBatch()).rejects.toThrow('Bad Request')
   })
 
   it('keeps createUpdateObject entries in their original order across identify actions', async () => {
