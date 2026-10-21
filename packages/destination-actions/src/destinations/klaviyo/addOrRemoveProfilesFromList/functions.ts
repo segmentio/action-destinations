@@ -1,0 +1,158 @@
+import {
+  AudienceMembership,
+  ErrorCodes,
+  MultiStatusResponse,
+  PayloadValidationError,
+  RequestClient,
+  StatsContext
+} from '@segment/actions-core'
+import type { Payload } from './generated-types'
+import type { Payload as AddProfileToListPayload } from '../addProfileToList/generated-types'
+import type { Payload as RemoveProfileFromListPayload } from '../removeProfileFromList/generated-types'
+import {
+  addProfileToList,
+  createProfile,
+  getProfiles,
+  processPhoneNumber,
+  removeBulkProfilesFromList,
+  removeProfileFromList,
+  sendBatchedProfileImportJobRequest,
+  validateEmail
+} from '../functions'
+
+export const NO_LIST_ID_ERROR =
+  'No list ID found in payload. When connecting this action to a reverse ETL (database) Source, Segment cannot infer a list automatically - you must select an existing Klaviyo list or provide a name for a new one in the "Connect to a static list in Klaviyo" step when saving the mapping.'
+
+function trimIdentifiers<T extends { email?: string; phone_number?: string; external_id?: string }>(payload: T): T {
+  const { email, phone_number, external_id, ...rest } = payload
+  const trimmedEmail = email?.trim()
+  const trimmedPhone = phone_number?.trim()
+  const trimmedExternalId = external_id?.trim()
+
+  return {
+    ...rest,
+    ...(trimmedEmail && { email: trimmedEmail }),
+    ...(trimmedPhone && { phone_number: trimmedPhone }),
+    ...(trimmedExternalId && { external_id: trimmedExternalId })
+  } as T
+}
+
+export async function addOrRemoveProfilesFromList(
+  request: RequestClient,
+  rawPayload: Payload,
+  audienceMembership: AudienceMembership,
+  hookOutputs?: { id?: string; name?: string }
+) {
+  const payload = trimIdentifiers(rawPayload)
+  const list_id = hookOutputs?.id ?? payload.list_id
+  if (!list_id) {
+    throw new PayloadValidationError(NO_LIST_ID_ERROR)
+  }
+
+  if (typeof audienceMembership !== 'boolean') {
+    throw new PayloadValidationError('Audience Membership must be a boolean')
+  }
+
+  const {
+    email,
+    phone_number: initialPhoneNumber,
+    list_id: _listId,
+    external_id,
+    enable_batching,
+    batch_size,
+    country_code,
+    batch_keys,
+    ...additionalAttributes
+  } = payload
+  const phone_number = processPhoneNumber(initialPhoneNumber, country_code)
+
+  if (!email && !external_id && !phone_number) {
+    throw new PayloadValidationError('One of External ID, Phone Number or Email is required.')
+  }
+
+  if (audienceMembership) {
+    if (email && !validateEmail(email)) {
+      throw new PayloadValidationError('Email must be a valid email address.')
+    }
+
+    const profileId = await createProfile(request, email, external_id, phone_number, additionalAttributes)
+    return await addProfileToList(request, profileId, list_id)
+  }
+
+  const profileIds = await getProfiles(
+    request,
+    email ? [email] : undefined,
+    external_id ? [external_id] : undefined,
+    phone_number ? [phone_number] : undefined
+  )
+  if (!profileIds?.length) {
+    throw new PayloadValidationError('No profiles found for the provided identifiers.')
+  }
+  return await removeProfileFromList(request, profileIds, list_id)
+}
+
+export async function addOrRemoveProfilesFromListBatch(
+  request: RequestClient,
+  payloads: Payload[],
+  audienceMembership: AudienceMembership[],
+  statsContext?: StatsContext,
+  hookOutputs?: { id?: string; name?: string }
+): Promise<MultiStatusResponse> {
+  const multiStatusResponse = new MultiStatusResponse()
+  const addIndices: number[] = []
+  const addPayloads: AddProfileToListPayload[] = []
+  const removeIndices: number[] = []
+  const removePayloads: RemoveProfileFromListPayload[] = []
+
+  payloads.forEach((payload, index) => {
+    const membership = audienceMembership[index]
+
+    if (typeof membership !== 'boolean') {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+        errormessage: 'Audience Membership must be a boolean'
+      })
+      return
+    }
+
+    const trimmedPayload = trimIdentifiers(payload)
+    const effectivePayload = hookOutputs?.id ? { ...trimmedPayload, list_id: hookOutputs.id } : trimmedPayload
+
+    if (!effectivePayload.list_id) {
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
+        errormessage: NO_LIST_ID_ERROR
+      })
+      return
+    }
+
+    if (membership) {
+      addIndices.push(index)
+      addPayloads.push(effectivePayload as AddProfileToListPayload)
+    } else {
+      removeIndices.push(index)
+      removePayloads.push(effectivePayload as RemoveProfileFromListPayload)
+    }
+  })
+
+  const [addResult, removeResult] = await Promise.all([
+    addPayloads.length > 0 ? sendBatchedProfileImportJobRequest(request, addPayloads, statsContext) : undefined,
+    removePayloads.length > 0 ? removeBulkProfilesFromList(request, removePayloads, statsContext) : undefined
+  ])
+
+  if (addResult) {
+    addIndices.forEach((originalIndex, i) => {
+      multiStatusResponse.pushResponseObjectAtIndex(originalIndex, addResult.getResponseAtIndex(i))
+    })
+  }
+
+  if (removeResult) {
+    removeIndices.forEach((originalIndex, i) => {
+      multiStatusResponse.pushResponseObjectAtIndex(originalIndex, removeResult.getResponseAtIndex(i))
+    })
+  }
+
+  return multiStatusResponse
+}

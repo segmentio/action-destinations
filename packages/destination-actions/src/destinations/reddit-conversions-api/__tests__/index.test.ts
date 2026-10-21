@@ -499,6 +499,62 @@ describe('Reddit Conversions Api', () => {
       })
     })
 
+    it('should drop an invalid email and still send the event', async () => {
+      const event = createTestEvent({
+        timestamp: timestamp,
+        event: 'Lead Generated',
+        messageId: 'test-message-id-contact',
+        type: 'track',
+        userId: 'user_id_1',
+        properties: { click_id: 'click_id_1', email: 'not-an-email-or-a-hash' },
+        context: { userAgent: 'test-user-agent' }
+      })
+
+      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      const responses = await testDestination.testAction('standardEvent', {
+        event,
+        settings,
+        useDefaultMappings: true,
+        mapping: { tracking_type: 'Lead' }
+      })
+
+      expect(responses[0].status).toBe(200)
+      const sent = (responses[0].options.json as { events: Array<{ user: Record<string, unknown> }> }).events
+      expect(sent).toHaveLength(1)
+      expect(sent[0].user.email).toBeUndefined()
+      expect(sent[0].user.user_agent).toBe('test-user-agent')
+    })
+
+    it('should drop an invalid email from one event without failing the rest of the batch', async () => {
+      const buildEvent = (messageId: string, email: string) =>
+        createTestEvent({
+          timestamp: timestamp,
+          event: 'Lead Generated',
+          messageId,
+          type: 'track',
+          userId: 'user_id_1',
+          properties: { click_id: 'click_id_1', email },
+          context: { userAgent: 'test-user-agent' }
+        })
+
+      nock('https://ads-api.reddit.com').post('/api/v2.0/conversions/events/ad_account_id_1').reply(200, {})
+      const responses = await testDestination.testBatchAction('standardEvent', {
+        events: [
+          buildEvent('message-1', 'not-an-email-or-a-hash'),
+          buildEvent('message-2', 'Al.ice+Apple@Example.Com')
+        ],
+        settings,
+        useDefaultMappings: true,
+        mapping: { tracking_type: 'Lead' }
+      })
+
+      expect(responses[0].status).toBe(200)
+      const sent = (responses[0].options.json as { events: Array<{ user: Record<string, unknown> }> }).events
+      expect(sent).toHaveLength(2)
+      expect(sent[0].user.email).toBeUndefined()
+      expect(sent[1].user.email).toBe('ff8d9819fc0e12bf0d24892e45987e249a28dce836a85cad60e28eaaa8c6d976')
+    })
+
     it('it should hash and pass standard phone number with + (ex: +1 (650)555-1212)', async () => {
       const event = createTestEvent({
         timestamp: timestamp,
