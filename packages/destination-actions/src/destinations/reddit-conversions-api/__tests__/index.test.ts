@@ -514,7 +514,6 @@ describe('Reddit Conversions Api', () => {
       const responses = await testDestination.testAction('standardEvent', {
         event,
         settings,
-        features: { 'actions-reddit-conversions-api-base64-hashing': true },
         useDefaultMappings: true,
         mapping: { tracking_type: 'Lead' }
       })
@@ -545,7 +544,6 @@ describe('Reddit Conversions Api', () => {
           buildEvent('message-2', 'Al.ice+Apple@Example.Com')
         ],
         settings,
-        features: { 'actions-reddit-conversions-api-base64-hashing': true },
         useDefaultMappings: true,
         mapping: { tracking_type: 'Lead' }
       })
