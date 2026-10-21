@@ -6,7 +6,7 @@ export interface Payload {
    */
   event: string
   /**
-   * When the event occurred. Sent as RFC 3339 UTC. The Web Events API rejects events dated more than 14 days in the past or 30 minutes in the future.
+   * When the event occurred: use the standard Segment `timestamp` (ISO 8601) field. The Tatari Web Events API rejects events dated more than 14 days in the past or 30 minutes in the future.
    */
   timestamp: string | number
   /**
