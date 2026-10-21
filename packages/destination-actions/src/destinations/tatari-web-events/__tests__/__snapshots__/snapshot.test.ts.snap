@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - all fields 1`] = `"https://api.vaultdcr.com/webevents/v1/track"`;
+
+exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - all fields 2`] = `
+Object {
+  "args": Object {
+    "currency": "USD",
+    "order_id": "ORD-SNAPSHOT-1",
+    "order_total": 88.5,
+    "products": Array [
+      Object {
+        "product_id": "sku-1",
+        "quantity": 2,
+      },
+    ],
+  },
+  "distinct_id": "snapshot-message-id",
+  "event": "Order Completed",
+  "event_dt": "2026-01-15T12:34:56.000Z",
+  "hem_md5": "10b7b9bbbbbbf8d4824f3bcb7fcb3ea9",
+  "hem_sha1": "74d84f0eef066a6f13c918114b0f708785903f7c",
+  "hem_sha256": "9390e55fe677448e811fed1186a24a2a424785913339eaa510142fc2bbdfc98d",
+  "ipv4": "198.51.100.24",
+  "referrer_url": "https://shop.example.com/cart",
+  "session_id": "snapshot-anonymous-id",
+  "url": "https://shop.example.com/checkout/complete",
+  "user_agent": "Mozilla/5.0 (X11; Linux x86_64) Snapshot/1.0",
+  "user_id": "snapshot-user-id",
+}
+`;
+
+exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - required fields 1`] = `"https://api.vaultdcr.com/webevents/v1/track"`;
+
+exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - required fields 2`] = `
+Object {
+  "distinct_id": "snapshot-message-id-min",
+  "event": "page",
+  "event_dt": "2026-01-15T12:34:56.000Z",
+  "ipv6": "2001:db8:85a3::8a2e:370:7334",
+  "session_id": "snapshot-anonymous-id",
+  "url": "https://shop.example.com/",
+  "user_agent": "Mozilla/5.0 (X11; Linux x86_64) Snapshot/1.0",
+}
+`;
+
+exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - required fields 3`] = `
+Headers {
+  Symbol(map): Object {
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+    "x-api-key": Array [
+      "snapshot-api-key",
+    ],
+    "x-vault-api-integration": Array [
+      "segment/v0.1.0",
+    ],
+  },
+}
+`;
