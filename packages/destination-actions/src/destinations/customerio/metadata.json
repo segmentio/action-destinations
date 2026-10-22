@@ -3040,19 +3040,7 @@
           "multiple": true,
           "allowNull": false,
           "dynamic": false,
-          "default": {
-            "@arrayPath": [
-              "$.properties.topics",
-              {
-                "topic_id": {
-                  "@path": "$.topic_id"
-                },
-                "subscribed": {
-                  "@path": "$.subscribed"
-                }
-              }
-            ]
-          },
+          "default": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3125,19 +3113,7 @@
           "multiple": true,
           "allowNull": false,
           "dynamic": false,
-          "default": {
-            "@arrayPath": [
-              "$.properties.channels",
-              {
-                "channel_type": {
-                  "@path": "$.channel_type"
-                },
-                "subscribed": {
-                  "@path": "$.subscribed"
-                }
-              }
-            ]
-          },
+          "default": null,
           "choices": null,
           "placeholder": null,
           "properties": {
@@ -3800,32 +3776,6 @@
               "@path": "$.context.traits.email"
             }
           }
-        },
-        "topics": {
-          "@arrayPath": [
-            "$.properties.topics",
-            {
-              "topic_id": {
-                "@path": "$.topic_id"
-              },
-              "subscribed": {
-                "@path": "$.subscribed"
-              }
-            }
-          ]
-        },
-        "channels": {
-          "@arrayPath": [
-            "$.properties.channels",
-            {
-              "channel_type": {
-                "@path": "$.channel_type"
-              },
-              "subscribed": {
-                "@path": "$.subscribed"
-              }
-            }
-          ]
         },
         "unsubscribed": {
           "@path": "$.properties.unsubscribed"

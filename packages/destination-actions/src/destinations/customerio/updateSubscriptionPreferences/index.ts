@@ -67,15 +67,6 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'boolean',
           required: true
         }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.topics',
-          {
-            topic_id: { '@path': '$.topic_id' },
-            subscribed: { '@path': '$.subscribed' }
-          }
-        ]
       }
     },
     channels: {
@@ -108,15 +99,6 @@ const action: ActionDefinition<Settings, Payload> = {
           type: 'boolean',
           required: true
         }
-      },
-      default: {
-        '@arrayPath': [
-          '$.properties.channels',
-          {
-            channel_type: { '@path': '$.channel_type' },
-            subscribed: { '@path': '$.subscribed' }
-          }
-        ]
       }
     },
     unsubscribed: {
