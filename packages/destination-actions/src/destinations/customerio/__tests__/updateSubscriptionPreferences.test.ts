@@ -8,6 +8,24 @@ import { AccountRegion } from '../utils'
 
 const EVENT_NAME = 'Subscription Preferences Updated'
 
+// `topics` and `channels` have no default mapping (the array editor starts empty in the UI), so these tests use the
+// mapping a user would configure: the defaults for every other field plus an @arrayPath for each list.
+const mapping = {
+  ...getDefaultMappings('updateSubscriptionPreferences'),
+  topics: {
+    '@arrayPath': [
+      '$.properties.topics',
+      { topic_id: { '@path': '$.topic_id' }, subscribed: { '@path': '$.subscribed' } }
+    ]
+  },
+  channels: {
+    '@arrayPath': [
+      '$.properties.channels',
+      { channel_type: { '@path': '$.channel_type' }, subscribed: { '@path': '$.subscribed' } }
+    ]
+  }
+}
+
 describe('CustomerIO', () => {
   describe('updateSubscriptionPreferences', () => {
     testRunner((settings: Settings, action: Function) => {
@@ -29,7 +47,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response).toEqual({
@@ -47,6 +65,27 @@ describe('CustomerIO', () => {
         expect(response.attributes).not.toHaveProperty('cio_subscription_preferences')
       })
 
+      it('should not map topics or channels with the default mappings', async () => {
+        const event = createTestEvent({
+          event: EVENT_NAME,
+          userId: 'abc123',
+          anonymousId: undefined,
+          properties: {
+            topics: [{ topic_id: 1, subscribed: true }],
+            channels: [{ channel_type: 'email', subscribed: true }],
+            unsubscribed: false
+          }
+        })
+
+        const response = await action('updateSubscriptionPreferences', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response.attributes).toEqual({ unsubscribed: false })
+      })
+
       it('should send only the unsubscribed attribute when no topics are provided', async () => {
         const event = createTestEvent({
           event: EVENT_NAME,
@@ -60,7 +99,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response).toMatchObject({
@@ -84,7 +123,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response.attributes).toEqual({ unsubscribed: false })
@@ -108,7 +147,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response.attributes).toEqual({
@@ -157,9 +196,7 @@ describe('CustomerIO', () => {
           }
         })
 
-        await expect(
-          action('updateSubscriptionPreferences', { event, settings, useDefaultMappings: true })
-        ).rejects.toThrow()
+        await expect(action('updateSubscriptionPreferences', { event, settings, mapping })).rejects.toThrow()
       })
 
       // The framework applies `minimum` to `number` fields only, so a non-positive integer passes field validation.
@@ -176,7 +213,7 @@ describe('CustomerIO', () => {
             }
           })
 
-          const response = await action('updateSubscriptionPreferences', { event, settings, useDefaultMappings: true })
+          const response = await action('updateSubscriptionPreferences', { event, settings, mapping })
 
           expect(response.attributes).toEqual({ [`cio_subscription_preferences.topics.topic_${topic_id}`]: true })
         }
@@ -191,9 +228,7 @@ describe('CustomerIO', () => {
           }
         })
 
-        await expect(
-          action('updateSubscriptionPreferences', { event, settings, useDefaultMappings: true })
-        ).rejects.toThrow()
+        await expect(action('updateSubscriptionPreferences', { event, settings, mapping })).rejects.toThrow()
       })
 
       it('should reject a non-boolean subscribed value', async () => {
@@ -205,9 +240,7 @@ describe('CustomerIO', () => {
           }
         })
 
-        await expect(
-          action('updateSubscriptionPreferences', { event, settings, useDefaultMappings: true })
-        ).rejects.toThrow()
+        await expect(action('updateSubscriptionPreferences', { event, settings, mapping })).rejects.toThrow()
       })
 
       it('should identify by user id when both a user id and an email are present', async () => {
@@ -226,7 +259,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response.identifiers).toEqual({ id: 'abc123' })
@@ -248,7 +281,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response.identifiers).toEqual({ email })
@@ -270,7 +303,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response.identifiers).toEqual({ email })
@@ -289,7 +322,7 @@ describe('CustomerIO', () => {
         const response = await action('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
 
         expect(response.identifiers).toEqual({ anonymous_id: 'anon123' })
@@ -316,7 +349,7 @@ describe('CustomerIO', () => {
         testDestination.testAction('updateSubscriptionPreferences', {
           event,
           settings,
-          useDefaultMappings: true
+          mapping
         })
       ).rejects.toThrow('At least one of Topic Preferences, Channel Preferences, or Globally Unsubscribed')
     })
@@ -365,7 +398,7 @@ describe('CustomerIO', () => {
       const results = await testDestination.executeBatch('updateSubscriptionPreferences', {
         events,
         settings,
-        mapping: getDefaultMappings('updateSubscriptionPreferences')
+        mapping
       })
 
       expect(results.map((result) => result.status)).toEqual([200, 400, 400, 400])
@@ -408,7 +441,7 @@ describe('CustomerIO', () => {
       await testDestination.executeBatch('updateSubscriptionPreferences', {
         events,
         settings,
-        mapping: getDefaultMappings('updateSubscriptionPreferences')
+        mapping
       })
 
       expect(body?.batch).toHaveLength(2)
@@ -439,7 +472,7 @@ describe('CustomerIO', () => {
       const results = await testDestination.executeBatch('updateSubscriptionPreferences', {
         events,
         settings,
-        mapping: getDefaultMappings('updateSubscriptionPreferences')
+        mapping
       })
 
       expect(results.map((result) => result.status)).toEqual([200, 200])
@@ -467,7 +500,7 @@ describe('CustomerIO', () => {
       const results = await testDestination.executeBatch('updateSubscriptionPreferences', {
         events,
         settings,
-        mapping: getDefaultMappings('updateSubscriptionPreferences')
+        mapping
       })
 
       expect(results.map((result) => result.status)).toEqual([400, 400])
