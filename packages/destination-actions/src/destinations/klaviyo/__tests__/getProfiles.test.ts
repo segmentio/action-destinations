@@ -1,6 +1,6 @@
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import nock from 'nock'
-import { API_URL, KLAVIYO_PAGINATE_GET_PROFILES_FLAG } from '../config'
+import { API_URL, GET_PROFILES_CONCURRENCY, KLAVIYO_PAGINATE_GET_PROFILES_FLAG } from '../config'
 import Klaviyo from '../index'
 
 // STRATCONN-7111. The fake Klaviyo mimics the limits measured on the real API:
@@ -23,20 +23,29 @@ const makeEvents = (n: number, prefix = 'user') =>
 let removedIds: string[]
 let removeRequestSizes: number[]
 let getRequests: string[]
+let maxInFlightGets: number
 
 interface MockOptions {
   // number of profiles returned per matching value (to exercise links.next)
   profilesPerValue?: number
+  // artificial latency of each lookup, so concurrent lookups overlap
+  delayMs?: number
 }
 
-function mockKlaviyo({ profilesPerValue = 1 }: MockOptions = {}) {
+function mockKlaviyo({ profilesPerValue = 1, delayMs = 0 }: MockOptions = {}) {
   removedIds = []
   removeRequestSizes = []
   getRequests = []
+  maxInFlightGets = 0
+  let inFlightGets = 0
   nock(API_URL)
     .persist()
     .get(/\/profiles\/.*/)
+    .delay(delayMs)
     .reply(function (uri) {
+      inFlightGets++
+      maxInFlightGets = Math.max(maxInFlightGets, inFlightGets)
+      setTimeout(() => inFlightGets--, delayMs)
       getRequests.push(decodeURIComponent(uri))
       const url = new URL(uri, 'https://a.klaviyo.com')
       const filter = url.searchParams.get('filter') ?? ''
@@ -152,6 +161,21 @@ describe.each(['removeProfileFromList', 'removeProfile'])('Klaviyo %s getProfile
         features
       })
       expect(getRequests).toHaveLength(10)
+    })
+
+    it('runs chunk lookups concurrently, at most GET_PROFILES_CONCURRENCY at a time', async () => {
+      mockKlaviyo({ delayMs: 30 })
+      const response = await testDestination.executeBatch(actionName, {
+        events: makeEvents(1000),
+        settings,
+        mapping: emailMapping,
+        features
+      })
+      expect(response.every((r: any) => r.status === 200)).toBe(true)
+      expect(getRequests).toHaveLength(10)
+      expect(maxInFlightGets).toBeGreaterThan(1)
+      expect(maxInFlightGets).toBeLessThanOrEqual(GET_PROFILES_CONCURRENCY)
+      expect(new Set(removedIds).size).toBe(1000)
     })
 
     it('splits list removal into requests of at most 1000 profile ids', async () => {
