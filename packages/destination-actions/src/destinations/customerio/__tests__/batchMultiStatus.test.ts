@@ -184,6 +184,30 @@ describe('CustomerIO batch multi-status handling', () => {
     await expect(executeTrackEventBatch()).rejects.toThrow('Service Unavailable')
   })
 
+  it('lets a 500 with an errors array bubble up so the whole batch is retried', async () => {
+    trackService.post('/batch').reply(500, { errors: [{ batch_index: 0, message: 'internal error' }] })
+
+    await expect(executeTrackEventBatch()).rejects.toThrow('Internal Server Error')
+  })
+
+  it('propagates a non-400 4xx status to every entry when the body has batch_index errors', async () => {
+    trackService.post('/batch').reply(422, {
+      errors: [{ batch_index: 2, reason: 'invalid', field: 'timestamp', message: 'timestamp is in the future' }]
+    })
+
+    const response = await executeTrackEventBatch()
+
+    expect(response).toHaveLength(3)
+    expect(response[2]).toMatchObject({
+      status: 422,
+      errormessage: 'invalid - field: timestamp - timestamp is in the future',
+      sent: { name: 'Event 2' }
+    })
+    for (const index of [0, 1]) {
+      expect(response[index]).toMatchObject({ status: 422, errormessage: 'Unprocessable Entity' })
+    }
+  })
+
   it('lets 429 errors bubble up for a whole-batch retry even when the body has an errors array', async () => {
     trackService.post('/batch').reply(429, { errors: [{ batch_index: 0, message: 'rate limited' }] })
 
