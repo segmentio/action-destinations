@@ -21,6 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     and event != "Object Deleted"
     and event != "Report Delivery Event"
     and event != "Report Content Event"
+    and event != "Subscription Preferences Updated"
   `,
   fields: {
     id: {
