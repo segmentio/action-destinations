@@ -3,7 +3,7 @@ import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
 import { getDefaultMappings } from '../test-helper'
-import { AccountRegion } from '../utils'
+import { AccountRegion, sendBatch } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v2')
@@ -224,6 +224,21 @@ describe('CustomerIO batch multi-status handling', () => {
     trackService.post('/batch').reply(400, { errors: [] })
 
     await expect(executeTrackEventBatch()).rejects.toThrow('Bad Request')
+  })
+
+  it('handles a 400 thrown as an HTTPError from another copy of actions-core (local dev server)', async () => {
+    const error = Object.assign(new Error('Bad Request'), {
+      name: 'HTTPError',
+      response: { status: 400, data: { errors: [{ batch_index: 0, message: 'no identifiers' }] } }
+    })
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = await sendBatch(request, [
+      { action: 'event', type: 'person', settings, payload: { person_id: 'user-0', name: 'Event 0' } }
+    ])
+
+    expect(response.getAllResponses()).toHaveLength(1)
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({ status: 400, errormessage: 'no identifiers' })
   })
 
   it('keeps createUpdateObject entries in their original order across identify actions', async () => {
