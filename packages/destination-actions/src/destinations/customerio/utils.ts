@@ -213,6 +213,10 @@ type IdentifierFields = {
   person_id?: unknown
 }
 
+// Feature flag that turns on the fail-fast identifier check in `perform`. Off by default so the
+// rollout can be controlled and rolled back without a code change.
+export const VALIDATE_IDENTIFIERS_FLAG = 'customerio-validate-identifiers'
+
 // Throws a non-retryable PayloadValidationError when a payload would be sent to Customer.io without any
 // identifiers. Uses the same resolution rules as `buildPayload` (via `resolveIdentifiers`), so it only rejects payloads
 // the Track API would also reject.
