@@ -6,6 +6,10 @@ export interface Payload {
    */
   external_id?: string
   /**
+   * The JWT used to authenticate this user when the **Enable SDK Authentication** setting is on. Supply it on your `analytics.identify()` call under `integrations["Braze Web Mode (Actions)"].sdk_auth_signature`. The token must be signed by your server with `sub` set to the same value sent as the External User ID. [See Braze docs](https://www.braze.com/docs/developer_guide/sdk_integration/authentication).
+   */
+  sdk_auth_signature?: string
+  /**
    * The country code of the user
    */
   country?: string | null
