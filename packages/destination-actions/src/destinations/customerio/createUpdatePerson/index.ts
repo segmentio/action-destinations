@@ -106,6 +106,13 @@ const action: ActionDefinition<Settings, Payload> = {
         }
       }
     },
+    update_only: {
+      label: 'Update Existing People Only',
+      description:
+        'When enabled, Segment will only update people who already exist in Customer.io and will not create new people. Customer.io does not create a profile for an unknown person; the update is dropped and recorded as a failed attribute change in your activity log. [Learn more](https://docs.customer.io/integrations/api/track/tag/track-customers/identify/).',
+      type: 'boolean',
+      default: false
+    },
     ...eventProperties
   },
 
@@ -122,7 +129,16 @@ const action: ActionDefinition<Settings, Payload> = {
 }
 
 function mapPayload(payload: Payload) {
-  const { id, custom_attributes = {}, relationship_attributes, created_at, group_id, object_type_id, ...rest } = payload
+  const {
+    id,
+    custom_attributes = {},
+    relationship_attributes,
+    created_at,
+    group_id,
+    object_type_id,
+    update_only,
+    ...rest
+  } = payload
 
   // This is mapped to a field below.
   delete custom_attributes.createdAt
@@ -137,6 +153,11 @@ function mapPayload(payload: Payload) {
 
   if (payload.email) {
     custom_attributes.email = payload.email
+  }
+
+  // Tells Customer.io to only update an existing person and never create a new one.
+  if (update_only === true) {
+    custom_attributes._update = true
   }
 
   const body: Record<string, unknown> = {

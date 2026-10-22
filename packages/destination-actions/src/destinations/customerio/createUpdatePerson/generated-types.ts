@@ -46,6 +46,10 @@ export interface Payload {
    */
   object_type_id?: string
   /**
+   * When enabled, Segment will only update people who already exist in Customer.io and will not create new people. Customer.io does not create a profile for an unknown person; the update is dropped and recorded as a failed attribute change in your activity log. [Learn more](https://docs.customer.io/integrations/api/track/tag/track-customers/identify/).
+   */
+  update_only?: boolean
+  /**
    * Set as true to ensure Segment sends data to Customer.io in batches.
    */
   enable_batching?: boolean
