@@ -99,6 +99,14 @@ const performCases: [string, Record<string, unknown>, string][] = [
   ['unsuppressPerson', { person_id: '' }, 'Person ID']
 ]
 
+// Actions that validate a hand-built `{ object_id, object_type_id }` rather than the payload itself. With the flag on,
+// a valid object id must still let the request through, or a wrong field reference in that extraction would reject
+// every valid object request once the flag is enabled.
+const objectPerformCases: [string, Record<string, unknown>][] = [
+  ['createUpdateObject', { id: 'obj_123', user_id: 'user_123' }],
+  ['deleteRelationship', { person_id: 'user_123', object_id: 'obj_123' }]
+]
+
 describe('CustomerIO', () => {
   describe('identifier validation', () => {
     afterEach(() => {
@@ -172,6 +180,18 @@ describe('CustomerIO', () => {
         await perform(request, { payload, settings } as never)
 
         expect(request).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    objectPerformCases.forEach(([action, payload]) => {
+      it(`${action} should send the request with the flag on when the object id is present`, async () => {
+        const request = jest.fn().mockResolvedValue({})
+        const { perform } = CustomerIO.actions[action]
+
+        await perform(request, { payload, settings, features } as never)
+
+        expect(request).toHaveBeenCalledTimes(1)
+        expect(request.mock.calls[0][1].json.identifiers).toEqual({ object_id: 'obj_123', object_type_id: '1' })
       })
     })
   })
