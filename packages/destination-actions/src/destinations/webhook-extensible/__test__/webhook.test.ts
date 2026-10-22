@@ -726,6 +726,20 @@ export const baseWebhookTests = (def: DestinationDefinition<any>) => {
 
           expect(token).toEqual({ accessToken: mockResponse.access_token })
         })
+
+        it('sends a configured scope as entered, without trimming', async () => {
+          const newSettings = JSON.parse(JSON.stringify(settings))
+          newSettings.dynamicAuthSettings.oauth.type = 'clientCredentials'
+          newSettings.dynamicAuthSettings.oauth.scopes = ' api '
+          nock(`https://www.webhook-extensible/refresh_token`)
+            .post('', new URLSearchParams({ grant_type: 'client_credentials', scope: ' api ' }).toString())
+            .matchHeader('Authorization', `Basic ${Buffer.from('clientID:clientSecret').toString('base64')}`)
+            .reply(200, mockResponse)
+
+          const token = await testDestination.refreshAccessToken(newSettings, auth)
+
+          expect(token).toEqual({ accessToken: mockResponse.access_token })
+        })
       })
     })
   })
