@@ -4,7 +4,9 @@ module.exports = async ({ github, context, core }) => {
 
     // Bots such as Copilot are auto-requested as reviewers on some PRs. They must not
     // count as human reviewers, otherwise reviewer assignment is skipped entirely.
-    const isHumanReviewer = (user) => user && user.type !== 'Bot' && user.login !== 'Copilot'
+    const AI_REVIEWER_LOGINS = ['charlottestjohn']
+    const isHumanReviewer = (user) =>
+        user && user.type !== 'Bot' && user.login !== 'Copilot' && !AI_REVIEWER_LOGINS.includes(user.login)
 
     // Check if there are already reviewers assigned to the PR
     try {
