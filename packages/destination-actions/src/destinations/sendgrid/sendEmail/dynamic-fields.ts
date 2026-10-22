@@ -189,10 +189,11 @@ export async function dynamicGroupId(request: RequestClient, settings: Settings)
       })
     }
   } catch (err) {
-    const error = err as ResultError
+    const error = err as ResultError & { name?: string; message?: string }
     const code = String(error?.response?.status ?? 500)
     return createErrorResponse(
-      error?.response?.data?.errors.map((error) => error.message).join(';') ?? 'Unknown error: dynamicGroupId',
+      error?.response?.data?.errors?.map((error) => error.message).join(';') ??
+        `Unknown error: dynamicGroupId [${error?.name}: ${error?.message}]`,
       code
     )
   }
