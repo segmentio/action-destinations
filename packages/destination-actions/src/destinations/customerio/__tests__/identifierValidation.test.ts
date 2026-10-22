@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
-import { AccountRegion } from '../utils'
+import { AccountRegion, VALIDATE_IDENTIFIERS_FLAG } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 
@@ -11,6 +11,9 @@ const settings: Settings = {
   apiKey: 'abcde',
   accountRegion: AccountRegion.US
 }
+
+// The fail-fast check is behind a feature flag that is off by default; these tests turn it on explicitly.
+const features = { [VALIDATE_IDENTIFIERS_FLAG]: true }
 
 const errorMessage = (fields: string) =>
   `Customer.io requires an identifier, but none was found in the payload. Map a value to at least one of: ${fields}.`
@@ -110,12 +113,26 @@ describe('CustomerIO', () => {
           const result = testDestination.testAction(action, {
             event: createTestEvent(event),
             settings,
+            features,
             useDefaultMappings: true
           })
 
           await expect(result).rejects.toThrow(PayloadValidationError)
           await expect(result).rejects.toThrow(errorMessage(fields))
           expect(scope.isDone()).toBe(false)
+        })
+
+        it('should send the request unchanged when the flag is off, even without an identifier', async () => {
+          const scope = nock('https://track.customer.io').post('/api/v2/entity').reply(200, {})
+
+          const responses = await testDestination.testAction(action, {
+            event: createTestEvent(event),
+            settings,
+            useDefaultMappings: true
+          })
+
+          expect(scope.isDone()).toBe(true)
+          expect(responses[0].status).toBe(200)
         })
 
         present.forEach(([field, extra, identifiers]) => {
@@ -125,6 +142,7 @@ describe('CustomerIO', () => {
             const responses = await testDestination.testAction(action, {
               event: createTestEvent({ ...event, ...extra }),
               settings,
+              features,
               useDefaultMappings: true
             })
 
@@ -141,10 +159,19 @@ describe('CustomerIO', () => {
         const request = jest.fn()
         const { perform } = CustomerIO.actions[action]
 
-        await expect(Promise.resolve().then(() => perform(request, { payload, settings } as never))).rejects.toThrow(
-          new PayloadValidationError(errorMessage(fields))
-        )
+        await expect(
+          Promise.resolve().then(() => perform(request, { payload, settings, features } as never))
+        ).rejects.toThrow(new PayloadValidationError(errorMessage(fields)))
         expect(request).not.toHaveBeenCalled()
+      })
+
+      it(`${action} should still send the request when the flag is off and the payload has no identifier`, async () => {
+        const request = jest.fn().mockResolvedValue({})
+        const { perform } = CustomerIO.actions[action]
+
+        await perform(request, { payload, settings } as never)
+
+        expect(request).toHaveBeenCalledTimes(1)
       })
     })
   })
