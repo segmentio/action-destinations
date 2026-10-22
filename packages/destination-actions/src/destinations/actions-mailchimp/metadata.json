@@ -1,0 +1,634 @@
+{
+  "slug": "actions-mailchimp",
+  "name": "Mailchimp (Actions)",
+  "mode": "cloud",
+  "description": "Sync Segment audience members and behavioral tags to Mailchimp audiences (lists).",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Your Mailchimp Marketing API key. Used as the password for HTTP Basic Auth. Find it under Account > Extras > API keys.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "dataCenter": {
+        "label": "Datacenter Prefix",
+        "description": "The datacenter prefix for your Mailchimp account (e.g. us6). If left blank, it is resolved automatically from the suffix of your API key.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "audienceId": {
+        "label": "Audience ID",
+        "description": "The default Mailchimp Audience (List) ID to send events to. Find it under Audience > Settings > Audience name and defaults (\"Audience ID\").",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "addOrUpdateMember": {
+      "title": "Add or Update Audience Member",
+      "description": "Add a new member to a Mailchimp audience or update an existing member, mapping Segment traits to merge fields.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "email_address": {
+          "label": "Email Address",
+          "description": "The email address of the audience member. Used to identify the member (hashed for the API endpoint).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.traits.email"
+              },
+              "then": {
+                "@path": "$.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "list_id": {
+          "label": "Audience ID",
+          "description": "The Mailchimp Audience (List) ID to add the member to. Defaults to the Audience ID configured in settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "status_if_new": {
+          "label": "Status (if new)",
+          "description": "The subscription status to apply only when creating a new member. Protects the consent status of existing members.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "subscribed",
+          "choices": [
+            {
+              "value": "subscribed",
+              "label": "subscribed"
+            },
+            {
+              "value": "unsubscribed",
+              "label": "unsubscribed"
+            },
+            {
+              "value": "pending",
+              "label": "pending"
+            },
+            {
+              "value": "cleaned",
+              "label": "cleaned"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "status": {
+          "label": "Status",
+          "description": "The subscription status to apply to the member. Applies to existing members too — use with care to respect consent.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "subscribed",
+              "label": "subscribed"
+            },
+            {
+              "value": "unsubscribed",
+              "label": "unsubscribed"
+            },
+            {
+              "value": "pending",
+              "label": "pending"
+            },
+            {
+              "value": "cleaned",
+              "label": "cleaned"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "merge_fields": {
+          "label": "Merge Fields",
+          "description": "Mailchimp merge fields (e.g. FNAME, LNAME, and custom fields), keyed by the Mailchimp merge tag.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "language": {
+          "label": "Language",
+          "description": "The member's language (e.g. en).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.locale"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "vip": {
+          "label": "VIP",
+          "description": "Whether the member is a VIP.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tags": {
+          "label": "Tags",
+          "description": "Tags to apply to the member on creation or update.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Data",
+          "description": "When enabled, sends events to Mailchimp in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be lower.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 500,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": 1,
+          "maximum": 500,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_keys": {
+          "label": "Batch Keys",
+          "description": "The keys to use for batching the events.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": [
+            "list_id"
+          ],
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "addOrRemoveTags": {
+      "title": "Add or Remove Member Tags",
+      "description": "Apply or remove Mailchimp audience tags on an existing member based on behavioral events. The member must already exist in the audience.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "email": {
+          "label": "Email Address",
+          "description": "The email address of the audience member whose tags will be updated. Used to identify the member (hashed for the API endpoint).",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.traits.email"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "list_id": {
+          "label": "Audience ID",
+          "description": "The Mailchimp Audience (List) ID the member belongs to. Defaults to the Audience ID configured in settings.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tags": {
+          "label": "Tags",
+          "description": "Tags to apply or remove, each with a name and a status of \"active\" (add) or \"inactive\" (remove).",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "name": {
+              "label": "Tag Name",
+              "description": "The name of the tag.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "status": {
+              "label": "Status",
+              "description": "Whether to add (\"active\") or remove (\"inactive\") the tag.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "value": "active",
+                  "label": "active"
+                },
+                {
+                  "value": "inactive",
+                  "label": "inactive"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tags_to_add": {
+          "label": "Tags to Add",
+          "description": "A convenience list of tag names to add (status \"active\"). Defaults to the event name.",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tags_to_remove": {
+          "label": "Tags to Remove",
+          "description": "A convenience list of tag names to remove (status \"inactive\").",
+          "type": "string",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Add or Update Audience Member",
+      "type": "automatic",
+      "partnerAction": "addOrUpdateMember",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "email_address": {
+          "@if": {
+            "exists": {
+              "@path": "$.traits.email"
+            },
+            "then": {
+              "@path": "$.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "status_if_new": "subscribed",
+        "language": {
+          "@path": "$.context.locale"
+        },
+        "enable_batching": true,
+        "batch_size": 500,
+        "batch_keys": [
+          "list_id"
+        ]
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add or Remove Member Tags",
+      "type": "automatic",
+      "partnerAction": "addOrRemoveTags",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.email"
+            },
+            "then": {
+              "@path": "$.properties.email"
+            },
+            "else": {
+              "@path": "$.traits.email"
+            }
+          }
+        },
+        "tags_to_add": {
+          "@path": "$.event"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}
