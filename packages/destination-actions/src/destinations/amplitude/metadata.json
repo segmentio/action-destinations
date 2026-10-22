@@ -1161,7 +1161,7 @@
             },
             "quantity": {
               "label": "Quantity",
-              "description": "The quantity of the item purchased. Defaults to 1 if not specified.",
+              "description": "The quantity of the item purchased. Defaults to 1 if not specified. (Action Destination Bot Test)",
               "type": "integer",
               "required": false,
               "multiple": false,

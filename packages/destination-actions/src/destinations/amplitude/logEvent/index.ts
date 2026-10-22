@@ -44,7 +44,8 @@ const action: ActionDefinition<Settings, Payload> = {
         quantity: {
           label: 'Quantity',
           type: 'integer',
-          description: 'The quantity of the item purchased. Defaults to 1 if not specified.'
+          description:
+            'The quantity of the item purchased. Defaults to 1 if not specified. (Action Destination Bot Test)'
         },
         revenue: {
           label: 'Revenue',
@@ -195,7 +196,7 @@ const action: ActionDefinition<Settings, Payload> = {
     if (library === 'analytics.js' && !properties.platform) {
       properties.platform = 'Web'
     }
-   
+
     if (time && dayjs.utc(time).isValid()) {
       properties.time = dayjs.utc(time).valueOf()
     }
