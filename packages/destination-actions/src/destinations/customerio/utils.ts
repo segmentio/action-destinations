@@ -1,3 +1,4 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -201,6 +202,34 @@ export const resolveIdentifiers = ({
     return { email: email as string }
   } else if (anonymous_id) {
     return { anonymous_id: anonymous_id as string }
+  }
+}
+
+type IdentifierFields = {
+  anonymous_id?: unknown
+  email?: unknown
+  object_id?: unknown
+  object_type_id?: unknown
+  person_id?: unknown
+}
+
+// Feature flag that turns on the fail-fast identifier check in `perform`. Off by default so the
+// rollout can be controlled and rolled back without a code change.
+export const VALIDATE_IDENTIFIERS_FLAG = 'customerio-validate-identifiers'
+
+// Throws a non-retryable PayloadValidationError when a payload would be sent to Customer.io without any
+// identifiers. Uses the same resolution rules as `buildPayload` (via `resolveIdentifiers`), so it only rejects payloads
+// the Track API would also reject.
+// `acceptedFields` are the labels of the identifier fields on the calling action, used to build an actionable message.
+export const validateIdentifiers = (payload: IdentifierFields, acceptedFields: string[]): void => {
+  const { anonymous_id, email, object_id, object_type_id, person_id } = payload
+
+  if (!resolveIdentifiers({ anonymous_id, email, object_id, object_type_id, person_id })) {
+    throw new PayloadValidationError(
+      `Customer.io requires an identifier, but none was found in the payload. Map a value to at least one of: ${acceptedFields.join(
+        ', '
+      )}.`
+    )
   }
 }
 
