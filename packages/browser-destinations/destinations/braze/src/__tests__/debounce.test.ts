@@ -1,5 +1,6 @@
 import { Analytics, Context } from '@segment/analytics-next'
 import brazeDestination from '../index'
+import { resetUserCache } from '../debounce'
 
 let ajs: Analytics
 
@@ -233,5 +234,86 @@ describe('debounce', () => {
       { integrations: { 'Braze Web Mode (Actions)': { sdk_auth_signature: 'jwt-1' } } }
     )
     expect(ctx.event.integrations['Braze Web Mode (Actions)']).toBe(true)
+  })
+
+  describe('SDK Authentication token refresh', () => {
+    const WEB_MODE = 'Braze Web Mode (Actions)'
+    const withToken = (jwt: string) => ({ integrations: { [WEB_MODE]: { sdk_auth_signature: jwt } } })
+
+    const register = async (enableSdkAuthentication: boolean) => {
+      const [debounce] = await brazeDestination({
+        api_key: 'b_123',
+        endpoint: 'endpoint',
+        doNotLoadFontAwesome: true,
+        sdkVersion: '4.1',
+        enableSdkAuthentication,
+        subscriptions: [
+          {
+            partnerAction: 'debounce',
+            name: 'Debounce',
+            enabled: true,
+            subscribe: 'type = "identify"',
+            mapping: {}
+          }
+        ]
+      })
+      await ajs.register(debounce)
+    }
+
+    beforeEach(() => resetUserCache())
+
+    test('same traits with a new token is sent, and the same token is skipped', async () => {
+      await register(true)
+
+      const first = await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      expect(first.event.integrations?.[WEB_MODE]).toEqual({ sdk_auth_signature: 'jwt-1' })
+
+      const refreshed = await ajs.identify('refresh-user', { goat: true }, withToken('jwt-2'))
+      expect(refreshed.event.integrations?.[WEB_MODE]).toEqual({ sdk_auth_signature: 'jwt-2' })
+
+      const repeated = await ajs.identify('refresh-user', { goat: true }, withToken('jwt-2'))
+      expect(repeated.event.integrations?.[WEB_MODE]).toBe(false)
+    })
+
+    test('an event without a token is not a change', async () => {
+      await register(true)
+
+      await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      const withoutToken = await ajs.identify('refresh-user', { goat: true })
+      expect(withoutToken.event.integrations?.[WEB_MODE]).toBe(false)
+
+      // The remembered token survives the tokenless event, so the same one is still not a change.
+      const sameAgain = await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      expect(sameAgain.event.integrations?.[WEB_MODE]).toBe(false)
+    })
+
+    test('with SDK Authentication off, a new token is still skipped', async () => {
+      await register(false)
+
+      await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      const refreshed = await ajs.identify('refresh-user', { goat: true }, withToken('jwt-2'))
+      expect(refreshed.event.integrations?.[WEB_MODE]).toBe(false)
+    })
+
+    test('a blank or non-string token is not a change', async () => {
+      await register(true)
+
+      await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      for (const bad of ['  ', 42, { not: 'a string' }]) {
+        const ctx = await ajs.identify('refresh-user', { goat: true }, {
+          integrations: { [WEB_MODE]: { sdk_auth_signature: bad } }
+        } as never)
+        expect(ctx.event.integrations?.[WEB_MODE]).toBe(false)
+      }
+    })
+
+    test('resetUserCache forgets the remembered token', async () => {
+      await register(true)
+
+      await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      resetUserCache()
+      const afterReset = await ajs.identify('refresh-user', { goat: true }, withToken('jwt-1'))
+      expect(afterReset.event.integrations?.[WEB_MODE]).toEqual({ sdk_auth_signature: 'jwt-1' })
+    })
   })
 })

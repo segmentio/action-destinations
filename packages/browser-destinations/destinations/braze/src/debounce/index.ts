@@ -8,19 +8,23 @@ type CachedUser = {
   id: ID
   anonymousId: ID
   traits: ReturnType<User['traits']> | null
+  // The last SDK Authentication signature seen, so a refreshed token counts as a change.
+  sdkAuthSignature: string | undefined
 }
 
 let cachedUser: CachedUser = {
   id: undefined,
   anonymousId: undefined,
-  traits: null
+  traits: null,
+  sdkAuthSignature: undefined
 }
 
 export function resetUserCache() {
   cachedUser = {
     id: undefined,
     anonymousId: undefined,
-    traits: null
+    traits: null,
+    sdkAuthSignature: undefined
   }
 }
 
@@ -44,13 +48,31 @@ function shouldKeepSdkAuthOptions(
   return eventWillBeSent && sdkAuthEnabled && name === SDK_AUTH_INTEGRATION_NAME && isObject(existing)
 }
 
-function shouldSendToBraze(event: SegmentEvent) {
+// The signature the caller supplied on this event, read from the same two places the Update User
+// Profile mapping reads it by default. Anything but a non-empty string counts as no signature.
+function getSdkAuthSignature(event: SegmentEvent): string | undefined {
+  const options = event.integrations?.[SDK_AUTH_INTEGRATION_NAME]
+  if (!isObject(options)) return undefined
+  const signature = options.sdk_auth_signature ?? options.sdkAuthSignature
+  return typeof signature === 'string' && signature.trim() !== '' ? signature : undefined
+}
+
+function shouldSendToBraze(event: SegmentEvent, sdkAuthEnabled: boolean) {
   if (event.userId && event.userId !== cachedUser.id) {
     return true
   }
 
   if (event.anonymousId && event.anonymousId !== cachedUser.anonymousId) {
     return true
+  }
+
+  // A refreshed token for the same user with the same traits still has to reach Braze, or it
+  // keeps using the old one. An event without a signature is not a change.
+  if (sdkAuthEnabled) {
+    const signature = getSdkAuthSignature(event)
+    if (signature !== undefined && signature !== cachedUser.sdkAuthSignature) {
+      return true
+    }
   }
 
   const traits = event.traits ?? {}
@@ -70,13 +92,14 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     const analyticsUser = data.analytics.user()
     const ctx = data.context
 
-    // Only send the event to Braze if a trait has changed
-    // Target all possible Braze integration names
-    const shouldSend = shouldSendToBraze(event)
-    // Only customers who have turned SDK Authentication on need their options kept; for
-    // everyone else debounce behaves exactly as before, so this change is opt-in like the
-    // rest of SDK Authentication.
+    // Only customers who have turned SDK Authentication on need their options kept or a
+    // changed token treated as a change; for everyone else debounce behaves exactly as before,
+    // so this is opt-in like the rest of SDK Authentication.
     const sdkAuthEnabled = Boolean(data.settings.enableSdkAuthentication)
+
+    // Only send the event to Braze if a trait (or, with SDK Authentication on, the token) has changed
+    // Target all possible Braze integration names
+    const shouldSend = shouldSendToBraze(event, sdkAuthEnabled)
     for (const name of BRAZE_INTEGRATION_NAMES) {
       // Writing `true` here would discard any per-destination options the caller set under
       // this key, and that is where the SDK Authentication signature is supplied. An object
@@ -94,6 +117,9 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
     cachedUser.id = analyticsUser.id()
     cachedUser.anonymousId = analyticsUser.anonymousId()
     cachedUser.traits = analyticsUser.traits()
+    if (sdkAuthEnabled) {
+      cachedUser.sdkAuthSignature = getSdkAuthSignature(event) ?? cachedUser.sdkAuthSignature
+    }
   }
 }
 
