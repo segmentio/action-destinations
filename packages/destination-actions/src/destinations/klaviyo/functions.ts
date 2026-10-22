@@ -18,6 +18,7 @@ import {
   GET_PROFILES_MAX_FILTER_VALUES,
   GET_PROFILES_PAGE_SIZE,
   GET_PROFILES_MAX_PAGES_PER_CHUNK,
+  GET_PROFILES_CONCURRENCY,
   REMOVE_PROFILES_MAX_PER_REQUEST,
   KLAVIYO_PAGINATE_GET_PROFILES_FLAG
 } from './config'
@@ -269,21 +270,34 @@ export async function getProfiles(
 ): Promise<string[]> {
   if (options?.paginate) {
     // Klaviyo returns 20 profiles per page by default and rejects any() filters with more than 100 values,
-    // so look up each identifier type in sequential chunks of 100 values, 100 profiles per page.
+    // so look up each identifier type in chunks of 100 values, 100 profiles per page.
     const profileIdentifiers = [
       { field: 'external_id', values: external_ids },
       { field: 'email', values: emails },
       { field: 'phone_number', values: phoneNumbers }
     ] as const
 
-    const allProfileIds: string[] = []
+    const lookups: { field: ProfileIdentifierField; chunk: string[] }[] = []
 
     for (const { field, values } of profileIdentifiers) {
       const uniqueValues = Array.from(new Set(values ?? []))
       const chunks = chunkArray(uniqueValues, GET_PROFILES_MAX_FILTER_VALUES)
 
       for (const chunk of chunks) {
-        const chunkProfileIds = await getProfileIdsForChunk(request, field, chunk, options.statsContext)
+        lookups.push({ field, chunk })
+      }
+    }
+
+    // Run the chunk lookups a few at a time to stay inside the delivery deadline without flooding Klaviyo.
+    // Pages within one chunk are still followed one after another.
+    const allProfileIds: string[] = []
+    const lookupBatches = chunkArray(lookups, GET_PROFILES_CONCURRENCY)
+
+    for (const lookupBatch of lookupBatches) {
+      const results = await Promise.all(
+        lookupBatch.map(({ field, chunk }) => getProfileIdsForChunk(request, field, chunk, options.statsContext))
+      )
+      for (const chunkProfileIds of results) {
         allProfileIds.push(...chunkProfileIds)
       }
     }

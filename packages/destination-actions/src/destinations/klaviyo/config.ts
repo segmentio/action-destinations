@@ -9,6 +9,7 @@ export const KLAVIYO_PAGINATE_GET_PROFILES_FLAG = 'klaviyo-paginate-get-profiles
 export const GET_PROFILES_MAX_FILTER_VALUES = 100
 export const GET_PROFILES_PAGE_SIZE = 100
 export const GET_PROFILES_MAX_PAGES_PER_CHUNK = 10
+export const GET_PROFILES_CONCURRENCY = 5
 // Klaviyo Remove Profiles from List accepts at most 1000 profiles per request
 export const REMOVE_PROFILES_MAX_PER_REQUEST = 1000
 export const COUNTRY_CODES = [
