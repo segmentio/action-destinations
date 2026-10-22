@@ -332,13 +332,24 @@ const buildBatchMultiStatusResponse = (
   return multiStatusResponse
 }
 
+// Structural check rather than `instanceof` alone: the local dev server reloads the destination with a
+// cleared require cache, so the HTTPError thrown by the request client can come from a different copy
+// of actions-core than the one this module imported.
+const isHttpError = (error: unknown): error is HTTPError => {
+  if (error instanceof HTTPError) {
+    return true
+  }
+
+  return error instanceof Error && error.name === 'HTTPError' && 'response' in error
+}
+
 // Converts a 4xx HTTPError whose body carries the Track API `errors` array into a per-entry
 // MultiStatusResponse. Returns undefined for anything else so the caller rethrows it.
 const buildBatchMultiStatusErrorResponse = (
   batch: JSONLikeObject[],
   error: unknown
 ): MultiStatusResponse | undefined => {
-  if (!(error instanceof HTTPError)) {
+  if (!isHttpError(error)) {
     return undefined
   }
 
