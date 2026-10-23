@@ -303,12 +303,13 @@ const buildBatchMultiStatusResponse = (
   response: ModifiedResponse<CustomerIOBatchResponse>
 ): MultiStatusResponse => {
   const multiStatusResponse = new MultiStatusResponse()
-  const { byIndex, requestLevel } = groupBatchErrors(getBatchErrors(response?.data) ?? [], batch.length)
+  // A 207 means Customer.io accepted every entry it did not name, so only entries with a `batch_index`
+  // error fail. The Track API puts `batch_index` on every 207 error; an error without one cannot be tied
+  // to an entry and is dropped rather than failing entries whose data was written.
+  const { byIndex } = groupBatchErrors(getBatchErrors(response?.data) ?? [], batch.length)
 
   batch.forEach((sent, index) => {
-    // An error that cannot be tied to an entry (missing or out-of-range `batch_index`) is treated as a
-    // request-level failure: every entry without an error of its own fails with that message.
-    const entryErrors = byIndex.get(index) ?? (requestLevel.length ? requestLevel : undefined)
+    const entryErrors = byIndex.get(index)
 
     if (entryErrors) {
       const errormessage = entryErrors.map(formatBatchError).join('; ')
@@ -343,8 +344,13 @@ const isHttpError = (error: unknown): error is HTTPError => {
   return error instanceof Error && error.name === 'HTTPError' && 'response' in error
 }
 
-// Converts a 4xx HTTPError whose body carries the Track API `errors` array into a per-entry
-// MultiStatusResponse. Returns undefined for anything else so the caller rethrows it.
+// Statuses the Track API uses to reject a whole batch for validation reasons. Nothing in the batch was
+// written, and the `errors` array says why (per entry via `batch_index`, or for the whole request).
+const BATCH_VALIDATION_STATUSES = new Set([400, 422])
+
+// Converts a 400/422 HTTPError whose body carries the Track API `errors` array into a per-entry
+// MultiStatusResponse. Returns undefined for anything else (401, 403, 408, 429, 5xx, ...) so the caller
+// rethrows it and the framework keeps its auth and retry handling for the whole batch.
 const buildBatchMultiStatusErrorResponse = (
   batch: JSONLikeObject[],
   error: unknown
@@ -355,7 +361,7 @@ const buildBatchMultiStatusErrorResponse = (
 
   const status = error.response?.status
 
-  if (typeof status !== 'number' || status < 400 || status >= 500 || status === 429) {
+  if (typeof status !== 'number' || !BATCH_VALIDATION_STATUSES.has(status)) {
     return undefined
   }
 
