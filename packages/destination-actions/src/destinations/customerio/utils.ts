@@ -1,6 +1,7 @@
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
+import { HTTPError, JSONLikeObject, ModifiedResponse, MultiStatusResponse } from '@segment/actions-core'
 import { CUSTOMERIO_TRACK_API_VERSION } from './versioning-info'
 
 const isEmail = (value: string): boolean => {
@@ -204,20 +205,39 @@ export const resolveIdentifiers = ({
   }
 }
 
-export const sendBatch = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>[]) => {
+export const sendBatch = async <Payload extends BasePayload>(
+  request: Function,
+  options: RequestPayload<Payload>[]
+): Promise<MultiStatusResponse> => {
   if (!options?.length) {
-    return
+    return new MultiStatusResponse()
   }
 
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
 
-  return request(`${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`, {
-    method: 'post',
-    json: {
-      batch
+  try {
+    const response: ModifiedResponse<CustomerIOBatchResponse> = await request(
+      `${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`,
+      {
+        method: 'post',
+        json: {
+          batch
+        }
+      }
+    )
+
+    return buildBatchMultiStatusResponse(batch as JSONLikeObject[], response)
+  } catch (error) {
+    const handled = buildBatchMultiStatusErrorResponse(batch as JSONLikeObject[], error)
+
+    if (handled) {
+      return handled
     }
-  })
+
+    // 5xx, 429, auth failures, network errors, etc: let the framework handle (and retry) the whole batch.
+    throw error
+  }
 }
 
 export const sendSingle = <Payload extends BasePayload>(request: Function, options: RequestPayload<Payload>) => {
@@ -229,3 +249,144 @@ export const sendSingle = <Payload extends BasePayload>(request: Function, optio
 }
 
 export { isIsoDate }
+
+// A single error entry returned by the Customer.io Track v2 `/batch` endpoint, either in a
+// 207 Multi-Status body (partial failure) or a 4xx body (whole request rejected).
+// `batch_index` is the 0-based index into the submitted `batch` array; it may be omitted for
+// request-level errors.
+type CustomerIOBatchError = {
+  batch_index?: number
+  reason?: string
+  field?: string
+  message?: string
+}
+
+type CustomerIOBatchResponse = {
+  errors?: CustomerIOBatchError[]
+}
+
+const formatBatchError = (error: CustomerIOBatchError): string => {
+  const parts = [error.reason, error.field ? `field: ${error.field}` : undefined, error.message].filter(
+    (part): part is string => typeof part === 'string' && part.length > 0
+  )
+
+  return parts.length ? parts.join(' - ') : 'Unknown error'
+}
+
+const getBatchErrors = (data?: CustomerIOBatchResponse): CustomerIOBatchError[] | undefined => {
+  const errors = data?.errors
+
+  return Array.isArray(errors) ? errors : undefined
+}
+
+// Groups errors by the batch entry they refer to. Errors with a missing or out-of-range
+// `batch_index` are returned separately as request-level errors.
+const groupBatchErrors = (errors: CustomerIOBatchError[], batchLength: number) => {
+  const byIndex = new Map<number, CustomerIOBatchError[]>()
+  const requestLevel: CustomerIOBatchError[] = []
+
+  for (const error of errors) {
+    const index = error.batch_index
+
+    if (typeof index === 'number' && Number.isInteger(index) && index >= 0 && index < batchLength) {
+      byIndex.set(index, [...(byIndex.get(index) ?? []), error])
+    } else {
+      requestLevel.push(error)
+    }
+  }
+
+  return { byIndex, requestLevel }
+}
+
+const buildBatchMultiStatusResponse = (
+  batch: JSONLikeObject[],
+  response: ModifiedResponse<CustomerIOBatchResponse>
+): MultiStatusResponse => {
+  const multiStatusResponse = new MultiStatusResponse()
+  // A 207 means Customer.io accepted every entry it did not name, so only entries with a `batch_index`
+  // error fail. The Track API puts `batch_index` on every 207 error; an error without one cannot be tied
+  // to an entry and is dropped rather than failing entries whose data was written.
+  const { byIndex } = groupBatchErrors(getBatchErrors(response?.data) ?? [], batch.length)
+
+  batch.forEach((sent, index) => {
+    const entryErrors = byIndex.get(index)
+
+    if (entryErrors) {
+      const errormessage = entryErrors.map(formatBatchError).join('; ')
+
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'BAD_REQUEST',
+        errormessage,
+        sent,
+        body: { errors: entryErrors } as JSONLikeObject
+      })
+    } else {
+      multiStatusResponse.setSuccessResponseAtIndex(index, {
+        status: 200,
+        sent,
+        body: 'success'
+      })
+    }
+  })
+
+  return multiStatusResponse
+}
+
+// Structural check rather than `instanceof` alone: the local dev server reloads the destination with a
+// cleared require cache, so the HTTPError thrown by the request client can come from a different copy
+// of actions-core than the one this module imported.
+const isHttpError = (error: unknown): error is HTTPError => {
+  if (error instanceof HTTPError) {
+    return true
+  }
+
+  return error instanceof Error && error.name === 'HTTPError' && 'response' in error
+}
+
+// Statuses the Track API uses to reject a whole batch for validation reasons. Nothing in the batch was
+// written, and the `errors` array says why (per entry via `batch_index`, or for the whole request).
+const BATCH_VALIDATION_STATUSES = new Set([400, 422])
+
+// Converts a 400/422 HTTPError whose body carries the Track API `errors` array into a per-entry
+// MultiStatusResponse. Returns undefined for anything else (401, 403, 408, 429, 5xx, ...) so the caller
+// rethrows it and the framework keeps its auth and retry handling for the whole batch.
+const buildBatchMultiStatusErrorResponse = (
+  batch: JSONLikeObject[],
+  error: unknown
+): MultiStatusResponse | undefined => {
+  if (!isHttpError(error)) {
+    return undefined
+  }
+
+  const status = error.response?.status
+
+  if (typeof status !== 'number' || !BATCH_VALIDATION_STATUSES.has(status)) {
+    return undefined
+  }
+
+  const errors = getBatchErrors((error.response as ModifiedResponse<CustomerIOBatchResponse>)?.data)
+
+  // No `errors` array, or an empty one, is not the Track API validation shape: rethrow so the
+  // framework handles the whole batch.
+  if (!errors?.length) {
+    return undefined
+  }
+
+  const multiStatusResponse = new MultiStatusResponse()
+  const { byIndex, requestLevel } = groupBatchErrors(errors, batch.length)
+  const requestLevelMessage = requestLevel.length ? requestLevel.map(formatBatchError).join('; ') : error.message
+
+  batch.forEach((sent, index) => {
+    const entryErrors = byIndex.get(index)
+
+    multiStatusResponse.setErrorResponseAtIndex(index, {
+      status,
+      errormessage: entryErrors ? entryErrors.map(formatBatchError).join('; ') : requestLevelMessage,
+      sent,
+      body: { errors: entryErrors ?? requestLevel } as JSONLikeObject
+    })
+  })
+
+  return multiStatusResponse
+}
