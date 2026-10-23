@@ -1,0 +1,1878 @@
+{
+  "slug": "chatgpt-ads-conversions",
+  "name": "ChatGPT Ads Conversions",
+  "mode": "cloud",
+  "description": "Send website events from Segment to the ChatGPT Ads Conversions API.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "pixel_id": {
+        "label": "Pixel ID",
+        "description": "The Pixel ID for your Ads Manager data source.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "api_key": {
+        "label": "Conversions API Key",
+        "description": "A server-side CAPI key with access to this Pixel ID. Keep this key private.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "reportWebEvent": {
+      "title": "Report Website Event",
+      "description": "Send a website conversion or custom event to ChatGPT Ads through the Conversions API.",
+      "platform": "cloud",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "event_type": {
+          "label": "Event Type",
+          "description": "The ChatGPT Ads website event to send. Select custom for an advertiser-defined event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "value": "appointment_scheduled",
+              "label": "appointment_scheduled"
+            },
+            {
+              "value": "checkout_started",
+              "label": "checkout_started"
+            },
+            {
+              "value": "contents_viewed",
+              "label": "contents_viewed"
+            },
+            {
+              "value": "items_added",
+              "label": "items_added"
+            },
+            {
+              "value": "lead_created",
+              "label": "lead_created"
+            },
+            {
+              "value": "order_created",
+              "label": "order_created"
+            },
+            {
+              "value": "page_viewed",
+              "label": "page_viewed"
+            },
+            {
+              "value": "registration_completed",
+              "label": "registration_completed"
+            },
+            {
+              "value": "subscription_created",
+              "label": "subscription_created"
+            },
+            {
+              "value": "trial_started",
+              "label": "trial_started"
+            },
+            {
+              "value": "custom",
+              "label": "custom"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_id": {
+          "label": "Event ID",
+          "description": "A stable ID for this event. Reuse it on retries and in Pixel when sending the same conversion.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.event_id"
+              },
+              "then": {
+                "@path": "$.properties.event_id"
+              },
+              "else": {
+                "@path": "$.messageId"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Event Time",
+          "description": "Original event time as an ISO 8601 timestamp with timezone, or integer Unix milliseconds. Do not use the delivery time.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "source_url": {
+          "label": "Page URL",
+          "description": "The website URL where the event occurred. Credentials, query parameters and fragments are removed. Map a path without personal data.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_event_name": {
+          "label": "Custom Event Name",
+          "description": "Required for custom events. Use 1–64 letters, numbers, underscores or hyphens, starting and ending with a letter or number.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "opt_out": {
+          "label": "Opt Out",
+          "description": "Map the advertiser opt-out signal: true, false, or null/absent for unspecified. This does not replace consent-based routing in Segment.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": true,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.opt_out"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "oppref": {
+          "label": "Ad Click Reference",
+          "description": "The existing OpenAI ad click reference. Pass the value unchanged.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.oppref"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "amount": {
+          "label": "Value",
+          "description": "Event value. By default, use major currency units: 42.50 for USD 42.50. Set Amount Units to minor if the source already sends cents.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.revenue"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "amount_units": {
+          "label": "Amount Units",
+          "description": "Applies to both the event value and item unit prices. Major converts using the currency; minor requires integers.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": "major",
+          "choices": [
+            {
+              "label": "Major (for example, USD dollars)",
+              "value": "major"
+            },
+            {
+              "label": "Minor (for example, USD cents)",
+              "value": "minor"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "currency": {
+          "label": "Currency",
+          "description": "ISO 4217 currency code, such as USD. Required when Value is present.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "plan_id": {
+          "label": "Plan ID",
+          "description": "Optional plan ID for subscription, trial, or custom events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.plan_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "contents": {
+          "label": "Items",
+          "description": "Products or content for commerce, page, subscription, trial, or custom events. Item price is a unit price, not a line total.",
+          "type": "object",
+          "required": false,
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "id": {
+                  "@path": "$.product_id"
+                },
+                "name": {
+                  "@path": "$.name"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                },
+                "amount": {
+                  "@path": "$.price"
+                },
+                "currency": {
+                  "@path": "$.currency"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "id": {
+              "label": "Item ID",
+              "description": "Product or content ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "group_id": {
+              "label": "Group ID",
+              "description": "Product group ID.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "name": {
+              "label": "Name",
+              "description": "Product or content name.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "content_type": {
+              "label": "Content Type",
+              "description": "Product or content type.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "Number of units.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "amount": {
+              "label": "Unit Price",
+              "description": "Price per item in the selected Amount Units.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "currency": {
+              "label": "Item Currency",
+              "description": "ISO 4217 currency. Defaults to the event currency when absent.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "variant_dict": {
+              "label": "Variants",
+              "description": "Variant names and string values, such as color: blue.",
+              "type": "object",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": true
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "Optional raw email. The connector trims, lowercases and hashes it before sending. Do not map an already hashed value here.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "external_id": {
+          "label": "Customer ID",
+          "description": "Optional customer ID. The connector trims both ends, preserves case and hashes it before sending. Do not map an already hashed value here.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_data": {
+          "label": "Matching Data",
+          "description": "Optional customer matching fields. Identity hashes must be prepared upstream. Use only data permitted by your consent rules.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.user_data"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "email_sha256": {
+              "label": "Email SHA-256",
+              "description": "A lowercase, 64-character SHA-256 hash of the trimmed, lowercase email.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "external_id_sha256": {
+              "label": "External ID SHA-256",
+              "description": "A lowercase, 64-character SHA-256 hash of the customer ID, trimmed at both ends with case preserved.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "ip_address": {
+              "label": "IP Address",
+              "description": "The customer IP address from the original event. Do not use the server IP.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "user_agent": {
+              "label": "User Agent",
+              "description": "The customer browser user agent from the original event.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "obref": {
+              "label": "Browser Reference",
+              "description": "The existing OpenAI browser reference. Pass the value unchanged.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "country": {
+              "label": "Country",
+              "description": "Two-letter country code.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "city": {
+              "label": "City",
+              "description": "Customer city.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "emails_sha256": {
+              "label": "Emails SHA-256",
+              "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "external_ids_sha256": {
+              "label": "External IDs SHA-256",
+              "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phone_numbers_sha256": {
+              "label": "Phone Numbers SHA-256",
+              "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "first_names_sha256": {
+              "label": "First Names SHA-256",
+              "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "last_names_sha256": {
+              "label": "Last Names SHA-256",
+              "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "countries": {
+              "label": "Countries",
+              "description": "Up to three customer geographic values.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "cities": {
+              "label": "Cities",
+              "description": "Up to three customer geographic values.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "regions": {
+              "label": "Regions",
+              "description": "Up to three customer geographic values.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "postal_codes": {
+              "label": "Postal Codes",
+              "description": "Up to three customer geographic values.",
+              "type": "string",
+              "required": false,
+              "multiple": true,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "custom_properties": {
+          "label": "Custom Properties",
+          "description": "Explicitly selected properties for custom events only. Do not include personal data or credentials here.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Order Completed",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "order_created"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Checkout Started",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Checkout Started\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "checkout_started"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Product Added",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "items_added"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Product Viewed",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "contents_viewed"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Lead Created",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Lead Created\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "lead_created"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Signed Up",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "registration_completed"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Appointment Scheduled",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Appointment Scheduled\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "appointment_scheduled"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Subscription Created",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Subscription Created\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "subscription_created"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Trial Started",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"track\" and event = \"Trial Started\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "trial_started"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Page Viewed",
+      "type": "automatic",
+      "partnerAction": "reportWebEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event_id": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.event_id"
+            },
+            "then": {
+              "@path": "$.properties.event_id"
+            },
+            "else": {
+              "@path": "$.messageId"
+            }
+          }
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "source_url": {
+          "@path": "$.context.page.url"
+        },
+        "opt_out": {
+          "@path": "$.properties.opt_out"
+        },
+        "oppref": {
+          "@path": "$.properties.oppref"
+        },
+        "amount": {
+          "@path": "$.properties.revenue"
+        },
+        "amount_units": "major",
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "plan_id": {
+          "@path": "$.properties.plan_id"
+        },
+        "contents": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "id": {
+                "@path": "$.product_id"
+              },
+              "name": {
+                "@path": "$.name"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              },
+              "amount": {
+                "@path": "$.price"
+              },
+              "currency": {
+                "@path": "$.currency"
+              }
+            }
+          ]
+        },
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "external_id": {
+          "@path": "$.userId"
+        },
+        "user_data": {
+          "@path": "$.properties.user_data"
+        },
+        "event_type": "page_viewed"
+      },
+      "eventSlug": null
+    }
+  ]
+}
