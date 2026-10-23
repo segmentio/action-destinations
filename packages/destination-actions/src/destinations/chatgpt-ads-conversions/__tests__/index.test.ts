@@ -297,6 +297,42 @@ describe('ChatGPT Ads Conversions', () => {
 })
 
 describe('amount conversion and event validation', () => {
+  it('reuses currency precision across items and events without mixing currencies', () => {
+    jest.isolateModules(() => {
+      const { formatEvent: formatIsolatedEvent } =
+        jest.requireActual<typeof import('../reportWebEvent/format')>('../reportWebEvent/format')
+      const numberFormat = jest.spyOn(Intl, 'NumberFormat')
+      try {
+        const payload = {
+          ...base,
+          amount: 19.99,
+          currency: 'USD',
+          contents: [
+            { amount: 2.5, currency: ' usd ' },
+            { amount: 100, currency: 'JPY' },
+            { amount: 200, currency: 'JPY' },
+            { amount: 1.234, currency: 'KWD' }
+          ]
+        }
+        const event = formatIsolatedEvent(payload)
+        expect(event.data).toMatchObject({
+          amount: 1999,
+          currency: 'USD',
+          contents: [
+            { amount: 250, currency: 'USD' },
+            { amount: 100, currency: 'JPY' },
+            { amount: 200, currency: 'JPY' },
+            { amount: 1234, currency: 'KWD' }
+          ]
+        })
+        expect(formatIsolatedEvent(payload)).toEqual(event)
+        expect(numberFormat).toHaveBeenCalledTimes(3)
+      } finally {
+        numberFormat.mockRestore()
+      }
+    })
+  })
+
   it.each<[number, string, number]>([
     [19.99, 'USD', 1999],
     [1.005, 'KWD', 1005],

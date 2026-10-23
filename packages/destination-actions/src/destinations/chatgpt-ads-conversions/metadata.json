@@ -858,7 +858,7 @@
               "additionalProperties": false
             },
             "emails_sha256": {
-              "label": "emails_sha256",
+              "label": "Emails SHA-256",
               "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
               "type": "string",
               "required": false,
@@ -882,7 +882,7 @@
               "additionalProperties": false
             },
             "external_ids_sha256": {
-              "label": "external_ids_sha256",
+              "label": "External IDs SHA-256",
               "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
               "type": "string",
               "required": false,
@@ -906,7 +906,7 @@
               "additionalProperties": false
             },
             "phone_numbers_sha256": {
-              "label": "phone_numbers_sha256",
+              "label": "Phone Numbers SHA-256",
               "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
               "type": "string",
               "required": false,
@@ -930,7 +930,7 @@
               "additionalProperties": false
             },
             "first_names_sha256": {
-              "label": "first_names_sha256",
+              "label": "First Names SHA-256",
               "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
               "type": "string",
               "required": false,
@@ -954,7 +954,7 @@
               "additionalProperties": false
             },
             "last_names_sha256": {
-              "label": "last_names_sha256",
+              "label": "Last Names SHA-256",
               "description": "Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.",
               "type": "string",
               "required": false,
@@ -978,7 +978,7 @@
               "additionalProperties": false
             },
             "countries": {
-              "label": "countries",
+              "label": "Countries",
               "description": "Up to three customer geographic values.",
               "type": "string",
               "required": false,
@@ -1002,7 +1002,7 @@
               "additionalProperties": false
             },
             "cities": {
-              "label": "cities",
+              "label": "Cities",
               "description": "Up to three customer geographic values.",
               "type": "string",
               "required": false,
@@ -1026,7 +1026,7 @@
               "additionalProperties": false
             },
             "regions": {
-              "label": "regions",
+              "label": "Regions",
               "description": "Up to three customer geographic values.",
               "type": "string",
               "required": false,
@@ -1050,7 +1050,7 @@
               "additionalProperties": false
             },
             "postal_codes": {
-              "label": "postal_codes",
+              "label": "Postal Codes",
               "description": "Up to three customer geographic values.",
               "type": "string",
               "required": false,

@@ -13,6 +13,7 @@ const fail = (message: string): never => {
 }
 const hash = (value: string) => createHash('sha256').update(value, 'utf8').digest('hex')
 const defined = (value: unknown) => value !== undefined && value !== null
+const currencyDigits = new Map<string, number>()
 
 function currencyCode(value: string | undefined): string | undefined {
   if (value === undefined) return undefined
@@ -34,8 +35,11 @@ export function minorAmount(
     return value
   }
   // Decimal-string arithmetic avoids errors such as 19.99 * 100 = 1998.9999999999998.
-  const digits =
-    new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits ?? 2
+  let digits = currencyDigits.get(currency)
+  if (digits === undefined) {
+    digits = new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits ?? 2
+    currencyDigits.set(currency, digits)
+  }
   const match = /^(-?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/i.exec(String(value))
   if (!match) return fail('Value must be a decimal number.')
   const [, sign, whole, fraction = '', exponent = '0'] = match

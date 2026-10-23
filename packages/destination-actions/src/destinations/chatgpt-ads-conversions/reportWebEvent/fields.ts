@@ -3,6 +3,18 @@ import { EVENT_DATA_TYPES, GEO_LIST_FIELDS, HASH_LIST_FIELDS } from '../constant
 
 const text = (label: string, description: string): InputField => ({ label, description, type: 'string' })
 
+const userPropertyLabels = {
+  emails_sha256: 'Emails SHA-256',
+  external_ids_sha256: 'External IDs SHA-256',
+  phone_numbers_sha256: 'Phone Numbers SHA-256',
+  first_names_sha256: 'First Names SHA-256',
+  last_names_sha256: 'Last Names SHA-256',
+  countries: 'Countries',
+  cities: 'Cities',
+  regions: 'Regions',
+  postal_codes: 'Postal Codes'
+}
+
 const userProperties: Record<string, InputField> = {
   email_sha256: text('Email SHA-256', 'A lowercase, 64-character SHA-256 hash of the trimmed, lowercase email.'),
   external_id_sha256: text(
@@ -18,12 +30,18 @@ const userProperties: Record<string, InputField> = {
 
 for (const name of HASH_LIST_FIELDS) {
   userProperties[name] = {
-    ...text(name, 'Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.'),
+    ...text(
+      userPropertyLabels[name],
+      'Up to three lowercase, 64-character SHA-256 hashes. Normalize identifiers before hashing.'
+    ),
     multiple: true
   }
 }
 for (const name of GEO_LIST_FIELDS) {
-  userProperties[name] = { ...text(name, 'Up to three customer geographic values.'), multiple: true }
+  userProperties[name] = {
+    ...text(userPropertyLabels[name], 'Up to three customer geographic values.'),
+    multiple: true
+  }
 }
 
 export const fields: Record<string, InputField> = {
