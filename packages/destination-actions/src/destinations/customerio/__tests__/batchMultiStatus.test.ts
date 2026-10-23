@@ -105,7 +105,8 @@ describe('CustomerIO batch multi-status handling', () => {
     expect(response[2]).toMatchObject({ status: 200 })
   })
 
-  it('fails every entry without its own error when a 207 carries an error that cannot be tied to an entry', async () => {
+  it('keeps unnamed entries successful when a 207 carries an error that cannot be tied to an entry', async () => {
+    // A 207 means Customer.io wrote every entry it did not name, so a stray error must not fail them.
     trackService.post('/batch').reply(207, {
       errors: [
         { batch_index: 1, reason: 'invalid', field: 'name', message: 'name is required' },
@@ -116,22 +117,13 @@ describe('CustomerIO batch multi-status handling', () => {
 
     const response = await executeTrackEventBatch()
 
-    expect(response[0]).toMatchObject({
-      status: 400,
-      errortype: 'BAD_REQUEST',
-      errormessage: 'invalid - not in this batch; invalid - no index at all',
-      sent: { name: 'Event 0' }
-    })
+    expect(response[0]).toMatchObject({ status: 200, body: 'success', sent: { name: 'Event 0' } })
     expect(response[1]).toMatchObject({
       status: 400,
       errormessage: 'invalid - field: name - name is required',
       sent: { name: 'Event 1' }
     })
-    expect(response[2]).toMatchObject({
-      status: 400,
-      errormessage: 'invalid - not in this batch; invalid - no index at all',
-      sent: { name: 'Event 2' }
-    })
+    expect(response[2]).toMatchObject({ status: 200, body: 'success', sent: { name: 'Event 2' } })
   })
 
   it('maps batch_index errors to their entries on a 400 response and fails the rest with the response status', async () => {
@@ -213,6 +205,19 @@ describe('CustomerIO batch multi-status handling', () => {
 
     await expect(executeTrackEventBatch()).rejects.toThrow('Too Many Requests')
   })
+
+  it.each<[number, string]>([
+    [401, 'Unauthorized'],
+    [403, 'Forbidden'],
+    [408, 'Request Timeout']
+  ])(
+    'lets a %s with an errors array bubble up so auth and retry handling stay with the framework',
+    async (status: number, message: string) => {
+      trackService.post('/batch').reply(status, { errors: [{ batch_index: 0, message: 'rejected' }] })
+
+      await expect(executeTrackEventBatch()).rejects.toThrow(message)
+    }
+  )
 
   it('lets 4xx errors without an errors array bubble up unchanged', async () => {
     trackService.post('/batch').reply(401, { meta: { error: 'Unauthorized request' } })
