@@ -34,7 +34,7 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
     it('returns the network error message when there is no response', async () => {
       nock(restUrl).get('/data/v1/customobjects').query(true).replyWithError('socket hang up')
 
-      const response = await getDataExtensions(request, settings.subdomain, settings)
+      const response = await getDataExtensions(request, settings.subdomain, settings, 'My')
 
       expect(response.choices).toEqual([])
       expect(response.error?.code).toBe('BAD_REQUEST')
@@ -45,7 +45,7 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
     it('returns the timeout message when the request times out', async () => {
       nock(restUrl).get('/data/v1/customobjects').query(true).delay(200).reply(200, { count: 0, items: [] })
 
-      const response = await getDataExtensions(createRequestClient({ timeout: 20 }), settings.subdomain, settings)
+      const response = await getDataExtensions(createRequestClient({ timeout: 20 }), settings.subdomain, settings, 'My')
 
       expect(response.choices).toEqual([])
       expect(response.error).toEqual({ message: 'Request timed out after 20ms', code: 'BAD_REQUEST' })
@@ -54,7 +54,7 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
     it('passes through SFMC error message and code', async () => {
       nock(restUrl).get('/data/v1/customobjects').query(true).reply(400, { message: 'Bad thing', errorcode: 10001 })
 
-      const response = await getDataExtensions(request, settings.subdomain, settings)
+      const response = await getDataExtensions(request, settings.subdomain, settings, 'My')
 
       expect(response).toEqual({ choices: [], error: { message: 'Bad thing', code: '10001' } })
     })
@@ -65,7 +65,7 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
         .query(true)
         .reply(403, { message: 'Insufficient privileges', errorcode: 20002 })
 
-      const response = await getDataExtensions(request, settings.subdomain, settings)
+      const response = await getDataExtensions(request, settings.subdomain, settings, 'My')
 
       expect(response.choices).toEqual([])
       expect(response.error?.code).toBe('20002')
@@ -78,10 +78,36 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
     it('returns choices on success', async () => {
       nock(restUrl)
         .get('/data/v1/customobjects')
-        .query({ $search: '_' })
+        .query({ $search: 'My' })
         .reply(200, { count: 1, items: [{ id: 'de-1', name: 'My DE', key: 'my-de' }] })
 
-      const response = await getDataExtensions(request, settings.subdomain, settings)
+      const response = await getDataExtensions(request, settings.subdomain, settings, 'My')
+
+      expect(response).toEqual({ choices: [{ value: 'de-1', label: 'My DE' }] })
+    })
+
+    it.each([undefined, '', '   '])(
+      'asks for a search term without calling SFMC when the query is %p',
+      async (query) => {
+        const search = nock(restUrl).get('/data/v1/customobjects').query(true).reply(200, { count: 0, items: [] })
+
+        const response = await getDataExtensions(request, settings.subdomain, settings, query)
+
+        expect(response).toEqual({
+          choices: [],
+          error: { message: 'Enter a search term to find Data Extensions.', code: 'SEARCH_TERM_REQUIRED' }
+        })
+        expect(search.isDone()).toBe(false)
+      }
+    )
+
+    it('trims whitespace around the search term', async () => {
+      nock(restUrl)
+        .get('/data/v1/customobjects')
+        .query({ $search: 'My' })
+        .reply(200, { count: 1, items: [{ id: 'de-1', name: 'My DE', key: 'my-de' }] })
+
+      const response = await getDataExtensions(request, settings.subdomain, settings, '  My  ')
 
       expect(response).toEqual({ choices: [{ value: 'de-1', label: 'My DE' }] })
     })
