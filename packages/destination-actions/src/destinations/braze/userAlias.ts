@@ -1,4 +1,4 @@
-interface UserAlias {
+export interface UserAlias {
   alias_name: string
   alias_label: string
 }
