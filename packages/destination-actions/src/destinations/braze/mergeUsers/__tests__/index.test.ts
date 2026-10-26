@@ -630,25 +630,27 @@ describe('Braze.mergeUsers multiStatus', () => {
 
     expect(response[0]).toMatchObject({
       status: 200,
-      body: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-1' }, identifier_to_keep: { external_id: 'keep-1' } }] }
+      sent: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-1' }, identifier_to_keep: { external_id: 'keep-1' } }] },
+      body: { message: 'success' }
     })
 
     expect(response[1]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'ID value to keep must be provided.',
-      errorreporter: 'DESTINATION'
+      errorreporter: 'INTEGRATIONS'
     })
 
     expect(response[2]).toMatchObject({
       status: 200,
-      body: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-3' }, identifier_to_keep: { external_id: 'keep-3' } }] }
+      sent: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-3' }, identifier_to_keep: { external_id: 'keep-3' } }] },
+      body: { message: 'success' }
     })
 
     expect(response[3]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errorreporter: 'DESTINATION'
+      errorreporter: 'INTEGRATIONS'
     })
   })
 
@@ -674,18 +676,23 @@ describe('Braze.mergeUsers multiStatus', () => {
 
     expect(response[0]).toMatchObject({
       status: 400,
-      errorreporter: 'DESTINATION'
+      errormessage: 'Invalid merge request',
+      errorreporter: 'DESTINATION',
+      sent: { merge_updates: [{ identifier_to_merge: { external_id: 'merge-1' }, identifier_to_keep: { external_id: 'keep-1' } }] },
+      body: { message: 'Invalid merge request' }
     })
 
+    expect(response[1]).not.toHaveProperty('sent')
     expect(response[1]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'ID value to keep must be provided.',
-      errorreporter: 'DESTINATION'
+      errorreporter: 'INTEGRATIONS'
     })
 
     expect(response[2]).toMatchObject({
       status: 400,
+      errormessage: 'Invalid merge request',
       errorreporter: 'DESTINATION'
     })
   })
@@ -718,6 +725,60 @@ describe('Braze.mergeUsers multiStatus', () => {
     expect(response[2]).toMatchObject({ status: 202 })
   })
 
+  it.each([429, 500])('should mark every valid item with status %i when Braze returns it', async (status) => {
+    nock(settings.endpoint).post('/users/merge').reply(status, { message: 'Over rate limit' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' }),
+      createTestEvent({ type: 'alias', userId: 'keep-2', previousId: 'merge-2' })
+    ]
+
+    const response = await testDestination.executeBatch('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: { '@path': '$.previousId' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(response[0]).toMatchObject({ status, errormessage: 'Over rate limit', body: { message: 'Over rate limit' } })
+    expect(response[1]).toMatchObject({ status, errormessage: 'Over rate limit', body: { message: 'Over rate limit' } })
+  })
+
+  it('should only send the X-Braze-Batch header when more than one item is sent', async () => {
+    const mapping = {
+      previousIdType: 'external_id',
+      previousIdValue: { '@path': '$.previousId' },
+      keepIdType: 'external_id',
+      keepIdValue: { '@path': '$.userId' }
+    }
+
+    nock(settings.endpoint, { badheaders: ['x-braze-batch'] })
+      .post('/users/merge')
+      .reply(202, { message: 'success' })
+    const single = await testDestination.executeBatch('mergeUsers', {
+      events: [createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' })],
+      settings,
+      mapping
+    })
+    expect(single[0]).toMatchObject({ status: 202 })
+
+    nock(settings.endpoint).post('/users/merge').matchHeader('X-Braze-Batch', 'true').reply(202, { message: 'success' })
+    const multiple = await testDestination.executeBatch('mergeUsers', {
+      events: [
+        createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'merge-1' }),
+        createTestEvent({ type: 'alias', userId: 'keep-2', previousId: 'merge-2' })
+      ],
+      settings,
+      mapping
+    })
+    expect(multiple[0]).toMatchObject({ status: 202 })
+    expect(multiple[1]).toMatchObject({ status: 202 })
+  })
+
   it('should handle a batch where all payloads fail validation', async () => {
     const events: SegmentEvent[] = [
       createTestEvent({ type: 'alias', userId: '', previousId: 'merge-1' }),
@@ -739,14 +800,14 @@ describe('Braze.mergeUsers multiStatus', () => {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'ID value to keep must be provided.',
-      errorreporter: 'DESTINATION'
+      errorreporter: 'INTEGRATIONS'
     })
 
     expect(response[1]).toMatchObject({
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'ID value to keep must be provided.',
-      errorreporter: 'DESTINATION'
+      errorreporter: 'INTEGRATIONS'
     })
   })
 })

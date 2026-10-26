@@ -19,8 +19,7 @@ export async function send(request: RequestClient, settings: Settings, payloads:
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
           errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: (error as PayloadValidationError).message,
-          sent: payload as unknown as JSONLikeObject
+          errormessage: (error as PayloadValidationError).message
         })
       } else {
         throw error
@@ -50,8 +49,8 @@ export async function send(request: RequestClient, settings: Settings, payloads:
       }
       multiStatusResponse.setSuccessResponseAtIndex(originalIndex, {
         status: response.status,
-        sent: payloads[originalIndex] as unknown as JSONLikeObject,
-        body: { merge_updates: [validItems[i]] } as unknown as JSONLikeObject
+        sent: { merge_updates: [validItems[i]] } as unknown as JSONLikeObject,
+        body: response.data as unknown as JSONLikeObject
       })
     }
   } catch (error) {
@@ -63,9 +62,9 @@ export async function send(request: RequestClient, settings: Settings, payloads:
         }
         multiStatusResponse.setErrorResponseAtIndex(originalIndex, {
           status: error.response.status,
-          errormessage: error.message,
-          sent: payloads[originalIndex] as unknown as JSONLikeObject,
-          body: { merge_updates: [validItems[i]] } as unknown as JSONLikeObject
+          errormessage: getBrazeErrorMessage(error),
+          sent: { merge_updates: [validItems[i]] } as unknown as JSONLikeObject,
+          body: (error.response as { data?: unknown }).data as JSONLikeObject
         })
       }
     } else {
@@ -74,6 +73,12 @@ export async function send(request: RequestClient, settings: Settings, payloads:
   }
 
   return multiStatusResponse
+}
+
+function getBrazeErrorMessage(error: HTTPError): string {
+  const data = (error.response as { data?: unknown }).data
+  const message = (data as { message?: unknown } | undefined)?.message
+  return typeof message === 'string' && message ? message : error.message
 }
 
 function getJsonItem(payload: MergeUsersPayload): MergeUsersItem {
