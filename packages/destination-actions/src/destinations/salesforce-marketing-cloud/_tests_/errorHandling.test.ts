@@ -85,32 +85,6 @@ describe('Salesforce Marketing Cloud - error handling without a response', () =>
 
       expect(response).toEqual({ choices: [{ value: 'de-1', label: 'My DE' }] })
     })
-
-    it.each([undefined, '', '   '])(
-      'asks for a search term without calling SFMC when the query is %p',
-      async (query) => {
-        const search = nock(restUrl).get('/data/v1/customobjects').query(true).reply(200, { count: 0, items: [] })
-
-        const response = await getDataExtensions(request, settings.subdomain, settings, query)
-
-        expect(response).toEqual({
-          choices: [],
-          error: { message: 'Enter a search term to find Data Extensions.', code: 'SEARCH_TERM_REQUIRED' }
-        })
-        expect(search.isDone()).toBe(false)
-      }
-    )
-
-    it('trims whitespace around the search term', async () => {
-      nock(restUrl)
-        .get('/data/v1/customobjects')
-        .query({ $search: 'My' })
-        .reply(200, { count: 1, items: [{ id: 'de-1', name: 'My DE', key: 'my-de' }] })
-
-      const response = await getDataExtensions(request, settings.subdomain, settings, '  My  ')
-
-      expect(response).toEqual({ choices: [{ value: 'de-1', label: 'My DE' }] })
-    })
   })
 
   describe('selectOrCreateDataExtension', () => {

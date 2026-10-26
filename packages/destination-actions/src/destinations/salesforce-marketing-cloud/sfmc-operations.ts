@@ -632,14 +632,9 @@ export const getDataExtensions = async (
   settings: Settings,
   query?: string
 ): Promise<DynamicFieldResponse> => {
-  // SFMC requires $search, and the old default of "_" (which only matches system Data Extensions) is slow
-  // enough to time out for some accounts, so don't query until the user types a search term.
-  const searchQuery = query?.trim()
-  if (!searchQuery) {
-    return {
-      choices: [],
-      error: { message: 'Enter a search term to find Data Extensions.', code: 'SEARCH_TERM_REQUIRED' }
-    }
+  let searchQuery = '_'
+  if (query && query !== '') {
+    searchQuery = query
   }
 
   const { accessToken } = await getAccessToken(request, settings)
