@@ -8,6 +8,20 @@ const PIPEDRIVE_API_KEY = 'random string'
 const PIPEDRIVE_DOMAIN = 'companydomain'
 const PERSON_ID = 33333
 
+describe('Pipedrive domain validation', () => {
+  it('should throw when domain contains URL injection characters', async () => {
+    await expect(
+      testDestination.testAuthentication({ apiToken: PIPEDRIVE_API_KEY, domain: 'attacker.com/path?x=' })
+    ).rejects.toThrowError(/Invalid domain/)
+  })
+
+  it('should throw when domain contains @ injection', async () => {
+    await expect(
+      testDestination.testAuthentication({ apiToken: PIPEDRIVE_API_KEY, domain: 'attacker.com@legitimate' })
+    ).rejects.toThrowError(/Invalid domain/)
+  })
+})
+
 describe('Pipedrive.createUpdatePerson', () => {
   it('should create person if none exists', async () => {
     const scope = nock(`https://${PIPEDRIVE_DOMAIN}.pipedrive.com/api/v1`)
