@@ -244,8 +244,7 @@ describe('upsertContactTransaction', () => {
     })
   })
 
-  describe('datacenter validation flag', () => {
-    const FLAG = { 'actions-qualtrics-validate-datacenter': true }
+  describe('datacenter validation', () => {
     const event = createTestEvent({
       userId: CONTACT_INFO.extRef,
       traits: {
@@ -265,13 +264,12 @@ describe('upsertContactTransaction', () => {
     }
 
     it.each(['a.b', 'attacker.com/path?x=', 'attacker.com@legitimate'])(
-      'rejects datacenter %j and sends no request when the flag is on',
+      'rejects datacenter %j and sends no request',
       async (datacenter) => {
         await expect(
           testDestination.testAction('upsertContactTransaction', {
             event,
             settings: { ...SETTINGS, datacenter },
-            features: FLAG,
             useDefaultMappings: true,
             mapping
           })
@@ -279,20 +277,7 @@ describe('upsertContactTransaction', () => {
       }
     )
 
-    it('does not validate the datacenter when the flag is off', async () => {
-      nock('https://a.b.qualtrics.com').post(`/API/v3/directories/${DIRECTORY_ID}/transactions`).reply(200, {})
-
-      const response = await testDestination.testAction('upsertContactTransaction', {
-        event,
-        settings: { ...SETTINGS, datacenter: 'a.b' },
-        useDefaultMappings: true,
-        mapping
-      })
-
-      expect(response[0].status).toBe(200)
-    })
-
-    it('accepts a valid datacenter when the flag is on', async () => {
+    it('accepts a valid datacenter', async () => {
       nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
         .post(`/API/v3/directories/${DIRECTORY_ID}/transactions`)
         .reply(200, {})
@@ -300,7 +285,6 @@ describe('upsertContactTransaction', () => {
       const response = await testDestination.testAction('upsertContactTransaction', {
         event,
         settings: SETTINGS,
-        features: FLAG,
         useDefaultMappings: true,
         mapping
       })
