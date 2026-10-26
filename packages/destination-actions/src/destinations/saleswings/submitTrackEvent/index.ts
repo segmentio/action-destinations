@@ -1,19 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import {
-  messageID,
-  userID,
-  anonymousID,
-  email,
-  url,
-  referrerUrl,
-  userAgent,
-  timestamp,
-  kind,
-  data,
-  values
-} from '../fields'
+import { userID, anonymousID, email, url, referrerUrl, userAgent, timestamp, kind, data, values } from '../fields'
 import { perform, performBatch } from '../common'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -22,7 +10,6 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send your Segment Track events to SalesWings to use them for tagging, scoring and prioritising your leads.',
   defaultSubscription: 'type = "track"',
   fields: {
-    messageID,
     kind: kind('Track'),
     data: data({ '@path': '$.event' }),
     userID,
