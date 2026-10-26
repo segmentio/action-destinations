@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { external_id, lookup_field, data, field_value, enable_batching, event_name } from '../properties'
+import { external_id, lookup_field, data, field_value, enable_batching, batch_size, event_name } from '../properties'
 import { retlOnMappingSaveHook } from '../retlOnMappingSaveHook'
 import { syncList, syncListBatch } from './functions'
 
@@ -34,12 +34,8 @@ const action: ActionDefinition<Settings, Payload> = {
     data: { ...data },
     field_value: { ...field_value },
     enable_batching: { ...enable_batching },
+    batch_size: { ...batch_size, default: 300, maximum: 300 },
     event_name: { ...event_name }
-    /* 
-      batch_size and batch_keys are customized in integrations-consumer service for this action.
-      https://github.com/segmentio/integrations-go/pull/491  
-      Do NOT add batch_size or batch_keys here.
-    */
   },
   hooks: {
     retlOnMappingSave: retlOnMappingSaveHook<Payload>()

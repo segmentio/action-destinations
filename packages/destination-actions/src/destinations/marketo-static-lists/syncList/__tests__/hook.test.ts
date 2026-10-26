@@ -53,6 +53,7 @@ const mapping = {
     }
   },
   enable_batching: true,
+  batch_size: 300,
   event_name: { '@path': '$.event' },
   retlOnMappingSave: {
     outputs: {
