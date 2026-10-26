@@ -1,4 +1,13 @@
-import { convertAttributeTimestamps, convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
+import { PayloadValidationError } from '@segment/actions-core'
+import {
+  convertAttributeTimestamps,
+  convertValidTimestamp,
+  resolveIdentifiers,
+  isIsoDate,
+  validateIdentifiers
+} from '../utils'
+
+type IdentifierFields = Parameters<typeof validateIdentifiers>[0]
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -159,5 +168,41 @@ describe('convertAttributeTimestamps — sub-millisecond fractional seconds (STR
     expect(result.createdat).toBe(1723667808)
     expect(result.address.movedinat).toBe(1672531200)
     expect(result.address.movedoutat).toBe(1723667808)
+  })
+})
+
+describe('validateIdentifiers', () => {
+  const fields = ['Person ID', 'Email Address', 'Anonymous ID']
+
+  const valid: [string, IdentifierFields][] = [
+    ['a person id', { person_id: 'user_123' }],
+    ['a cio_ prefixed person id', { person_id: 'cio_123' }],
+    ['an email in the person id', { person_id: 'test@example.com' }],
+    ['an email', { email: 'test@example.com' }],
+    ['an anonymous id', { anonymous_id: 'anon_123' }],
+    ['an object id without an object type id', { object_id: 'obj_123' }],
+    ['an object id with an object type id', { object_id: 'obj_123', object_type_id: '2' }]
+  ]
+  valid.forEach(([description, payload]) => {
+    it(`should not throw when the payload has ${description}`, () => {
+      expect(() => validateIdentifiers(payload, fields)).not.toThrow()
+    })
+  })
+
+  const invalid: [string, IdentifierFields][] = [
+    ['no identifier fields', {}],
+    ['empty identifier fields', { person_id: '', email: '', anonymous_id: '', object_id: '' }],
+    ['undefined identifier fields', { person_id: undefined, email: undefined, anonymous_id: undefined }]
+  ]
+  invalid.forEach(([description, payload]) => {
+    it(`should throw a PayloadValidationError when the payload has ${description}`, () => {
+      expect(() => validateIdentifiers(payload, fields)).toThrow(PayloadValidationError)
+    })
+  })
+
+  it('should name the accepted identifier fields in the error message', () => {
+    expect(() => validateIdentifiers({}, fields)).toThrow(
+      'Customer.io requires an identifier, but none was found in the payload. Map a value to at least one of: Person ID, Email Address, Anonymous ID.'
+    )
   })
 })

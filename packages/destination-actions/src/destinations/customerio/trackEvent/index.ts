@@ -1,6 +1,6 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
-import { sendBatch, sendSingle } from '../utils'
+import { sendBatch, sendSingle, validateIdentifiers, VALIDATE_IDENTIFIERS_FLAG } from '../utils'
 import type { Payload } from './generated-types'
 import { eventProperties } from '../customerio-properties'
 
@@ -21,7 +21,6 @@ const action: ActionDefinition<Settings, Payload> = {
     and event != "Object Deleted"
     and event != "Report Delivery Event"
     and event != "Report Content Event"
-    and event != "Subscription Preferences Updated"
   `,
   fields: {
     id: {
@@ -92,8 +91,13 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
 
-  perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: 'event', payload: mapPayload(payload), settings, type: 'person' })
+  perform: (request, { payload, settings, features }) => {
+    const body = mapPayload(payload)
+    if (features && features[VALIDATE_IDENTIFIERS_FLAG]) {
+      validateIdentifiers(body, ['Person ID', 'Anonymous ID'])
+    }
+
+    return sendSingle(request, { action: 'event', payload: body, settings, type: 'person' })
   }
 }
 

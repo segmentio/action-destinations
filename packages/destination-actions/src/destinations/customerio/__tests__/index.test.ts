@@ -14,8 +14,7 @@ describe('customerio presets', () => {
         'Delete Object',
         'Merge People',
         'Suppress Person',
-        'Unsuppress Person',
-        'Update Subscription Preferences'
+        'Unsuppress Person'
       ])
     )
   })

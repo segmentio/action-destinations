@@ -12,7 +12,6 @@ import reportContentEvent from './reportContentEvent'
 import { CUSTOMERIO_CUSTOMERS_API_VERSION } from './versioning-info'
 import suppressPerson from './suppressPerson'
 import unsuppressPerson from './unsuppressPerson'
-import updateSubscriptionPreferences from './updateSubscriptionPreferences'
 import trackEvent from './trackEvent'
 import trackPageView from './trackPageView'
 import trackScreenView from './trackScreenView'
@@ -76,8 +75,7 @@ const destination: DestinationDefinition<Settings> = {
     suppressPerson,
     unsuppressPerson,
     reportDeliveryEvent,
-    reportContentEvent,
-    updateSubscriptionPreferences
+    reportContentEvent
   },
 
   presets: [
@@ -143,7 +141,6 @@ const destination: DestinationDefinition<Settings> = {
         and event != "Object Deleted"
         and event != "Report Delivery Event"
         and event != "Report Content Event"
-        and event != "Subscription Preferences Updated"
       `,
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
@@ -203,13 +200,6 @@ const destination: DestinationDefinition<Settings> = {
       subscribe: 'event = "Report Content Event"',
       partnerAction: 'reportContentEvent',
       mapping: defaultValues(reportContentEvent.fields),
-      type: 'automatic'
-    },
-    {
-      name: 'Update Subscription Preferences',
-      subscribe: 'event = "Subscription Preferences Updated"',
-      partnerAction: 'updateSubscriptionPreferences',
-      mapping: defaultValues(updateSubscriptionPreferences.fields),
       type: 'automatic'
     },
     {
