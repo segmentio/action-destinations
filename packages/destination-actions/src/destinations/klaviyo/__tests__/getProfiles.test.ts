@@ -30,9 +30,18 @@ interface MockOptions {
   profilesPerValue?: number
   // artificial latency of each lookup, so concurrent lookups overlap
   delayMs?: number
+  // lookups whose filter contains this text get a 429
+  rateLimitLookupsContaining?: string
+  // the remove request with this number (1-based) gets a 500
+  failRemoveRequestNumber?: number
 }
 
-function mockKlaviyo({ profilesPerValue = 1, delayMs = 0 }: MockOptions = {}) {
+function mockKlaviyo({
+  profilesPerValue = 1,
+  delayMs = 0,
+  rateLimitLookupsContaining,
+  failRemoveRequestNumber
+}: MockOptions = {}) {
   removedIds = []
   removeRequestSizes = []
   getRequests = []
@@ -49,6 +58,9 @@ function mockKlaviyo({ profilesPerValue = 1, delayMs = 0 }: MockOptions = {}) {
       getRequests.push(decodeURIComponent(uri))
       const url = new URL(uri, 'https://a.klaviyo.com')
       const filter = url.searchParams.get('filter') ?? ''
+      if (rateLimitLookupsContaining && filter.includes(rateLimitLookupsContaining)) {
+        return [429, { errors: [{ detail: 'Request was throttled.' }] }]
+      }
       const values = [...filter.matchAll(/"([^"]+)"/g)].map((m) => m[1])
       if (values.length > 100) {
         return [400, { errors: [{ detail: 'Maximum number of profile filter values is 100' }] }]
@@ -73,10 +85,13 @@ function mockKlaviyo({ profilesPerValue = 1, delayMs = 0 }: MockOptions = {}) {
   nock(API_URL)
     .persist()
     .delete(`/lists/${listId}/relationships/profiles/`)
-    .reply(202, (_uri, body: any) => {
+    .reply(function (_uri, body: any) {
       removeRequestSizes.push(body.data.length)
+      if (removeRequestSizes.length === failRemoveRequestNumber) {
+        return [500, { errors: [{ detail: 'Internal error' }] }]
+      }
       removedIds.push(...body.data.map((p: any) => p.id))
-      return {}
+      return [202, {}]
     })
 }
 
@@ -152,15 +167,34 @@ describe.each(['removeProfileFromList', 'removeProfile'])('Klaviyo %s getProfile
       expect(removedIds).toHaveLength(300)
     })
 
-    it('stops following links.next at the page cap', async () => {
-      mockKlaviyo({ profilesPerValue: 100 })
+    it('follows exactly GET_PROFILES_MAX_PAGES_PER_CHUNK pages when there is no further page', async () => {
+      mockKlaviyo({ profilesPerValue: 10 })
       await testDestination.executeBatch(actionName, {
         events: makeEvents(100),
         settings,
         mapping: emailMapping,
         features
       })
+      // 100 values x 10 profiles = 1000 profiles = 10 pages of 100, and the last page has no next link
       expect(getRequests).toHaveLength(10)
+      expect(removedIds).toHaveLength(1000)
+    })
+
+    it('fails the batch instead of removing a partial set when the page cap is reached', async () => {
+      mockKlaviyo({ profilesPerValue: 100 })
+      const statsClient = { incr: jest.fn(), histogram: jest.fn() }
+      await expect(
+        testDestination.executeBatch(actionName, {
+          events: makeEvents(100),
+          settings,
+          mapping: emailMapping,
+          features,
+          statsContext: { statsClient, tags: [] } as any
+        })
+      ).rejects.toThrow('not removing a partial set')
+      expect(getRequests).toHaveLength(10)
+      // nothing was removed, and no event is reported as delivered
+      expect(removedIds).toHaveLength(0)
     })
 
     it('runs chunk lookups concurrently, at most GET_PROFILES_CONCURRENCY at a time', async () => {
@@ -188,6 +222,34 @@ describe.each(['removeProfileFromList', 'removeProfile'])('Klaviyo %s getProfile
       })
       expect(removedIds).toHaveLength(1500)
       expect(removeRequestSizes).toEqual([1000, 500])
+    })
+
+    it('removes nothing and reports the error for every event when one chunk lookup is rate limited', async () => {
+      // 250 emails = 3 chunks; only the chunk containing user220 is throttled
+      mockKlaviyo({ rateLimitLookupsContaining: 'user220@example.com' })
+      const response = await testDestination.executeBatch(actionName, {
+        events: makeEvents(250),
+        settings,
+        mapping: emailMapping,
+        features
+      })
+      expect(response.every((r: any) => r.status === 429)).toBe(true)
+      expect(removedIds).toHaveLength(0)
+    })
+
+    it('reports an error for the whole batch when a later removal request fails after earlier ones succeeded', async () => {
+      // 500 emails x 3 profiles = 1500 ids -> remove requests of 1000 and 500; the second one fails
+      mockKlaviyo({ profilesPerValue: 3, failRemoveRequestNumber: 2 })
+      const response = await testDestination.executeBatch(actionName, {
+        events: makeEvents(500),
+        settings,
+        mapping: emailMapping,
+        features
+      })
+      expect(removeRequestSizes).toEqual([1000, 500])
+      // the first 1000 were removed already; removal is idempotent, so the retry of the batch is safe
+      expect(removedIds).toHaveLength(1000)
+      expect(response.every((r: any) => r.status === 500)).toBe(true)
     })
 
     it('reports per-event errors when Klaviyo rejects a lookup', async () => {
