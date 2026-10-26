@@ -96,8 +96,23 @@ function getJsonItem(payload: MergeUsersPayload): MergeUsersItem {
   )
   const keepId = getMergeIdentifier(keepIdType as MergeIdentifierType, 'keep', keepIdValue, keepAliasIdValue)
 
+  if (previousIdType === keepIdType && isSameIdentifier(previousIdType, previousId, keepId)) {
+    throw new PayloadValidationError('The identifier to merge and the identifier to keep cannot be the same user.')
+  }
+
   const previousIdPri = toPrioritization(previousIdPrioritization)
   const keepIdPri = toPrioritization(keepIdPrioritization)
+
+  if (requiresPrioritization(previousIdType) && !previousIdPri) {
+    throw new PayloadValidationError(
+      'Rule Prioritization (ID to merge) is required when Type of Identifier to merge is email or phone.'
+    )
+  }
+  if (requiresPrioritization(keepIdType) && !keepIdPri) {
+    throw new PayloadValidationError(
+      'Rule Prioritization (ID to keep) is required when Type of Identifier to keep is email or phone.'
+    )
+  }
 
   const item: MergeUsersItem = {
     identifier_to_merge: {
@@ -140,7 +155,21 @@ function getMergeIdentifier(
   return value
 }
 
-function toPrioritization(value: string | undefined | null): Prioritization | undefined {
+function requiresPrioritization(type: string): boolean {
+  return type === 'email' || type === 'phone'
+}
+
+function isSameIdentifier(type: string, a: string | UserAlias, b: string | UserAlias): boolean {
+  if (typeof a === 'string' && typeof b === 'string') {
+    return type === 'email' ? a.trim().toLowerCase() === b.trim().toLowerCase() : a === b
+  }
+  if (typeof a !== 'string' && typeof b !== 'string') {
+    return a.alias_label === b.alias_label && a.alias_name === b.alias_name
+  }
+  return false
+}
+
+function toPrioritization(value: string | undefined): Prioritization | undefined {
   if (!value) return undefined
   const parts = value
     .split(',')

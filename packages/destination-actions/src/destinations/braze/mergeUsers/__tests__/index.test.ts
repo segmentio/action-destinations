@@ -313,30 +313,57 @@ describe('Braze.mergeUsers', () => {
     })
   })
 
-  it('should not include prioritization when value is null', async () => {
-    nock(settings.endpoint).post('/users/merge').reply(200, { message: 'success' })
-
+  it('should throw error when prioritization is missing for an email identifier', async () => {
     const event = createTestEvent({ type: 'alias' })
 
-    const responses = await testDestination.testAction('mergeUsers', {
-      event,
-      settings,
-      mapping: {
-        previousIdType: 'email',
-        previousIdValue: 'merge@example.com',
-        previousIdPrioritization: null,
-        keepIdType: 'email',
-        keepIdValue: 'keep@example.com',
-        keepIdPrioritization: null
-      }
-    })
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'email',
+          previousIdValue: 'merge@example.com',
+          keepIdType: 'external_id',
+          keepIdValue: 'keep-1'
+        }
+      })
+    ).rejects.toThrowError("missing the required field 'previousIdPrioritization'")
+  })
 
-    expect(responses.length).toBe(1)
-    expect(responses[0].status).toBe(200)
-    const json = responses[0].options.json as Record<string, unknown>
-    const mergeUpdates = (json.merge_updates as Array<Record<string, Record<string, unknown>>>)[0]
-    expect(mergeUpdates.identifier_to_merge).not.toHaveProperty('prioritization')
-    expect(mergeUpdates.identifier_to_keep).not.toHaveProperty('prioritization')
+  it('should throw error when the identifier to merge and keep are the same', async () => {
+    const event = createTestEvent({ type: 'alias' })
+
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'external_id',
+          previousIdValue: 'user-1',
+          keepIdType: 'external_id',
+          keepIdValue: 'user-1'
+        }
+      })
+    ).rejects.toThrowError('cannot be the same user')
+  })
+
+  it('should treat emails differing only by case as the same user', async () => {
+    const event = createTestEvent({ type: 'alias' })
+
+    await expect(
+      testDestination.testAction('mergeUsers', {
+        event,
+        settings,
+        mapping: {
+          previousIdType: 'email',
+          previousIdValue: 'User@Example.com',
+          previousIdPrioritization: 'identified',
+          keepIdType: 'email',
+          keepIdValue: 'user@example.com',
+          keepIdPrioritization: 'identified'
+        }
+      })
+    ).rejects.toThrowError('cannot be the same user')
   })
 
   it('should not include prioritization for external_id identifiers', async () => {
@@ -556,12 +583,10 @@ describe('Braze.mergeUsers batch', () => {
       events,
       settings,
       mapping: {
-        previousIdType: 'email',
+        previousIdType: 'external_id',
         previousIdValue: { '@path': '$.previousId' },
-        previousIdPrioritization: null,
-        keepIdType: 'email',
-        keepIdValue: { '@path': '$.userId' },
-        keepIdPrioritization: null
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
       }
     })
 
@@ -663,6 +688,34 @@ describe('Braze.mergeUsers multiStatus', () => {
       status: 400,
       errorreporter: 'DESTINATION'
     })
+  })
+
+  it('should fail only the items missing prioritization and still send the rest', async () => {
+    nock(settings.endpoint)
+      .post('/users/merge', (body) => body.merge_updates.length === 2)
+      .reply(202, { message: 'success' })
+
+    const events: SegmentEvent[] = [
+      createTestEvent({ type: 'alias', userId: 'keep-1', previousId: 'a@example.com', properties: { pri: 'identified' } }),
+      createTestEvent({ type: 'alias', userId: 'keep-2', previousId: 'b@example.com' }),
+      createTestEvent({ type: 'alias', userId: 'keep-3', previousId: 'c@example.com', properties: { pri: 'identified' } })
+    ]
+
+    const response = await testDestination.executeBatch('mergeUsers', {
+      events,
+      settings,
+      mapping: {
+        previousIdType: 'email',
+        previousIdValue: { '@path': '$.previousId' },
+        previousIdPrioritization: { '@path': '$.properties.pri' },
+        keepIdType: 'external_id',
+        keepIdValue: { '@path': '$.userId' }
+      }
+    })
+
+    expect(response[0]).toMatchObject({ status: 202 })
+    expect(response[1]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    expect(response[2]).toMatchObject({ status: 202 })
   })
 
   it('should handle a batch where all payloads fail validation', async () => {

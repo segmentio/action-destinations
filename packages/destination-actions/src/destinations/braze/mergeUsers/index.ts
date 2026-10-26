@@ -164,7 +164,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Rule Prioritization (ID to keep)',
       description: 'Rule determining which user to merge if multiple users are found.',
       type: 'string',
-      allowNull: true,
       choices: getPrioritizationChoices(),
       required: {
         match: 'any',
@@ -186,7 +185,6 @@ const action: ActionDefinition<Settings, Payload> = {
       label: 'Rule Prioritization (ID to merge)',
       description: 'Rule determining which user to merge if multiple users are found.',
       type: 'string',
-      allowNull: true,
       choices: getPrioritizationChoices(),
       required: {
         match: 'any',
