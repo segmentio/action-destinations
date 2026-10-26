@@ -1,20 +1,14 @@
 import { InvalidAuthenticationError, Features } from '@segment/actions-core'
-import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient, AudienceMembership } from '@segment/actions-core'
+import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, FLAG_AUDIENCE_MEMBERSHIP, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
 import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
 function hasStringValue(value: MaybeString): boolean {
   return typeof value === 'string' && value.trim().length > 0
-}
-
-function getAudienceAction(eventName?: string, audienceMembership?: AudienceMembership) {
-  if (eventName === 'Audience Entered') return CONSTANTS.CREATE
-  if (eventName === 'Audience Exited') return CONSTANTS.DELETE
-  return audienceMembership === true ? CONSTANTS.CREATE : CONSTANTS.DELETE
 }
 
 function getUserConsent(payloadConsent: Payload['consent'], countryCode: string, features?: Features): UserConsent {
@@ -59,10 +53,9 @@ export async function processPayload(
   settings: Settings,
   payload: Payload[],
   audienceSettings: AudienceSettings,
-  features?: Features,
-  audienceMembership?: AudienceMembership
+  features?: Features
 ) {
-  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features, [audienceMembership])
+  const payloadRecord = createPayloadToUploadRecords(payload, audienceSettings, features)
   // Regular expression to find a audienceId numeric string and replace the quoted audienceId string with an unquoted number
   const payloadString = JSON.stringify(payloadRecord).replace(/"audienceId":"(\d+)"/, '"audienceId":$1')
 
@@ -98,12 +91,11 @@ export async function processPayload(
 export function createPayloadToUploadRecords(
   payloads: Payload[],
   audienceSettings: AudienceSettings, 
-  features?: Features,
-  audienceMembership?: AudienceMembership[]
+  features?: Features
 ) {
   const records: AudienceRecord[] = []
   const { audienceId } = payloads[0]
-  payloads.forEach((payload: Payload, index) => {
+  payloads.forEach((payload: Payload) => {
     // Check if the externalUserId matches the pattern
     if (!REGEX_EXTERNALUSERID.test(payload.externalUserId)) {
       return // Skip to the next iteration
@@ -113,9 +105,7 @@ export function createPayloadToUploadRecords(
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: features?.[FLAG_AUDIENCE_MEMBERSHIP]
-        ? getAudienceAction(payload.event_name, audienceMembership?.[index])
-        : payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII],
       ...(userConsent ? { userConsent } : {})
     }
@@ -138,8 +128,7 @@ function validateAndPreparePayload(
   payloads: Payload[],
   multiStatusResponse: MultiStatusResponse,
   audienceSettings: AudienceSettings,
-  features?: Features,
-  audienceMembership?: AudienceMembership[]
+  features?: Features
 ) {
   const validPayloadIndicesBitmap: number[] = []
   const filteredPayloads: AudienceRecord[] = []
@@ -173,9 +162,7 @@ function validateAndPreparePayload(
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: features?.[FLAG_AUDIENCE_MEMBERSHIP]
-        ? getAudienceAction(payload.event_name, audienceMembership?.[originalBatchIndex])
-        : payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action: payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
       hashedPII: [hashedPII],
       ...(userConsent ? { userConsent } : {})
     }
@@ -204,16 +191,14 @@ export async function processBatchPayload(
   settings: Settings,
   payloads: Payload[],
   audienceSettings: AudienceSettings,
-  features?: Features,
-  audienceMembership?: AudienceMembership[]
+  features?: Features
 ) {
   const multiStatusResponse = new MultiStatusResponse()
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPreparePayload(
     payloads,
     multiStatusResponse,
     audienceSettings, 
-    features,
-    audienceMembership
+    features
   )
 
   if (!filteredPayloads.length) {

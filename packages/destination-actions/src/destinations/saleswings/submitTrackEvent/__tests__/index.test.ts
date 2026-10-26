@@ -23,7 +23,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         kind: 'Track',
@@ -46,7 +45,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         kind: 'Track',
@@ -65,7 +63,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         email: 'peter@example.com',
@@ -104,7 +101,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         kind: 'Track',
         data: 'User Registered',
@@ -143,7 +139,6 @@ describe('SalesWings', () => {
       const request = await testBatchAction(actionName, events)
       expect(request).toMatchObject([
         {
-          messageID: events[0].messageId,
           userID: events[0].userId,
           anonymousID: events[0].anonymousId,
           kind: 'Track',
@@ -151,7 +146,6 @@ describe('SalesWings', () => {
           timestamp: events[0].timestamp
         },
         {
-          messageID: events[1].messageId,
           userID: events[1].userId,
           anonymousID: events[1].anonymousId,
           kind: 'Track',
