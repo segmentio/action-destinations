@@ -387,6 +387,20 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             }
           }
 
+          // "Only Track Known Users": the gate above already guarantees Segment knows the user.
+          // Hand that id to Braze before the session opens, so the session belongs to the user
+          // from its first request. Otherwise Braze opens an anonymous session (and an orphan
+          // profile) whenever the id is saved in Segment but Braze has no state of its own
+          // (a first login, or a browser where only Segment's storage survived), and the user's
+          // own profile only appears when Update User Profile later calls `changeUser`.
+          // `changeUser` is a no-op when Braze already holds the same user.
+          if (deferUntilIdentified) {
+            const userId = analytics.user().id()
+            if (typeof userId === 'string' && userId !== '') {
+              client.instance.changeUser(userId)
+            }
+          }
+
           client.instance.openSession()
 
           return (initialized = true)
