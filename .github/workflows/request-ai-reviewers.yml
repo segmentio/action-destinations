@@ -1,0 +1,33 @@
+name: request-ai-reviewers
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  pull-requests: write
+
+env:
+  # Comma-separated GitHub logins requested on every non-draft PR.
+  REVIEWERS: charlottestjohn
+
+jobs:
+  request-reviewers:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest-large
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+            // GitHub rejects a review request for the PR's own author.
+            const reviewers = process.env.REVIEWERS.split(',')
+              .map((r) => r.trim())
+              .filter((r) => r && r !== author);
+            if (reviewers.length === 0) return;
+            await github.rest.pulls.requestReviewers({
+              ...context.repo,
+              pull_number: context.payload.pull_request.number,
+              reviewers,
+            });

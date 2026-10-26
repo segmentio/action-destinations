@@ -55,7 +55,8 @@ const destination: DestinationDefinition<Settings> = {
         choices: [
           { label: 'US', value: 'US' },
           { label: 'Europe', value: 'EU' },
-          { label: 'Asia', value: 'AS' }
+          { label: 'Asia', value: 'AS' },
+          { label: 'Australia', value: 'AU' }
         ],
         default: 'US'
       }
