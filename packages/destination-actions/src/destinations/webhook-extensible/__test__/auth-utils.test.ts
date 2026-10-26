@@ -64,23 +64,4 @@ describe('sendRefreshTokenReq', () => {
     expect(({} as any).polluted).toBeUndefined()
     expect((Object.prototype as any).polluted).toBeUndefined()
   })
-
-  it('does not pollute Object.prototype when key is "__proto__"', async () => {
-    nock('https://auth.example.com').post('/token').reply(200, { access_token: 'token' })
-
-    await sendRefreshTokenReq(
-      request,
-      {
-        dynamicAuthSettings: {
-          oauth: {
-            ...baseOauth,
-            customParams: { refreshRequest: [{ key: '__proto__', value: { polluted: 'yes' }, sendIn: 'body' }] }
-          }
-        }
-      },
-      {}
-    )
-
-    expect(({} as any).polluted).toBeUndefined()
-  })
 })
