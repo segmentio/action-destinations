@@ -10,7 +10,6 @@ describe('SalesWings', () => {
         type: 'page',
         properties: {
           url: 'https://example.com',
-          title: 'Example Page',
           referrer: 'https://example.com/other'
         },
         context: {
@@ -19,11 +18,9 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         url: 'https://example.com',
-        title: 'Example Page',
         referrerUrl: 'https://example.com/other',
         userAgent,
         timestamp: event.timestamp
@@ -39,28 +36,10 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         url: 'https://example.com',
         timestamp: event.timestamp
-      })
-    })
-
-    it('should take page title from the page context when it is not in properties', async () => {
-      const event = createTestEvent({
-        type: 'page',
-        properties: {
-          url: 'https://example.com'
-        },
-        context: {
-          page: { title: 'Context Page' }
-        }
-      })
-      const request = await testAction(actionName, event)
-      expect(request).toMatchObject({
-        url: 'https://example.com',
-        title: 'Context Page'
       })
     })
 
@@ -74,7 +53,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         url: 'https://example.com',
         timestamp: event.timestamp
@@ -115,14 +93,12 @@ describe('SalesWings', () => {
       const request = await testBatchAction(actionName, events)
       expect(request).toMatchObject([
         {
-          messageID: events[0].messageId,
           userID: events[0].userId,
           anonymousID: events[0].anonymousId,
           url: 'https://example.com/01',
           timestamp: events[0].timestamp
         },
         {
-          messageID: events[1].messageId,
           userID: events[1].userId,
           anonymousID: events[1].anonymousId,
           url: 'https://example.com/02',

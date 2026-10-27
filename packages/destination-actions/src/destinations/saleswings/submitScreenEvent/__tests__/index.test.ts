@@ -22,7 +22,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         kind: 'Screen',
@@ -44,7 +43,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         kind: 'Screen',
@@ -61,7 +59,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         kind: 'Screen',
         data: 'Home',
@@ -100,7 +97,6 @@ describe('SalesWings', () => {
       const request = await testBatchAction(actionName, events)
       expect(request).toMatchObject([
         {
-          messageID: events[0].messageId,
           userID: events[0].userId,
           anonymousID: events[0].anonymousId,
           kind: 'Screen',
@@ -109,7 +105,6 @@ describe('SalesWings', () => {
           values: {}
         },
         {
-          messageID: events[1].messageId,
           userID: events[1].userId,
           anonymousID: events[1].anonymousId,
           kind: 'Screen',

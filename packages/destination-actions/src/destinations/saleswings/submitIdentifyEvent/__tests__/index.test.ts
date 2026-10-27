@@ -24,7 +24,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         email: event.traits?.email,
@@ -52,7 +51,6 @@ describe('SalesWings', () => {
       })
       const request = await testAction(actionName, event)
       expect(request).toMatchObject({
-        messageID: event.messageId,
         userID: event.userId,
         anonymousID: event.anonymousId,
         email: event.traits?.email,
@@ -81,7 +79,6 @@ describe('SalesWings', () => {
       const request = await testBatchAction(actionName, events)
       expect(request).toMatchObject([
         {
-          messageID: events[0].messageId,
           userID: events[0].userId,
           anonymousID: events[0].anonymousId,
           email: events[0].traits?.email,
@@ -90,7 +87,6 @@ describe('SalesWings', () => {
           timestamp: events[0].timestamp
         },
         {
-          messageID: events[1].messageId,
           userID: events[1].userId,
           anonymousID: events[1].anonymousId,
           email: events[1].traits?.email,
