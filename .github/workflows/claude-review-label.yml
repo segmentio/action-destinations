@@ -1,4 +1,4 @@
-# Adds the `claude-review-requested` label to each new or ready-for-review PR, so the
+# Adds the `agent-review-requested` label to each new or ready-for-review PR, so the
 # Claude review agent reviews it. Remove the label from a PR to stop its review.
 #
 # Standalone copy of twilio-internal/github-actions-library's reusable
@@ -26,7 +26,7 @@ jobs:
       - name: Add Claude review label
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         env:
-          LABEL: claude-review-requested
+          LABEL: agent-review-requested
           LABEL_COLOR: 5319e7
           LABEL_DESCRIPTION: Ask the Claude review agent
         with:
