@@ -1,4 +1,4 @@
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import nock from 'nock'
 import { API_URL, GET_PROFILES_CONCURRENCY, KLAVIYO_PAGINATE_GET_PROFILES_FLAG } from '../config'
 import Klaviyo from '../index'
@@ -9,6 +9,11 @@ const testDestination = createTestIntegration(Klaviyo)
 const settings = { api_key: 'my-api-key' }
 const listId = 'LIST1'
 const emailMapping = { email: { '@path': '$.properties.email' }, list_id: listId }
+const allIdentifiersMapping = {
+  ...emailMapping,
+  external_id: { '@path': '$.properties.external_id' },
+  phone_number: { '@path': '$.properties.phone' }
+}
 const features = { [KLAVIYO_PAGINATE_GET_PROFILES_FLAG]: true }
 
 const makeEvents = (n: number, prefix = 'user') =>
@@ -16,7 +21,11 @@ const makeEvents = (n: number, prefix = 'user') =>
     createTestEvent({
       type: 'track',
       event: 'Audience Exited',
-      properties: { email: `${prefix}${i}@example.com`, external_id: `${prefix}-ext-${i}` }
+      properties: {
+        email: `${prefix}${i}@example.com`,
+        external_id: `${prefix}-ext-${i}`,
+        phone: `+14152${String(i).padStart(6, '0')}`
+      }
     })
   )
 
@@ -34,13 +43,16 @@ interface MockOptions {
   rateLimitLookupsContaining?: string
   // the remove request with this number (1-based) gets a 500
   failRemoveRequestNumber?: number
+  // every identifier value of event n (email, external_id, phone) resolves to the same profile id `profile-n`
+  shareProfileAcrossIdentifiers?: boolean
 }
 
 function mockKlaviyo({
   profilesPerValue = 1,
   delayMs = 0,
   rateLimitLookupsContaining,
-  failRemoveRequestNumber
+  failRemoveRequestNumber,
+  shareProfileAcrossIdentifiers = false
 }: MockOptions = {}) {
   removedIds = []
   removeRequestSizes = []
@@ -70,7 +82,13 @@ function mockKlaviyo({
         return [400, { errors: [{ detail: 'Page size must be an integer between 1 and 100' }] }]
       }
       const offset = Number(url.searchParams.get('page[cursor]') ?? 0)
-      const all = values.flatMap((v) => Array.from({ length: profilesPerValue }, (_, i) => `id-${v}-${i}`))
+      // the event number is the trailing number of `user7@example.com` / `user-ext-7` / `+14152000007`
+      // URLSearchParams decodes the `+` of a phone number as a space
+      const eventNumber = (v: string) =>
+        Number(/^[ +]14152/.test(v) ? v.slice('+14152'.length) : v.match(/(\d+)(?:@|$)/)?.[1])
+      const profileIdFor = (v: string, i: number) =>
+        shareProfileAcrossIdentifiers ? `profile-${eventNumber(v)}` : `id-${v}-${i}`
+      const all = values.flatMap((v) => Array.from({ length: profilesPerValue }, (_, i) => profileIdFor(v, i)))
       const data = all.slice(offset, offset + pageSize).map((id) => ({ id }))
       const links =
         all.length > offset + pageSize
@@ -98,6 +116,12 @@ function mockKlaviyo({
 describe.each(['removeProfileFromList', 'removeProfile'])('Klaviyo %s getProfiles batching', (actionName) => {
   beforeEach(() => {
     nock.cleanAll()
+  })
+
+  // When one lookup of a wave fails, Promise.all rejects while the other lookups of that wave are still in flight.
+  // Let them finish so they do not record into the next test's request list.
+  afterEach(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100))
   })
 
   describe('flag off (legacy behavior)', () => {
@@ -180,21 +204,76 @@ describe.each(['removeProfileFromList', 'removeProfile'])('Klaviyo %s getProfile
       expect(removedIds).toHaveLength(1000)
     })
 
-    it('fails the batch instead of removing a partial set when the page cap is reached', async () => {
+    it('fails the batch with a RetryableError and counts page_cap_hit when the page cap is reached', async () => {
       mockKlaviyo({ profilesPerValue: 100 })
       const statsClient = { incr: jest.fn(), histogram: jest.fn() }
-      await expect(
-        testDestination.executeBatch(actionName, {
+      const tags = ['integration:actions-klaviyo']
+      const error = await testDestination
+        .executeBatch(actionName, {
           events: makeEvents(100),
+          settings,
+          mapping: emailMapping,
+          features,
+          statsContext: { statsClient, tags } as any
+        })
+        .catch((e: unknown) => e)
+      expect(error).toBeInstanceOf(RetryableError)
+      expect((error as RetryableError).message).toContain('not removing a partial set')
+      expect(getRequests).toHaveLength(10)
+      expect(statsClient.incr).toHaveBeenCalledWith('actions-klaviyo.get_profiles.page_cap_hit', 1, tags)
+      // nothing was removed, and no event is reported as delivered
+      expect(removedIds).toHaveLength(0)
+    })
+
+    it('removes nothing when some chunks reach the page cap and another chunk completes', async () => {
+      // 250 emails = 3 chunks (100, 100, 50). With 11 profiles per value a 100-value chunk has 1100 profiles
+      // (over the 1000 cap) while the 50-value chunk has 550 and completes.
+      mockKlaviyo({ profilesPerValue: 11 })
+      const statsClient = { incr: jest.fn(), histogram: jest.fn() }
+      const error = await testDestination
+        .executeBatch(actionName, {
+          events: makeEvents(250),
           settings,
           mapping: emailMapping,
           features,
           statsContext: { statsClient, tags: [] } as any
         })
-      ).rejects.toThrow('not removing a partial set')
-      expect(getRequests).toHaveLength(10)
-      // nothing was removed, and no event is reported as delivered
+        .catch((e: unknown) => e)
+      expect(error).toBeInstanceOf(RetryableError)
+      expect(statsClient.incr).toHaveBeenCalledWith('actions-klaviyo.get_profiles.page_cap_hit', 1, [])
       expect(removedIds).toHaveLength(0)
+    })
+
+    it('looks up phone numbers with the phone_number filter, in chunks of 100', async () => {
+      mockKlaviyo()
+      await testDestination.executeBatch(actionName, {
+        events: makeEvents(150),
+        settings,
+        mapping: { list_id: listId, phone_number: { '@path': '$.properties.phone' } },
+        features
+      })
+      const phoneLookups = getRequests.filter((r) => r.includes('any(phone_number,["+1415'))
+      expect(phoneLookups).toHaveLength(2)
+      expect(getRequests).toHaveLength(2)
+      phoneLookups.forEach((r) => expect(r).toContain('page[size]=100'))
+      expect(removedIds).toHaveLength(150)
+    })
+
+    it('removes a profile once when its email, external_id and phone all resolve to it', async () => {
+      mockKlaviyo({ shareProfileAcrossIdentifiers: true })
+      const response = await testDestination.executeBatch(actionName, {
+        events: makeEvents(50),
+        settings,
+        mapping: allIdentifiersMapping,
+        features
+      })
+      expect(response.every((r: any) => r.status === 200)).toBe(true)
+      // one lookup per identifier type, each returning the same 50 profile ids
+      expect(getRequests.filter((r) => r.includes('any(email,'))).toHaveLength(1)
+      expect(getRequests.filter((r) => r.includes('any(external_id,'))).toHaveLength(1)
+      expect(getRequests.filter((r) => r.includes('any(phone_number,'))).toHaveLength(1)
+      expect(removedIds).toHaveLength(50)
+      expect(new Set(removedIds).size).toBe(50)
     })
 
     it('runs chunk lookups concurrently, at most GET_PROFILES_CONCURRENCY at a time', async () => {
