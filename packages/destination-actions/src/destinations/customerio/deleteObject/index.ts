@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { sendBatch, sendSingle } from '../utils'
+import { sendBatch, sendSingle, validateIdentifiers, VALIDATE_IDENTIFIERS_FLAG } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -44,7 +44,11 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
 
-  perform: (request, { payload, settings }) => {
+  perform: (request, { payload, settings, features }) => {
+    if (features && features[VALIDATE_IDENTIFIERS_FLAG]) {
+      validateIdentifiers(payload, ['Object ID'])
+    }
+
     return sendSingle(request, {
       action: 'delete',
       payload,
