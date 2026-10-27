@@ -1,0 +1,60 @@
+# Adds the `claude-review-requested` label to each new or ready-for-review PR, so the
+# Claude review agent reviews it. Remove the label from a PR to stop its review.
+#
+# Standalone copy of twilio-internal/github-actions-library's reusable
+# claude-review-label.yml (same script, inputs fixed to their defaults), for repos
+# outside the twilio-internal org that cannot call that private reusable workflow.
+# Drafts, fork PRs, dependabot and renovate are skipped.
+name: Claude review label
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+permissions:
+  issues: write          # create the label if missing
+  pull-requests: write   # add the label to the PR
+
+jobs:
+  label:
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(',dependabot[bot],renovate[bot],', format(',{0},', github.event.pull_request.user.login))
+    runs-on: ubuntu-latest-large
+    steps:
+      - name: Add Claude review label
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          LABEL: claude-review-requested
+          LABEL_COLOR: 5319e7
+          LABEL_DESCRIPTION: Ask the Claude review agent
+        with:
+          script: |
+            const name = process.env.LABEL;
+            const { owner, repo } = context.repo;
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              try {
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name,
+                  color: process.env.LABEL_COLOR,
+                  description: process.env.LABEL_DESCRIPTION,
+                });
+                console.log(`Created label ${name}.`);
+              } catch (createError) {
+                // Another run may have created it first.
+                if (createError.status !== 422) throw createError;
+              }
+            }
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: context.payload.pull_request.number,
+              labels: [name],
+            });
+            console.log(`Added ${name} to #${context.payload.pull_request.number}.`);
