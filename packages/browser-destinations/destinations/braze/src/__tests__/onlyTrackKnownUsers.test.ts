@@ -27,14 +27,18 @@ describe('Only Track Known Users', () => {
     })
   }
 
-  async function load(deferUntilIdentified = true) {
+  async function load(deferUntilIdentified = true, externalIdPath = '$.userId') {
     const [updateUserProfile, trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       deferUntilIdentified,
-      subscriptions: destination.presets?.map((sub) => ({ ...sub, enabled: true })) as Subscription[]
+      subscriptions: destination.presets?.map((sub) =>
+        sub.partnerAction === 'updateUserProfile'
+          ? { ...sub, enabled: true, mapping: { ...sub.mapping, external_id: { '@path': externalIdPath } } }
+          : { ...sub, enabled: true }
+      ) as Subscription[]
     })
     const initializeSpy = jest.spyOn(destination, 'initialize')
     const analytics = new Analytics({ writeKey: '123' })
@@ -80,6 +84,30 @@ describe('Only Track Known Users', () => {
     await analytics.identify('new-user')
 
     expect(calls.slice(0, 3)).toEqual(['initialize', 'changeUser(new-user)', 'openSession'])
+  })
+
+  test('a user Braze already holds is left alone, even when it differs from the Segment id', async () => {
+    // Braze identified "cust-9" earlier (an external_id mapped from a trait); Segment knows "saved-user".
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+    const { analytics } = await load()
+    await analytics.identify('saved-user', { customer_id: 'cust-9' })
+    calls.length = 0
+    window.appboy.changeUser('cust-9')
+    calls.length = 0
+
+    // A new page load: Braze state is in storage, Segment still has the same saved id.
+    const { analytics: returning } = await load()
+    expect(returning.user().id()).toBe('saved-user')
+    expect(calls.filter((call) => call.startsWith('changeUser'))).toEqual([])
+  })
+
+  test('a first login opens its session for the mapped external_id, not the Segment user id', async () => {
+    const { analytics } = await load(true, '$.traits.customer_id')
+
+    await analytics.identify('segment-user', { customer_id: 'cust-9' })
+
+    expect(calls.slice(0, 3)).toEqual(['initialize', 'changeUser(cust-9)', 'openSession'])
+    expect(calls).not.toContain('changeUser(segment-user)')
   })
 
   test('an anonymous visitor stays dark', async () => {
