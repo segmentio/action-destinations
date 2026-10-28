@@ -80,8 +80,8 @@ const action: ActionDefinition<Settings, Payload> = {
     }
     return await removeProfileFromList(request, profileIds, list_id)
   },
-  performBatch: async (request, { payload, statsContext }) => {
-    return await removeBulkProfilesFromList(request, payload, statsContext)
+  performBatch: async (request, { payload, statsContext, features }) => {
+    return await removeBulkProfilesFromList(request, payload, features, statsContext)
   }
 }
 

@@ -1,7 +1,19 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { userID, anonymousID, email, url, referrerUrl, userAgent, timestamp, kind, data, values } from '../fields'
+import {
+  messageID,
+  userID,
+  anonymousID,
+  email,
+  url,
+  referrerUrl,
+  userAgent,
+  timestamp,
+  kind,
+  data,
+  values
+} from '../fields'
 import { perform, performBatch } from '../common'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -10,6 +22,7 @@ const action: ActionDefinition<Settings, Payload> = {
     'Send your Segment Screen events to SalesWings to use them for tagging, scoring and prioritising your leads.',
   defaultSubscription: 'type = "screen"',
   fields: {
+    messageID,
     kind: kind('Screen'),
     data: data({ '@path': '$.name' }),
     userID,

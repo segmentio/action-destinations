@@ -3,6 +3,19 @@ import { KLAVIYO_REVISION_DATE } from './versioning-info'
 export const API_URL = 'https://a.klaviyo.com/api'
 export const REVISION_DATE = KLAVIYO_REVISION_DATE
 export const MAX_EXTERNAL_ID_LENGTH = 255
+// Feature flag gating paginated/chunked getProfiles and chunked list removal (STRATCONN-7111)
+export const KLAVIYO_PAGINATE_GET_PROFILES_FLAG = 'klaviyo-paginate-get-profiles'
+// Klaviyo Get Profiles: page[size] max is 100 and any() accepts at most 100 filter values (found by testing)
+export const GET_PROFILES_MAX_FILTER_VALUES = 100
+export const GET_PROFILES_PAGE_SIZE = 100
+// Pages followed per chunk (100 values x 10 pages x 100 profiles). Reaching it fails the batch instead of removing a partial set.
+export const GET_PROFILES_MAX_PAGES_PER_CHUNK = 10
+// Chunk lookups run this many at a time. One full-page lookup takes ~1s (p95 ~1.1s, measured on staging), so a
+// batch of 10-30 lookups would take 10-30s sequentially, over the ~12s batch deadline. 5 stays well under
+// Klaviyo's Get Profiles limit (75 req/s burst, 750 req/min steady).
+export const GET_PROFILES_CONCURRENCY = 5
+// Klaviyo Remove Profiles from List accepts at most 1000 profiles per request
+export const REMOVE_PROFILES_MAX_PER_REQUEST = 1000
 export const COUNTRY_CODES = [
   { label: 'AD - Andorra', value: 'AD' },
   { label: 'AE - United Arab Emirates', value: 'AE' },
