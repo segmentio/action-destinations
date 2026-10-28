@@ -138,6 +138,9 @@ export interface Profile {
 
 export interface GetProfileResponse {
   data: Profile[]
+  links?: {
+    next?: string | null
+  }
 }
 
 export interface SubscribeProfile {
