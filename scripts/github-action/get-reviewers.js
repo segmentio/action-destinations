@@ -51,6 +51,10 @@ module.exports = async ({ github, context, core }) => {
         return
     }
 
+    // Teams that stay as CODEOWNERS (and so get auto-requested by GitHub) but must never be
+    // used to pick individual reviewers.
+    const excludedTeams = ['libraries-web-team']
+
     // Function to get teams from existing reviewers
     async function getTeamFromGitHub() {
         try {
@@ -67,7 +71,9 @@ module.exports = async ({ github, context, core }) => {
             const teams = []
             if (requestedReviewers.data.teams && requestedReviewers.data.teams.length > 0) {
                 for (const team of requestedReviewers.data.teams) {
-                    teams.push(team.slug)
+                    if (!excludedTeams.includes(team.slug)) {
+                        teams.push(team.slug)
+                    }
                 }
             }
 
