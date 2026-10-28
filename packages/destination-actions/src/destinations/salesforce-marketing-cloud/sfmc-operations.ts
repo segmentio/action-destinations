@@ -573,6 +573,15 @@ export const selectOrCreateDataExtension = async (
   }
 }
 
+// Errors from dynamic field requests do not always carry an HTTP response (timeouts,
+// connection resets, DNS failures), so every access to err.response must be guarded.
+const getDynamicFieldError = (err: any): { message: string; code: string } => {
+  const data = err?.response?.data
+  const code = data?.errorcode !== undefined && data?.errorcode !== null ? String(data.errorcode) : ''
+  const message: string = data?.message ?? err?.message ?? 'Request to Salesforce Marketing Cloud failed'
+  return { message, code }
+}
+
 const getDataExtensionsRequest = async (
   request: RequestClient,
   searchQuery: string,
@@ -607,11 +616,7 @@ const getDataExtensionsRequest = async (
       })
     }
   } catch (err) {
-    const errorCode: string =
-      typeof err.response.data.errorcode === 'number'
-        ? err.response.data.errorcode.toString()
-        : err.response.data.errorcode
-    const errorMessage = err.response.data.message
+    const { message: errorMessage, code: errorCode } = getDynamicFieldError(err)
 
     if (errorCode === '20002') {
       return {
@@ -622,7 +627,7 @@ const getDataExtensionsRequest = async (
       }
     }
 
-    return { error: { message: err.response.data.message, code: errorCode || 'BAD_REQUEST' } }
+    return { error: { message: errorMessage, code: errorCode || 'BAD_REQUEST' } }
   }
 }
 
@@ -632,9 +637,14 @@ export const getDataExtensions = async (
   settings: Settings,
   query?: string
 ): Promise<DynamicFieldResponse> => {
-  let searchQuery = '_'
-  if (query && query !== '') {
-    searchQuery = query
+  // SFMC requires $search and only matches names that start with it, so there is no way to list
+  // every Data Extension here. Ask for a keyword instead of calling SFMC with an empty query.
+  const searchQuery = query?.trim()
+  if (!searchQuery) {
+    return {
+      choices: [],
+      error: { message: 'Type a keyword to search for Data Extensions.', code: 'NO_SEARCH_QUERY' }
+    }
   }
 
   const { accessToken } = await getAccessToken(request, settings)
@@ -689,7 +699,8 @@ const getDataExtensionFieldsRequest = async (
 
     return { results: choices }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    const { message, code } = getDynamicFieldError(err)
+    return { error: { message, code: code || 'BAD_REQUEST' } }
   }
 }
 
