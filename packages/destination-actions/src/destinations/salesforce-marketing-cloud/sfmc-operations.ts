@@ -433,8 +433,16 @@ const dataExtensionRequest = async (
       key: (response as DataExtensionCreationResponse).data.key
     }
   } catch (error) {
-    return { id: '', key: '', error: error.response.data.message }
+    return { id: '', key: '', error: getSfmcErrorDetails(error).message }
   }
+}
+
+// Errors without an HTTP response (timeouts, network failures) have no `response.data`.
+function getSfmcErrorDetails(err: any): { code?: string; message: string } {
+  const data = err?.response?.data
+  const code = typeof data?.errorcode === 'number' ? data.errorcode.toString() : data?.errorcode
+  const message = data?.message ?? err?.message ?? 'Request timed out or failed'
+  return { code, message }
 }
 
 async function createDataExtension(
@@ -501,11 +509,7 @@ const selectDataExtensionRequest = async (
       name: (response as DataExtensionSelectionResponse).data.name
     }
   } catch (err) {
-    const errorCode: string =
-      typeof err.response.data.errorcode === 'number'
-        ? err.response.data.errorcode.toString()
-        : err.response.data.errorcode
-    const errorMessage = err.response.data.message
+    const { code: errorCode, message: errorMessage } = getSfmcErrorDetails(err)
 
     if (errorCode === '20002') {
       return {
@@ -515,7 +519,7 @@ const selectDataExtensionRequest = async (
       }
     }
 
-    return { id: '', name: '', error: err.response.data.message }
+    return { id: '', name: '', error: errorMessage }
   }
 }
 
@@ -607,11 +611,7 @@ const getDataExtensionsRequest = async (
       })
     }
   } catch (err) {
-    const errorCode: string =
-      typeof err.response.data.errorcode === 'number'
-        ? err.response.data.errorcode.toString()
-        : err.response.data.errorcode
-    const errorMessage = err.response.data.message
+    const { code: errorCode, message: errorMessage } = getSfmcErrorDetails(err)
 
     if (errorCode === '20002') {
       return {
@@ -622,7 +622,7 @@ const getDataExtensionsRequest = async (
       }
     }
 
-    return { error: { message: err.response.data.message, code: errorCode || 'BAD_REQUEST' } }
+    return { error: { message: errorMessage, code: errorCode || 'BAD_REQUEST' } }
   }
 }
 
@@ -689,7 +689,7 @@ const getDataExtensionFieldsRequest = async (
 
     return { results: choices }
   } catch (err) {
-    return { error: { message: err.response.data.message, code: 'BAD_REQUEST' } }
+    return { error: { message: getSfmcErrorDetails(err).message, code: 'BAD_REQUEST' } }
   }
 }
 
