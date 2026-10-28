@@ -194,7 +194,7 @@ describe('Hubspot.upsertObject validate: hs_object_id as an associated record id
       }
     )
 
-    it('does not throw when the main record sync mode is Update, because those events never reach the association step', () => {
+    it('does not throw when the main record sync mode is Update, because those events succeed today when the main identifier is not hs_object_id', () => {
       const payload = makePayload({
         associations: [{ ...association, id_field_name: 'hs_object_id', id_field_value: '123' }]
       })

@@ -2,9 +2,11 @@
 module.exports = async ({ github, context, core }) => {
     const { labelsToAdd } = process.env
 
-    // Bots such as Copilot are auto-requested as reviewers on some PRs. They must not
-    // count as human reviewers, otherwise reviewer assignment is skipped entirely.
-    const isHumanReviewer = (user) => user && user.type !== 'Bot' && user.login !== 'Copilot'
+    // Bots such as Copilot, and accounts used for automated AI review (charlottestjohn, requested by
+    // request-ai-reviewers.yml), are auto-requested as reviewers on PRs. They must not count as human
+    // reviewers, otherwise reviewer assignment is skipped entirely.
+    const aiReviewerLogins = ['Copilot', 'charlottestjohn']
+    const isHumanReviewer = (user) => user && user.type !== 'Bot' && !aiReviewerLogins.includes(user.login)
 
     // Check if there are already reviewers assigned to the PR
     try {
@@ -138,13 +140,21 @@ module.exports = async ({ github, context, core }) => {
 
         // Filter out the PR author and excluded members
         const prAuthor = context.payload.pull_request.user.login
-        const excludedMembers = ['sandeeptwilio','joe-ayoub-segment']
+        const excludedMembers = ['sandeeptwilio','joe-ayoub-segment','arnav777dev','abhandage']
         const eligibleMembers = team.data.filter(member =>
             member.login !== prAuthor && !excludedMembers.includes(member.login)
         )
 
-        // If no eligible members after filtering author, use all team members
-        const membersToSelectFrom = eligibleMembers.length > 0 ? eligibleMembers : team.data
+        // If no eligible members after filtering author, use all team members (excluded members are never assigned)
+        const membersToSelectFrom = eligibleMembers.length > 0
+            ? eligibleMembers
+            : team.data.filter(member => !excludedMembers.includes(member.login))
+
+        if (membersToSelectFrom.length === 0) {
+            core.setOutput('skip', 'true')
+            core.setOutput('reason', `no eligible members found in ${teamToAssign}`)
+            return
+        }
 
         // Get 2 consecutive members from the available team members (or all available if less than 2)
         const numReviewers = Math.min(2, membersToSelectFrom.length)

@@ -3,6 +3,7 @@ import {
   RequestClient,
   DynamicFieldResponse,
   IntegrationError,
+  RetryableError,
   PayloadValidationError,
   JSONLikeObject,
   HTTPError,
@@ -231,7 +232,8 @@ type ProfileIdentifierField = 'external_id' | 'email' | 'phone_number'
 
 /**
  * Fetches the profile IDs matching one chunk of identifier values (at most GET_PROFILES_MAX_FILTER_VALUES),
- * following `links.next` in case a value matches more than one profile.
+ * following `links.next` in case a value matches more than one profile. Throws a RetryableError when the
+ * page cap is reached, so a partial set of profile IDs is never used for removal.
  */
 async function getProfileIdsForChunk(
   request: RequestClient,
@@ -246,7 +248,12 @@ async function getProfileIdsForChunk(
   for (let page = 0; url; page++) {
     if (page >= GET_PROFILES_MAX_PAGES_PER_CHUNK) {
       statsContext?.statsClient?.incr('actions-klaviyo.get_profiles.page_cap_hit', 1, statsContext.tags)
-      break
+      // Returning the partial list would mark every event as delivered while some profiles stay on the list.
+      // Nothing has been removed yet, so fail the batch and let it be retried (in smaller batches).
+      throw new RetryableError(
+        `Klaviyo returned more than ${GET_PROFILES_MAX_PAGES_PER_CHUNK * GET_PROFILES_PAGE_SIZE} profiles for ` +
+          `${values.length} ${field} values; not removing a partial set of profiles`
+      )
     }
 
     const response = await request(url, { method: 'GET' })
@@ -291,11 +298,11 @@ export async function getProfiles(
     // Run the chunk lookups a few at a time to stay inside the delivery deadline without flooding Klaviyo.
     // Pages within one chunk are still followed one after another.
     const allProfileIds: string[] = []
-    const lookupBatches = chunkArray(lookups, GET_PROFILES_CONCURRENCY)
+    const lookupWaves = chunkArray(lookups, GET_PROFILES_CONCURRENCY)
 
-    for (const lookupBatch of lookupBatches) {
+    for (const lookupWave of lookupWaves) {
       const results = await Promise.all(
-        lookupBatch.map(({ field, chunk }) => getProfileIdsForChunk(request, field, chunk, options.statsContext))
+        lookupWave.map(({ field, chunk }) => getProfileIdsForChunk(request, field, chunk, options.statsContext))
       )
       for (const chunkProfileIds of results) {
         allProfileIds.push(...chunkProfileIds)

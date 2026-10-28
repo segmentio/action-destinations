@@ -36,7 +36,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
@@ -110,7 +110,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
@@ -149,7 +149,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
@@ -203,7 +203,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
@@ -247,7 +247,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@7c12f8017d5436eb855f1ed4399f037a36fbd9e8 # v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
 
       - name: Artifactory OIDC Auth

@@ -167,9 +167,10 @@ describe('Hubspot.upsertObject associations identified by hs_object_id', () => {
       expect(nock.pendingMocks()).toHaveLength(4)
     })
 
-    it('does not reject for the update sync mode, where the event succeeds today and the association step is never reached', async () => {
-      // HubSpot's batch/update response omits the identifier property, so the main record is not matched back to
-      // its payload and no association request follows. Rejecting here would turn a working mapping into a failing one.
+    it('does not reject for the update sync mode when the main record is not identified by hs_object_id, because the event succeeds today', async () => {
+      // With a main identifier other than hs_object_id (here email), HubSpot's batch/update response omits it, so the
+      // main record is not matched back to its payload and no association request follows. Rejecting here would turn
+      // a working mapping into a failing one. A main record identified by hs_object_id does reach the association step.
       nock(HUBSPOT_BASE_URL)
         .post('/crm/v3/objects/contact/batch/read')
         .reply(200, { results: [{ id: '62102303560', properties: { email: 'test@test.com' } }] })

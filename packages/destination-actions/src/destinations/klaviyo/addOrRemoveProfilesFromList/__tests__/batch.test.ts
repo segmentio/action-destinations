@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
 import { API_URL, KLAVIYO_PAGINATE_GET_PROFILES_FLAG } from '../../config'
 import { NO_LIST_ID_ERROR } from '../functions'
@@ -395,5 +395,80 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch removals with getProfiles 
 
     expect(getUrls).toHaveLength(1)
     expect(getUrls[0]).not.toContain('page[size]')
+  })
+
+  describe('mixed add and remove batch with the flag on', () => {
+    const features = { [KLAVIYO_PAGINATE_GET_PROFILES_FLAG]: true }
+    // 2 adds, then 100 removes (one full lookup chunk)
+    const addEvents = ['add0@example.com', 'add1@example.com'].map((email) => membershipEvent(email, true))
+    const removeEvents = Array.from({ length: 100 }, (_, i) => membershipEvent(`rm${i}@example.com`, false))
+    const mixedEvents = [...addEvents, ...removeEvents]
+
+    function mockAddJob() {
+      let addCalls = 0
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(200, () => {
+          addCalls++
+          return { data: { id: 'job1' } }
+        })
+      return () => addCalls
+    }
+
+    it('rejects the whole batch with a RetryableError when a removal lookup reaches the page cap', async () => {
+      const addCalls = mockAddJob()
+      const removedIds: string[] = []
+      // every page is full and has a next link, so the lookup never finishes
+      nock(`${API_URL}/profiles`)
+        .persist()
+        .get(/.*/)
+        .reply(200, () => ({
+          data: Array.from({ length: 100 }, (_, i) => ({ id: `id-${i}` })),
+          links: { next: `${API_URL}/profiles/?page[cursor]=next&page[size]=100` }
+        }))
+      nock(`${API_URL}/lists/${listId}`)
+        .persist()
+        .delete('/relationships/profiles/')
+        .reply(200, (_uri, body: any) => {
+          removedIds.push(...body.data.map((profile: any) => profile.id))
+          return {}
+        })
+
+      const error = await testDestination
+        .executeBatch('addOrRemoveProfilesFromList', {
+          events: mixedEvents,
+          settings,
+          mapping: interleavedMapping,
+          features
+        })
+        .catch((e: unknown) => e)
+
+      // No per-event results are returned, so the add results are discarded and Segment retries the whole batch.
+      // The add side has already been sent (bulk import jobs are upserts, so sending it again is harmless).
+      expect(error).toBeInstanceOf(RetryableError)
+      expect(addCalls()).toBe(1)
+      expect(removedIds).toHaveLength(0)
+    })
+
+    it('keeps the add results and reports 429 only for the removes when a removal lookup is rate limited', async () => {
+      const addCalls = mockAddJob()
+      nock(`${API_URL}/profiles`)
+        .persist()
+        .get(/.*/)
+        .reply(429, { errors: [{ detail: 'Request was throttled.' }] })
+      const removeScope = nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/').reply(200, {})
+
+      const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
+        events: mixedEvents,
+        settings,
+        mapping: interleavedMapping,
+        features
+      })
+
+      expect(addCalls()).toBe(1)
+      expect(removeScope.isDone()).toBe(false)
+      expect(responses.slice(0, 2).every((r: any) => r.status === 200)).toBe(true)
+      expect(responses.slice(2).every((r: any) => r.status === 429)).toBe(true)
+    })
   })
 })
