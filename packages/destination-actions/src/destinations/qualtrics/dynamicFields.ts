@@ -10,7 +10,7 @@ export async function getDirectoryIds(
   data: ExecuteInput<Settings, unknown>
 ): Promise<DynamicFieldResponse> {
   const choices: DynamicFieldItem[] = []
-  const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request, data.features)
+  const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)
   try {
     const response = await apiClient.listDirectories()
     for (const directory of response.elements) {

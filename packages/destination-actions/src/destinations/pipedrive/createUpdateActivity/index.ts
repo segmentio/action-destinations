@@ -149,14 +149,14 @@ const action: ActionDefinition<Settings, Payload> = {
     person_match_field: fieldHandler('person'),
     organization_match_field: fieldHandler('organization'),
     deal_match_field: fieldHandler('deal'),
-    type: async (request, { settings, features }) => {
-      const client = new PipedriveClient(settings, request, features)
+    type: async (request, { settings }) => {
+      const client = new PipedriveClient(settings, request)
       return client.getActivityTypes()
     }
   },
 
-  perform: async (request, { payload, settings, features }) => {
-    const client = new PipedriveClient(settings, request, features)
+  perform: async (request, { payload, settings }) => {
+    const client = new PipedriveClient(settings, request)
 
     const personSearchField = payload.person_match_field || settings.personField || 'id'
     const organizationSearchField = payload.organization_match_field || settings.organizationField || 'id'

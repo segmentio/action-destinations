@@ -163,8 +163,8 @@ class PipedriveClient {
   }
 
   static fieldHandler(fieldType: keyof PipedriveFieldTypes) {
-    return async (request: RequestClient, { settings, features }: ExecuteInput<Settings, unknown>) => {
-      const client = new PipedriveClient(settings, request, features)
+    return async (request: RequestClient, { settings }: ExecuteInput<Settings, unknown>) => {
+      const client = new PipedriveClient(settings, request)
       return client.getFields(fieldType)
     }
   }
