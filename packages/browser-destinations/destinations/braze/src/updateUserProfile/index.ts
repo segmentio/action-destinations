@@ -189,7 +189,7 @@ const action: BrowserActionDefinition<Settings, BrazeDestinationClient, Payload>
   },
 
   perform: (client, { payload }) => {
-    if (!client.ready()) {
+    if (!client.ready(payload.external_id)) {
       return
     }
 
