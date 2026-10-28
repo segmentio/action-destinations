@@ -582,24 +582,6 @@ const getDynamicFieldError = (err: any): { message: string; code: string } => {
   return { message, code }
 }
 
-const getAccessTokenForDynamicField = async (
-  request: RequestClient,
-  settings: Settings
-): Promise<{ accessToken?: string; error?: DynamicFieldError }> => {
-  try {
-    const { accessToken } = await getAccessToken(request, settings)
-    return { accessToken }
-  } catch (err) {
-    const { message, code } = getDynamicFieldError(err)
-    return {
-      error: {
-        message: `Failed to authenticate with Salesforce Marketing Cloud: ${message}`,
-        code: code || 'BAD_REQUEST'
-      }
-    }
-  }
-}
-
 const getDataExtensionsRequest = async (
   request: RequestClient,
   searchQuery: string,
@@ -665,10 +647,7 @@ export const getDataExtensions = async (
     }
   }
 
-  const { accessToken, error: authError } = await getAccessTokenForDynamicField(request, settings)
-  if (authError || !accessToken) {
-    return { choices: [], error: authError ?? { message: 'Missing access token', code: 'BAD_REQUEST' } }
-  }
+  const { accessToken } = await getAccessToken(request, settings)
 
   const { results, error } = await getDataExtensionsRequest(request, searchQuery, { subdomain, accessToken })
 
@@ -735,10 +714,7 @@ export const getDataExtensionFields = async (
   if (!dataExtensionID) {
     return { choices: [], error: { message: 'No Data Extension ID provided', code: 'BAD_REQUEST' } }
   }
-  const { accessToken, error: authError } = await getAccessTokenForDynamicField(request, settings)
-  if (authError || !accessToken) {
-    return { choices: [], error: authError ?? { message: 'Missing access token', code: 'BAD_REQUEST' } }
-  }
+  const { accessToken } = await getAccessToken(request, settings)
 
   const { results, error } = await getDataExtensionFieldsRequest(
     request,

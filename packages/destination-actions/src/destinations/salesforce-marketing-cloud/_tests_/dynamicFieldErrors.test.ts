@@ -77,28 +77,6 @@ describe('Salesforce Marketing Cloud dynamic field errors', () => {
       expect(response.error?.code).toBe('BAD_REQUEST')
     })
 
-    it('returns an error instead of throwing when the token request has no HTTP response', async () => {
-      nock(authUrl).post('/v2/token').replyWithError('socket hang up')
-
-      const response = await getDataExtensions(request, settings.subdomain, settings, 'test')
-
-      expect(response.choices).toEqual([])
-      expect(response.error?.message).toContain('Failed to authenticate with Salesforce Marketing Cloud')
-      expect(response.error?.message).toContain('socket hang up')
-    })
-
-    it('returns the SFMC error message and code when the token request is rejected', async () => {
-      nock(authUrl).post('/v2/token').reply(401, { errorcode: 1, message: 'Invalid client' })
-
-      const response = await getDataExtensions(request, settings.subdomain, settings, 'test')
-
-      expect(response.choices).toEqual([])
-      expect(response.error).toEqual({
-        message: 'Failed to authenticate with Salesforce Marketing Cloud: Invalid client',
-        code: '1'
-      })
-    })
-
     it('keeps the permissions message for error code 20002', async () => {
       mockToken()
       nock(restUrl)
@@ -136,15 +114,6 @@ describe('Salesforce Marketing Cloud dynamic field errors', () => {
       expect(response.choices).toEqual([])
       expect(response.error?.message).toContain('socket hang up')
       expect(response.error?.code).toBe('BAD_REQUEST')
-    })
-
-    it('returns an error instead of throwing when the token request has no HTTP response', async () => {
-      nock(authUrl).post('/v2/token').replyWithError('socket hang up')
-
-      const response = await getDataExtensionFields(request, settings.subdomain, settings, '123', true)
-
-      expect(response.choices).toEqual([])
-      expect(response.error?.message).toContain('Failed to authenticate with Salesforce Marketing Cloud')
     })
   })
 })
