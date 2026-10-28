@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.175.1-staging-b2ee7a5d3.0",
+  "version": "1.175.1-staging-e95a1a7ef.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -30,7 +30,7 @@
     "@segment/analytics-browser-actions-contentstack-web": "^1.52.0",
     "@segment/analytics-browser-actions-devrev": "^1.96.0",
     "@segment/analytics-browser-actions-facebook-conversions-api-web": "^1.27.0",
-    "@segment/analytics-browser-actions-friendbuy": "1.116.1-staging-b2ee7a5d3.0",
+    "@segment/analytics-browser-actions-friendbuy": "1.116.1-staging-e95a1a7ef.0",
     "@segment/analytics-browser-actions-fullsession": "^1.21.0",
     "@segment/analytics-browser-actions-fullstory": "^1.111.0",
     "@segment/analytics-browser-actions-google-analytics-4": "^1.120.0",
@@ -38,7 +38,7 @@
     "@segment/analytics-browser-actions-google-ec-plugins": "^1.18.0",
     "@segment/analytics-browser-actions-heap": "^1.109.0",
     "@segment/analytics-browser-actions-hubspot": "^1.110.0",
-    "@segment/analytics-browser-actions-intercom": "1.121.1-staging-b2ee7a5d3.0",
+    "@segment/analytics-browser-actions-intercom": "1.121.1-staging-e95a1a7ef.0",
     "@segment/analytics-browser-actions-iterate": "^1.110.0",
     "@segment/analytics-browser-actions-jimo": "^1.100.0",
     "@segment/analytics-browser-actions-koala": "^1.111.0",
