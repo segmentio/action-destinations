@@ -1,10 +1,9 @@
 import { HTTPError } from '@segment/actions-core'
 import { ModifiedResponse } from '@segment/actions-core'
-import { RequestClient } from '@segment/actions-core'
+import { Features, RequestClient } from '@segment/actions-core'
 import { CustomSearchToAssociateThrowableError } from '../errors'
 
-import { HUBSPOT_BASE_URL } from '../properties'
-import { HUBSPOT_CRM_API_VERSION, HUBSPOT_CRM_ASSOCIATIONS_API_VERSION } from '../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../versioning-info'
 import {
   AssociationType,
   CreateAssociation,
@@ -18,11 +17,13 @@ export class Hubspot {
   request: RequestClient
   objectType: string
   toObjectType?: string
+  urls: HubspotUrls
 
-  constructor(request: RequestClient, objectType: string, toObjectType?: string) {
+  constructor(request: RequestClient, objectType: string, toObjectType?: string, features?: Features) {
     this.request = request
     this.objectType = objectType
     this.toObjectType = toObjectType
+    this.urls = hubspotUrls(features)
   }
 
   /**
@@ -56,15 +57,12 @@ export class Hubspot {
         })
       }
 
-      return this.request<SearchResponse>(
-        `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/${objectType}/search`,
-        {
-          method: 'POST',
-          json: {
-            ...searchPayload
-          }
+      return this.request<SearchResponse>(`${this.urls.objects}/${objectType}/search`, {
+        method: 'POST',
+        json: {
+          ...searchPayload
         }
-      )
+      })
     }
     return null
   }
@@ -75,16 +73,13 @@ export class Hubspot {
    * @returns {Promise<ModifiedResponse<UpsertCompanyResponse>>} A promise that resolves the updated object
    */
   async create(properties: { [key: string]: unknown }, associations: CreateAssociation[] = []) {
-    return this.request<UpsertRecordResponse>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/${this.objectType}`,
-      {
-        method: 'POST',
-        json: {
-          properties: properties,
-          associations: associations
-        }
+    return this.request<UpsertRecordResponse>(`${this.urls.objects}/${this.objectType}`, {
+      method: 'POST',
+      json: {
+        properties: properties,
+        associations: associations
       }
-    )
+    })
   }
 
   /**
@@ -95,12 +90,9 @@ export class Hubspot {
    * @returns {Promise<ModifiedResponse<UpsertRecordResponse>>} A promise that resolves the updated object
    */
   async update(uniqueIdentifier: string, properties: { [key: string]: unknown }, idProperty?: string) {
-    // Construct the URL to update record of given objectType
-    // URL to update record by ID: /crm/v3/objects/{objectType}/{objectId}
-    // URL to update record by unique property: /crm/v3/objects/{objectType}/{uniqueIdentifier}?idProperty={uniquePropertyInternalName}
+    // Without idProperty the uniqueIdentifier is matched against HubSpot's own record ID
     const updateURL =
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/${this.objectType}/${uniqueIdentifier}` +
-      (idProperty ? `?idProperty=${idProperty}` : '')
+      `${this.urls.objects}/${this.objectType}/${uniqueIdentifier}` + (idProperty ? `?idProperty=${idProperty}` : '')
 
     return this.request<UpsertRecordResponse>(updateURL, {
       method: 'PATCH',
@@ -118,7 +110,7 @@ export class Hubspot {
    * @returns {Promise<ModifiedResponse<UpsertRecordResponse>>} A promise that resolves the updated object
    */
   async associate(objectId: string, toObjectId: string, associations: AssociationType[]) {
-    const associateURL = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/objects/${this.objectType}/${objectId}/associations/${this.toObjectType}/${toObjectId}`
+    const associateURL = `${this.urls.recordAssociations}/${this.objectType}/${objectId}/associations/${this.toObjectType}/${toObjectId}`
 
     return this.request<UpsertRecordResponse>(associateURL, {
       method: 'PUT',
