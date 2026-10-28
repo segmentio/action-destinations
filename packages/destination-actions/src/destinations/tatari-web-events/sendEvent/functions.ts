@@ -63,14 +63,19 @@ function buildArgs(payload: Payload): Record<string, unknown> | undefined {
   for (const key of PROMOTED_PROPERTY_KEYS) delete args[key]
 
   const orderId = payload.order_id ?? args.order_id
-  if (orderId !== undefined && orderId !== null && String(orderId).trim() !== '') {
+  if ((typeof orderId === 'string' || typeof orderId === 'number') && String(orderId).trim() !== '') {
     args.order_id = String(orderId)
   } else {
     delete args.order_id
   }
 
   const orderTotal = payload.order_total ?? args.order_total
-  const total = typeof orderTotal === 'string' ? Number(orderTotal) : orderTotal
+  const total =
+    typeof orderTotal === 'number'
+      ? orderTotal
+      : typeof orderTotal === 'string' && orderTotal.trim() !== ''
+      ? Number(orderTotal)
+      : undefined
   if (typeof total === 'number' && Number.isFinite(total)) {
     args.order_total = total
   } else {
