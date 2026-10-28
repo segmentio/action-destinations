@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-friendbuy",
-  "version": "1.116.0",
+  "version": "1.116.1-staging-b2ee7a5d3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -21,7 +21,7 @@
   "typings": "./dist/esm",
   "dependencies": {
     "@segment/actions-core": "^3.179.0",
-    "@segment/actions-shared": "^1.166.0",
+    "@segment/actions-shared": "1.166.1-staging-b2ee7a5d3.0",
     "@segment/browser-destination-runtime": "^1.108.0"
   },
   "peerDependencies": {

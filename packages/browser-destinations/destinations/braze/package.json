@@ -1,6 +1,6 @@
 {
   "name": "@segment/analytics-browser-actions-braze",
-  "version": "1.126.1-staging-a3e9a3628.0",
+  "version": "1.126.1-staging-b2ee7a5d3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
