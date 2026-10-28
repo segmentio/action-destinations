@@ -131,11 +131,11 @@ describe('Tatari Web Events', () => {
         hem_sha256: '31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66',
         hem_sha1: '914fec35ce8bfa1a067581032f26b053591ee38a',
         hem_md5: '23463b99b62a72f26ed677cc556c44e8',
-        args: { order_id: '9001', order_total: 149.99, currency: 'USD' }
+        args: { order_id: '9001', order_total: 149.99 }
       })
     })
 
-    it('drops properties already promoted to dedicated fields from args', async () => {
+    it('only includes dedicated order fields in args by default', async () => {
       let sentBody: Record<string, unknown> = {}
       nock(baseUrl)
         .post('/webevents/v1/track', (body) => {
@@ -162,7 +162,7 @@ describe('Tatari Web Events', () => {
 
       expect(sentBody.url).toBe('https://shop.example.com/confirmation')
       expect(sentBody.referrer_url).toBe('https://shop.example.com/cart')
-      expect(sentBody.args).toEqual({ order_id: 'ORD-555', order_total: 120.5, currency: 'USD' })
+      expect(sentBody.args).toEqual({ order_id: 'ORD-555', order_total: 120.5 })
     })
 
     it('uses fallback mappings when preferred values are empty strings', async () => {
@@ -279,7 +279,7 @@ describe('Tatari Web Events', () => {
       expect(sentBody.hem_md5).toBeUndefined()
     })
 
-    it('hashes properties.email and does not forward it in args', async () => {
+    it('hashes properties.email without automatically forwarding properties to args', async () => {
       let sentBody: Record<string, unknown> = {}
       nock(baseUrl)
         .post('/webevents/v1/track', (body) => {
@@ -296,6 +296,31 @@ describe('Tatari Web Events', () => {
         }),
         settings,
         useDefaultMappings: true
+      })
+
+      expect(sentBody.hem_sha256).toBe('31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66')
+      expect(sentBody.args).toBeUndefined()
+      expect(JSON.stringify(sentBody)).not.toMatch(/example@example\.com/i)
+    })
+
+    it('forwards explicitly mapped additional properties while dropping plaintext email', async () => {
+      let sentBody: Record<string, unknown> = {}
+      nock(baseUrl)
+        .post('/webevents/v1/track', (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, {})
+
+      await testDestination.testAction('sendEvent', {
+        event: createTestEvent({
+          ...trackEvent,
+          context: { ...trackEvent.context, traits: {} },
+          properties: { email: 'Example@Example.com ', plan: 'pro' }
+        }),
+        settings,
+        useDefaultMappings: true,
+        mapping: { args: { '@path': '$.properties' } }
       })
 
       expect(sentBody.hem_sha256).toBe('31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66')

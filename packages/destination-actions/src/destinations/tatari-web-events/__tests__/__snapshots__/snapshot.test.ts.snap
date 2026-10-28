@@ -5,15 +5,8 @@ exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent a
 exports[`Testing snapshot for actions-tatari-web-events destination: sendEvent action - all fields 2`] = `
 Object {
   "args": Object {
-    "currency": "USD",
     "order_id": "ORD-SNAPSHOT-1",
     "order_total": 88.5,
-    "products": Array [
-      Object {
-        "product_id": "sku-1",
-        "quantity": 2,
-      },
-    ],
   },
   "distinct_id": "snapshot-message-id",
   "event": "Order Completed",

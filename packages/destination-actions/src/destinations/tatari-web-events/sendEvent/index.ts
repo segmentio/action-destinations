@@ -141,11 +141,10 @@ const action: ActionDefinition<Settings, Payload> = {
     args: {
       label: 'Additional Properties',
       description:
-        'Arbitrary JSON object of event properties, forwarded as `args`. `order_id` and `order_total` above take precedence over keys of the same name here. Keys already carried by a dedicated field are dropped: `email` (use the Email field so it is hashed), `total` and `revenue` (see Order Total), and `url` and `referrer` (see Page URL / Referrer URL). Avoid sending other PII here.',
+        'Optional JSON object forwarded as `args`. Only properties explicitly mapped here are forwarded. `order_id` and `order_total` above take precedence over keys of the same name. Keys already carried by a dedicated field are dropped: `email` (use the Email field so it is hashed), `total` and `revenue` (see Order Total), and `url` and `referrer` (see Page URL / Referrer URL). Do not map PII here.',
       type: 'object',
       required: false,
-      defaultObjectUI: 'keyvalue',
-      default: { '@path': '$.properties' }
+      defaultObjectUI: 'keyvalue'
     },
     enable_batching: {
       label: 'Enable Batching',
