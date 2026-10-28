@@ -24,7 +24,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@if': {
-          exists: { '@path': '$.event' },
+          blank: { '@path': '$.event' },
           then: { '@path': '$.event' },
           else: { '@path': '$.type' }
         }
@@ -83,7 +83,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: true,
       default: {
         '@if': {
-          exists: { '@path': '$.context.page.url' },
+          blank: { '@path': '$.context.page.url' },
           then: { '@path': '$.context.page.url' },
           else: { '@path': '$.properties.url' }
         }
@@ -96,7 +96,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.context.page.referrer' },
+          blank: { '@path': '$.context.page.referrer' },
           then: { '@path': '$.context.page.referrer' },
           else: { '@path': '$.properties.referrer' }
         }
@@ -111,7 +111,7 @@ const action: ActionDefinition<Settings, Payload> = {
       category: 'hashedPII',
       default: {
         '@if': {
-          exists: { '@path': '$.context.traits.email' },
+          blank: { '@path': '$.context.traits.email' },
           then: { '@path': '$.context.traits.email' },
           else: { '@path': '$.properties.email' }
         }
@@ -132,7 +132,7 @@ const action: ActionDefinition<Settings, Payload> = {
       required: false,
       default: {
         '@if': {
-          exists: { '@path': '$.properties.total' },
+          blank: { '@path': '$.properties.total' },
           then: { '@path': '$.properties.total' },
           else: { '@path': '$.properties.revenue' }
         }

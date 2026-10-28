@@ -60,7 +60,7 @@
           "dynamic": false,
           "default": {
             "@if": {
-              "exists": {
+              "blank": {
                 "@path": "$.event"
               },
               "then": {
@@ -252,7 +252,7 @@
           "dynamic": false,
           "default": {
             "@if": {
-              "exists": {
+              "blank": {
                 "@path": "$.context.page.url"
               },
               "then": {
@@ -288,7 +288,7 @@
           "dynamic": false,
           "default": {
             "@if": {
-              "exists": {
+              "blank": {
                 "@path": "$.context.page.referrer"
               },
               "then": {
@@ -324,7 +324,7 @@
           "dynamic": false,
           "default": {
             "@if": {
-              "exists": {
+              "blank": {
                 "@path": "$.context.traits.email"
               },
               "then": {
@@ -386,7 +386,7 @@
           "dynamic": false,
           "default": {
             "@if": {
-              "exists": {
+              "blank": {
                 "@path": "$.properties.total"
               },
               "then": {
@@ -522,7 +522,7 @@
       "mapping": {
         "event": {
           "@if": {
-            "exists": {
+            "blank": {
               "@path": "$.event"
             },
             "then": {
@@ -553,7 +553,7 @@
         },
         "url": {
           "@if": {
-            "exists": {
+            "blank": {
               "@path": "$.context.page.url"
             },
             "then": {
@@ -566,7 +566,7 @@
         },
         "referrer_url": {
           "@if": {
-            "exists": {
+            "blank": {
               "@path": "$.context.page.referrer"
             },
             "then": {
@@ -579,7 +579,7 @@
         },
         "email": {
           "@if": {
-            "exists": {
+            "blank": {
               "@path": "$.context.traits.email"
             },
             "then": {
@@ -595,7 +595,7 @@
         },
         "order_total": {
           "@if": {
-            "exists": {
+            "blank": {
               "@path": "$.properties.total"
             },
             "then": {
