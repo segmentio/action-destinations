@@ -6,6 +6,8 @@ export const API_VERSION = FACEBOOK_CONVERSIONS_API_VERSION
 
 export const CANARY_API_VERSION = FACEBOOK_CONVERSIONS_CANARY_API_VERSION
 
+export const MAX_EVENT_AGE_MS = 7 * 24 * 60 * 60 * 1000
+
 export const EventType = {
   AddToCart: 'AddToCart',
   Custom: 'Custom',
