@@ -3,6 +3,8 @@ import { createTestEvent, createTestIntegration, defaultValues } from '@segment/
 import Definition from '../index'
 import sendEvent from '../sendEvent'
 import { ENVIRONMENTS, INTEGRATION_HEADER_VALUE, MAX_BATCH_BYTES, MAX_BATCH_SIZE } from '../constants'
+import { buildEvent } from '../sendEvent/functions'
+import type { Payload } from '../sendEvent/generated-types'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -161,6 +163,66 @@ describe('Tatari Web Events', () => {
       expect(sentBody.url).toBe('https://shop.example.com/confirmation')
       expect(sentBody.referrer_url).toBe('https://shop.example.com/cart')
       expect(sentBody.args).toEqual({ order_id: 'ORD-555', order_total: 120.5, currency: 'USD' })
+    })
+
+    it('uses fallback mappings when preferred values are empty strings', async () => {
+      let sentBody: Record<string, unknown> = {}
+      nock(baseUrl)
+        .post('/webevents/v1/track', (body) => {
+          sentBody = body
+          return true
+        })
+        .reply(200, {})
+
+      await testDestination.testAction('sendEvent', {
+        event: createTestEvent({
+          ...trackEvent,
+          event: '',
+          context: {
+            ip: '203.0.113.9',
+            userAgent: 'UA',
+            page: { url: '', referrer: '' },
+            traits: { email: '' }
+          },
+          properties: {
+            url: 'https://shop.example.com/fallback',
+            referrer: 'https://shop.example.com/fallback-referrer',
+            email: 'Example@Example.com ',
+            total: '',
+            revenue: 42.5
+          }
+        }),
+        settings,
+        useDefaultMappings: true
+      })
+
+      expect(sentBody).toMatchObject({
+        event: 'track',
+        url: 'https://shop.example.com/fallback',
+        referrer_url: 'https://shop.example.com/fallback-referrer',
+        hem_sha256: '31c5543c1734d25c7206f5fd591525d0295bec6fe84ff82f946a34fe970a1e66',
+        args: { order_total: 42.5 }
+      })
+    })
+
+    it('normalizes only primitive order fields from args', () => {
+      const payload: Payload = {
+        event: 'purchase',
+        timestamp: '2026-09-10T20:00:00.000Z',
+        session_id: 'session-1',
+        ip_address: '203.0.113.9',
+        user_agent: 'UA',
+        url: 'https://shop.example.com/',
+        args: { order_id: 42, order_total: ' 12.50 ', currency: 'USD' }
+      }
+
+      expect(buildEvent(payload).args).toEqual({ order_id: '42', order_total: 12.5, currency: 'USD' })
+      expect(
+        buildEvent({
+          ...payload,
+          args: { order_id: { value: 'bad' }, order_total: '   ' }
+        }).args
+      ).toBeUndefined()
     })
 
     it('falls back to $.type for page calls and routes IPv6 correctly', async () => {
