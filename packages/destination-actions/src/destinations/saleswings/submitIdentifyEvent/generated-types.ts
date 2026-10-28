@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.
+   */
+  messageID?: string
+  /**
    * Type of the SalesWings custom event (a custom event is visualized in SalesWings cockpit and SalesForce Lead Intent View as "[[Kind]] Data").
    */
   kind: string
