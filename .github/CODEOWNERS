@@ -14,7 +14,7 @@
 
 # Browser destinations
 
-/packages/browser-destinations/ @segmentio/libraries-web-team @segmentio/strategic-connections-team
+/packages/browser-destinations/ @segmentio/strategic-connections-team
 
 # CLI binary
 
