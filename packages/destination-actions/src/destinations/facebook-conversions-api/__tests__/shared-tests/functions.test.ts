@@ -1,6 +1,8 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import {
   validate,
   validateContents,
+  validateEventTime,
   isHashedInformation,
   getPurchaseEventData,
   getSearchEventData,
@@ -19,6 +21,17 @@ const basePayload = {
     client_user_agent: 'Mozilla/5.0'
   }
 }
+
+// Fixtures use fixed historical timestamps. Pin Date.now() to the oldest one so the
+// 7-day event_time check doesn't reject them.
+let dateNowSpy: jest.SpyInstance
+beforeEach(() => {
+  dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2015-02-23T22:28:55.111Z'))
+})
+
+afterEach(() => {
+  dateNowSpy.mockRestore()
+})
 
 describe('FacebookConversionsApi', () => {
   describe('validate', () => {
@@ -71,6 +84,44 @@ describe('FacebookConversionsApi', () => {
       } as any
 
       expect(() => validate(payload, EventType.Purchase)).not.toThrow()
+    })
+  })
+
+  describe('validateEventTime', () => {
+    const now = Date.parse('2026-10-28T12:00:00.000Z')
+    const sixDaysAgo = now - 6 * 24 * 60 * 60 * 1000
+    const eightDaysAgo = now - 8 * 24 * 60 * 60 * 1000
+
+    beforeEach(() => {
+      dateNowSpy.mockReturnValue(now)
+    })
+
+    it('should not throw for a Unix timestamp within 7 days', () => {
+      expect(() => validateEventTime(String(Math.floor(sixDaysAgo / 1000)))).not.toThrow()
+    })
+
+    it('should not throw for an ISO timestamp within 7 days', () => {
+      expect(() => validateEventTime(new Date(sixDaysAgo).toISOString())).not.toThrow()
+    })
+
+    it('should throw a PayloadValidationError for a Unix timestamp older than 7 days', () => {
+      expect(() => validateEventTime(String(Math.floor(eightDaysAgo / 1000)))).toThrow(PayloadValidationError)
+    })
+
+    it('should throw a PayloadValidationError for an ISO timestamp older than 7 days', () => {
+      const eventTime = new Date(eightDaysAgo).toISOString()
+      expect(() => validateEventTime(eventTime)).toThrow(
+        `event_time ${eventTime} is more than 7 days old. Facebook rejects events older than 7 days.`
+      )
+    })
+
+    it('should not throw for an unparseable timestamp', () => {
+      expect(() => validateEventTime('not-a-date')).not.toThrow()
+    })
+
+    it('should throw from validate when event_time is older than 7 days', () => {
+      const payload = { ...basePayload, event_time: new Date(eightDaysAgo).toISOString() } as any
+      expect(() => validate(payload, EventType.Custom)).toThrow(PayloadValidationError)
     })
   })
 
