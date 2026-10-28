@@ -39,6 +39,33 @@ describe('Salesforce Marketing Cloud dynamic field errors', () => {
       expect(response.error).toBeUndefined()
     })
 
+    it.each([undefined, '', '   '])('asks for a keyword without calling SFMC when the query is %p', async (query) => {
+      const token = mockToken()
+      const search = nock(restUrl).get('/data/v1/customobjects').query(true).reply(200, { items: [] })
+
+      const response = await getDataExtensions(request, settings.subdomain, settings, query)
+
+      expect(response.choices).toEqual([])
+      expect(response.error).toEqual({
+        message: 'Type a keyword to search for Data Extensions.',
+        code: 'NO_SEARCH_QUERY'
+      })
+      expect(token.isDone()).toBe(false)
+      expect(search.isDone()).toBe(false)
+    })
+
+    it('sends the trimmed query as $search', async () => {
+      mockToken()
+      nock(restUrl)
+        .get('/data/v1/customobjects')
+        .query({ $search: 'Loyalty' })
+        .reply(200, { items: [{ id: 'abc', name: 'Loyalty_DE' }] })
+
+      const response = await getDataExtensions(request, settings.subdomain, settings, '  Loyalty ')
+
+      expect(response.choices).toEqual([{ value: 'abc', label: 'Loyalty_DE' }])
+    })
+
     it('returns an error instead of throwing when the search has no HTTP response', async () => {
       mockToken()
       nock(restUrl).get('/data/v1/customobjects').query(true).replyWithError('socket hang up')

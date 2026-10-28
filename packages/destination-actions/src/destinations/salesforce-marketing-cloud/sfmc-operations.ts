@@ -655,9 +655,14 @@ export const getDataExtensions = async (
   settings: Settings,
   query?: string
 ): Promise<DynamicFieldResponse> => {
-  let searchQuery = '_'
-  if (query && query !== '') {
-    searchQuery = query
+  // SFMC requires $search and only matches names that start with it, so there is no way to list
+  // every Data Extension here. Ask for a keyword instead of calling SFMC with an empty query.
+  const searchQuery = query?.trim()
+  if (!searchQuery) {
+    return {
+      choices: [],
+      error: { message: 'Type a keyword to search for Data Extensions.', code: 'NO_SEARCH_QUERY' }
+    }
   }
 
   const { accessToken, error: authError } = await getAccessTokenForDynamicField(request, settings)
