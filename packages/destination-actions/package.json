@@ -1,7 +1,7 @@
 {
   "name": "@segment/action-destinations",
   "description": "Destination Actions engine and definitions.",
-  "version": "3.539.1-staging-9f6565b05.0",
+  "version": "3.540.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -14,7 +14,7 @@
     "package.json"
   ],
   "engines": {
-    "node": "^18.17 || ^22.23.4"
+    "node": "^18.17 || ^22.13 || ^22.23"
   },
   "engineStrict": true,
   "license": "MIT",

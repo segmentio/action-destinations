@@ -42,6 +42,11 @@ const action: ActionDefinition<Settings, Payload> = {
     field_value: { ...field_value },
     enable_batching: { ...enable_batching },
     event_name: { ...event_name }
+    /* 
+      batch_size and batch_keys are customized in integrations-consumer service for this action.
+      https://github.com/segmentio/integrations-go/pull/491  
+      Do NOT add batch_size or batch_keys here.
+    */
   },
   hooks: {
     retlOnMappingSave: retlOnMappingSaveHook<Payload>()
