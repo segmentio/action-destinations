@@ -30,7 +30,8 @@ import {
   US_STATE_CODES,
   COUNTRY_CODES,
   CURRENCY_ISO_CODES,
-  EventType
+  EventType,
+  MAX_EVENT_AGE_MS
 } from './constants'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
@@ -78,7 +79,9 @@ export function send<P extends AnyPayload, T extends EventDataType>(
 }
 
 export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
-  const { action_source, user_data } = payload
+  const { action_source, user_data, event_time } = payload
+
+  validateEventTime(event_time)
 
   if (eventType !== EventType.Custom && eventType !== EventType.PageView) {
     const { currency, contents } = payload as
@@ -114,6 +117,17 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
     if (action_source === 'website' && user_data.client_user_agent === undefined) {
       throw new PayloadValidationError('If action source is "Website" then client_user_agent must be defined')
     }
+  }
+}
+
+export const validateEventTime = (event_time: string) => {
+  // event_time can be a Unix timestamp in seconds or an ISO 8601 string
+  const eventTimeMs = /^\d+(\.\d+)?$/.test(event_time) ? Number(event_time) * 1000 : Date.parse(event_time)
+
+  if (!isNaN(eventTimeMs) && Date.now() - eventTimeMs > MAX_EVENT_AGE_MS) {
+    throw new PayloadValidationError(
+      `event_time ${event_time} is more than 7 days old. Facebook rejects events older than 7 days.`
+    )
   }
 }
 

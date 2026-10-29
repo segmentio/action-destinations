@@ -15,6 +15,16 @@ const settingsWithTestEventCode = {
   token: process.env.TOKEN
 }
 
+// Fixtures use fixed historical timestamps. Pin Date.now() to the oldest one so the
+// 7-day event_time check doesn't reject them.
+let dateNowSpy: jest.SpyInstance
+beforeEach(() => {
+  dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2015-02-23T22:28:55.111Z'))
+})
+
+afterEach(() => {
+  dateNowSpy.mockRestore()
+})
 
 describe('FacebookConversionsApi', () => {
   describe('InitiateCheckout2', () => {

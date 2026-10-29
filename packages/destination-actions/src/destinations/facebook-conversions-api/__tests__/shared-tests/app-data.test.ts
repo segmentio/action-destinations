@@ -1,6 +1,17 @@
 import { generateAppData } from '../../shared/functions'
 import { AnyPayload, GeneratedAppData } from '../../shared/types'
 
+// Fixtures use fixed historical timestamps. Pin Date.now() to the oldest one so the
+// 7-day event_time check doesn't reject them.
+let dateNowSpy: jest.SpyInstance
+beforeEach(() => {
+  dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2015-02-23T22:28:55.111Z'))
+})
+
+afterEach(() => {
+  dateNowSpy.mockRestore()
+})
+
 describe('FacebookConversionsApi', () => {
   describe('AppData', () => {
     const sampleAppDataComplete: AnyPayload['app_data_field'] = {
