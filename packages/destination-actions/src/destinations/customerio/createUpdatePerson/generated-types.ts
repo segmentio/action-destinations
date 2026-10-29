@@ -42,6 +42,18 @@ export interface Payload {
    */
   convert_timestamp?: boolean
   /**
+   * The person's IP address. Customer.io uses it to derive geolocation attributes (city, region, country, timezone) when geolocation is enabled in your workspace. Defaults to `context.ip`. Only forwarded for events from Segment's web and mobile libraries, where `context.ip` is the end user's address; events from server-side libraries are skipped unless **Forward IP from server-side sources** is enabled.
+   */
+  customer_ip?: string
+  /**
+   * Send the IP Address for events from Segment's server-side libraries too. Only enable this if your server sets `context.ip` to the end user's address; otherwise Customer.io would geolocate people to your server's location.
+   */
+  forward_server_ip?: boolean
+  /**
+   * The Segment library that sent the event. Used to decide whether the IP Address is forwarded.
+   */
+  source_library?: string
+  /**
    * The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).
    */
   object_type_id?: string
