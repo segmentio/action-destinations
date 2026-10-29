@@ -728,23 +728,25 @@ describe('handleDataManagerUpdate', () => {
     expect(results).toEqual([{ requestId: 'req-14' }])
   })
 
-  it('skips a payload with no usable identifiers and makes no Data Manager call', async () => {
+  it('throws PayloadValidationError for a payload with no usable identifiers instead of reporting success', async () => {
     const payload: UserListPayload = {
       ad_user_data_consent_state: 'GRANTED',
       ad_personalization_consent_state: 'GRANTED',
       event_name: 'Audience Entered'
     }
 
-    const results = await handleDataManagerUpdate(
-      requestClient,
-      settings,
-      audienceSettings,
-      [payload],
-      'dm-list-1',
-      'CONTACT_INFO'
-    )
+    await expect(
+      handleDataManagerUpdate(requestClient, settings, audienceSettings, [payload], 'dm-list-1', 'CONTACT_INFO')
+    ).rejects.toThrow(new PayloadValidationError('Missing or invalid data for CONTACT_INFO.'))
+    expect(nock.pendingMocks()).toEqual([])
+  })
 
-    expect(results).toEqual([])
+  it('throws PayloadValidationError when the operation type cannot be determined instead of reporting success', async () => {
+    const payload = contactInfoPayload({ event_name: 'Unrecognized Event' })
+
+    await expect(
+      handleDataManagerUpdate(requestClient, settings, audienceSettings, [payload], 'dm-list-1', 'CONTACT_INFO')
+    ).rejects.toThrow(new PayloadValidationError('Could not determine Operation Type.'))
     expect(nock.pendingMocks()).toEqual([])
   })
 
@@ -830,6 +832,67 @@ describe('handleDataManagerBatchUpdate', () => {
     })
   })
 
+  it('fails only the payload with an invalid email and still ingests the valid ones', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => body.audienceMembers.length === 2)
+      .reply(200, { requestId: 'req-invalid-email' })
+
+    const payloads = [
+      contactInfoPayload({ email: 'a@gmail.com', event_name: 'Audience Entered' }),
+      contactInfoPayload({ email: 'bob@', event_name: 'Audience Entered' }),
+      contactInfoPayload({ email: 'c@gmail.com', event_name: 'Audience Entered' })
+    ]
+
+    const result = await handleDataManagerBatchUpdate(
+      requestClient,
+      settings,
+      audienceSettings,
+      payloads,
+      'dm-list-1',
+      'CONTACT_INFO'
+    )
+
+    expect(result.getResponseAtIndex(0).value()).toMatchObject({ status: 200 })
+    expect(result.isErrorResponseAtIndex(1)).toBe(true)
+    expect(result.getResponseAtIndex(1).value()).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: "Email provided doesn't seem to be in a valid format."
+    })
+    expect(result.getResponseAtIndex(2).value()).toMatchObject({ status: 200 })
+    expect(nock.isDone()).toBe(true)
+  })
+
+  it('fails only the payload with an invalid phone when phone validation is enabled', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => body.audienceMembers.length === 1)
+      .reply(200, { requestId: 'req-invalid-phone' })
+
+    const payloads = [
+      contactInfoPayload({ event_name: 'Audience Entered' }),
+      contactInfoPayload({ phone: '123', event_name: 'Audience Entered' })
+    ]
+
+    const result = await handleDataManagerBatchUpdate(
+      requestClient,
+      settings,
+      audienceSettings,
+      payloads,
+      'dm-list-1',
+      'CONTACT_INFO',
+      undefined,
+      { 'google-enhanced-phone-validation-check': true }
+    )
+
+    expect(result.getResponseAtIndex(0).value()).toMatchObject({ status: 200 })
+    expect(result.isErrorResponseAtIndex(1)).toBe(true)
+    expect(result.getResponseAtIndex(1).value()).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED'
+    })
+    expect(nock.isDone()).toBe(true)
+  })
+
   it('reports a success MultiStatusResponse entry per index for add and remove payloads', async () => {
     nock(DATA_MANAGER_BASE_URL).post('/audienceMembers:ingest').reply(200, { requestId: 'req-16' })
 
@@ -902,6 +965,40 @@ describe('getDataManagerListIds', () => {
       ],
       nextPage: 'page-2'
     })
+  })
+
+  it('sends the requested page as pageToken so later pages can be loaded', async () => {
+    nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(200, { access_token: accessToken })
+    nock(DATA_MANAGER_BASE_URL).post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`).reply(200, {})
+    nock(DATA_MANAGER_BASE_URL)
+      .get(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`)
+      .query({ pageToken: 'page-2' })
+      .reply(200, { userLists: [{ id: 'dm-list-3', name: 'n3', displayName: 'List Three' }] })
+
+    const result = await getDataManagerListIds(
+      requestClient,
+      { customerId },
+      { refresh_token: refreshToken },
+      undefined,
+      'page-2'
+    )
+
+    expect(result).toEqual({ choices: [{ value: 'dm-list-3', label: 'List Three' }], nextPage: undefined })
+    expect(nock.isDone()).toBe(true)
+  })
+
+  it('does not send a pageToken when no page is requested', async () => {
+    nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(200, { access_token: accessToken })
+    nock(DATA_MANAGER_BASE_URL).post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`).reply(200, {})
+    nock(DATA_MANAGER_BASE_URL)
+      .get(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`)
+      .query((q) => !('pageToken' in q))
+      .reply(200, { userLists: [], nextPageToken: 'page-2' })
+
+    const result = await getDataManagerListIds(requestClient, { customerId }, { refresh_token: refreshToken })
+
+    expect(result.nextPage).toBe('page-2')
+    expect(nock.isDone()).toBe(true)
   })
 
   it('still returns choices when the best-effort partner link creation fails', async () => {
@@ -1061,6 +1158,47 @@ describe('userList action perform/performBatch with the Data Manager feature fla
 
     expect(responses[0]).toMatchObject({ status: 200 })
   })
+
+  it('performBatch() fails only the event with an invalid email and delivers the rest of the batch', async () => {
+    nock(DATA_MANAGER_BASE_URL)
+      .post('/audienceMembers:ingest', (body) => body.audienceMembers.length === 9)
+      .reply(200, { requestId: 'req-batch-invalid-email' })
+
+    const events = Array.from({ length: 10 }, (_, i) =>
+      createTestEvent({
+        event: 'Audience Entered',
+        properties: { email: i === 4 ? 'john@' : `user${i}@example.com` }
+      })
+    )
+
+    const responses = await testDestination.executeBatch('userList', {
+      events,
+      mapping: {
+        email: { '@path': '$.properties.email' },
+        event_name: { '@path': '$.event' },
+        ad_user_data_consent_state: 'GRANTED',
+        ad_personalization_consent_state: 'GRANTED',
+        external_audience_id: 'dm-list-1',
+        retlOnMappingSave: { outputs: { id: 'dm-list-1', name: 'Test List', external_id_type: 'CONTACT_INFO' } }
+      },
+      settings: { customerId },
+      features: dataManagerFeatures
+    })
+
+    expect(responses).toHaveLength(10)
+    responses.forEach((response, i) => {
+      if (i === 4) {
+        expect(response).toMatchObject({
+          status: 400,
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
+          errormessage: "Email provided doesn't seem to be in a valid format."
+        })
+      } else {
+        expect(response).toMatchObject({ status: 200 })
+      }
+    })
+    expect(nock.isDone()).toBe(true)
+  })
 })
 
 describe('retlOnMappingSave hook input "list_id" dynamic field with the Data Manager feature flag ON', () => {
@@ -1081,6 +1219,28 @@ describe('retlOnMappingSave hook input "list_id" dynamic field with the Data Man
     })
 
     expect(responses.choices).toEqual([{ value: 'dm-list-1', label: 'List One' }])
+  })
+
+  it('passes the requested page through to Data Manager as pageToken', async () => {
+    nock('https://www.googleapis.com').post('/oauth2/v4/token').reply(200, { access_token: accessToken })
+    nock(DATA_MANAGER_BASE_URL).post(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/partnerLinks`).reply(200, {})
+    nock(DATA_MANAGER_BASE_URL)
+      .get(`/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`)
+      .query({ pageToken: 'page-2' })
+      .reply(200, { userLists: [{ id: 'dm-list-3', name: 'n3', displayName: 'List Three' }] })
+
+    const listIdDynamicField = (Destination.actions.userList.hooks as any).retlOnMappingSave.inputFields.list_id.dynamic
+
+    const responses = await listIdDynamicField(requestClient, {
+      settings: { customerId },
+      payload: {},
+      auth: { refreshToken, accessToken },
+      features: { [FLAGON_NAME_DATA_MANAGER_API]: true },
+      page: 'page-2'
+    })
+
+    expect(responses.choices).toEqual([{ value: 'dm-list-3', label: 'List Three' }])
+    expect(nock.isDone()).toBe(true)
   })
 })
 
