@@ -234,6 +234,14 @@ export const commonFields: ActionDefinition<Settings>['fields'] = {
     ],
     default: 'csv'
   },
+  sanitize_headers: {
+    label: 'Sanitize Headers (Preserve Names, Quote When Needed)',
+    description:
+      'When enabled, column names are preserved as written (nothing is stripped) and a header cell is wrapped in double quotes only if it contains the delimiter, a double quote or a line break. When disabled, or when no value has been saved on an existing mapping, the legacy behavior applies: the first delimiter is silently removed from column names (except when the delimiter is tab) and header cells are never quoted.',
+    type: 'boolean',
+    required: false,
+    default: true
+  },
   columns_to_transform: {
     label: 'Columns to Hash or Normalize',
     description: 'Columns whose values will be normalized and/or hashed before writing to the file.',

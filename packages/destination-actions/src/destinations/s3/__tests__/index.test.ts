@@ -143,3 +143,74 @@ describe('extendRequest', () => {
     expect(result).toEqual({ timeout: 30_000 })
   })
 })
+
+describe('sanitize_headers through the action (opt-in vs default)', () => {
+  const ORIGINAL_ROLE_ADDRESS = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
+  const ORIGINAL_EXTERNAL_ID = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
+  beforeAll(() => {
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
+  })
+  afterAll(() => {
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = ORIGINAL_ROLE_ADDRESS
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = ORIGINAL_EXTERNAL_ID
+  })
+  beforeEach(() => {
+    mockStsSend.mockReset()
+    mockS3Send.mockReset()
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+    mockS3Send.mockResolvedValue({})
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+  })
+
+  const baseMapping = {
+    columns: { 'a,b': { '@path': '$.properties.email' } },
+    audience_action_column_name: '',
+    batch_size_column_name: '',
+    delimiter: ',',
+    file_extension: 'csv',
+    enable_batching: true,
+    filename_prefix: 'export',
+    s3_aws_folder_name: 'audiences'
+  }
+  const event = () => createTestEvent({ userId: 'u-1', properties: { email: 'a@b.com' } })
+  const headerLine = () => {
+    const body = (PutObjectCommand as unknown as jest.Mock).mock.calls[0][0].Body
+    return body.toString().split('\n')[0]
+  }
+
+  it('a mapping that omits the field keeps the legacy header (first delimiter removed)', async () => {
+    await destination.testAction('syncToS3', { event: event(), settings, mapping: baseMapping })
+    expect(headerLine()).toBe('ab')
+  })
+
+  it('an explicit false keeps the legacy header', async () => {
+    await destination.testAction('syncToS3', {
+      event: event(),
+      settings,
+      mapping: { ...baseMapping, sanitize_headers: false }
+    })
+    expect(headerLine()).toBe('ab')
+  })
+
+  it('an explicit true keeps the name and quotes the header cell', async () => {
+    await destination.testAction('syncToS3', {
+      event: event(),
+      settings,
+      mapping: { ...baseMapping, sanitize_headers: true }
+    })
+    expect(headerLine()).toBe('"a,b"')
+  })
+
+  it('a mapping built from field defaults gets the quoted header', async () => {
+    await destination.testAction('syncToS3', {
+      event: event(),
+      settings,
+      useDefaultMappings: true,
+      mapping: baseMapping
+    })
+    expect(headerLine()).toBe('"a,b"')
+  })
+})
