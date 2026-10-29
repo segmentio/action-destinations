@@ -18,6 +18,33 @@ import { Credentials } from './types'
 import { CREDENTIALS_EXPIRY_BUFFER_MS } from './constants'
 import { S3_STS_ERROR_CLASSIFICATION_FLAG, S3_STS_CREDENTIAL_CACHE_FLAG } from '../constants'
 
+/**
+ * Insert a timestamp suffix into the filename, immediately before the extension.
+ *
+ * Extension: a trailing `.<fileExtension>`, `.csv` or `.txt` (the supported file extensions) is
+ * removed before the timestamp is added, so it is never duplicated or mangled (a `.txt` prefix
+ * with `file_extension: csv` becomes `..._<date>.csv`). Any other dotted suffix is part of the
+ * name and is kept (`2026.01.export` stays intact). We strip by suffix rather than with
+ * `String.prototype.replace`, because `replace` with a string replaces the FIRST occurrence of
+ * `fileExtension` anywhere in the name (e.g. the leading "csv" in "csv_export.csv").
+ *
+ * Path: `/` is valid in an S3 key (a folder prefix) and is kept. Period-only path segments (`.`
+ * and `..`) are replaced with `_`: S3 rejects keys whose relative segments climb above the first
+ * element (`../../etc/passwd`), and SDKs/tools normalize them, which breaks the request signature.
+ * Names that merely contain dots (`v1..2`, `..backup`) are untouched.
+ */
+export function buildTimestampedFilename(filenamePrefix: string, dateSuffix: string, fileExtension: string): string {
+  const safePrefix = filenamePrefix
+    .split('/')
+    .map((segment) => (segment === '.' || segment === '..' ? '_' : segment))
+    .join('/')
+  const ext = `.${fileExtension}`
+  const base = safePrefix.endsWith(ext)
+    ? safePrefix.slice(0, safePrefix.length - ext.length)
+    : safePrefix.replace(/\.(csv|txt)$/, '')
+  return base ? `${base}_${dateSuffix}${ext}` : `${dateSuffix}${ext}`
+}
+
 // Real deployments see at most a few hundred distinct (region, roleArn, externalId) combinations
 // live at once; this is a generous cap that still bounds memory growth in a long-lived process.
 const MAX_CACHE_ENTRIES = 1000
@@ -231,12 +258,18 @@ export class Client {
     filename_prefix: string,
     s3_aws_folder_name: string,
     fileExtension: string,
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    fixFilenameExtension = false
   ) {
     const dateSuffix = new Date().toISOString().replace(/[:.]/g, '-')
 
-    if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
-      // Insert the date suffix before the extension
+    if (fixFilenameExtension) {
+      filename_prefix = buildTimestampedFilename(filename_prefix, dateSuffix, fileExtension)
+    } else if (filename_prefix.endsWith('.csv') || filename_prefix.endsWith('.txt')) {
+      // Legacy: `replace` with a string replaces the FIRST occurrence of fileExtension anywhere in
+      // the name (e.g. the leading "csv" in "csv_export.csv") and does nothing useful when the
+      // prefix extension differs from the configured one. Kept as-is for mappings that have not
+      // opted in to fix_filename_extension (STRATCONN-6988).
       filename_prefix = filename_prefix.replace(fileExtension, `_${dateSuffix}.${fileExtension}`)
     } else {
       // Append the date suffix followed by the extension

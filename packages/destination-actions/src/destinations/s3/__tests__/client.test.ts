@@ -1,4 +1,4 @@
-import { Client, clearCredentialsCache, isAWSError, mapAWSError } from '../syncToS3/client'
+import { Client, clearCredentialsCache, isAWSError, mapAWSError, buildTimestampedFilename } from '../syncToS3/client'
 import { S3Client, PutObjectCommand, _Error as AWSError } from '@aws-sdk/client-s3'
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts'
 import {
@@ -1012,5 +1012,142 @@ describe('uploadS3 object key generation', () => {
   it('appends a trailing slash to a folder name that lacks one', async () => {
     await newClient().uploadS3(settings, 'content', 'file', 'myfolder', 'csv')
     expect(keyOf()).toMatch(/^myfolder\/file_.*\.csv$/)
+  })
+})
+
+describe('buildTimestampedFilename', () => {
+  const D = '2026-09-02T11-23-42-574Z'
+
+  it.each<[string, string, string]>([
+    ['export.csv', 'csv', `export_${D}.csv`],
+    ['export', 'csv', `export_${D}.csv`],
+    ['', 'csv', `${D}.csv`],
+    ['.csv', 'csv', `${D}.csv`],
+    ['notes.txt', 'txt', `notes_${D}.txt`],
+    ['a.b.c.csv', 'csv', `a.b.c_${D}.csv`]
+  ])('%j with %s -> %s', (prefix, ext, expected) => {
+    expect(buildTimestampedFilename(prefix, D, ext)).toBe(expected)
+  })
+
+  it('does not corrupt a name containing the extension string elsewhere (STRATCONN-6988)', () => {
+    expect(buildTimestampedFilename('csv_export.csv', D, 'csv')).toBe(`csv_export_${D}.csv`)
+    expect(buildTimestampedFilename('my_txt_report.txt', D, 'txt')).toBe(`my_txt_report_${D}.txt`)
+    expect(buildTimestampedFilename('mycsvfile', D, 'csv')).toBe(`mycsvfile_${D}.csv`)
+  })
+
+  it('replaces a trailing .csv/.txt that differs from the configured extension instead of doubling it', () => {
+    expect(buildTimestampedFilename('report.txt', D, 'csv')).toBe(`report_${D}.csv`)
+    expect(buildTimestampedFilename('data.csv', D, 'txt')).toBe(`data_${D}.txt`)
+  })
+
+  it('keeps other dotted suffixes: they are part of the name, not an extension', () => {
+    expect(buildTimestampedFilename('2026.01.export', D, 'csv')).toBe(`2026.01.export_${D}.csv`)
+    expect(buildTimestampedFilename('report.v2', D, 'csv')).toBe(`report.v2_${D}.csv`)
+    expect(buildTimestampedFilename('data.2024', D, 'csv')).toBe(`data.2024_${D}.csv`)
+    expect(buildTimestampedFilename('name.', D, 'csv')).toBe(`name._${D}.csv`)
+  })
+
+  it('extension matching is case-sensitive', () => {
+    expect(buildTimestampedFilename('export.CSV', D, 'csv')).toBe(`export.CSV_${D}.csv`)
+  })
+
+  it('keeps / (a valid S3 folder prefix) and backslashes untouched', () => {
+    expect(buildTimestampedFilename('segment/audience', D, 'csv')).toBe(`segment/audience_${D}.csv`)
+    expect(buildTimestampedFilename('exports/daily.csv', D, 'csv')).toBe(`exports/daily_${D}.csv`)
+    expect(buildTimestampedFilename('a\\b', D, 'csv')).toBe(`a\\b_${D}.csv`)
+  })
+
+  it('replaces period-only path segments so S3 does not reject the key', () => {
+    expect(buildTimestampedFilename('../../etc/passwd', D, 'csv')).toBe(`_/_/etc/passwd_${D}.csv`)
+    expect(buildTimestampedFilename('./file', D, 'csv')).toBe(`_/file_${D}.csv`)
+    expect(buildTimestampedFilename('folder/./file', D, 'csv')).toBe(`folder/_/file_${D}.csv`)
+    expect(buildTimestampedFilename('folder/../file.csv', D, 'csv')).toBe(`folder/_/file_${D}.csv`)
+    expect(buildTimestampedFilename('..', D, 'csv')).toBe(`__${D}.csv`)
+  })
+
+  it('leaves names that merely contain dots untouched', () => {
+    expect(buildTimestampedFilename('v1..2', D, 'csv')).toBe(`v1..2_${D}.csv`)
+    expect(buildTimestampedFilename('folder/..backup/file', D, 'csv')).toBe(`folder/..backup/file_${D}.csv`)
+    expect(buildTimestampedFilename('...', D, 'csv')).toBe(`..._${D}.csv`)
+  })
+
+  it('preserves multi-byte unicode characters', () => {
+    expect(buildTimestampedFilename('résumé_📁.csv', D, 'csv')).toBe(`résumé_📁_${D}.csv`)
+  })
+
+  it('documents behavior for separator and extension edge cases', () => {
+    expect(buildTimestampedFilename('folder/', D, 'csv')).toBe(`folder/_${D}.csv`)
+    expect(buildTimestampedFilename('folder/.csv', D, 'csv')).toBe(`folder/_${D}.csv`)
+    expect(buildTimestampedFilename('a//b', D, 'csv')).toBe(`a//b_${D}.csv`)
+    expect(buildTimestampedFilename('x.csv.csv', D, 'csv')).toBe(`x.csv_${D}.csv`)
+    expect(buildTimestampedFilename('.', D, 'csv')).toBe(`__${D}.csv`)
+  })
+})
+
+describe('uploadS3 fix_filename_extension opt-in', () => {
+  const settings: Settings = {
+    iam_role_arn: 'arn:aws:iam::123456789012:role/test',
+    s3_aws_bucket_name: 'test-bucket',
+    s3_aws_region: 'us-east-1',
+    iam_external_id: 'external-id'
+  }
+  const newClient = () => new Client('us-east-1', settings.iam_role_arn, settings.iam_external_id, undefined, undefined)
+  const keyOf = () => (PutObjectCommand as unknown as jest.Mock).mock.calls[0][0].Key as string
+
+  beforeEach(() => {
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+  })
+
+  it('omitted/false keeps the legacy (mangled) name', async () => {
+    await newClient().uploadS3(settings, 'c', 'csv_export.csv', '', 'csv')
+    expect(keyOf()).toMatch(/^_.*\.csv_export\.csv$/)
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await newClient().uploadS3(settings, 'c', 'csv_export.csv', '', 'csv', undefined, false)
+    expect(keyOf()).toMatch(/^_.*\.csv_export\.csv$/)
+  })
+
+  it('legacy: a mismatched prefix extension still collides with the unchanged name (data-loss case)', async () => {
+    await newClient().uploadS3(settings, 'c', 'report.txt', '', 'csv')
+    expect(keyOf()).toBe('report.txt')
+  })
+
+  it('true produces a clean timestamped name and keeps the folder', async () => {
+    await newClient().uploadS3(settings, 'c', 'csv_export.csv', 'folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^folder\/csv_export_.*\.csv$/)
+  })
+
+  it('true with a mismatched extension replaces it and never reuses the original name', async () => {
+    await newClient().uploadS3(settings, 'c', 'report.txt', '', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^report_.*\.csv$/)
+  })
+
+  it('true replaces period-only segments in the prefix and keeps the folder in the final key', async () => {
+    await newClient().uploadS3(settings, 'c', '../x.csv', 'folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^folder\/_\/x_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+  })
+
+  it('does not sanitize s3_aws_folder_name: period-only folder segments are passed through as configured', async () => {
+    await newClient().uploadS3(settings, 'c', 'x.csv', '../folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^\.\.\/folder\/x_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+  })
+
+  it('true with an empty prefix gives just the timestamp, with and without a folder', async () => {
+    await newClient().uploadS3(settings, 'c', '', '', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await newClient().uploadS3(settings, 'c', '', 'folder', 'csv', undefined, true)
+    expect(keyOf()).toMatch(/^folder\/\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/)
+  })
+
+  it('a prefix without a dot is identical with the flag on and off', async () => {
+    const shape = /^export_\d{4}-\d{2}-\d{2}T[\d-]+Z\.csv$/
+    await newClient().uploadS3(settings, 'c', 'export', '', 'csv', undefined, true)
+    expect(keyOf()).toMatch(shape)
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await newClient().uploadS3(settings, 'c', 'export', '', 'csv')
+    expect(keyOf()).toMatch(shape)
   })
 })
