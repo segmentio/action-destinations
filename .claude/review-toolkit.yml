@@ -1,0 +1,16 @@
+# review-toolkit policy for this repo. Spec: claude-marketplace
+# plugins/review-toolkit/skills/review/references/review-toolkit-config.md
+#
+# Reviewers read this file and the files it lists from the PR's base commit, so a PR
+# cannot change its own review. Edits here apply to PRs opened after they merge.
+#
+# `review:` and `suppressions:` are left out on purpose, so the defaults apply
+# (disable_request_changes: true, disable_auto_approve: false, no suppressions).
+
+review_context:
+  # Every listed file goes to every reviewer on every review. Keep the total under
+  # about 40 KB, or review readiness rule RR-11 fails.
+  # CLAUDE.md is not listed: every review pass already reads it.
+  files:
+    - .claude/rules/requirements.md
+    - .claude/rules/eng-automated-reviews.md
