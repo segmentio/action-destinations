@@ -13,7 +13,4 @@ review_context:
   # CLAUDE.md is not listed: every review pass already reads it.
   files:
     - .claude/rules/requirements.md
-    - .claude/rules/architecture.md
-    - .claude/rules/testing.md
-    - .claude/rules/principles.md
     - .claude/rules/eng-automated-reviews.md

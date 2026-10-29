@@ -1,24 +1,29 @@
-# Requirements
+# Review requirements
 
-What a change to this repo must satisfy before it merges. Detail on how to build destinations lives in `CLAUDE.md` and `docs/`.
+Review guidance that is not in `CLAUDE.md` (which every review already reads). Change Release Safety items, error classes, batching and testing rules are in `CLAUDE.md`.
 
 ## Outcome
 
-Changes to destinations ship safely: no customer's existing mappings, events or auth break, and every production-reaching change can be verified and rolled back.
+Reviews catch changes that could break customers, and nudge authors toward the PR template without blocking them.
 
 ## Requirements
 
-- REQ-01: A change does not add a new required field to an existing action definition, change a field's type incompatibly, or alter behavior customers rely on (mapping output, defaults, dropped events, auth, rate limits). New required fields count as breaking.
-- REQ-02: A risky or high-volume change (Facebook, Google, Snapchat, TikTok and similar) is behind a feature flag that is registered and defaults to off. Flags are kebab-case strings read as `features?.['flag-name']` in `perform` / `performBatch`.
-- REQ-03: The PR description follows `.github/PULL_REQUEST_TEMPLATE.md` and fills in Test Plan, Deployment Plan, Verification Plan, Rollback Plan, Risk Mitigation and Breaking Change & Customer Impact with specifics. Placeholders ("Tested in stage", "Unit tests pass", "Auto deployed", "Check dashboards", "N/A") are not acceptable for Segment-owned changes.
-- REQ-04: Changes reach production only after +2 code review approvals (two reviewers, or one SME for small or urgent changes).
-- REQ-05: Errors thrown from actions use the classes in `packages/core/src/errors.ts` (`PayloadValidationError`, `InvalidAuthenticationError`, `RetryableError`, `APIError`, `IntegrationError`), never a plain `Error`, so each has a message, code and status.
-- REQ-06: Sensitive fields (API keys, tokens, secrets, client secrets) use `type: 'password'`. Tokens and PII are never logged. PII hashing goes through `processHashing`, not direct crypto calls.
-- REQ-07: Changes to several destinations are split into separate PRs. A PR over 2,000 changed lines is split (see `.claude/rules/eng-automated-reviews.md`).
-- REQ-08: CI passes before merge: Unit Tests, Lint, Validate, Browser Destination Bundle QA, Browser tests (actions-core), Required Field Check, Test External, Code coverage.
-- REQ-09: Changes to `packages/core` are backward compatible with every existing destination and carry regression tests, because they affect all of them.
+- REQ-01: A change does not add a new required field to an existing action, change a field's type incompatibly, or alter behavior customers rely on. New required fields count as breaking.
+- REQ-02: Risky or high-volume changes (Facebook, Google, Snapchat, TikTok and similar) sit behind a feature flag that is registered and defaults to off. A flag is a kebab-case string, usually an exported constant whose name contains `FLAGON`, `FEATURE_FLAG`, `_FLAG` or `FLAG_`, read as `features?.['flag-name']` in `perform` or `performBatch`. Examples: `mixpanel/trackEvent/index.ts` (`mixpanel-multistatus`), `s3/constants.ts` (`S3_HASHING_FEATURE_FLAG`).
+- REQ-03: Field definitions are reviewed for sensitive data. When in doubt, suggest `type: 'password'`.
+- REQ-04: Changes to several destinations are split into separate PRs, with commits that are easy to review.
+- REQ-05: Field labels and descriptions are clear and correctly spelled, since customers read them in the UI.
 
-## Constraints
+## Author nudges
 
-- New cloud destinations are registered in `packages/destination-actions/src/index.ts`; new browser destinations in `packages/destinations-manifest/index.ts`. A destination that is not registered does not ship.
-- Do not edit generated type files by hand; regenerate them with `yarn types`.
+Post one short, friendly, non-blocking comment (never "request changes") when either applies:
+
+- The PR's `### Test Plan` is empty or a placeholder (for example "Tested in stage") and no testing checkbox is checked. Ask for the environments and tests run.
+- The diff adds or changes a feature-flag reference but `## Feature flag / Rollout` is not filled in. Remind the author to confirm the flag name, that it is registered and defaults to off, and to describe the rollout and rollback plan.
+
+## Review process
+
+1. Understand the purpose of the change.
+2. Check CI results.
+3. Review the code for logic and risk.
+4. Give specific, actionable feedback, with example code when it helps.
