@@ -6,6 +6,8 @@ import brazeDestination, { destination } from '../index'
 // the order of the calls that decide which user a session belongs to.
 describe('Only Track Known Users', () => {
   let calls: string[]
+  // Lets a test make the SDK unable to say who the user is.
+  let getUserMode: 'normal' | 'missing' | 'throws'
 
   // Records initialize / changeUser / openSession as the SDK global is assigned by its loader.
   function recordBrazeCalls() {
@@ -15,6 +17,14 @@ describe('Only Track Known Users', () => {
       get: () => real,
       set(sdk) {
         real = sdk
+        const realGetUser = sdk.getUser
+        if (typeof realGetUser === 'function') {
+          sdk.getUser = (...args: unknown[]) => {
+            if (getUserMode === 'missing') return undefined
+            if (getUserMode === 'throws') throw new Error('getUser failed')
+            return realGetUser.apply(sdk, args)
+          }
+        }
         for (const name of ['initialize', 'changeUser', 'openSession']) {
           const original = sdk[name]
           if (typeof original !== 'function') continue
@@ -54,7 +64,12 @@ describe('Only Track Known Users', () => {
       if (name) document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
     })
     calls = []
+    getUserMode = 'normal'
     recordBrazeCalls()
+  })
+
+  afterEach(() => {
+    delete (window as any).appboy
   })
 
   test('a user Segment already knows is handed to Braze before the session opens', async () => {
@@ -132,4 +147,33 @@ describe('Only Track Known Users', () => {
 
     expect(calls).toEqual(['initialize', 'openSession'])
   })
+
+  test('a mapped external_id that is a number is still handed to Braze', async () => {
+    const { analytics } = await load(true, '$.traits.customer_id')
+
+    await analytics.identify('segment-user', { customer_id: 12345 })
+
+    expect(calls.slice(0, 3)).toEqual(['initialize', 'changeUser(12345)', 'openSession'])
+  })
+
+  test('a saved id with a remapped external_id is handed to Braze as the Segment id until the user identifies', async () => {
+    // Known trade-off: before any identify, the mapped id is not known, so the Segment id is used.
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.traits.customer_id')
+
+    expect(calls).toEqual(['initialize', 'changeUser(saved-user)', 'openSession'])
+  })
+
+  test.each(['missing', 'throws'] as const)(
+    'when the SDK cannot say who the user is (%s), the session still opens',
+    async (mode) => {
+      getUserMode = mode
+      window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+      await load()
+
+      expect(calls).toEqual(['initialize', 'openSession'])
+    }
+  )
 })

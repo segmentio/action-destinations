@@ -54,14 +54,25 @@ const presets: DestinationDefinition['presets'] = [
 
 // SDK 3.x only hands out the user id through a callback, and 6.x returns it (the callback is
 // deprecated there). Both read it from local storage, so it is available synchronously. When
-// the answer is anything but an explicit `null`, Braze is treated as having a user.
+// the answer is anything but an explicit `null`, or the SDK cannot answer at all, Braze is
+// treated as having a user: the safe outcome is to leave Braze alone and open the session as before.
 function brazeHasNoUser(instance: BrazeDestinationClient['instance']): boolean {
-  let fromCallback: string | null | undefined
-  const user = instance.getUser() as { getUserId: (callback?: (id: string | null) => void) => unknown }
-  const returned = user.getUserId((id) => {
-    fromCallback = id
-  })
-  return (returned === undefined ? fromCallback : returned) === null
+  try {
+    const user = instance.getUser() as
+      | { getUserId?: (callback?: (id: string | null) => void) => unknown }
+      | null
+      | undefined
+    if (!user || typeof user.getUserId !== 'function') {
+      return false
+    }
+    let fromCallback: string | null | undefined
+    const returned = user.getUserId((id) => {
+      fromCallback = id
+    })
+    return (returned === undefined ? fromCallback : returned) === null
+  } catch (e) {
+    return false
+  }
 }
 
 export const destination: BrowserDestinationDefinition<Settings, BrazeDestinationClient> = {
@@ -408,10 +419,17 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           // The id Update User Profile is about to identify wins over Segment's user id, because
           // customers may map `external_id` from something else. A user Braze already holds is
           // left alone.
+          // Whatever happens here must never stop the session from opening.
           if (deferUntilIdentified && brazeHasNoUser(client.instance)) {
-            const userId = externalId || analytics.user().id()
-            if (typeof userId === 'string' && userId !== '') {
-              client.instance.changeUser(userId)
+            try {
+              // A mapped `external_id` can be a number at runtime, so it is converted before use.
+              const mapped = externalId === undefined || externalId === null ? '' : String(externalId)
+              const userId = mapped.trim() !== '' ? mapped : analytics.user().id()
+              if (typeof userId === 'string' && userId.trim() !== '') {
+                client.instance.changeUser(userId)
+              }
+            } catch (e) {
+              // fall through: open the session as before
             }
           }
 
