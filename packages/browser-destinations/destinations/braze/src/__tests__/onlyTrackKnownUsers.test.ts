@@ -37,17 +37,23 @@ describe('Only Track Known Users', () => {
     })
   }
 
-  async function load(deferUntilIdentified = true, externalIdPath = '$.userId') {
+  async function load(
+    deferUntilIdentified = true,
+    externalIdPath = '$.userId',
+    mutate: (subs: any[] | undefined) => any[] | undefined = (subs) => subs
+  ) {
     const [updateUserProfile, trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'sdk.iad-01.braze.com',
       sdkVersion: '3.5',
       doNotLoadFontAwesome: true,
       deferUntilIdentified,
-      subscriptions: destination.presets?.map((sub) =>
-        sub.partnerAction === 'updateUserProfile'
-          ? { ...sub, enabled: true, mapping: { ...sub.mapping, external_id: { '@path': externalIdPath } } }
-          : { ...sub, enabled: true }
+      subscriptions: mutate(
+        destination.presets?.map((sub) =>
+          sub.partnerAction === 'updateUserProfile'
+            ? { ...sub, enabled: true, mapping: { ...sub.mapping, external_id: { '@path': externalIdPath } } }
+            : { ...sub, enabled: true }
+        )
       ) as Subscription[]
     })
     const initializeSpy = jest.spyOn(destination, 'initialize')
@@ -116,12 +122,13 @@ describe('Only Track Known Users', () => {
     expect(calls.filter((call) => call.startsWith('changeUser'))).toEqual([])
   })
 
-  test('a first login opens its session for the mapped external_id, not the Segment user id', async () => {
+  test("a customer who remapped external_id keeps today's behavior on a first login", async () => {
     const { analytics } = await load(true, '$.traits.customer_id')
 
     await analytics.identify('segment-user', { customer_id: 'cust-9' })
 
-    expect(calls.slice(0, 3)).toEqual(['initialize', 'changeUser(cust-9)', 'openSession'])
+    // No early changeUser: the mapped id is only handed to Braze by Update User Profile, as before.
+    expect(calls.slice(0, 3)).toEqual(['initialize', 'openSession', 'changeUser(cust-9)'])
     expect(calls).not.toContain('changeUser(segment-user)')
   })
 
@@ -148,21 +155,65 @@ describe('Only Track Known Users', () => {
     expect(calls).toEqual(['initialize', 'openSession'])
   })
 
-  test('a mapped external_id that is a number is still handed to Braze', async () => {
-    const { analytics } = await load(true, '$.traits.customer_id')
-
-    await analytics.identify('segment-user', { customer_id: 12345 })
-
-    expect(calls.slice(0, 3)).toEqual(['initialize', 'changeUser(12345)', 'openSession'])
-  })
-
-  test('a saved id with a remapped external_id is handed to Braze as the Segment id until the user identifies', async () => {
-    // Known trade-off: before any identify, the mapped id is not known, so the Segment id is used.
+  test('a saved id with a remapped external_id is left alone until the user identifies', async () => {
+    // The Segment id would put the pre-identify events on a different profile than Braze merges them into.
     window.localStorage.setItem('ajs_user_id', '"saved-user"')
 
     await load(true, '$.traits.customer_id')
 
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test('a remapped external_id on a disabled subscription does not count', async () => {
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.userId', (subs) => [
+      ...(subs ?? []),
+      {
+        partnerAction: 'updateUserProfile',
+        enabled: false,
+        subscribe: 'type = "identify"',
+        mapping: { external_id: { '@path': '$.traits.customer_id' } }
+      }
+    ])
+
     expect(calls).toEqual(['initialize', 'changeUser(saved-user)', 'openSession'])
+  })
+
+  test('one remapped Update User Profile subscription is enough to leave the customer alone', async () => {
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.userId', (subs) => [
+      ...(subs ?? []),
+      {
+        partnerAction: 'updateUserProfile',
+        enabled: true,
+        subscribe: 'type = "group"',
+        mapping: { external_id: { '@path': '$.traits.customer_id' } }
+      }
+    ])
+
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test('a mapping that is not recognisably the default (a fallback, say) is treated as remapped', async () => {
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.userId', (subs) =>
+      subs?.map((sub) =>
+        sub.partnerAction === 'updateUserProfile'
+          ? {
+              ...sub,
+              mapping: {
+                ...sub.mapping,
+                external_id: { '@if': { exists: { '@path': '$.userId' }, then: { '@path': '$.userId' }, else: '' } }
+              }
+            }
+          : sub
+      )
+    )
+
+    expect(calls).toEqual(['initialize', 'openSession'])
   })
 
   test.each(['missing', 'throws'] as const)(
