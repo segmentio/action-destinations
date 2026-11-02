@@ -12,8 +12,8 @@ on:
     types: [opened, ready_for_review]
 
 permissions:
-  issues: write          # create the label if missing
-  pull-requests: write   # add the label to the PR
+  issues: write # create the label if missing
+  pull-requests: write # add the label to the PR
 
 jobs:
   label:
@@ -21,7 +21,7 @@ jobs:
       github.event.pull_request.draft == false &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       !contains(',dependabot[bot],renovate[bot],', format(',{0},', github.event.pull_request.user.login))
-    runs-on: ubuntu-latest-large
+    runs-on: ubuntu-latest
     steps:
       - name: Add Claude review label
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0

@@ -2,6 +2,8 @@
 
 What stops the Claude review agent from reviewing a PR here: the blocking review readiness rules, named in brackets.
 
+The bracketed `RR-nn` IDs are the review readiness rules the review agent checks before it reviews a PR (RR-11 review config, RR-17 PR size, and so on). A failed rule makes the agent post a "not ready" comment instead of a review. The `EAR-nn` IDs are this repo's own requirement numbers.
+
 ## Outcome
 
 A PR that asks for an automated review gets one, not a "not ready" notice.
