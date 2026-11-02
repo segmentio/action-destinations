@@ -6,6 +6,8 @@ import brazeDestination, { destination } from '../index'
 // the order of the calls that decide which user a session belongs to.
 describe('Only Track Known Users', () => {
   let calls: string[]
+  // Lets a test make the SDK unable to say who the user is.
+  let getUserMode: 'normal' | 'missing' | 'throws'
 
   // Records initialize / changeUser / openSession as the SDK global is assigned by its loader.
   function recordBrazeCalls() {
@@ -15,6 +17,14 @@ describe('Only Track Known Users', () => {
       get: () => real,
       set(sdk) {
         real = sdk
+        const realGetUser = sdk.getUser
+        if (typeof realGetUser === 'function') {
+          sdk.getUser = (...args: unknown[]) => {
+            if (getUserMode === 'missing') return undefined
+            if (getUserMode === 'throws') throw new Error('getUser failed')
+            return realGetUser.apply(sdk, args)
+          }
+        }
         for (const name of ['initialize', 'changeUser', 'openSession']) {
           const original = sdk[name]
           if (typeof original !== 'function') continue
@@ -27,7 +37,12 @@ describe('Only Track Known Users', () => {
     })
   }
 
-  async function load(deferUntilIdentified = true, externalIdPath = '$.userId', extraSettings = {}) {
+  async function load(
+    deferUntilIdentified = true,
+    externalIdPath = '$.userId',
+    extraSettings = {},
+    mutate: (subs: any[] | undefined) => any[] | undefined = (subs) => subs
+  ) {
     const [updateUserProfile, trackEvent] = await brazeDestination({
       api_key: 'b_123',
       endpoint: 'sdk.iad-01.braze.com',
@@ -35,10 +50,12 @@ describe('Only Track Known Users', () => {
       doNotLoadFontAwesome: true,
       deferUntilIdentified,
       ...extraSettings,
-      subscriptions: destination.presets?.map((sub) =>
-        sub.partnerAction === 'updateUserProfile'
-          ? { ...sub, enabled: true, mapping: { ...sub.mapping, external_id: { '@path': externalIdPath } } }
-          : { ...sub, enabled: true }
+      subscriptions: mutate(
+        destination.presets?.map((sub) =>
+          sub.partnerAction === 'updateUserProfile'
+            ? { ...sub, enabled: true, mapping: { ...sub.mapping, external_id: { '@path': externalIdPath } } }
+            : { ...sub, enabled: true }
+        )
       ) as Subscription[]
     })
     const initializeSpy = jest.spyOn(destination, 'initialize')
@@ -55,7 +72,12 @@ describe('Only Track Known Users', () => {
       if (name) document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`
     })
     calls = []
+    getUserMode = 'normal'
     recordBrazeCalls()
+  })
+
+  afterEach(() => {
+    delete (window as any).appboy
   })
 
   test('a user Segment already knows is handed to Braze before the session opens', async () => {
@@ -102,12 +124,13 @@ describe('Only Track Known Users', () => {
     expect(calls.filter((call) => call.startsWith('changeUser'))).toEqual([])
   })
 
-  test('a first login opens its session for the mapped external_id, not the Segment user id', async () => {
+  test("a customer who remapped external_id keeps today's behavior on a first login", async () => {
     const { analytics } = await load(true, '$.traits.customer_id')
 
     await analytics.identify('segment-user', { customer_id: 'cust-9' })
 
-    expect(calls.slice(0, 3)).toEqual(['initialize', 'changeUser(cust-9)', 'openSession'])
+    // No early changeUser: the mapped id is only handed to Braze by Update User Profile, as before.
+    expect(calls.slice(0, 3)).toEqual(['initialize', 'openSession', 'changeUser(cust-9)'])
     expect(calls).not.toContain('changeUser(segment-user)')
   })
 
@@ -141,4 +164,77 @@ describe('Only Track Known Users', () => {
 
     expect(calls).toEqual(['initialize', 'openSession'])
   })
+
+  test('a saved id with a remapped external_id is left alone until the user identifies', async () => {
+    // The Segment id would put the pre-identify events on a different profile than Braze merges them into.
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.traits.customer_id')
+
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test('a remapped external_id on a disabled subscription does not count', async () => {
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.userId', {}, (subs) => [
+      ...(subs ?? []),
+      {
+        partnerAction: 'updateUserProfile',
+        enabled: false,
+        subscribe: 'type = "identify"',
+        mapping: { external_id: { '@path': '$.traits.customer_id' } }
+      }
+    ])
+
+    expect(calls).toEqual(['initialize', 'changeUser(saved-user)', 'openSession'])
+  })
+
+  test('one remapped Update User Profile subscription is enough to leave the customer alone', async () => {
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.userId', {}, (subs) => [
+      ...(subs ?? []),
+      {
+        partnerAction: 'updateUserProfile',
+        enabled: true,
+        subscribe: 'type = "group"',
+        mapping: { external_id: { '@path': '$.traits.customer_id' } }
+      }
+    ])
+
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test('a mapping that is not recognisably the default (a fallback, say) is treated as remapped', async () => {
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load(true, '$.userId', {}, (subs) =>
+      subs?.map((sub) =>
+        sub.partnerAction === 'updateUserProfile'
+          ? {
+              ...sub,
+              mapping: {
+                ...sub.mapping,
+                external_id: { '@if': { exists: { '@path': '$.userId' }, then: { '@path': '$.userId' }, else: '' } }
+              }
+            }
+          : sub
+      )
+    )
+
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test.each(['missing', 'throws'] as const)(
+    'when the SDK cannot say who the user is (%s), the session still opens',
+    async (mode) => {
+      getUserMode = mode
+      window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+      await load()
+
+      expect(calls).toEqual(['initialize', 'openSession'])
+    }
+  )
 })

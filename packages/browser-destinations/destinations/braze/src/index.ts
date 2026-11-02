@@ -52,16 +52,52 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
+// The early `changeUser` hands Braze the Segment user id. That is only the id Update User Profile
+// goes on to identify when `external_id` keeps its default mapping (`$.userId`). When a customer
+// remaps it (a trait, say), the Segment id would put the events sent before their first identify on
+// a different profile than Braze would merge them into today, so those customers are left alone.
+// Anything that is not recognisably the default counts as remapped.
+type SubscriptionLike = { partnerAction?: string; enabled?: boolean; mapping?: Record<string, unknown> }
+
+function externalIdIsRemapped(subscriptions: unknown): boolean {
+  if (!Array.isArray(subscriptions)) {
+    return true
+  }
+  return subscriptions.some((subscription: SubscriptionLike | null) => {
+    if (subscription?.partnerAction !== 'updateUserProfile' || subscription.enabled === false) {
+      return false
+    }
+    const externalId = subscription.mapping?.external_id as Record<string, unknown> | undefined
+    return !(
+      externalId &&
+      typeof externalId === 'object' &&
+      Object.keys(externalId).length === 1 &&
+      externalId['@path'] === '$.userId'
+    )
+  })
+}
+
 // SDK 3.x only hands out the user id through a callback, and 6.x returns it (the callback is
 // deprecated there). Both read it from local storage, so it is available synchronously. When
-// the answer is anything but an explicit `null`, Braze is treated as having a user.
+// the answer is anything but an explicit `null`, or the SDK cannot answer at all, Braze is
+// treated as having a user: the safe outcome is to leave Braze alone and open the session as before.
 function brazeHasNoUser(instance: BrazeDestinationClient['instance']): boolean {
-  let fromCallback: string | null | undefined
-  const user = instance.getUser() as { getUserId: (callback?: (id: string | null) => void) => unknown }
-  const returned = user.getUserId((id) => {
-    fromCallback = id
-  })
-  return (returned === undefined ? fromCallback : returned) === null
+  try {
+    const user = instance.getUser() as
+      | { getUserId?: (callback?: (id: string | null) => void) => unknown }
+      | null
+      | undefined
+    if (!user || typeof user.getUserId !== 'function') {
+      return false
+    }
+    let fromCallback: string | null | undefined
+    const returned = user.getUserId((id) => {
+      fromCallback = id
+    })
+    return (returned === undefined ? fromCallback : returned) === null
+  } catch (e) {
+    return false
+  }
 }
 
 export const destination: BrowserDestinationDefinition<Settings, BrazeDestinationClient> = {
@@ -365,11 +401,13 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
       }
 
+      const handUserToBrazeEarly = deferUntilIdentified && !externalIdIsRemapped(subscriptions)
+
       let initialized = false
 
       const client: BrazeDestinationClient = {
         instance: version.indexOf('3.') === 0 ? window.appboy : window.braze,
-        ready: (externalId?: string) => {
+        ready: () => {
           if (initialized) {
             return true
           }
@@ -427,15 +465,19 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           // profile) whenever the id is saved in Segment but Braze has no state of its own
           // (a first login, or a browser where only Segment's storage survived), and the user's
           // own profile only appears when Update User Profile later calls `changeUser`.
-          // The id Update User Profile is about to identify wins over Segment's user id, because
-          // customers may map `external_id` from something else. A user Braze already holds is
-          // left alone.
+          // Customers who remapped `external_id` are skipped, see `externalIdIsRemapped`. A user
+          // Braze already holds is left alone.
           // Skipped with SDK Authentication on: an unsigned `changeUser` would be rejected, and
           // Update User Profile identifies the user with a signature right after.
-          if (deferUntilIdentified && !settings.enableSdkAuthentication && brazeHasNoUser(client.instance)) {
-            const userId = externalId || analytics.user().id()
-            if (typeof userId === 'string' && userId !== '') {
-              client.instance.changeUser(userId)
+          // Whatever happens here must never stop the session from opening.
+          if (handUserToBrazeEarly && !settings.enableSdkAuthentication && brazeHasNoUser(client.instance)) {
+            try {
+              const userId = analytics.user().id()
+              if (typeof userId === 'string' && userId.trim() !== '') {
+                client.instance.changeUser(userId)
+              }
+            } catch (e) {
+              // fall through: open the session as before
             }
           }
 
