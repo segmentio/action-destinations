@@ -78,7 +78,8 @@ function externalIdIsRemapped(subscriptions: unknown): boolean {
 }
 
 // SDK 3.x only hands out the user id through a callback, and 6.x returns it (the callback is
-// deprecated there). Both read it from local storage, so it is available synchronously. When
+// deprecated there). Both read it from local storage, so it is available synchronously (checked
+// on SDK 3.3, 3.5 and 6.10, in Jest and against a live Braze workspace). When
 // the answer is anything but an explicit `null`, or the SDK cannot answer at all, Braze is
 // treated as having a user: the safe outcome is to leave Braze alone and open the session as before.
 function brazeHasNoUser(instance: BrazeDestinationClient['instance']): boolean {

@@ -7,7 +7,9 @@ import brazeDestination, { destination } from '../index'
 describe('Only Track Known Users', () => {
   let calls: string[]
   // Lets a test make the SDK unable to say who the user is.
-  let getUserMode: 'normal' | 'missing' | 'throws'
+  // The 'returns-*' and 'async' modes imitate SDK 6.x, where getUserId() returns the id instead of
+  // calling back (the Jest loader only provides the 3.x SDK).
+  let getUserMode: 'normal' | 'missing' | 'throws' | 'returns-null' | 'returns-id' | 'async'
 
   // Records initialize / changeUser / openSession as the SDK global is assigned by its loader.
   function recordBrazeCalls() {
@@ -22,6 +24,9 @@ describe('Only Track Known Users', () => {
           sdk.getUser = (...args: unknown[]) => {
             if (getUserMode === 'missing') return undefined
             if (getUserMode === 'throws') throw new Error('getUser failed')
+            if (getUserMode === 'returns-null') return { getUserId: () => null }
+            if (getUserMode === 'returns-id') return { getUserId: () => 'braze-user' }
+            if (getUserMode === 'async') return { getUserId: () => Promise.resolve(null) }
             return realGetUser.apply(sdk, args)
           }
         }
@@ -212,6 +217,33 @@ describe('Only Track Known Users', () => {
           : sub
       )
     )
+
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test('SDK 6.x style: getUserId() returns null, so Braze gets the Segment user before the session opens', async () => {
+    getUserMode = 'returns-null'
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load()
+
+    expect(calls).toEqual(['initialize', 'changeUser(saved-user)', 'openSession'])
+  })
+
+  test('SDK 6.x style: getUserId() returns an id, so Braze is left alone', async () => {
+    getUserMode = 'returns-id'
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load()
+
+    expect(calls).toEqual(['initialize', 'openSession'])
+  })
+
+  test('getUserId() returning a Promise is not treated as "no user", so Braze is left alone', async () => {
+    getUserMode = 'async'
+    window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+    await load()
 
     expect(calls).toEqual(['initialize', 'openSession'])
   })
