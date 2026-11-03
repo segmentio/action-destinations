@@ -1,3 +1,5 @@
+import type { UserAlias } from '../userAlias'
+
 export type MergeUsersJSON = {
   merge_updates: Array<MergeUsersItem>
 }
@@ -6,10 +8,7 @@ export type MergeUsersItem = {
   identifier_to_merge: {
     // Only one of the following
     external_id?: string
-    user_alias?: {
-      alias_label: string
-      alias_name: string
-    }
+    user_alias?: UserAlias
     email?: string
     phone?: string
     prioritization?: Prioritization
@@ -17,10 +16,7 @@ export type MergeUsersItem = {
   identifier_to_keep: {
     // Only one of the following
     external_id?: string
-    user_alias?: {
-      alias_label: string
-      alias_name: string
-    }
+    user_alias?: UserAlias
     email?: string
     phone?: string
     prioritization?: Prioritization

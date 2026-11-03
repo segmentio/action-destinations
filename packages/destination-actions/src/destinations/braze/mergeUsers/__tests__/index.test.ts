@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, MultiStatusResponse } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Destination from '../../index'
 
 const testDestination = createTestIntegration(Destination)
