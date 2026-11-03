@@ -26,18 +26,27 @@ export const sendRefreshTokenReq = async (
   }
 }
 
+// Only these destinations for a refreshRequest param are supported. Anything else
+// (notably '__proto__', 'constructor', 'prototype') is rejected to prevent prototype pollution,
+// since sendIn/key come straight from customer-controlled destination settings.
+const ALLOWED_SEND_IN = ['header', 'body', 'query']
+
 const getRequestData = (oauth: any, auth: any) => {
-  let customParamsObj
+  const customParamsObj: Record<string, Record<string, unknown>> = Object.create(null)
   if (Array.isArray(oauth?.customParams?.refreshRequest) && oauth.customParams.refreshRequest.length > 0) {
-    customParamsObj = oauth.customParams.refreshRequest.reduce((acc: any, { key, value, sendIn }: any) => {
-      acc[sendIn] = acc[sendIn] || {}
-      acc[sendIn][key] = value
-      return acc
-    }, {})
+    for (const { key, value, sendIn } of oauth.customParams.refreshRequest) {
+      if (typeof key !== 'string' || typeof sendIn !== 'string' || !ALLOWED_SEND_IN.includes(sendIn)) {
+        continue
+      }
+      if (!Object.prototype.hasOwnProperty.call(customParamsObj, sendIn)) {
+        customParamsObj[sendIn] = Object.create(null)
+      }
+      customParamsObj[sendIn][key] = value
+    }
   }
-  const customHeaders = customParamsObj?.header ?? {}
-  const customBody = customParamsObj?.body ?? {}
-  const customQuery = customParamsObj?.query ?? {}
+  const customHeaders = customParamsObj.header ?? {}
+  const customBody = customParamsObj.body ?? {}
+  const customQuery = customParamsObj.query ?? {}
   const url = getRequestUrl(oauth, customQuery)
   const options = getRequestOptions(oauth, auth, customHeaders, customBody)
 
@@ -56,6 +65,12 @@ const getRequestUrl = (oauth: any, customQuery: any) => {
   return url
 }
 
+// Some token endpoints (e.g. Salesforce client credentials) reject any `scope` parameter, so only send it when set.
+const getScopeParam = (oauth: any) => {
+  const scopes = oauth?.scopes
+  return typeof scopes === 'string' && scopes.trim() !== '' ? { scope: scopes } : {}
+}
+
 const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customBody: object): RequestOptions => {
   let bodyParams = {}
   const clientId = oauth?.clientId ?? auth?.clientId
@@ -70,7 +85,7 @@ const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customB
     bodyParams = {
       grant_type: 'refresh_token',
       refresh_token: auth.refreshToken ?? oauth.access.refresh_token,
-      scope: oauth.scopes,
+      ...getScopeParam(oauth),
       client_id: clientId,
       client_secret: clientSecret,
       ...customBody
@@ -78,7 +93,7 @@ const getRequestOptions = (oauth: any, auth: any, customHeaders: object, customB
   } else {
     bodyParams = {
       grant_type: 'client_credentials',
-      scope: oauth.scopes,
+      ...getScopeParam(oauth),
       ...customBody
     }
   }

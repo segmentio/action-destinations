@@ -1,4 +1,23 @@
 import { InputField } from '@segment/actions-core/index'
+import { DependsOnConditions } from '@segment/actions-core/destination-kit/types'
+
+export const CREATE_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is_not', value: 'existing' }]
+}
+
+export const EXISTING_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'existing' }]
+}
+
+export const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
+  match: 'all',
+  conditions: [
+    { fieldKey: 'operation', operator: 'is_not', value: 'existing' },
+    { fieldKey: 'audienceType', operator: 'is', value: 'CUSTOMER_MATCH_DEVICE_ID' }
+  ]
+}
 
 export const external_id: InputField = {
   label: 'External ID',

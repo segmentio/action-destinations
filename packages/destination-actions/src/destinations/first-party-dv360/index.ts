@@ -5,7 +5,8 @@ import {
   defaultValues
 } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
-import { createAudienceRequest, getAudienceRequest } from './functions'
+import { CREATE_DEVICE_ID_OPERATION, CREATE_OPERATION, EXISTING_OPERATION } from './properties'
+import { createOrConnectAudience, getAudience } from './audience-functions'
 import removeFromAudContactInfo from './removeFromAudContactInfo'
 import removeFromAudMobileDeviceId from './removeFromAudMobileDeviceId'
 import addToAudContactInfo from './addToAudContactInfo'
@@ -52,12 +53,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     }
   },
   audienceFields: {
+    operation: {
+      type: 'string',
+      label: 'Create or Connect Audience',
+      choices: [
+        { label: 'Create new audience', value: 'create' },
+        { label: 'Create new audience, or connect to an existing one with the same name', value: 'create_or_connect' },
+        { label: 'Connect to existing audience', value: 'existing' }
+      ],
+      default: 'create',
+      required: false,
+      description:
+        'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if that audience has the same Audience Type and Membership Duration Days. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).'
+    },
     advertiserId: {
       type: 'string',
       label: 'Advertiser ID',
       required: true,
-      description:
-        'The ID of your advertiser, used throughout Display & Video 360. Use this ID when you contact Display & Video 360 support to help our teams locate your specific account.'
+      description: 'The ID of your Display & Video 360 advertiser. **Required:** always.'
     },
     audienceType: {
       type: 'string',
@@ -67,27 +80,48 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         { label: 'CUSTOMER MATCH DEVICE ID', value: 'CUSTOMER_MATCH_DEVICE_ID' }
       ],
       required: true,
-      description: 'The type of the audience.'
+      description:
+        "The type of the audience. **Required:** always. When connecting to an existing audience, it must match that audience's type."
     },
+    existingAudienceId: {
+      type: 'string',
+      label: 'Existing Audience ID',
+      required: false,
+      description:
+        'The ID of an audience which already exists in Display & Video 360. **Required:** when Create or Connect Audience is "Connect to existing audience". **Not required:** for the other Create or Connect Audience options, which ignore this ID.',
+      depends_on: EXISTING_OPERATION
+    },
+    // audienceDisplayName: {
+    //   type: 'string',
+    //   label: 'Audience Display Name',
+    //   required: false,
+    //   description:
+    //     'The name of the audience in Display & Video 360. **Optional:** when creating a new audience; defaults to the Segment audience name. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists. **Not required:** when connecting to an existing audience (ignored).',
+    //   depends_on: CREATE_OPERATION
+    // },
     description: {
       type: 'string',
       label: 'Description',
       required: false,
-      description: 'The description of the audience.'
+      description:
+        'The description of the audience. **Optional:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).',
+      depends_on: CREATE_OPERATION
     },
     appId: {
       type: 'string',
       label: 'App ID',
       required: false,
       description:
-        'The appId matches with the type of the mobileDeviceIds being uploaded. **Required for CUSTOMER_MATCH_DEVICE_ID Audience Types.**'
+        'The app ID matching the mobile device IDs being uploaded. **Optional:** when creating a new CUSTOMER_MATCH_DEVICE_ID audience. **Not required:** for CUSTOMER_MATCH_CONTACT_INFO audiences, or when connecting to an existing audience, including one with the same name (ignored).',
+      depends_on: CREATE_DEVICE_ID_OPERATION
     },
     membershipDurationDays: {
       type: 'string',
       label: 'Membership Duration Days',
-      required: true,
+      required: false,
       description:
-        'The duration in days that an entry remains in the audience after the qualifying event. The set value must be greater than 0 and less than or equal to 540.'
+        'Days an entry remains in the audience, from 1 to 540. **Required:** when creating a new audience. **Not required:** when connecting to an existing audience (ignored).',
+      depends_on: CREATE_OPERATION
     }
   },
 
@@ -99,43 +133,27 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
 
     createAudience: async (_request, _CreateAudienceInput: _CreateAudienceInput) => {
       // Extract values from input
-      const { audienceName, audienceSettings, statsContext, features } = _CreateAudienceInput
-      const auth = _CreateAudienceInput.settings.oauth
-      const advertiserId = audienceSettings?.advertiserId?.trim()
-      const description = audienceSettings?.description
-      const membershipDurationDays = audienceSettings?.membershipDurationDays
-      const audienceType = audienceSettings?.audienceType
-      const appId = audienceSettings?.appId
+      const {
+        audienceName,
+        audienceSettings: {
+          operation,
+          advertiserId,
+          audienceType,
+          //audienceDisplayName,
+          existingAudienceId,
+          membershipDurationDays,
+          description,
+          appId
+        } = {},
+        settings: { oauth: auth } = {},
+        statsContext,
+        features
+      } = _CreateAudienceInput
 
-      // Update statistics tags and sends a call metric to Datadog. Ensures that datadog is infomred 'createAudience' operation was invoked
-      const statsName = 'createAudience'
-      const { statsClient, tags: statsTags } = statsContext || {}
-      statsTags?.push(`slug:${destination.slug}`)
-      statsClient?.incr(`${statsName}.call`, 1, statsTags)
-
-      // Validate required fields and throws errors if any are missing.
-      if (!audienceName) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing audience name value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!advertiserId) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing advertiser ID value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!membershipDurationDays) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing membership duration days value', 'MISSING_REQUIRED_FIELD', 400)
-      }
-
-      if (!audienceType) {
-        statsTags?.push('error:missing-settings')
-        statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Missing audience type value', 'MISSING_REQUIRED_FIELD', 400)
+      const recordOAuthErrorStat = (reason: string) => {
+        const tags = [...(statsContext?.tags ?? []), `slug:${destination.slug}`]
+        statsContext?.statsClient?.incr('createAudience.call', 1, tags)
+        statsContext?.statsClient?.incr('createAudience.error', 1, [...tags, 'error:oauth', `reason:${reason}`])
       }
 
       if (
@@ -143,6 +161,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         !process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_ID ||
         !process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET
       ) {
+        recordOAuthErrorStat('oauth-credentials-missing')
         throw new PayloadValidationError('Oauth credentials missing.')
       }
 
@@ -154,29 +173,30 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           client_secret: process.env.ACTIONS_FIRST_PARTY_DV360_CLIENT_SECRET,
           grant_type: 'refresh_token'
         })
+      }).catch((error) => {
+        recordOAuthErrorStat('oauth-token-request-failed')
+        throw error
       })
 
       const token = res.data.access_token
 
-      // Make API request to create the audience
-      const response = await createAudienceRequest(_request, {
-        advertiserId,
-        audienceName,
-        description,
-        membershipDurationDays,
-        audienceType,
-        appId,
-        token,
-        features,
-        statsContext
-      })
+      const { audienceId } = await createOrConnectAudience(
+        _request,
+        {
+          operation: operation === 'existing' || operation === 'create_or_connect' ? operation : 'create',
+          advertiserId,
+          // audienceName: audienceDisplayName?.trim() || audienceName,
+          audienceName: audienceName,
+          audienceType,
+          membershipDurationDays,
+          description,
+          appId,
+          existingAudienceId
+        },
+        { statsName: 'createAudience', token, features, statsContext }
+      )
 
-      // Parse and return the externalId
-      const r = await response.json()
-      statsClient?.incr(`${statsName}.success`, 1, statsTags)
-      return {
-        externalId: r.firstPartyAndPartnerAudienceId
-      }
+      return { externalId: audienceId }
     },
 
     getAudience: async (_request, _GetAudienceInput: _GetAudienceInput) => {
@@ -225,21 +245,14 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Failed to retrieve audience ID value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      // Make API request to get audience details
-      const response = await getAudienceRequest(_request, { advertiserId, audienceId, token, features, statsContext })
-
-      if (!response.ok) {
-        // Handle non-OK responses
+      try {
+        const audience = await getAudience(_request, { advertiserId, audienceId, token, features, statsContext })
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return { externalId: audience.firstPartyAndPartnerAudienceId as string }
+      } catch (error) {
         statsTags?.push('error:api-request-failed')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
-        throw new IntegrationError('Failed to retrieve audience details', 'API_REQUEST_FAILED', response.status)
-      }
-
-      // Parse and return the response
-      const audienceData = await response.json()
-      statsClient?.incr(`${statsName}.success`, 1, statsTags)
-      return {
-        externalId: audienceData.firstPartyAndPartnerAudienceId
+        throw error
       }
     }
   },

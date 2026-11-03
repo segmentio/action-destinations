@@ -103,13 +103,14 @@ const action: ActionDefinition<Settings, Payload> = {
   perform: async (request, { payload, audienceMembership, hookOutputs }) => {
     return addOrRemoveProfilesFromList(request, payload, audienceMembership, hookOutputs?.retlOnMappingSave?.outputs)
   },
-  performBatch: async (request, { payload, audienceMembership, statsContext, hookOutputs }) => {
+  performBatch: async (request, { payload, audienceMembership, statsContext, hookOutputs, features }) => {
     return addOrRemoveProfilesFromListBatch(
       request,
       payload,
       audienceMembership ?? [],
       statsContext,
-      hookOutputs?.retlOnMappingSave?.outputs
+      hookOutputs?.retlOnMappingSave?.outputs,
+      features
     )
   }
 }
