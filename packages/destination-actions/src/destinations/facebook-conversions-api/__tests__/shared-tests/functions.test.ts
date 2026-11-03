@@ -1,8 +1,10 @@
-import { PayloadValidationError } from '@segment/actions-core'
+import { HTTPError, PayloadValidationError, RequestClient } from '@segment/actions-core'
 import {
+  send,
+  isEventTimeTooOld,
+  isEventTimeTooOldError,
   validate,
   validateContents,
-  validateEventTime,
   isHashedInformation,
   getPurchaseEventData,
   getSearchEventData,
@@ -10,7 +12,13 @@ import {
   getApiVersion,
   getUserData
 } from '../../shared/functions'
-import { EventType, API_VERSION, CANARY_API_VERSION } from '../../shared/constants'
+import {
+  EventType,
+  API_VERSION,
+  CANARY_API_VERSION,
+  DROP_STALE_EVENTS_FLAGON_NAME,
+  EVENT_TIME_TOO_OLD_SUBCODE
+} from '../../shared/constants'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 
 const basePayload = {
@@ -21,17 +29,6 @@ const basePayload = {
     client_user_agent: 'Mozilla/5.0'
   }
 }
-
-// Fixtures use fixed historical timestamps. Pin Date.now() to the oldest one so the
-// 7-day event_time check doesn't reject them.
-let dateNowSpy: jest.SpyInstance
-beforeEach(() => {
-  dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2015-02-23T22:28:55.111Z'))
-})
-
-afterEach(() => {
-  dateNowSpy.mockRestore()
-})
 
 describe('FacebookConversionsApi', () => {
   describe('validate', () => {
@@ -84,44 +81,6 @@ describe('FacebookConversionsApi', () => {
       } as any
 
       expect(() => validate(payload, EventType.Purchase)).not.toThrow()
-    })
-  })
-
-  describe('validateEventTime', () => {
-    const now = Date.parse('2026-10-28T12:00:00.000Z')
-    const sixDaysAgo = now - 6 * 24 * 60 * 60 * 1000
-    const eightDaysAgo = now - 8 * 24 * 60 * 60 * 1000
-
-    beforeEach(() => {
-      dateNowSpy.mockReturnValue(now)
-    })
-
-    it('should not throw for a Unix timestamp within 7 days', () => {
-      expect(() => validateEventTime(String(Math.floor(sixDaysAgo / 1000)))).not.toThrow()
-    })
-
-    it('should not throw for an ISO timestamp within 7 days', () => {
-      expect(() => validateEventTime(new Date(sixDaysAgo).toISOString())).not.toThrow()
-    })
-
-    it('should throw a PayloadValidationError for a Unix timestamp older than 7 days', () => {
-      expect(() => validateEventTime(String(Math.floor(eightDaysAgo / 1000)))).toThrow(PayloadValidationError)
-    })
-
-    it('should throw a PayloadValidationError for an ISO timestamp older than 7 days', () => {
-      const eventTime = new Date(eightDaysAgo).toISOString()
-      expect(() => validateEventTime(eventTime)).toThrow(
-        `event_time ${eventTime} is more than 7 days old. Facebook rejects events older than 7 days.`
-      )
-    })
-
-    it('should not throw for an unparseable timestamp', () => {
-      expect(() => validateEventTime('not-a-date')).not.toThrow()
-    })
-
-    it('should throw from validate when event_time is older than 7 days', () => {
-      const payload = { ...basePayload, event_time: new Date(eightDaysAgo).toISOString() } as any
-      expect(() => validate(payload, EventType.Custom)).toThrow(PayloadValidationError)
     })
   })
 
@@ -418,6 +377,172 @@ describe('FacebookConversionsApi', () => {
 
       expect(result.event_source_url).toBe('https://example.com/product/123')
       expect(result.event_id).toBe('evt-abc-123')
+    })
+  })
+
+  describe('stale event_time', () => {
+    const now = Date.parse('2026-10-28T12:00:00.000Z')
+    const sixDaysAgo = now - 6 * 24 * 60 * 60 * 1000
+    const eightDaysAgo = now - 8 * 24 * 60 * 60 * 1000
+    const staleEventTime = new Date(eightDaysAgo).toISOString()
+    const settings = { pixelId: '123321', token: 'token' }
+    const getData = () => ({} as any)
+
+    const metaError = (error_subcode: number) =>
+      new HTTPError(
+        { status: 400, statusText: 'Bad Request', data: { error: { code: 100, error_subcode } } } as any,
+        {} as any,
+        {} as any
+      )
+
+    let dateNowSpy: jest.SpyInstance
+    let statsContext: StatsContext
+    let incr: jest.Mock
+
+    beforeEach(() => {
+      dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(now)
+      incr = jest.fn()
+      statsContext = { statsClient: { incr } as any, tags: ['destination:fb'] } as StatsContext
+    })
+
+    afterEach(() => {
+      dateNowSpy.mockRestore()
+    })
+
+    describe('isEventTimeTooOld', () => {
+      it('should return false for timestamps within 7 days', () => {
+        expect(isEventTimeTooOld(String(Math.floor(sixDaysAgo / 1000)))).toBe(false)
+        expect(isEventTimeTooOld(new Date(sixDaysAgo).toISOString())).toBe(false)
+      })
+
+      it('should return true for timestamps older than 7 days', () => {
+        expect(isEventTimeTooOld(String(Math.floor(eightDaysAgo / 1000)))).toBe(true)
+        expect(isEventTimeTooOld(staleEventTime)).toBe(true)
+      })
+
+      it('should return false for an unparseable timestamp', () => {
+        expect(isEventTimeTooOld('not-a-date')).toBe(false)
+      })
+    })
+
+    describe('isEventTimeTooOldError', () => {
+      it('should match Meta "Event Timestamp Too Old" errors only', () => {
+        expect(isEventTimeTooOldError(metaError(EVENT_TIME_TOO_OLD_SUBCODE))).toBe(true)
+        expect(isEventTimeTooOldError(metaError(1234))).toBe(false)
+        expect(isEventTimeTooOldError(new Error('network'))).toBe(false)
+      })
+    })
+
+    describe('send', () => {
+      const stalePayload = { ...basePayload, event_time: staleEventTime } as any
+
+      it('should send stale events and track a match when the flag is off', async () => {
+        const request = jest.fn().mockRejectedValue(metaError(EVENT_TIME_TOO_OLD_SUBCODE))
+
+        await expect(
+          send(request as unknown as RequestClient, stalePayload, settings, getData, EventType.Custom, {}, statsContext)
+        ).rejects.toThrow(HTTPError)
+
+        expect(request).toHaveBeenCalledTimes(1)
+        expect(incr).toHaveBeenCalledWith(
+          'fb_stale_event_check',
+          1,
+          expect.arrayContaining([
+            'destination:fb',
+            'predicted_too_old:true',
+            'meta_result:event_time_too_old',
+            'action_source:website'
+          ])
+        )
+      })
+
+      it('should track a mismatch when Meta accepts an event we think is too old', async () => {
+        const request = jest.fn().mockResolvedValue({ status: 200 })
+
+        await send(
+          request as unknown as RequestClient,
+          stalePayload,
+          settings,
+          getData,
+          EventType.Custom,
+          {},
+          statsContext
+        )
+
+        expect(incr).toHaveBeenCalledWith(
+          'fb_stale_event_check',
+          1,
+          expect.arrayContaining(['predicted_too_old:true', 'meta_result:accepted'])
+        )
+      })
+
+      it('should track a mismatch when Meta rejects an event we think is recent', async () => {
+        const request = jest.fn().mockRejectedValue(metaError(EVENT_TIME_TOO_OLD_SUBCODE))
+        const payload = { ...basePayload, event_time: new Date(sixDaysAgo).toISOString() } as any
+
+        await expect(
+          send(request as unknown as RequestClient, payload, settings, getData, EventType.Custom, {}, statsContext)
+        ).rejects.toThrow(HTTPError)
+
+        expect(incr).toHaveBeenCalledWith(
+          'fb_stale_event_check',
+          1,
+          expect.arrayContaining(['predicted_too_old:false', 'meta_result:event_time_too_old'])
+        )
+      })
+
+      it('should not track recent events that Meta accepts', async () => {
+        const request = jest.fn().mockResolvedValue({ status: 200 })
+        const payload = { ...basePayload, event_time: new Date(sixDaysAgo).toISOString() } as any
+
+        await send(request as unknown as RequestClient, payload, settings, getData, EventType.Custom, {}, statsContext)
+
+        expect(incr).not.toHaveBeenCalledWith('fb_stale_event_check', expect.anything(), expect.anything())
+      })
+
+      it('should drop stale events with a PayloadValidationError when the flag is on', async () => {
+        const request = jest.fn()
+
+        await expect(
+          send(
+            request as unknown as RequestClient,
+            stalePayload,
+            settings,
+            getData,
+            EventType.Custom,
+            { [DROP_STALE_EVENTS_FLAGON_NAME]: true },
+            statsContext
+          )
+        ).rejects.toThrow(
+          new PayloadValidationError(
+            `event_time ${staleEventTime} is more than 7 days old. Facebook rejects events older than 7 days.`
+          )
+        )
+
+        expect(request).not.toHaveBeenCalled()
+        expect(incr).toHaveBeenCalledWith(
+          'fb_stale_event_check',
+          1,
+          expect.arrayContaining(['predicted_too_old:true', 'meta_result:not_sent'])
+        )
+      })
+
+      it('should send recent events when the flag is on', async () => {
+        const request = jest.fn().mockResolvedValue({ status: 200 })
+        const payload = { ...basePayload, event_time: new Date(sixDaysAgo).toISOString() } as any
+
+        await send(
+          request as unknown as RequestClient,
+          payload,
+          settings,
+          getData,
+          EventType.Custom,
+          { [DROP_STALE_EVENTS_FLAGON_NAME]: true },
+          statsContext
+        )
+
+        expect(request).toHaveBeenCalledTimes(1)
+      })
     })
   })
 
