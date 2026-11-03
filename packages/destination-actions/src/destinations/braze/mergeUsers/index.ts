@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { send, getPrioritizationChoices, getSupportedIdentifierChoices } from './functions'
+import { send, sendSingle, getPrioritizationChoices, getSupportedIdentifierChoices } from './functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Merge Users [Beta]',
@@ -211,10 +211,10 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    return send(request, settings, [payload], false)
+    return sendSingle(request, settings, payload)
   },
   performBatch: (request, { settings, payload }) => {
-    return send(request, settings, payload, true)
+    return send(request, settings, payload)
   }
 }
 

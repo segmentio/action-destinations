@@ -4,26 +4,33 @@ import { Payload as MergeUsersPayload } from './generated-types'
 import { MergeUsersItem, MergeUsersJSON, MergeIdentifierType, Prioritization } from './types'
 import { UserAlias } from '../userAlias'
 
-export async function send(request: RequestClient, settings: Settings, payloads: MergeUsersPayload[], isBatch: boolean) {
+export function sendSingle(request: RequestClient, settings: Settings, payload: MergeUsersPayload) {
+  const items: MergeUsersJSON = {
+    merge_updates: [getJsonItem(payload)]
+  }
+
+  return request(`${settings.endpoint}/users/merge`, {
+    method: 'post',
+    json: items
+  })
+}
+
+export async function send(request: RequestClient, settings: Settings, payloads: MergeUsersPayload[]) {
   const multiStatusResponse = new MultiStatusResponse()
   const validItems: MergeUsersItem[] = []
-  const validPayloadIndicesBitmap: number[] = []
+  const validPayloadIndices: number[] = []
 
   payloads.forEach((payload, index) => {
     try {
       const item = getJsonItem(payload)
       validItems.push(item)
-      validPayloadIndicesBitmap.push(index)
+      validPayloadIndices.push(index)
     } catch (error) {
-      if (isBatch) {
-        multiStatusResponse.setErrorResponseAtIndex(index, {
-          status: 400,
-          errortype: 'PAYLOAD_VALIDATION_FAILED',
-          errormessage: (error as PayloadValidationError).message
-        })
-      } else {
-        throw error
-      }
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: (error as PayloadValidationError).message
+      })
     }
   })
 
@@ -42,8 +49,8 @@ export async function send(request: RequestClient, settings: Settings, payloads:
       json: items
     })
 
-    for (let i = 0; i < validPayloadIndicesBitmap.length; i++) {
-      const originalIndex = validPayloadIndicesBitmap[i]
+    for (let i = 0; i < validPayloadIndices.length; i++) {
+      const originalIndex = validPayloadIndices[i]
       if (multiStatusResponse.isErrorResponseAtIndex(originalIndex)) {
         continue
       }
@@ -54,9 +61,9 @@ export async function send(request: RequestClient, settings: Settings, payloads:
       })
     }
   } catch (error) {
-    if (isBatch && error instanceof HTTPError) {
-      for (let i = 0; i < validPayloadIndicesBitmap.length; i++) {
-        const originalIndex = validPayloadIndicesBitmap[i]
+    if (error instanceof HTTPError) {
+      for (let i = 0; i < validPayloadIndices.length; i++) {
+        const originalIndex = validPayloadIndices[i]
         if (multiStatusResponse.isErrorResponseAtIndex(originalIndex)) {
           continue
         }
