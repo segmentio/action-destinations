@@ -388,6 +388,41 @@ describe('Braze.mergeUsers', () => {
     expect(mergeUpdates.identifier_to_merge).not.toHaveProperty('prioritization')
     expect(mergeUpdates.identifier_to_keep).not.toHaveProperty('prioritization')
   })
+
+  it('should return the Braze response body as the action output', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(202, { message: 'success' })
+
+    await testDestination.testAction('mergeUsers', {
+      event: createTestEvent({ type: 'alias' }),
+      settings,
+      mapping: {
+        previousIdType: 'external_id',
+        previousIdValue: 'user-to-merge-456',
+        keepIdType: 'external_id',
+        keepIdValue: 'user-to-keep-123'
+      }
+    })
+
+    const executed = testDestination.results.find((result) => result.output === 'Action Executed')
+    expect(executed?.data).toEqual({ message: 'success' })
+  })
+
+  it('should throw when Braze returns an error for a single event', async () => {
+    nock(settings.endpoint).post('/users/merge').reply(500, { message: 'Internal error' })
+
+    await expect(
+      createTestIntegration(Destination).testAction('mergeUsers', {
+        event: createTestEvent({ type: 'alias' }),
+        settings,
+        mapping: {
+          previousIdType: 'external_id',
+          previousIdValue: 'user-to-merge-456',
+          keepIdType: 'external_id',
+          keepIdValue: 'user-to-keep-123'
+        }
+      })
+    ).rejects.toThrow()
+  })
 })
 
 describe('Braze.mergeUsers batch', () => {
