@@ -22,9 +22,6 @@ Object {
         "product_name": "Q#t9o",
         "product_url": "http://egu.ci/ritpaz",
         "source": "Q#t9o",
-        "type": Array [
-          "price_drop",
-        ],
         "variant_id": "Q#t9o",
       },
       "time": Any<String>,
