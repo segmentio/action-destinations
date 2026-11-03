@@ -6,7 +6,12 @@ export const API_VERSION = FACEBOOK_CONVERSIONS_API_VERSION
 
 export const CANARY_API_VERSION = FACEBOOK_CONVERSIONS_CANARY_API_VERSION
 
+export const DROP_STALE_EVENTS_FLAGON_NAME = 'facebook-capi-drop-stale-events'
+
 export const MAX_EVENT_AGE_MS = 7 * 24 * 60 * 60 * 1000
+
+// Meta's error_subcode for "Event Timestamp Too Old"
+export const EVENT_TIME_TOO_OLD_SUBCODE = 2804003
 
 export const EventType = {
   AddToCart: 'AddToCart',

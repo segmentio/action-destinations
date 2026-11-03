@@ -1,6 +1,8 @@
 import {
   ErrorCodes,
+  HTTPError,
   IntegrationError,
+  ModifiedResponse,
   PayloadValidationError,
   RequestClient,
   Features,
@@ -31,7 +33,9 @@ import {
   COUNTRY_CODES,
   CURRENCY_ISO_CODES,
   EventType,
-  MAX_EVENT_AGE_MS
+  MAX_EVENT_AGE_MS,
+  DROP_STALE_EVENTS_FLAGON_NAME,
+  EVENT_TIME_TOO_OLD_SUBCODE
 } from './constants'
 import { processHashing } from '../../../lib/hashing-utils'
 import type { Settings } from '../generated-types'
@@ -50,7 +54,7 @@ import type { Payload as Search2Payload } from '../search2/generated-types'
 import type { Payload as ViewContentPayload } from '../viewContent/generated-types'
 import type { Payload as ViewContent2Payload } from '../viewContent2/generated-types'
 
-export function send<P extends AnyPayload, T extends EventDataType>(
+export async function send<P extends AnyPayload, T extends EventDataType>(
   request: RequestClient,
   payload: P,
   settings: Settings,
@@ -65,6 +69,15 @@ export function send<P extends AnyPayload, T extends EventDataType>(
 
   validate(payload, eventType)
 
+  const predictedTooOld = isEventTimeTooOld(payload.event_time)
+
+  if (predictedTooOld && features?.[DROP_STALE_EVENTS_FLAGON_NAME]) {
+    trackStaleEventCheck(statsContext, payload.action_source, predictedTooOld, 'not_sent')
+    throw new PayloadValidationError(
+      `event_time ${payload.event_time} is more than 7 days old. Facebook rejects events older than 7 days.`
+    )
+  }
+
   const data = getDataFunction(payload)
 
   const json: RequestJSON = {
@@ -72,16 +85,29 @@ export function send<P extends AnyPayload, T extends EventDataType>(
     ...(test_event_code || testEventCode ? { test_event_code: test_event_code || testEventCode } : {})
   }
 
-  return request(`https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${pixelId}/events`, {
-    method: 'POST',
-    json
-  })
+  try {
+    const response = await request(
+      `https://graph.facebook.com/v${getApiVersion(features, statsContext)}/${pixelId}/events`,
+      {
+        method: 'POST',
+        json
+      }
+    )
+    trackStaleEventCheck(statsContext, payload.action_source, predictedTooOld, 'accepted')
+    return response
+  } catch (error) {
+    trackStaleEventCheck(
+      statsContext,
+      payload.action_source,
+      predictedTooOld,
+      isEventTimeTooOldError(error) ? 'event_time_too_old' : 'other_error'
+    )
+    throw error
+  }
 }
 
 export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
-  const { action_source, user_data, event_time } = payload
-
-  validateEventTime(event_time)
+  const { action_source, user_data } = payload
 
   if (eventType !== EventType.Custom && eventType !== EventType.PageView) {
     const { currency, contents } = payload as
@@ -120,15 +146,43 @@ export const validate = (payload: AnyPayload, eventType: EventTypeKey) => {
   }
 }
 
-export const validateEventTime = (event_time: string) => {
+export const isEventTimeTooOld = (event_time: string): boolean => {
   // event_time can be a Unix timestamp in seconds or an ISO 8601 string
   const eventTimeMs = /^\d+(\.\d+)?$/.test(event_time) ? Number(event_time) * 1000 : Date.parse(event_time)
 
-  if (!isNaN(eventTimeMs) && Date.now() - eventTimeMs > MAX_EVENT_AGE_MS) {
-    throw new PayloadValidationError(
-      `event_time ${event_time} is more than 7 days old. Facebook rejects events older than 7 days.`
-    )
+  return !isNaN(eventTimeMs) && Date.now() - eventTimeMs > MAX_EVENT_AGE_MS
+}
+
+export const isEventTimeTooOldError = (error: unknown): boolean => {
+  if (!(error instanceof HTTPError)) {
+    return false
   }
+  const data = (error.response as ModifiedResponse | undefined)?.data as
+    | { error?: { error_subcode?: number } }
+    | undefined
+  return data?.error?.error_subcode === EVENT_TIME_TOO_OLD_SUBCODE
+}
+
+type MetaStaleEventResult = 'accepted' | 'event_time_too_old' | 'other_error' | 'not_sent'
+
+// Compares our 7-day check with what Meta actually returned, so the drop flag can be rolled out
+// once the two agree. Only emitted when either side says the event is too old.
+export const trackStaleEventCheck = (
+  statsContext: StatsContext | undefined,
+  action_source: string,
+  predictedTooOld: boolean,
+  metaResult: MetaStaleEventResult
+) => {
+  if (!predictedTooOld && metaResult !== 'event_time_too_old') {
+    return
+  }
+  const tags = [
+    ...(statsContext?.tags ?? []),
+    `predicted_too_old:${predictedTooOld}`,
+    `meta_result:${metaResult}`,
+    `action_source:${action_source}`
+  ]
+  statsContext?.statsClient?.incr('fb_stale_event_check', 1, tags)
 }
 
 export const validateContents = (contents: Content[]) => {
