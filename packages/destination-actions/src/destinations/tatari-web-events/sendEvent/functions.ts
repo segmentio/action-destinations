@@ -62,7 +62,7 @@ function buildArgs(payload: Payload): Record<string, unknown> | undefined {
 
   for (const key of PROMOTED_PROPERTY_KEYS) delete args[key]
 
-  const orderId = payload.order_id ?? args.order_id
+  const orderId = nonEmpty(payload.order_id) ?? args.order_id
   if ((typeof orderId === 'string' || typeof orderId === 'number') && String(orderId).trim() !== '') {
     args.order_id = String(orderId)
   } else {
