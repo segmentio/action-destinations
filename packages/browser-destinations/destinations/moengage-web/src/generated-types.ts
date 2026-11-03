@@ -4,7 +4,7 @@ export interface Settings {
   /**
    * Your Moengage Workspace ID.
    */
-  app_id: string
+  appId: string
   /**
    * The environment for your Moengage account.
    */
@@ -16,7 +16,7 @@ export interface Settings {
   /**
    * Your Moengage Project ID.
    */
-  project_id?: string
+  projectId?: string
   /**
    * The path to the service worker file for MoEngage web push notifications. if provided here, you need to host this file on your server.
    */
@@ -28,7 +28,7 @@ export interface Settings {
   /**
    * Disable Moengage from showing Onsite Messaging on your website.
    */
-  disable_onsite?: boolean
+  disableOnsite?: boolean
   /**
    * A custom domain name where the MoEngage web SDK is hosted. Data will be sent to this domain.
    */
@@ -36,7 +36,7 @@ export interface Settings {
   /**
    * A comma delimited list of bot user agents to ignore when tracking events.
    */
-  bots_list?: string[]
+  botsList?: string[]
   /**
    * Disable Moengage from setting cookies on your website when the page loads.
    */

@@ -77,6 +77,27 @@ export async function sendAssociatedRecords(
   }
 }
 
+/**
+ * Returns one payload per unique `id_field_value` within a group.
+ *
+ * A group can legitimately hold several payloads for the same record - for example when the same record is
+ * associated under more than one association label. Those payloads must all be kept for the association
+ * requests, but the record requests only identify records by `id_field_value`, so sending one input per
+ * payload would repeat the same record within a single batch. HubSpot rejects such a batch.
+ *
+ * Grouping guarantees `object_type` and `id_field_name` are identical across the group, so `id_field_value`
+ * alone is a sufficient key.
+ */
+function uniqueRecordsById(payloads: AssociationPayload[]): AssociationPayload[] {
+  const uniquePayloads = new Map<string, AssociationPayload>()
+
+  for (const payload of payloads) {
+    uniquePayloads.set(payload.object_details.id_field_value, payload)
+  }
+
+  return Array.from(uniquePayloads.values())
+}
+
 export async function readAssociatedRecords(
   client: Client,
   groupedPayloads: AssociationPayload[][]
@@ -87,7 +108,7 @@ export async function readAssociatedRecords(
     return await client.batchObjectRequest(AssociationSyncMode.Read, objectType, {
       idProperty: payloads[0].object_details.id_field_name,
       properties: [payloads[0].object_details.id_field_name],
-      inputs: payloads.map((payload) => {
+      inputs: uniqueRecordsById(payloads).map((payload) => {
         return {
           id: payload.object_details.id_field_value
         }
@@ -106,7 +127,7 @@ async function upsertAssociatedRecords(
     const { object_type: objectType } = payloads[0].object_details
 
     return await client.batchObjectRequest(AssociationSyncMode.Upsert, objectType, {
-      inputs: payloads.map((payload) => {
+      inputs: uniqueRecordsById(payloads).map((payload) => {
         return {
           idProperty: payload.object_details.id_field_name,
           id: payload.object_details.id_field_value,
@@ -142,7 +163,11 @@ function returnAssociatedRecordsWithIds(
     .filter((payload) => (payload as AssociationPayloadWithId).object_details.record_id) as AssociationPayloadWithId[]
 }
 
-export async function sendAssociations(client: Client, payloads: AssociationPayloadWithId[], action: AssociationsAction) {
+export async function sendAssociations(
+  client: Client,
+  payloads: AssociationPayloadWithId[],
+  action: AssociationsAction
+) {
   const groupedPayloads: AssociationPayloadWithId[][] = groupPayloads(payloads as AssociationPayload[], [
     'object_type'
   ]) as AssociationPayloadWithId[][]

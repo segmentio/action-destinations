@@ -6,16 +6,6 @@ export interface Payload {
    */
   visitorId: string
   /**
-   * Traits or Properties object from the identify() or track() call emitted by Engage.
-   */
-  traitsOrProperties: {
-    [k: string]: unknown
-  }
-  /**
-   * Segment Audience Key. Used to determine whether the user is being added to or removed from the Pendo Segment.
-   */
-  segmentAudienceKey: string
-  /**
    * The External Audience ID from Segment, which maps to the Pendo Segment ID.
    */
   segmentAudienceId: string

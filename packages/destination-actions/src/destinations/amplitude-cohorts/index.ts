@@ -1,8 +1,8 @@
-import { AudienceDestinationDefinition } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { AudienceSettings, Settings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getEndpointByRegion, createAudience, getAudience } from './functions'
-import { ID_TYPES } from './constants'
+import { ID_TYPES, AUDIENCE_NAME_PREFIX } from './constants'
 import { IDType } from './types'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
@@ -57,12 +57,28 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           }
         ],
         default: 'north_america'
+      },
+      prefix_audience_names: {
+        label: 'Prefix Audience Names',
+        description:
+          'When enabled, all audience (cohort) names sent to Amplitude are prefixed with "[Segment] ". Turn this off to send audience names without the prefix.',
+        type: 'boolean',
+        required: false,
+        default: true
       }
     },
     testAuthentication: (request, { settings }) => {
       const { endpoint, default_owner_email } = settings
+      const trimmedOwnerEmail = default_owner_email?.trim()
+      if (!trimmedOwnerEmail) {
+        throw new IntegrationError(
+          'Missing required setting: Cohort Owner Email (default_owner_email)',
+          'MISSING_REQUIRED_FIELD',
+          400
+        )
+      }
       const baseUrl = getEndpointByRegion('usersearch', endpoint)
-      return request(`${baseUrl}?user=${default_owner_email}`)
+      return request(`${baseUrl}?user=${encodeURIComponent(trimmedOwnerEmail)}`)
     }
   },
   extendRequest({ settings }) {
@@ -121,15 +137,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const {
-        audienceName,
-        settings,
-        audienceSettings,
-        statsContext
-      } = createAudienceInput
+      const { audienceName, settings, audienceSettings, statsContext } = createAudienceInput
 
       const { owner_email, audience_name, id_type, user_id } = (audienceSettings || {}) as AudienceSettings
-      const name = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
+      const baseName = typeof audience_name === 'string' && audience_name.length > 0 ? audience_name : audienceName
+      // `prefix_audience_names` defaults to true; the prefix is applied only when it is explicitly true.
+      const name = settings.prefix_audience_names === true ? `${AUDIENCE_NAME_PREFIX}${baseName}` : baseName
 
       const externalId = await createAudience(
         request,

@@ -12,7 +12,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
   mode: 'device',
 
   settings: {
-    app_id: {
+    appId: {
       description: 'Your Moengage Workspace ID.',
       label: 'Workspace ID',
       type: 'string',
@@ -45,7 +45,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
         { label: 'DC-06', value: 'dc_6' }
       ]
     },
-    project_id: {
+    projectId: {
       description: 'Your Moengage Project ID.',
       label: 'Project ID',
       type: 'string',
@@ -55,17 +55,19 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
     swPath: {
       label: 'Service Worker Path',
       type: 'string',
-      description: 'The path to the service worker file for MoEngage web push notifications. if provided here, you need to host this file on your server.',
+      description:
+        'The path to the service worker file for MoEngage web push notifications. if provided here, you need to host this file on your server.',
       required: false
     },
     enableSPA: {
       label: 'Enable Single Page Application (SPA) Support',
       type: 'boolean',
-      description: 'Enable Single Page Application (SPA) support in the Moengage SDK. Enable this if your website is a single page application to ensure proper tracking.',
+      description:
+        'Enable Single Page Application (SPA) support in the Moengage SDK. Enable this if your website is a single page application to ensure proper tracking.',
       required: false,
       default: false
-    }, 
-    disable_onsite: {
+    },
+    disableOnsite: {
       label: 'Disable Onsite Messaging',
       type: 'boolean',
       description: 'Disable Moengage from showing Onsite Messaging on your website.',
@@ -78,11 +80,11 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
       description: 'A custom domain name where the MoEngage web SDK is hosted. Data will be sent to this domain.',
       required: false
     },
-    bots_list: {
+    botsList: {
       label: 'Bots List',
       type: 'string',
       description: 'A comma delimited list of bot user agents to ignore when tracking events.',
-      required: false, 
+      required: false,
       multiple: true
     },
     disableCookies: {
@@ -91,11 +93,12 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
       description: 'Disable Moengage from setting cookies on your website when the page loads.',
       required: false,
       default: false
-    }, 
-    disableSdk:{
+    },
+    disableSdk: {
       label: 'Disable SDK',
       type: 'boolean',
-      description: 'Disable the Moengage SDK from initializing on your website when the page loads. You can use this to conditionally load the SDK based on user consent.',
+      description:
+        'Disable the Moengage SDK from initializing on your website when the page loads. You can use this to conditionally load the SDK based on user consent.',
       required: false,
       default: false
     },
@@ -109,9 +112,10 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
     css_selector_inbox_icon: {
       label: 'CSS Selector for Inbox Icon',
       type: 'string',
-      description: 'The CSS selector for the MoEngage Inbox icon on your website. The user will click this icon to open the inbox.',
+      description:
+        'The CSS selector for the MoEngage Inbox icon on your website. The user will click this icon to open the inbox.',
       required: false,
-      depends_on:{
+      depends_on: {
         conditions: [
           {
             fieldKey: 'cards_enabled',
@@ -126,7 +130,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
       type: 'boolean',
       description: 'Enable the floating bell icon for MoEngage notifications on desktop devices.',
       required: false,
-      depends_on:{
+      depends_on: {
         conditions: [
           {
             fieldKey: 'cards_enabled',
@@ -141,7 +145,7 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
       type: 'boolean',
       description: 'Enable the floating bell icon for MoEngage notifications on mobile devices.',
       required: false,
-      depends_on:{
+      depends_on: {
         conditions: [
           {
             fieldKey: 'cards_enabled',
@@ -153,61 +157,69 @@ export const destination: BrowserDestinationDefinition<Settings, MoengageSDK> = 
     }
   },
   initialize: async ({ settings, analytics }, deps) => {
-    const { 
-        app_id,
-        env,
-        project_id,
-        swPath,
-        enableSPA,
-        disable_onsite,
-        customProxyDomain,
-        bots_list,
-        disableCookies,
-        disableSdk,
-        cards_enabled,
-        css_selector_inbox_icon,
-        floating_bell_icon_desktop,
-        floating_bell_icon_mobile
+    const {
+      appId,
+      env,
+      projectId,
+      swPath,
+      enableSPA,
+      disableOnsite,
+      customProxyDomain,
+      botsList,
+      disableCookies,
+      disableSdk,
+      cards_enabled,
+      css_selector_inbox_icon,
+      floating_bell_icon_desktop,
+      floating_bell_icon_mobile
     } = settings
-    
+
     await initializeSDK(settings)
 
     const initConfig: InitConfig = {
-        app_id,
-        env,
-        ...(project_id ? { project_id } : {}),
-        ...(typeof enableSPA === 'boolean' ? { enableSPA } : {}),
-        ...(typeof disable_onsite === 'boolean' ? { disable_onsite } : {}),
-        ...(typeof customProxyDomain === 'string' && customProxyDomain.length>0 ? { customProxyDomain } : {}),
-        ...(Array.isArray(bots_list) && bots_list.length>0 ? { bots_list: bots_list} : {}),
-        ...(typeof disableCookies === 'boolean' ? { disableCookies } : {}),
-        ...(typeof disableSdk === 'boolean' ? { disableSdk } : {}),
-        ...(swPath ? { swPath } : {}),
-        ...(cards_enabled ? {
+      appId,
+      env,
+      ...(projectId ? { projectId } : {}),
+      ...(typeof enableSPA === 'boolean' ? { enableSPA } : {}),
+      ...(typeof disableOnsite === 'boolean' ? { disableOnsite } : {}),
+      ...(typeof customProxyDomain === 'string' && customProxyDomain.length > 0 ? { customProxyDomain } : {}),
+      ...(Array.isArray(botsList) && botsList.length > 0 ? { botsList: botsList } : {}),
+      ...(typeof disableCookies === 'boolean' ? { disableCookies } : {}),
+      ...(typeof disableSdk === 'boolean' ? { disableSdk } : {}),
+      ...(swPath ? { swPath } : {}),
+      ...(cards_enabled
+        ? {
             cards: {
-                enable: cards_enabled,
-                ...(typeof css_selector_inbox_icon === 'string' && css_selector_inbox_icon.length > 0 ? { placeholder: css_selector_inbox_icon } : {}),
-                ...(typeof floating_bell_icon_desktop === 'boolean' ? { webFloating: { enable: floating_bell_icon_desktop } } : {}),
-                ...(typeof floating_bell_icon_mobile === 'boolean' ? { mWebFloating: { enable: floating_bell_icon_mobile } } : {})
+              enable: cards_enabled,
+              ...(typeof css_selector_inbox_icon === 'string' && css_selector_inbox_icon.length > 0
+                ? { placeholder: css_selector_inbox_icon }
+                : {}),
+              ...(typeof floating_bell_icon_desktop === 'boolean'
+                ? { webFloating: { enable: floating_bell_icon_desktop } }
+                : {}),
+              ...(typeof floating_bell_icon_mobile === 'boolean'
+                ? { mWebFloating: { enable: floating_bell_icon_mobile } }
+                : {})
             }
-        } : {})
+          }
+        : {})
     }
 
     await deps.resolveWhen(() => typeof window.moe === 'function', 100)
 
-    if(window.moe) {
+    if (window.moe) {
       window.Moengage = window.moe(initConfig)
-      
+
       await deps.resolveWhen(() => window?.Moengage?.initialized === true, 100)
-      
-      const client = window.Moengage 
+
+      const client = window.Moengage
       const originalReset = analytics.reset
       analytics.reset = (...args) => {
         if (typeof originalReset === 'function') {
           originalReset(...args)
         }
-        if (client && typeof client.destroy_session === 'function') {
-          client.destroy_session()
+        if (client && typeof client.logoutUser === 'function') {
+          client.logoutUser()
         }
       }
       return client

@@ -73,7 +73,14 @@ describe('validateInput', () => {
   })
 
   describe('test group payload', () => {
+    // local_tz_offset is derived from the current date, so pin the clock to keep
+    // the expected offset stable across DST transitions.
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
     it('should return converted payload', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-07-01T12:00:00Z'))
       const payload = validateInput(settings, fakeGroupData, 'account_identify')
       expect(payload.account_id).toEqual(fakeGroupData.account_id)
       expect(payload.user_id).toEqual(fakeGroupData.user_id)
@@ -82,6 +89,12 @@ describe('validateInput', () => {
       expect(payload.traits.website).toEqual(fakeGroupData.website)
       expect(payload.traits).toHaveProperty('required')
       expect(payload.local_tz_offset).toEqual(120)
+    })
+
+    it('should resolve local_tz_offset outside DST', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-01-15T12:00:00Z'))
+      const payload = validateInput(settings, fakeGroupData, 'account_identify')
+      expect(payload.local_tz_offset).toEqual(60)
     })
   })
 

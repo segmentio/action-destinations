@@ -1,0 +1,176 @@
+import { PayloadValidationError, RequestClient } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { DEFAULT_NESTED_MODE, HEAP_LIBRARY, HEAP_SEGMENT_CLOUD_LIBRARY_NAME, getHeapBaseUrl } from './constants'
+import type {
+  AddUserPropertiesJSON,
+  FlatProperties,
+  HeapTrackEvent,
+  NestedMode,
+  TrackJSON,
+  UserIdentifier,
+  UserProperties
+} from './types'
+
+export function send(request: RequestClient, settings: Settings, payload: Payload) {
+  const { appId, region } = settings
+  const { identity, type, properties, name, timestamp, message_id, traits, nested_properties_mode } = payload
+
+  const baseUrl = getHeapBaseUrl(region)
+  const requests: Promise<unknown>[] = []
+
+  const trimmedIdentity = hasValue(identity) ? identity.trim() : undefined
+  const customProperties = flatUserProperties(traits, nested_properties_mode as NestedMode)
+  const hasUserTraits = Object.keys(customProperties).length > 0
+
+  // Identify calls exist solely to update the user profile, which is keyed on identity.
+  if (type === 'identify' && trimmedIdentity === undefined) {
+    throw new PayloadValidationError('Identity is required for identify calls.')
+  }
+
+  // A profile update needs an identity to attach the traits to.
+  if (hasUserTraits && trimmedIdentity === undefined) {
+    throw new PayloadValidationError('Identity is required when User Properties are provided.')
+  }
+
+  if (hasUserTraits && trimmedIdentity !== undefined) {
+    const json: AddUserPropertiesJSON = {
+      app_id: appId,
+      library: HEAP_LIBRARY,
+      users: [
+        {
+          user_identifier: {
+            identity: trimmedIdentity
+          },
+          custom_properties: customProperties
+        }
+      ]
+    }
+
+    requests.push(
+      request(`${baseUrl}/api/integrations/add_user_properties`, {
+        method: 'post',
+        json
+      })
+    )
+  }
+
+  if (type !== 'identify') {
+    const event: HeapTrackEvent = {
+      event: getEventName(payload),
+      user_identifier: getUserIdentifier(payload),
+      custom_properties: {
+        segment_library: HEAP_SEGMENT_CLOUD_LIBRARY_NAME,
+        ...flat(properties || {}, nested_properties_mode as NestedMode),
+        ...(hasValue(name) ? { name } : {})
+      },
+      idempotency_key: message_id,
+      ...(timestamp != null ? { timestamp } : {})
+    }
+
+    const json: TrackJSON = {
+      app_id: appId,
+      library: HEAP_LIBRARY,
+      events: [event]
+    }
+
+    requests.push(
+      request(`${baseUrl}/api/integrations/track`, {
+        method: 'post',
+        json
+      })
+    )
+  }
+
+  if (requests.length === 0) {
+    throw new PayloadValidationError('No properties to update. Identify calls require at least one User Property.')
+  }
+
+  return Promise.all(requests)
+}
+
+// Track custom_properties: string values only.
+export function flat(data: Payload['properties'], mode: NestedMode = DEFAULT_NESTED_MODE): FlatProperties {
+  return flatten(data, mode, stringify)
+}
+
+// Profile custom_properties: preserve number/boolean/null primitives.
+export function flatUserProperties(
+  data: Payload['properties'],
+  mode: NestedMode = DEFAULT_NESTED_MODE
+): UserProperties {
+  return flatten(data, mode, coerceUserPropertyValue)
+}
+
+function flatten<T>(
+  data: Payload['properties'],
+  mode: NestedMode,
+  leaf: (value: unknown) => T,
+  prefix = ''
+): Record<string, T> {
+  const result: Record<string, T> = Object.create(null)
+  const source = data ?? {}
+  for (const key of Object.keys(source)) {
+    const value = source[key]
+    if (value === undefined) {
+      continue
+    }
+    const fullKey = (prefix + '.' + key).replace(/^\./, '')
+    if (typeof value === 'object' && value !== null) {
+      if (mode === 'stringify') {
+        result[fullKey] = leaf(JSON.stringify(value))
+      } else if (mode !== 'drop') {
+        Object.assign(result, flatten(value as Payload['properties'], mode, leaf, prefix + '.' + key))
+      }
+    } else {
+      result[fullKey] = leaf(value)
+    }
+  }
+  return result
+}
+
+function stringify(value: unknown): string {
+  if (typeof value === 'string') {
+    return value
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return value.toString()
+  }
+  return JSON.stringify(value)
+}
+
+function coerceUserPropertyValue(value: unknown): string | number | boolean | null {
+  if (value === null || typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value
+  }
+  return JSON.stringify(value)
+}
+
+export const hasValue = (value?: string | null): value is string => typeof value === 'string' && value.trim().length > 0
+
+export const getUserIdentifier = (payload: Payload): UserIdentifier => {
+  const { identity, anonymous_id, user_id, email } = payload
+
+  const userIdentifier: UserIdentifier = {
+    ...(hasValue(identity) ? { identity: identity.trim() } : {}),
+    ...(hasValue(anonymous_id) ? { anonymous_id: anonymous_id.trim() } : {}),
+    ...(hasValue(user_id) ? { user_id: user_id.trim() } : {}),
+    ...(hasValue(email) ? { email: email.trim() } : {})
+  }
+
+  if (Object.keys(userIdentifier).length === 0) {
+    throw new PayloadValidationError('At least one of Identity, Anonymous ID, User ID or Email is required.')
+  }
+  return userIdentifier
+}
+
+export const getEventName = ({ type, event }: { type?: string; event?: string }): string => {
+  switch (type) {
+    case 'page':
+      return 'Page viewed'
+    case 'screen':
+      return 'Screen viewed'
+    default:
+      return event || 'track'
+  }
+}

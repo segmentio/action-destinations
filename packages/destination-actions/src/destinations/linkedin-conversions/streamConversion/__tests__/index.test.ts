@@ -1,6 +1,5 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
-import { DynamicFieldResponse } from '@segment/actions-core'
 import { BASE_URL, FLAGON_NAME, LINKEDIN_API_VERSION, LINKEDIN_CANARY_API_VERSION } from '../../constants'
 import Destination from '../../index'
 
@@ -509,7 +508,506 @@ describe('LinkedinConversions.streamConversion', () => {
           batch_size: 5000
         }
       })
-    ).rejects.toThrowError('One of email or LinkedIn UUID or Axciom ID or Oracle ID is required.')
+    ).rejects.toThrowError(
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
+  })
+
+  it('should successfully send the event with only plaintextIpAddress as identifier', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'PLAINTEXT_IP_ADDRESS',
+              idValue: '192.168.1.1'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          plaintextIpAddress: '192.168.1.1',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should trim whitespace from email before hashing it', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: '  testing@testing.com  ',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it.each(['email', 'linkedInUUID', 'acxiomID', 'oracleID'])(
+    'should throw an error when %s is the only identifier and is whitespace-only',
+    async (field) => {
+      await expect(
+        testDestination.testAction('streamConversion', {
+          event,
+          settings,
+          mapping: {
+            [field]: '   ',
+            conversionHappenedAt: {
+              '@path': '$.timestamp'
+            },
+            onMappingSave: {
+              inputs: {},
+              outputs: {
+                id: payload.conversionId
+              }
+            },
+            enable_batching: true,
+            batch_size: 5000
+          }
+        })
+      ).rejects.toThrowError(
+        'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+      )
+    }
+  )
+
+  it('should throw an error if plaintextIpAddress is not a valid IPv4 address', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          plaintextIpAddress: '999.999.999.999',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError('must be a valid IPv4 address string but it was not')
+  })
+
+  it('should successfully send the event with only sha256IpAddress as identifier', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_IP_ADDRESS',
+              idValue: '7d7d65fc14ac5321b5e63a10fbb4bcd72c4c43445d9a9d2f6c1e9368d019165e'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '103.20.92.13',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should not re-hash sha256IpAddress if it is already a SHA256 hash', async () => {
+    const preHashedIp = '7d7d65fc14ac5321b5e63a10fbb4bcd72c4c43445d9a9d2f6c1e9368d019165e'
+
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_IP_ADDRESS',
+              idValue: preHashedIp
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: preHashedIp,
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should omit sha256IpAddress rather than send an empty idValue if it normalizes to an empty string', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'GOOGLE_AID',
+              idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '   ',
+          googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should throw an error if sha256IpAddress is whitespace-only and no other identifier is provided', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          sha256IpAddress: '   ',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError(
+      'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).'
+    )
+  })
+
+  it('should successfully send the event with only googleAID as identifier', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'GOOGLE_AID',
+              idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send the event with all identifier types', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        conversion: 'urn:lla:llaPartnerConversion:789123',
+        conversionHappenedAt: currentTimestamp,
+        user: {
+          userIds: [
+            {
+              idType: 'SHA256_EMAIL',
+              idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777'
+            },
+            {
+              idType: 'LINKEDIN_FIRST_PARTY_ADS_TRACKING_UUID',
+              idValue: 'li-uuid-123'
+            },
+            {
+              idType: 'ACXIOM_ID',
+              idValue: 'axciom-456'
+            },
+            {
+              idType: 'ORACLE_MOAT_ID',
+              idValue: 'oracle-789'
+            },
+            {
+              idType: 'PLAINTEXT_IP_ADDRESS',
+              idValue: '103.20.92.12'
+            },
+            {
+              idType: 'SHA256_IP_ADDRESS',
+              idValue: '7d7d65fc14ac5321b5e63a10fbb4bcd72c4c43445d9a9d2f6c1e9368d019165e'
+            },
+            {
+              idType: 'GOOGLE_AID',
+              idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+            }
+          ]
+        }
+      })
+      .reply(201)
+
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          linkedInUUID: 'li-uuid-123',
+          acxiomID: 'axciom-456',
+          oracleID: 'oracle-789',
+          plaintextIpAddress: '103.20.92.12',
+          sha256IpAddress: '103.20.92.13',
+          googleAID: 'AEBE52E7-03EE-455A-B3C4-E57283966239',
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should successfully send a batch request with plaintextIpAddress and googleAID', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: 'urn:lla:llaPartnerConversion:789123',
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                {
+                  idType: 'PLAINTEXT_IP_ADDRESS',
+                  idValue: '10.0.0.1'
+                },
+                {
+                  idType: 'GOOGLE_AID',
+                  idValue: 'AEBE52E7-03EE-455A-B3C4-E57283966239'
+                }
+              ]
+            }
+          },
+          {
+            conversion: 'urn:lla:llaPartnerConversion:789123',
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                {
+                  idType: 'PLAINTEXT_IP_ADDRESS',
+                  idValue: '10.0.0.2'
+                },
+                {
+                  idType: 'GOOGLE_AID',
+                  idValue: 'BFBF63F8-14FF-566B-C4D5-F68394077340'
+                }
+              ]
+            }
+          }
+        ]
+      })
+      .reply(201)
+
+    const eventWithIp1 = createTestEvent({
+      event: 'Example Event',
+      type: 'track',
+      timestamp: currentTimestamp.toString(),
+      context: {
+        ip: '10.0.0.1',
+        device: { advertisingId: 'AEBE52E7-03EE-455A-B3C4-E57283966239' }
+      }
+    })
+
+    const eventWithIp2 = createTestEvent({
+      event: 'Example Event',
+      type: 'track',
+      timestamp: currentTimestamp.toString(),
+      context: {
+        ip: '10.0.0.2',
+        device: { advertisingId: 'BFBF63F8-14FF-566B-C4D5-F68394077340' }
+      }
+    })
+
+    await expect(
+      testDestination.testBatchAction('streamConversion', {
+        events: [eventWithIp1, eventWithIp2],
+        settings,
+        mapping: {
+          plaintextIpAddress: { '@path': '$.context.ip' },
+          googleAID: { '@path': '$.context.device.advertisingId' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          onMappingSave: {
+            inputs: {},
+            outputs: {
+              id: payload.conversionId
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).resolves.not.toThrowError()
+  })
+
+  it('should throw an actionable error when no conversion rule is linked to the mapping', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError(
+      'No conversion rule is linked to this mapping. Open the mapping and click "Link or Create a Conversion Rule" to link one. If you have already entered an existing Conversion Rule ID, this will link that rule and will not create a duplicate in LinkedIn.'
+    )
+  })
+
+  // Asserts a prefix of the error message intentionally: the test above owns its exact wording.
+  it('should throw an actionable error when hook inputs were saved but the hook never produced outputs', async () => {
+    await expect(
+      testDestination.testAction('streamConversion', {
+        event,
+        settings,
+        mapping: {
+          email: { '@path': '$.context.traits.email' },
+          conversionHappenedAt: {
+            '@path': '$.timestamp'
+          },
+          // The mapping is saved with the user's hook inputs but no outputs, which is the state
+          // produced when the mapping is saved without running the 'Create a Conversion Rule' hook.
+          onMappingSave: {
+            inputs: {
+              adAccountId: 'urn:li:sponsoredAccount:12345',
+              conversionRuleId: '20812604'
+            }
+          },
+          enable_batching: true,
+          batch_size: 5000
+        }
+      })
+    ).rejects.toThrowError('No conversion rule is linked to this mapping.')
   })
 
   it('should normalize the user ID email field such that uppercase letters are converted to lowercase', async () => {
@@ -661,7 +1159,7 @@ describe('LinkedinConversions.dynamicField', () => {
 
     const dynamicFn =
       testDestination.actions.streamConversion.definition.hooks?.onMappingSave?.inputFields?.conversionRuleId.dynamic
-    const responses = (await testDestination.testDynamicField(
+    const responses = await testDestination.testDynamicField(
       'streamConversion',
       'conversionId',
       {
@@ -669,7 +1167,7 @@ describe('LinkedinConversions.dynamicField', () => {
         payload
       },
       dynamicFn
-    )) as DynamicFieldResponse
+    )
 
     expect(responses).toMatchObject({
       choices: [],
@@ -689,7 +1187,7 @@ describe('LinkedinConversions.dynamicField', () => {
 
     const dynamicFn =
       testDestination.actions.streamConversion.definition.hooks?.onMappingSave?.inputFields?.campaignId.dynamic
-    const responses = (await testDestination.testDynamicField(
+    const responses = await testDestination.testDynamicField(
       'streamConversion',
       'campaignId',
       {
@@ -697,7 +1195,7 @@ describe('LinkedinConversions.dynamicField', () => {
         payload
       },
       dynamicFn
-    )) as DynamicFieldResponse
+    )
 
     expect(responses).toMatchObject({
       choices: [],
@@ -1143,5 +1641,267 @@ describe('LinkedinConversions.onMappingSave - performHook', () => {
         code: 'CONVERSION_RULE_CREATION_FAILURE'
       }
     })
+  })
+})
+
+describe('LinkedinConversions.multistatus', () => {
+  const staleTimestamp = new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString()
+
+  const staleEvent = createTestEvent({
+    messageId: 'stale-event-id',
+    event: 'Funding Application Submitted',
+    type: 'track',
+    timestamp: staleTimestamp,
+    context: { traits: { email: 'stale@example.com' } },
+    properties: {}
+  })
+
+  const batchMapping = {
+    email: { '@path': '$.context.traits.email' },
+    conversionHappenedAt: { '@path': '$.timestamp' },
+    onMappingSave: {
+      inputs: {},
+      outputs: { id: payload.conversionId }
+    },
+    enable_batching: true,
+    batch_size: 5000
+  }
+
+  it('should mark stale event as PAYLOAD_VALIDATION_FAILED and still send valid events', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                { idType: 'SHA256_EMAIL', idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777' }
+              ]
+            }
+          }
+        ]
+      })
+      .reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, staleEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    // valid event succeeds
+    expect(response[0]).toMatchObject({ status: 201 })
+    // stale event fails with PAYLOAD_VALIDATION_FAILED
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage: 'Timestamp should be within the past 90 days.',
+      errorreporter: 'INTEGRATIONS'
+    })
+  })
+
+  it('should not make an API call when all events in the batch are invalid', async () => {
+    const staleEvent2 = createTestEvent({
+      messageId: 'stale-event-id-2',
+      event: 'Funding Application Submitted',
+      type: 'track',
+      timestamp: staleTimestamp,
+      context: { traits: { email: 'stale2@example.com' } },
+      properties: {}
+    })
+
+    const scope = nock(`${BASE_URL}/conversionEvents`).post('').reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [staleEvent, staleEvent2],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(scope.isDone()).toBe(false)
+    expect(response[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    expect(response[1]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    nock.cleanAll()
+  })
+
+  it('should mark event as PAYLOAD_VALIDATION_FAILED when user ID is missing', async () => {
+    const noUserIdEvent = createTestEvent({
+      messageId: 'no-user-id-event',
+      event: 'Funding Application Submitted',
+      type: 'track',
+      timestamp: currentTimestamp.toString(),
+      context: { traits: {} },
+      properties: {}
+    })
+
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('', {
+        elements: [
+          {
+            conversion: `urn:lla:llaPartnerConversion:${payload.conversionId}`,
+            conversionHappenedAt: currentTimestamp,
+            user: {
+              userIds: [
+                { idType: 'SHA256_EMAIL', idValue: '584c4423c421df49955759498a71495aba49b8780eb9387dff333b6f0982c777' }
+              ]
+            }
+          }
+        ]
+      })
+      .reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, noUserIdEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 201 })
+    expect(response[1]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errormessage:
+        'At least one user identifier is required (Email, LinkedIn First Party Ads Tracking UUID, Acxiom ID, Oracle ID, Plain Text IP Address, SHA256 IP Address, or Google Advertising ID).',
+      errorreporter: 'INTEGRATIONS'
+    })
+  })
+
+  it('should correctly map responses to original batch indices', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(201)
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [staleEvent, event, staleEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+    expect(response[1]).toMatchObject({ status: 201 })
+    expect(response[2]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+  })
+
+  it('should set status 401 in multistatus entries when LinkedIn returns 401, not throw', async () => {
+    // The framework's shouldRetry (destination-kit/index.ts) scans MultiStatusResponse entries
+    // for status===401 and triggers token refresh + retry automatically for OAuth destinations.
+    // We must NOT throw here — throwing bypasses that retry path.
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(401, { message: 'Unauthorized' })
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 401,
+      errorreporter: 'DESTINATION'
+    })
+  })
+
+  it('should set status 401 for all valid events when LinkedIn returns 401, not throw', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(401, { message: 'Unauthorized' })
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, secondEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 401, errorreporter: 'DESTINATION' })
+    expect(response[1]).toMatchObject({ status: 401, errorreporter: 'DESTINATION' })
+  })
+
+  it('should not set 401 for pre-filtered invalid events when LinkedIn returns 401', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(401, { message: 'Unauthorized' })
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [staleEvent, event],
+      settings,
+      mapping: batchMapping
+    })
+
+    // stale event was filtered before the API call — still PAYLOAD_VALIDATION_FAILED
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errortype: 'PAYLOAD_VALIDATION_FAILED',
+      errorreporter: 'INTEGRATIONS'
+    })
+    // valid event gets the 401 from the API response
+    expect(response[1]).toMatchObject({ status: 401, errorreporter: 'DESTINATION' })
+  })
+
+  it('should mark all valid events as failed when LinkedIn returns 429', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(429, 'Too Many Requests')
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, secondEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 429, errorreporter: 'DESTINATION' })
+    expect(response[1]).toMatchObject({ status: 429, errorreporter: 'DESTINATION' })
+  })
+
+  it('should populate errormessage from response body, not statusText, on API error', async () => {
+    nock(`${BASE_URL}/conversionEvents`)
+      .post('')
+      .reply(400, JSON.stringify({ message: 'Invalid conversion rule ID', code: 'INVALID_CONVERSION_RULE' }), {
+        'content-type': 'application/json'
+      })
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({
+      status: 400,
+      errorreporter: 'DESTINATION'
+    })
+    // errormessage should be the actual response body, not the generic HTTP statusText
+    expect((response[0] as { errormessage: string }).errormessage).toContain('INVALID_CONVERSION_RULE')
+  })
+
+  it('should include sent field in error entries for API errors', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(500, 'Internal Server Error')
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 500, errorreporter: 'DESTINATION' })
+    // sent should be populated so the framework classifies this as a DESTINATION error (not INTEGRATIONS)
+    expect((response[0] as { sent: unknown }).sent).toBeDefined()
+  })
+
+  it('should mark all valid events as failed when LinkedIn returns 500', async () => {
+    nock(`${BASE_URL}/conversionEvents`).post('').reply(500, 'Internal Server Error')
+
+    const response = await testDestination.executeBatch('streamConversion', {
+      events: [event, secondEvent],
+      settings,
+      mapping: batchMapping
+    })
+
+    expect(response[0]).toMatchObject({ status: 500, errorreporter: 'DESTINATION' })
+    expect(response[1]).toMatchObject({ status: 500, errorreporter: 'DESTINATION' })
+  })
+
+  it('should re-throw non-HTTP errors', async () => {
+    // Non-HTTPError errors (e.g. network failure, timeout) should propagate, not be swallowed
+    nock(`${BASE_URL}/conversionEvents`).post('').replyWithError('ECONNREFUSED')
+
+    await expect(
+      testDestination.executeBatch('streamConversion', {
+        events: [event],
+        settings,
+        mapping: batchMapping
+      })
+    ).rejects.toThrow()
   })
 })

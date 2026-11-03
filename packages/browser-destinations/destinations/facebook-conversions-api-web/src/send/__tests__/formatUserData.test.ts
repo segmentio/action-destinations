@@ -61,6 +61,24 @@ describe('formatUserData', () => {
       })
     })
 
+    it('should normalize word-form gender before hashing', async () => {
+      // 'Female' should normalize to 'f' -> sha256('f')
+      const result = await formatUserData({ ge: 'Female' } as Payload['userData'], undefined)
+      expect(result).toEqual({
+        ge: '252f10c83610ebca1a059c0bae8255eba2f95be4d1d7bcfa89d7248a82d9f111'
+      })
+
+      // 'male' should normalize to 'm' -> sha256('m')
+      const male = await formatUserData({ ge: 'male' } as Payload['userData'], undefined)
+      expect(male).toEqual({
+        ge: '62c66a7a5dd70c3146618063c344e531e6d4b59e379808443ce962b3abd63c5a'
+      })
+
+      // an unrecognized value is dropped
+      const unknown = await formatUserData({ ge: 'nonbinary' } as Payload['userData'], undefined)
+      expect(unknown).toBeUndefined()
+    })
+
     it('should format date of birth as YYYYMMDD and hash', async () => {
       const userData: Payload['userData'] = {
         db: '1990-05-15T00:00:00.000Z'

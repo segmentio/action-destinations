@@ -13,6 +13,8 @@ export interface Product {
   category?: string
   id?: string
   name?: string
+  quantity?: number
+  item_price?: number
 }
 
 export interface EventMetadata {

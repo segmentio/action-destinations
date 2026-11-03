@@ -1,6 +1,7 @@
 import { DestinationDefinition, IntegrationError } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import { ExecJSONRequest, ExecJSONResponse } from './types'
+import { getErrorMessage, getExecUrl } from './utils'
 import send from './send'
 import btoa from 'btoa-lite'
 
@@ -51,9 +52,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      const { host, port, username, password, dbName, tableName } = settings
+      const { username, password, dbName, tableName } = settings
 
-      const url = `https://${host}:${port}/api/v2/exec`
+      const url = getExecUrl(settings)
 
       const encodedCredentials = btoa(`${username}:${password}`)
 
@@ -90,7 +91,7 @@ const destination: DestinationDefinition<Settings> = {
 
       if (response.status !== 200 || response.ok === false) {
         throw new IntegrationError(
-          `Failed to create table: ${(await response.text()) || 'Unknown error'}`,
+          `Failed to create table: ${await getErrorMessage(response)}`,
           response.statusText,
           response.status
         )

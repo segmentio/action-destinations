@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import createTestServer from 'create-test-server'
-import createInstance from '../request-client'
+import createInstance, { isRetryableNetworkError, RETRYABLE_NETWORK_ERROR_CODES } from '../request-client'
 import { Response } from '../fetch'
 
 jest.setTimeout(12000)
@@ -501,5 +501,42 @@ describe('request()', () => {
     expect(response.status).toBe(201)
     expect(await response.text()).toBe('hello=world')
     await server.close()
+  })
+
+  it('rethrows the raw Node network error (with .code) so shared request-client semantics are unchanged', async () => {
+    // Start and immediately close a server so nothing is listening on its port -- guarantees
+    // an ECONNREFUSED without depending on any external network access.
+    const server = await createTestServer()
+    const { url } = server
+    await server.close()
+
+    const request = createInstance()
+
+    // The request client no longer wraps network errors (classification moved to the async
+    // framework via isRetryableNetworkError). The original Node error surfaces with its `.code`,
+    // and the shared helper recognizes it as retryable.
+    try {
+      await request(url)
+      throw new Error('expected request() to reject')
+    } catch (error) {
+      expect((error as NodeJS.ErrnoException).code).toBe('ECONNREFUSED')
+      expect(isRetryableNetworkError(error)).toBe(true)
+    }
+  })
+
+  describe('isRetryableNetworkError', () => {
+    it('is true for retryable Node network codes (on the error or its cause)', () => {
+      for (const code of Array.from(RETRYABLE_NETWORK_ERROR_CODES)) {
+        expect(isRetryableNetworkError(Object.assign(new Error('x'), { code }))).toBe(true)
+        expect(isRetryableNetworkError(Object.assign(new Error('wrap'), { cause: { code } }))).toBe(true)
+      }
+    })
+
+    it('is false for non-network errors and missing codes', () => {
+      expect(isRetryableNetworkError(new Error('boom'))).toBe(false)
+      expect(isRetryableNetworkError(Object.assign(new Error('x'), { code: 'EPERM' }))).toBe(false)
+      expect(isRetryableNetworkError(undefined)).toBe(false)
+      expect(isRetryableNetworkError(null)).toBe(false)
+    })
   })
 })

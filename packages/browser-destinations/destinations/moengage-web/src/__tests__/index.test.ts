@@ -6,7 +6,7 @@ import * as Functions from '../functions'
 
 describe('Moengage Web init', () => {
   const settings = {
-    app_id: 'test_app_id',
+    appId: 'test_app_id',
     env: 'TEST',
     moeDataCenter: 'dc_1'
   }
@@ -21,17 +21,17 @@ describe('Moengage Web init', () => {
     const mockMoe = jest.fn((_config) => {
       mockMoengage = {
         initialized: true,
-        track_event: jest.fn(),
-        add_user_attribute: jest.fn(),
-        add_first_name: jest.fn(),
-        add_last_name: jest.fn(),
-        add_email: jest.fn(),
-        add_mobile: jest.fn(),
-        add_user_name: jest.fn(),
-        add_gender: jest.fn(),
-        add_birthday: jest.fn(),
-        destroy_session: jest.fn(),
-        call_web_push: jest.fn(),
+        trackEvent: jest.fn(),
+        setUserAttribute: jest.fn(),
+        setFirstName: jest.fn(),
+        setLastName: jest.fn(),
+        setEmailId: jest.fn(),
+        setMobileNumber: jest.fn(),
+        setUserName: jest.fn(),
+        setGender: jest.fn(),
+        setBirthDate: jest.fn(),
+        logoutUser: jest.fn(),
+        callWebPush: jest.fn(),
         identifyUser: jest.fn(),
         getUserIdentities: jest.fn(),
         onsite: jest.fn()
@@ -79,7 +79,7 @@ describe('Moengage Web init', () => {
     expect(window.moe).toHaveBeenCalled()
   })
 
-  test('Moengage analytics.reset calls destroy_session', async () => {
+  test('Moengage analytics.reset calls logoutUser', async () => {
     const subscriptions: Subscription[] = [
       {
         partnerAction: 'trackEvent',
@@ -111,7 +111,7 @@ describe('Moengage Web init', () => {
       analytics.reset()
     }
 
-    expect(mockMoengage.destroy_session).toHaveBeenCalled()
+    expect(mockMoengage.logoutUser).toHaveBeenCalled()
     expect(originalReset).toHaveBeenCalled()
   })
 })

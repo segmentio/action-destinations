@@ -86,6 +86,50 @@ describe('YahooAudiences.updateSegment', () => {
       expect(responses.length).toBe(1)
       expect(responses[0].status).toBe(200)
     })
+
+    it('should not throw an error if event includes email / maid when computation_class is journey_step', async () => {
+      nock(`https://dataxonline.yahoo.com`).post('/online/audience/').reply(200)
+
+      const good_event = createTestEvent({
+        type: 'identify',
+        context: {
+          device: {
+            advertisingId: ADVERTISING_ID
+          },
+          personas: {
+            audience_settings: {
+              audience_id: AUDIENCE_ID,
+              audience_key: AUDIENCE_KEY
+            },
+            computation_id: AUDIENCE_ID,
+            computation_key: AUDIENCE_KEY,
+            computation_class: 'journey_step'
+          }
+        },
+        traits: {
+          email: 'testing@testing.com',
+          sneakers_buyers: true
+        }
+      })
+
+      const responses = await testDestination.testAction('updateSegment', {
+        auth,
+        event: good_event,
+        mapping: {
+          identifier: 'email_maid'
+        },
+        useDefaultMappings: true,
+        settings: {
+          engage_space_id: ENGAGE_SPACE_ID,
+          mdm_id: MDM_ID,
+          customer_desc: CUST_DESC
+        }
+      })
+
+      // Then
+      expect(responses.length).toBe(1)
+      expect(responses[0].status).toBe(200)
+    })
   })
 
   describe('Failure cases', () => {

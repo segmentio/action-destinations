@@ -1,0 +1,1301 @@
+import nock from 'nock'
+import {
+  createTestEvent,
+  createTestIntegration,
+  SegmentEvent,
+  DynamicFieldResponse,
+  ActionDestinationErrorResponse
+} from '@segment/actions-core'
+import Definition from '../index'
+import { Settings } from '../generated-types'
+
+const testDestination = createTestIntegration(Definition)
+const timestamp = '2025-10-13T04:00:00.449Z'
+const settings: Settings = {
+  subdomain: 'test123',
+  client_id: 'test123',
+  client_secret: 'test123',
+  account_id: 'test123'
+}
+
+const dataExtensionId = '1234567890'
+
+const event = createTestEvent({
+  timestamp: timestamp,
+  type: 'track',
+  userId: 'TonyStark001',
+  properties: {
+    id: 'ily3000'
+  }
+})
+
+const payload = {
+  keys: {
+    id: 'version'
+  },
+  values: {
+    name: 'MARK42'
+  },
+  onMappingSave: {
+    inputs: {},
+    outputs: {
+      id: dataExtensionId
+    }
+  }
+}
+
+const retlPayload = {
+  keys: {
+    id: 'version'
+  },
+  values: {
+    name: 'MARK42'
+  },
+  retlOnMappingSave: {
+    inputs: {},
+    outputs: {
+      id: dataExtensionId
+    }
+  }
+}
+
+describe('Salesforce Marketing Cloud - Async', () => {
+  describe('Async Data Extension Action for Async Pipeline', () => {
+    beforeAll(() => {
+      nock.cleanAll()
+    })
+    afterEach(() => {
+      nock.cleanAll()
+    })
+
+    describe('Dynamic Fields Hooks', () => {
+      it('should throw error when no dataExtensionId is provided in hook outputs', async () => {
+        const hookResponse: DynamicFieldResponse = await testDestination.testDynamicField(
+          'asyncDataExtension',
+          'keys.__keys__',
+          {
+            settings,
+            payload: {}
+          }
+        )
+
+        expect(hookResponse.choices.length).toBe(0)
+        expect(hookResponse.error).toEqual({
+          message: 'No Data Extension ID provided',
+          code: 'BAD_REQUEST'
+        })
+      })
+
+      it('should work with retlOnMappingSave for keys.__keys__', async () => {
+        // Mock auth token request
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // Mock data extension fields request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/customobjects/${dataExtensionId}/fields`)
+          .reply(200, {
+            fields: [
+              { name: 'subscriber_key', isPrimaryKey: true },
+              { name: 'first_name', isPrimaryKey: false }
+            ]
+          })
+
+        const response = await testDestination.testDynamicField('asyncDataExtension', 'keys.__keys__', {
+          settings,
+          payload: {
+            retlOnMappingSave: {
+              outputs: {
+                id: dataExtensionId
+              }
+            }
+          }
+        })
+
+        expect(response.choices).toHaveLength(1)
+        expect(response.choices).toEqual([{ value: 'subscriber_key', label: 'subscriber_key' }])
+      })
+
+      it('should return primary key fields for keys.__keys__', async () => {
+        // Mock auth token request
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // Mock data extension fields request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/customobjects/${dataExtensionId}/fields`)
+          .reply(200, {
+            fields: [
+              { name: 'id', isPrimaryKey: true },
+              { name: 'email', isPrimaryKey: false },
+              { name: 'name', isPrimaryKey: false },
+              { name: 'age', isPrimaryKey: false }
+            ]
+          })
+
+        const response = await testDestination.testDynamicField('asyncDataExtension', 'keys.__keys__', {
+          settings,
+          payload: {
+            onMappingSave: {
+              outputs: {
+                id: dataExtensionId
+              }
+            }
+          }
+        })
+
+        expect(response.choices).toHaveLength(1)
+        expect(response.choices).toEqual(expect.arrayContaining([{ value: 'id', label: 'id' }]))
+      })
+
+      it('should return non-primary key fields for values.__keys__', async () => {
+        // Mock auth token request
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // Mock data extension fields request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/customobjects/${dataExtensionId}/fields`)
+          .reply(200, {
+            fields: [
+              { name: 'id', isPrimaryKey: true },
+              { name: 'email', isPrimaryKey: true },
+              { name: 'name', isPrimaryKey: false },
+              { name: 'age', isPrimaryKey: false }
+            ]
+          })
+
+        const response = await testDestination.testDynamicField('asyncDataExtension', 'values.__keys__', {
+          settings,
+          payload: {
+            onMappingSave: {
+              outputs: {
+                id: dataExtensionId
+              }
+            }
+          }
+        })
+
+        expect(response.choices).toHaveLength(2)
+        expect(response.choices).toEqual(
+          expect.arrayContaining([
+            { value: 'name', label: 'name' },
+            { value: 'age', label: 'age' }
+          ])
+        )
+      })
+    })
+
+    describe('performBatch', () => {
+      it('should submit batch with retlOnMappingSave hook outputs and returns jobId', async () => {
+        // Mock auth token request
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // Mock async batch request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(200, {
+            requestId: 'test-job-id',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: retlPayload
+        })
+
+        expect(response.jobId).toBe('test-job-id')
+        expect(response.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
+      })
+
+      it('should throw an error if no data extension is connected', async () => {
+        const events: SegmentEvent[] = [
+          createTestEvent({
+            type: 'track',
+            userId: 'user1',
+            properties: {
+              keys: { id: 'v1' },
+              values: { name: 'User 1' }
+            }
+          })
+        ]
+
+        const mappingWithoutId = {
+          keys: { '@path': '$.properties.keys' },
+          values: { '@path': '$.properties.values' }
+        }
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events,
+          settings,
+          mapping: mappingWithoutId
+        })
+
+        const errResponse0a = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse0a.value().status).toBe(400)
+        expect(errResponse0a instanceof ActionDestinationErrorResponse && errResponse0a.value().errormessage).toEqual(
+          'No Data Extension Connected'
+        )
+      })
+
+      it('should submit batch to SFMC and returns jobId', async () => {
+        // Mock auth token request
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // Mock async batch request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(200, {
+            requestId: 'test-job-id',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBe('test-job-id')
+        expect(response.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
+      })
+
+      it('still accepts all rows on a 2xx submit that carries informational resultMessages', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        // A 2xx with a non-empty resultMessages is surfaced via a warning log but must NOT
+        // change the outcome -- the rows are still accepted (per-row results come from poll).
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(202, {
+            requestId: 'test-job-id',
+            resultMessages: [{ resultType: 'Info', resultClass: 'Warning', resultCode: 'X', message: 'heads up' }]
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBe('test-job-id')
+        expect(response.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
+      })
+
+      it('should handle non-OK errors with resultMessages', async () => {
+        const events: SegmentEvent[] = [
+          createTestEvent({
+            type: 'track',
+            userId: 'user1',
+            properties: {
+              keys: { id: 'v1' },
+              values: { name: 'User 1' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user2',
+            properties: {
+              keys: { id: 'v2' },
+              values: { name: 'User 2' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user3',
+            properties: {
+              keys: { id: 'v3' },
+              values: { name: 'User 3' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user4',
+            properties: {
+              keys: { id: 'v4' },
+              values: { name: 'User 4' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user5',
+            properties: {
+              keys: { id: 'v5' },
+              values: { name: 'User 5' }
+            }
+          })
+        ]
+
+        // Mock async batch request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(400, {
+            requestId: 'test-job-id',
+            resultMessages: [
+              {
+                resultType: 'Validation',
+                resultClass: 'Error',
+                resultCode: 'CustomObjectNotFound',
+                message:
+                  'Failed to resolve the Custom Object from the provided ObjectReferenceIdentifier [Id: a52c65d8-8938-f111-a5ab-d4f5ef4cd471, Key: ].'
+              }
+            ]
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events,
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBe('test-job-id')
+        const errResponse0b = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse0b.value().status).toBe(400)
+        expect(errResponse0b instanceof ActionDestinationErrorResponse && errResponse0b.value().errormessage).toEqual(
+          'Failed to resolve the Custom Object from the provided ObjectReferenceIdentifier [Id: a52c65d8-8938-f111-a5ab-d4f5ef4cd471, Key: ].'
+        )
+      })
+
+      it('should handle non-OK errors with empty resultMessages', async () => {
+        const events: SegmentEvent[] = [
+          createTestEvent({
+            type: 'track',
+            userId: 'user1',
+            properties: {
+              keys: { id: 'v1' },
+              values: { name: 'User 1' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user2',
+            properties: {
+              keys: { id: 'v2' },
+              values: { name: 'User 2' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user3',
+            properties: {
+              keys: { id: 'v3' },
+              values: { name: 'User 3' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user4',
+            properties: {
+              keys: { id: 'v4' },
+              values: { name: 'User 4' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user5',
+            properties: {
+              keys: { id: 'v5' },
+              values: { name: 'User 5' }
+            }
+          })
+        ]
+
+        // Mock async batch request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(400, {
+            requestId: undefined,
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events,
+          settings,
+          mapping: payload
+        })
+        expect(response.jobId).toBeUndefined()
+        const errResponse0c = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse0c.value().status).toBe(400)
+        expect(errResponse0c instanceof ActionDestinationErrorResponse && errResponse0c.value().errormessage).toEqual(
+          'SFMC API responded with {"resultMessages":[]}.'
+        )
+      })
+
+      it('should surface 401 status code in multi-status response', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(401, {
+            message: 'Not Authorized',
+            errorcode: 1,
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBeUndefined()
+        const errResponse = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse.value().status).toBe(401)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toEqual(
+          'Not Authorized'
+        )
+      })
+
+      it('should surface 403 status code in multi-status response', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(403, {
+            message: 'Forbidden',
+            errorcode: 3,
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBeUndefined()
+        const errResponse = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse.value().status).toBe(403)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toEqual(
+          'Forbidden'
+        )
+      })
+
+      it('should surface 500 status code in multi-status response', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(500, {
+            message: 'Internal Server Error',
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events: [event],
+          settings,
+          mapping: payload
+        })
+
+        expect(response.jobId).toBeUndefined()
+        const errResponse = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse.value().status).toBe(500)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toEqual(
+          'Internal Server Error'
+        )
+      })
+
+      it('should handle non-OK errors without resultMessages', async () => {
+        const events: SegmentEvent[] = [
+          createTestEvent({
+            type: 'track',
+            userId: 'user1',
+            properties: {
+              keys: { id: 'v1' },
+              values: { name: 'User 1' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user2',
+            properties: {
+              keys: { id: 'v2' },
+              values: { name: 'User 2' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user3',
+            properties: {
+              keys: { id: 'v3' },
+              values: { name: 'User 3' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user4',
+            properties: {
+              keys: { id: 'v4' },
+              values: { name: 'User 4' }
+            }
+          }),
+          createTestEvent({
+            type: 'track',
+            userId: 'user5',
+            properties: {
+              keys: { id: 'v5' },
+              values: { name: 'User 5' }
+            }
+          })
+        ]
+
+        // Mock async batch request
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .put(`/data/v1/async/dataextensions/${dataExtensionId}/rows`)
+          .reply(400, {
+            message: 'Parameter {id} is invalid.',
+            errorcode: 10001,
+            documentation: ''
+          })
+
+        const response = await testDestination.testAsyncBatchAction('asyncDataExtension', {
+          events,
+          settings,
+          mapping: payload
+        })
+        expect(response.jobId).toBeUndefined()
+        const errResponse0d = response.multiStatusResponse.getResponseAtIndex(0)
+        expect(errResponse0d.value().status).toBe(400)
+        expect(errResponse0d instanceof ActionDestinationErrorResponse && errResponse0d.value().errormessage).toEqual(
+          'Parameter {id} is invalid.'
+        )
+      })
+    })
+
+    describe('performPoll', () => {
+      const jobId = 'test-job-id'
+      const pollPayload = {
+        jobId,
+        uploadCount: 5
+      }
+
+      it('should return IN_PROGRESS when requestStatus is Pending', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Pending', resultStatus: 'OK' },
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobId).toBe(jobId)
+        expect(response.jobStatus).toBe('IN_PROGRESS')
+      })
+
+      it('should return IN_PROGRESS when requestStatus is Executing', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Executing', resultStatus: 'OK' },
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobId).toBe(jobId)
+        expect(response.jobStatus).toBe('IN_PROGRESS')
+      })
+
+      it('should return RETRYABLE_ERROR on 429 rate limit error', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(429, 'Too Many Requests')
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.status).toBe(429)
+      })
+
+      it('should return RETRYABLE_ERROR on 500 server error', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(500, 'Internal Server Error')
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.status).toBe(500)
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) on a transient network error', async () => {
+        // A network-level failure (e.g. a connection reset mid-flight) has nothing to do with
+        // the job's actual state -- confirmed in production for a job that had already completed
+        // successfully by the time a poll hit exactly this error. Mirrors performBatch's existing
+        // classification of these same error codes as retryable.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .replyWithError({ message: 'socket hang up', code: 'ECONNRESET' })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        // A retryable network failure isn't the caller's fault -- must surface as a 5xx (matching
+        // the framework's convention for retryable errors), not a 4xx client error.
+        expect(response.status).toBe(500)
+      })
+
+      it('should still return FAILED for an unclassified non-HTTP error', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .replyWithError({ message: 'something unexpected', code: 'EUNEXPECTED' })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('FAILED')
+        expect(response.status).toBe(400)
+      })
+
+      it('should return SUCCEEDED with success count from uploadCount when Complete and OK', async () => {
+        // Only the lightweight status API is mocked. The heavyweight results API is intentionally
+        // not mocked, so if the destination were to call it the request would fail and this test would break.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              callDateTime: '2024-07-11T22:19:02.04',
+              completionDateTime: '2024-07-11T22:19:03.97',
+              hasErrors: false,
+              pickupDateTime: '2024-07-11T22:19:03.567',
+              requestStatus: 'Complete',
+              resultStatus: 'OK',
+              requestId: '12260e92-b8cb-41ec-8c5a-116fb9d23eb4'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobId).toBe(jobId)
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.status).toBe(200)
+        // Success count is derived from the uploadCount passed into the poll payload, without
+        // calling the results API.
+        expect(response.multiStatusResponse).toBeDefined()
+        expect(response.multiStatusResponse?.successCount).toBe(pollPayload.uploadCount)
+        expect(response.multiStatusResponse?.errorCount).toBe(0)
+      })
+
+      it('treats a /status requestId mismatch as warn-only (outcome unchanged)', async () => {
+        // The nested status.requestId does not match the polled jobId. The destination logs a
+        // warning but must NOT alter the outcome -- it still reports the job's real status.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              requestStatus: 'Complete',
+              resultStatus: 'OK',
+              requestId: 'a-different-request-id'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(pollPayload.uploadCount)
+      })
+
+      it('should return SUCCEEDED with multiStatusResponse when Complete but Has Errors', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 4,
+            items: [
+              {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              },
+              {
+                message: 'Upserted DataExtensionObject',
+                status: 'OK'
+              },
+              {
+                message: 'Upserted DataExtensionObject',
+                status: 'OK'
+              },
+              {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse).toBeDefined()
+        expect(response.multiStatusResponse?.isErrorResponseAtIndex(0)).toBe(true)
+        expect(response.multiStatusResponse?.isSuccessResponseAtIndex(1)).toBe(true)
+        expect(response.multiStatusResponse?.isSuccessResponseAtIndex(2)).toBe(true)
+        expect(response.multiStatusResponse?.errorCount).toBe(2)
+        expect(response.multiStatusResponse?.successCount).toBe(2)
+      })
+
+      it('should fetch every /results page instead of only the first when count exceeds pageSize', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        // 3 total results, pageSize of 2 -- page 1 has 2 items, page 2 has the remaining 1.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '1' })
+          .reply(200, {
+            page: 1,
+            pageSize: 2,
+            count: 3,
+            items: [
+              { message: 'Upserted DataExtensionObject', status: 'OK' },
+              { message: 'Upserted DataExtensionObject', status: 'OK' }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '2' })
+          .reply(200, {
+            page: 2,
+            pageSize: 2,
+            count: 3,
+            items: [{ message: 'Cannot locate the existing record. Required keys are missing.', status: 'Error' }],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Without pagination handling, only page 1's 2 successes would be seen and the
+        // real error on page 2 would be silently dropped.
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(2)
+        expect(response.multiStatusResponse?.errorCount).toBe(1)
+        expect(response.multiStatusResponse?.isErrorResponseAtIndex(2)).toBe(true)
+      })
+
+      it('does not hang and returns RETRYABLE_ERROR when /results reports a count with an empty items page', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        // Inconsistent shape: count says 5 rows remain and pageSize is non-zero, but items is
+        // empty, so items.length never grows and the naive loop-exit condition never fires.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query({ page: '1' })
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 5,
+            items: [],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('counts a deadlocked row as delivered while a permanent errorCode-2 failure stays a 400', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 2,
+            items: [
+              {
+                errorCode: 2,
+                message:
+                  'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.',
+                status: 'Error'
+              },
+              {
+                errorCode: 2,
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // At least one row delivered (the recovered deadlock) -> SUCCEEDED, not FAILED.
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse).toBeDefined()
+
+        // Deadlock row: counted as a delivered success (SFMC lands these on internal retry),
+        // NOT folded into the failure count.
+        expect(response.multiStatusResponse?.isSuccessResponseAtIndex(0)).toBe(true)
+        expect(response.multiStatusResponse?.getResponseAtIndex(0)?.value().status).toBe(200)
+
+        // Genuine permanent failure stays a terminal 400 error.
+        const validationErrorResponse = response.multiStatusResponse?.getResponseAtIndex(1)
+        expect(response.multiStatusResponse?.isErrorResponseAtIndex(1)).toBe(true)
+        expect(validationErrorResponse?.value().status).toBe(400)
+        expect(
+          validationErrorResponse instanceof ActionDestinationErrorResponse &&
+            validationErrorResponse.value().errormessage
+        ).toEqual('Cannot locate the existing record. Required keys are missing.')
+
+        expect(response.multiStatusResponse?.successCount).toBe(1)
+        expect(response.multiStatusResponse?.errorCount).toBe(1)
+      })
+
+      it('recognizes a deadlocked row (counts it as delivered) even with trailing whitespace on the message', async () => {
+        // The tolerant substring .includes() match must still catch a deadlock message with
+        // trailing whitespace / minor variation after "Rerun the transaction."
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 1,
+            items: [
+              {
+                errorCode: 2,
+                message:
+                  'Transaction (Process ID 6840) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction. \n',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Recognized as a transient deadlock -> counted as delivered (success), leg SUCCEEDED.
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.isSuccessResponseAtIndex(0)).toBe(true)
+        expect(response.multiStatusResponse?.getResponseAtIndex(0)?.value().status).toBe(200)
+      })
+
+      it('reports SUCCEEDED with zero failures when every errored row is a transient deadlock (prod over-report fix)', async () => {
+        // The production symptom: a leg whose /results is all deadlock rows. SFMC lands them on
+        // internal retry (all present in the DE), so they must NOT be reported as failures --
+        // otherwise granobs emits them as REASON_MESSAGE_REJECTED drops for delivered rows.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        const deadlock =
+          'Transaction (Process ID 42) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. Rerun the transaction.'
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 3,
+            items: [
+              { errorCode: 2, message: deadlock, status: 'Error' },
+              { errorCode: 2, message: deadlock, status: 'Error' },
+              { errorCode: 2, message: deadlock, status: 'Error' }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.successCount).toBe(3)
+        expect(response.multiStatusResponse?.errorCount).toBe(0)
+      })
+
+      it('should return FAILED (not SUCCEEDED) when Complete but every record errored', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 50,
+            count: 2,
+            items: [
+              {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              },
+              {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            ],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // Regression test: jobStatus used to be hardcoded SUCCEEDED here even
+        // when every record failed, contradicting a successCount of 0.
+        expect(response.jobStatus).toBe('FAILED')
+        expect(response.multiStatusResponse?.errorCount).toBe(2)
+        expect(response.multiStatusResponse?.successCount).toBe(0)
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) when /status reports errors but /results returns zero items', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 2500,
+            count: 0,
+            items: [],
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        // /status vs /results inconsistency -- treat as retryable rather than a hard FAILED
+        // with no per-record detail, and don't leave a misleading empty multiStatusResponse.
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) when /status reports errors but /results is missing the items array', async () => {
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: 2500,
+            count: 0,
+            requestId: '424b760c-7410-4598-b977-ebf1d01b3555',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      // Regression test for the response-clone deadlock. The results payload carries one item
+      // per record, so a realistically-sized batch pushes it past the 16KB highWaterMark of the
+      // tee that response.clone() sets up in prepare-response. Without skipResponseCloning on
+      // the /results request, clone.text() never resolves and this test times out rather than
+      // failing an assertion -- which is exactly how it manifests in production, as a poll that
+      // hangs until the caller's deadline expires. A small fixture (like the test above) stays
+      // under the threshold and passes either way, so the large body here is load-bearing.
+      it('should not hang when the results payload is larger than the clone buffer', async () => {
+        const itemCount = 1640
+        const items = Array.from({ length: itemCount }, (_, i) =>
+          i % 2 === 0
+            ? {
+                errorCode: 2,
+                errors: [
+                  {
+                    errorMessage: 'Column [contactkey] does not allow null value.',
+                    name: 'contactkey',
+                    errorCode: 70001
+                  }
+                ],
+                message: 'Cannot locate the existing record. Required keys are missing.',
+                status: 'Error'
+              }
+            : { message: 'Upserted DataExtensionObject', status: 'OK' }
+        )
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: jobId,
+            status: { requestStatus: 'Complete', resultStatus: 'Has Errors' },
+            resultMessages: []
+          })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/results`)
+          .query(true)
+          .reply(200, {
+            page: 1,
+            pageSize: itemCount,
+            count: itemCount,
+            items,
+            requestId: jobId,
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('SUCCEEDED')
+        expect(response.multiStatusResponse?.errorCount).toBe(itemCount / 2)
+        expect(response.multiStatusResponse?.successCount).toBe(itemCount / 2)
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) when requestStatus is Error', async () => {
+        // SFMC's requestStatus 'Error' is not reliably terminal -- it can appear mid-flight and
+        // then resolve to Complete/OK (confirmed in production: a job polled ~0.5s before its
+        // completionDateTime showed a transient failure state, yet later reported Complete/OK
+        // with every row upserted). So we must NOT report a terminal FAILED here (that produced
+        // false "message rejected" drops for batches that fully delivered); re-poll instead.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              callDateTime: '2024-07-11T22:19:02.04',
+              completionDateTime: '2024-07-11T22:19:03.97',
+              hasErrors: false,
+              pickupDateTime: '2024-07-11T22:19:03.567',
+              requestStatus: 'Error',
+              resultStatus: 'OK',
+              requestId: '12260e92-b8cb-41ec-8c5a-116fb9d23eb4'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobId).toBe(jobId)
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.status).toBe(200)
+        // No trustworthy per-record detail at this stage; leave multiStatusResponse unset so an
+        // empty (but truthy) instance isn't mistaken for a real result.
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('treats requestStatus Error as RETRYABLE even when resultMessages carries a reason', async () => {
+        // A reason (surfaced in logs) does not make SFMC's Error state terminal -- re-poll.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            status: {
+              callDateTime: '2024-07-11T22:19:02.04',
+              completionDateTime: '2024-07-11T22:19:03.97',
+              hasErrors: true,
+              pickupDateTime: '2024-07-11T22:19:03.567',
+              requestStatus: 'Error',
+              resultStatus: 'OK',
+              requestId: '12260e92-b8cb-41ec-8c5a-116fb9d23eb4'
+            },
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: [
+              {
+                resultType: 'Validation',
+                resultClass: 'Error',
+                resultCode: 'NullOrEmptyRows',
+                message: 'Invalid request, Items cannot be null or empty.'
+              }
+            ]
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.multiStatusResponse).toBeUndefined()
+      })
+
+      it('should return RETRYABLE_ERROR (not FAILED) when status object is missing in response', async () => {
+        // A missing status object can mean the job is genuinely unknown, or that it just
+        // hasn't been picked up for processing yet -- a normal, transient, pre-pickup state
+        // confirmed in production for a job that later completed with 100% success. Since we
+        // can't tell the two apart from this response alone, this must not be a terminal FAILED.
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/async/${jobId}/status`)
+          .reply(200, {
+            requestId: '615f178b-d380-440c-a650-defd99b1efde',
+            resultMessages: []
+          })
+
+        const response = await testDestination.testAsyncPollAction('asyncDataExtension', {
+          pollPayload,
+          settings
+        })
+
+        expect(response.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(response.status).toBe(200)
+      })
+    })
+  })
+})

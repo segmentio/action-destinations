@@ -64,6 +64,16 @@
         ],
         "default": "north_america",
         "depends_on": null
+      },
+      "prefix_audience_names": {
+        "label": "Prefix Audience Names",
+        "description": "When enabled, all audience (cohort) names sent to Amplitude are prefixed with \"[Segment] \". Turn this off to send audience names without the prefix.",
+        "type": "boolean",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": true,
+        "depends_on": null
       }
     }
   },

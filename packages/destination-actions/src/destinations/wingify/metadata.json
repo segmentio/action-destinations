@@ -43,6 +43,10 @@
           {
             "label": "Asia",
             "value": "AS"
+          },
+          {
+            "label": "Australia",
+            "value": "AU"
           }
         ],
         "default": "US",

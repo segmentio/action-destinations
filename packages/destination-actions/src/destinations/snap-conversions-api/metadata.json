@@ -137,35 +137,47 @@
           "default": null,
           "choices": [
             {
-              "label": "EMAIL",
-              "value": "email"
+              "label": "WEB",
+              "value": "WEB"
             },
             {
-              "label": "WEBSITE",
+              "label": "MOBILE_APP",
+              "value": "MOBILE_APP"
+            },
+            {
+              "label": "OFFLINE",
+              "value": "OFFLINE"
+            },
+            {
+              "label": "WEBSITE (Legacy, sent as WEB)",
               "value": "website"
             },
             {
-              "label": "APP",
+              "label": "APP (Legacy, sent as MOBILE_APP)",
               "value": "app"
             },
             {
-              "label": "PHONE CALL",
+              "label": "EMAIL (Legacy, sent as OFFLINE)",
+              "value": "email"
+            },
+            {
+              "label": "PHONE CALL (Legacy, sent as OFFLINE)",
               "value": "phone_call"
             },
             {
-              "label": "CHAT",
+              "label": "CHAT (Legacy, sent as OFFLINE)",
               "value": "chat"
             },
             {
-              "label": "PHYSICAL STORE",
+              "label": "PHYSICAL STORE (Legacy, sent as OFFLINE)",
               "value": "physical_store"
             },
             {
-              "label": "SYSTEM GENERATED",
+              "label": "SYSTEM GENERATED (Legacy, sent as OFFLINE)",
               "value": "system_generated"
             },
             {
-              "label": "OTHER",
+              "label": "OTHER (Legacy, sent as OFFLINE)",
               "value": "other"
             }
           ],
@@ -2969,7 +2981,7 @@
       "subscribe": "event = \"Payment Info Entered\"",
       "mapping": {
         "event_name": "ADD_BILLING",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -3230,7 +3242,7 @@
       "subscribe": "event = \"Product Added\"",
       "mapping": {
         "event_name": "ADD_CART",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -3491,7 +3503,7 @@
       "subscribe": "event = \"Product Added to Wishlist\"",
       "mapping": {
         "event_name": "ADD_TO_WISHLIST",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -3752,7 +3764,7 @@
       "subscribe": "event = \"Application Installed\"",
       "mapping": {
         "event_name": "APP_INSTALL",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -4013,7 +4025,7 @@
       "subscribe": "event = \"Product List Viewed\"",
       "mapping": {
         "event_name": "LIST_VIEW",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -4274,7 +4286,7 @@
       "subscribe": "event = \"Application Opened\"",
       "mapping": {
         "event_name": "APP_OPEN",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -4535,7 +4547,7 @@
       "subscribe": "event = \"Signed In\"",
       "mapping": {
         "event_name": "LOGIN",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -4796,7 +4808,7 @@
       "subscribe": "type = \"page\"",
       "mapping": {
         "event_name": "PAGE_VIEW",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -5057,7 +5069,7 @@
       "subscribe": "event = \"Order Completed\"",
       "mapping": {
         "event_name": "PURCHASE",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -5318,7 +5330,7 @@
       "subscribe": "event = \"Products Searched\"",
       "mapping": {
         "event_name": "SEARCH",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -5579,7 +5591,7 @@
       "subscribe": "event = \"Product Shared\"",
       "mapping": {
         "event_name": "SHARE",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -5840,7 +5852,7 @@
       "subscribe": "event = \"Signed Up\"",
       "mapping": {
         "event_name": "SIGN_UP",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -6101,7 +6113,7 @@
       "subscribe": "event = \"Checkout Started\"",
       "mapping": {
         "event_name": "START_CHECKOUT",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },
@@ -6362,7 +6374,7 @@
       "subscribe": "event = \"Product Viewed\"",
       "mapping": {
         "event_name": "VIEW_CONTENT",
-        "action_source": "website",
+        "action_source": "WEB",
         "event_id": {
           "@path": "$.messageId"
         },

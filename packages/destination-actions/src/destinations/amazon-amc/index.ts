@@ -277,6 +277,13 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'syncAudiencesToDSP',
+      mapping: defaultValues(syncAudiencesToDSP.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
   ]
 }

@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-marketo-private destination: sendForm action - all fields 1`] = `
+Object {
+  "formId": "ojgz9UfSl@Q9BXikZk",
+  "input": Array [
+    Object {
+      "cookie": "ojgz9UfSl@Q9BXikZk",
+      "leadFormFields": Object {
+        "testType": "ojgz9UfSl@Q9BXikZk",
+      },
+      "visitorData": Object {
+        "email": "ihuh@pedeni.bm",
+        "testType": "ojgz9UfSl@Q9BXikZk",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-marketo-private destination: sendForm action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-access-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-marketo-private destination: sendForm action - required fields 1`] = `
+Object {
+  "formId": "ojgz9UfSl@Q9BXikZk",
+  "input": Array [
+    Object {
+      "leadFormFields": Object {
+        "testType": "ojgz9UfSl@Q9BXikZk",
+      },
+      "visitorData": Object {
+        "email": "ihuh@pedeni.bm",
+        "testType": "ojgz9UfSl@Q9BXikZk",
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-marketo-private destination: sendForm action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-access-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;

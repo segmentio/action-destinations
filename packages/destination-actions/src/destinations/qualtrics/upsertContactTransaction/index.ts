@@ -191,7 +191,7 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   perform: async (request, data) => {
     let contactId = data.payload.contactId
-    const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request)
+    const apiClient = new QualtricsApiClient(data.settings.datacenter, data.settings.apiToken, request, data.features)
     if (!contactId) {
       contactId = await searchOrCreateContact(data.payload, apiClient)
     }

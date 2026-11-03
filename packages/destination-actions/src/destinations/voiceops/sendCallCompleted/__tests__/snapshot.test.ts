@@ -1,3 +1,4 @@
+import { DEFAULT_VOICEOPS_BASE_URL } from '../../constants'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import { generateTestData } from '../../../../lib/test-data'
 import destination from '../../index'
@@ -106,7 +107,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: { ...settingsData, baseUrl: DEFAULT_VOICEOPS_BASE_URL },
       auth: undefined
     })
 
@@ -146,7 +147,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
     const responses = await testDestination.testAction(actionSlug, {
       event: event,
       mapping: event.properties,
-      settings: settingsData,
+      settings: { ...settingsData, baseUrl: DEFAULT_VOICEOPS_BASE_URL },
       auth: undefined
     })
 

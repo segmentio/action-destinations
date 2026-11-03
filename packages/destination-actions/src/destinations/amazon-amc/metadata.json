@@ -980,6 +980,76 @@
         "batch_size": 10000
       },
       "eventSlug": "journeys_step_entered_track"
+    },
+    {
+      "name": "Journey Step All Events",
+      "type": "specificEvent",
+      "partnerAction": "syncAudiencesToDSP",
+      "mapping": {
+        "event_name": {
+          "@path": "$.event"
+        },
+        "externalUserId": {
+          "@path": "$.userId"
+        },
+        "email": {
+          "@if": {
+            "exists": {
+              "@path": "$.context.traits.email"
+            },
+            "then": {
+              "@path": "$.context.traits.email"
+            },
+            "else": {
+              "@path": "$.properties.email"
+            }
+          }
+        },
+        "firstName": {
+          "@path": "$.properties.first_name"
+        },
+        "lastName": {
+          "@path": "$.properties.last_name"
+        },
+        "phone": {
+          "@path": "$.properties.phone"
+        },
+        "postal": {
+          "@path": "$.properties.postal"
+        },
+        "state": {
+          "@path": "$.properties.state"
+        },
+        "city": {
+          "@path": "$.properties.city"
+        },
+        "address": {
+          "@path": "$.properties.address"
+        },
+        "audienceId": {
+          "@path": "$.context.personas.external_audience_id"
+        },
+        "consent": {
+          "ipAddress": {
+            "@path": "$.properties.ip"
+          },
+          "amznAdStorage": {
+            "@path": "$.properties.amznAdStorage"
+          },
+          "amznUserData": {
+            "@path": "$.properties.amznUserData"
+          },
+          "tcf": {
+            "@path": "$.properties.tcf"
+          },
+          "gpp": {
+            "@path": "$.properties.gpp"
+          }
+        },
+        "enable_batching": true,
+        "batch_size": 10000
+      },
+      "eventSlug": "journey_step_all_events_track"
     }
   ]
 }

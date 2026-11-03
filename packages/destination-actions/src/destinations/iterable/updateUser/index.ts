@@ -29,7 +29,7 @@ const transformIterableUserPayload: (payload: Payload) => UserUpdateRequestPaylo
   const phoneNumber = payload.phoneNumber
   const formattedDataFields = convertDatesInObject(payload.dataFields ?? {})
   const userUpdateRequest: UserUpdateRequestPayload = {
-    ...omit(payload, ['updateOnly', 'enable_batching', 'batch_size', 'phoneNumber']),
+    ...omit(payload, ['newEmail', 'updateOnly', 'enable_batching', 'batch_size', 'phoneNumber']),
     dataFields: {
       ...formattedDataFields,
       phoneNumber: phoneNumber
@@ -49,6 +49,14 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     userId: {
       ...USER_ID_FIELD
+    },
+    newEmail: {
+      label: 'New Email Address',
+      description:
+        'The new email address to assign to the user. For single event processing, Segment makes a separate API call to set the new email address. Batch updating a profile email address is only supported for Hybrid projects.',
+      type: 'string',
+      format: 'email',
+      required: false
     },
     dataFields: {
       ...USER_DATA_FIELDS
@@ -92,25 +100,50 @@ const action: ActionDefinition<Settings, Payload> = {
       default: 1001
     }
   },
-  perform: (request, { payload, settings }) => {
+  perform: async (request, { payload, settings }) => {
     if (!payload.email && !payload.userId) {
       throw new PayloadValidationError('Must include email or userId.')
     }
 
     const updateUserRequestPayload: UserUpdateRequestPayload = transformIterableUserPayload(payload)
 
-    const endpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
-    return request(endpoint, {
+    const updateUserEndpoint = getRegionalEndpoint('updateUser', settings.dataCenterLocation as DataCenterLocation)
+    const response = await request(updateUserEndpoint, {
       method: 'post',
       json: updateUserRequestPayload,
+      timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
+    })
+
+    if (!payload.newEmail) {
+      return response
+    }
+
+    const updateEmailEndpoint = getRegionalEndpoint('updateEmail', settings.dataCenterLocation as DataCenterLocation)
+    return request(updateEmailEndpoint, {
+      method: 'post',
+      json: {
+        ...(payload.email ? { currentEmail: payload.email } : {}),
+        ...(payload.userId ? { currentUserId: payload.userId } : {}),
+        newEmail: payload.newEmail
+      },
       timeout: Math.max(30_000, DEFAULT_REQUEST_TIMEOUT)
     })
   },
   performBatch: (request, { settings, payload }) => {
     const { updateOnly } = payload[0]
+    const users = payload.map((p) => {
+      const user = transformIterableUserPayload(p)
+      if (p.newEmail) {
+        user.dataFields = {
+          ...user.dataFields,
+          email: p.newEmail
+        }
+      }
+      return user
+    })
     const bulkUpdateUserRequestPayload: BulkUserUpdateRequestPayload = {
-      ...( updateOnly ? { updateOnly } : {}),
-      users: payload.map(transformIterableUserPayload)
+      ...(updateOnly ? { updateOnly } : {}),
+      users
     }
 
     const endpoint = getRegionalEndpoint('bulkUpdateUser', settings.dataCenterLocation as DataCenterLocation)

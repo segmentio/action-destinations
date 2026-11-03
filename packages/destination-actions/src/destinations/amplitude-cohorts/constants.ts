@@ -1,28 +1,31 @@
-import { 
-    AMPLITUDE_API_USER_SEARCH_VERSION, 
-    AMPLITUDE_API_COHORTS_UPLOAD_VERSION, 
-    AMPLITUDE_API_COHORTS_GET_ONE_VERSION,
-    AMPLITUDE_API_COHORTS_UPDATE_MEMBERSHIP_VERSION
+import {
+  AMPLITUDE_API_USER_SEARCH_VERSION,
+  AMPLITUDE_API_COHORTS_UPLOAD_VERSION,
+  AMPLITUDE_API_COHORTS_GET_ONE_VERSION,
+  AMPLITUDE_API_COHORTS_UPDATE_MEMBERSHIP_VERSION
 } from './versioning-info'
 
 export const ID_TYPES = {
-    BY_USER_ID: 'BY_USER_ID',
-    BY_AMP_ID: 'BY_AMP_ID'
+  BY_USER_ID: 'BY_USER_ID',
+  BY_AMP_ID: 'BY_AMP_ID'
 }
 
-
 export const OPERATIONS = {
-    ADD: 'ADD',
-    REMOVE: 'REMOVE'
+  ADD: 'ADD',
+  REMOVE: 'REMOVE'
 }
 
 export const REMOVAL_AWAIT_THRESHOLD_MS = 3000
+
+// Prefix applied to audience (cohort) names in Amplitude when the
+// `prefix_audience_names` setting is enabled.
+export const AUDIENCE_NAME_PREFIX = '[Segment] '
 
 export const endpoints = {
   usersearch: {
     north_america: `https://amplitude.com/api/${AMPLITUDE_API_USER_SEARCH_VERSION}/usersearch`,
     europe: `https://analytics.eu.amplitude.com/api/${AMPLITUDE_API_USER_SEARCH_VERSION}/usersearch`
-  }, 
+  },
   cohorts_upload: {
     north_america: `https://amplitude.com/api/${AMPLITUDE_API_COHORTS_UPLOAD_VERSION}/cohorts/upload`,
     europe: `https://analytics.eu.amplitude.com/api/${AMPLITUDE_API_COHORTS_UPLOAD_VERSION}/cohorts/upload`

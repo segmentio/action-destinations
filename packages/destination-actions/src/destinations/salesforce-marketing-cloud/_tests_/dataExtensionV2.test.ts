@@ -1,5 +1,5 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration, SegmentEvent, DynamicFieldResponse } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent } from '@segment/actions-core'
 import Definition from '../index'
 import { Settings } from '../generated-types'
 
@@ -437,7 +437,7 @@ describe('Salesforce Marketing Cloud', () => {
             ]
           })
 
-        const response = (await testDestination.testDynamicField('dataExtensionV2', 'keys.__keys__', {
+        const response = await testDestination.testDynamicField('dataExtensionV2', 'keys.__keys__', {
           settings,
           payload: {
             onMappingSave: {
@@ -446,7 +446,7 @@ describe('Salesforce Marketing Cloud', () => {
               }
             }
           }
-        })) as DynamicFieldResponse
+        })
 
         expect(response.choices).toHaveLength(1)
         expect(response.choices).toEqual(expect.arrayContaining([{ value: 'id', label: 'id' }]))
@@ -472,7 +472,7 @@ describe('Salesforce Marketing Cloud', () => {
             ]
           })
 
-        const response = (await testDestination.testDynamicField('dataExtensionV2', 'values.__keys__', {
+        const response = await testDestination.testDynamicField('dataExtensionV2', 'values.__keys__', {
           settings,
           payload: {
             onMappingSave: {
@@ -481,7 +481,7 @@ describe('Salesforce Marketing Cloud', () => {
               }
             }
           }
-        })) as DynamicFieldResponse
+        })
 
         expect(response.choices).toHaveLength(2)
         expect(response.choices).toEqual(
@@ -493,10 +493,10 @@ describe('Salesforce Marketing Cloud', () => {
       })
 
       it('should return error when no data extension ID is provided', async () => {
-        const response = (await testDestination.testDynamicField('dataExtensionV2', 'keys.__keys__', {
+        const response = await testDestination.testDynamicField('dataExtensionV2', 'keys.__keys__', {
           settings,
           payload: {}
-        })) as DynamicFieldResponse
+        })
 
         expect(response.choices).toHaveLength(0)
         expect(response.error).toEqual({
@@ -523,7 +523,7 @@ describe('Salesforce Marketing Cloud', () => {
             ]
           })
 
-        const response = (await testDestination.testDynamicField('dataExtensionV2', 'keys.__keys__', {
+        const response = await testDestination.testDynamicField('dataExtensionV2', 'keys.__keys__', {
           settings,
           payload: {
             retlOnMappingSave: {
@@ -532,7 +532,7 @@ describe('Salesforce Marketing Cloud', () => {
               }
             }
           }
-        })) as DynamicFieldResponse
+        })
 
         expect(response.choices).toHaveLength(1)
         expect(response.choices).toEqual([{ value: 'subscriber_key', label: 'subscriber_key' }])
@@ -557,7 +557,7 @@ describe('Salesforce Marketing Cloud', () => {
             ]
           })
 
-        const response = (await testDestination.testDynamicField('dataExtensionV2', 'values.__keys__', {
+        const response = await testDestination.testDynamicField('dataExtensionV2', 'values.__keys__', {
           settings,
           payload: {
             retlOnMappingSave: {
@@ -566,7 +566,7 @@ describe('Salesforce Marketing Cloud', () => {
               }
             }
           }
-        })) as DynamicFieldResponse
+        })
 
         expect(response.choices).toHaveLength(2)
         expect(response.choices).toEqual(
@@ -575,6 +575,176 @@ describe('Salesforce Marketing Cloud', () => {
             { value: 'last_name', label: 'last_name' }
           ])
         )
+      })
+    })
+
+    describe('retlOnMappingSave hook (performHook / selectOrCreateDataExtension)', () => {
+      it('should create a new data extension when operation is "create"', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`).post('/data/v1/customobjects').reply(201, {
+          id: 'new-de-id',
+          key: 'new-de-key'
+        })
+
+        const hookInputs = {
+          operation: 'create',
+          name: 'My New Data Extension',
+          categoryId: '12345',
+          columns: [
+            { name: 'id', type: 'Text', isNullable: false, isPrimaryKey: true },
+            { name: 'email', type: 'EmailAddress', isNullable: true, isPrimaryKey: false }
+          ]
+        }
+
+        const r = await testDestination.actions.dataExtensionV2.executeHook('retlOnMappingSave', {
+          settings,
+          hookInputs,
+          payload: {}
+        })
+
+        expect(r.savedData).toEqual({
+          id: 'new-de-id',
+          name: 'My New Data Extension'
+        })
+        expect(r.successMessage).toBe(
+          'Data Extension My New Data Extension created successfully with External Key new-de-key'
+        )
+      })
+
+      it('should select an existing data extension when operation is "select"', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/customobjects/${dataExtensionId}`)
+          .reply(200, {
+            id: dataExtensionId,
+            name: 'Existing Data Extension'
+          })
+
+        const hookInputs = {
+          operation: 'select',
+          dataExtensionId
+        }
+
+        const r = await testDestination.actions.dataExtensionV2.executeHook('retlOnMappingSave', {
+          settings,
+          hookInputs,
+          payload: {}
+        })
+
+        expect(r.savedData).toEqual({
+          id: dataExtensionId,
+          name: 'Existing Data Extension'
+        })
+        expect(r.successMessage).toBe(
+          `Data Extension Existing Data Extension selected successfully with External ID ${dataExtensionId}`
+        )
+      })
+
+      it('should return an error when selecting a data extension that does not exist', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/customobjects/${dataExtensionId}`)
+          .reply(404, {
+            message: 'Resource not found',
+            errorcode: 404
+          })
+
+        const hookInputs = {
+          operation: 'select',
+          dataExtensionId
+        }
+
+        const r = await testDestination.actions.dataExtensionV2.executeHook('retlOnMappingSave', {
+          settings,
+          hookInputs,
+          payload: {}
+        })
+
+        expect(r.savedData).toBeUndefined()
+        expect(r.error).toEqual({
+          message: 'Resource not found',
+          code: 'ERROR'
+        })
+      })
+
+      it('should surface savedData alongside the error when selection fails due to insufficient authentication (error code 20002)', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`)
+          .get(`/data/v1/customobjects/${dataExtensionId}`)
+          .reply(401, {
+            message: 'Insufficient authentication',
+            errorcode: 20002
+          })
+
+        const hookInputs = {
+          operation: 'select',
+          dataExtensionId
+        }
+
+        const r = await testDestination.actions.dataExtensionV2.executeHook('retlOnMappingSave', {
+          settings,
+          hookInputs,
+          payload: {}
+        })
+
+        expect(r.savedData).toEqual({
+          id: dataExtensionId,
+          name: 'Unknown (Insufficient Authentication Error)'
+        })
+        expect(r.error?.message).toContain('Insufficient authentication')
+        expect(r.error?.code).toBe('Authentication Error')
+      })
+
+      it('should return an error when creating a data extension fails (e.g. duplicate name)', async () => {
+        nock(`https://${settings.subdomain}.auth.marketingcloudapis.com`).post('/v2/token').reply(200, {
+          access_token: 'test-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600
+        })
+
+        nock(`https://${settings.subdomain}.rest.marketingcloudapis.com`).post('/data/v1/customobjects').reply(400, {
+          message: 'A Data Extension with this name already exists',
+          errorcode: 10001
+        })
+
+        const hookInputs = {
+          operation: 'create',
+          name: 'Duplicate DE',
+          categoryId: '12345',
+          columns: [{ name: 'id', type: 'Text', isNullable: false, isPrimaryKey: true }]
+        }
+
+        const r = await testDestination.actions.dataExtensionV2.executeHook('retlOnMappingSave', {
+          settings,
+          hookInputs,
+          payload: {}
+        })
+
+        expect(r.savedData).toBeUndefined()
+        expect(r.error).toEqual({
+          message: 'A Data Extension with this name already exists',
+          code: 'ERROR'
+        })
       })
     })
   })

@@ -1,0 +1,155 @@
+import type { ActionDefinition } from '@segment/actions-core'
+import type { Settings } from '../generated-types'
+import type { Payload } from './generated-types'
+import { send } from './functions'
+import { DEFAULT_NESTED_MODE, NESTED_MODE_CHOICES } from './constants'
+
+const action: ActionDefinition<Settings, Payload> = {
+  title: 'Send Event',
+  description:
+    'Send a Segment track, page, screen or identify call to Heap. Sends the event to Heap and, when user properties are present, updates the Heap user profile.',
+  defaultSubscription: 'type = "track" or type = "page" or type = "screen" or type = "identify"',
+  fields: {
+    type: {
+      label: 'Event Type',
+      type: 'string',
+      description: 'The type of Segment call. One of: track, page, screen, identify.',
+      required: true,
+      default: {
+        '@path': '$.type'
+      }
+    },
+    event: {
+      label: 'Event Name',
+      type: 'string',
+      description:
+        'Name of the event. Present on track calls only, limited to 1024 characters. Page and screen calls are sent as "Page viewed" and "Screen viewed".',
+      required: {
+        conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
+      },
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is', value: 'track' }]
+      },
+      default: {
+        '@path': '$.event'
+      }
+    },
+    name: {
+      label: 'Page or Screen Name',
+      type: 'string',
+      description: 'Name of the page or screen being viewed. Present on page and screen calls only.',
+      depends_on: {
+        match: 'any',
+        conditions: [
+          { fieldKey: 'type', operator: 'is', value: 'page' },
+          { fieldKey: 'type', operator: 'is', value: 'screen' }
+        ]
+      },
+      default: {
+        '@path': '$.name'
+      }
+    },
+    identity: {
+      label: 'Identity',
+      type: 'string',
+      description:
+        'A string that uniquely identifies a user, such as an email, handle, or username. No two users in one environment may share the same identity. Defaults to the Segment userId.',
+      default: {
+        '@path': '$.userId'
+      }
+    },
+    anonymous_id: {
+      label: 'Anonymous ID',
+      type: 'string',
+      description: 'The Segment anonymous ID for the user.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      },
+      default: {
+        '@path': '$.anonymousId'
+      }
+    },
+    user_id: {
+      label: 'User ID',
+      type: 'string',
+      allowNull: true,
+      description:
+        'Heap’s own internal numeric user ID (a numeric string between 0 and 2^53). This is not a Segment userId — map the Segment userId to Identity instead.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      }
+    },
+    email: {
+      label: 'Email',
+      type: 'string',
+      format: 'email',
+      description: 'The user’s email address, sent as an additional Heap identifier.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      },
+      default: {
+        '@if': {
+          exists: { '@path': '$.email' },
+          then: { '@path': '$.email' },
+          else: { '@path': '$.context.traits.email' }
+        }
+      }
+    },
+    properties: {
+      label: 'Event Properties',
+      type: 'object',
+      description:
+        'An object with key-value properties to associate with the event. Nested objects are flattened and all values are sent to Heap as strings.',
+      depends_on: {
+        conditions: [{ fieldKey: 'type', operator: 'is_not', value: 'identify' }]
+      },
+      default: {
+        '@path': '$.properties'
+      }
+    },
+    traits: {
+      label: 'User Properties',
+      type: 'object',
+      description:
+        'An object with key-value properties to associate with the user profile. Must be sent with an identity identifier.',
+      default: {
+        '@if': {
+          exists: { '@path': '$.context.traits' },
+          then: { '@path': '$.context.traits' },
+          else: { '@path': '$.traits' }
+        }
+      }
+    },
+    nested_properties_mode: {
+      label: 'Nested Object & Array Handling',
+      type: 'string',
+      description:
+        'How to handle object and array values in Event Properties and User Properties. "Flatten" (default) expands them into dot-delimited keys (e.g. an_obj.color, foods.0). "Stringify" sends each object or array as a single JSON string. "Drop" removes object and array fields so they are not sent.',
+      choices: NESTED_MODE_CHOICES,
+      default: DEFAULT_NESTED_MODE,
+      required: false
+    },
+    timestamp: {
+      label: 'Timestamp',
+      type: 'datetime',
+      description: 'The timestamp of the event. Defaults to the current time if not provided.',
+      default: {
+        '@path': '$.timestamp'
+      }
+    },
+    message_id: {
+      label: 'Message ID',
+      type: 'string',
+      description: 'Unique event ID generated by Segment, used as the Heap idempotency key.',
+      required: true,
+      default: {
+        '@path': '$.messageId'
+      }
+    }
+  },
+  perform: (request, { payload, settings }) => {
+    return send(request, settings, payload)
+  }
+}
+
+export default action

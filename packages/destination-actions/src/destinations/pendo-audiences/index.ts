@@ -1,4 +1,4 @@
-import { AudienceDestinationDefinition, IntegrationError, defaultValues } from '@segment/actions-core'
+import { AudienceDestinationDefinition, IntegrationError } from '@segment/actions-core'
 import type { Settings, AudienceSettings } from './generated-types'
 import syncAudience from './syncAudience'
 import { getDomain, createSegment, getSegment } from './functions'
@@ -14,8 +14,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
     fields: {
       integrationKey: {
         label: 'Integration Key',
-        description:
-          'Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.',
+        description: 'Your Pendo Integration Key. Found in Pendo under Settings > Integrations > Integration Keys.',
         type: 'password',
         required: true
       },
@@ -28,7 +27,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           label: REGIONS[key].name,
           value: REGIONS[key].name
         })),
-        default: 'DEFAULT'
+        default: REGIONS.DEFAULT.name
       }
     },
     testAuthentication: async (request, { settings }) => {
@@ -49,8 +48,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   audienceFields: {
     audienceName: {
       label: 'Pendo Segment Name',
-      description:
-        'A name for the Pendo Segment. Leave blank to use the Segment audience name.',
+      description: 'The name for the Pendo Segment. Leave blank to use the Segment audience name.',
       type: 'string',
       required: false
     }
@@ -77,44 +75,17 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       return { externalId: segmentId }
     },
     async getAudience(request, getAudienceInput) {
-      const { externalId, settings: { region } } = getAudienceInput
+      const {
+        externalId,
+        settings: { region }
+      } = getAudienceInput
       const segmentId = await getSegment(request, region, externalId)
       return { externalId: segmentId }
     }
   },
   actions: {
     syncAudience
-  },
-  presets: [
-    {
-      name: 'Entities Audience Membership Changed',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_audience_membership_changed_identify'
-    },
-    {
-      name: 'Associated Entity Added',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_entity_added_track'
-    },
-    {
-      name: 'Associated Entity Removed',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'warehouse_entity_removed_track'
-    },
-    {
-      name: 'Journeys Step Entered',
-      partnerAction: 'syncAudience',
-      mapping: defaultValues(syncAudience.fields),
-      type: 'specificEvent',
-      eventSlug: 'journeys_step_entered_track'
-    }
-  ]
+  }
 }
 
 export default destination

@@ -6,11 +6,11 @@ export interface Payload {
    */
   external_id?: string
   /**
-   * Alternate unique user identifier, this is required if External User ID or Device ID is not set. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.
+   * Alternate unique user identifier, this is required if External User ID or Device ID is not set. Both `Alias Name` and `Alias Label` must be provided together; if either is missing the alias is ignored in favor of External User ID or Device ID. Refer [Braze Documentation](https://www.braze.com/docs/api/objects_filters/user_alias_object) for more details.
    */
   user_alias?: {
-    alias_name: string
-    alias_label: string
+    alias_name?: string
+    alias_label?: string
   }
   /**
    * Device IDs can be used to add and remove only anonymous users to/from a cohort. However, users with an assigned User ID cannot use Device ID to sync to a cohort.

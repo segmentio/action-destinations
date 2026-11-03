@@ -11,7 +11,8 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
   fields: {
     identifiers: {
       label: 'Identifiers',
-      description: 'Unique identifiers for the user to be identified in Moengage. This can be a user ID, email, or any other unique identifier.',
+      description:
+        'Unique identifiers for the user to be identified in Moengage. This can be a user ID, email, or any other unique identifier.',
       type: 'object',
       required: false,
       additionalProperties: true,
@@ -20,7 +21,7 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
           label: 'User ID',
           description: 'A unique identifier for the user.',
           type: 'string'
-        }, 
+        },
         email: {
           label: 'Email',
           description: 'The email address of the user.',
@@ -37,13 +38,13 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
         email: { '@path': '$.traits.email' },
         mobile: { '@path': '$.traits.phone' }
       }
-    }, 
+    },
     attributes: {
       label: 'User Attributes',
       description: 'A dictionary of key-value pairs that will be sent as user attributes to Moengage.',
       type: 'object',
       required: false,
-      additionalProperties: true, 
+      additionalProperties: true,
       properties: {
         first_name: {
           label: 'First Name',
@@ -54,7 +55,7 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
           label: 'Last Name',
           description: 'The last name of the user.',
           type: 'string'
-        }, 
+        },
         email: {
           label: 'Email',
           description: 'The email address of the user.',
@@ -74,7 +75,7 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
           label: 'Gender',
           description: 'The gender of the user.',
           type: 'string'
-        }, 
+        },
         birthday: {
           label: 'Birthday',
           description: 'The birthday of the user in ISO 8601 format (YYYY-MM-DD).',
@@ -94,61 +95,51 @@ const action: BrowserActionDefinition<Settings, MoengageSDK, Payload> = {
     }
   },
   perform: (client, { payload }) => {
-    const { 
-      identifiers, 
-      attributes: {
-        first_name,
-        last_name,
-        email,
-        mobile,
-        username,
-        gender,
-        birthday,
-        ...otherAttributes
-      } = {}
+    const {
+      identifiers,
+      attributes: { first_name, last_name, email, mobile, username, gender, birthday, ...otherAttributes } = {}
     } = payload
 
     const numIds = Object.entries(identifiers || {}).length
     const userId = identifiers?.user_id
 
-    if(numIds === 1 && userId && typeof userId === 'string') {
+    if (numIds === 1 && userId && typeof userId === 'string') {
       client.identifyUser(userId)
-    }
-    else if (numIds > 0 && identifiers) {
+    } else if (numIds > 0 && identifiers) {
       const strIdentifiers = Object.fromEntries(
         Object.entries(identifiers).filter(([_, value]) => typeof value === 'string')
       ) as Identifiers
-      if(Object.keys(strIdentifiers).length > 0){
+      if (Object.keys(strIdentifiers).length > 0) {
         client.identifyUser(strIdentifiers)
       }
     }
-    if(first_name) {
-      client.add_first_name(first_name)
+    if (first_name) {
+      client.setFirstName(first_name)
     }
-    if(last_name) {
-      client.add_last_name(last_name)
+    if (last_name) {
+      client.setLastName(last_name)
     }
-    if(email) {
-      client.add_email(email)
+    if (email) {
+      client.setEmailId(email)
     }
-    if(mobile) {
-      client.add_mobile(mobile)
+    if (mobile) {
+      client.setMobileNumber(mobile)
     }
-    if(username) {
-      client.add_user_name(username)
+    if (username) {
+      client.setUserName(username)
     }
-    if(gender) {
-      client.add_gender(gender)
+    if (gender) {
+      client.setGender(gender)
     }
-    if(birthday) {
+    if (birthday) {
       const date = new Date(birthday)
-      if(!isNaN(date.getTime())) {
-        client.add_birthday(date)
+      if (!isNaN(date.getTime())) {
+        client.setBirthDate(date)
       }
     }
-    if(Object.keys(otherAttributes).length > 0) {
+    if (Object.keys(otherAttributes).length > 0) {
       Object.entries(otherAttributes).forEach(([key, value]) => {
-        client.add_user_attribute(key, value)
+        client.setUserAttribute(key, value)
       })
     }
   }

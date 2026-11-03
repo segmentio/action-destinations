@@ -5,7 +5,7 @@
   "authentication": {
     "scheme": "custom",
     "fields": {
-      "app_id": {
+      "appId": {
         "label": "Workspace ID",
         "description": "Your Moengage Workspace ID.",
         "type": "string",
@@ -69,7 +69,7 @@
         "default": "dc_1",
         "depends_on": null
       },
-      "project_id": {
+      "projectId": {
         "label": "Project ID",
         "description": "Your Moengage Project ID.",
         "type": "string",
@@ -99,7 +99,7 @@
         "default": false,
         "depends_on": null
       },
-      "disable_onsite": {
+      "disableOnsite": {
         "label": "Disable Onsite Messaging",
         "description": "Disable Moengage from showing Onsite Messaging on your website.",
         "type": "boolean",
@@ -119,7 +119,7 @@
         "default": null,
         "depends_on": null
       },
-      "bots_list": {
+      "botsList": {
         "label": "Bots List",
         "description": "A comma delimited list of bot user agents to ignore when tracking events.",
         "type": "string",

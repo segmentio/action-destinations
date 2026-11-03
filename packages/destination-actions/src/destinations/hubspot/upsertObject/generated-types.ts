@@ -35,7 +35,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation.
+   * Specify if Segment create associated records in Hubspot. Records will only be created if the record requires a single identifier field and does not require property fields to be set upon creation. "Create" cannot be used when the identifier is Hubspot Record ID (hs_object_id), because Hubspot generates record IDs. Use "Do not create" to link to existing records by Hubspot Record ID.
    */
   association_sync_mode: string
   /**

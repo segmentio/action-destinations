@@ -8,9 +8,17 @@ import apiEvent from './apiEvent'
 // These actions include an actions hook which handles configuring the connected
 // data extension. They are independent from the original actions to support a slow rollout.
 import dataExtensionV2 from './dataExtensionV2'
-import asyncDataExtension from './asyncDataExtension'
 import contactDataExtensionV2 from './contactDataExtensionV2'
+
+// Async Data Extension for standard centrifuge pipeline
+import asyncDataExtension from './asyncDataExtension/index'
+
+// Async Data Extension for async batch pipeline
+// IMPORTANT! Both versions have the exact same fields, so an explicit action-cli push is not required.
+import asyncDataExtensionAsyncPipeline from './asyncDataExtension/index.async'
+
 import { SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION } from './versioning-info'
+import { validateSubdomain } from './sfmc-operations'
 
 interface RefreshTokenResponse {
   access_token: string
@@ -48,10 +56,15 @@ const destination: DestinationDefinition<Settings> = {
       client_secret: {
         label: 'Client Secret',
         description:
-          'Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.',
+          'Your Salesforce Marketing Cloud client secret from Setup > Installed Packages. Secrets expire every 180 days (pre-March 25, 2026 secrets expire Sept 30, 2026), which will stop event delivery. To rotate seamlessly, paste a staged secret here, wait at least 1 hour to verify successful delivery, then activate it in SFMC. See [Rotate an OAuth 2.0 Client Secret](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/rotate-oauth2-secret.html).',
         type: 'password',
         required: true
       }
+    },
+    testAuthentication: async (_request, { settings }) => {
+      // Validate the subdomain at settings-save time so the customer gets a clear,
+      // immediate error instead of a failed event delivery later. See SECOPS-25213.
+      validateSubdomain(settings.subdomain)
     },
     refreshAccessToken: async (request, { settings }) => {
       const baseUrl = `https://${settings.subdomain}.auth.marketingcloudapis.com/${SALESFORCE_MARKETING_CLOUD_AUTH_API_VERSION}/token`
@@ -82,6 +95,9 @@ const destination: DestinationDefinition<Settings> = {
     dataExtensionV2,
     contactDataExtensionV2,
     asyncDataExtension
+  },
+  asyncActions: {
+    asyncDataExtension: asyncDataExtensionAsyncPipeline
   }
 }
 

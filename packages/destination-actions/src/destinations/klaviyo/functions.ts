@@ -3,14 +3,26 @@ import {
   RequestClient,
   DynamicFieldResponse,
   IntegrationError,
+  RetryableError,
   PayloadValidationError,
   JSONLikeObject,
   HTTPError,
   MultiStatusResponse,
   ErrorCodes,
-  StatsContext
+  StatsContext,
+  Features
 } from '@segment/actions-core'
-import { API_URL, REVISION_DATE, MAX_EXTERNAL_ID_LENGTH } from './config'
+import {
+  API_URL,
+  REVISION_DATE,
+  MAX_EXTERNAL_ID_LENGTH,
+  GET_PROFILES_MAX_FILTER_VALUES,
+  GET_PROFILES_PAGE_SIZE,
+  GET_PROFILES_MAX_PAGES_PER_CHUNK,
+  GET_PROFILES_CONCURRENCY,
+  REMOVE_PROFILES_MAX_PER_REQUEST,
+  KLAVIYO_PAGINATE_GET_PROFILES_FLAG
+} from './config'
 import { Settings } from './generated-types'
 import {
   KlaviyoAPIError,
@@ -44,6 +56,19 @@ const EXTERNAL_ID_LENGTH_ERROR: ActionDestinationErrorResponseType = {
   status: 400,
   errortype: 'PAYLOAD_VALIDATION_FAILED',
   errormessage: `Length of external_id must be no more than ${MAX_EXTERNAL_ID_LENGTH} characters.`
+}
+
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+
+const INVALID_EMAIL_ERROR: ActionDestinationErrorResponseType = {
+  status: 400,
+  errortype: 'PAYLOAD_VALIDATION_FAILED',
+  errormessage: 'Email must be a valid email address.'
+}
+
+export function validateEmail(email: string | undefined): boolean {
+  if (!email) return true
+  return EMAIL_REGEX.test(email)
 }
 
 export function validateExternalId(externalId: string | undefined): void {
@@ -195,12 +220,98 @@ export const sendImportJobRequest = async (request: RequestClient, importJobPayl
   })
 }
 
+function chunkArray<T>(items: T[], size: number): T[][] {
+  const chunks: T[][] = []
+  for (let i = 0; i < items.length; i += size) {
+    chunks.push(items.slice(i, i + size))
+  }
+  return chunks
+}
+
+type ProfileIdentifierField = 'external_id' | 'email' | 'phone_number'
+
+/**
+ * Fetches the profile IDs matching one chunk of identifier values (at most GET_PROFILES_MAX_FILTER_VALUES),
+ * following `links.next` in case a value matches more than one profile. Throws a RetryableError when the
+ * page cap is reached, so a partial set of profile IDs is never used for removal.
+ */
+async function getProfileIdsForChunk(
+  request: RequestClient,
+  field: ProfileIdentifierField,
+  values: string[],
+  statsContext?: StatsContext
+): Promise<string[]> {
+  const profileIds: string[] = []
+  const filter = `${field},["${values.join('","')}"]`
+  let url: string | undefined = `${API_URL}/profiles/?filter=any(${filter})&page[size]=${GET_PROFILES_PAGE_SIZE}`
+
+  for (let page = 0; url; page++) {
+    if (page >= GET_PROFILES_MAX_PAGES_PER_CHUNK) {
+      statsContext?.statsClient?.incr('actions-klaviyo.get_profiles.page_cap_hit', 1, statsContext.tags)
+      // Returning the partial list would mark every event as delivered while some profiles stay on the list.
+      // Nothing has been removed yet, so fail the batch and let it be retried (in smaller batches).
+      throw new RetryableError(
+        `Klaviyo returned more than ${GET_PROFILES_MAX_PAGES_PER_CHUNK * GET_PROFILES_PAGE_SIZE} profiles for ` +
+          `${values.length} ${field} values; not removing a partial set of profiles`
+      )
+    }
+
+    const response = await request(url, { method: 'GET' })
+    const res: GetProfileResponse = await response.json()
+
+    const pageProfileIds = res.data.map((profile: Profile) => profile.id)
+    profileIds.push(...pageProfileIds)
+
+    url = res.links?.next || undefined
+  }
+
+  return profileIds
+}
+
 export async function getProfiles(
   request: RequestClient,
   emails: string[] | undefined,
   external_ids: string[] | undefined,
-  phoneNumbers: string[] | undefined
+  phoneNumbers: string[] | undefined,
+  options?: { paginate?: boolean; statsContext?: StatsContext }
 ): Promise<string[]> {
+  if (options?.paginate) {
+    // Klaviyo returns 20 profiles per page by default and rejects any() filters with more than 100 values,
+    // so look up each identifier type in chunks of 100 values, 100 profiles per page.
+    const profileIdentifiers = [
+      { field: 'external_id', values: external_ids },
+      { field: 'email', values: emails },
+      { field: 'phone_number', values: phoneNumbers }
+    ] as const
+
+    const lookups: { field: ProfileIdentifierField; chunk: string[] }[] = []
+
+    for (const { field, values } of profileIdentifiers) {
+      const uniqueValues = Array.from(new Set(values ?? []))
+      const chunks = chunkArray(uniqueValues, GET_PROFILES_MAX_FILTER_VALUES)
+
+      for (const chunk of chunks) {
+        lookups.push({ field, chunk })
+      }
+    }
+
+    // Run the chunk lookups a few at a time to stay inside the delivery deadline without flooding Klaviyo.
+    // Pages within one chunk are still followed one after another.
+    const allProfileIds: string[] = []
+    const lookupWaves = chunkArray(lookups, GET_PROFILES_CONCURRENCY)
+
+    for (const lookupWave of lookupWaves) {
+      const results = await Promise.all(
+        lookupWave.map(({ field, chunk }) => getProfileIdsForChunk(request, field, chunk, options.statsContext))
+      )
+      for (const chunkProfileIds of results) {
+        allProfileIds.push(...chunkProfileIds)
+      }
+    }
+
+    return Array.from(new Set(allProfileIds))
+  }
+
   const profileIds: string[] = []
 
   if (external_ids?.length) {
@@ -514,8 +625,10 @@ export async function updateMultiStatusWithKlaviyoErrors(
 export async function removeBulkProfilesFromList(
   request: RequestClient,
   payloads: RemoveProfilePayload[],
+  features?: Features,
   statsContext?: StatsContext
 ) {
+  const paginate = Boolean(features?.[KLAVIYO_PAGINATE_GET_PROFILES_FLAG])
   const multiStatusResponse = new MultiStatusResponse()
 
   const { filteredPayloads, validPayloadIndicesBitmap } = validateAndPrepareRemoveBulkProfilePayloads(
@@ -541,10 +654,21 @@ export async function removeBulkProfilesFromList(
   const listId = filteredPayloads[0]?.list_id as string
 
   try {
-    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers)
+    const profileIds = await getProfiles(request, emails, externalIds, phoneNumbers, {
+      paginate,
+      statsContext
+    })
     let response = null
     if (profileIds.length) {
-      response = await removeProfileFromList(request, profileIds, listId)
+      if (paginate) {
+        // Klaviyo accepts at most 1000 profiles per remove request
+        const idChunks = chunkArray(profileIds, REMOVE_PROFILES_MAX_PER_REQUEST)
+        for (const idChunk of idChunks) {
+          response = await removeProfileFromList(request, idChunk, listId)
+        }
+      } else {
+        response = await removeProfileFromList(request, profileIds, listId)
+      }
     }
     updateMultiStatusWithSuccessData(filteredPayloads, validPayloadIndicesBitmap, multiStatusResponse, response)
   } catch (error) {
@@ -631,6 +755,11 @@ function validateAndConstructProfilePayload(payload: AddProfileToListPayload): {
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errormessage: 'One of External ID, Phone Number or Email is required.'
     }
+    return response
+  }
+
+  if (!validateEmail(email)) {
+    response.error = INVALID_EMAIL_ERROR
     return response
   }
 

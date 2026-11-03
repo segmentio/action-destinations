@@ -21,4 +21,8 @@ export interface Settings {
    * The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top-level domain.
    */
   cookie_domain: string
+  /**
+   * The URL of a self-hosted `at.js` library to load instead of downloading it from Adobe's admin endpoint. Adobe rate-limits the admin download endpoint, so high-traffic sites should host their own copy of `at.js` (see [Adobe docs](https://experienceleague.adobe.com/en/docs/target-dev/developer/client-side/at-js-implementation/deploy-at-js/implement-target-without-a-tag-manager)). When set, this URL is loaded as-is and the Client Code, Admin number, and ATJS Version settings are ignored.
+   */
+  library_url?: string
 }

@@ -44,7 +44,7 @@
             "value": "AU"
           }
         ],
-        "default": "DEFAULT",
+        "default": "US",
         "depends_on": null
       }
     }
@@ -57,7 +57,7 @@
     "audienceFields": {
       "audienceName": {
         "label": "Pendo Segment Name",
-        "description": "A name for the Pendo Segment. Leave blank to use the Segment audience name.",
+        "description": "The name for the Pendo Segment. Leave blank to use the Segment audience name.",
         "type": "string",
         "required": false,
         "multiple": false,
@@ -98,68 +98,6 @@
           "depends_on": null,
           "readOnly": null,
           "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "traitsOrProperties": {
-          "label": "Traits or Properties",
-          "description": "Traits or Properties object from the identify() or track() call emitted by Engage.",
-          "type": "object",
-          "required": true,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.traits"
-              },
-              "then": {
-                "@path": "$.traits"
-              },
-              "else": {
-                "@path": "$.properties"
-              }
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": true,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "segmentAudienceKey": {
-          "label": "Segment Audience Key",
-          "description": "Segment Audience Key. Used to determine whether the user is being added to or removed from the Pendo Segment.",
-          "type": "string",
-          "required": true,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@path": "$.context.personas.computation_key"
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": true,
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
@@ -245,134 +183,5 @@
       }
     }
   },
-  "presets": [
-    {
-      "name": "Entities Audience Membership Changed",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "traitsOrProperties": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits"
-            },
-            "then": {
-              "@path": "$.traits"
-            },
-            "else": {
-              "@path": "$.properties"
-            }
-          }
-        },
-        "segmentAudienceKey": {
-          "@path": "$.context.personas.computation_key"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "warehouse_audience_membership_changed_identify"
-    },
-    {
-      "name": "Associated Entity Added",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "traitsOrProperties": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits"
-            },
-            "then": {
-              "@path": "$.traits"
-            },
-            "else": {
-              "@path": "$.properties"
-            }
-          }
-        },
-        "segmentAudienceKey": {
-          "@path": "$.context.personas.computation_key"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "warehouse_entity_added_track"
-    },
-    {
-      "name": "Associated Entity Removed",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "traitsOrProperties": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits"
-            },
-            "then": {
-              "@path": "$.traits"
-            },
-            "else": {
-              "@path": "$.properties"
-            }
-          }
-        },
-        "segmentAudienceKey": {
-          "@path": "$.context.personas.computation_key"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "warehouse_entity_removed_track"
-    },
-    {
-      "name": "Journeys Step Entered",
-      "type": "specificEvent",
-      "partnerAction": "syncAudience",
-      "mapping": {
-        "visitorId": {
-          "@path": "$.userId"
-        },
-        "traitsOrProperties": {
-          "@if": {
-            "exists": {
-              "@path": "$.traits"
-            },
-            "then": {
-              "@path": "$.traits"
-            },
-            "else": {
-              "@path": "$.properties"
-            }
-          }
-        },
-        "segmentAudienceKey": {
-          "@path": "$.context.personas.computation_key"
-        },
-        "segmentAudienceId": {
-          "@path": "$.context.personas.external_audience_id"
-        },
-        "enable_batching": true,
-        "batch_size": 1000
-      },
-      "eventSlug": "journeys_step_entered_track"
-    }
-  ]
+  "presets": []
 }

@@ -1,12 +1,19 @@
-import { RequestClient, IntegrationError } from '@segment/actions-core'
+import { RequestClient, IntegrationError, Features } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import { ExecJSONRequest, ExecJSONResponse, FlatArgsTuple, FlattenedArgs } from '../types'
+import { getErrorMessage, getExecUrl, SSRF_HARDENING_FLAGON } from '../utils'
 import btoa from 'btoa-lite'
 
-export async function send(request: RequestClient, payloads: Payload[], settings: Settings): Promise<ExecJSONResponse> {
-  const { host, port, username, password, dbName, tableName } = settings
-  const url = `https://${host}:${port}/api/v2/exec`
+export async function send(
+  request: RequestClient,
+  payloads: Payload[],
+  settings: Settings,
+  features?: Features
+): Promise<ExecJSONResponse> {
+  const { username, password, dbName, tableName } = settings
+  const hardened = Boolean(features && features[SSRF_HARDENING_FLAGON])
+  const url = getExecUrl(settings, hardened)
   const encodedCredentials = btoa(`${username}:${password}`)
 
   const columns = [
@@ -67,7 +74,9 @@ export async function send(request: RequestClient, payloads: Payload[], settings
 
   if (response.status !== 200 || response.ok === false) {
     throw new IntegrationError(
-      `Failed to insert data: ${(await response.text()) || 'Unknown error'}`,
+      `Failed to insert data: ${
+        hardened ? await getErrorMessage(response) : (await response.text()) || 'Unknown error'
+      }`,
       response.statusText,
       response.status
     )

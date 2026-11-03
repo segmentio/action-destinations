@@ -361,6 +361,22 @@ describe('Add Profile To List', () => {
     ).resolves.not.toThrowError()
   })
 
+  it('should throw an error for email with single character TLD', async () => {
+    const event = createTestEvent({
+      type: 'track',
+      userId: '123',
+      properties: {}
+    })
+    const mapping = {
+      list_id: listId,
+      email: 'user@domain.c'
+    }
+
+    await expect(testDestination.testAction('addProfileToList', { event, mapping, settings })).rejects.toThrowError(
+      'Email must be a valid email address.'
+    )
+  })
+
   it('should add to list if profile is already created', async () => {
     nock(`${API_URL}`)
       .post('/profiles/', profileData)
@@ -399,5 +415,43 @@ describe('Add Profile To List', () => {
     await expect(
       testDestination.testAction('addProfileToList', { event, mapping, settings })
     ).resolves.not.toThrowError()
+  })
+
+  it('should filter out profiles with invalid email in batch and only send valid ones', async () => {
+    const events = [
+      createTestEvent({
+        traits: { email: 'valid@example.com' }
+      }),
+      createTestEvent({
+        traits: { email: 'invalid-email' }
+      }),
+      createTestEvent({
+        traits: { email: 'user@domain.c' }
+      })
+    ]
+
+    const mapping = {
+      list_id: listId,
+      email: {
+        '@path': '$.traits.email'
+      }
+    }
+
+    nock(API_URL)
+      .post('/profile-bulk-import-jobs/', (body) => {
+        const profiles = body.data.attributes.profiles.data
+        return profiles.length === 1 && profiles[0].attributes.email === 'valid@example.com'
+      })
+      .reply(200, { success: true })
+
+    await expect(
+      testDestination.testBatchAction('addProfileToList', {
+        settings,
+        events,
+        mapping
+      })
+    ).resolves.not.toThrowError()
+
+    expect(nock.isDone()).toBe(true)
   })
 })

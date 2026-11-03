@@ -4,6 +4,7 @@ import type { Settings } from './generated-types'
 
 import addToList from './addToList'
 import removeFromList from './removeFromList'
+import syncList from './syncList'
 import { MarketoListResponse, GET_LIST_ENDPOINT } from './constants'
 import { createList, formatEndpoint, getAccessToken } from './functions'
 
@@ -96,7 +97,8 @@ const destination: AudienceDestinationDefinition<Settings> = {
   },
   actions: {
     addToList,
-    removeFromList
+    removeFromList,
+    syncList
   },
   presets: [
     {
@@ -133,6 +135,13 @@ const destination: AudienceDestinationDefinition<Settings> = {
       mapping: { ...defaultValues(addToList.fields) },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step All Events',
+      partnerAction: 'syncList',
+      mapping: defaultValues(syncList.fields),
+      type: 'specificEvent',
+      eventSlug: 'journey_step_all_events_track'
     }
   ]
 }

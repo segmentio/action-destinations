@@ -5,6 +5,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
+import updateCompanyAudience from './updateCompanyAudience'
 import { getApiVersion } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
@@ -108,13 +109,32 @@ const destination: DestinationDefinition<Settings> = {
     refreshAccessToken: async (request, { auth }) => {
       let res
 
+      if (!process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_ID) {
+        throw new IntegrationError(`Missing client ID`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
+      }
+
+      if (!process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_SECRET) {
+        throw new IntegrationError(`Missing client secret`, ErrorCodes.OAUTH_REFRESH_FAILED, 500)
+      }
+
+      if (!auth?.refreshToken) {
+        throw new IntegrationError(
+          `Missing refresh token. Please re-authenticate to fetch a new refresh token.`,
+          ErrorCodes.OAUTH_REFRESH_FAILED,
+          401
+        )
+      }
+
       try {
         res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
-            client_id: auth.clientId,
-            client_secret: auth.clientSecret,
+            client_id: process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_ID,
+            client_secret: process.env.ACTIONS_LINKEDIN_AUDIENCES_CLIENT_SECRET,
             grant_type: 'refresh_token'
           })
         })
@@ -153,7 +173,8 @@ const destination: DestinationDefinition<Settings> = {
   },
 
   actions: {
-    updateAudience
+    updateAudience,
+    updateCompanyAudience
   }
 }
 

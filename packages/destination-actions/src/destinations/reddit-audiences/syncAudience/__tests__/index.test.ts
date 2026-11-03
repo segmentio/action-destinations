@@ -76,6 +76,40 @@ const segmentEventRemove: Partial<SegmentEvent> = {
     test_audience_name: false
   }
 }
+const segmentEventAddJourneyStep: Partial<SegmentEvent> = {
+  userId: '+254729159373',
+  type: 'identify',
+  context: {
+    personas: {
+      external_audience_id: 'ca.2066268373552240021',
+      computation_class: 'journey_step',
+      computation_id: 'aud_2mKnduJD6sudXVkAqo0q3qshFTW',
+      computation_key: 'test_audience_name'
+    }
+  },
+  traits: {
+    email: 'Al.ice+Apple@Example.Com',
+    android_idfa: 'test_idfa',
+    test_audience_name: true
+  }
+}
+const segmentEventRemoveJourneyStep: Partial<SegmentEvent> = {
+  userId: '+254729159373',
+  type: 'identify',
+  context: {
+    personas: {
+      external_audience_id: 'ca.2066268373552240021',
+      computation_class: 'journey_step',
+      computation_id: 'aud_2mKnduJD6sudXVkAqo0q3qshFTW',
+      computation_key: 'test_audience_name'
+    }
+  },
+  traits: {
+    email: 'testemail234@gmail.com',
+    android_idfa: 'test_idfa',
+    test_audience_name: false
+  }
+}
 const expectedPayloadEmailOnly = {
   data: {
     column_order: ['EMAIL_SHA256'],
@@ -146,6 +180,46 @@ describe('Reddit-Audiences.customEvent', () => {
   })
   it('will remove a user from an Audience', async () => {
     const event = createTestEvent(segmentEventRemove)
+
+    nock('https://ads-api.reddit.com')
+      .matchHeader('Authorization', 'Bearer undefined') // no need to check access_token
+      .patch(`/api/v3/custom_audiences/${event?.context?.personas?.external_audience_id}/users`, (body) => {
+        return isEqual(body, expectedPayloadRemove)
+      })
+      .reply(204, {})
+
+    const responses = await testDestination.testAction('syncAudience', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(204)
+  })
+  it('will add a user to an Audience when computation_class is journey_step', async () => {
+    const event = createTestEvent(segmentEventAddJourneyStep)
+
+    nock('https://ads-api.reddit.com')
+      .matchHeader('Authorization', 'Bearer undefined') // no need to check access_token
+      .patch(`/api/v3/custom_audiences/${event?.context?.personas?.external_audience_id}/users`, (body) => {
+        return isEqual(body, expectedPayloadAdd)
+      })
+      .reply(204, {})
+
+    const responses = await testDestination.testAction('syncAudience', {
+      event,
+      settings,
+      useDefaultMappings: true,
+      mapping
+    })
+
+    expect(responses.length).toBe(1)
+    expect(responses[0].status).toBe(204)
+  })
+  it('will remove a user from an Audience when computation_class is journey_step', async () => {
+    const event = createTestEvent(segmentEventRemoveJourneyStep)
 
     nock('https://ads-api.reddit.com')
       .matchHeader('Authorization', 'Bearer undefined') // no need to check access_token

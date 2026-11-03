@@ -1,5 +1,13 @@
 import { ErrorCodes, IntegrationError } from '../errors'
-import { ActionDefinition, MultiStatusResponse } from '../destination-kit/action'
+import {
+  ActionDefinition,
+  AsyncActionDefinition,
+  MultiStatusResponse,
+  ActionDestinationErrorResponse,
+  PollPayload,
+  PollResponse,
+  AsyncBatchResponse
+} from '../destination-kit/action'
 import {
   StateContext,
   Destination,
@@ -1254,7 +1262,7 @@ describe('destination kit', () => {
         settings: {},
         payload: {}
       })
-      expect(res).toEqual([])
+      expect(res).toEqual({ choices: [] })
     })
 
     test('should return 404 if handler for dynamic field does not exist', async () => {
@@ -2385,6 +2393,333 @@ describe('destination kit', () => {
           },
         ]
       `)
+    })
+  })
+
+  describe('async actions', () => {
+    const mockPerformBatch = jest.fn()
+    const mockPerformPoll = jest.fn()
+
+    const asyncActionDefinition: AsyncActionDefinition<JSONObject, { email: string }> = {
+      title: 'Async Track Event',
+      description: 'Async track events for batch processing',
+      defaultSubscription: 'type = "track"',
+      fields: {
+        email: {
+          label: 'Email',
+          description: 'The user email',
+          type: 'string',
+          required: true
+        }
+      },
+      performBatch: mockPerformBatch,
+      performPoll: mockPerformPoll
+    }
+
+    const destinationWithAsyncAction: DestinationDefinition<JSONObject> = {
+      name: 'Async Destination',
+      mode: 'cloud',
+      authentication: {
+        scheme: 'custom',
+        fields: {
+          apiKey: {
+            label: 'API Key',
+            description: 'API Key',
+            type: 'string',
+            required: true
+          }
+        }
+      },
+      actions: {},
+      asyncActions: {
+        asyncTrackEvent: asyncActionDefinition
+      }
+    }
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    describe('destination initialization', () => {
+      test('should initialize async actions when defined in destination definition', () => {
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        expect(destinationTest.asyncActions).toBeDefined()
+        expect(destinationTest.asyncActions['asyncTrackEvent']).toBeDefined()
+      })
+
+      test('should have empty async actions when not defined in destination definition', () => {
+        const destinationTest = new Destination(destinationCustomAuth)
+        expect(destinationTest.asyncActions).toBeDefined()
+        expect(Object.keys(destinationTest.asyncActions).length).toBe(0)
+      })
+    })
+
+    describe('executeAsyncBatch', () => {
+      test('should throw error when async action is not found', async () => {
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const events: SegmentEvent[] = [
+          {
+            type: 'track',
+            event: 'Test Event',
+            properties: { email: 'test@example.com' }
+          }
+        ]
+
+        await expect(
+          destinationTest.executeAsyncBatch('nonExistentAction', {
+            events,
+            mapping: { email: { '@path': '$.properties.email' } },
+            settings: { apiKey: 'test-key' }
+          })
+        ).rejects.toThrow('Async action nonExistentAction not found.')
+      })
+
+      test('should execute async batch and return jobId with multiStatusResponse', async () => {
+        const multiStatusResponse = new MultiStatusResponse()
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+
+        mockPerformBatch.mockResolvedValue({
+          jobId: 'test-job-123',
+          multiStatusResponse
+        } as AsyncBatchResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const events: SegmentEvent[] = [
+          { type: 'track', event: 'Test Event 1', properties: { email: 'user1@example.com' } },
+          { type: 'track', event: 'Test Event 2', properties: { email: 'user2@example.com' } }
+        ]
+
+        const result = await destinationTest.executeAsyncBatch('asyncTrackEvent', {
+          events,
+          mapping: { email: { '@path': '$.properties.email' } },
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-123')
+        expect(result.multiStatusResponse.length()).toBe(2)
+        expect(result.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
+        expect(result.multiStatusResponse.getResponseAtIndex(1).value().status).toBe(200)
+        expect(mockPerformBatch).toHaveBeenCalledTimes(1)
+      })
+
+      test('should filter out invalid payloads and include them in multiStatusResponse', async () => {
+        const multiStatusResponse = new MultiStatusResponse()
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+
+        mockPerformBatch.mockResolvedValue({
+          jobId: 'test-job-456',
+          multiStatusResponse
+        } as AsyncBatchResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const events: SegmentEvent[] = [
+          { type: 'track', event: 'Test Event 1', properties: { email: 'valid@example.com' } },
+          { type: 'track', event: 'Test Event 2', properties: {} } // Missing required email field
+        ]
+
+        const result = await destinationTest.executeAsyncBatch('asyncTrackEvent', {
+          events,
+          mapping: { email: { '@path': '$.properties.email' } },
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-456')
+        expect(result.multiStatusResponse.length()).toBe(2)
+        expect(result.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(200)
+        expect(result.multiStatusResponse.getResponseAtIndex(1).value().status).toBe(400)
+        const errResponse1 = result.multiStatusResponse.getResponseAtIndex(1)
+        expect(errResponse1 instanceof ActionDestinationErrorResponse && errResponse1.value().errortype).toBe(
+          ErrorCodes.PAYLOAD_VALIDATION_FAILED
+        )
+      })
+
+      test('should return empty response when all payloads are invalid', async () => {
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const events: SegmentEvent[] = [
+          { type: 'track', event: 'Test Event 1', properties: {} }, // Missing required email field
+          { type: 'track', event: 'Test Event 2', properties: {} } // Missing required email field
+        ]
+
+        const result = await destinationTest.executeAsyncBatch('asyncTrackEvent', {
+          events,
+          mapping: { email: { '@path': '$.properties.email' } },
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBeUndefined()
+        expect(result.multiStatusResponse.length()).toBe(2)
+        expect(result.multiStatusResponse.getResponseAtIndex(0).value().status).toBe(400)
+        expect(result.multiStatusResponse.getResponseAtIndex(1).value().status).toBe(400)
+        expect(mockPerformBatch).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('executeAsyncPoll', () => {
+      test('should throw error when async action is not found', async () => {
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-123',
+          uploadCount: 1
+        }
+
+        await expect(
+          destinationTest.executeAsyncPoll('nonExistentAction', {
+            pollPayload,
+            settings: { apiKey: 'test-key' }
+          })
+        ).rejects.toThrow('Async action nonExistentAction not found or does not support polling.')
+      })
+
+      test('should execute poll and return status IN_PROGRESS', async () => {
+        const pollResponse: PollResponse = {
+          jobId: 'test-job-123',
+          status: 200,
+          jobStatus: 'IN_PROGRESS'
+        }
+
+        mockPerformPoll.mockResolvedValue(pollResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-123',
+          uploadCount: 100
+        }
+
+        const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
+          pollPayload,
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-123')
+        expect(result.jobStatus).toBe('IN_PROGRESS')
+        expect(result.status).toBe(200)
+        expect(mockPerformPoll).toHaveBeenCalledTimes(1)
+      })
+
+      test('should execute poll and return status SUCCEEDED with a multi-status response', async () => {
+        const multiStatusResponse = new MultiStatusResponse()
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+        multiStatusResponse.pushSuccessResponse({ status: 200, body: {}, sent: {} })
+
+        const pollResponse: PollResponse = {
+          jobId: 'test-job-456',
+          status: 200,
+          jobStatus: 'SUCCEEDED',
+          multiStatusResponse
+        }
+
+        mockPerformPoll.mockResolvedValue(pollResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-456',
+          uploadCount: 2
+        }
+
+        const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
+          pollPayload,
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-456')
+        expect(result.jobStatus).toBe('SUCCEEDED')
+        expect(result.status).toBe(200)
+        expect(result.multiStatusResponse).toBeDefined()
+        expect(result.multiStatusResponse?.length()).toBe(2)
+      })
+
+      test('should execute poll and return status FAILED', async () => {
+        const multiStatusResponse = new MultiStatusResponse()
+        multiStatusResponse.pushErrorResponse({ status: 500, errormessage: 'Destination API returned an error' })
+
+        const pollResponse: PollResponse = {
+          jobId: 'test-job-789',
+          status: 500,
+          jobStatus: 'FAILED',
+          multiStatusResponse
+        }
+
+        mockPerformPoll.mockResolvedValue(pollResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-789',
+          uploadCount: 10
+        }
+
+        const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
+          pollPayload,
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-789')
+        expect(result.jobStatus).toBe('FAILED')
+        expect(result.status).toBe(500)
+        expect(result.multiStatusResponse).toBeDefined()
+        const errResponse = result.multiStatusResponse?.getResponseAtIndex(0)
+        expect(errResponse?.value().status).toBe(500)
+        expect(errResponse instanceof ActionDestinationErrorResponse && errResponse.value().errormessage).toBe(
+          'Destination API returned an error'
+        )
+      })
+
+      test('should execute poll and return status RETRYABLE_ERROR', async () => {
+        const pollResponse: PollResponse = {
+          jobId: 'test-job-retry',
+          status: 500,
+          jobStatus: 'RETRYABLE_ERROR'
+        }
+
+        mockPerformPoll.mockResolvedValue(pollResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-retry',
+          uploadCount: 10
+        }
+
+        const result = await destinationTest.executeAsyncPoll('asyncTrackEvent', {
+          pollPayload,
+          settings: { apiKey: 'test-key' }
+        })
+
+        expect(result.jobId).toBe('test-job-retry')
+        expect(result.jobStatus).toBe('RETRYABLE_ERROR')
+        expect(result.status).toBe(500)
+      })
+
+      test('should pass auth data extracted from settings to poll', async () => {
+        const pollResponse: PollResponse = {
+          jobId: 'test-job-auth',
+          status: 200,
+          jobStatus: 'SUCCEEDED'
+        }
+
+        mockPerformPoll.mockResolvedValue(pollResponse)
+
+        const destinationTest = new Destination(destinationWithAsyncAction)
+        const pollPayload: PollPayload = {
+          jobId: 'test-job-auth',
+          uploadCount: 1
+        }
+
+        await destinationTest.executeAsyncPoll('asyncTrackEvent', {
+          pollPayload,
+          settings: {
+            apiKey: 'test-key',
+            oauth: {
+              access_token: 'test-access-token',
+              refresh_token: 'test-refresh-token'
+            }
+          } as JSONObject
+        })
+
+        expect(mockPerformPoll).toHaveBeenCalledTimes(1)
+        const callArgs = mockPerformPoll.mock.calls[0][1]
+        expect(callArgs.auth).toBeDefined()
+        expect(callArgs.auth?.accessToken).toBe('test-access-token')
+      })
     })
   })
 })

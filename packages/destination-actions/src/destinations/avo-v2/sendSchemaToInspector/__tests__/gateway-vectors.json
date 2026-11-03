@@ -1,0 +1,441 @@
+{
+  "_comment": "Shared gateway-coordinate test vectors. The same table is asserted by every Avo Inspector CDP sender; copies must stay deep-equal once parsed as JSON. A key missing from `input` means the value is not provided. `expected` lists the exact coordinate keys the event body carries: a key missing from `expected` MUST be absent from the body (not null, not \"\"). appVersion is always present; the token \"<CHECKPOINT_DEFAULT>\" stands for the sender's checkpoint default app version, and \"<EVENT_VERSION_OR_NULL>\" for the version the sender reads from the event itself (its checkpoint default without the unversioned fallback), trimmed, or null when the event carries none. A gateway forwards the event it received, so with an origin hint and no origin app version the event's own version is the origin's. originAppVersion is the version the sender is given: a sender's app version setting or getter. When it is absent, null or blank, the sender's default applies: the event's own version.",
+  "coordinateCases": [
+    {
+      "name": "no coordinates: nothing added, checkpoint default version",
+      "input": {},
+      "expected": {
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
+    },
+    {
+      "name": "cell 1: originHint + originAppVersion -> provided version",
+      "input": {
+        "originHint": "android",
+        "originAppVersion": "4.2.0"
+      },
+      "expected": {
+        "originHint": "android",
+        "appVersion": "4.2.0"
+      }
+    },
+    {
+      "name": "cell 2: originHint without originAppVersion -> the event's own version, or null",
+      "input": {
+        "originHint": "android"
+      },
+      "expected": {
+        "originHint": "android",
+        "appVersion": "<EVENT_VERSION_OR_NULL>"
+      }
+    },
+    {
+      "name": "cell 3: originAppVersion without originHint -> provided version",
+      "input": {
+        "originAppVersion": "4.2.0"
+      },
+      "expected": {
+        "appVersion": "4.2.0"
+      }
+    },
+    {
+      "name": "cell 4: neither -> checkpoint default (outputReference does not change the rule)",
+      "input": {
+        "outputReference": "meta-x7k2q"
+      },
+      "expected": {
+        "outputReference": "meta-x7k2q",
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
+    },
+    {
+      "name": "all three set",
+      "input": {
+        "outputReference": "meta-x7k2q",
+        "originHint": "ios",
+        "originAppVersion": "7.0.1"
+      },
+      "expected": {
+        "outputReference": "meta-x7k2q",
+        "originHint": "ios",
+        "appVersion": "7.0.1"
+      }
+    },
+    {
+      "name": "values are trimmed",
+      "input": {
+        "outputReference": "  meta-x7k2q  ",
+        "originHint": "\tandroid \n",
+        "originAppVersion": "  4.2.0 "
+      },
+      "expected": {
+        "outputReference": "meta-x7k2q",
+        "originHint": "android",
+        "appVersion": "4.2.0"
+      }
+    },
+    {
+      "name": "empty strings are omitted",
+      "input": {
+        "outputReference": "",
+        "originHint": "",
+        "originAppVersion": ""
+      },
+      "expected": {
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
+    },
+    {
+      "name": "whitespace-only strings are omitted",
+      "input": {
+        "outputReference": "   ",
+        "originHint": " \t ",
+        "originAppVersion": "  "
+      },
+      "expected": {
+        "appVersion": "<CHECKPOINT_DEFAULT>"
+      }
+    },
+    {
+      "name": "whitespace-only originHint counts as absent for the appVersion rule",
+      "input": {
+        "originHint": "   ",
+        "originAppVersion": "4.2.0"
+      },
+      "expected": {
+        "appVersion": "4.2.0"
+      }
+    },
+    {
+      "name": "whitespace-only originAppVersion with originHint -> the event's own version, or null",
+      "input": {
+        "originHint": "ios",
+        "originAppVersion": "   "
+      },
+      "expected": {
+        "originHint": "ios",
+        "appVersion": "<EVENT_VERSION_OR_NULL>"
+      }
+    }
+  ],
+  "untypedInputCases": {
+    "_comment": "Only where the platform can hand the code a non-string value. Numbers and booleans are stringified; null, objects and arrays are absent. A platform whose framework rejects some of these before the sender's code runs documents that in its own tests.",
+    "cases": [
+      {
+        "name": "null values are omitted",
+        "input": {
+          "outputReference": null,
+          "originHint": null,
+          "originAppVersion": null
+        },
+        "expected": {
+          "appVersion": "<CHECKPOINT_DEFAULT>"
+        }
+      },
+      {
+        "name": "number originAppVersion is stringified",
+        "input": {
+          "originHint": "android",
+          "originAppVersion": 42
+        },
+        "expected": {
+          "originHint": "android",
+          "appVersion": "42"
+        }
+      },
+      {
+        "name": "boolean originHint is stringified",
+        "input": {
+          "originHint": true
+        },
+        "expected": {
+          "originHint": "true",
+          "appVersion": "<EVENT_VERSION_OR_NULL>"
+        }
+      },
+      {
+        "name": "object and array values are omitted",
+        "input": {
+          "outputReference": {},
+          "originHint": []
+        },
+        "expected": {
+          "appVersion": "<CHECKPOINT_DEFAULT>"
+        }
+      }
+    ]
+  },
+  "propertyCollisionCase": {
+    "name": "event properties named like the coordinates stay ordinary properties",
+    "eventProperties": {
+      "outputReference": "p1",
+      "originHint": "p2",
+      "appVersion": "p3"
+    },
+    "input": {},
+    "expected": {
+      "appVersion": "<CHECKPOINT_DEFAULT>",
+      "eventPropertyNames": ["outputReference", "originHint", "appVersion"]
+    }
+  },
+  "platforms": {
+    "segment": {
+      "url": "https://api.avo.app/inspector/v2/track",
+      "method": "POST",
+      "headers": {
+        "X-Avo-Client": "segment"
+      },
+      "libPlatform": "segment",
+      "libVersion": "2.1.0"
+    },
+    "rudderstack": {
+      "url": "https://api.avo.app/inspector/v2/track",
+      "method": "POST",
+      "headers": {
+        "X-Avo-Client": "rudderstack"
+      },
+      "libPlatform": "rudderstack",
+      "libVersion": "2.0.0"
+    }
+  },
+  "invariants": [
+    "X-Avo-Client header value === body libPlatform, for every event body, and both are the platform constant",
+    "api-key and env headers are always sent",
+    "outputReference/originHint are top-level siblings of eventProperties, never inside it",
+    "coordinates never affect batching, dedup or sampling"
+  ],
+  "warehouseColumnCases": {
+    "_comment": "Gateway-mode inspect scope. A sender inspects the event's properties plus, by scope, the fields the warehouse stores as columns. \"event\": properties only. \"event+context\": plus every context field, flattened like a warehouse column: path segments joined with \"_\", camelCase turned into snake_case (an acronym run ends before its last capital: ABTest becomes ab_test), prefixed \"context_\"; nested objects recurse, an empty object adds nothing, arrays are stored as their JSON string, null stays null. \"everything\": plus anonymous_id, user_id and the envelope (id from messageId, event, timestamp, original_timestamp, sent_at, received_at), each only when present and not null. An event property wins over a column with the same name. `expectedSchema` maps each top-level inspected property name to its type; nothing else may appear.",
+    "cases": [
+      {
+        "name": "event scope: properties only",
+        "scope": "event",
+        "event": {
+          "type": "track",
+          "event": "Checkout Completed",
+          "messageId": "msg-1",
+          "timestamp": "2026-09-28T10:00:00.000Z",
+          "originalTimestamp": "2026-09-28T09:59:59.000Z",
+          "sentAt": "2026-09-28T10:00:00.100Z",
+          "receivedAt": "2026-09-28T10:00:00.200Z",
+          "anonymousId": "anon-1",
+          "userId": "user-1",
+          "properties": {
+            "orderId": "o-1",
+            "context_locale": 7
+          },
+          "context": {
+            "ip": "203.0.113.7",
+            "locale": "en-US",
+            "timezone": null,
+            "library": {
+              "name": "analytics.js",
+              "version": "next-1.70.0"
+            },
+            "page": {
+              "path": "/cart",
+              "url": "https://shop.example.com/cart"
+            },
+            "userAgentData": {
+              "brands": [
+                {
+                  "brand": "Chromium",
+                  "version": "128"
+                }
+              ],
+              "mobile": false,
+              "platform": "macOS"
+            },
+            "campaign": {
+              "source": "newsletter"
+            },
+            "traits": {}
+          }
+        },
+        "expectedSchema": {
+          "orderId": "string",
+          "context_locale": "int"
+        }
+      },
+      {
+        "name": "event+context scope: flattened context columns, a property wins a name clash",
+        "scope": "event+context",
+        "event": {
+          "type": "track",
+          "event": "Checkout Completed",
+          "messageId": "msg-1",
+          "timestamp": "2026-09-28T10:00:00.000Z",
+          "originalTimestamp": "2026-09-28T09:59:59.000Z",
+          "sentAt": "2026-09-28T10:00:00.100Z",
+          "receivedAt": "2026-09-28T10:00:00.200Z",
+          "anonymousId": "anon-1",
+          "userId": "user-1",
+          "properties": {
+            "orderId": "o-1",
+            "context_locale": 7
+          },
+          "context": {
+            "ip": "203.0.113.7",
+            "locale": "en-US",
+            "timezone": null,
+            "library": {
+              "name": "analytics.js",
+              "version": "next-1.70.0"
+            },
+            "page": {
+              "path": "/cart",
+              "url": "https://shop.example.com/cart"
+            },
+            "userAgentData": {
+              "brands": [
+                {
+                  "brand": "Chromium",
+                  "version": "128"
+                }
+              ],
+              "mobile": false,
+              "platform": "macOS"
+            },
+            "campaign": {
+              "source": "newsletter"
+            },
+            "traits": {}
+          }
+        },
+        "expectedSchema": {
+          "orderId": "string",
+          "context_locale": "int",
+          "context_ip": "string",
+          "context_timezone": "null",
+          "context_library_name": "string",
+          "context_library_version": "string",
+          "context_page_path": "string",
+          "context_page_url": "string",
+          "context_user_agent_data_brands": "string",
+          "context_user_agent_data_mobile": "boolean",
+          "context_user_agent_data_platform": "string",
+          "context_campaign_source": "string"
+        }
+      },
+      {
+        "name": "everything scope: plus identity and envelope",
+        "scope": "everything",
+        "event": {
+          "type": "track",
+          "event": "Checkout Completed",
+          "messageId": "msg-1",
+          "timestamp": "2026-09-28T10:00:00.000Z",
+          "originalTimestamp": "2026-09-28T09:59:59.000Z",
+          "sentAt": "2026-09-28T10:00:00.100Z",
+          "receivedAt": "2026-09-28T10:00:00.200Z",
+          "anonymousId": "anon-1",
+          "userId": "user-1",
+          "properties": {
+            "orderId": "o-1",
+            "context_locale": 7
+          },
+          "context": {
+            "ip": "203.0.113.7",
+            "locale": "en-US",
+            "timezone": null,
+            "library": {
+              "name": "analytics.js",
+              "version": "next-1.70.0"
+            },
+            "page": {
+              "path": "/cart",
+              "url": "https://shop.example.com/cart"
+            },
+            "userAgentData": {
+              "brands": [
+                {
+                  "brand": "Chromium",
+                  "version": "128"
+                }
+              ],
+              "mobile": false,
+              "platform": "macOS"
+            },
+            "campaign": {
+              "source": "newsletter"
+            },
+            "traits": {}
+          }
+        },
+        "expectedSchema": {
+          "orderId": "string",
+          "context_locale": "int",
+          "context_ip": "string",
+          "context_timezone": "null",
+          "context_library_name": "string",
+          "context_library_version": "string",
+          "context_page_path": "string",
+          "context_page_url": "string",
+          "context_user_agent_data_brands": "string",
+          "context_user_agent_data_mobile": "boolean",
+          "context_user_agent_data_platform": "string",
+          "context_campaign_source": "string",
+          "anonymous_id": "string",
+          "user_id": "string",
+          "id": "string",
+          "event": "string",
+          "timestamp": "string",
+          "original_timestamp": "string",
+          "sent_at": "string",
+          "received_at": "string"
+        }
+      },
+      {
+        "name": "everything scope: absent envelope fields and a non-object context add nothing",
+        "scope": "everything",
+        "event": {
+          "type": "track",
+          "event": "Signed Up",
+          "messageId": "msg-2",
+          "timestamp": "2026-09-28T10:00:00.000Z",
+          "anonymousId": "anon-2",
+          "properties": {
+            "plan": "free"
+          },
+          "context": "not an object"
+        },
+        "expectedSchema": {
+          "plan": "string",
+          "anonymous_id": "string",
+          "id": "string",
+          "event": "string",
+          "timestamp": "string"
+        }
+      },
+      {
+        "name": "everything scope: a null envelope field adds nothing, a property wins over an envelope column, acronyms split like warehouse names",
+        "scope": "everything",
+        "event": {
+          "type": "track",
+          "event": "Signed Up",
+          "messageId": "msg-3",
+          "timestamp": "2026-09-28T10:00:00.000Z",
+          "anonymousId": "anon-3",
+          "userId": null,
+          "properties": {
+            "id": 5,
+            "plan": "free"
+          },
+          "context": {
+            "ABTest": "b",
+            "pageURLPath": "/x"
+          }
+        },
+        "expectedSchema": {
+          "id": "int",
+          "plan": "string",
+          "context_ab_test": "string",
+          "context_page_url_path": "string",
+          "anonymous_id": "string",
+          "event": "string",
+          "timestamp": "string"
+        }
+      }
+    ]
+  }
+}
