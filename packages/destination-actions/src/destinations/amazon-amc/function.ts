@@ -3,7 +3,7 @@ import { JSONLikeObject, MultiStatusResponse, PayloadValidationError, RequestCli
 import { AudienceSettings, Settings } from './generated-types'
 import type { Payload } from './syncAudiencesToDSP/generated-types'
 import { MaybeString, AudienceRecord, UserConsent, HashedPIIObject } from './types'
-import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, FLAG_AUDIENCE_MEMBERSHIP, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
+import { FLAG_CONSENT_REQUIRED, FLAG_CONSENT_ENABLE_ERRORS, CONSTANTS, RecordsResponseType, REGEX_EXTERNALUSERID, COUNTRY_CODES, UK_EEA_COUNTRY_CODES } from './utils'
 import { processHashing } from '../../lib/hashing-utils'
 import { AMAZON_AMC_API_VERSION } from './versioning-info'
 
@@ -113,9 +113,7 @@ export function createPayloadToUploadRecords(
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: features?.[FLAG_AUDIENCE_MEMBERSHIP]
-        ? getAudienceAction(payload.event_name, audienceMembership?.[index])
-        : payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action: getAudienceAction(payload.event_name, audienceMembership?.[index]),
       hashedPII: [hashedPII],
       ...(userConsent ? { userConsent } : {})
     }
@@ -173,9 +171,7 @@ function validateAndPreparePayload(
     const payloadRecord: AudienceRecord = {
       externalUserId: payload.externalUserId,
       countryCode: audienceSettings.countryCode,
-      action: features?.[FLAG_AUDIENCE_MEMBERSHIP]
-        ? getAudienceAction(payload.event_name, audienceMembership?.[originalBatchIndex])
-        : payload.event_name == 'Audience Entered' ? CONSTANTS.CREATE : CONSTANTS.DELETE,
+      action: getAudienceAction(payload.event_name, audienceMembership?.[originalBatchIndex]),
       hashedPII: [hashedPII],
       ...(userConsent ? { userConsent } : {})
     }

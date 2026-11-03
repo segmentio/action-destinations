@@ -1,7 +1,6 @@
 import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Destination from '../../index'
-import { FLAG_AUDIENCE_MEMBERSHIP } from '../../utils'
 
 const testDestination = createTestIntegration(Destination)
 
@@ -56,8 +55,7 @@ describe('AmazonAds.syncAudiencesToDSP journeys', () => {
     const response = await testDestination.testAction('syncAudiencesToDSP', {
       event: buildV2Event(true),
       settings,
-      useDefaultMappings: true,
-      features: { [FLAG_AUDIENCE_MEMBERSHIP]: true }
+      useDefaultMappings: true
     })
     expect(recordActions(response[0])).toEqual(['CREATE'])
   })
@@ -67,8 +65,7 @@ describe('AmazonAds.syncAudiencesToDSP journeys', () => {
     const response = await testDestination.testAction('syncAudiencesToDSP', {
       event: buildV2Event(false),
       settings,
-      useDefaultMappings: true,
-      features: { [FLAG_AUDIENCE_MEMBERSHIP]: true }
+      useDefaultMappings: true
     })
     expect(recordActions(response[0])).toEqual(['DELETE'])
   })
@@ -78,30 +75,9 @@ describe('AmazonAds.syncAudiencesToDSP journeys', () => {
     const response = await testDestination.testBatchAction('syncAudiencesToDSP', {
       events: [buildV2Event(true, 'user-1'), buildV2Event(false, 'user-2'), buildV2Event(true, 'user-3')],
       settings,
-      useDefaultMappings: true,
-      features: { [FLAG_AUDIENCE_MEMBERSHIP]: true }
+      useDefaultMappings: true
     })
     expect(recordActions(response[0])).toEqual(['CREATE', 'DELETE', 'CREATE'])
-  })
-
-  it('Flag off: Journeys V2 events that are not Audience Entered/Exited still resolve to DELETE', async () => {
-    mockRecordsEndpoint()
-    const response = await testDestination.testAction('syncAudiencesToDSP', {
-      event: buildV2Event(true),
-      settings,
-      useDefaultMappings: true
-    })
-    expect(recordActions(response[0])).toEqual(['DELETE'])
-  })
-
-  it('Flag off batch: Journeys V2 events that are not Audience Entered/Exited still resolve to DELETE', async () => {
-    mockRecordsEndpoint()
-    const response = await testDestination.testBatchAction('syncAudiencesToDSP', {
-      events: [buildV2Event(true, 'user-1'), buildV2Event(false, 'user-2')],
-      settings,
-      useDefaultMappings: true
-    })
-    expect(recordActions(response[0])).toEqual(['DELETE', 'DELETE'])
   })
 
   it('Legacy Journeys: no properties[computation_key] boolean, resolves to CREATE via legacy audienceMembership', async () => {
@@ -116,7 +92,7 @@ describe('AmazonAds.syncAudiencesToDSP journeys', () => {
       }),
       settings,
       useDefaultMappings: true,
-      features: { [FLAG_AUDIENCE_MEMBERSHIP]: true, 'actions-legacy-journeys-audience-membership': true }
+      features: { 'actions-legacy-journeys-audience-membership': true }
     })
     expect(recordActions(response[0])).toEqual(['CREATE'])
   })
