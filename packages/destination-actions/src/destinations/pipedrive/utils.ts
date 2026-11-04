@@ -2,8 +2,6 @@ import { InvalidAuthenticationError } from '@segment/actions-core'
 
 type PayloadWithCustomFields = { custom_fields?: { [k: string]: unknown } }
 
-export const FLAGON_NAME_VALIDATE_DOMAIN = 'actions-pipedrive-validate-domain'
-
 export function validateDomain(domain: string): void {
   if (typeof domain !== 'string' || !/^[a-zA-Z0-9-]+$/.test(domain)) {
     throw new InvalidAuthenticationError(

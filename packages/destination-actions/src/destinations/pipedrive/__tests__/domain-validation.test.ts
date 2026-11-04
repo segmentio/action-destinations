@@ -1,13 +1,11 @@
 import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Destination from '../index'
-import { FLAGON_NAME_VALIDATE_DOMAIN, validateDomain } from '../utils'
+import { validateDomain } from '../utils'
 
 const testDestination = createTestIntegration(Destination)
 
 const API_TOKEN = 'random string'
-const FLAG_ON = { [FLAGON_NAME_VALIDATE_DOMAIN]: true }
-const FLAG_OFF = { [FLAGON_NAME_VALIDATE_DOMAIN]: false }
 const VALID_DOMAIN = 'companydomain'
 const BAD_DOMAIN = 'attacker.com/path?x='
 
@@ -119,49 +117,35 @@ describe('testAuthentication', () => {
 })
 
 describe.each(ACTIONS)('$name', ({ name, mapping }) => {
-  const run = (domain: string, features?: Record<string, boolean>) =>
-    testDestination.testAction(name, { mapping, settings: { apiToken: API_TOKEN, domain }, features })
+  const run = (domain: string) =>
+    testDestination.testAction(name, { mapping, settings: { apiToken: API_TOKEN, domain } })
 
-  it('flag on: sends to the Pipedrive host for a valid domain', async () => {
+  it('sends to the Pipedrive host for a valid domain', async () => {
     mockPipedriveHost(VALID_DOMAIN)
-    const responses = await run(VALID_DOMAIN, FLAG_ON)
+    const responses = await run(VALID_DOMAIN)
     expect(responses.length).toBeGreaterThan(0)
     responses.forEach((r) => expect(new URL(r.url).host).toBe(`${VALID_DOMAIN}.pipedrive.com`))
   })
 
-  it('flag on: rejects an invalid domain without sending a request', async () => {
-    await expect(run(BAD_DOMAIN, FLAG_ON)).rejects.toThrowError(/Invalid domain/)
-  })
-
-  it('flag off: does not validate, so a dotted domain still sends as before', async () => {
-    mockPipedriveHost('a.b')
-    const responses = await run('a.b', FLAG_OFF)
-    expect(responses.length).toBeGreaterThan(0)
-    responses.forEach((r) => expect(new URL(r.url).host).toBe('a.b.pipedrive.com'))
+  it('rejects an invalid domain without sending a request', async () => {
+    await expect(run(BAD_DOMAIN)).rejects.toThrowError(/Invalid domain/)
   })
 })
 
 describe.each(DYNAMIC_FIELDS)('dynamic field $action.$field', ({ action, field }) => {
-  const run = (domain: string, features?: Record<string, boolean>) =>
+  const run = (domain: string) =>
     testDestination.testDynamicField(action, field, {
       settings: { apiToken: API_TOKEN, domain },
-      payload: {},
-      features
+      payload: {}
     })
 
-  it('flag on: fetches from the Pipedrive host for a valid domain', async () => {
+  it('fetches from the Pipedrive host for a valid domain', async () => {
     mockPipedriveHost(VALID_DOMAIN)
-    const result = await run(VALID_DOMAIN, FLAG_ON)
+    const result = await run(VALID_DOMAIN)
     expect(result.choices.length).toBeGreaterThan(0)
   })
 
-  it('flag on: rejects an invalid domain without sending a request', async () => {
-    await expect(run(BAD_DOMAIN, FLAG_ON)).rejects.toThrowError(/Invalid domain/)
-  })
-
-  it('flag off: does not validate, so a dotted domain still fetches as before', async () => {
-    mockPipedriveHost('a.b')
-    const result = await run('a.b', FLAG_OFF)
-    expect(result.choices.length).toBeGreaterThan(0)
+  it('rejects an invalid domain without sending a request', async () => {
+    await expect(run(BAD_DOMAIN)).rejects.toThrowError(/Invalid domain/)
   })
 })
