@@ -185,6 +185,29 @@ describe('Only Track Known Users', () => {
     expect(calls).toEqual(['initialize', 'changeUser(saved-user)', 'openSession'])
   })
 
+  const noEnabledUpdateUserProfile: Array<[string, (subs: any[] | undefined) => any[] | undefined]> = [
+    [
+      'only Track Event and Track Purchase',
+      (subs: any[] | undefined) => (subs ?? []).filter((s) => s.partnerAction !== 'updateUserProfile')
+    ],
+    [
+      'only a disabled Update User Profile',
+      (subs: any[] | undefined) =>
+        (subs ?? []).map((s) => (s.partnerAction === 'updateUserProfile' ? { ...s, enabled: false } : s))
+    ]
+  ]
+
+  test.each(noEnabledUpdateUserProfile)(
+    'with no enabled Update User Profile (%s) nothing identifies the user in Braze, so Braze is left alone',
+    async (_name: string, mutate: (subs: any[] | undefined) => any[] | undefined) => {
+      window.localStorage.setItem('ajs_user_id', '"saved-user"')
+
+      await load(true, '$.userId', mutate)
+
+      expect(calls).toEqual(['initialize', 'openSession'])
+    }
+  )
+
   test('one remapped Update User Profile subscription is enough to leave the customer alone', async () => {
     window.localStorage.setItem('ajs_user_id', '"saved-user"')
 
