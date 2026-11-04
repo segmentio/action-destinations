@@ -945,7 +945,7 @@ describe('CustomerIO', () => {
 
         expect(response).not.toHaveProperty('customer_ip')
         expect(response.attributes).not.toHaveProperty('customer_ip')
-
+      })
       describe('update_only', () => {
         const userId = 'abc123'
         const anonymousId = 'unknown_123'
@@ -991,6 +991,7 @@ describe('CustomerIO', () => {
               full_name: traits.full_name,
               plan: traits.plan
             },
+            customer_ip: '8.8.8.8',
             identifiers: {
               id: userId
             },
@@ -1101,14 +1102,16 @@ describe('CustomerIO', () => {
             type: 'person',
             identifiers: { id: 'user-1' },
             timestamp: dayjs.utc(timestamp).unix(),
-            attributes: { plan: 'pro', _update: true }
+            attributes: { plan: 'pro', _update: true },
+            customer_ip: '8.8.8.8'
           },
           {
             action: 'identify',
             type: 'person',
             identifiers: { id: 'user-2' },
             timestamp: dayjs.utc(timestamp).unix(),
-            attributes: { plan: 'free', _update: true }
+            attributes: { plan: 'free', _update: true },
+            customer_ip: '8.8.8.8'
           }
         ])
         nock.cleanAll()
