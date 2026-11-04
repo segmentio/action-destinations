@@ -55,12 +55,6 @@ const event_conversion_type: InputField = {
   ]
 }
 
-const event_tag: InputField = {
-  label: '[Deprecated] Event Tag',
-  description: 'Deprecated. No longer supported.',
-  type: 'string'
-}
-
 const event_type: InputField = {
   label: '[Deprecated] Event Type',
   description: 'Deprecated. Use Event Name field.',
@@ -179,7 +173,6 @@ const snap_capi_input_fields_deprecated = {
   device_model,
   email,
   event_conversion_type,
-  event_tag,
   event_type,
   idfv,
   ip_address,
