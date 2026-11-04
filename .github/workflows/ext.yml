@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
 
 env:
   ARTIFACTORY_URL: ${{ vars.ARTIFACTORY_URL }}
