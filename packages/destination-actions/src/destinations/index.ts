@@ -241,6 +241,7 @@ register('6a61fbcd4a3fcb83e9b57434', './mntn-audiences')
 register('6a6748e14c5666d0bc0d3a66', './vibe-conversions')
 register('6a68baf59e9ffb3aafc3c3c8', './marketo-private')
 register('6a8461f58f98175178f49c3c', './heap-cloud')
+register('6aeaf4f730ae4c0220fc250a', './tatari-web-events')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
