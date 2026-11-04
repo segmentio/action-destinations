@@ -19,19 +19,21 @@ export async function send(
   const delimiter = payloads[0]?.delimiter
   const actionColName = payloads[0]?.audience_action_column_name
   const batchColName = payloads[0]?.batch_size_column_name
+  // Opt-in: only an explicit true enables header quoting. Missing/false keeps the legacy header output.
+  const sanitizeHeaders = payloads[0]?.sanitize_headers === true
 
   const headers: ColumnHeader[] = Object.entries(rawMapping.columns)
     .filter(([_, value]) => value !== '')
     .map(([column]) => {
-      return { cleanName: clean(delimiter, column), originalName: column }
+      return { cleanName: clean(delimiter, column, sanitizeHeaders), originalName: column }
     })
 
   if (actionColName) {
-    headers.push({ cleanName: clean(delimiter, actionColName), originalName: actionColName })
+    headers.push({ cleanName: clean(delimiter, actionColName, sanitizeHeaders), originalName: actionColName })
   }
 
   if (batchColName) {
-    headers.push({ cleanName: clean(delimiter, batchColName), originalName: batchColName })
+    headers.push({ cleanName: clean(delimiter, batchColName, sanitizeHeaders), originalName: batchColName })
   }
 
   const configuredColumnTransforms = payloads[0]?.columns_to_transform ?? []
@@ -47,7 +49,15 @@ export async function send(
     ? resolveColumnTransforms(configuredColumnTransforms, new Set(headers.map((h) => h.originalName)))
     : new Map<string, ColumnTransform>()
 
-  const fileContent = generateFile(payloads, headers, delimiter, actionColName, batchColName, columnTransforms)
+  const fileContent = generateFile(
+    payloads,
+    headers,
+    delimiter,
+    actionColName,
+    batchColName,
+    columnTransforms,
+    sanitizeHeaders
+  )
 
   const s3Client = new Client(
     settings.s3_aws_region,
@@ -67,11 +77,22 @@ export async function send(
   )
 }
 
-export function clean(delimiter: string, str?: string) {
+export function clean(delimiter: string, str?: string, minimalQuoting = false) {
   if (!str) {
     return ''
   }
+  // With minimal quoting the name is kept intact; generateFile quotes the header cell when needed.
+  if (minimalQuoting) {
+    return str
+  }
   return delimiter === 'tab' ? str : str.replace(delimiter, '')
+}
+
+// Quote a header cell only if it contains the delimiter, a double quote or a line break (RFC 4180 / QUOTE_MINIMAL).
+export function quoteHeaderIfNeeded(str: string, delimiter: string): string {
+  const delimiterChar = delimiter === 'tab' ? '\t' : delimiter
+  const needsQuoting = /["\r\n]/.test(str) || (delimiterChar !== '' && str.includes(delimiterChar))
+  return needsQuoting ? encodeString(str) : str
 }
 
 export function getNormalizer(normalize?: Normalization): ((value: string) => string) | undefined {
@@ -114,8 +135,10 @@ export function generateFile(
   delimiter: string,
   actionColName?: string,
   batchColName?: string,
-  columnTransforms: Map<string, ColumnTransform> = new Map()
+  columnTransforms: Map<string, ColumnTransform> = new Map(),
+  sanitizeHeaders = false
 ): Buffer {
+  const joiner = delimiter === 'tab' ? '\t' : delimiter
   const rows = payloads.map((payload, index) => {
     const isLastRow = index === payloads.length - 1
     const row = headers.map((header): string => {
@@ -132,7 +155,11 @@ export function generateFile(
   })
 
   return Buffer.concat([
-    Buffer.from(`${headers.map((header) => header.cleanName).join(delimiter === 'tab' ? '\t' : delimiter)}\n`),
+    Buffer.from(
+      `${headers
+        .map((header) => (sanitizeHeaders ? quoteHeaderIfNeeded(header.cleanName, delimiter) : header.cleanName))
+        .join(joiner)}\n`
+    ),
     ...rows
   ])
 }
