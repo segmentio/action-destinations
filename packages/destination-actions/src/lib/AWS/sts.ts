@@ -51,6 +51,37 @@ const awsCredentialsCache: AWSCredentialsCache = {
   credentials: { accessKeyId: '', secretAccessKey: '', sessionToken: '' }
 }
 
+type AssumedRoleCacheEntry = {
+  credentials: AWSCredentials
+  expiresAt: number
+}
+
+// In-memory cache of assumed-role credentials, keyed by role ARN + external id + region.
+// Under high TPS, calling STS AssumeRole on every request causes IAM throttling. Caching the
+// assumed credentials until shortly before they expire keeps STS calls to (at most) one refresh
+// per role per TTL window instead of one (well, two - intermediary + target) per request.
+const assumedRoleCache = new Map<string, AssumedRoleCacheEntry>()
+
+// De-duplicates concurrent refreshes for the same key. Without this, a burst of requests that
+// all miss the cache at the same time would each trigger a fresh set of STS calls (thundering
+// herd). Instead they all await the single in-flight refresh.
+const inflightRoleRefreshes = new Map<string, Promise<AssumedRoleCacheEntry>>()
+
+// Refresh a little before the credentials actually expire so in-flight requests aren't handed
+// credentials that expire mid-use.
+const CREDENTIALS_EXPIRY_BUFFER_MS = 5 * 60 * 1000 // 5 minutes
+// Fallback TTL used when STS does not return an expiration. AssumeRole sessions default to 1 hour.
+const DEFAULT_CREDENTIALS_TTL_MS = 55 * 60 * 1000 // 55 minutes
+
+const buildAssumedRoleCacheKey = (roleArn: string, externalId: string, region: string): string =>
+  `${roleArn}|${externalId}|${region}`
+
+// Exposed for tests to reset the in-memory caches between cases.
+export const __clearAssumedRoleCacheForTests = (): void => {
+  assumedRoleCache.clear()
+  inflightRoleRefreshes.clear()
+}
+
 function getToken(): string {
   const tokenFilepath =
     process.env['AWS_WEB_IDENTITY_TOKEN_FILE'] || '/var/run/secrets/kubernetes.io/serviceaccount/token'
@@ -133,13 +164,64 @@ export async function getAWSCredentialsFromEKS(request: RequestClient): Promise<
 }
 
 export const assumeRole = async (roleArn: string, externalId: string, region: string): Promise<AWSCredentials> => {
-  const intermediaryARN = process.env.AMAZON_KINESIS_ACTIONS_ROLE_ADDRESS as string
-  const intermediaryExternalId = process.env.AMAZON_KINESIS_ACTIONS_EXTERNAL_ID as string
-  const intermediaryCreds = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
-  return getSTSCredentials(roleArn, externalId, region, intermediaryCreds)
+  const cacheKey = buildAssumedRoleCacheKey(roleArn, externalId, region)
+
+  const cached = assumedRoleCache.get(cacheKey)
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.credentials
+  }
+
+  // Collapse concurrent refreshes for the same key into a single STS round-trip.
+  let inflight = inflightRoleRefreshes.get(cacheKey)
+  if (!inflight) {
+    inflight = refreshAssumedRoleCredentials(roleArn, externalId, region)
+      .then((entry) => {
+        assumedRoleCache.set(cacheKey, entry)
+        return entry
+      })
+      .finally(() => {
+        inflightRoleRefreshes.delete(cacheKey)
+      })
+    inflightRoleRefreshes.set(cacheKey, inflight)
+  }
+
+  const entry = await inflight
+  return entry.credentials
 }
 
-const getSTSCredentials = async (roleId: string, externalId: string, region: string, credentials?: AWSCredentials) => {
+const refreshAssumedRoleCredentials = async (
+  roleArn: string,
+  externalId: string,
+  region: string
+): Promise<AssumedRoleCacheEntry> => {
+  const intermediaryARN = process.env.AMAZON_KINESIS_ACTIONS_ROLE_ADDRESS as string
+  const intermediaryExternalId = process.env.AMAZON_KINESIS_ACTIONS_EXTERNAL_ID as string
+  const intermediary = await getSTSCredentials(intermediaryARN, intermediaryExternalId, region)
+  const target = await getSTSCredentials(roleArn, externalId, region, intermediary.credentials)
+
+  // Prefer the actual STS expiration (minus a safety buffer) so the cache stays valid for the
+  // full session lifetime; fall back to a conservative default if STS omits it.
+  const ttl = target.expiration
+    ? target.expiration.getTime() - Date.now() - CREDENTIALS_EXPIRY_BUFFER_MS
+    : DEFAULT_CREDENTIALS_TTL_MS
+
+  return {
+    credentials: target.credentials,
+    expiresAt: Date.now() + Math.max(ttl, 0)
+  }
+}
+
+type STSCredentialsResult = {
+  credentials: AWSCredentials
+  expiration?: Date
+}
+
+const getSTSCredentials = async (
+  roleId: string,
+  externalId: string,
+  region: string,
+  credentials?: AWSCredentials
+): Promise<STSCredentialsResult> => {
   const options = { credentials, region: region }
   const stsClient = new STSClient(options)
   const roleSessionName: string = uuidv4()
@@ -159,8 +241,11 @@ const getSTSCredentials = async (roleId: string, externalId: string, region: str
   }
 
   return {
-    accessKeyId: result.Credentials.AccessKeyId,
-    secretAccessKey: result.Credentials.SecretAccessKey,
-    sessionToken: result.Credentials.SessionToken
+    credentials: {
+      accessKeyId: result.Credentials.AccessKeyId,
+      secretAccessKey: result.Credentials.SecretAccessKey,
+      sessionToken: result.Credentials.SessionToken
+    },
+    expiration: result.Credentials.Expiration
   }
 }
