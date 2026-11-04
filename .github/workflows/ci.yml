@@ -121,13 +121,30 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build
-        run: NODE_ENV=production yarn build
+      # Lint is type-aware but resolves @segment/* via tsconfig `paths` to src, so it needs no build.
+      # The ESLint cache only knows about a file's own content, not the types it imports, so it is
+      # keyed on the shared sources/config: changing any of them invalidates it and forces a full lint.
+      # Only pushes to main save the cache and main always lints in full; PRs restore main's cache.
+      - name: Restore ESLint cache
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .eslintcache
+          key: eslint-${{ runner.os }}-${{ hashFiles('yarn.lock', '.eslintrc.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'packages/core/src/**', 'packages/actions-shared/src/**', 'packages/ajv-human-errors/src/**', 'packages/destination-subscriptions/src/**', 'packages/destination-actions/src/lib/**') }}-${{ github.sha }}
+          restore-keys: |
+            eslint-${{ runner.os }}-${{ hashFiles('yarn.lock', '.eslintrc.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'packages/core/src/**', 'packages/actions-shared/src/**', 'packages/ajv-human-errors/src/**', 'packages/destination-subscriptions/src/**', 'packages/destination-actions/src/lib/**') }}-
 
       - name: Lint
         env:
           NODE_OPTIONS: '--max-old-space-size=4096'
         run: yarn lint
+
+      - name: Save ESLint cache
+        if: github.event_name == 'push'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .eslintcache
+          key: eslint-${{ runner.os }}-${{ hashFiles('yarn.lock', '.eslintrc.js', 'tsconfig*.json', 'packages/*/tsconfig*.json', 'packages/core/src/**', 'packages/actions-shared/src/**', 'packages/ajv-human-errors/src/**', 'packages/destination-subscriptions/src/**', 'packages/destination-actions/src/lib/**') }}-${{ github.sha }}
 
   validate:
     name: Validate
