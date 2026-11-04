@@ -90,6 +90,53 @@ jobs:
       - name: Test (Affected)
         run: yarn nx affected -t test --parallel=3 # nx recipe
 
+  build:
+    name: Build
+    runs-on: ubuntu-latest-large
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22.x
+          registry-url: 'https://registry.npmjs.org'
+          cache: yarn
+
+      - name: Artifactory OIDC Auth
+        if: ${{ env.ARTIFACTORY_URL != '' }}
+        uses: ./.github/actions/artifactory-oidc
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: NODE_ENV=production yarn build
+
+      # Package every build output (package dist/ folders and the browser bundles in
+      # packages/browser-destinations/dist/web) into one tarball so that paths are preserved
+      # and the artifact is a single file.
+      - name: Package build outputs
+        run: |
+          find packages -name node_modules -prune -o -name dist -type d -print \
+            | tar -I 'gzip -1' -cf "$RUNNER_TEMP/build-output.tgz" -T -
+
+      - name: Upload build outputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-output
+          path: ${{ runner.temp }}/build-output.tgz
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+
   lint:
     name: Lint
     runs-on: ubuntu-latest-large
@@ -121,9 +168,6 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build
-        run: NODE_ENV=production yarn build
-
       - name: Lint
         env:
           NODE_OPTIONS: '--max-old-space-size=4096'
@@ -131,6 +175,7 @@ jobs:
 
   validate:
     name: Validate
+    needs: build
     runs-on: ubuntu-latest-large
     timeout-minutes: 20
     permissions:
@@ -163,8 +208,14 @@ jobs:
       - name: Assert yarn.lock is up-to-date
         run: bash scripts/assert-lockfile-updated.sh
 
-      - name: Build
-        run: NODE_ENV=production yarn build
+      - name: Download build outputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-output
+          path: ${{ runner.temp }}
+
+      - name: Extract build outputs
+        run: tar -xzf "$RUNNER_TEMP/build-output.tgz"
 
       - name: Validate Definitions
         run: yarn validate
@@ -183,6 +234,7 @@ jobs:
 
   browser-destination-bundle-qa:
     name: Browser Destination Bundle QA
+    needs: build
     # env: # Disable saucelabs - we blew through our quota.
     #   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
     #   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
@@ -214,8 +266,14 @@ jobs:
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build
-        run: NODE_ENV=production yarn build:browser-bundles
+      - name: Download build outputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: build-output
+          path: ${{ runner.temp }}
+
+      - name: Extract build outputs
+        run: tar -xzf "$RUNNER_TEMP/build-output.tgz"
 
       - name: Size Limit
         run: yarn browser size
