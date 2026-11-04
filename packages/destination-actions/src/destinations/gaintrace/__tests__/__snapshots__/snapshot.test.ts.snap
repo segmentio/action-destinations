@@ -1,0 +1,240 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-gaintrace destination: groupCompany action - all fields 1`] = `
+Object {
+  "domain": "31w3Z(sAhL^Kd9u4s",
+  "employeeCount": 53107216424632.32,
+  "externalId": "31w3Z(sAhL^Kd9u4s",
+  "industry": "31w3Z(sAhL^Kd9u4s",
+  "name": "31w3Z(sAhL^Kd9u4s",
+  "plan": "31w3Z(sAhL^Kd9u4s",
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: groupCompany action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 31w3Z(sAhL^Kd9u4s",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: groupCompany action - required fields 1`] = `
+Object {
+  "externalId": "31w3Z(sAhL^Kd9u4s",
+  "name": "31w3Z(sAhL^Kd9u4s",
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: groupCompany action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 31w3Z(sAhL^Kd9u4s",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: identifyUser action - all fields 1`] = `
+Object {
+  "accountExternalId": "4^v6$NG2S*",
+  "email": "kivata@dew.tw",
+  "externalId": "4^v6$NG2S*",
+  "name": "4^v6$NG2S*",
+  "phone": "4^v6$NG2S*",
+  "role": "4^v6$NG2S*",
+  "traits": Object {
+    "testType": "4^v6$NG2S*",
+  },
+  "upsert": true,
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: identifyUser action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 4^v6$NG2S*",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: identifyUser action - required fields 1`] = `
+Object {
+  "accountExternalId": "4^v6$NG2S*",
+  "externalId": "4^v6$NG2S*",
+  "upsert": true,
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: identifyUser action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 4^v6$NG2S*",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: pageView action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "anonymous_id": "0CG&@!)3S3kz7hF2y]!",
+      "event_category": "admin",
+      "event_name": "0CG&@!)3S3kz7hF2y]!",
+      "properties": Object {
+        "testType": "0CG&@!)3S3kz7hF2y]!",
+      },
+      "source": "segment",
+      "source_event_id": "0CG&@!)3S3kz7hF2y]!",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "0CG&@!)3S3kz7hF2y]!",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: pageView action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 0CG&@!)3S3kz7hF2y]!",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: pageView action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "anonymous_id": "0CG&@!)3S3kz7hF2y]!",
+      "event_category": "navigation",
+      "event_name": "Page Viewed",
+      "source": "segment",
+      "source_event_id": "0CG&@!)3S3kz7hF2y]!",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "0CG&@!)3S3kz7hF2y]!",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: pageView action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer 0CG&@!)3S3kz7hF2y]!",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: trackEvent action - all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "anonymous_id": "gUUhzmxV2",
+      "event_category": "api",
+      "event_name": "gUUhzmxV2",
+      "properties": Object {
+        "testType": "gUUhzmxV2",
+      },
+      "source": "segment",
+      "source_event_id": "gUUhzmxV2",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "gUUhzmxV2",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: trackEvent action - all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer gUUhzmxV2",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: trackEvent action - required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "anonymous_id": "gUUhzmxV2",
+      "event_category": "feature_usage",
+      "event_name": "gUUhzmxV2",
+      "source": "segment",
+      "source_event_id": "gUUhzmxV2",
+      "timestamp": "2021-02-01T00:00:00.000Z",
+      "user_id": "gUUhzmxV2",
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-gaintrace destination: trackEvent action - required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer gUUhzmxV2",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "Segment (Actions)",
+    ],
+  },
+}
+`;
