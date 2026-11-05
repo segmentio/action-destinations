@@ -202,7 +202,15 @@ export const fields: Record<string, InputField> = {
           }
         }
       ],
-      android_advertising_id: { '@path': '$.context.device.advertisingId' }
+      android_advertising_id: {
+        '@if': {
+          blank: {
+            '@liquid':
+              "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
+          then: { '@path': '$.context.device.advertisingId' }
+        }
+      }
     }
   },
   matching_data: {

@@ -182,6 +182,53 @@ describe('ChatGPT Conversions API', () => {
     })
   })
 
+  describe('advertising id default mapping', () => {
+    const gaid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+    const { essential_identifiers: _omitted, ...mappingWithDefaultIdentifiers } = mapping
+
+    const send = async (deviceType: string | undefined, traits: Record<string, unknown>) => {
+      let body: { events: Record<string, any>[] } = { events: [] }
+      nock('https://bzr.openai.com')
+        .post('/v1/events', (requestBody) => {
+          body = requestBody
+          return true
+        })
+        .query(true)
+        .reply(200, {})
+      await testDestination.testAction('sendConversion', {
+        event: makeEvent('msg-gaid', {
+          context: {
+            page: { url: 'https://example.com/thanks' },
+            traits,
+            device: { advertisingId: gaid, ...(deviceType ? { type: deviceType } : {}) }
+          }
+        }),
+        settings,
+        mapping: mappingWithDefaultIdentifiers,
+        useDefaultMappings: true
+      })
+      return body.events[0].user
+    }
+
+    it('sends the advertising id for Android devices', async () => {
+      expect((await send('android', {})).android_advertising_id).toBe(gaid)
+    })
+
+    it('does not send the advertising id for iOS devices', async () => {
+      const user = await send('ios', { email: 'jane@example.com' })
+      expect(user.android_advertising_id).toBeUndefined()
+      expect(user.emails_sha256).toHaveLength(1)
+    })
+
+    it('does not send the advertising id when the device type is missing', async () => {
+      expect((await send(undefined, { email: 'jane@example.com' })).android_advertising_id).toBeUndefined()
+    })
+
+    it('rejects an iOS event whose only identifier is the advertising id', async () => {
+      await expect(send('ios', {})).rejects.toThrow('At least one valid essential identifier')
+    })
+  })
+
   describe('presets', () => {
     const richEvent = (type: 'track' | 'page') =>
       createTestEvent({
@@ -194,7 +241,7 @@ describe('ChatGPT Conversions API', () => {
           ip: '203.0.113.9',
           userAgent: 'Mozilla/5.0',
           page: { url: 'https://example.com/page' },
-          device: { advertisingId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' },
+          device: { type: 'android', advertisingId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' },
           traits: {
             email: 'jane@example.com',
             first_name: 'Jane',

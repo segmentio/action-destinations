@@ -775,7 +775,14 @@
               }
             ],
             "android_advertising_id": {
-              "@path": "$.context.device.advertisingId"
+              "@if": {
+                "blank": {
+                  "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+                },
+                "then": {
+                  "@path": "$.context.device.advertisingId"
+                }
+              }
             }
           },
           "choices": null,
@@ -1311,7 +1318,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -1449,7 +1463,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -1595,7 +1616,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -1741,7 +1769,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -1923,7 +1958,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -2092,7 +2134,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -2261,7 +2310,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -2407,7 +2463,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -2589,7 +2652,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -2735,7 +2805,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -2881,7 +2958,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {
@@ -3030,7 +3114,14 @@
             }
           ],
           "android_advertising_id": {
-            "@path": "$.context.device.advertisingId"
+            "@if": {
+              "blank": {
+                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              },
+              "then": {
+                "@path": "$.context.device.advertisingId"
+              }
+            }
           }
         },
         "matching_data": {

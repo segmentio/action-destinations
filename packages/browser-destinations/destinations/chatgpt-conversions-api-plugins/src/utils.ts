@@ -1,7 +1,5 @@
 export const storageOpprefKey = 'analytics_chatgpt_conversions_api_oppref'
 
-export const storageObrefKey = 'analytics_chatgpt_conversions_api_obref'
-
 export const opprefQuerystringName = 'oppref'
 
 export const obrefCookieName = '__obref'
