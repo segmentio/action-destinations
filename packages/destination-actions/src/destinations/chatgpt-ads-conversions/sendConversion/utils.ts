@@ -6,6 +6,7 @@ import {
   CUSTOM_EVENT_NAME_REGEX,
   GAID_REGEX,
   ISO_COUNTRY_CODES,
+  ISO_CURRENCY_CODES,
   MAX_EVENT_AGE_MS,
   MAX_LIST_VALUES,
   MAX_EVENT_FUTURE_MS,
@@ -61,11 +62,10 @@ export function hashValues(values: unknown, cleaner: (value: string) => string):
 }
 
 export function toMinorUnitExponent(currency: string): number {
-  try {
-    return new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits ?? 2
-  } catch {
+  if (!ISO_CURRENCY_CODES.includes(currency.toUpperCase())) {
     throw new PayloadValidationError(`Currency "${currency}" is not a valid ISO 4217 currency code.`)
   }
+  return new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits ?? 2
 }
 
 export function toMinorUnits(amount: number, currency: string): number {

@@ -225,7 +225,9 @@ describe('toMinorUnitExponent', () => {
     ['USD', 2],
     ['usd', 2],
     ['JPY', 0],
-    ['KWD', 3]
+    ['KWD', 3],
+    ['XCG', 2],
+    ['XAU', 2]
   ] as [string, number][])('returns the minor unit exponent for %s', (currency, expected) => {
     expect(toMinorUnitExponent(currency)).toBe(expected)
   })
@@ -233,6 +235,13 @@ describe('toMinorUnitExponent', () => {
   it.each(['ZZZZ', 'US', '', '12'])('rejects the malformed currency code %p', (currency) => {
     expect(() => toMinorUnitExponent(currency)).toThrow('not a valid ISO 4217')
   })
+
+  it.each(['XYZ', 'ANG', 'BGN', 'HRK', 'BTC', 'USDT'])(
+    'rejects the well-formed code %p that ChatGPT Ads does not accept',
+    (currency: string) => {
+      expect(() => toMinorUnitExponent(currency)).toThrow('not a valid ISO 4217')
+    }
+  )
 })
 
 describe('toCurrency', () => {
@@ -250,6 +259,11 @@ describe('toCurrency', () => {
   it('rejects malformed currency codes', () => {
     expect(() => toCurrency('US')).toThrow('not a valid ISO 4217')
     expect(() => toCurrency('ZZZZ')).toThrow('not a valid ISO 4217')
+  })
+
+  it('rejects a well-formed code that is not an accepted ISO 4217 currency', () => {
+    expect(() => toCurrency('XYZ')).toThrow('Currency "XYZ" is not a valid ISO 4217')
+    expect(() => toCurrency(' xyz ')).toThrow('not a valid ISO 4217')
   })
 })
 
