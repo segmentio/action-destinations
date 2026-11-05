@@ -52,6 +52,10 @@ export const createPet = async (
   })
 }
 
+// folder_name / pet_name can be derived from event data, so they must never be able to address
+// Object.prototype when used as object keys.
+const UNSAFE_KEYS = ['__proto__', 'constructor', 'prototype']
+
 export const sendToPet = async (
   request: RequestClient,
   authTokens: AuthTokens,
@@ -79,6 +83,19 @@ export const sendToPet = async (
   // Around 1 request every 120ms.
   const sendToPetWaitInterval = 120
 
+  // Reject unsafe folder/PET names before any request is made.
+  for (const item of payload) {
+    const petName = String(item.pet_name || settings.profileExtensionTable)
+    const folderName = String(item.folder_name || settings.defaultFolderName)
+    if (UNSAFE_KEYS.includes(petName) || UNSAFE_KEYS.includes(folderName)) {
+      throw new IntegrationError(
+        `Invalid folder or PET name: "${UNSAFE_KEYS.includes(folderName) ? folderName : petName}" is not allowed.`,
+        'INVALID_ARGUMENT',
+        400
+      )
+    }
+  }
+
   // First, update the profile list. No PETs will accept records from non-existing profiles.
   await upsertListMembers(request, authTokens, payload, settings, usingAsyncApi)
 
@@ -94,15 +111,15 @@ export const sendToPet = async (
           }
       )[]
     }
-  } = {}
+  } = Object.create(null)
   for (const item of payload) {
     const petName = String(item.pet_name || settings.profileExtensionTable)
     const folderName = String(item.folder_name || settings.defaultFolderName)
-    if (!folderRecords[folderName]) {
-      folderRecords[folderName] = {}
+    if (!Object.prototype.hasOwnProperty.call(folderRecords, folderName)) {
+      folderRecords[folderName] = Object.create(null)
     }
 
-    if (!folderRecords[folderName][petName]) {
+    if (!Object.prototype.hasOwnProperty.call(folderRecords[folderName], petName)) {
       folderRecords[folderName][petName] = []
     }
 
