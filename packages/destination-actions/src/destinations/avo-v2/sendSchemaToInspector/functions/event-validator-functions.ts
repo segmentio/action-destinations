@@ -25,16 +25,11 @@ import type {
 // =============================================================================
 
 /**
- * Property names that must never be used as keys on aggregation containers.
- * Names come from the Avo tracking plan API response, and JSON.parse keeps
- * `__proto__` as an own key, so writing through it would pollute Object.prototype.
+ * Property names and constraint-value keys come from the tracking plan response and may be
+ * arbitrary strings, including `__proto__` (JSON.parse keeps it as an own key). Containers keyed
+ * by those names are therefore null-prototype objects, on which `__proto__` is an ordinary key
+ * and cannot reach Object.prototype, and existence checks use own-property lookups.
  */
-const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
-
-function isUnsafeKey(key: string): boolean {
-  return UNSAFE_KEYS.has(key)
-}
-
 function hasOwn(obj: object, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key)
 }
@@ -46,7 +41,6 @@ function hasOwn(obj: object, key: string): boolean {
 function deepCopyConstraintMapping(mapping: Record<string, string[]>): Record<string, string[]> {
   const result: Record<string, string[]> = Object.create(null)
   for (const [key, arr] of Object.entries(mapping)) {
-    if (isUnsafeKey(key)) continue
     result[key] = [...arr]
   }
   return result
@@ -58,7 +52,6 @@ function deepCopyConstraintMapping(mapping: Record<string, string[]>): Record<st
 function deepCopyChildren(children: Record<string, PropertyConstraint>): Record<string, PropertyConstraint> {
   const result: Record<string, PropertyConstraint> = Object.create(null)
   for (const [propName, constraintsUnknown] of Object.entries(children)) {
-    if (isUnsafeKey(propName)) continue
     const constraints = constraintsUnknown
     result[propName] = {
       type: constraints.type,
@@ -78,7 +71,6 @@ function deepCopyChildren(children: Record<string, PropertyConstraint>): Record<
  */
 function mergeChildren(target: Record<string, PropertyConstraint>, source: Record<string, PropertyConstraint>): void {
   for (const [propName, sourceConstraintsUnknown] of Object.entries(source)) {
-    if (isUnsafeKey(propName)) continue
     const sourceConstraints = sourceConstraintsUnknown
     if (!hasOwn(target, propName)) {
       // New child property - deep copy it
@@ -142,7 +134,6 @@ function mergeMapping(
 ): Record<string, string[]> {
   const target: Record<string, string[]> = existing ?? Object.create(null)
   for (const key of Object.keys(source)) {
-    if (isUnsafeKey(key)) continue
     if (hasOwn(target, key)) {
       target[key] = Array.from(new Set([...target[key], ...source[key]]))
     } else {
@@ -195,11 +186,11 @@ export function validateEvent(properties: RuntimeProperties, specResponse: Event
   const constraintsByProperty = collectConstraintsByPropertyName(specResponse.events)
 
   // Validate each runtime property against its constraints
-  const propertyResults: Record<string, PropertyValidationResult> = {}
+  const propertyResults: Record<string, PropertyValidationResult> = Object.create(null)
 
   for (const propName of Object.keys(properties)) {
     const value = properties[propName]
-    const constraints = constraintsByProperty[propName]
+    const constraints = hasOwn(constraintsByProperty, propName) ? constraintsByProperty[propName] : undefined
 
     if (!constraints) {
       // Property not in spec - no constraints to fail
@@ -262,7 +253,6 @@ function collectConstraintsByPropertyName(events: Event[]): Record<string, Prope
 
   for (const event of events) {
     for (const [propName, constraintsUnknown] of Object.entries(event.props)) {
-      if (isUnsafeKey(propName)) continue
       const constraints = constraintsUnknown
       if (!hasOwn(result, propName)) {
         // First time seeing this property - initialize with copies
@@ -365,7 +355,6 @@ function validateListProperty(
 
       if (itemResult.children) {
         for (const [childName, childResult] of Object.entries(itemResult.children)) {
-          if (isUnsafeKey(childName)) continue
           if (!hasOwn(aggregatedChildrenResults, childName)) {
             aggregatedChildrenResults[childName] = {
               failed: new Set(),
@@ -383,7 +372,7 @@ function validateListProperty(
       }
     }
 
-    const resultChildren: Record<string, PropertyValidationResult> = {}
+    const resultChildren: Record<string, PropertyValidationResult> = Object.create(null)
     for (const [childName, agg] of Object.entries(aggregatedChildrenResults)) {
       if (agg.failed.size > 0) {
         resultChildren[childName] = buildValidationResult(agg.failed, allEventIds)
@@ -433,7 +422,7 @@ function validateObjectProperty(
   const result: PropertyValidationResult = {}
 
   // For object properties, recursively validate children
-  const childrenResults: Record<string, PropertyValidationResult> = {}
+  const childrenResults: Record<string, PropertyValidationResult> = Object.create(null)
   const valueObj =
     typeof value === 'object' && value !== null && !Array.isArray(value)
       ? (value as Record<string, RuntimePropertyValue>)
