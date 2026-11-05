@@ -289,6 +289,40 @@ describe('ChatGPT Ads Conversions', () => {
     )
 
     it.each([
+      [
+        'uses the obref captured by the browser plugin',
+        { 'ChatGPT Ads Conversions': { obref: 'cookie_obref' } },
+        'cookie_obref'
+      ],
+      [
+        'falls back to the anonymous ID when no obref was captured',
+        { 'ChatGPT Ads Conversions': { oppref: 'opp_1' } },
+        'anon_1'
+      ]
+    ])('%s', async (_name, integrations, expectedObref) => {
+      let body: { events: Record<string, any>[] } = { events: [] }
+      nock('https://bzr.openai.com')
+        .post('/v1/events', (requestBody) => {
+          body = requestBody
+          return true
+        })
+        .query(true)
+        .reply(200, {})
+
+      const preset = (Destination.presets ?? []).find(
+        (candidate) => (candidate as { mapping: { event_type: string } }).mapping.event_type === 'order_created'
+      ) as { mapping: Record<string, unknown> }
+
+      await testDestination.testAction('sendConversion', {
+        event: { ...richEvent('track'), integrations },
+        settings,
+        mapping: preset.mapping
+      })
+
+      expect(body.events[0].user.obref).toBe(expectedObref)
+    })
+
+    it.each([
       ['Order Created', 'order_created', 10005],
       ['Checkout Started', 'checkout_started', 10005]
     ])('%s sends minor-unit amounts and per-unit contents from the products array', async (name, eventType, amount) => {

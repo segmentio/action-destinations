@@ -80,7 +80,7 @@ export const fields: Record<string, InputField> = {
   oppref: {
     label: 'OpenAI Click Reference',
     description:
-      'The oppref click ID from the landing page URL. It is sent unchanged. A hybrid action captures it in the browser and stores it on the event for 30 days.',
+      'The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Ads Browser Plugins destination captures it in the browser and adds it to every later event.',
     type: 'string',
     default: {
       '@if': {
@@ -215,7 +215,8 @@ export const fields: Record<string, InputField> = {
     properties: {
       obref: {
         label: 'OpenAI Browser Reference',
-        description: "The user's OpenAI browser reference (obref) value. Sent unhashed.",
+        description:
+          "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Ads Browser Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
         type: 'string'
       },
       external_id: {
@@ -277,7 +278,13 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
-      obref: { '@path': '$.anonymousId' },
+      obref: {
+        '@if': {
+          exists: { '@path': '$.integrations.ChatGPT Ads Conversions.obref' },
+          then: { '@path': '$.integrations.ChatGPT Ads Conversions.obref' },
+          else: { '@path': '$.anonymousId' }
+        }
+      },
       external_id: { '@path': '$.userId' },
       user_agent: { '@path': '$.context.userAgent' },
       ip_address: { '@path': '$.context.ip' },

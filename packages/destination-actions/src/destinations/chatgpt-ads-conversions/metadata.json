@@ -329,7 +329,7 @@
         },
         "oppref": {
           "label": "OpenAI Click Reference",
-          "description": "The oppref click ID from the landing page URL. It is sent unchanged. A hybrid action captures it in the browser and stores it on the event for 30 days.",
+          "description": "The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Ads Browser Plugins destination captures it in the browser and adds it to every later event.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -876,7 +876,17 @@
           "dynamic": false,
           "default": {
             "obref": {
-              "@path": "$.anonymousId"
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                },
+                "then": {
+                  "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
             },
             "external_id": {
               "@path": "$.userId"
@@ -931,7 +941,7 @@
           "properties": {
             "obref": {
               "label": "OpenAI Browser Reference",
-              "description": "The user's OpenAI browser reference (obref) value. Sent unhashed.",
+              "description": "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Ads Browser Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1306,7 +1316,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -1434,7 +1454,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -1570,7 +1600,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -1706,7 +1746,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -1878,7 +1928,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2037,7 +2097,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2196,7 +2266,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2332,7 +2412,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2504,7 +2594,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2640,7 +2740,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2776,7 +2886,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"
@@ -2915,7 +3035,17 @@
         },
         "matching_data": {
           "obref": {
-            "@path": "$.anonymousId"
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "then": {
+                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+              },
+              "else": {
+                "@path": "$.anonymousId"
+              }
+            }
           },
           "external_id": {
             "@path": "$.userId"

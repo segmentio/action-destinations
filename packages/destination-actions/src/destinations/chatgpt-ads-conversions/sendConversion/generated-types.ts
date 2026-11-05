@@ -26,7 +26,7 @@ export interface Payload {
    */
   source_url?: string
   /**
-   * The oppref click ID from the landing page URL. It is sent unchanged. A hybrid action captures it in the browser and stores it on the event for 30 days.
+   * The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Ads Browser Plugins destination captures it in the browser and adds it to every later event.
    */
   oppref?: string
   /**
@@ -101,7 +101,7 @@ export interface Payload {
    */
   matching_data?: {
     /**
-     * The user's OpenAI browser reference (obref) value. Sent unhashed.
+     * The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Ads Browser Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.
      */
     obref?: string
     /**
