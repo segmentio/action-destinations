@@ -25,11 +25,21 @@ import type {
 // =============================================================================
 
 /**
+ * Property names and constraint-value keys come from the tracking plan response and may be
+ * arbitrary strings, including `__proto__` (JSON.parse keeps it as an own key). Containers keyed
+ * by those names are therefore null-prototype objects, on which `__proto__` is an ordinary key
+ * and cannot reach Object.prototype, and existence checks use own-property lookups.
+ */
+function hasOwn(obj: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key)
+}
+
+/**
  * Deep copies a constraint mapping (pinnedValues, allowedValues, etc.),
  * including the arrays inside to avoid shared references.
  */
 function deepCopyConstraintMapping(mapping: Record<string, string[]>): Record<string, string[]> {
-  const result: Record<string, string[]> = {}
+  const result: Record<string, string[]> = Object.create(null)
   for (const [key, arr] of Object.entries(mapping)) {
     result[key] = [...arr]
   }
@@ -40,7 +50,7 @@ function deepCopyConstraintMapping(mapping: Record<string, string[]>): Record<st
  * Deep copies children constraints recursively.
  */
 function deepCopyChildren(children: Record<string, PropertyConstraint>): Record<string, PropertyConstraint> {
-  const result: Record<string, PropertyConstraint> = {}
+  const result: Record<string, PropertyConstraint> = Object.create(null)
   for (const [propName, constraintsUnknown] of Object.entries(children)) {
     const constraints = constraintsUnknown
     result[propName] = {
@@ -62,7 +72,7 @@ function deepCopyChildren(children: Record<string, PropertyConstraint>): Record<
 function mergeChildren(target: Record<string, PropertyConstraint>, source: Record<string, PropertyConstraint>): void {
   for (const [propName, sourceConstraintsUnknown] of Object.entries(source)) {
     const sourceConstraints = sourceConstraintsUnknown
-    if (!target[propName]) {
+    if (!hasOwn(target, propName)) {
       // New child property - deep copy it
       target[propName] = {
         type: sourceConstraints.type,
@@ -104,53 +114,33 @@ function mergeChildren(target: Record<string, PropertyConstraint>, source: Recor
  */
 function mergeConstraintMappings(target: PropertyConstraint, source: PropertyConstraint): void {
   if (source.pinnedValues) {
-    if (!target.pinnedValues) {
-      target.pinnedValues = {}
-    }
-    for (const key of Object.keys(source.pinnedValues)) {
-      if (target.pinnedValues[key]) {
-        const merged = new Set(target.pinnedValues[key])
-        for (const id of source.pinnedValues[key]) {
-          merged.add(id)
-        }
-        target.pinnedValues[key] = Array.from(merged)
-      } else {
-        target.pinnedValues[key] = [...source.pinnedValues[key]]
-      }
-    }
+    target.pinnedValues = mergeMapping(target.pinnedValues, source.pinnedValues)
   }
   if (source.allowedValues) {
-    if (!target.allowedValues) {
-      target.allowedValues = {}
-    }
-    for (const key of Object.keys(source.allowedValues)) {
-      if (target.allowedValues[key]) {
-        const merged = new Set(target.allowedValues[key])
-        for (const id of source.allowedValues[key]) {
-          merged.add(id)
-        }
-        target.allowedValues[key] = Array.from(merged)
-      } else {
-        target.allowedValues[key] = [...source.allowedValues[key]]
-      }
-    }
+    target.allowedValues = mergeMapping(target.allowedValues, source.allowedValues)
   }
   if (source.minMaxRanges) {
-    if (!target.minMaxRanges) {
-      target.minMaxRanges = {}
-    }
-    for (const key of Object.keys(source.minMaxRanges)) {
-      if (target.minMaxRanges[key]) {
-        const merged = new Set(target.minMaxRanges[key])
-        for (const id of source.minMaxRanges[key]) {
-          merged.add(id)
-        }
-        target.minMaxRanges[key] = Array.from(merged)
-      } else {
-        target.minMaxRanges[key] = [...source.minMaxRanges[key]]
-      }
+    target.minMaxRanges = mergeMapping(target.minMaxRanges, source.minMaxRanges)
+  }
+}
+
+/**
+ * Merges a single constraint mapping from source into target (creating it if needed),
+ * unioning the id arrays for keys present in both.
+ */
+function mergeMapping(
+  existing: Record<string, string[]> | undefined,
+  source: Record<string, string[]>
+): Record<string, string[]> {
+  const target: Record<string, string[]> = existing ?? Object.create(null)
+  for (const key of Object.keys(source)) {
+    if (hasOwn(target, key)) {
+      target[key] = Array.from(new Set([...target[key], ...source[key]]))
+    } else {
+      target[key] = [...source[key]]
     }
   }
+  return target
 }
 
 // =============================================================================
@@ -196,11 +186,11 @@ export function validateEvent(properties: RuntimeProperties, specResponse: Event
   const constraintsByProperty = collectConstraintsByPropertyName(specResponse.events)
 
   // Validate each runtime property against its constraints
-  const propertyResults: Record<string, PropertyValidationResult> = {}
+  const propertyResults: Record<string, PropertyValidationResult> = Object.create(null)
 
   for (const propName of Object.keys(properties)) {
     const value = properties[propName]
-    const constraints = constraintsByProperty[propName]
+    const constraints = hasOwn(constraintsByProperty, propName) ? constraintsByProperty[propName] : undefined
 
     if (!constraints) {
       // Property not in spec - no constraints to fail
@@ -259,20 +249,20 @@ function collectConstraintsByPropertyName(events: Event[]): Record<string, Prope
   }
 
   // Multiple events: aggregate constraints from all events
-  const result: Record<string, PropertyConstraint> = {}
+  const result: Record<string, PropertyConstraint> = Object.create(null)
 
   for (const event of events) {
     for (const [propName, constraintsUnknown] of Object.entries(event.props)) {
       const constraints = constraintsUnknown
-      if (!result[propName]) {
+      if (!hasOwn(result, propName)) {
         // First time seeing this property - initialize with copies
         result[propName] = {
           type: constraints.type,
           required: constraints.required,
           isList: constraints.isList,
-          pinnedValues: constraints.pinnedValues ? { ...constraints.pinnedValues } : undefined,
-          allowedValues: constraints.allowedValues ? { ...constraints.allowedValues } : undefined,
-          minMaxRanges: constraints.minMaxRanges ? { ...constraints.minMaxRanges } : undefined,
+          pinnedValues: constraints.pinnedValues ? deepCopyConstraintMapping(constraints.pinnedValues) : undefined,
+          allowedValues: constraints.allowedValues ? deepCopyConstraintMapping(constraints.allowedValues) : undefined,
+          minMaxRanges: constraints.minMaxRanges ? deepCopyConstraintMapping(constraints.minMaxRanges) : undefined,
           children: constraints.children ? deepCopyChildren(constraints.children) : undefined
         }
       } else {
@@ -353,7 +343,7 @@ function validateListProperty(
   // Handle list of objects
   if (constraints.children && Array.isArray(listValue) && listValue.length > 0) {
     const aggregatedChildrenResults: Record<string, { failed: Set<string>; passed: Set<string>; children: unknown }> =
-      {}
+      Object.create(null)
 
     for (const item of listValue) {
       // Validate each item as an object
@@ -365,7 +355,7 @@ function validateListProperty(
 
       if (itemResult.children) {
         for (const [childName, childResult] of Object.entries(itemResult.children)) {
-          if (!aggregatedChildrenResults[childName]) {
+          if (!hasOwn(aggregatedChildrenResults, childName)) {
             aggregatedChildrenResults[childName] = {
               failed: new Set(),
               passed: new Set(),
@@ -382,7 +372,7 @@ function validateListProperty(
       }
     }
 
-    const resultChildren: Record<string, PropertyValidationResult> = {}
+    const resultChildren: Record<string, PropertyValidationResult> = Object.create(null)
     for (const [childName, agg] of Object.entries(aggregatedChildrenResults)) {
       if (agg.failed.size > 0) {
         resultChildren[childName] = buildValidationResult(agg.failed, allEventIds)
@@ -432,7 +422,7 @@ function validateObjectProperty(
   const result: PropertyValidationResult = {}
 
   // For object properties, recursively validate children
-  const childrenResults: Record<string, PropertyValidationResult> = {}
+  const childrenResults: Record<string, PropertyValidationResult> = Object.create(null)
   const valueObj =
     typeof value === 'object' && value !== null && !Array.isArray(value)
       ? (value as Record<string, RuntimePropertyValue>)
