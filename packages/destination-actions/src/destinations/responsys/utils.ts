@@ -92,7 +92,7 @@ export const getUserDataFieldNames = (data: Data): string[] => {
 }
 
 export const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
-  const stringifiedObj: Record<string, string> = {}
+  const stringifiedObj: Record<string, string> = Object.create(null)
   for (const key in obj) {
     stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key]
   }

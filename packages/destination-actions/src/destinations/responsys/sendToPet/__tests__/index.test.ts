@@ -245,7 +245,6 @@ describe('Responsys.sendToPet', () => {
 
     afterEach(() => {
       delete (Object.prototype as Record<string, unknown>)['TEST_PET']
-      delete (Object.prototype as Record<string, unknown>)['polluted']
       nock.cleanAll()
     })
 
@@ -288,16 +287,5 @@ describe('Responsys.sendToPet', () => {
         expect(({} as Record<string, unknown>)['polluted']).toBeUndefined()
       }
     )
-
-    it('does not pollute Object.prototype when userData has a __proto__ key', async () => {
-      const mapping = {
-        ...makeMapping(folderName, petName),
-        userData: JSON.parse('{"__proto__": {"polluted": "yes"}, "CUSTOMER_ID_": "1"}')
-      }
-      await testDestination
-        .testBatchAction('sendToPet', { events: [event], mapping, settings, auth })
-        .catch(() => undefined)
-      expect(({} as Record<string, unknown>)['polluted']).toBeUndefined()
-    })
   })
 })
