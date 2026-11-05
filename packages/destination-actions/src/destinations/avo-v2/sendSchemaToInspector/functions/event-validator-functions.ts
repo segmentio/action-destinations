@@ -122,56 +122,34 @@ function mergeChildren(target: Record<string, PropertyConstraint>, source: Recor
  */
 function mergeConstraintMappings(target: PropertyConstraint, source: PropertyConstraint): void {
   if (source.pinnedValues) {
-    if (!target.pinnedValues) {
-      target.pinnedValues = Object.create(null)
-    }
-    for (const key of Object.keys(source.pinnedValues)) {
-      if (isUnsafeKey(key)) continue
-      if (hasOwn(target.pinnedValues, key)) {
-        const merged = new Set(target.pinnedValues[key])
-        for (const id of source.pinnedValues[key]) {
-          merged.add(id)
-        }
-        target.pinnedValues[key] = Array.from(merged)
-      } else {
-        target.pinnedValues[key] = [...source.pinnedValues[key]]
-      }
-    }
+    target.pinnedValues = mergeMapping(target.pinnedValues, source.pinnedValues)
   }
   if (source.allowedValues) {
-    if (!target.allowedValues) {
-      target.allowedValues = Object.create(null)
-    }
-    for (const key of Object.keys(source.allowedValues)) {
-      if (isUnsafeKey(key)) continue
-      if (hasOwn(target.allowedValues, key)) {
-        const merged = new Set(target.allowedValues[key])
-        for (const id of source.allowedValues[key]) {
-          merged.add(id)
-        }
-        target.allowedValues[key] = Array.from(merged)
-      } else {
-        target.allowedValues[key] = [...source.allowedValues[key]]
-      }
-    }
+    target.allowedValues = mergeMapping(target.allowedValues, source.allowedValues)
   }
   if (source.minMaxRanges) {
-    if (!target.minMaxRanges) {
-      target.minMaxRanges = Object.create(null)
-    }
-    for (const key of Object.keys(source.minMaxRanges)) {
-      if (isUnsafeKey(key)) continue
-      if (hasOwn(target.minMaxRanges, key)) {
-        const merged = new Set(target.minMaxRanges[key])
-        for (const id of source.minMaxRanges[key]) {
-          merged.add(id)
-        }
-        target.minMaxRanges[key] = Array.from(merged)
-      } else {
-        target.minMaxRanges[key] = [...source.minMaxRanges[key]]
-      }
+    target.minMaxRanges = mergeMapping(target.minMaxRanges, source.minMaxRanges)
+  }
+}
+
+/**
+ * Merges a single constraint mapping from source into target (creating it if needed),
+ * unioning the id arrays for keys present in both.
+ */
+function mergeMapping(
+  existing: Record<string, string[]> | undefined,
+  source: Record<string, string[]>
+): Record<string, string[]> {
+  const target: Record<string, string[]> = existing ?? Object.create(null)
+  for (const key of Object.keys(source)) {
+    if (isUnsafeKey(key)) continue
+    if (hasOwn(target, key)) {
+      target[key] = Array.from(new Set([...target[key], ...source[key]]))
+    } else {
+      target[key] = [...source[key]]
     }
   }
+  return target
 }
 
 // =============================================================================
