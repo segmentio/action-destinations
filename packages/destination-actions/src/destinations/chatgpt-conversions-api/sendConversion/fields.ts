@@ -4,7 +4,6 @@ import {
   ACTION_SOURCE_LABELS,
   AMOUNT_IS_PRESENT,
   CITY_MAX_LENGTH,
-  COUNTRY_LENGTH,
   CURRENCY_LENGTH,
   CUSTOM_EVENT_NAME_MAX_LENGTH,
   CUSTOM_EVENT_NAME_MIN_LENGTH,
@@ -13,12 +12,19 @@ import {
   EVENT_TYPE_SUPPORTS_CONTENTS,
   EVENT_TYPE_SUPPORTS_PLAN_ID,
   GAID_LENGTH,
+  ISO_COUNTRY_CODES,
   MAX_BATCH_SIZE,
   POSTAL_CODE_MAX_LENGTH,
   REGION_MAX_LENGTH
 } from '../constants'
 
 const toChoices = (labels: Record<string, string>) => Object.entries(labels).map(([value, label]) => ({ label, value }))
+
+const regionNames = new Intl.DisplayNames(['en'], { type: 'region' })
+const COUNTRY_CHOICES = ISO_COUNTRY_CODES.map((code) => ({
+  label: `${code} (${regionNames.of(code) ?? code})`,
+  value: code
+}))
 
 export const fields: Record<string, InputField> = {
   event_type: {
@@ -274,8 +280,7 @@ export const fields: Record<string, InputField> = {
         description:
           "The user's two letter ISO 3166-1 alpha-2 country code, for example US. Sent unhashed. An unrecognized code causes the event to be rejected.",
         type: 'string',
-        minimum: COUNTRY_LENGTH,
-        maximum: COUNTRY_LENGTH
+        choices: COUNTRY_CHOICES
       },
       postal_code: {
         label: 'Postal Code',
