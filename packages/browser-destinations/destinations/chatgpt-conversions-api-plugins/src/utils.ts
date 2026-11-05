@@ -1,12 +1,12 @@
-export const storageOpprefKey = 'analytics_chatgpt_ads_oppref'
+export const storageOpprefKey = 'analytics_chatgpt_conversions_api_oppref'
 
-export const storageObrefKey = 'analytics_chatgpt_ads_obref'
+export const storageObrefKey = 'analytics_chatgpt_conversions_api_obref'
 
 export const opprefQuerystringName = 'oppref'
 
 export const obrefCookieName = '__obref'
 
-export const integrationName = 'ChatGPT Ads Conversions'
+export const integrationName = 'ChatGPT Conversions API'
 
 export const opprefIntegrationFieldName = 'oppref'
 

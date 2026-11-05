@@ -15,8 +15,8 @@ import {
 
 const example: Subscription[] = [
   {
-    partnerAction: 'chatgptAdsPlugin',
-    name: 'ChatGPT Ads Browser Plugin',
+    partnerAction: 'chatgptConversionsApiPlugin',
+    name: 'ChatGPT Conversions API Plugin',
     enabled: true,
     subscribe: 'type = "track"',
     mapping: {}
@@ -24,7 +24,7 @@ const example: Subscription[] = [
 ]
 
 let browserActions: Plugin[]
-let chatgptAdsPlugin: Plugin
+let chatgptConversionsApiPlugin: Plugin
 let ajs: Analytics
 
 const setSearch = (search: string) => {
@@ -40,9 +40,9 @@ const expireCookie = (name: string) => {
 
 const loadPlugin = async () => {
   browserActions = await browserPluginsDestination({ subscriptions: example })
-  chatgptAdsPlugin = browserActions[0]
+  chatgptConversionsApiPlugin = browserActions[0]
   ajs = new Analytics({ writeKey: 'w_123' })
-  await chatgptAdsPlugin.load(Context.system(), ajs)
+  await chatgptConversionsApiPlugin.load(Context.system(), ajs)
 }
 
 const trackEvent = async (integrations?: Record<string, unknown>) => {
@@ -52,7 +52,7 @@ const trackEvent = async (integrations?: Record<string, unknown>) => {
     properties: { greeting: 'Yo!' },
     ...(integrations ? { integrations } : {})
   })
-  return chatgptAdsPlugin.track?.(ctx)
+  return chatgptConversionsApiPlugin.track?.(ctx)
 }
 
 beforeEach(() => {

@@ -43,7 +43,7 @@ afterEach(() => {
   jest.restoreAllMocks()
 })
 
-describe('ChatGPT Ads Conversions', () => {
+describe('ChatGPT Conversions API', () => {
   describe('sendConversion', () => {
     it('sends one event with the pixel ID, bearer key and integration source', async () => {
       let body: Record<string, unknown> = {}
@@ -119,7 +119,7 @@ describe('ChatGPT Ads Conversions', () => {
       ).rejects.toThrow('At least one valid essential identifier')
     })
 
-    it('surfaces a 400 from ChatGPT Ads', async () => {
+    it('surfaces a 400 from ChatGPT Conversions API', async () => {
       nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, { error: 'bad request' })
       await expect(
         testDestination.testAction('sendConversion', { event: makeEvent('msg-1'), settings, mapping })
@@ -202,7 +202,7 @@ describe('ChatGPT Ads Conversions', () => {
             address: { city: 'Austin', state: 'Texas', country: 'US', postalCode: '78701' }
           }
         },
-        integrations: { 'ChatGPT Ads Conversions': { oppref: 'opp_1' } },
+        integrations: { 'ChatGPT Conversions API': { oppref: 'opp_1' } },
         properties: {
           product_id: 'sku_1',
           category_id: 'cat_1',
@@ -291,12 +291,12 @@ describe('ChatGPT Ads Conversions', () => {
     it.each([
       [
         'uses the obref captured by the browser plugin',
-        { 'ChatGPT Ads Conversions': { obref: 'cookie_obref' } },
+        { 'ChatGPT Conversions API': { obref: 'cookie_obref' } },
         'cookie_obref'
       ],
       [
         'falls back to the anonymous ID when no obref was captured',
-        { 'ChatGPT Ads Conversions': { oppref: 'opp_1' } },
+        { 'ChatGPT Conversions API': { oppref: 'opp_1' } },
         'anon_1'
       ]
     ])('%s', async (_name, integrations, expectedObref) => {
@@ -433,7 +433,7 @@ describe('ChatGPT Ads Conversions', () => {
       expect(scope.isDone()).toBe(false)
     })
 
-    it('marks every valid event with the API status when ChatGPT Ads rejects the batch', async () => {
+    it('marks every valid event with the API status when ChatGPT Conversions API rejects the batch', async () => {
       nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, { error: 'invalid user list' })
 
       const results = await testDestination.executeBatch('sendConversion', {
@@ -522,7 +522,7 @@ describe('ChatGPT Ads Conversions', () => {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errorreporter: 'INTEGRATIONS',
-      errormessage: 'Timestamp is more than 7 days old, which ChatGPT Ads rejects.'
+      errormessage: 'Timestamp is more than 7 days old, which ChatGPT Conversions API rejects.'
     }
 
     const invalidIdentifiers = {
@@ -553,7 +553,7 @@ describe('ChatGPT Ads Conversions', () => {
 
     const retriedEvent = (id: string, reason: string, body: object) => ({
       status: 500,
-      errormessage: `Not delivered because another event in the batch was rejected by ChatGPT Ads (${reason}). It will be retried.`,
+      errormessage: `Not delivered because another event in the batch was rejected by ChatGPT Conversions API (${reason}). It will be retried.`,
       errorreporter: 'DESTINATION',
       errortype: 'INTERNAL_SERVER_ERROR',
       sent: sentEvent(id),
@@ -652,7 +652,7 @@ describe('ChatGPT Ads Conversions', () => {
       const retried = (id: string) => ({
         status: 500,
         errormessage:
-          'Not delivered because another event in the batch was rejected by ChatGPT Ads (type must be a supported event type.). It will be retried.',
+          'Not delivered because another event in the batch was rejected by ChatGPT Conversions API (type must be a supported event type.). It will be retried.',
         errorreporter: 'DESTINATION',
         errortype: 'INTERNAL_SERVER_ERROR',
         sent: sentEvent(id),
@@ -710,7 +710,7 @@ describe('ChatGPT Ads Conversions', () => {
         {
           status: 500,
           errormessage:
-            'Not delivered because another event in the batch was rejected by ChatGPT Ads (event_timestamp_ms must be within the last 7 days.). It will be retried.',
+            'Not delivered because another event in the batch was rejected by ChatGPT Conversions API (event_timestamp_ms must be within the last 7 days.). It will be retried.',
           errorreporter: 'DESTINATION',
           errortype: 'INTERNAL_SERVER_ERROR',
           sent: sentEvent('msg-2'),
@@ -975,7 +975,7 @@ describe('ChatGPT Ads Conversions', () => {
   })
 
   describe('sendConversion single event errors', () => {
-    it.each([401, 429, 500])('throws when ChatGPT Ads responds with %s', async (status) => {
+    it.each([401, 429, 500])('throws when ChatGPT Conversions API responds with %s', async (status) => {
       nock('https://bzr.openai.com').post('/v1/events').query(true).reply(status, { error: 'nope' })
 
       await expect(

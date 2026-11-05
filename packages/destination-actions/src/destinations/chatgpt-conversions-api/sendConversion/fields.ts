@@ -23,7 +23,7 @@ const toChoices = (labels: Record<string, string>) => Object.entries(labels).map
 export const fields: Record<string, InputField> = {
   event_type: {
     label: 'Event Type',
-    description: 'The ChatGPT Ads event type to send. Custom events also require a Custom Event Name.',
+    description: 'The ChatGPT Conversions API event type to send. Custom events also require a Custom Event Name.',
     type: 'string',
     required: true,
     choices: toChoices(EVENT_TYPE_LABELS)
@@ -49,7 +49,7 @@ export const fields: Record<string, InputField> = {
   timestamp: {
     label: 'Timestamp',
     description:
-      'When the event occurred. ChatGPT Ads rejects events more than 7 days old or more than 10 minutes in the future.',
+      'When the event occurred. ChatGPT Conversions API rejects events more than 7 days old or more than 10 minutes in the future.',
     type: 'datetime',
     required: true,
     default: { '@path': '$.timestamp' }
@@ -80,12 +80,12 @@ export const fields: Record<string, InputField> = {
   oppref: {
     label: 'OpenAI Click Reference',
     description:
-      'The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Ads Browser Plugins destination captures it in the browser and adds it to every later event.',
+      'The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Conversions API Plugins destination captures it in the browser and adds it to every later event.',
     type: 'string',
     default: {
       '@if': {
-        exists: { '@path': '$.integrations.ChatGPT Ads Conversions.oppref' },
-        then: { '@path': '$.integrations.ChatGPT Ads Conversions.oppref' },
+        exists: { '@path': '$.integrations.ChatGPT Conversions API.oppref' },
+        then: { '@path': '$.integrations.ChatGPT Conversions API.oppref' },
         else: { '@path': '$.properties.oppref' }
       }
     }
@@ -98,7 +98,7 @@ export const fields: Record<string, InputField> = {
   amount: {
     label: 'Amount',
     description:
-      'The total value of the event. Provide it as a decimal number in the currency major unit, for example 100.05 for $100.05. Segment converts it to integer minor units (cents) before sending to ChatGPT Ads, so 100.05 USD is sent as 10005. Do not pre-convert it to minor units.',
+      'The total value of the event. Provide it as a decimal number in the currency major unit, for example 100.05 for $100.05. Segment converts it to integer minor units (cents) before sending to ChatGPT Conversions API, so 100.05 USD is sent as 10005. Do not pre-convert it to minor units.',
     type: 'number'
   },
   currency: {
@@ -121,7 +121,7 @@ export const fields: Record<string, InputField> = {
   contents: {
     label: 'Contents',
     description:
-      'The items involved in the event. Not available for appointment, lead, registration and app events. Item amounts are per unit. Any additional keys you add to an item, such as size or color, are sent to ChatGPT Ads as variant attributes, and their values are converted to strings. Do not use id, group_id, name, content_type, quantity, amount or currency as variant keys.',
+      'The items involved in the event. Not available for appointment, lead, registration and app events. Item amounts are per unit. Any additional keys you add to an item, such as size or color, are sent to ChatGPT Conversions API as variant attributes, and their values are converted to strings. Do not use id, group_id, name, content_type, quantity, amount or currency as variant keys.',
     type: 'object',
     multiple: true,
     additionalProperties: true,
@@ -140,7 +140,7 @@ export const fields: Record<string, InputField> = {
       amount: {
         label: 'Amount',
         description:
-          'The price of one unit. Provide it as a decimal number in the currency major unit, for example 19.99 for $19.99. Segment converts it to integer minor units (cents) before sending to ChatGPT Ads, so 19.99 USD is sent as 1999.',
+          'The price of one unit. Provide it as a decimal number in the currency major unit, for example 19.99 for $19.99. Segment converts it to integer minor units (cents) before sending to ChatGPT Conversions API, so 19.99 USD is sent as 1999.',
         type: 'number'
       },
       currency: {
@@ -208,7 +208,7 @@ export const fields: Record<string, InputField> = {
   matching_data: {
     label: 'Matching Data',
     description:
-      'Optional identifiers and user details that help ChatGPT Ads match the event to a user. They work best when sent together.',
+      'Optional identifiers and user details that help ChatGPT Conversions API match the event to a user. They work best when sent together.',
     type: 'object',
     additionalProperties: false,
     defaultObjectUI: 'keyvalue',
@@ -216,7 +216,7 @@ export const fields: Record<string, InputField> = {
       obref: {
         label: 'OpenAI Browser Reference',
         description:
-          "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Ads Browser Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
+          "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
         type: 'string'
       },
       external_id: {
@@ -280,8 +280,8 @@ export const fields: Record<string, InputField> = {
     default: {
       obref: {
         '@if': {
-          exists: { '@path': '$.integrations.ChatGPT Ads Conversions.obref' },
-          then: { '@path': '$.integrations.ChatGPT Ads Conversions.obref' },
+          exists: { '@path': '$.integrations.ChatGPT Conversions API.obref' },
+          then: { '@path': '$.integrations.ChatGPT Conversions API.obref' },
           else: { '@path': '$.anonymousId' }
         }
       },
@@ -309,8 +309,8 @@ export const fields: Record<string, InputField> = {
     }
   },
   enable_batching: {
-    label: 'Batch Data to ChatGPT Ads',
-    description: 'When enabled, Segment sends events to ChatGPT Ads in batches.',
+    label: 'Batch Data to ChatGPT Conversions API',
+    description: 'When enabled, Segment sends events to ChatGPT Conversions API in batches.',
     type: 'boolean',
     default: true
   },

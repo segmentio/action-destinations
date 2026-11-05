@@ -12,9 +12,9 @@ import {
 import { UniversalStorage } from '@segment/analytics-next'
 
 const action: BrowserActionDefinition<Settings, {}, Payload> = {
-  title: 'ChatGPT Ads Browser Plugin',
+  title: 'ChatGPT Conversions API Plugin',
   description:
-    'Enriches Segment payloads with the ChatGPT Ads oppref querystring value and the __obref cookie value, so the ChatGPT Ads Conversions destination can send them. Segment does not check consent: you are responsible for loading this destination only when your measurement consent requirements allow reading the __obref cookie.',
+    'Enriches Segment payloads with the ChatGPT Conversions API oppref querystring value and the __obref cookie value, so the ChatGPT Conversions API destination can send them. Segment does not check consent: you are responsible for loading this destination only when your measurement consent requirements allow reading the __obref cookie.',
   platform: 'web',
   hidden: false,
   defaultSubscription: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',

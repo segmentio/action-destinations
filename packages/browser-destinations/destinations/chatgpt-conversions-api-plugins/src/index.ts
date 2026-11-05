@@ -11,12 +11,12 @@ import {
   storageFallback
 } from './utils'
 import { UniversalStorage } from '@segment/analytics-next'
-import chatgptAdsPlugin from './chatgptAdsPlugin'
+import chatgptConversionsApiPlugin from './chatgptConversionsApiPlugin'
 
 export const destination: BrowserDestinationDefinition<Settings, {}> = {
-  name: 'ChatGPT Ads Browser Plugins',
+  name: 'ChatGPT Conversions API Plugins',
   description:
-    'Captures the OpenAI browser reference (obref) and oppref click ID in the browser and adds them to events for ChatGPT Ads.',
+    'Captures the OpenAI browser reference (obref) and oppref click ID in the browser and adds them to events for ChatGPT Conversions API.',
   mode: 'device',
   initialize: async ({ analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
@@ -35,7 +35,7 @@ export const destination: BrowserDestinationDefinition<Settings, {}> = {
   },
   settings: {},
   actions: {
-    chatgptAdsPlugin
+    chatgptConversionsApiPlugin
   }
 }
 

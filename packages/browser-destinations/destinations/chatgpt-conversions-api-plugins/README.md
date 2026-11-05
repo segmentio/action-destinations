@@ -1,6 +1,6 @@
-# @segment/analytics-browser-actions-chatgpt-ads-plugins
+# @segment/analytics-browser-actions-chatgpt-conversions-api-plugins
 
-The ChatGPT Ads Browser Plugins browser action destination for use with @segment/analytics-next.
+The ChatGPT Conversions API Plugins browser action destination for use with @segment/analytics-next.
 
 ## License
 

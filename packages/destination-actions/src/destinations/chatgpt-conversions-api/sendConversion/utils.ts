@@ -117,10 +117,12 @@ export function toTimestampMs(timestamp: string | number): number {
   }
   const age = Date.now() - timestampMs
   if (age > MAX_EVENT_AGE_MS) {
-    throw new PayloadValidationError('Timestamp is more than 7 days old, which ChatGPT Ads rejects.')
+    throw new PayloadValidationError('Timestamp is more than 7 days old, which ChatGPT Conversions API rejects.')
   }
   if (-age > MAX_EVENT_FUTURE_MS) {
-    throw new PayloadValidationError('Timestamp is more than 10 minutes in the future, which ChatGPT Ads rejects.')
+    throw new PayloadValidationError(
+      'Timestamp is more than 10 minutes in the future, which ChatGPT Conversions API rejects.'
+    )
   }
   return timestampMs
 }
@@ -163,7 +165,7 @@ export function toCustomEventName(value: unknown): string {
   }
   if (customEventName.length > MAX_CUSTOM_EVENT_NAME_LENGTH) {
     throw new PayloadValidationError(
-      `Custom Event Name must be at most ${MAX_CUSTOM_EVENT_NAME_LENGTH} characters, which ChatGPT Ads enforces.`
+      `Custom Event Name must be at most ${MAX_CUSTOM_EVENT_NAME_LENGTH} characters, which ChatGPT Conversions API enforces.`
     )
   }
   if (STANDARD_EVENT_NAMES.includes(customEventName)) {

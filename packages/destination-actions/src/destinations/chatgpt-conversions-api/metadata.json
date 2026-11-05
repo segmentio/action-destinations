@@ -1,14 +1,14 @@
 {
-  "slug": "actions-chatgpt-ads-conversions",
-  "name": "ChatGPT Ads Conversions",
+  "slug": "actions-chatgpt-conversions-api",
+  "name": "ChatGPT Conversions API",
   "mode": "cloud",
-  "description": "Send conversion events to the ChatGPT Ads Conversions API.",
+  "description": "Send conversion events to the ChatGPT Conversions API.",
   "authentication": {
     "scheme": "custom",
     "fields": {
       "pixel_id": {
         "label": "Pixel ID",
-        "description": "The Pixel ID from the Conversions tab in ChatGPT Ads Manager.",
+        "description": "The Pixel ID from the Conversions tab in Ads Manager.",
         "type": "string",
         "required": true,
         "multiple": false,
@@ -18,7 +18,7 @@
       },
       "api_key": {
         "label": "API Key",
-        "description": "The Conversions API key from the Conversions tab in ChatGPT Ads Manager.",
+        "description": "The Conversions API key from the Conversions tab in Ads Manager.",
         "type": "password",
         "required": true,
         "multiple": false,
@@ -28,7 +28,7 @@
       },
       "validate_only": {
         "label": "Validate Only",
-        "description": "When enabled, ChatGPT Ads validates events without saving them. Use this for test scenarios only.",
+        "description": "When enabled, ChatGPT Conversions API validates events without saving them. Use this for test scenarios only.",
         "type": "boolean",
         "required": false,
         "multiple": false,
@@ -42,7 +42,7 @@
   "actions": {
     "sendConversion": {
       "title": "Send Conversion",
-      "description": "Send a web, app or custom conversion event to the ChatGPT Ads Conversions API.",
+      "description": "Send a web, app or custom conversion event to the ChatGPT Conversions API.",
       "platform": "cloud",
       "defaultSubscription": "type = \"track\"",
       "hidden": false,
@@ -53,7 +53,7 @@
       "fields": {
         "event_type": {
           "label": "Event Type",
-          "description": "The ChatGPT Ads event type to send. Custom events also require a Custom Event Name.",
+          "description": "The ChatGPT Conversions API event type to send. Custom events also require a Custom Event Name.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -198,7 +198,7 @@
         },
         "timestamp": {
           "label": "Timestamp",
-          "description": "When the event occurred. ChatGPT Ads rejects events more than 7 days old or more than 10 minutes in the future.",
+          "description": "When the event occurred. ChatGPT Conversions API rejects events more than 7 days old or more than 10 minutes in the future.",
           "type": "datetime",
           "required": true,
           "multiple": false,
@@ -329,7 +329,7 @@
         },
         "oppref": {
           "label": "OpenAI Click Reference",
-          "description": "The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Ads Browser Plugins destination captures it in the browser and adds it to every later event.",
+          "description": "The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Conversions API Plugins destination captures it in the browser and adds it to every later event.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -338,10 +338,10 @@
           "default": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+                "@path": "$.integrations.ChatGPT Conversions API.oppref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+                "@path": "$.integrations.ChatGPT Conversions API.oppref"
               },
               "else": {
                 "@path": "$.properties.oppref"
@@ -389,7 +389,7 @@
         },
         "amount": {
           "label": "Amount",
-          "description": "The total value of the event. Provide it as a decimal number in the currency major unit, for example 100.05 for $100.05. Segment converts it to integer minor units (cents) before sending to ChatGPT Ads, so 100.05 USD is sent as 10005. Do not pre-convert it to minor units.",
+          "description": "The total value of the event. Provide it as a decimal number in the currency major unit, for example 100.05 for $100.05. Segment converts it to integer minor units (cents) before sending to ChatGPT Conversions API, so 100.05 USD is sent as 10005. Do not pre-convert it to minor units.",
           "type": "number",
           "required": false,
           "multiple": false,
@@ -500,7 +500,7 @@
         },
         "contents": {
           "label": "Contents",
-          "description": "The items involved in the event. Not available for appointment, lead, registration and app events. Item amounts are per unit. Any additional keys you add to an item, such as size or color, are sent to ChatGPT Ads as variant attributes, and their values are converted to strings. Do not use id, group_id, name, content_type, quantity, amount or currency as variant keys.",
+          "description": "The items involved in the event. Not available for appointment, lead, registration and app events. Item amounts are per unit. Any additional keys you add to an item, such as size or color, are sent to ChatGPT Conversions API as variant attributes, and their values are converted to strings. Do not use id, group_id, name, content_type, quantity, amount or currency as variant keys.",
           "type": "object",
           "required": false,
           "multiple": true,
@@ -632,7 +632,7 @@
             },
             "amount": {
               "label": "Amount",
-              "description": "The price of one unit. Provide it as a decimal number in the currency major unit, for example 19.99 for $19.99. Segment converts it to integer minor units (cents) before sending to ChatGPT Ads, so 19.99 USD is sent as 1999.",
+              "description": "The price of one unit. Provide it as a decimal number in the currency major unit, for example 19.99 for $19.99. Segment converts it to integer minor units (cents) before sending to ChatGPT Conversions API, so 19.99 USD is sent as 1999.",
               "type": "number",
               "required": false,
               "multiple": false,
@@ -868,7 +868,7 @@
         },
         "matching_data": {
           "label": "Matching Data",
-          "description": "Optional identifiers and user details that help ChatGPT Ads match the event to a user. They work best when sent together.",
+          "description": "Optional identifiers and user details that help ChatGPT Conversions API match the event to a user. They work best when sent together.",
           "type": "object",
           "required": false,
           "multiple": false,
@@ -878,10 +878,10 @@
             "obref": {
               "@if": {
                 "exists": {
-                  "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                  "@path": "$.integrations.ChatGPT Conversions API.obref"
                 },
                 "then": {
-                  "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                  "@path": "$.integrations.ChatGPT Conversions API.obref"
                 },
                 "else": {
                   "@path": "$.anonymousId"
@@ -941,7 +941,7 @@
           "properties": {
             "obref": {
               "label": "OpenAI Browser Reference",
-              "description": "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Ads Browser Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
+              "description": "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1193,8 +1193,8 @@
           "additionalProperties": false
         },
         "enable_batching": {
-          "label": "Batch Data to ChatGPT Ads",
-          "description": "When enabled, Segment sends events to ChatGPT Ads in batches.",
+          "label": "Batch Data to ChatGPT Conversions API",
+          "description": "When enabled, Segment sends events to ChatGPT Conversions API in batches.",
           "type": "boolean",
           "required": false,
           "multiple": false,
@@ -1263,10 +1263,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -1318,10 +1318,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -1401,10 +1401,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -1456,10 +1456,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -1547,10 +1547,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -1602,10 +1602,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -1693,10 +1693,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -1748,10 +1748,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -1875,10 +1875,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -1930,10 +1930,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2044,10 +2044,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -2099,10 +2099,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2213,10 +2213,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -2268,10 +2268,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2359,10 +2359,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -2414,10 +2414,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2541,10 +2541,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -2596,10 +2596,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2687,10 +2687,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -2742,10 +2742,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2833,10 +2833,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -2888,10 +2888,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"
@@ -2982,10 +2982,10 @@
         "oppref": {
           "@if": {
             "exists": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "then": {
-              "@path": "$.integrations.ChatGPT Ads Conversions.oppref"
+              "@path": "$.integrations.ChatGPT Conversions API.oppref"
             },
             "else": {
               "@path": "$.properties.oppref"
@@ -3037,10 +3037,10 @@
           "obref": {
             "@if": {
               "exists": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "then": {
-                "@path": "$.integrations.ChatGPT Ads Conversions.obref"
+                "@path": "$.integrations.ChatGPT Conversions API.obref"
               },
               "else": {
                 "@path": "$.anonymousId"

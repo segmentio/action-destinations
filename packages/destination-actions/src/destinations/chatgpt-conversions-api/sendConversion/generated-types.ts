@@ -2,7 +2,7 @@
 
 export interface Payload {
   /**
-   * The ChatGPT Ads event type to send. Custom events also require a Custom Event Name.
+   * The ChatGPT Conversions API event type to send. Custom events also require a Custom Event Name.
    */
   event_type: string
   /**
@@ -14,7 +14,7 @@ export interface Payload {
    */
   event_id: string
   /**
-   * When the event occurred. ChatGPT Ads rejects events more than 7 days old or more than 10 minutes in the future.
+   * When the event occurred. ChatGPT Conversions API rejects events more than 7 days old or more than 10 minutes in the future.
    */
   timestamp: string | number
   /**
@@ -26,7 +26,7 @@ export interface Payload {
    */
   source_url?: string
   /**
-   * The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Ads Browser Plugins destination captures it in the browser and adds it to every later event.
+   * The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Conversions API Plugins destination captures it in the browser and adds it to every later event.
    */
   oppref?: string
   /**
@@ -34,7 +34,7 @@ export interface Payload {
    */
   opt_out?: boolean
   /**
-   * The total value of the event. Provide it as a decimal number in the currency major unit, for example 100.05 for $100.05. Segment converts it to integer minor units (cents) before sending to ChatGPT Ads, so 100.05 USD is sent as 10005. Do not pre-convert it to minor units.
+   * The total value of the event. Provide it as a decimal number in the currency major unit, for example 100.05 for $100.05. Segment converts it to integer minor units (cents) before sending to ChatGPT Conversions API, so 100.05 USD is sent as 10005. Do not pre-convert it to minor units.
    */
   amount?: number
   /**
@@ -46,7 +46,7 @@ export interface Payload {
    */
   plan_id?: string
   /**
-   * The items involved in the event. Not available for appointment, lead, registration and app events. Item amounts are per unit. Any additional keys you add to an item, such as size or color, are sent to ChatGPT Ads as variant attributes, and their values are converted to strings. Do not use id, group_id, name, content_type, quantity, amount or currency as variant keys.
+   * The items involved in the event. Not available for appointment, lead, registration and app events. Item amounts are per unit. Any additional keys you add to an item, such as size or color, are sent to ChatGPT Conversions API as variant attributes, and their values are converted to strings. Do not use id, group_id, name, content_type, quantity, amount or currency as variant keys.
    */
   contents?: {
     /**
@@ -70,7 +70,7 @@ export interface Payload {
      */
     quantity?: number
     /**
-     * The price of one unit. Provide it as a decimal number in the currency major unit, for example 19.99 for $19.99. Segment converts it to integer minor units (cents) before sending to ChatGPT Ads, so 19.99 USD is sent as 1999.
+     * The price of one unit. Provide it as a decimal number in the currency major unit, for example 19.99 for $19.99. Segment converts it to integer minor units (cents) before sending to ChatGPT Conversions API, so 19.99 USD is sent as 1999.
      */
     amount?: number
     /**
@@ -97,11 +97,11 @@ export interface Payload {
     android_advertising_id?: string
   }
   /**
-   * Optional identifiers and user details that help ChatGPT Ads match the event to a user. They work best when sent together.
+   * Optional identifiers and user details that help ChatGPT Conversions API match the event to a user. They work best when sent together.
    */
   matching_data?: {
     /**
-     * The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Ads Browser Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.
+     * The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.
      */
     obref?: string
     /**
@@ -142,7 +142,7 @@ export interface Payload {
     postal_code?: string
   }
   /**
-   * When enabled, Segment sends events to ChatGPT Ads in batches.
+   * When enabled, Segment sends events to ChatGPT Conversions API in batches.
    */
   enable_batching?: boolean
   /**
