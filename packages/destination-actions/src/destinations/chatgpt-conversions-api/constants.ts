@@ -22,7 +22,6 @@ export const MAX_EVENT_FUTURE_MS = 10 * 60 * 1000
 export const CUSTOM_EVENT_NAME_MIN_LENGTH = 1
 export const CUSTOM_EVENT_NAME_MAX_LENGTH = 64
 export const CURRENCY_LENGTH = 3
-export const COUNTRY_LENGTH = 2
 export const POSTAL_CODE_MAX_LENGTH = 32
 export const REGION_MAX_LENGTH = 128
 export const CITY_MAX_LENGTH = 128
