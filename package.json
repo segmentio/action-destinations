@@ -95,7 +95,12 @@
     "fast-xml-parser": "5.5.9",
     "picomatch": "2.3.2",
     "lodash": "4.18.1",
-    "liquidjs": "10.27.2"
+    "liquidjs": "10.27.2",
+    "**/create-test-server/**/qs": "6.7.3",
+    "**/karma/**/qs": "6.11.1",
+    "express/qs": "6.11.1",
+    "express/body-parser/qs": "6.11.1",
+    "**/webpack-dev-server/**/qs": "6.11.1"
   },
   "husky": {
     "hooks": {
