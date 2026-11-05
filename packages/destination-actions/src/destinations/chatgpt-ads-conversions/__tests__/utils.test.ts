@@ -241,6 +241,51 @@ describe('toMinorUnitExponent', () => {
     expect(() => toMinorUnitExponent(currency)).toThrow('not a valid ISO 4217')
   })
 
+  describe('caching', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    const loadFreshToMinorUnitExponent = async (): Promise<typeof toMinorUnitExponent> => {
+      jest.resetModules()
+      const fresh = await import('../sendConversion/utils')
+      return fresh.toMinorUnitExponent
+    }
+
+    it('builds the formatter once per currency, ignoring case', async () => {
+      const fresh = await loadFreshToMinorUnitExponent()
+      const spy = jest.spyOn(Intl, 'NumberFormat')
+
+      expect(fresh('JPY')).toBe(0)
+      expect(fresh('jpy')).toBe(0)
+      expect(fresh('JPY')).toBe(0)
+
+      expect(spy).toHaveBeenCalledTimes(1)
+    })
+
+    it('builds a separate formatter for each distinct currency', async () => {
+      const fresh = await loadFreshToMinorUnitExponent()
+      const spy = jest.spyOn(Intl, 'NumberFormat')
+
+      expect(fresh('USD')).toBe(2)
+      expect(fresh('KWD')).toBe(3)
+      expect(fresh('USD')).toBe(2)
+      expect(fresh('KWD')).toBe(3)
+
+      expect(spy).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not cache or build a formatter for a rejected currency', async () => {
+      const fresh = await loadFreshToMinorUnitExponent()
+      const spy = jest.spyOn(Intl, 'NumberFormat')
+
+      expect(() => fresh('XYZ')).toThrow('not a valid ISO 4217')
+      expect(() => fresh('XYZ')).toThrow('not a valid ISO 4217')
+
+      expect(spy).not.toHaveBeenCalled()
+    })
+  })
+
   it.each(['XYZ', 'ANG', 'BGN', 'HRK', 'BTC', 'USDT'])(
     'rejects the well-formed code %p that ChatGPT Ads does not accept',
     (currency: string) => {
