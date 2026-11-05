@@ -498,6 +498,36 @@ describe('ChatGPT Ads Conversions', () => {
       errormessage: expect.stringContaining('At least one valid essential identifier')
     }
 
+    const invalidEventBody = (position: number, field: string, code: string, message: string) => ({
+      error: {
+        message: `Invalid event at events[${position}]. See errors for details.`,
+        type: 'invalid_request_error',
+        param: `events[${position}]`,
+        code: 'invalid_event',
+        errors: [{ message: `events[${position}].${field} ${message}`, param: `events[${position}].${field}`, code }]
+      }
+    })
+
+    const rejectedEvent = (id: string, status: number, errortype: string, errormessage: string, body: object) => ({
+      status,
+      errormessage,
+      errorreporter: 'DESTINATION',
+      errortype,
+      sent: sentEvent(id),
+      body
+    })
+
+    const retriedEvent = (id: string, reason: string, body: object) => ({
+      status: 500,
+      errormessage: `Not delivered because another event in the batch was rejected by ChatGPT Ads (${reason}). It will be retried.`,
+      errorreporter: 'DESTINATION',
+      errortype: 'INTERNAL_SERVER_ERROR',
+      sent: sentEvent(id),
+      body
+    })
+
+    const sixEvents = () => ['msg-1', 'msg-2', 'msg-3', 'msg-4', 'msg-5', 'msg-6'].map((id) => makeEvent(id))
+
     it('mixes pre-send validation failures with successes', async () => {
       nock('https://bzr.openai.com').post('/v1/events').query(true).reply(200, { accepted_events: 2 })
 
@@ -554,6 +584,296 @@ describe('ChatGPT Ads Conversions', () => {
         },
         invalidIdentifiers
       ])
+    })
+
+    it('fails only the event the API names and retries the other valid events', async () => {
+      const apiBody = {
+        error: {
+          message: 'Invalid event at events[1]. See errors for details.',
+          type: 'invalid_request_error',
+          param: 'events[1]',
+          code: 'invalid_event',
+          errors: [
+            {
+              message: 'events[1].type must be a supported event type.',
+              param: 'events[1].type',
+              code: 'unknown_event_type'
+            }
+          ]
+        }
+      }
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [
+          makeEvent('msg-1', { timestamp: staleTimestamp }),
+          makeEvent('msg-2'),
+          makeEvent('msg-3'),
+          makeEvent('msg-4')
+        ],
+        settings,
+        mapping
+      })
+
+      const retried = (id: string) => ({
+        status: 500,
+        errormessage:
+          'Not delivered because another event in the batch was rejected by ChatGPT Ads (type must be a supported event type.). It will be retried.',
+        errorreporter: 'DESTINATION',
+        errortype: 'INTERNAL_SERVER_ERROR',
+        sent: sentEvent(id),
+        body: apiBody
+      })
+
+      expect(results).toEqual([
+        invalidTimestamp,
+        retried('msg-2'),
+        {
+          status: 400,
+          errormessage: 'type must be a supported event type.',
+          errorreporter: 'DESTINATION',
+          errortype: 'BAD_REQUEST',
+          sent: sentEvent('msg-3'),
+          body: apiBody
+        },
+        retried('msg-4')
+      ])
+    })
+
+    it('fails only the event named in a 422 timestamp rejection', async () => {
+      const apiBody = {
+        error: {
+          message: 'event_timestamp_ms must be within the last 7 days.',
+          type: 'invalid_request_error',
+          param: 'events[0].timestamp_ms',
+          code: 'event_timestamp_too_old',
+          errors: [
+            {
+              message: 'event_timestamp_ms must be within the last 7 days.',
+              param: 'events[0].timestamp_ms',
+              code: 'event_timestamp_too_old'
+            }
+          ]
+        }
+      }
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(422, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [makeEvent('msg-1'), makeEvent('msg-2')],
+        settings,
+        mapping
+      })
+
+      expect(results).toEqual([
+        {
+          status: 422,
+          errormessage: 'event_timestamp_ms must be within the last 7 days.',
+          errorreporter: 'DESTINATION',
+          errortype: 'UNPROCESSABLE_ENTITY',
+          sent: sentEvent('msg-1'),
+          body: apiBody
+        },
+        {
+          status: 500,
+          errormessage:
+            'Not delivered because another event in the batch was rejected by ChatGPT Ads (event_timestamp_ms must be within the last 7 days.). It will be retried.',
+          errorreporter: 'DESTINATION',
+          errortype: 'INTERNAL_SERVER_ERROR',
+          sent: sentEvent('msg-2'),
+          body: apiBody
+        }
+      ])
+    })
+
+    it('fails every valid event with the same status when the rejection is not about one event', async () => {
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(403, '403: unknown pid', {
+        'content-type': 'text/plain'
+      })
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [makeEvent('msg-1'), makeEvent('msg-2')],
+        settings,
+        mapping
+      })
+
+      const failed = (id: string) => ({
+        status: 403,
+        errormessage: expect.any(String),
+        errorreporter: 'DESTINATION',
+        errortype: 'FORBIDDEN',
+        sent: sentEvent(id),
+        body: '403: unknown pid'
+      })
+      expect(results).toEqual([failed('msg-1'), failed('msg-2')])
+    })
+
+    it('fails the event named at events[0] and retries the rest', async () => {
+      const apiBody = invalidEventBody(0, 'type', 'unknown_event_type', 'must be a supported event type.')
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [makeEvent('msg-1'), makeEvent('msg-2'), makeEvent('msg-3')],
+        settings,
+        mapping
+      })
+
+      const reason = 'type must be a supported event type.'
+      expect(results).toEqual([
+        rejectedEvent('msg-1', 400, 'BAD_REQUEST', reason, apiBody),
+        retriedEvent('msg-2', reason, apiBody),
+        retriedEvent('msg-3', reason, apiBody)
+      ])
+    })
+
+    it('fails the event named at events[5] and retries the other five, even though only one error is reported', async () => {
+      const apiBody = invalidEventBody(5, 'type', 'unknown_event_type', 'must be a supported event type.')
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: sixEvents(),
+        settings,
+        mapping
+      })
+
+      const reason = 'type must be a supported event type.'
+      expect(results).toEqual([
+        retriedEvent('msg-1', reason, apiBody),
+        retriedEvent('msg-2', reason, apiBody),
+        retriedEvent('msg-3', reason, apiBody),
+        retriedEvent('msg-4', reason, apiBody),
+        retriedEvent('msg-5', reason, apiBody),
+        rejectedEvent('msg-6', 400, 'BAD_REQUEST', reason, apiBody)
+      ])
+    })
+
+    it('fails the event named at events[5].data.amount and retries the others when an earlier event is also bad', async () => {
+      const apiBody = invalidEventBody(5, 'data.amount', 'invalid_amount', 'must be an integer.')
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: sixEvents(),
+        settings,
+        mapping
+      })
+
+      const reason = 'data.amount must be an integer.'
+      expect(results).toEqual([
+        retriedEvent('msg-1', reason, apiBody),
+        retriedEvent('msg-2', reason, apiBody),
+        retriedEvent('msg-3', reason, apiBody),
+        retriedEvent('msg-4', reason, apiBody),
+        retriedEvent('msg-5', reason, apiBody),
+        rejectedEvent('msg-6', 400, 'BAD_REQUEST', reason, apiBody)
+      ])
+    })
+
+    it('maps the position the API names to the right payload when earlier events failed pre-send', async () => {
+      const apiBody = invalidEventBody(1, 'type', 'unknown_event_type', 'must be a supported event type.')
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [
+          makeEvent('msg-1'),
+          makeEvent('msg-2', { timestamp: staleTimestamp }),
+          makeEvent('msg-3', noIdentifiers),
+          makeEvent('msg-4'),
+          makeEvent('msg-5')
+        ],
+        settings,
+        mapping
+      })
+
+      const reason = 'type must be a supported event type.'
+      expect(results).toEqual([
+        retriedEvent('msg-1', reason, apiBody),
+        invalidTimestamp,
+        invalidIdentifiers,
+        rejectedEvent('msg-4', 400, 'BAD_REQUEST', reason, apiBody),
+        retriedEvent('msg-5', reason, apiBody)
+      ])
+    })
+
+    it('fails every valid event with the same error when the API rejects the whole request', async () => {
+      const apiBody = {
+        error: {
+          message: 'Invalid request body. See errors for details.',
+          type: 'invalid_request_error',
+          param: null,
+          code: 'invalid_request_body',
+          errors: [{ message: 'Missing required field: events.', param: 'events', code: 'missing_events' }]
+        }
+      }
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [makeEvent('msg-1'), makeEvent('msg-2')],
+        settings,
+        mapping
+      })
+
+      expect(results).toEqual([
+        rejectedEvent('msg-1', 400, 'BAD_REQUEST', 'Missing required field: events.', apiBody),
+        rejectedEvent('msg-2', 400, 'BAD_REQUEST', 'Missing required field: events.', apiBody)
+      ])
+    })
+
+    it('fails every valid event with the same error when the API names an event outside the batch', async () => {
+      const apiBody = invalidEventBody(9, 'type', 'unknown_event_type', 'must be a supported event type.')
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(400, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [makeEvent('msg-1'), makeEvent('msg-2')],
+        settings,
+        mapping
+      })
+
+      const reason = 'type must be a supported event type.'
+      expect(results).toEqual([
+        rejectedEvent('msg-1', 400, 'BAD_REQUEST', reason, apiBody),
+        rejectedEvent('msg-2', 400, 'BAD_REQUEST', reason, apiBody)
+      ])
+    })
+
+    it.each([
+      [
+        401,
+        'UNAUTHORIZED',
+        { error: { message: 'unknown error', type: 'invalid_request_error', param: null, code: null } }
+      ],
+      [403, 'FORBIDDEN', { error: { message: '403: unknown pid', type: 'server_error', param: null, code: null } }]
+    ])(
+      'fails every valid event with the API message for a %s auth error with no errors array',
+      async (status: number, errortype: string, apiBody: { error: { message: string } }) => {
+        nock('https://bzr.openai.com').post('/v1/events').query(true).reply(status, apiBody)
+
+        const results = await testDestination.executeBatch('sendConversion', {
+          events: [makeEvent('msg-1'), makeEvent('msg-2')],
+          settings,
+          mapping
+        })
+
+        expect(results).toEqual([
+          rejectedEvent('msg-1', status, errortype, apiBody.error.message, apiBody),
+          rejectedEvent('msg-2', status, errortype, apiBody.error.message, apiBody)
+        ])
+      }
+    )
+
+    it('does not treat an event index in a 5xx body as a rejected event', async () => {
+      const apiBody = invalidEventBody(1, 'type', 'unknown_event_type', 'must be a supported event type.')
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(503, apiBody)
+
+      const results = await testDestination.executeBatch('sendConversion', {
+        events: [makeEvent('msg-1'), makeEvent('msg-2')],
+        settings,
+        mapping
+      })
+
+      const reason = 'type must be a supported event type.'
+      const unavailable = (id: string) => ({
+        ...rejectedEvent(id, 503, 'SERVICE_UNAVAILABLE', reason, apiBody)
+      })
+      expect(results).toEqual([unavailable('msg-1'), unavailable('msg-2')])
     })
 
     it('mixes pre-send validation failures with a retryable API failure', async () => {

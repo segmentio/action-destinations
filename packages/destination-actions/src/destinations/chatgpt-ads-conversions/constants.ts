@@ -10,6 +10,10 @@ export const EVENTS_ENDPOINT = `${API_BASE_URL}/${CHATGPT_ADS_CONVERSIONS_API_VE
 export const INTEGRATION_SOURCE = 'Segment'
 
 export const MAX_BATCH_SIZE = 1000
+export const REJECTED_EVENT_STATUSES = [400, 422]
+export const RETRY_STATUS = 500
+export const REJECTED_EVENT_INDEX_REGEX = /^events\[(\d+)\]/
+export const REJECTED_EVENT_PATH_REGEX = /events\[\d+\]\./g
 export const MAX_LIST_VALUES = 3
 export const MAX_EVENT_AGE_MS = 7 * 24 * 60 * 60 * 1000
 export const MAX_EVENT_FUTURE_MS = 10 * 60 * 1000

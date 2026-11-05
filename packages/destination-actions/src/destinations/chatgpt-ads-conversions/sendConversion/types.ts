@@ -95,6 +95,17 @@ export interface EventsResponse {
   accepted_events?: number
 }
 
+// Body of a 400/422 event rejection. `errors` has held a single entry in every probe: the first bad
+// event found, with a param like "events[2].type", even when several events are invalid. Auth errors
+// (401/403) return an `error` without `errors`, and other failures may not be JSON, so all are optional.
+export interface EventsErrorResponse {
+  error?: {
+    message?: string
+    code?: string
+    errors?: { param?: string; message?: string }[]
+  }
+}
+
 export interface IndexedEventJSON {
   event: EventJSON
   index: number
