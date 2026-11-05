@@ -7,6 +7,13 @@ const defaults = defaultValues(fields)
 
 export const presets: Preset[] = [
   {
+    name: 'ChatGPT Conversions API Browser Plugin',
+    subscribe: 'type = "track" or type = "identify" or type = "group" or type = "page" or type = "alias"',
+    partnerAction: 'chatgptConversionsApiPlugin',
+    mapping: {},
+    type: 'automatic'
+  },
+  {
     name: 'App Installed',
     subscribe: 'type = "track" AND event = "Application Installed"',
     partnerAction: 'sendConversion',

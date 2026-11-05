@@ -45,19 +45,21 @@ const richEvent = (type: 'track' | 'page', name: string) =>
     context: richContext
   })
 
-const presetFixtures: E2EFixture[] = (Destination.presets ?? []).map((preset) => {
-  const { subscribe, mapping } = preset as unknown as { subscribe: string; mapping: Record<string, never> }
-  const eventName = /event = "([^"]+)"/.exec(subscribe)?.[1] ?? 'Page'
-  const type = subscribe.includes('type = "page"') ? 'page' : 'track'
-  return {
-    description: `Preset ${preset.name} sends a valid event`,
-    subscribe,
-    mapping,
-    mode: 'single',
-    event: richEvent(type, eventName),
-    expect: { status: 'success' }
-  }
-})
+const presetFixtures: E2EFixture[] = (Destination.presets ?? [])
+  .filter((preset) => preset.partnerAction === 'sendConversion')
+  .map((preset) => {
+    const { subscribe, mapping } = preset as unknown as { subscribe: string; mapping: Record<string, never> }
+    const eventName = /event = "([^"]+)"/.exec(subscribe)?.[1] ?? 'Page'
+    const type = subscribe.includes('type = "page"') ? 'page' : 'track'
+    return {
+      description: `Preset ${preset.name} sends a valid event`,
+      subscribe,
+      mapping,
+      mode: 'single',
+      event: richEvent(type, eventName),
+      expect: { status: 'success' }
+    }
+  })
 
 const orderCompleted = {
   subscribe: 'type = "track" AND event = "Order Completed"',

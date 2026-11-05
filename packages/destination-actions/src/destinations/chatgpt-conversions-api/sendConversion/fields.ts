@@ -80,7 +80,7 @@ export const fields: Record<string, InputField> = {
   oppref: {
     label: 'OpenAI Click Reference',
     description:
-      'The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Conversions API Plugins destination captures it in the browser and adds it to every later event.',
+      'The oppref click ID from the landing page URL. It is sent unchanged. The ChatGPT Conversions API browser plugin captures it in the browser and adds it to every later event.',
     type: 'string',
     default: {
       '@if': {
@@ -224,7 +224,7 @@ export const fields: Record<string, InputField> = {
       obref: {
         label: 'OpenAI Browser Reference',
         description:
-          "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API Plugins destination reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
+          "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API browser plugin reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
         type: 'string'
       },
       external_id: {

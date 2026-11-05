@@ -264,8 +264,10 @@ describe('ChatGPT Conversions API', () => {
         }
       })
 
+    const conversionPresets = (Destination.presets ?? []).filter((preset) => preset.partnerAction === 'sendConversion')
+
     it('has a preset for every event type except custom', () => {
-      const eventTypes = (Destination.presets ?? []).map(
+      const eventTypes = conversionPresets.map(
         (preset) => (preset as { mapping: { event_type: string } }).mapping.event_type
       )
       expect(eventTypes.sort()).toEqual(
@@ -286,7 +288,7 @@ describe('ChatGPT Conversions API', () => {
       )
     })
 
-    it.each((Destination.presets ?? []).map((preset) => [preset.name, preset] as const))(
+    it.each(conversionPresets.map((preset) => [preset.name, preset] as const))(
       '%s maps a typical event to valid JSON',
       async (_name, preset) => {
         let body: { events: Record<string, any>[] } = { events: [] }
