@@ -1050,6 +1050,82 @@
           "format": null,
           "additionalProperties": false
         },
+        "customer_ip": {
+          "label": "IP Address",
+          "description": "The person's IP address. Customer.io uses it to derive geolocation attributes (city, region, country, timezone) when geolocation is enabled in your workspace. Defaults to `context.ip`. Only forwarded for events from Segment's web and mobile libraries, where `context.ip` is the end user's address; events from server-side libraries are skipped unless **Forward IP from server-side sources** is enabled.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.ip"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "forward_server_ip": {
+          "label": "Forward IP from server-side sources",
+          "description": "Send the IP Address for events from Segment's server-side libraries too. Only enable this if your server sets `context.ip` to the end user's address; otherwise Customer.io would geolocate people to your server's location.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "source_library": {
+          "label": "Segment Library",
+          "description": "The Segment library that sent the event. Used to decide whether the IP Address is forwarded.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.library.name"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "object_type_id": {
           "label": "Object Type Id",
           "description": "The ID used to uniquely identify a custom object type in Customer.io. [Learn more](https://customer.io/docs/object-relationships).",
@@ -2986,6 +3062,13 @@
           "@path": "$.timestamp"
         },
         "convert_timestamp": true,
+        "customer_ip": {
+          "@path": "$.context.ip"
+        },
+        "forward_server_ip": false,
+        "source_library": {
+          "@path": "$.context.library.name"
+        },
         "object_type_id": {
           "@if": {
             "exists": {
@@ -3538,6 +3621,13 @@
           "@path": "$.timestamp"
         },
         "convert_timestamp": true,
+        "customer_ip": {
+          "@path": "$.context.ip"
+        },
+        "forward_server_ip": false,
+        "source_library": {
+          "@path": "$.context.library.name"
+        },
         "object_type_id": {
           "@if": {
             "exists": {

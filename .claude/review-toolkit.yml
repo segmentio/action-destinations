@@ -1,0 +1,8 @@
+review_context:
+  files:
+    - docs/testing.md
+    - docs/error-handling.md
+    - docs/authentication.md
+    - docs/pr-guidelines/pull-request-guidance.md
+    - docs/pr-guidelines/pr-checks.md
+    - .claude/rules/eng-automated-reviews.md
