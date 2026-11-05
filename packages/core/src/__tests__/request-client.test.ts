@@ -568,7 +568,7 @@ describe('request()', () => {
       const evil = JSON.parse('{"json":{"__proto__":{"polluted":"yes"},"keep":1}}')
       const before = JSON.stringify(evil)
       const base = { json: { keep: 0 } }
-      const client = createInstance({ prefixUrl: 'http://localhost' })
+      const client = createInstance({})
       const extended = client.extend(base).extend(evil).extend(evil)
       expect(extended).toBeDefined()
       expect(polluted()).toBeUndefined()
