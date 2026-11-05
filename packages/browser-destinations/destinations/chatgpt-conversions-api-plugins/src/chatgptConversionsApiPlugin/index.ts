@@ -7,6 +7,8 @@ import {
   integrationName,
   opprefIntegrationFieldName,
   obrefIntegrationFieldName,
+  obrefCookieName,
+  getCookieValue,
   storageFallback
 } from '../utils'
 import { UniversalStorage } from '@segment/analytics-next'
@@ -24,7 +26,11 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
 
     const oppref: string | null = storage.get(storageOpprefKey)
-    const obref: string | null = storage.get(storageObrefKey)
+    const cookieObref = getCookieValue(obrefCookieName)
+    if (cookieObref) {
+      storage.set(storageObrefKey, cookieObref)
+    }
+    const obref: string | null = cookieObref ?? storage.get(storageObrefKey)
 
     if (!oppref && !obref) {
       return
