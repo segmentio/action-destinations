@@ -27,7 +27,7 @@ const richContext = {
   page: { url: 'https://example.com/e2e' },
   ip: '203.0.113.9',
   userAgent: 'Mozilla/5.0 (E2E)',
-  device: { advertisingId: '11111111-2222-3333-4444-555555555555' },
+  device: { type: 'android', advertisingId: '11111111-2222-3333-4444-555555555555' },
   traits: {
     email: 'e2e-test@segment.com',
     phone: '+1 415 555 0100',
@@ -104,6 +104,12 @@ const orderCompletedWithItemCurrency = {
   }
 }
 
+const refundEvent = () =>
+  orderCompletedEvent({
+    total: -25.99,
+    products: richProperties.products.map((product) => ({ ...product, price: -product.price, currency: 'USD' }))
+  })
+
 const failedBeforeSending = { status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' }
 const invalidCurrency = {
   status: 400,
@@ -152,6 +158,13 @@ const fixtures: E2EFixture[] = [
       errorMessage: 'At least one valid essential identifier is required: Email, Phone or Android Advertising ID.',
       httpStatus: 400
     }
+  },
+  {
+    description: 'Refund with a negative amount and negative item amounts is accepted',
+    ...orderCompletedWithItemCurrency,
+    mode: 'single',
+    event: refundEvent(),
+    expect: { status: 'success' }
   },
   {
     description: 'Batch of valid events succeeds',

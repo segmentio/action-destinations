@@ -9,7 +9,6 @@ import {
   obrefIntegrationFieldName,
   opprefIntegrationFieldName,
   opprefQuerystringName,
-  storageObrefKey,
   storageOpprefKey
 } from '../utils'
 
@@ -57,7 +56,7 @@ const trackEvent = async (integrations?: Record<string, unknown>) => {
 
 beforeEach(() => {
   window.localStorage.clear()
-  ;[obrefCookieName, storageOpprefKey, storageObrefKey].forEach(expireCookie)
+  ;[obrefCookieName, storageOpprefKey].forEach(expireCookie)
   setSearch('')
 })
 
@@ -106,17 +105,26 @@ describe('querystring and cookie capture', () => {
     })
   })
 
-  test('a newer __obref cookie replaces the stored value', async () => {
-    document.cookie = `${obrefCookieName}=old_value`
+  test('stops sending obref once the __obref cookie is gone', async () => {
+    document.cookie = `${obrefCookieName}=obr_cookie_value`
     await loadPlugin()
-    document.cookie = `${obrefCookieName}=new_value`
 
     const first = await trackEvent()
     expireCookie(obrefCookieName)
     const second = await trackEvent()
 
-    expect(first?.event?.integrations[integrationName]).toEqual({ [obrefIntegrationFieldName]: 'new_value' })
-    expect(second?.event?.integrations[integrationName]).toEqual({ [obrefIntegrationFieldName]: 'new_value' })
+    expect(first?.event?.integrations[integrationName]).toEqual({ [obrefIntegrationFieldName]: 'obr_cookie_value' })
+    expect(second?.event?.integrations?.[integrationName]).toBeUndefined()
+  })
+
+  test('uses the current __obref cookie value when it changes', async () => {
+    document.cookie = `${obrefCookieName}=old_value`
+    await loadPlugin()
+    document.cookie = `${obrefCookieName}=new_value`
+
+    const updatedCtx = await trackEvent()
+
+    expect(updatedCtx?.event?.integrations[integrationName]).toEqual({ [obrefIntegrationFieldName]: 'new_value' })
   })
 
   test('keeps sending the stored oppref on later page loads without the querystring', async () => {

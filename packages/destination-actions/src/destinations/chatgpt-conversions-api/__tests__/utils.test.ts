@@ -81,8 +81,8 @@ describe('toMinorUnits', () => {
     expect(toMinorUnits(amount, currency)).toBe(expected)
   })
 
-  it('rejects negative amounts and invalid currencies', () => {
-    expect(() => toMinorUnits(-1, 'USD')).toThrow('non-negative')
+  it('allows negative amounts such as refunds and rejects invalid currencies', () => {
+    expect(toMinorUnits(-1.5, 'USD')).toBe(-150)
     expect(() => toMinorUnits(1, 'ZZZZ')).toThrow('not a valid ISO 4217')
   })
 })
@@ -332,7 +332,7 @@ describe('toMoney', () => {
     expect(() => toMoney(10, undefined, 'currency needed')).toThrow('currency needed')
   })
 
-  it('rejects negative amounts', () => {
-    expect(() => toMoney(-1, 'USD', 'currency needed')).toThrow('non-negative')
+  it('allows negative amounts', () => {
+    expect(toMoney(-1, 'USD', 'currency needed')).toEqual({ amount: -100, currency: 'USD' })
   })
 })

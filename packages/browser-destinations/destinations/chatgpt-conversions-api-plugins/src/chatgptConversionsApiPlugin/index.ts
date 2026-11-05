@@ -3,7 +3,6 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
   storageOpprefKey,
-  storageObrefKey,
   integrationName,
   opprefIntegrationFieldName,
   obrefIntegrationFieldName,
@@ -26,11 +25,7 @@ const action: BrowserActionDefinition<Settings, {}, Payload> = {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
 
     const oppref: string | null = storage.get(storageOpprefKey)
-    const cookieObref = getCookieValue(obrefCookieName)
-    if (cookieObref) {
-      storage.set(storageObrefKey, cookieObref)
-    }
-    const obref: string | null = cookieObref ?? storage.get(storageObrefKey)
+    const obref = getCookieValue(obrefCookieName)
 
     if (!oppref && !obref) {
       return

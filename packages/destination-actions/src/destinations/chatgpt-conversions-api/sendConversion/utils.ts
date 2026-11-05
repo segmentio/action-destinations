@@ -81,8 +81,8 @@ export function toMinorUnitExponent(currency: string): number {
 
 export function toMinorUnits(amount: number, currency: string): number {
   const minorUnits = Math.round(Number(`${amount}e${toMinorUnitExponent(currency)}`))
-  if (!Number.isSafeInteger(minorUnits) || minorUnits < 0) {
-    throw new PayloadValidationError(`Amount "${amount}" cannot be converted to a non-negative integer of minor units.`)
+  if (!Number.isSafeInteger(minorUnits)) {
+    throw new PayloadValidationError(`Amount "${amount}" cannot be converted to an integer of minor units.`)
   }
   return minorUnits
 }
