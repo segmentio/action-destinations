@@ -95,6 +95,30 @@ describe('querystring and cookie capture', () => {
     })
   })
 
+  test('picks up an __obref cookie set after the plugin loaded', async () => {
+    await loadPlugin()
+    document.cookie = `${obrefCookieName}=late_cookie_value`
+
+    const updatedCtx = await trackEvent()
+
+    expect(updatedCtx?.event?.integrations[integrationName]).toEqual({
+      [obrefIntegrationFieldName]: 'late_cookie_value'
+    })
+  })
+
+  test('a newer __obref cookie replaces the stored value', async () => {
+    document.cookie = `${obrefCookieName}=old_value`
+    await loadPlugin()
+    document.cookie = `${obrefCookieName}=new_value`
+
+    const first = await trackEvent()
+    expireCookie(obrefCookieName)
+    const second = await trackEvent()
+
+    expect(first?.event?.integrations[integrationName]).toEqual({ [obrefIntegrationFieldName]: 'new_value' })
+    expect(second?.event?.integrations[integrationName]).toEqual({ [obrefIntegrationFieldName]: 'new_value' })
+  })
+
   test('keeps sending the stored oppref on later page loads without the querystring', async () => {
     setSearch(`?${opprefQuerystringName}=opp_abc123`)
     await loadPlugin()
