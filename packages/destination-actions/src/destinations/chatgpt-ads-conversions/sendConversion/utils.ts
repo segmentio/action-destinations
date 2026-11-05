@@ -62,11 +62,21 @@ export function hashValues(values: unknown, cleaner: (value: string) => string):
     .slice(0, MAX_LIST_VALUES)
 }
 
+const MINOR_UNIT_EXPONENTS = new Map<string, number>()
+
 export function toMinorUnitExponent(currency: string): number {
-  if (!ISO_CURRENCY_CODES.includes(currency.toUpperCase())) {
+  const code = currency.toUpperCase()
+  if (!ISO_CURRENCY_CODES.includes(code)) {
     throw new PayloadValidationError(`Currency "${currency}" is not a valid ISO 4217 currency code.`)
   }
-  return new Intl.NumberFormat('en', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits ?? 2
+  const cached = MINOR_UNIT_EXPONENTS.get(code)
+  if (cached !== undefined) {
+    return cached
+  }
+  const exponent =
+    new Intl.NumberFormat('en', { style: 'currency', currency: code }).resolvedOptions().maximumFractionDigits ?? 2
+  MINOR_UNIT_EXPONENTS.set(code, exponent)
+  return exponent
 }
 
 export function toMinorUnits(amount: number, currency: string): number {
