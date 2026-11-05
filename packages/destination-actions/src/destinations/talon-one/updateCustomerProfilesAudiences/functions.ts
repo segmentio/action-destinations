@@ -1,5 +1,5 @@
 import type { Payload } from './generated-types'
-import { MAX_ITEMS_PER_EVENT, MAX_ITEMS_PER_REQUEST } from './constants'
+import { MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT, MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST } from './constants'
 import type { Chunk, Entry, IndexedPayload } from './types'
 
 function countItems(data: Entry[]): number {
@@ -15,11 +15,11 @@ function addIndex(map: Map<string, number[]>, key: string, index: number) {
   }
 }
 
-// Returns the indexes of events whose total adds + deletes exceed MAX_ITEMS_PER_EVENT.
+// Returns the indexes of events whose total adds + deletes exceed MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT.
 export function findOversizedIndexes(payloads: Payload[]): Set<number> {
   const oversized = new Set<number>()
   payloads.forEach((payload, index) => {
-    if (countItems(payload.data) > MAX_ITEMS_PER_EVENT) {
+    if (countItems(payload.data) > MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT) {
       oversized.add(index)
     }
   })
@@ -52,7 +52,7 @@ export function findConflictedIndexes(payloads: Payload[]): Set<number> {
   return conflicted
 }
 
-// Groups events into requests of at most MAX_ITEMS_PER_REQUEST adds + deletes, keeping each event whole.
+// Groups events into requests of at most MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST adds + deletes, keeping each event whole.
 export function buildChunks(items: IndexedPayload[]): Chunk[] {
   const chunks: Chunk[] = []
   let count = 0
@@ -60,7 +60,7 @@ export function buildChunks(items: IndexedPayload[]): Chunk[] {
   items.forEach(({ index, data }) => {
     const size = countItems(data)
     let chunk = chunks[chunks.length - 1]
-    if (!chunk || count + size > MAX_ITEMS_PER_REQUEST) {
+    if (!chunk || count + size > MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST) {
       chunk = { data: [], indexes: [] }
       chunks.push(chunk)
       count = 0

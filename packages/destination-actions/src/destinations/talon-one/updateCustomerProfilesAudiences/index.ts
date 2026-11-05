@@ -3,7 +3,7 @@ import type { ActionDefinition, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { addAudienceId, customerProfileId, deleteAudienceId } from '../t1-properties'
-import { ENDPOINT, MAX_ITEMS_PER_EVENT, MAX_ITEMS_PER_REQUEST } from './constants'
+import { ENDPOINT, MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT, SEGMENT_EVENTS_PER_BATCH } from './constants'
 import { buildChunks, findConflictedIndexes, findOversizedIndexes } from './functions'
 import type { RequestError, UpdateAudiencesJSON } from './types'
 
@@ -21,11 +21,11 @@ const action: ActionDefinition<Settings, Payload> = {
         customerProfileId: { ...customerProfileId },
         adds: {
           ...addAudienceId,
-          description: `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_ITEMS_PER_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected.`
+          description: `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected.`
         },
         deletes: {
           ...deleteAudienceId,
-          description: `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_ITEMS_PER_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected.`
+          description: `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected.`
         }
       },
       required: true
@@ -40,11 +40,12 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: `Maximum number of events to include in each batch. Talon.One accepts at most ${MAX_ITEMS_PER_REQUEST} audience changes per request. Actual batch sizes may be smaller.`,
+      description: 'Maximum number of events to include in each batch. Actual batch sizes may be smaller.',
       type: 'number',
-      default: MAX_ITEMS_PER_REQUEST,
+      default: SEGMENT_EVENTS_PER_BATCH,
       minimum: 1,
-      maximum: MAX_ITEMS_PER_REQUEST,
+      maximum: SEGMENT_EVENTS_PER_BATCH,
+      unsafe_hidden: true,
       required: false
     }
   },
@@ -63,7 +64,7 @@ const action: ActionDefinition<Settings, Payload> = {
       multiStatus.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        errormessage: `An event can add or remove at most ${MAX_ITEMS_PER_EVENT} audiences in total when batching is enabled.`
+        errormessage: `An event can add or remove at most ${MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT} audiences in total when batching is enabled.`
       })
     })
 
