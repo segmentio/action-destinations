@@ -97,8 +97,8 @@ describe('Talon.One - Update Customer Profiles Audiences (batch)', () => {
   it('splits requests above 5000 audience changes', async () => {
     const sizes: number[] = []
     nock('https://integration.talon.one')
-      .put('/segment/customer_profiles/audiences', (body: { data: unknown[] }) => {
-        sizes.push(body.data.length)
+      .put('/segment/customer_profiles/audiences', (body: { data: { adds?: number[]; deletes?: number[] }[] }) => {
+        sizes.push(body.data.reduce((sum, e) => sum + (e.adds?.length ?? 0) + (e.deletes?.length ?? 0), 0))
         return true
       })
       .times(2)
@@ -112,7 +112,7 @@ describe('Talon.One - Update Customer Profiles Audiences (batch)', () => {
     })
 
     expect(responses.every((r) => r.status === 200)).toBe(true)
-    expect(sizes).toEqual([1000, 1])
+    expect(sizes).toEqual([5000, 5])
   })
 
   it('only fails the events in the chunk that Talon.One rejects', async () => {
