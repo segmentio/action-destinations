@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { smartHash } from '../reportConversionEvent/utils'
+import { FLAGON_NAME_EVENT_TAG } from '../reportConversionEvent/snap-capi-v3'
 
 const testDestination = createTestIntegration(Definition)
 
@@ -261,6 +262,85 @@ describe('Snap Conversions API ', () => {
           expect(url).toBe('https://tr.snapchat.com/v3/test123/events?access_token=access123')
           expect(data.action_source).toBe('MOBILE_APP')
         }
+      })
+    })
+
+    describe('event_tag', () => {
+      const eventTagFeatures = { [FLAGON_NAME_EVENT_TAG]: true }
+      const mapEventTag = { '@path': '$.properties.event_tag' }
+
+      it('should send event_tag in custom_data when the flag is on', async () => {
+        const { data } = await reportConversionEvent({
+          features: eventTagFeatures,
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: mapEventTag }
+        })
+
+        expect(data.custom_data.event_tag).toBe('back-to-school')
+        expect(data.event_tag).toBeUndefined()
+      })
+
+      it('should send event_tag alongside the other custom_data fields', async () => {
+        const { data } = await reportConversionEvent({
+          features: eventTagFeatures,
+          mapping: {
+            event_name: 'PURCHASE',
+            action_source: 'WEB',
+            event_tag: mapEventTag,
+            custom_data: { order_id: 'A1234', currency: 'USD', value: 15 }
+          }
+        })
+
+        expect(data.custom_data).toEqual({
+          currency: 'USD',
+          event_tag: 'back-to-school',
+          order_id: 'A1234',
+          value: 15
+        })
+      })
+
+      it('should trim event_tag', async () => {
+        const { data } = await reportConversionEvent({
+          features: eventTagFeatures,
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: '  back-to-school  ' }
+        })
+
+        expect(data.custom_data.event_tag).toBe('back-to-school')
+      })
+
+      it.each(['', '   '])('should omit event_tag when it is %j', async (value) => {
+        const { data } = await reportConversionEvent({
+          features: eventTagFeatures,
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: value }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+      })
+
+      it('should omit event_tag when it is not mapped', async () => {
+        const { data } = await reportConversionEvent({
+          features: eventTagFeatures,
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB' }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+      })
+
+      it('should not send event_tag when the flag is off', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: mapEventTag }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+        expect(JSON.stringify(data)).not.toContain('back-to-school')
+      })
+
+      it('should not send event_tag when the flag is explicitly false', async () => {
+        const { data } = await reportConversionEvent({
+          features: { [FLAGON_NAME_EVENT_TAG]: false },
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: mapEventTag }
+        })
+
+        expect(JSON.stringify(data)).not.toContain('back-to-school')
       })
     })
 

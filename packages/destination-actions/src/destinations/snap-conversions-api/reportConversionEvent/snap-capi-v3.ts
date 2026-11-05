@@ -1,4 +1,4 @@
-import { ExecuteInput, ModifiedResponse, RequestClient } from '@segment/actions-core'
+import { ExecuteInput, Features, ModifiedResponse, RequestClient } from '@segment/actions-core'
 import { Payload } from './generated-types'
 import { Settings } from '../generated-types'
 import {
@@ -15,6 +15,8 @@ import {
 } from './utils'
 import { processHashing } from '../../../lib/hashing-utils'
 import { SNAP_CONVERSIONS_API_VERSION } from '../versioning-info'
+
+export const FLAGON_NAME_EVENT_TAG = 'snap-conversions-api-event-tag'
 
 const CURRENCY_ISO_4217_CODES = new Set([
   'USD',
@@ -506,7 +508,7 @@ const buildUserData = (payload: Payload) => {
   }
 }
 
-const buildCustomData = (payload: Payload) => {
+const buildCustomData = (payload: Payload, features?: Features) => {
   const { custom_data } = payload
 
   const products = payload.products?.filter(({ item_id }) => item_id != null)
@@ -548,6 +550,7 @@ const buildCustomData = (payload: Payload) => {
   const preferred_neighborhoods = emptyStringToUndefined(custom_data?.preferred_neighborhoods)
   const preferred_star_ratings = emptyStringToUndefined(custom_data?.preferred_star_ratings)
   const suggested_hotels = emptyStringToUndefined(custom_data?.suggested_hotels)
+  const event_tag = features?.[FLAGON_NAME_EVENT_TAG] ? emptyStringToUndefined(payload?.event_tag) : undefined
 
   const dta_fields = {
     checkin_date,
@@ -584,6 +587,7 @@ const buildCustomData = (payload: Payload) => {
     search_string,
     sign_up_method,
     value,
+    event_tag,
     ...dta_fields
   })
 }
@@ -603,7 +607,7 @@ const normalizeActionSource = (payload: Payload): string | undefined => {
   return actionSource !== undefined ? ACTION_SOURCES[actionSource] ?? 'OFFLINE' : ACTION_SOURCES[eventConversionType]
 }
 
-const buildPayloadData = (payload: Payload, settings: Settings) => {
+const buildPayloadData = (payload: Payload, settings: Settings, features?: Features) => {
   const action_source = normalizeActionSource(payload)
 
   // Snaps CAPI v3 supports the legacy v2 events so don't bother
@@ -620,7 +624,7 @@ const buildPayloadData = (payload: Payload, settings: Settings) => {
 
   const app_data = action_source === 'MOBILE_APP' ? buildAppData(payload, settings) : undefined
   const user_data = buildUserData(payload)
-  const custom_data = buildCustomData(payload)
+  const custom_data = buildCustomData(payload, features)
 
   const data_processing_options = payload.data_processing_options ?? false ? ['LDU'] : undefined
 
@@ -725,9 +729,9 @@ export const performSnapCAPIv3 = async (
   request: RequestClient,
   data: ExecuteInput<Settings, Payload>
 ): Promise<ModifiedResponse<unknown>> => {
-  const { payload, settings } = data
+  const { payload, settings, features } = data
 
-  const payloadData = buildPayloadData(payload, settings)
+  const payloadData = buildPayloadData(payload, settings, features)
 
   validatePayload(payloadData)
   validateSettingsConfig(settings, payloadData.action_source)

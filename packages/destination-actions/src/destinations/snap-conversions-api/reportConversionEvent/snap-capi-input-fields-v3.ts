@@ -609,6 +609,13 @@ const event_source_url: InputField = {
   }
 }
 
+const event_tag: InputField = {
+  label: 'Event Tag',
+  description:
+    'A custom label for the event, sent to Snapchat as custom_data.event_tag. It can be used as a rule key when defining Custom Conversions in Snapchat Events Manager.',
+  type: 'string'
+}
+
 const event_time: InputField = {
   label: 'Event Timestamp',
   description:
@@ -675,6 +682,7 @@ const snap_capi_input_fields_v3 = {
   user_data,
   app_data,
   custom_data,
+  event_tag,
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,

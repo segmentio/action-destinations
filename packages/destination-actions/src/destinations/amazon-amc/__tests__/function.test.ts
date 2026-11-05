@@ -1,11 +1,10 @@
 import { createPayloadToUploadRecords, processBatchPayload } from '../function'
 import type { RequestClient } from '@segment/actions-core'
 import type { Payload } from '../syncAudiencesToDSP/generated-types'
-import { FLAG_AUDIENCE_MEMBERSHIP } from '../utils'
 import type { AudienceSettings, Settings } from '../generated-types'
 
 const audienceSettings = { countryCode: 'US' } as AudienceSettings
-const features = { [FLAG_AUDIENCE_MEMBERSHIP]: true }
+const features = {}
 const settings = { region: 'https://advertising-api.amazon.com' } as Settings
 
 const payload = (event_name?: string, externalUserId = 'user-1'): Payload => ({
