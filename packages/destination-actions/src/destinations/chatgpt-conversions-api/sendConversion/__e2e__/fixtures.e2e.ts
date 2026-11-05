@@ -39,7 +39,7 @@ const richContext = {
 
 const richEvent = (type: 'track' | 'page', name: string) =>
   createE2EEvent(type, name, {
-    userId: 'e2e-chatgpt-ads-user-001',
+    userId: 'e2e-chatgpt-conversions-api-user-001',
     anonymousId: 'e2e-anon-001',
     properties: richProperties,
     context: richContext
@@ -66,7 +66,7 @@ const orderCompleted = {
 
 const orderCompletedEvent = (propertyOverrides: Record<string, unknown> = {}) =>
   createE2EEvent('track', 'Order Completed', {
-    userId: 'e2e-chatgpt-ads-user-001',
+    userId: 'e2e-chatgpt-conversions-api-user-001',
     anonymousId: 'e2e-anon-001',
     properties: { ...richProperties, ...propertyOverrides },
     context: richContext
@@ -132,7 +132,7 @@ const fixtures: E2EFixture[] = [
     ...orderCompleted,
     mode: 'single',
     event: createE2EEvent('track', 'Order Completed', {
-      userId: 'e2e-chatgpt-ads-user-002',
+      userId: 'e2e-chatgpt-conversions-api-user-002',
       properties: { total: 10, currency: 'USD' },
       context: { traits: { email: 'e2e-test@segment.com' } }
     }),

@@ -1,11 +1,11 @@
 import type { InputField } from '@segment/actions-core'
-import { CHATGPT_ADS_CONVERSIONS_API_VERSION } from './versioning-info'
+import { CHATGPT_CONVERSIONS_API_VERSION } from './versioning-info'
 import type { ActionSource, DataType, EventType } from './sendConversion/types'
 
 type DependsOnConditions = NonNullable<InputField['depends_on']>
 
 export const API_BASE_URL = 'https://bzr.openai.com'
-export const EVENTS_ENDPOINT = `${API_BASE_URL}/${CHATGPT_ADS_CONVERSIONS_API_VERSION}/events`
+export const EVENTS_ENDPOINT = `${API_BASE_URL}/${CHATGPT_CONVERSIONS_API_VERSION}/events`
 
 export const INTEGRATION_SOURCE = 'Segment'
 

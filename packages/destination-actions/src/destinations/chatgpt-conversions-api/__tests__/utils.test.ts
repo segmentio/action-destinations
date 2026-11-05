@@ -55,7 +55,7 @@ describe('hashValue', () => {
 })
 
 describe('cleaners', () => {
-  it('cleans phone numbers per the ChatGPT Ads rules', () => {
+  it('cleans phone numbers per the ChatGPT Conversions API rules', () => {
     expect(cleanPhone('+1 (415) 555-0100')).toBe('14155550100')
     expect(cleanPhone('0044 20.7946.0958')).toBe('442079460958')
     expect(cleanPhone('12345')).toBe('')
@@ -287,7 +287,7 @@ describe('toMinorUnitExponent', () => {
   })
 
   it.each(['XYZ', 'ANG', 'BGN', 'HRK', 'BTC', 'USDT'])(
-    'rejects the well-formed code %p that ChatGPT Ads does not accept',
+    'rejects the well-formed code %p that ChatGPT Conversions API does not accept',
     (currency: string) => {
       expect(() => toMinorUnitExponent(currency)).toThrow('not a valid ISO 4217')
     }

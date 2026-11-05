@@ -235,7 +235,7 @@ export async function sendBatch(
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
         errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: error instanceof Error ? error.message : 'Invalid payload for ChatGPT Ads Conversions.'
+        errormessage: error instanceof Error ? error.message : 'Invalid payload for ChatGPT Conversions API.'
       })
     }
   })
@@ -259,7 +259,8 @@ export async function sendBatch(
   // errors). Other failures (401/403 auth, 429, 5xx) affect the whole request, so the status check stops
   // them being treated as a single bad event, which would wrongly make that event non-retryable.
   const isEventRejection = rejectedPosition !== undefined && REJECTED_EVENT_STATUSES.includes(status)
-  const errormessage = rejectionMessage || statusText || `ChatGPT Ads rejected the request with status ${status}.`
+  const errormessage =
+    rejectionMessage || statusText || `ChatGPT Conversions API rejected the request with status ${status}.`
 
   // The API is all-or-nothing and names only ONE bad event per failed request (error.errors[0].param,
   // e.g. "events[2].type"), even if several events are invalid. We fail that event with the API's
@@ -276,7 +277,7 @@ export async function sendBatch(
       } else {
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: RETRY_STATUS,
-          errormessage: `Not delivered because another event in the batch was rejected by ChatGPT Ads (${errormessage}). It will be retried.`,
+          errormessage: `Not delivered because another event in the batch was rejected by ChatGPT Conversions API (${errormessage}). It will be retried.`,
           sent,
           body
         })
