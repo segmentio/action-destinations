@@ -1,8 +1,7 @@
 const protoPollution = require('./eslint-rules/proto-pollution')
 
 const createHashRestriction = {
-  name: 'crypto',
-  importNames: ['createHash'],
+  selector: "ImportDeclaration[source.value='crypto'] ImportSpecifier[imported.name='createHash']",
   message:
     'The "destination-actions/lib/hashing-utils/processHashing" can autodetect  prehashed values and avoid double hashing [https://github.com/segmentio/action-destinations/blob/139f434ff2828ed37c8f364f6ff9bb63dd3725d1/README.md?plain=1#L963]. Avoid importing the "createHash" function from "crypto"'
 }
@@ -28,7 +27,7 @@ module.exports = {
   ],
   plugins: ['@typescript-eslint', 'lodash'],
   rules: {
-    'no-restricted-syntax': ['warn', protoPollution],
+    'no-restricted-syntax': ['error', protoPollution],
     'lodash/import-scope': ['error', 'method'],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/ban-ts-comment': [
@@ -99,15 +98,15 @@ module.exports = {
     },
     {
       files: ['packages/destination-actions/**/*.ts'],
-      excludedFiles: ['**/*.test.ts', '**/__tests__/**/*.ts', '**/test/**/*.ts'],
       rules: {
-        'no-restricted-syntax': ['warn', protoPollution]
+        'no-restricted-syntax': ['error', protoPollution, createHashRestriction]
       }
     },
     {
-      files: ['packages/destination-actions/**/*.ts'],
+      // Tests are exempt from the nested-write rule; keep the createHash restriction.
+      files: ['packages/destination-actions/**/*.test.ts', 'packages/destination-actions/**/__tests__/**/*.ts', 'packages/destination-actions/**/test/**/*.ts'],
       rules: {
-        'no-restricted-imports': ['error', createHashRestriction]
+        'no-restricted-syntax': ['error', createHashRestriction]
       }
     },
     {
