@@ -1,6 +1,15 @@
+const protoPollution = require('./eslint-rules/proto-pollution')
+
+const createHashRestriction = {
+  name: 'crypto',
+  importNames: ['createHash'],
+  message:
+    'The "destination-actions/lib/hashing-utils/processHashing" can autodetect  prehashed values and avoid double hashing [https://github.com/segmentio/action-destinations/blob/139f434ff2828ed37c8f364f6ff9bb63dd3725d1/README.md?plain=1#L963]. Avoid importing the "createHash" function from "crypto"'
+}
+
 module.exports = {
   root: true,
-  ignorePatterns: ['node_modules', 'dist', 'templates', 'scripts', '**/node_modules'],
+  ignorePatterns: ['node_modules', 'dist', 'templates', 'scripts', 'eslint-rules', '**/node_modules'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2019,
@@ -19,6 +28,7 @@ module.exports = {
   ],
   plugins: ['@typescript-eslint', 'lodash'],
   rules: {
+    'no-restricted-syntax': ['warn', protoPollution],
     'lodash/import-scope': ['error', 'method'],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/ban-ts-comment': [
@@ -61,7 +71,8 @@ module.exports = {
         '@typescript-eslint/ban-ts-comment': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-empty-function': 'off'
+        '@typescript-eslint/no-empty-function': 'off',
+        'no-restricted-syntax': 'off'
       }
     },
     {
@@ -88,15 +99,15 @@ module.exports = {
     },
     {
       files: ['packages/destination-actions/**/*.ts'],
+      excludedFiles: ['**/*.test.ts', '**/__tests__/**/*.ts', '**/test/**/*.ts'],
       rules: {
-        'no-restricted-syntax': [
-          'error',
-          {
-            selector: "ImportDeclaration[source.value='crypto'] ImportSpecifier[imported.name='createHash']",
-            message:
-              'The "destination-actions/lib/hashing-utils/processHashing" can autodetect  prehashed values and avoid double hashing [https://github.com/segmentio/action-destinations/blob/139f434ff2828ed37c8f364f6ff9bb63dd3725d1/README.md?plain=1#L963]. Avoid importing the "createHash" function from "crypto"'
-          }
-        ]
+        'no-restricted-syntax': ['warn', protoPollution]
+      }
+    },
+    {
+      files: ['packages/destination-actions/**/*.ts'],
+      rules: {
+        'no-restricted-imports': ['error', createHashRestriction]
       }
     },
     {

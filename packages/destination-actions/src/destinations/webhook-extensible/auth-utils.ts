@@ -41,6 +41,7 @@ const getRequestData = (oauth: any, auth: any) => {
       if (!Object.prototype.hasOwnProperty.call(customParamsObj, sendIn)) {
         customParamsObj[sendIn] = Object.create(null)
       }
+      // eslint-disable-next-line no-restricted-syntax -- reviewed: key is allow-listed and container is null-prototype
       customParamsObj[sendIn][key] = value
     }
   }
