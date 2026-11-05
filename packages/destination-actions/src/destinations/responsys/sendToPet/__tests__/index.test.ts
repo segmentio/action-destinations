@@ -223,4 +223,81 @@ describe('Responsys.sendToPet', () => {
       })
     })
   })
+
+  describe('Prototype pollution hardening', () => {
+    const settings = {
+      baseUrl: responsysHost,
+      username: 'abcd',
+      userPassword: 'abcd',
+      insertOnNoMatch: false,
+      matchColumnName1: 'EMAIL_ADDRESS_',
+      updateOnMatch: 'REPLACE_ALL',
+      defaultPermissionStatus: 'OPTOUT',
+      profileListName
+    }
+    const auth = { accessToken: 'abcd1234', refreshToken: 'efgh5678' }
+    const makeMapping = (folder: string, pet: string) => ({
+      folder_name: folder,
+      pet_name: pet,
+      userData: { EMAIL_ADDRESS_: { '@path': '$.traits.email' }, CUSTOMER_ID_: { '@path': '$.userId' } }
+    })
+    const event = createTestEvent({ type: 'identify', userId: '12345', traits: { email: 'a@b.com' } })
+
+    afterEach(() => {
+      delete (Object.prototype as Record<string, unknown>)['TEST_PET']
+      delete (Object.prototype as Record<string, unknown>)['polluted']
+      nock.cleanAll()
+    })
+
+    it('still groups records by folder and PET', async () => {
+      nock(responsysHost)
+        .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
+        .reply(200, [{ profileExtension: { objectName: petName, folderName } }])
+      nock(responsysHost)
+        .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`)
+        .reply(200, { requestId: '23456' })
+      nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+      let petBody: any
+      nock(responsysHost)
+        .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${petName}/members`, (body) => {
+          petBody = body
+          return true
+        })
+        .reply(200, { requestId: '34567' })
+
+      await testDestination.testBatchAction('sendToPet', {
+        events: [event, createTestEvent({ type: 'identify', userId: '67890', traits: { email: 'c@d.com' } })],
+        mapping: makeMapping(folderName, petName),
+        settings,
+        auth
+      })
+
+      expect(petBody.recordData.records).toHaveLength(2)
+    })
+
+    it.each(['__proto__', 'constructor', 'prototype'])(
+      'rejects %s as folder_name or pet_name without polluting Object.prototype',
+      async (bad) => {
+        for (const mapping of [makeMapping(bad, petName), makeMapping(folderName, bad)]) {
+          await expect(
+            testDestination.testBatchAction('sendToPet', { events: [event, event], mapping, settings, auth })
+          ).rejects.toThrow(/not allowed/)
+        }
+        expect(Object.keys(Object.prototype)).toEqual([])
+        expect(({} as Record<string, unknown>)[petName]).toBeUndefined()
+        expect(({} as Record<string, unknown>)['polluted']).toBeUndefined()
+      }
+    )
+
+    it('does not pollute Object.prototype when userData has a __proto__ key', async () => {
+      const mapping = {
+        ...makeMapping(folderName, petName),
+        userData: JSON.parse('{"__proto__": {"polluted": "yes"}, "CUSTOMER_ID_": "1"}')
+      }
+      await testDestination
+        .testBatchAction('sendToPet', { events: [event], mapping, settings, auth })
+        .catch(() => undefined)
+      expect(({} as Record<string, unknown>)['polluted']).toBeUndefined()
+    })
+  })
 })
