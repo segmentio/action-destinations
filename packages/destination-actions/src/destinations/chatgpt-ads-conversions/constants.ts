@@ -15,6 +15,7 @@ export const RETRY_STATUS = 500
 export const REJECTED_EVENT_INDEX_REGEX = /^events\[(\d+)\]/
 export const REJECTED_EVENT_PATH_REGEX = /events\[\d+\]\./g
 export const MAX_LIST_VALUES = 3
+export const MAX_CUSTOM_EVENT_NAME_LENGTH = 64
 export const MAX_EVENT_AGE_MS = 7 * 24 * 60 * 60 * 1000
 export const MAX_EVENT_FUTURE_MS = 10 * 60 * 1000
 

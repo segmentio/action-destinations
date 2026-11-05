@@ -7,6 +7,7 @@ import {
   GAID_REGEX,
   ISO_COUNTRY_CODES,
   ISO_CURRENCY_CODES,
+  MAX_CUSTOM_EVENT_NAME_LENGTH,
   MAX_EVENT_AGE_MS,
   MAX_LIST_VALUES,
   MAX_EVENT_FUTURE_MS,
@@ -148,6 +149,11 @@ export function toCustomEventName(value: unknown): string {
   if (!CUSTOM_EVENT_NAME_REGEX.test(customEventName)) {
     throw new PayloadValidationError(
       'Custom Event Name must contain only letters, digits, underscores and hyphens, and start and end with a letter or digit.'
+    )
+  }
+  if (customEventName.length > MAX_CUSTOM_EVENT_NAME_LENGTH) {
+    throw new PayloadValidationError(
+      `Custom Event Name must be at most ${MAX_CUSTOM_EVENT_NAME_LENGTH} characters, which ChatGPT Ads enforces.`
     )
   }
   if (STANDARD_EVENT_NAMES.includes(customEventName)) {

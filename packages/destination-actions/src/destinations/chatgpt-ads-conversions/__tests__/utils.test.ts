@@ -107,6 +107,11 @@ describe('toCustomEventName', () => {
   it.each(['', '   ', 'has space', '-leading', 'trailing-', 'order_created'])('rejects %p', (value) => {
     expect(() => toCustomEventName(value)).toThrow()
   })
+
+  it('accepts a 64 character name and rejects a 65 character name', () => {
+    expect(toCustomEventName('a'.repeat(64))).toBe('a'.repeat(64))
+    expect(() => toCustomEventName('a'.repeat(65))).toThrow('at most 64 characters')
+  })
 })
 
 describe('toSourceUrl', () => {
