@@ -56,6 +56,28 @@ describe('Salesforce (Actions)', () => {
       expect(token).toEqual({ accessToken: mockResponse.access_token })
     })
 
+    it('should use the org My Domain host when instanceUrl is one', async () => {
+      // STRATCONN-6580: Salesforce is retiring the generic login URLs for Enhanced Domain orgs.
+      const mockResponse = {
+        access_token: 'abc123'
+      }
+      nock(`https://acme--dev.sandbox.my.salesforce.com/services/oauth2/token`)
+        .post('', new URLSearchParams(expectedRequest).toString())
+        .reply(200, mockResponse)
+
+      const token = await testDestination.refreshAccessToken(
+        { ...settings, instanceUrl: 'https://acme--dev.sandbox.my.salesforce.com/' },
+        {
+          refreshToken: 'xyz321',
+          accessToken: 'abc123',
+          clientId: 'clientId',
+          clientSecret: 'clientSecret'
+        }
+      )
+
+      expect(token).toEqual({ accessToken: mockResponse.access_token })
+    })
+
     it('should rethrow 400 authorization code expired as RetryableError', async () => {
       nock(`https://login.salesforce.com/services/oauth2/token`)
         .post('', new URLSearchParams(expectedRequest).toString())
