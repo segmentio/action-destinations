@@ -47,10 +47,18 @@ export const getCookieValue = (cookieName: string): string | null => {
 }
 
 export const storageFallback = {
-  get: (key: string) => {
-    return window.localStorage.getItem(key)
+  get: (key: string): string | null => {
+    try {
+      return window.localStorage.getItem(key)
+    } catch {
+      return null
+    }
   },
-  set: (key: string, value: string) => {
-    return window.localStorage.setItem(key, value)
+  set: (key: string, value: string): void => {
+    try {
+      window.localStorage.setItem(key, value)
+    } catch {
+      return
+    }
   }
 }

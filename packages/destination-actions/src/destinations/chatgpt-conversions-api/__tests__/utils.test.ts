@@ -145,7 +145,7 @@ describe('toIpAddress and toGaid', () => {
   it('accepts IPv4 and IPv6 and rejects anything else', () => {
     expect(toIpAddress(' 203.0.113.9 ')).toBe('203.0.113.9')
     expect(toIpAddress('2001:db8::1')).toBe('2001:db8::1')
-    expect(() => toIpAddress('not-an-ip')).toThrow('not a valid IPv4 or IPv6')
+    expect(() => toIpAddress('not-an-ip')).toThrow(/^IP Address is not a valid IPv4 or IPv6 address\.$/)
   })
 
   it('lowercases a valid GAID and ignores all-zero or malformed ones', () => {
