@@ -5,9 +5,12 @@
  * success fixtures assert that the payload our mapping built is exactly what reached the endpoint,
  * not just that it returned 2xx. `/status/404` gives a real non-2xx response for the failure path.
  * None of these need secrets.
+ *
+ * Fixtures import from lib/e2e/helpers and types, not the lib/e2e index: the index loads the
+ * registry, which loads these files.
  */
-import type { E2EFixture } from '../../../../lib/e2e'
-import { createE2EEvent } from '../../../../lib/e2e'
+import type { E2EFixture } from '../../../../lib/e2e/types'
+import { createE2EEvent } from '../../../../lib/e2e/helpers'
 
 const ECHO_URL = 'https://httpbin.org/anything'
 
@@ -89,8 +92,6 @@ const fixtures: E2EFixture[] = [
     subscribe: 'type = "track"',
     event: createE2EEvent('track', 'E2E No Url', { userId: 'e2e-webhook-user-err-001' }),
     mapping: { method: 'POST' },
-    // errorType is the normalized Segment code; the local serve runner asserts the message only
-    // (serve does not return the error class).
     expect: {
       status: 'error',
       errorType: 'PAYLOAD_VALIDATION_FAILED',
