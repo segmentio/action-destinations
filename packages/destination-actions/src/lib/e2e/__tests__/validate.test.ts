@@ -14,6 +14,16 @@ describe('validate', () => {
       expect(validate({ status: 'success', bodyContains: 'Rejected' }, observation).passed).toBe(false)
     })
 
+    it('fails jsonContains on a different value, a missing key or a different array length', () => {
+      const observation = { exchanges: [exchange(200, { result: { count: 2, ids: ['a', 'b'] } })] }
+      const passes = (jsonContains: unknown) => validate({ status: 'success', jsonContains }, observation).passed
+
+      expect(passes({ result: { count: 2 } })).toBe(true)
+      expect(passes({ result: { count: 3 } })).toBe(false)
+      expect(passes({ result: { missing: 2 } })).toBe(false)
+      expect(passes({ result: { ids: ['a'] } })).toBe(false)
+    })
+
     it('fails when any batch item failed', () => {
       const observation = {
         exchanges: [exchange(200)],
@@ -45,6 +55,14 @@ describe('validate', () => {
     it('fails when no request was sent', () => {
       expect(validate({ status: 'failure', httpStatus: 401 }, { exchanges: [] }).passed).toBe(false)
     })
+
+    it('fails when the partner returned a different status, including a 2xx', () => {
+      expect(validate({ status: 'failure', httpStatus: 401 }, { exchanges: [exchange(403)] })).toEqual({
+        passed: false,
+        reason: 'expected partner status 401, got 403'
+      })
+      expect(validate({ status: 'failure', httpStatus: 401 }, { exchanges: [exchange(200)] }).passed).toBe(false)
+    })
   })
 
   describe('error', () => {
@@ -71,6 +89,14 @@ describe('validate', () => {
         validate(expectation, { exchanges: [exchange(400)], error: { ...error, type: 'PAYLOAD_VALIDATION_FAILED' } })
           .passed
       ).toBe(false)
+    })
+
+    it('fails on a different status or message', () => {
+      const error = { type: 'PAYLOAD_VALIDATION_FAILED', message: "missing the required field 'event'", status: 400 }
+      expect(validate(expectation, { exchanges: [], error: { ...error, status: 500 } }).passed).toBe(false)
+      expect(validate(expectation, { exchanges: [], error: { ...error, message: 'something else' } }).passed).toBe(
+        false
+      )
     })
   })
 })

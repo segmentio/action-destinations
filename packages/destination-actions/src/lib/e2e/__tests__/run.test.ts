@@ -130,6 +130,23 @@ describe('runSuites', () => {
     expect(report.exitCode).toBe(1)
   })
 
+  it('excuses only what a quarantine entry names', async () => {
+    const adapter = new FakeAdapter(() => ({ exchanges: [] }))
+    const now = new Date('2026-11-06T00:00:00Z')
+    const run = (entry: Record<string, string>) =>
+      runSuites(adapter, [suite('fake', [fixture('a'), fixture('b')])], {
+        ...opts,
+        now,
+        quarantine: [{ destination: 'fake', expires: '2026-12-01', ...entry }]
+      }).then((report) => report.results.map((r) => r.outcome))
+
+    expect(await run({})).toEqual(['quarantined', 'quarantined'])
+    expect(await run({ action: 'send' })).toEqual(['quarantined', 'quarantined'])
+    expect(await run({ action: 'other' })).toEqual(['failed', 'failed'])
+    expect(await run({ fixture: 'a' })).toEqual(['quarantined', 'failed'])
+    expect(await run({ destination: 'other' })).toEqual(['failed', 'failed'])
+  })
+
   it('treats a missing secret as a setup error and does not run that suite', async () => {
     const adapter = new FakeAdapter(() => ok)
     const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, env: {} })
