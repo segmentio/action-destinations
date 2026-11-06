@@ -5,7 +5,6 @@ import {
   alartCookieName,
   aleidCookieName,
   axwrtCookieName,
-  axwrtServerCookieName,
   integrationName,
   storageAlartKey,
   storageAleidKey
@@ -60,8 +59,7 @@ beforeEach(() => {
     aleidCookieName,
     alartCookieName,
     axwrtCookieName,
-    axwrtServerCookieName,
-    storageAleidKey,
+      storageAleidKey,
     storageAlartKey
   ].forEach(clearCookie)
 })
@@ -139,15 +137,6 @@ describe('AppLovin Conversions API Plugins', () => {
     const updated = await trackEvent()
 
     expect(updated?.event?.integrations?.[integrationName]).toEqual({ axwrt: 'wrt-1' })
-  })
-
-  test('falls back to the axwrt cookie when _axwrt is missing', async () => {
-    document.cookie = `${axwrtServerCookieName}=wrt-server`
-    await loadPlugin()
-
-    const updated = await trackEvent()
-
-    expect(updated?.event?.integrations?.[integrationName]).toEqual({ axwrt: 'wrt-server' })
   })
 
   test('does not modify the event when no AppLovin values are available', async () => {

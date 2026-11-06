@@ -9,7 +9,6 @@ export const storageAlartKey = 'analytics_applovin_alart'
 export const aleidCookieName = '_axeid'
 export const alartCookieName = '_axart'
 export const axwrtCookieName = '_axwrt'
-export const axwrtServerCookieName = 'axwrt'
 
 export const aleidIntegrationFieldName = 'aleid'
 export const alartIntegrationFieldName = 'alart'

@@ -11,7 +11,6 @@ import {
   aleidIntegrationFieldName,
   axwrtCookieName,
   axwrtIntegrationFieldName,
-  axwrtServerCookieName,
   integrationName,
   storageAlartKey,
   storageAleidKey
@@ -39,7 +38,7 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
       cookieName: alartCookieName,
       storageKey: storageAlartKey
     })
-    const axwrt = getCookieValue(axwrtCookieName) || getCookieValue(axwrtServerCookieName)
+    const axwrt = getCookieValue(axwrtCookieName)
 
     const integrationsData: Record<string, string> = {
       ...(aleid ? { [aleidIntegrationFieldName]: aleid } : {}),
