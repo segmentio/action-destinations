@@ -115,9 +115,34 @@ type Identifiers = {
   secondary?: Identifiers
 }
 
+// Segment libraries that run on the end user's device. For these, `context.ip` is
+// stamped by Segment from the client request and is the person's own address.
+// Server-side libraries (analytics-node, analytics-python, ...) and the HTTP API
+// carry the sending server's address instead, so their IP is not forwarded by default.
+const CLIENT_SIDE_LIBRARIES = [
+  'analytics.js',
+  'analytics-ios',
+  'analytics-android',
+  'analytics-swift',
+  'analytics-kotlin',
+  'analytics-react-native',
+  'analytics-flutter'
+]
+
+export const isClientSideLibrary = (library?: string): boolean => {
+  if (!library) {
+    return false
+  }
+  const name = library.trim().toLowerCase()
+  return CLIENT_SIDE_LIBRARIES.some((client) => name === client || name.startsWith(`${client}-`))
+}
+
 type BasePayload = {
   anonymous_id?: string
   convert_timestamp?: boolean
+  customer_ip?: string
+  forward_server_ip?: boolean
+  source_library?: string
   email?: string
   object_id?: string
   object_type_id?: string
@@ -128,7 +153,19 @@ type BasePayload = {
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
-  const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
+  const {
+    convert_timestamp,
+    customer_ip,
+    forward_server_ip,
+    source_library,
+    person_id,
+    anonymous_id,
+    email,
+    object_id,
+    object_type_id,
+    timestamp,
+    ...data
+  } = payload
   let rest = data
 
   // Remove batching configuration fields that shouldn't be sent to Customer.io
@@ -154,12 +191,20 @@ export const buildPayload = <Payload extends BasePayload>({ action, type, payloa
     identifiers?: Identifiers
     type: string
     action: string
+    customer_ip?: string
     object_id?: string
     object_type_id?: string
   } = {
     type,
     action,
     ...rest
+  }
+
+  // Customer.io reads the IP for geolocation from the root of identify requests only.
+  // Forward it when the event came from a client-side library, or when the user has
+  // explicitly opted in for server-side sources.
+  if (action === 'identify' && customer_ip && (isClientSideLibrary(source_library) || forward_server_ip === true)) {
+    body.customer_ip = customer_ip
   }
 
   if (anonymous_id) {

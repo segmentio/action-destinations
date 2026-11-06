@@ -68,10 +68,10 @@ const action: ActionDefinition<Settings, Payload> = {
     match_field: fieldHandler('organization')
   },
 
-  perform: async (request, { payload, settings, features }) => {
+  perform: async (request, { payload, settings }) => {
     const searchField = payload.match_field || settings.organizationField || 'id'
 
-    const client = new PipedriveClient(settings, request, features)
+    const client = new PipedriveClient(settings, request)
 
     const organizationId = await client.getId('organization', searchField, payload.match_value)
 

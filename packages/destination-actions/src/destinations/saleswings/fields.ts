@@ -1,6 +1,16 @@
 import { InputField } from '@segment/actions-core'
 import { Directive } from '@segment/actions-core/destination-kit/types'
 
+export const messageID: InputField = {
+  label: 'Segment Message ID',
+  description:
+    'Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.',
+  type: 'string',
+  default: {
+    '@path': '$.messageId'
+  }
+}
+
 export const userID: InputField = {
   label: 'Segment User ID',
   description: 'Permanent identifier of a Segment user the event is attributed to.',
@@ -42,6 +52,19 @@ export const url: InputField = {
       exists: { '@path': '$.properties.url' },
       then: { '@path': '$.properties.url' },
       else: { '@path': '$.context.page.url' }
+    }
+  }
+}
+
+export const title: InputField = {
+  label: 'Page Title',
+  description: 'Title of the page associated with the event.',
+  type: 'string',
+  default: {
+    '@if': {
+      exists: { '@path': '$.properties.title' },
+      then: { '@path': '$.properties.title' },
+      else: { '@path': '$.context.page.title' }
     }
   }
 }

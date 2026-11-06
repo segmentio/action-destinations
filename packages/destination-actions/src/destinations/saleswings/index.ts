@@ -1,5 +1,5 @@
 import { defaultValues, DestinationDefinition } from '@segment/actions-core'
-import { getAccountUrl } from './api'
+import { authenticationUrl } from './api'
 import type { Settings } from './generated-types'
 
 import submitTrackEvent from './submitTrackEvent'
@@ -27,6 +27,7 @@ const destination: DestinationDefinition<Settings> = {
         type: 'string',
         choices: [
           { value: 'helium', label: 'Helium (live environment)' },
+          { value: 'argon', label: 'Argon (staging environment)' },
           { value: 'ozone', label: 'Ozone (test environment)' }
         ],
         required: true,
@@ -34,7 +35,7 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request, { settings }) => {
-      return request(getAccountUrl(settings.environment), {
+      return request(authenticationUrl(settings.environment), {
         headers: { Authorization: `Bearer ${settings.apiKey}` }
       })
     }

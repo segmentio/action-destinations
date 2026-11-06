@@ -85,7 +85,7 @@ export interface Payload {
 
 export interface RetlOnMappingSaveInputs {
   /**
-   * Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.
+   * Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if that audience has the same Audience Type and Membership Duration Days. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).
    */
   operation?: string
   /**
@@ -93,11 +93,11 @@ export interface RetlOnMappingSaveInputs {
    */
   advertiserId?: string
   /**
-   * The display name of the audience to create in Display & Video 360.
+   * The display name of the audience to create in Display & Video 360. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists.
    */
   audienceName?: string
   /**
-   * The type of the audience to create.
+   * The type of the audience. When connecting to an existing audience, it must match that audience's type.
    */
   audienceType?: string
   /**
@@ -109,11 +109,11 @@ export interface RetlOnMappingSaveInputs {
    */
   description?: string
   /**
-   * The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.
+   * The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences. Ignored when connecting to an existing audience, including one with the same name.
    */
   appId?: string
   /**
-   * The ID of the audience in Display & Video 360 to connect this mapping to.
+   * The ID of the audience in Display & Video 360 to connect this mapping to. Only used when Create or Connect Audience is "Connect to existing audience".
    */
   existingAudienceId?: string
 }

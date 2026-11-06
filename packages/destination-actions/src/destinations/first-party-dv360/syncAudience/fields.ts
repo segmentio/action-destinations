@@ -14,25 +14,12 @@ import {
   COUNTRY_CHOICES,
   PHONE_REGION_CHOICES
 } from './constants'
-import { mobileDeviceIds as sharedMobileDeviceIds } from '../properties'
-
-const CREATE_OPERATION: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'create' }]
-}
-
-const EXISTING_OPERATION: DependsOnConditions = {
-  match: 'all',
-  conditions: [{ fieldKey: 'operation', operator: 'is', value: 'existing' }]
-}
-
-const CREATE_DEVICE_ID_OPERATION: DependsOnConditions = {
-  match: 'all',
-  conditions: [
-    { fieldKey: 'operation', operator: 'is', value: 'create' },
-    { fieldKey: 'audienceType', operator: 'is', value: DEVICE_ID }
-  ]
-}
+import {
+  mobileDeviceIds as sharedMobileDeviceIds,
+  CREATE_DEVICE_ID_OPERATION,
+  CREATE_OPERATION,
+  EXISTING_OPERATION
+} from '../properties'
 
 const PHONE_NORMALIZATION_ON: DependsOnConditions = {
   match: 'all',
@@ -238,12 +225,13 @@ export const retlHookInputFields: ActionHookDefinition<
 >['inputFields'] = {
   operation: {
     type: 'string',
-    label: 'Create a new audience or connect to an existing one?',
+    label: 'Create or Connect Audience',
     description:
-      'Choose to either create a new Customer Match audience in Display & Video 360, or connect to an audience which already exists there.',
+      'Whether Segment creates a new audience in Display & Video 360 or connects to an existing one. The "connect to an existing one with the same name" option only connects if that audience has the same Audience Type and Membership Duration Days. [Learn more](https://www.twilio.com/docs/segment/connections/destinations/catalog/actions-first-party-dv360#create-or-connect-audience).',
     choices: [
-      { label: 'Create New Audience', value: 'create' },
-      { label: 'Connect to Existing Audience', value: 'existing' }
+      { label: 'Create new audience', value: 'create' },
+      { label: 'Create new audience, or connect to an existing one with the same name', value: 'create_or_connect' },
+      { label: 'Connect to existing audience', value: 'existing' }
     ],
     default: 'create'
   },
@@ -255,19 +243,23 @@ export const retlHookInputFields: ActionHookDefinition<
   },
   audienceName: {
     type: 'string',
-    label: 'Audience Name',
-    description: 'The display name of the audience to create in Display & Video 360.',
+    label: 'Audience Display Name',
+    description:
+      'The display name of the audience to create in Display & Video 360. Must be unique per advertiser; see Create or Connect Audience for what happens if it already exists.',
     depends_on: CREATE_OPERATION
   },
+  // Required for every operation, but, like the other hook inputs, not marked required: required hook
+  // inputs currently break the Engage mapping flow (a platform / app UI bug). validateAudienceInputs
+  // enforces it instead.
   audienceType: {
     type: 'string',
     label: AUDIENCE_TYPE_LABEL,
-    description: 'The type of the audience to create.',
+    description:
+      "The type of the audience. When connecting to an existing audience, it must match that audience's type.",
     choices: [
       { label: 'CUSTOMER MATCH CONTACT INFO', value: CONTACT_INFO },
       { label: 'CUSTOMER MATCH DEVICE ID', value: DEVICE_ID }
-    ],
-    depends_on: CREATE_OPERATION
+    ]
   },
   membershipDurationDays: {
     type: 'number',
@@ -288,13 +280,14 @@ export const retlHookInputFields: ActionHookDefinition<
     type: 'string',
     label: 'App ID',
     description:
-      'The appId matches with the type of the mobileDeviceIds being uploaded. Required for CUSTOMER_MATCH_DEVICE_ID audiences.',
+      'The appId matches with the type of the mobileDeviceIds being uploaded. Optional for CUSTOMER_MATCH_DEVICE_ID audiences. Ignored when connecting to an existing audience, including one with the same name.',
     depends_on: CREATE_DEVICE_ID_OPERATION
   },
   existingAudienceId: {
     type: 'string',
     label: 'Existing Audience ID',
-    description: 'The ID of the audience in Display & Video 360 to connect this mapping to.',
+    description:
+      'The ID of the audience in Display & Video 360 to connect this mapping to. Only used when Create or Connect Audience is "Connect to existing audience".',
     depends_on: EXISTING_OPERATION
   }
 }

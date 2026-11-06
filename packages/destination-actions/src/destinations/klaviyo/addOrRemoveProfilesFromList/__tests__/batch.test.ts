@@ -1,7 +1,7 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
-import { API_URL } from '../../config'
+import { API_URL, KLAVIYO_PAGINATE_GET_PROFILES_FLAG } from '../../config'
 import { NO_LIST_ID_ERROR } from '../functions'
 
 const testDestination = createTestIntegration(Destination)
@@ -232,8 +232,16 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
 
   it('trims external_id before the remove lookup and treats a whitespace-only external_id as missing', async () => {
     const events = [
-      createTestEvent({ type: 'track', properties: { my_audience: false, external_id: '  ext-1  ' }, context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } } }),
-      createTestEvent({ type: 'track', properties: { my_audience: false, external_id: '   ' }, context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } } })
+      createTestEvent({
+        type: 'track',
+        properties: { my_audience: false, external_id: '  ext-1  ' },
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } }
+      }),
+      createTestEvent({
+        type: 'track',
+        properties: { my_audience: false, external_id: '   ' },
+        context: { personas: { computation_class: 'audience', computation_key: 'my_audience' } }
+      })
     ]
 
     nock(`${API_URL}/profiles`)
@@ -333,5 +341,134 @@ describe('Klaviyo.addOrRemoveProfilesFromList - batch', () => {
     expect(responses).toMatchObject([{ status: 200 }, { status: 200 }])
     expect(addScope.isDone()).toBe(true)
     expect(removeScope.isDone()).toBe(true)
+  })
+})
+
+describe('Klaviyo.addOrRemoveProfilesFromList - batch removals with getProfiles pagination flag', () => {
+  beforeEach(() => nock.cleanAll())
+
+  const mapping = { list_id: listId, email: { '@path': '$.properties.email' } }
+  const emails = Array.from({ length: 150 }, (_, i) => `user${i}@example.com`)
+  const events = emails.map((email) => membershipEvent(email, false))
+
+  function mockGetProfiles() {
+    const getUrls: string[] = []
+    nock(`${API_URL}/profiles`)
+      .persist()
+      .get(/.*/)
+      .reply(200, function (uri) {
+        getUrls.push(decodeURIComponent(uri))
+        const values = [...decodeURIComponent(uri).matchAll(/"([^"]+)"/g)].map((match) => match[1])
+        return { data: values.map((value) => ({ id: `id-${value}` })) }
+      })
+    return getUrls
+  }
+
+  it('looks up emails in chunks of 100 and removes all profiles when the flag is on', async () => {
+    const getUrls = mockGetProfiles()
+    const removedIds: string[] = []
+    nock(`${API_URL}/lists/${listId}`)
+      .delete('/relationships/profiles/')
+      .reply(200, (_uri, body: any) => {
+        removedIds.push(...body.data.map((profile: any) => profile.id))
+        return {}
+      })
+
+    const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
+      events,
+      settings,
+      mapping,
+      features: { [KLAVIYO_PAGINATE_GET_PROFILES_FLAG]: true }
+    })
+
+    expect(responses.every((response: any) => response.status === 200)).toBe(true)
+    expect(getUrls).toHaveLength(2)
+    getUrls.forEach((url) => expect(url).toContain('page[size]=100'))
+    expect(removedIds).toHaveLength(150)
+  })
+
+  it('keeps the single unpaginated lookup when the flag is off', async () => {
+    const getUrls = mockGetProfiles()
+    nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/').reply(200, {})
+
+    await testDestination.executeBatch('addOrRemoveProfilesFromList', { events, settings, mapping })
+
+    expect(getUrls).toHaveLength(1)
+    expect(getUrls[0]).not.toContain('page[size]')
+  })
+
+  describe('mixed add and remove batch with the flag on', () => {
+    const features = { [KLAVIYO_PAGINATE_GET_PROFILES_FLAG]: true }
+    // 2 adds, then 100 removes (one full lookup chunk)
+    const addEvents = ['add0@example.com', 'add1@example.com'].map((email) => membershipEvent(email, true))
+    const removeEvents = Array.from({ length: 100 }, (_, i) => membershipEvent(`rm${i}@example.com`, false))
+    const mixedEvents = [...addEvents, ...removeEvents]
+
+    function mockAddJob() {
+      let addCalls = 0
+      nock(API_URL)
+        .post('/profile-bulk-import-jobs/')
+        .reply(200, () => {
+          addCalls++
+          return { data: { id: 'job1' } }
+        })
+      return () => addCalls
+    }
+
+    it('rejects the whole batch with a RetryableError when a removal lookup reaches the page cap', async () => {
+      const addCalls = mockAddJob()
+      const removedIds: string[] = []
+      // every page is full and has a next link, so the lookup never finishes
+      nock(`${API_URL}/profiles`)
+        .persist()
+        .get(/.*/)
+        .reply(200, () => ({
+          data: Array.from({ length: 100 }, (_, i) => ({ id: `id-${i}` })),
+          links: { next: `${API_URL}/profiles/?page[cursor]=next&page[size]=100` }
+        }))
+      nock(`${API_URL}/lists/${listId}`)
+        .persist()
+        .delete('/relationships/profiles/')
+        .reply(200, (_uri, body: any) => {
+          removedIds.push(...body.data.map((profile: any) => profile.id))
+          return {}
+        })
+
+      const error = await testDestination
+        .executeBatch('addOrRemoveProfilesFromList', {
+          events: mixedEvents,
+          settings,
+          mapping: interleavedMapping,
+          features
+        })
+        .catch((e: unknown) => e)
+
+      // No per-event results are returned, so the add results are discarded and Segment retries the whole batch.
+      // The add side has already been sent (bulk import jobs are upserts, so sending it again is harmless).
+      expect(error).toBeInstanceOf(RetryableError)
+      expect(addCalls()).toBe(1)
+      expect(removedIds).toHaveLength(0)
+    })
+
+    it('keeps the add results and reports 429 only for the removes when a removal lookup is rate limited', async () => {
+      const addCalls = mockAddJob()
+      nock(`${API_URL}/profiles`)
+        .persist()
+        .get(/.*/)
+        .reply(429, { errors: [{ detail: 'Request was throttled.' }] })
+      const removeScope = nock(`${API_URL}/lists/${listId}`).delete('/relationships/profiles/').reply(200, {})
+
+      const responses = await testDestination.executeBatch('addOrRemoveProfilesFromList', {
+        events: mixedEvents,
+        settings,
+        mapping: interleavedMapping,
+        features
+      })
+
+      expect(addCalls()).toBe(1)
+      expect(removeScope.isDone()).toBe(false)
+      expect(responses.slice(0, 2).every((r: any) => r.status === 200)).toBe(true)
+      expect(responses.slice(2).every((r: any) => r.status === 429)).toBe(true)
+    })
   })
 })

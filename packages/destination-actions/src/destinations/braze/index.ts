@@ -17,6 +17,7 @@ import triggerCampaign from './triggerCampaign'
 import triggerCanvas from './triggerCanvas'
 import { EVENT_NAMES } from './ecommerce/constants'
 import upsertCatalogItem from './upsertCatalogItem'
+import mergeUsers from './mergeUsers'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Braze Cloud Mode (Actions)',
@@ -96,7 +97,8 @@ const destination: DestinationDefinition<Settings> = {
     triggerCampaign,
     triggerCanvas,
     ecommerce,
-    ecommerceSingleProduct
+    ecommerceSingleProduct,
+    mergeUsers
   },
   presets: [
     {
