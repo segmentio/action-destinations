@@ -9,6 +9,7 @@ import {
   obrefIntegrationFieldName,
   opprefIntegrationFieldName,
   opprefQuerystringName,
+  storageFallback,
   storageOpprefKey
 } from '../utils'
 
@@ -246,6 +247,18 @@ describe('utils', () => {
 
     expireCookie(obrefCookieName)
     expect(getCookieValue(obrefCookieName)).toBeNull()
+  })
+
+  test('storageFallback does not throw when localStorage is blocked', () => {
+    const blocked = () => {
+      throw new DOMException('blocked', 'SecurityError')
+    }
+    const getItem = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(blocked)
+    const setItem = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(blocked)
+    expect(storageFallback.get(storageOpprefKey)).toBeNull()
+    expect(() => storageFallback.set(storageOpprefKey, 'abc')).not.toThrow()
+    getItem.mockRestore()
+    setItem.mockRestore()
   })
 
   test('getCookieValue does not decode the value', () => {

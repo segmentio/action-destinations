@@ -177,7 +177,7 @@ export function toCustomEventName(value: unknown): string {
 export function toIpAddress(value: unknown): string | undefined {
   const ipAddress = clean(value)
   if (ipAddress !== undefined && isIP(ipAddress) === 0) {
-    throw new PayloadValidationError(`IP Address "${ipAddress}" is not a valid IPv4 or IPv6 address.`)
+    throw new PayloadValidationError('IP Address is not a valid IPv4 or IPv6 address.')
   }
   return ipAddress
 }
