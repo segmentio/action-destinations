@@ -5,17 +5,18 @@ import { UniversalStorage } from '@segment/analytics-next'
 import {
   alartCookieName,
   alartIntegrationFieldName,
+  alartQuerystringName,
   aleidCookieName,
+  aleidQuerystringName,
   aleidIntegrationFieldName,
   axwrtCookieName,
   axwrtIntegrationFieldName,
   axwrtServerCookieName,
-  getCookieValue,
   integrationName,
   storageAlartKey,
-  storageAleidKey,
-  storageFallback
-} from '../utils'
+  storageAleidKey
+} from '../constants'
+import { getCookieValue, resolveClickId, storageFallback } from '../functions'
 
 const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   title: 'AppLovin Browser Plugin',
@@ -28,8 +29,16 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   perform: (_, { context, analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
 
-    const aleid = storage.get(storageAleidKey) || getCookieValue(aleidCookieName)
-    const alart = storage.get(storageAlartKey) || getCookieValue(alartCookieName)
+    const aleid = resolveClickId(storage, {
+      queryName: aleidQuerystringName,
+      cookieName: aleidCookieName,
+      storageKey: storageAleidKey
+    })
+    const alart = resolveClickId(storage, {
+      queryName: alartQuerystringName,
+      cookieName: alartCookieName,
+      storageKey: storageAlartKey
+    })
     const axwrt = getCookieValue(axwrtCookieName) || getCookieValue(axwrtServerCookieName)
 
     const integrationsData: Record<string, string> = {

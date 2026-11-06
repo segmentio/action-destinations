@@ -8,11 +8,10 @@ import {
   alartQuerystringName,
   aleidCookieName,
   aleidQuerystringName,
-  setCookieValue,
   storageAlartKey,
-  storageAleidKey,
-  storageFallback
-} from './utils'
+  storageAleidKey
+} from './constants'
+import { resolveClickId, storageFallback } from './functions'
 
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   name: 'AppLovin Conversions API Plugins',
@@ -21,19 +20,8 @@ export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   actions: { applovinPlugin },
   initialize: async ({ analytics }) => {
     const storage = (analytics.storage as UniversalStorage<Record<string, string>>) ?? storageFallback
-    const urlParams = new URLSearchParams(window.location.search)
-
-    const aleid = urlParams.get(aleidQuerystringName)
-    if (aleid) {
-      storage.set(storageAleidKey, aleid)
-      setCookieValue(aleidCookieName, aleid)
-    }
-
-    const alart = urlParams.get(alartQuerystringName)
-    if (alart) {
-      storage.set(storageAlartKey, alart)
-      setCookieValue(alartCookieName, alart)
-    }
+    resolveClickId(storage, { queryName: aleidQuerystringName, cookieName: aleidCookieName, storageKey: storageAleidKey })
+    resolveClickId(storage, { queryName: alartQuerystringName, cookieName: alartCookieName, storageKey: storageAlartKey })
 
     return {}
   }

@@ -6,11 +6,11 @@ import {
   aleidCookieName,
   axwrtCookieName,
   axwrtServerCookieName,
-  getCookieValue,
   integrationName,
   storageAlartKey,
   storageAleidKey
-} from '../utils'
+} from '../constants'
+import { getCookieValue } from '../functions'
 
 const example: Subscription[] = [
   {
@@ -67,24 +67,26 @@ beforeEach(() => {
 })
 
 describe('AppLovin Conversions API Plugins', () => {
-  test('adds aleid from the querystring to the event and stores it in a cookie', async () => {
+  test('adds aleid from the querystring to the event and stores it without writing a cookie', async () => {
     setLocationSearch('?aleid=click-1')
     await loadPlugin()
 
     const updated = await trackEvent()
 
     expect(updated?.event?.integrations?.[integrationName]).toEqual({ aleid: 'click-1' })
-    expect(getCookieValue(aleidCookieName)).toBe('click-1')
+    expect(window.localStorage.getItem(storageAleidKey)).toContain('click-1')
+    expect(getCookieValue(aleidCookieName)).toBeNull()
   })
 
-  test('adds alart from the querystring to the event and stores it in a cookie', async () => {
+  test('adds alart from the querystring to the event and stores it without writing a cookie', async () => {
     setLocationSearch('?alart=token-1')
     await loadPlugin()
 
     const updated = await trackEvent()
 
     expect(updated?.event?.integrations?.[integrationName]).toEqual({ alart: 'token-1' })
-    expect(getCookieValue(alartCookieName)).toBe('token-1')
+    expect(window.localStorage.getItem(storageAlartKey)).toContain('token-1')
+    expect(getCookieValue(alartCookieName)).toBeNull()
   })
 
   test('uses the stored aleid on later pages without the querystring', async () => {
@@ -116,7 +118,18 @@ describe('AppLovin Conversions API Plugins', () => {
     const updated = await trackEvent()
 
     expect(updated?.event?.integrations?.[integrationName]).toEqual({ aleid: 'new-click' })
-    expect(getCookieValue(aleidCookieName)).toBe('new-click')
+    expect(window.localStorage.getItem(storageAleidKey)).toContain('new-click')
+  })
+
+  test('prefers the Pixel cookie over an older stored value and updates storage to match', async () => {
+    window.localStorage.setItem(storageAleidKey, JSON.stringify('old-click'))
+    document.cookie = `${aleidCookieName}=pixel-click`
+    await loadPlugin()
+
+    const updated = await trackEvent()
+
+    expect(updated?.event?.integrations?.[integrationName]).toEqual({ aleid: 'pixel-click' })
+    expect(window.localStorage.getItem(storageAleidKey)).toContain('pixel-click')
   })
 
   test('adds the _axwrt cookie value to the event', async () => {
@@ -138,6 +151,15 @@ describe('AppLovin Conversions API Plugins', () => {
   })
 
   test('does not modify the event when no AppLovin values are available', async () => {
+    await loadPlugin()
+
+    const updated = await trackEvent()
+
+    expect(updated?.event?.integrations?.[integrationName]).toBeUndefined()
+  })
+
+  test('ignores a malformed cookie instead of throwing', async () => {
+    document.cookie = `${axwrtCookieName}=%E0%A4%A`
     await loadPlugin()
 
     const updated = await trackEvent()
