@@ -21,8 +21,6 @@ export interface E2ERunOptions {
   destinations?: string[]
   /** Suites run in parallel up to this. Defaults to 4. */
   concurrency?: number
-  /** Run only this 1-based slice of the suites, e.g. { index: 1, total: 2 }. */
-  shard?: { index: number; total: number }
   /** Retries for fixtures that set none. Defaults to 0. */
   defaultRetries?: number
   /** First retry delay in ms, doubled each attempt. Defaults to 250. */
@@ -65,10 +63,6 @@ function selectSuites(suites: E2ESuite[], options: E2ERunOptions, setupErrors: s
       if (!known.has(name)) setupErrors.push(`no suites registered for destination "${name}"`)
     }
     selected = suites.filter((suite) => options.destinations?.includes(suite.destination))
-  }
-  if (options.shard) {
-    const { index, total } = options.shard
-    selected = selected.filter((_, i) => i % total === index - 1)
   }
   if (selected.length === 0) setupErrors.push('no suites to run')
   return selected
