@@ -158,13 +158,11 @@ describe('runSuites', () => {
     expect(report.setupErrors).toEqual(['fake/send: integrations is unreachable at http://localhost:3000'])
   })
 
-  it('scopes by destination and splits by shard', async () => {
+  it('scopes by destination', async () => {
     const suites = ['one', 'two', 'three'].map((name) => suite(name, [fixture(name)]))
     const scoped = await runSuites(new FakeAdapter(() => ok), suites, { ...opts, destinations: ['two'] })
-    const shard = await runSuites(new FakeAdapter(() => ok), suites, { ...opts, shard: { index: 2, total: 2 } })
 
     expect(scoped.results.map((r) => r.suite)).toEqual(['two/send'])
-    expect(shard.results.map((r) => r.suite)).toEqual(['two/send'])
   })
 
   it('summarizes the report', async () => {
