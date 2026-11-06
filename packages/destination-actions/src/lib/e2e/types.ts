@@ -1,9 +1,9 @@
 // E2E fixture types. Ported from action-destinations PR #3829, which placed these in
 // packages/core. They live here (outside core) on purpose: the E2E framework must own
-// transport (node:http) and secret resolution (process.env), which core forbids via
-// no-restricted-imports. SegmentEvent / JSONObject / JSONValue are consumed from the
-// published core package — using core, not modifying it.
-import type { SegmentEvent, JSONObject, JSONValue } from '@segment/actions-core'
+// secret resolution (process.env), which core forbids via no-restricted-imports.
+// SegmentEvent / JSONObject / JSONValue are consumed from the published core package —
+// using core, not modifying it.
+import type { DestinationDefinition, SegmentEvent, JSONObject, JSONValue } from '@segment/actions-core'
 
 export type E2EExpectation = E2ESuccessExpectation | E2EFailureExpectation | E2EErrorExpectation
 
@@ -37,6 +37,10 @@ export interface E2EFailureExpectation {
  */
 export interface E2EErrorExpectation {
   status: 'error'
+  /**
+   * The Segment error code integrations reports for the thrown error (e.g. 'PAYLOAD_VALIDATION_FAILED'),
+   * not the JS class name: integrations never sees the class, so both adapters assert the code.
+   */
   errorType: string
   errorMessage?: string
   /**
@@ -328,6 +332,30 @@ export interface E2EAudienceConfig {
   getAudience: boolean
   /** When a function, the runner calls it after all tests to clean up the audience. Set to false to skip. */
   teardown: false | ((context: E2ETeardownAudienceContext) => Promise<void>)
+}
+
+/** One action's fixtures, as listed in `registry.ts`. */
+export interface E2ESuite {
+  /** Destination folder name, e.g. 'mixpanel'. `--destinations` scopes by this. */
+  destination: string
+  /** Action slug. */
+  action: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  definition: DestinationDefinition<any>
+  config: E2EDestinationConfig
+  fixtures: E2EFixture[]
+  /** Retries for this suite's fixtures that set none. */
+  retries?: number
+}
+
+/** The outcome of one fixture. `fixture` is its `description`, the stable result ID. */
+export interface E2EResult {
+  suite: string
+  fixture: string
+  outcome: 'passed' | 'failed' | 'quarantined'
+  attempts: number
+  ms: number
+  reason?: string
 }
 
 export interface E2EAudienceDestinationConfig extends E2EDestinationConfig {

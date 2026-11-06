@@ -5,18 +5,17 @@
  * exercises the framework end to end:
  *
  *  - `error`   — a track event with no `event` name. `event` is a required field, so our code
- *                throws a payload-validation error BEFORE any request leaves. This fixture needs
- *                NO secrets and proves frame → serve → validate works. (Run it first.)
- *  - `success` — a single valid track event. Needs real E2E_MIXPANEL_* secrets; asserts the live
- *                Mixpanel `/import` response is 2xx.
- *  - `success` (batch) — two valid track events sent as a batch (array payload → performBatch).
+ *                throws a payload-validation error BEFORE any request leaves.
+ *  - `success` — a single valid track event; asserts the live Mixpanel `/import` response is 2xx.
+ *  - `success` (batch) — two valid track events sent as a batch (performBatch).
+ *  - `success` (batchWithMultistatus) — the same batch with per-item multistatus enabled; every
+ *                item must come back 2xx.
  *
- * Note on modes: the local serve runner asserts the OUTBOUND HTTP exchange, not Segment's
- * per-item MultiStatusResponse (serve does not return it). `batchWithMultistatus` per-item
- * assertions are therefore an in-process/integrations-harness capability, not a serve-runner one.
+ * Fixtures import from lib/e2e/helpers and types, not the lib/e2e index: the index loads the
+ * registry, which loads these files.
  */
-import type { E2EFixture } from '../../../../lib/e2e'
-import { createE2EEvent } from '../../../../lib/e2e'
+import type { E2EFixture } from '../../../../lib/e2e/types'
+import { createE2EEvent } from '../../../../lib/e2e/helpers'
 
 const fixtures: E2EFixture[] = [
   {
@@ -24,7 +23,7 @@ const fixtures: E2EFixture[] = [
     mode: 'single',
     subscribe: 'type = "track"',
     // A track event carrying no `event` name. The action's required `event` field defaults to
-    // $.event, which resolves to undefined here → PayloadValidationError, no request sent.
+    // $.event, which resolves to undefined here → payload validation error, no request sent.
     event: {
       type: 'track',
       messageId: '$guid',
@@ -32,17 +31,13 @@ const fixtures: E2EFixture[] = [
       userId: 'e2e-user-error-001'
     },
     mapping: {},
-    // `errorType` names the class our code throws (schema validation → AggregateAjvError). The local
-    // serve runner asserts requestError + httpStatus + errorMessage (serve does not expose the class
-    // name); an in-process harness can additionally assert `errorType`.
     expect: {
       status: 'error',
-      errorType: 'AggregateAjvError',
-      httpStatus: 500,
+      errorType: 'PAYLOAD_VALIDATION_FAILED',
+      httpStatus: 400,
       errorMessage: "missing the required field 'event'"
     },
-    verboseFailureHint:
-      'Expected serve to return [{ requestError: true, statusCode: 500, ... }] because the required "event" field is missing.'
+    verboseFailureHint: 'The required "event" field is missing, so validation should fail before any request.'
   },
   {
     description: 'single valid track event is accepted by Mixpanel /import',
@@ -70,6 +65,24 @@ const fixtures: E2EFixture[] = [
       })
     ],
     mapping: {},
+    expect: { status: 'success' }
+  },
+  {
+    description: 'batch with per-item multistatus returns 2xx for every event',
+    mode: 'batchWithMultistatus',
+    subscribe: 'type = "track"',
+    events: [
+      createE2EEvent('track', 'E2E Multistatus Event A', {
+        userId: 'e2e-user-multistatus-001',
+        properties: { seq: 'a' }
+      }),
+      createE2EEvent('track', 'E2E Multistatus Event B', {
+        userId: 'e2e-user-multistatus-002',
+        properties: { seq: 'b' }
+      })
+    ],
+    mapping: {},
+    features: { 'mixpanel-multistatus': true },
     expect: { status: 'success' }
   }
 ]
