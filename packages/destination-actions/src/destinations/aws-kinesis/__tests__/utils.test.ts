@@ -73,7 +73,8 @@ const mockSend = jest.fn()
 const mockLogger: Partial<Logger> = {
   crit: jest.fn(),
   info: jest.fn(),
-  warn: jest.fn()
+  warn: jest.fn(),
+  error: jest.fn()
 }
 
 describe('Kinesis send', () => {
@@ -114,7 +115,12 @@ describe('Kinesis send', () => {
 
     await send(mockSettings, mockPayloads, undefined, mockLogger as Logger)
 
-    expect(assumeRole).toHaveBeenCalledWith(mockSettings.iamRoleArn, mockSettings.iamExternalId, expect.any(String))
+    expect(assumeRole).toHaveBeenCalledWith(
+      mockSettings.iamRoleArn,
+      mockSettings.iamExternalId,
+      expect.any(String),
+      expect.objectContaining({ advancedLogging: false })
+    )
 
     expect(KinesisClient).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -267,6 +273,93 @@ describe('Kinesis send', () => {
       status: 200,
       body: { ShardId: 'shard-1', SequenceNumber: 'seq-1' },
       sent: mockPayloads[0] as unknown as JSONLikeObject
+    })
+  })
+
+  describe('advanced logging (actions-aws-kinesis-advanced-logging flag)', () => {
+    it('should not emit diagnostic metrics or logs when the flag is off', async () => {
+      const mockStatsClient = { histogram: jest.fn(), incr: jest.fn() }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['tag1'] }
+      mockSend.mockResolvedValueOnce({ FailedRecordCount: 0, Records: [{}] })
+
+      // advancedLogging defaults to false
+      await send(mockSettings, mockPayloads, statsContext, mockLogger as Logger)
+
+      expect(mockStatsClient.histogram).not.toHaveBeenCalledWith(
+        'actions_kinesis.sts_assume_role_ms',
+        expect.any(Number),
+        expect.anything()
+      )
+      expect(mockStatsClient.histogram).not.toHaveBeenCalledWith(
+        'actions_kinesis.kinesis_put_records_ms',
+        expect.any(Number),
+        expect.anything()
+      )
+      expect(mockStatsClient.incr).not.toHaveBeenCalledWith('actions_kinesis.request_timeout', 1, expect.anything())
+      expect(mockLogger.info).not.toHaveBeenCalled()
+    })
+
+    it('should emit phase latency metrics and an info log on success when the flag is on', async () => {
+      const mockStatsClient = { histogram: jest.fn(), incr: jest.fn() }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['tag1'] }
+      mockSend.mockResolvedValueOnce({ FailedRecordCount: 0, Records: [{}] })
+
+      await send(mockSettings, mockPayloads, statsContext, mockLogger as Logger, undefined, true)
+
+      expect(mockStatsClient.histogram).toHaveBeenCalledWith(
+        'actions_kinesis.sts_assume_role_ms',
+        expect.any(Number),
+        statsContext.tags
+      )
+      expect(mockStatsClient.histogram).toHaveBeenCalledWith(
+        'actions_kinesis.kinesis_put_records_ms',
+        expect.any(Number),
+        statsContext.tags
+      )
+      expect(mockLogger.info).toHaveBeenCalledWith(expect.stringContaining('[aws-kinesis] put_records ok'))
+    })
+
+    it('should forward the logging context to assumeRole when the flag is on', async () => {
+      mockSend.mockResolvedValueOnce({ FailedRecordCount: 0, Records: [{}] })
+
+      await send(mockSettings, mockPayloads, undefined, mockLogger as Logger, undefined, true)
+
+      expect(assumeRole).toHaveBeenCalledWith(
+        mockSettings.iamRoleArn,
+        mockSettings.iamExternalId,
+        expect.any(String),
+        expect.objectContaining({ advancedLogging: true })
+      )
+    })
+
+    it('should emit a timeout metric and error log on AbortError when the flag is on, and still throw RequestTimeoutError', async () => {
+      const mockStatsClient = { histogram: jest.fn(), incr: jest.fn() }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['tag1'] }
+      const abortError: any = new Error('Aborted')
+      abortError.name = 'AbortError'
+      mockSend.mockRejectedValueOnce(abortError)
+
+      await expect(
+        send(mockSettings, mockPayloads, statsContext, mockLogger as Logger, undefined, true)
+      ).rejects.toThrow(RequestTimeoutError)
+
+      expect(mockStatsClient.incr).toHaveBeenCalledWith('actions_kinesis.request_timeout', 1, statsContext.tags)
+      expect(mockLogger.error).toHaveBeenCalledWith(expect.stringContaining('phase=kinesis'))
+    })
+
+    it('should not emit a timeout metric on AbortError when the flag is off, but still throw RequestTimeoutError', async () => {
+      const mockStatsClient = { histogram: jest.fn(), incr: jest.fn() }
+      const statsContext: StatsContext = { statsClient: mockStatsClient as any, tags: ['tag1'] }
+      const abortError: any = new Error('Aborted')
+      abortError.name = 'AbortError'
+      mockSend.mockRejectedValueOnce(abortError)
+
+      await expect(send(mockSettings, mockPayloads, statsContext, mockLogger as Logger)).rejects.toThrow(
+        RequestTimeoutError
+      )
+
+      expect(mockStatsClient.incr).not.toHaveBeenCalledWith('actions_kinesis.request_timeout', 1, expect.anything())
+      expect(mockLogger.error).not.toHaveBeenCalled()
     })
   })
 })
