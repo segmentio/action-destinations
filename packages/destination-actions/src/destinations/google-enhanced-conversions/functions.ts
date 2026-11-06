@@ -951,7 +951,9 @@ export async function handleDataManagerUpdate(
   for (let i = 0; i < payloads.length; i++) {
     const payload = payloads[i]
     const member = buildAudienceMember(payload, idType, features, statsContext)
-    if (!member) continue
+    if (!member) {
+      throw new PayloadValidationError(`Missing or invalid data for ${idType}.`)
+    }
 
     const membership = Array.isArray(audienceMembership) ? audienceMembership[i] : audienceMembership
     if (
@@ -968,6 +970,8 @@ export async function handleDataManagerUpdate(
       membership === false
     ) {
       removeMembers.push(member)
+    } else {
+      throw new PayloadValidationError('Could not determine Operation Type.')
     }
   }
 
@@ -1055,7 +1059,20 @@ export async function handleDataManagerBatchUpdate(
   const removeMembers: IndexedMember[] = []
 
   payloads.forEach((payload, index) => {
-    const member = buildAudienceMember(payload, idType, features, statsContext)
+    // Invalid email/phone throws PayloadValidationError — fail only this payload, not the whole batch.
+    let member: DataManagerAudienceMember | null
+    try {
+      member = buildAudienceMember(payload, idType, features, statsContext)
+    } catch (err) {
+      if (!(err instanceof PayloadValidationError)) throw err
+      multiStatusResponse.setErrorResponseAtIndex(index, {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: err.message,
+        sent: payload as unknown as JSONLikeObject
+      })
+      return
+    }
     if (!member) {
       multiStatusResponse.setErrorResponseAtIndex(index, {
         status: 400,
@@ -1152,7 +1169,8 @@ export async function getDataManagerListIds(
   request: RequestClient,
   settings: CreateAudienceInput['settings'],
   auth?: CreateAudienceInput['settings']['oauth'],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  page?: string
 ) {
   try {
     if (!auth?.refresh_token) {
@@ -1184,7 +1202,8 @@ export async function getDataManagerListIds(
     try {
       response = await request(`${DATA_MANAGER_BASE_URL}/accountTypes/GOOGLE_ADS/accounts/${customerId}/userLists`, {
         method: 'get',
-        headers
+        headers,
+        ...(page ? { searchParams: { pageToken: page } } : {})
       })
     } catch (err) {
       throwDataManagerError(err)

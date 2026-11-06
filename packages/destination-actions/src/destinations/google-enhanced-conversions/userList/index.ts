@@ -182,9 +182,15 @@ const action: ActionDefinition<Settings, Payload> = {
           label: 'Existing List ID',
           description:
             'The ID of an existing Google list that you would like to sync users to. If you provide this, we will not create a new list.',
-          dynamic: async (request, { settings, auth, features, statsContext }) => {
+          dynamic: async (request, { settings, auth, features, statsContext, page }) => {
             if (features?.[FLAGON_NAME_DATA_MANAGER_API]) {
-              return await getDataManagerListIds(request, settings, { refresh_token: auth?.refreshToken }, statsContext)
+              return await getDataManagerListIds(
+                request,
+                settings,
+                { refresh_token: auth?.refreshToken },
+                statsContext,
+                page
+              )
             }
             return await getListIds(request, settings, auth, features, statsContext)
           }
