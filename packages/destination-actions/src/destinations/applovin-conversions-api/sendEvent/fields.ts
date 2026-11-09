@@ -43,7 +43,7 @@ export const name: InputField = {
 export const event_time: InputField = {
   label: 'Event Time',
   description:
-    'When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin.',
+    'When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin. AppLovin rejects events more than 730 days old or more than 1 hour in the future.',
   type: 'datetime',
   required: true,
   default: { '@path': '$.timestamp' }

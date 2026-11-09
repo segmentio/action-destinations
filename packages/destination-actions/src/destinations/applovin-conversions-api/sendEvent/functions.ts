@@ -1,3 +1,4 @@
+import { isIP } from 'net'
 import { MultiStatusResponse, PayloadValidationError } from '@segment/actions-core'
 import type { JSONLikeObject, RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
@@ -10,16 +11,12 @@ import {
   EVENTS_REQUIRING_VALUE,
   EVENTS_WITH_ITEMS,
   EVENTS_WITH_VALUE,
+  MAX_EVENT_AGE_DAYS,
+  MAX_EVENT_FUTURE_HOURS,
   MIN_USER_ID_LENGTH
 } from './constants'
 import type { EventName } from './constants'
-import type {
-  AppLovinEvent,
-  AppLovinOs,
-  AppLovinRequest,
-  ParsedCurrency,
-  ValidationInput
-} from './types'
+import type { AppLovinEvent, AppLovinOs, AppLovinRequest, ParsedCurrency, ValidationInput } from './types'
 import { APPLOVIN_CONVERSIONS_API_VERSION } from '../versioning-info'
 
 const GMAIL_DOMAINS = ['gmail.com', 'googlemail.com']
@@ -98,8 +95,12 @@ export function parseCurrency(value: string | undefined): ParsedCurrency {
   return { code: currency.toUpperCase() }
 }
 
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
+
 function validate({
   name,
+  event_time,
   client_ip_address,
   client_user_agent,
   dedupe_id,
@@ -112,8 +113,17 @@ function validate({
 }: ValidationInput): void {
   const errors: string[] = []
 
+  if (Number.isNaN(event_time)) {
+    errors.push('Event Time must be a valid timestamp.')
+  } else if (event_time > Date.now() + MAX_EVENT_FUTURE_HOURS * HOUR_MS) {
+    errors.push(`Event Time cannot be more than ${MAX_EVENT_FUTURE_HOURS} hour in the future.`)
+  } else if (event_time < Date.now() - MAX_EVENT_AGE_DAYS * DAY_MS) {
+    errors.push(`Event Time cannot be more than ${MAX_EVENT_AGE_DAYS} days old.`)
+  }
   if (!client_ip_address) {
     errors.push('IP Address is required.')
+  } else if (isIP(client_ip_address) === 0) {
+    errors.push('IP Address must be a valid IPv4 or IPv6 address.')
   }
   if (!client_user_agent) {
     errors.push('User Agent is required.')
@@ -125,7 +135,9 @@ function validate({
     errors.push('ALEID is required.')
   }
   if (!hasOtherIdentifier) {
-    errors.push('At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.')
+    errors.push(
+      'At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.'
+    )
   }
   if (name === 'purchase' && !transaction_id) {
     errors.push('Transaction ID is required for purchase events.')
@@ -197,9 +209,11 @@ export function buildEvent(payload: Payload): AppLovinEvent {
   const zip = us_zip ? us_zip.slice(0, 5) : non_us_zip
   const userId = user_id && user_id.length >= MIN_USER_ID_LENGTH ? user_id : undefined
   const currencyResult = parseCurrency(currency)
+  const eventTime = new Date(event_time).getTime()
 
   validate({
     name,
+    event_time: eventTime,
     client_ip_address,
     client_user_agent,
     dedupe_id,
@@ -235,7 +249,7 @@ export function buildEvent(payload: Payload): AppLovinEvent {
 
   return {
     name,
-    event_time: new Date(event_time).getTime(),
+    event_time: eventTime,
     ...(event_source_url ? { event_source_url } : {}),
     dedupe_id,
     user_data: {

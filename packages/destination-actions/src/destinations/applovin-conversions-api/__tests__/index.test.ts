@@ -73,7 +73,14 @@ const expectedPurchase = (dedupeId: string) => ({
 const purchaseMapping = { name: 'purchase', value: { '@path': '$.properties.subtotal' } }
 
 describe('AppLovin Conversions API', () => {
-  afterEach(() => nock.cleanAll())
+  beforeEach(() => {
+    jest.spyOn(Date, 'now').mockReturnValue(Date.parse(EVENT_TIME))
+  })
+
+  afterEach(() => {
+    nock.cleanAll()
+    jest.restoreAllMocks()
+  })
 
   describe('perform', () => {
     it('sends a purchase event with the expected request', async () => {
@@ -115,7 +122,8 @@ describe('AppLovin Conversions API', () => {
   describe('performBatch', () => {
     const batchMapping = { ...defaultValues(Destination.actions.sendEvent.fields), ...purchaseMapping }
 
-    const schemaInvalid = (messageId: string) => orderCompleted({ messageId, context: { ...baseContext, ip: undefined } })
+    const schemaInvalid = (messageId: string) =>
+      orderCompleted({ messageId, context: { ...baseContext, ip: undefined } })
 
     const businessInvalid = (messageId: string) =>
       orderCompleted({

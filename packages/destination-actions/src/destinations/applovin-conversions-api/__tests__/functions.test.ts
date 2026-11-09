@@ -22,6 +22,14 @@ const payload = (overrides: Partial<Payload> = {}, userData: Partial<Payload['us
 })
 
 describe('AppLovin Conversions API functions', () => {
+  beforeEach(() => {
+    jest.spyOn(Date, 'now').mockReturnValue(Date.parse(EVENT_TIME))
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   describe('parseCurrency', () => {
     it('trims and uppercases valid codes', () => {
       expect(parseCurrency(' usd ')).toEqual({ code: 'USD' })
@@ -134,6 +142,34 @@ describe('AppLovin Conversions API functions', () => {
     it('sends data null for page_view and omits data for app_open', () => {
       expect(buildEvent(payload({ name: 'page_view' }))).toHaveProperty('data', null)
       expect(buildEvent(payload({ name: 'app_open' }, { esi: 'app' }))).not.toHaveProperty('data')
+    })
+
+    it.each([
+      ['more than 730 days old', '2024-10-01T10:00:00.000Z', 'Event Time cannot be more than 730 days old.'],
+      [
+        'more than 1 hour in the future',
+        '2026-11-01T11:30:00.000Z',
+        'Event Time cannot be more than 1 hour in the future.'
+      ]
+    ])('rejects an event time %s', (_label: string, event_time: string, message: string) => {
+      expect(() => buildEvent(payload({ event_time }))).toThrowError(message)
+    })
+
+    it('accepts event times just inside the window', () => {
+      expect(() => buildEvent(payload({ event_time: '2024-11-02T10:00:00.000Z' }))).not.toThrow()
+      expect(() => buildEvent(payload({ event_time: '2026-11-01T10:59:00.000Z' }))).not.toThrow()
+    })
+
+    it.each(['not-an-ip', '203.0.113.999', '203.0.113'])('rejects the invalid IP address %s', (ip: string) => {
+      expect(() => buildEvent(payload({}, { client_ip_address: ip }))).toThrowError(
+        'IP Address must be a valid IPv4 or IPv6 address.'
+      )
+    })
+
+    it('accepts IPv6 addresses', () => {
+      expect(buildEvent(payload({}, { client_ip_address: '2001:db8::1' })).user_data.client_ip_address).toBe(
+        '2001:db8::1'
+      )
     })
 
     it('reports every validation error at once', () => {

@@ -1,6 +1,8 @@
 export const API_BASE_URL = 'https://b.applovin.com'
 export const MAX_BATCH_SIZE = 100
 export const MIN_USER_ID_LENGTH = 6
+export const MAX_EVENT_AGE_DAYS = 730
+export const MAX_EVENT_FUTURE_HOURS = 1
 export const INTEGRATION_NAME = 'AppLovin Conversions Api'
 
 export const EVENT_NAMES = [

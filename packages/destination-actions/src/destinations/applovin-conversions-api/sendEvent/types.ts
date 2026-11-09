@@ -122,6 +122,7 @@ export interface ParsedCurrency {
 }
 
 export interface ValidationInput {
+  event_time: number
   name: EventName
   client_ip_address?: string
   client_user_agent?: string
