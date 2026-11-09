@@ -6,7 +6,7 @@ export interface Payload {
    */
   name: string
   /**
-   * When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin.
+   * When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin. AppLovin rejects events more than 730 days old or more than 1 hour in the future.
    */
   event_time: string | number
   /**
