@@ -50,7 +50,11 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
       Object.keys(integrationsData).length > 0 &&
       (context.event.integrations?.All !== false || context.event.integrations[integrationName])
     ) {
-      context.updateEvent(`integrations.${integrationName}`, integrationsData)
+      const existing = context.event.integrations?.[integrationName]
+      context.updateEvent(`integrations.${integrationName}`, {
+        ...(existing && typeof existing === 'object' ? existing : {}),
+        ...integrationsData
+      })
     }
 
     return
