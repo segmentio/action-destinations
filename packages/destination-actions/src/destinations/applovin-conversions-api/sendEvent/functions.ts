@@ -6,14 +6,17 @@ import type { Payload } from './generated-types'
 import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 import {
   API_BASE_URL,
+  DAY_MS,
   EVENTS_REQUIRING_ITEMS,
   EVENTS_REQUIRING_QUANTITY,
   EVENTS_REQUIRING_VALUE,
   EVENTS_WITH_ITEMS,
   EVENTS_WITH_VALUE,
+  HOUR_MS,
   MAX_EVENT_AGE_DAYS,
   MAX_EVENT_FUTURE_HOURS,
-  MIN_USER_ID_LENGTH
+  MIN_USER_ID_LENGTH,
+  OS_VALUES
 } from './constants'
 import type { EventName } from './constants'
 import type { AppLovinEvent, AppLovinOs, AppLovinRequest, ParsedCurrency, ValidationInput } from './types'
@@ -59,14 +62,6 @@ export function hashLast10Digits(phone: string): string | undefined {
   return processHashing(digits.slice(-10), 'sha256', 'hex')
 }
 
-const OS_VALUES: Record<string, AppLovinOs> = {
-  ios: 'ios',
-  ipados: 'ios',
-  android: 'android',
-  macos: 'macos',
-  windows: 'windows'
-}
-
 function normalizeOs(os: string): AppLovinOs {
   return OS_VALUES[os.toLowerCase()] ?? 'desktop_os'
 }
@@ -94,9 +89,6 @@ export function parseCurrency(value: string | undefined): ParsedCurrency {
   }
   return { code: currency.toUpperCase() }
 }
-
-const HOUR_MS = 60 * 60 * 1000
-const DAY_MS = 24 * HOUR_MS
 
 function validate({
   name,
