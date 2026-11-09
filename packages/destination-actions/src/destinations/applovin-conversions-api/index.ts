@@ -13,7 +13,6 @@ const singleProductItems = {
       item_name: { '@path': '$.name' },
       item_brand: { '@path': '$.brand' },
       item_variant_id: { '@path': '$.variant' },
-      item_category_id: { '@path': '$.category' },
       image_url: { '@path': '$.image_url' },
       price: { '@path': '$.price' },
       quantity: { '@path': '$.quantity' }

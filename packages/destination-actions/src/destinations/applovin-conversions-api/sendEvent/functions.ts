@@ -15,6 +15,7 @@ import {
 import type { EventName } from './constants'
 import type {
   AppLovinEvent,
+  AppLovinOs,
   AppLovinRequest,
   ParsedCurrency,
   ValidationInput
@@ -61,9 +62,16 @@ export function hashLast10Digits(phone: string): string | undefined {
   return processHashing(digits.slice(-10), 'sha256', 'hex')
 }
 
-function normalizeOs(os: string): 'ios' | 'android' | 'desktop_os' {
-  const value = os.toLowerCase()
-  return value === 'ios' || value === 'android' ? value : 'desktop_os'
+const OS_VALUES: Record<string, AppLovinOs> = {
+  ios: 'ios',
+  ipados: 'ios',
+  android: 'android',
+  macos: 'macos',
+  windows: 'windows'
+}
+
+function normalizeOs(os: string): AppLovinOs {
+  return OS_VALUES[os.toLowerCase()] ?? 'desktop_os'
 }
 
 function trimStrings<T>(value: T): T {
@@ -95,7 +103,8 @@ function validate({
   client_ip_address,
   client_user_agent,
   dedupe_id,
-  hasIdentifier,
+  aleid,
+  hasOtherIdentifier,
   transaction_id,
   search_term,
   items,
@@ -112,8 +121,11 @@ function validate({
   if (!dedupe_id) {
     errors.push('Dedupe ID is required.')
   }
-  if (!hasIdentifier) {
-    errors.push('At least one identifier is required: aleid, alart, axwrt, client ID, user ID, email or phone.')
+  if (!aleid) {
+    errors.push('ALEID is required.')
+  }
+  if (!hasOtherIdentifier) {
+    errors.push('At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.')
   }
   if (name === 'purchase' && !transaction_id) {
     errors.push('Transaction ID is required for purchase events.')
@@ -191,7 +203,8 @@ export function buildEvent(payload: Payload): AppLovinEvent {
     client_ip_address,
     client_user_agent,
     dedupe_id,
-    hasIdentifier: [aleid, alart, axwrt, client_id, userId, email, phone].some(Boolean),
+    aleid,
+    hasOtherIdentifier: [alart, axwrt, client_id, userId, email, phone].some(Boolean),
     transaction_id,
     search_term,
     items,

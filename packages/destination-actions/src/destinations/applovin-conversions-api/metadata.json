@@ -150,7 +150,7 @@
         },
         "event_source_url": {
           "label": "Event Source URL",
-          "description": "The full URL of the page where the event occurred. Not available for app events.",
+          "description": "The full URL of the page where the event occurred. Include it for web events, including events sent server-side. It can be omitted for app events.",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -176,7 +176,7 @@
         },
         "dedupe_id": {
           "label": "Dedupe ID",
-          "description": "A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel.",
+          "description": "A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel, so it must match the dedupe ID on the Pixel event for the same conversion.",
           "type": "string",
           "required": true,
           "multiple": false,
@@ -202,26 +202,13 @@
         },
         "user_data": {
           "label": "User Data",
-          "description": "User and device details used by AppLovin to match the event to a user. IP Address, User Agent and Event Source are required. At least one of Email, Phone, User ID, Client ID, ALEID, ALART or AXWRT is also required. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination. All other fields are optional.",
+          "description": "User and device details used by AppLovin to match the event to a user. Required: ALEID, IP Address, User Agent, Event Source, and at least one of ALART, AXWRT, Client ID, Email, Phone or User ID. All other fields are optional. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.",
           "type": "object",
           "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "alart": {
-              "@if": {
-                "exists": {
-                  "@path": "$.integrations.AppLovin Conversions Api.alart"
-                },
-                "then": {
-                  "@path": "$.integrations.AppLovin Conversions Api.alart"
-                },
-                "else": {
-                  "@path": "$.properties.alart"
-                }
-              }
-            },
             "aleid": {
               "@if": {
                 "exists": {
@@ -232,6 +219,19 @@
                 },
                 "else": {
                   "@path": "$.properties.aleid"
+                }
+              }
+            },
+            "alart": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.AppLovin Conversions Api.alart"
+                },
+                "then": {
+                  "@path": "$.integrations.AppLovin Conversions Api.alart"
+                },
+                "else": {
+                  "@path": "$.properties.alart"
                 }
               }
             },
@@ -308,83 +308,11 @@
           "choices": null,
           "placeholder": null,
           "properties": {
-            "alart": {
-              "label": "ALART",
-              "description": "The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie.",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
             "aleid": {
               "label": "ALEID",
-              "description": "The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.",
+              "description": "Required. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.",
               "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
-            "axwrt": {
-              "label": "AXWRT",
-              "description": "The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie.",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
-            "client_id": {
-              "label": "Client ID",
-              "description": "A stable first-party identifier for the user.",
-              "type": "string",
-              "required": false,
+              "required": true,
               "multiple": false,
               "allowNull": false,
               "dynamic": false,
@@ -406,7 +334,7 @@
             },
             "client_ip_address": {
               "label": "IP Address",
-              "description": "The public IP address of the user. IPv4 is preferred.",
+              "description": "Required. The public IP address of the user. IPv4 is preferred.",
               "type": "string",
               "required": true,
               "multiple": false,
@@ -430,7 +358,7 @@
             },
             "client_user_agent": {
               "label": "User Agent",
-              "description": "The user agent of the browser or device.",
+              "description": "Required. The user agent of the browser or device.",
               "type": "string",
               "required": true,
               "multiple": false,
@@ -452,33 +380,9 @@
               "format": null,
               "additionalProperties": false
             },
-            "email": {
-              "label": "Email",
-              "description": "The user's email address.",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
             "esi": {
               "label": "Event Source",
-              "description": "Where the event came from.",
+              "description": "Required. Where the event came from.",
               "type": "string",
               "required": true,
               "multiple": false,
@@ -509,9 +413,105 @@
               "format": null,
               "additionalProperties": false
             },
+            "alart": {
+              "label": "ALART",
+              "description": "The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "axwrt": {
+              "label": "AXWRT",
+              "description": "The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "client_id": {
+              "label": "Client ID",
+              "description": "A stable first-party identifier for the user. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "The user's email address. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
             "phone": {
               "label": "Phone",
-              "description": "The user's phone number, including the country code.",
+              "description": "The user's phone number, including the country code. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -535,7 +535,7 @@
             },
             "user_id": {
               "label": "User ID",
-              "description": "Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored.",
+              "description": "Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -631,7 +631,7 @@
             },
             "os": {
               "label": "Operating System",
-              "description": "The operating system of the device. Sent as ios or android when the value matches (case-insensitive); anything else is sent as desktop_os.",
+              "description": "The operating system of the device. Accepted values are ios, android, macos, windows and desktop_os. Segment values such as iOS, iPadOS, Android, macOS and Windows are converted automatically (case-insensitive); anything else is sent as desktop_os.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -796,9 +796,6 @@
                 "item_variant_id": {
                   "@path": "$.variant"
                 },
-                "item_category_id": {
-                  "@path": "$.category"
-                },
                 "image_url": {
                   "@path": "$.image_url"
                 },
@@ -912,7 +909,7 @@
             },
             "item_category_id": {
               "label": "Item Category ID",
-              "description": "The integer category ID from AppLovin's product category taxonomy.",
+              "description": "The numeric category ID from AppLovin's supported category list, for example 1 for Animals & Pet Supplies. Must be an integer, not a category name. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
               "type": "integer",
               "required": false,
               "multiple": false,
@@ -1674,19 +1671,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -1697,6 +1681,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -1785,9 +1782,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -1847,19 +1841,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -1870,6 +1851,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -1958,9 +1952,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -2020,19 +2011,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -2043,6 +2021,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -2131,9 +2122,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -2193,19 +2181,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -2216,6 +2191,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -2305,9 +2293,6 @@
               "item_variant_id": {
                 "@path": "$.variant"
               },
-              "item_category_id": {
-                "@path": "$.category"
-              },
               "image_url": {
                 "@path": "$.image_url"
               },
@@ -2366,19 +2351,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -2389,6 +2361,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -2477,9 +2462,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -2539,19 +2521,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -2562,6 +2531,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -2650,9 +2632,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -2712,19 +2691,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -2735,6 +2701,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -2823,9 +2802,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -2885,19 +2861,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -2908,6 +2871,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -2996,9 +2972,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -3068,19 +3041,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -3091,6 +3051,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -3179,9 +3152,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -3241,19 +3211,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -3264,6 +3221,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -3352,9 +3322,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -3414,19 +3381,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -3437,6 +3391,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -3525,9 +3492,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -3587,19 +3551,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -3610,6 +3561,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -3698,9 +3662,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"
@@ -3760,19 +3721,6 @@
           "@path": "$.messageId"
         },
         "user_data": {
-          "alart": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "then": {
-                "@path": "$.integrations.AppLovin Conversions Api.alart"
-              },
-              "else": {
-                "@path": "$.properties.alart"
-              }
-            }
-          },
           "aleid": {
             "@if": {
               "exists": {
@@ -3783,6 +3731,19 @@
               },
               "else": {
                 "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
               }
             }
           },
@@ -3871,9 +3832,6 @@
               },
               "item_variant_id": {
                 "@path": "$.variant"
-              },
-              "item_category_id": {
-                "@path": "$.category"
               },
               "image_url": {
                 "@path": "$.image_url"

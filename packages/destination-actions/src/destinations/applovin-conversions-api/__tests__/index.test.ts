@@ -122,7 +122,7 @@ describe('AppLovin Conversions API', () => {
         messageId,
         userId: undefined,
         anonymousId: undefined,
-        integrations: {},
+        integrations: { 'AppLovin Conversions Api': { aleid: 'ale-1' } },
         properties: { ...orderProperties, email: undefined, phone: undefined }
       })
 
@@ -164,7 +164,8 @@ describe('AppLovin Conversions API', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'At least one identifier is required: aleid, alart, axwrt, client ID, user ID, email or phone.',
+          errormessage:
+            'At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.',
           errorreporter: 'INTEGRATIONS'
         },
         { status: 200, sent: expectedPurchase('msg-4'), body: { success: true } }
@@ -188,7 +189,8 @@ describe('AppLovin Conversions API', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage: 'At least one identifier is required: aleid, alart, axwrt, client ID, user ID, email or phone.',
+          errormessage:
+            'At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.',
           errorreporter: 'INTEGRATIONS'
         }
       ])

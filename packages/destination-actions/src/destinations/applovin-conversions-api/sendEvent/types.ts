@@ -92,12 +92,14 @@ interface BaseEvent<N extends EventName> {
     phone_last10_hashed?: string
     ifa?: string
     idfv?: string
-    os?: 'ios' | 'android' | 'desktop_os'
+    os?: AppLovinOs
     sid?: string
     country_code?: string
     zip?: string
   }
 }
+
+export type AppLovinOs = 'ios' | 'android' | 'macos' | 'windows' | 'desktop_os'
 
 export interface AppLovinItem {
   item_id: string
@@ -127,6 +129,7 @@ export interface ValidationInput {
   transaction_id?: string
   search_term?: string
   items?: Payload['items']
-  hasIdentifier: boolean
+  aleid?: string
+  hasOtherIdentifier: boolean
   currency: ParsedCurrency
 }

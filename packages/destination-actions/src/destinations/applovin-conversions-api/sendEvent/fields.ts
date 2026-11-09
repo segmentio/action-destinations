@@ -42,7 +42,8 @@ export const name: InputField = {
 
 export const event_time: InputField = {
   label: 'Event Time',
-  description: 'When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin.',
+  description:
+    'When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin.',
   type: 'datetime',
   required: true,
   default: { '@path': '$.timestamp' }
@@ -50,7 +51,8 @@ export const event_time: InputField = {
 
 export const event_source_url: InputField = {
   label: 'Event Source URL',
-  description: 'The full URL of the page where the event occurred. Not available for app events.',
+  description:
+    'The full URL of the page where the event occurred. Include it for web events, including events sent server-side. It can be omitted for app events.',
   type: 'string',
   required: false,
   default: { '@path': '$.context.page.url' }
@@ -59,7 +61,7 @@ export const event_source_url: InputField = {
 export const dedupe_id: InputField = {
   label: 'Dedupe ID',
   description:
-    'A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel.',
+    'A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel, so it must match the dedupe ID on the Pixel event for the same conversion.',
   type: 'string',
   required: true,
   default: { '@path': '$.messageId' }
@@ -68,50 +70,34 @@ export const dedupe_id: InputField = {
 export const user_data: InputField = {
   label: 'User Data',
   description:
-    'User and device details used by AppLovin to match the event to a user. IP Address, User Agent and Event Source are required. At least one of Email, Phone, User ID, Client ID, ALEID, ALART or AXWRT is also required. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination. All other fields are optional.',
+    'User and device details used by AppLovin to match the event to a user. Required: ALEID, IP Address, User Agent, Event Source, and at least one of ALART, AXWRT, Client ID, Email, Phone or User ID. All other fields are optional. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.',
   type: 'object',
   required: true,
   defaultObjectUI: 'keyvalue',
   additionalProperties: false,
   properties: {
-    alart: {
-      label: 'ALART',
-      description:
-        'The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie.',
-      type: 'string'
-    },
     aleid: {
       label: 'ALEID',
       description:
-        'The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.',
-      type: 'string'
-    },
-    axwrt: {
-      label: 'AXWRT',
-      description: 'The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie.',
-      type: 'string'
-    },
-    client_id: {
-      label: 'Client ID',
-      description: 'A stable first-party identifier for the user.',
-      type: 'string'
+        'Required. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.',
+      type: 'string',
+      required: true
     },
     client_ip_address: {
       label: 'IP Address',
-      description: 'The public IP address of the user. IPv4 is preferred.',
+      description: 'Required. The public IP address of the user. IPv4 is preferred.',
       type: 'string',
       required: true
     },
     client_user_agent: {
       label: 'User Agent',
-      description: 'The user agent of the browser or device.',
+      description: 'Required. The user agent of the browser or device.',
       type: 'string',
       required: true
     },
-    email: { label: 'Email', description: "The user's email address.", type: 'string' },
     esi: {
       label: 'Event Source',
-      description: 'Where the event came from.',
+      description: 'Required. Where the event came from.',
       type: 'string',
       required: true,
       choices: [
@@ -119,14 +105,40 @@ export const user_data: InputField = {
         { label: 'App', value: 'app' }
       ]
     },
+    alart: {
+      label: 'ALART',
+      description:
+        'The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
+      type: 'string'
+    },
+    axwrt: {
+      label: 'AXWRT',
+      description:
+        'The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
+      type: 'string'
+    },
+    client_id: {
+      label: 'Client ID',
+      description:
+        'A stable first-party identifier for the user. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
+      type: 'string'
+    },
+    email: {
+      label: 'Email',
+      description:
+        "The user's email address. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+      type: 'string'
+    },
     phone: {
       label: 'Phone',
-      description: "The user's phone number, including the country code.",
+      description:
+        "The user's phone number, including the country code. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
       type: 'string'
     },
     user_id: {
       label: 'User ID',
-      description: 'Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored.',
+      description:
+        'Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
       type: 'string'
     },
     country_code: {
@@ -146,7 +158,8 @@ export const user_data: InputField = {
     },
     os: {
       label: 'Operating System',
-      description: 'The operating system of the device. Sent as ios or android when the value matches (case-insensitive); anything else is sent as desktop_os.',
+      description:
+        'The operating system of the device. Accepted values are ios, android, macos, windows and desktop_os. Segment values such as iOS, iPadOS, Android, macOS and Windows are converted automatically (case-insensitive); anything else is sent as desktop_os.',
       type: 'string'
     },
     sid: {
@@ -167,8 +180,8 @@ export const user_data: InputField = {
     }
   },
   default: {
-    alart: fromIntegrationOrProperty('alart', '$.properties.alart'),
     aleid: fromIntegrationOrProperty('aleid', '$.properties.aleid'),
+    alart: fromIntegrationOrProperty('alart', '$.properties.alart'),
     axwrt: fromIntegrationOrProperty('axwrt', '$.properties.axwrt'),
     client_id: { '@path': '$.anonymousId' },
     client_ip_address: { '@path': '$.context.ip' },
@@ -210,7 +223,8 @@ export const items: InputField = {
     },
     item_category_id: {
       label: 'Item Category ID',
-      description: "The integer category ID from AppLovin's product category taxonomy.",
+      description:
+        "The numeric category ID from AppLovin's supported category list, for example 1 for Animals & Pet Supplies. Must be an integer, not a category name. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
       type: 'integer'
     },
     image_url: {
@@ -239,7 +253,6 @@ export const items: InputField = {
         item_name: { '@path': '$.name' },
         item_brand: { '@path': '$.brand' },
         item_variant_id: { '@path': '$.variant' },
-        item_category_id: { '@path': '$.category' },
         image_url: { '@path': '$.image_url' },
         price: { '@path': '$.price' },
         quantity: { '@path': '$.quantity' }
@@ -250,7 +263,8 @@ export const items: InputField = {
 
 export const currency: InputField = {
   label: 'Currency',
-  description: 'The three-letter ISO 4217 currency code, for example USD. Required for begin_checkout, purchase and generate_lead.',
+  description:
+    'The three-letter ISO 4217 currency code, for example USD. Required for begin_checkout, purchase and generate_lead.',
   type: 'string',
   required: when(EVENTS_REQUIRING_VALUE),
   depends_on: when(EVENTS_WITH_VALUE),

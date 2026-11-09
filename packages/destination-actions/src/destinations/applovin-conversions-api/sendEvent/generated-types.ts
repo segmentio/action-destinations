@@ -10,55 +10,55 @@ export interface Payload {
    */
   event_time: string | number
   /**
-   * The full URL of the page where the event occurred. Not available for app events.
+   * The full URL of the page where the event occurred. Include it for web events, including events sent server-side. It can be omitted for app events.
    */
   event_source_url?: string
   /**
-   * A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel.
+   * A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel, so it must match the dedupe ID on the Pixel event for the same conversion.
    */
   dedupe_id: string
   /**
-   * User and device details used by AppLovin to match the event to a user. IP Address, User Agent and Event Source are required. At least one of Email, Phone, User ID, Client ID, ALEID, ALART or AXWRT is also required. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination. All other fields are optional.
+   * User and device details used by AppLovin to match the event to a user. Required: ALEID, IP Address, User Agent, Event Source, and at least one of ALART, AXWRT, Client ID, Email, Phone or User ID. All other fields are optional. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.
    */
   user_data: {
     /**
-     * The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie.
+     * Required. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.
      */
-    alart?: string
+    aleid: string
     /**
-     * The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.
-     */
-    aleid?: string
-    /**
-     * The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie.
-     */
-    axwrt?: string
-    /**
-     * A stable first-party identifier for the user.
-     */
-    client_id?: string
-    /**
-     * The public IP address of the user. IPv4 is preferred.
+     * Required. The public IP address of the user. IPv4 is preferred.
      */
     client_ip_address: string
     /**
-     * The user agent of the browser or device.
+     * Required. The user agent of the browser or device.
      */
     client_user_agent: string
     /**
-     * The user's email address.
-     */
-    email?: string
-    /**
-     * Where the event came from.
+     * Required. Where the event came from.
      */
     esi: string
     /**
-     * The user's phone number, including the country code.
+     * The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
+     */
+    alart?: string
+    /**
+     * The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
+     */
+    axwrt?: string
+    /**
+     * A stable first-party identifier for the user. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
+     */
+    client_id?: string
+    /**
+     * The user's email address. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
+     */
+    email?: string
+    /**
+     * The user's phone number, including the country code. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
      */
     phone?: string
     /**
-     * Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored.
+     * Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
      */
     user_id?: string
     /**
@@ -74,7 +74,7 @@ export interface Payload {
      */
     idfv?: string
     /**
-     * The operating system of the device. Sent as ios or android when the value matches (case-insensitive); anything else is sent as desktop_os.
+     * The operating system of the device. Accepted values are ios, android, macos, windows and desktop_os. Segment values such as iOS, iPadOS, Android, macOS and Windows are converted automatically (case-insensitive); anything else is sent as desktop_os.
      */
     os?: string
     /**
@@ -111,7 +111,7 @@ export interface Payload {
      */
     item_variant_id?: string
     /**
-     * The integer category ID from AppLovin's product category taxonomy.
+     * The numeric category ID from AppLovin's supported category list, for example 1 for Animals & Pet Supplies. Must be an integer, not a category name. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids
      */
     item_category_id?: number
     /**

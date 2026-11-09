@@ -11,10 +11,11 @@ const payload = (overrides: Partial<Payload> = {}, userData: Partial<Payload['us
   event_time: EVENT_TIME,
   dedupe_id: 'dedupe-1',
   user_data: {
+    aleid: 'ale-1',
+    client_id: 'anon-1',
     client_ip_address: '203.0.113.7',
     client_user_agent: 'Mozilla/5.0 Test',
     esi: 'web',
-    client_id: 'anon-1',
     ...userData
   },
   ...overrides
@@ -99,15 +100,35 @@ describe('AppLovin Conversions API functions', () => {
     it('passes pre-hashed values through, ignores short user IDs and normalizes zip and os', () => {
       const hashed = sha256('janedoe@gmail.com')
       const event = buildEvent(
-        payload({}, { email: hashed.toUpperCase(), user_id: 'abc', us_zip: '94107-1234', non_us_zip: 'SW1A 1AA', os: 'iOS' })
+        payload(
+          {},
+          { us_zip: '94107-1234', non_us_zip: 'SW1A 1AA', os: 'iOS', email: hashed.toUpperCase(), user_id: 'abc' }
+        )
       )
 
       expect(event.user_data).toMatchObject({ email: hashed, zip: '94107', os: 'ios' })
       expect(event.user_data.user_id).toBeUndefined()
-      expect(buildEvent(payload({}, { non_us_zip: 'SW1A 1AA', os: 'Mac OS X' })).user_data).toMatchObject({
+      expect(buildEvent(payload({}, { non_us_zip: 'SW1A 1AA', os: 'Linux' })).user_data).toMatchObject({
         zip: 'SW1A 1AA',
         os: 'desktop_os'
       })
+    })
+
+    it.each([
+      ['iOS', 'ios'],
+      ['iPadOS', 'ios'],
+      ['Android', 'android'],
+      ['macOS', 'macos'],
+      ['Windows', 'windows'],
+      ['Linux', 'desktop_os']
+    ])('maps the Segment OS name %s to %s', (name: string, expected: string) => {
+      expect(buildEvent(payload({}, { os: name })).user_data.os).toBe(expected)
+    })
+
+    it('does not count ALEID as the additional identifier', () => {
+      expect(() => buildEvent(payload({}, { client_id: undefined }))).toThrowError(
+        'At least one identifier other than ALEID is required'
+      )
     })
 
     it('sends data null for page_view and omits data for app_open', () => {
@@ -120,11 +141,11 @@ describe('AppLovin Conversions API functions', () => {
         buildEvent(
           payload(
             { name: 'purchase', dedupe_id: ' ', transaction_id: ' ', items: [{ item_id: 'sku-1' }] },
-            { client_id: undefined }
+            { aleid: ' ', client_id: undefined }
           )
         )
       ).toThrowError(
-        'Dedupe ID is required. At least one identifier is required: aleid, alart, axwrt, client ID, user ID, email or phone. Transaction ID is required for purchase events. Each item requires a quantity for purchase events. Currency is required for purchase events.'
+        'Dedupe ID is required. ALEID is required. At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone. Transaction ID is required for purchase events. Each item requires a quantity for purchase events. Currency is required for purchase events.'
       )
     })
   })
