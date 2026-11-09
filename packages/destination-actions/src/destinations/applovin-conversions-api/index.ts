@@ -31,7 +31,8 @@ const destination: DestinationDefinition<Settings> = {
     fields: {
       pixel_id: {
         label: 'Event Key',
-        description: 'Your AppLovin Event Key (pixel ID). Found in the AppLovin Ads Manager.',
+        description:
+          "Your AppLovin Event Key, found in the AppLovin Ads Manager under Keys. AppLovin's API documentation calls this the pixel ID, but it is the same value.",
         type: 'string',
         required: true
       },
