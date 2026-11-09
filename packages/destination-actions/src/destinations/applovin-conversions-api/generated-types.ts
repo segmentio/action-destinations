@@ -2,7 +2,7 @@
 
 export interface Settings {
   /**
-   * Your AppLovin Event Key (pixel ID). Found in the AppLovin Ads Manager.
+   * Your AppLovin Event Key, found in the AppLovin Ads Manager under Keys. AppLovin's API documentation calls this the pixel ID, but it is the same value.
    */
   pixel_id: string
   /**
