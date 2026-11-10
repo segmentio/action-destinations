@@ -64,6 +64,8 @@
     "@segment/analytics-browser-appcues-web-actions": "^1.17.0",
     "@segment/analytics-browser-hubble-web": "^1.95.0",
     "@segment/analytics-browser-mixpanel-web-actions": "^1.22.0",
+    "@segment/analytics-browser-actions-chatgpt-conversions-api-plugins": "^1.0.0",
+    "@segment/analytics-browser-actions-applovin-conversions-api-plugins": "^1.0.0",
     "@segment/browser-destination-runtime": "^1.108.0"
   }
 }
