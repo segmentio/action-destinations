@@ -1,26 +1,26 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`EventGuard destination contract retains request-body snapshots for nested event fields 1`] = `
-{
+Object {
   "anonymousId": "synthetic-visitor",
-  "context": {
-    "library": {
+  "context": Object {
+    "library": Object {
       "name": "synthetic-test",
       "version": "1",
     },
-    "traits": {
+    "traits": Object {
       "email": "person@example.test",
     },
   },
   "event": "Checkout Started",
   "messageId": "synthetic-event-1",
-  "properties": {
+  "properties": Object {
     "currency": "EUR",
     "empty": null,
-    "nested": {
+    "nested": Object {
       "enabled": true,
     },
-    "tags": [
+    "tags": Array [
       "test",
     ],
     "total": 42,
@@ -31,7 +31,7 @@ exports[`EventGuard destination contract retains request-body snapshots for nest
 `;
 
 exports[`EventGuard destination contract retains request-body snapshots for required fields 1`] = `
-{
+Object {
   "event": "App Opened",
   "messageId": "synthetic-minimal",
   "type": "track",

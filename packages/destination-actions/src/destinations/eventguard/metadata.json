@@ -39,7 +39,9 @@
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": { "@path": "$." },
+          "default": {
+            "@path": "$."
+          },
           "choices": null,
           "placeholder": null,
           "properties": null,
@@ -64,7 +66,11 @@
       "type": "automatic",
       "partnerAction": "sendTrack",
       "subscribe": "type = \"track\"",
-      "mapping": { "data": { "@path": "$." } },
+      "mapping": {
+        "data": {
+          "@path": "$."
+        }
+      },
       "eventSlug": null
     }
   ]
