@@ -12,7 +12,7 @@ import type { JSONLikeObject, AudienceMembership } from '@segment/actions-core'
 import { StatsContext } from '@segment/actions-core/destination-kit'
 import { processHashing, isAlreadyHashed } from '../../../lib/hashing-utils'
 import { PayloadMap, AudienceJSON, FacebookDataRow } from './types'
-import { BASE_URL, FLAGON_NAME_BATCH_DISCARD_FIX } from '../constants'
+import { BASE_URL } from '../constants'
 import { parseFacebookError, getApiVersion } from '../functions'
 import { FacebookResponseError } from '../types'
 
@@ -84,7 +84,7 @@ export async function sendRequest(
 ): Promise<void> {
   const indices = Array.from(map.keys())
   const payloads = Array.from(map.values())
-  const json = getJSON(payloads, features)
+  const json = getJSON(payloads)
 
   try {
     await request(`${BASE_URL}/${getApiVersion(features, statsContext)}/${audienceId}/users`, {
@@ -164,8 +164,8 @@ export function getAudienceId(
   return (hookAudienceId ?? payloadAudienceId) as string
 }
 
-export function getJSON(payloads: Payload[], features?: Features): AudienceJSON {
-  const data = getData(payloads, features)
+export function getJSON(payloads: Payload[]): AudienceJSON {
+  const data = getData(payloads)
   const app_ids: string[] = []
   const page_ids: string[] = []
   const ig_account_ids: string[] = []
@@ -194,7 +194,7 @@ export function validate(audienceId: unknown): string | undefined {
   }
 }
 
-export function getData(payloads: Payload[], features?: Features): FacebookDataRow[] {
+export function getData(payloads: Payload[]): FacebookDataRow[] {
   const data: FacebookDataRow[] = new Array(payloads.length)
 
   payloads.forEach((payload, index) => {
@@ -215,7 +215,7 @@ export function getData(payloads: Payload[], features?: Features): FacebookDataR
     const row: FacebookDataRow = [
       externalId ?? '',
       email ? processHashing(email.trim().toLowerCase(), 'sha256', 'hex') : '',
-      getHashedPhone(phone, features),
+      hashPhone(phone),
       year ? processHashing(year.trim(), 'sha256', 'hex') ?? '' : '',
       month ? processHashing(normalizeMonth(month), 'sha256', 'hex') ?? '' : '',
       day ? processHashing(day.trim(), 'sha256', 'hex') ?? '' : '',
@@ -243,21 +243,7 @@ export function normalizePhone(value: string): string {
 }
 
 /**
- * Resolves the hashed phone value for a row, choosing behavior based on the
- * `fb-custom-audience-batch-discard-fix` feature flag.
- * - Flag ON: hashPhone() discards a phone that normalizes to empty (e.g. '+0000000000') to '',
- *   so one bad phone no longer fails the whole batch.
- * - Flag OFF: the original behavior, which throws 'Cannot hash an empty string' for such values.
- */
-export function getHashedPhone(phone: string | undefined, features?: Features): string {
-  if (features?.[FLAGON_NAME_BATCH_DISCARD_FIX]) {
-    return hashPhone(phone)
-  }
-  return phone ? processHashing(phone, 'sha256', 'hex', normalizePhone) ?? '' : ''
-}
-
-/**
- * Hashes a phone number for Facebook Custom Audiences (fixed behavior).
+ * Hashes a phone number for Facebook Custom Audiences.
  * - Pre-hashed values (valid sha256/hex) are passed through unchanged.
  * - Otherwise the value is normalized; if normalization leaves an empty string
  *   (e.g. '+0000000000'), it is discarded to '' instead of letting SmartHashing.hash()
