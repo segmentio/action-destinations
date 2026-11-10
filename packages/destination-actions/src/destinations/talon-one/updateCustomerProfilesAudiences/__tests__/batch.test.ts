@@ -94,7 +94,7 @@ describe('Talon.One - Update Customer Profiles Audiences (batch)', () => {
     expect(responses.map((r) => r.status)).toEqual([200, 200])
   })
 
-  it('splits requests above 5000 audience changes', async () => {
+  it('splits requests above 1000 audience changes', async () => {
     const sizes: number[] = []
     nock('https://integration.talon.one')
       .put('/segment/customer_profiles/audiences', (body: { data: { adds?: number[]; deletes?: number[] }[] }) => {
@@ -104,7 +104,7 @@ describe('Talon.One - Update Customer Profiles Audiences (batch)', () => {
       .times(2)
       .reply(204)
 
-    const events = Array.from({ length: 1001 }, (_, i) => makeEvent(`user_${i}`, { adds: [1, 2, 3, 4, 5] }))
+    const events = Array.from({ length: 201 }, (_, i) => makeEvent(`user_${i}`, { adds: [1, 2, 3, 4, 5] }))
     const responses = await testDestination.executeBatch('updateCustomerProfilesAudiences', {
       events,
       settings,
@@ -112,22 +112,22 @@ describe('Talon.One - Update Customer Profiles Audiences (batch)', () => {
     })
 
     expect(responses.every((r) => r.status === 200)).toBe(true)
-    expect(sizes).toEqual([5000, 5])
+    expect(sizes).toEqual([1000, 5])
   })
 
   it('only fails the events in the chunk that Talon.One rejects', async () => {
     nock('https://integration.talon.one').put('/segment/customer_profiles/audiences').reply(204)
     nock('https://integration.talon.one').put('/segment/customer_profiles/audiences').reply(500, {})
 
-    const events = Array.from({ length: 1001 }, (_, i) => makeEvent(`user_${i}`, { adds: [1, 2, 3, 4, 5] }))
+    const events = Array.from({ length: 201 }, (_, i) => makeEvent(`user_${i}`, { adds: [1, 2, 3, 4, 5] }))
     const responses = await testDestination.executeBatch('updateCustomerProfilesAudiences', {
       events,
       settings,
       mapping
     })
 
-    expect(responses.slice(0, 1000).every((r) => r.status === 200)).toBe(true)
-    expect(responses[1000].status).toBe(500)
+    expect(responses.slice(0, 200).every((r) => r.status === 200)).toBe(true)
+    expect(responses[200].status).toBe(500)
   })
 
   it('marks events as failed with 500 on a network error', async () => {
