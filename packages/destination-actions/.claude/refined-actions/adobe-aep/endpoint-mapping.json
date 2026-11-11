@@ -1,0 +1,186 @@
+{
+  "destination": "Adobe AEP (Customer Journey Analytics)",
+  "generatedAt": "2026-11-10",
+  "sources": {
+    "actionList": "refined-actions.md (updated 2026-11-10); batch_size from design-spec.md 3.3.4",
+    "apiSpec": "AdobeDocs/experience-platform-apis static/swagger-specs/streaming-ingestion.yaml (OpenAPI 3.0.1, info.version 1.0)"
+  },
+  "configuration": {
+    "authType": "oauth2",
+    "authDetails": "Adobe IMS OAuth server-to-server (client_credentials). Custom refreshAccessToken: POST https://ims-na1.adobelogin.com/ims/token/v3 (form-encoded client_id, client_secret, grant_type=client_credentials, scope; scope open, Q10). Token ~24h. extendRequest adds Authorization: Bearer and x-api-key. Bearer only required for inlets with authentication enabled. testAuthentication fetches a token only (org, sandbox and inlet are action fields).",
+    "settings": [
+      { "name": "clientId", "type": "string", "required": true, "description": "Adobe IMS OAuth server-to-server Client ID (\"API key (Client ID)\" in Developer Console); sent as x-api-key and in the token request. May become optional for unauthenticated inlets (Q10)." },
+      { "name": "clientSecret", "type": "password", "required": true, "description": "Adobe IMS OAuth server-to-server Client Secret; used only in the token request. May become optional for unauthenticated inlets (Q10)." }
+    ]
+  },
+  "apiOverview": {
+    "baseUrl": "https://dcs.adobedc.net/",
+    "apiVersion": "1.0",
+    "authScheme": "Bearer token (Adobe IMS OAuth server-to-server); only required for authenticated inlets",
+    "totalSpecEndpoints": 2,
+    "totalActionsMapped": 2,
+    "directMatches": 2,
+    "gapReconciliations": 0
+  },
+  "implementationOrder": ["send-event", "upsert-profile"],
+  "mappings": [
+    {
+      "actionName": "Send Event",
+      "actionSlug": "send-event",
+      "actionCamelCase": "sendEvent",
+      "actionDescription": "Send Segment Track, Page and Screen events to an AEP streaming inlet as XDM ExperienceEvents.",
+      "defaultTrigger": "track",
+      "defaultSubscription": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "considerations": [
+        "Schema prerequisites (Q18): ExperienceEvent class and Identity Map field group; Adobe Analytics ExperienceEvent Full Extension field group if eVar/prop paths are mapped.",
+        "perform also posts a one-message array to the batch endpoint so both paths share 207 parsing; sendMessage is a fallback only.",
+        "performBatch must return a MultiStatusResponse, or Adobe's per-message failures are treated as success.",
+        "schemaRef must be identical in header and body.xdmMeta and match the dataset's schema.",
+        "Identity rules (Q5): drop blank identities; exactly one primary (flagged custom, else PID, else first custom, else ECID); an event with no identity is rejected locally with 400 PAYLOAD_VALIDATION_FAILED and not sent.",
+        "Map Adobe 403 to 401 so core's token refresh fires.",
+        "xdmMapping keys are customer-entered dotted paths expanded with setPath; reject __proto__, constructor and prototype; explicit collision rule.",
+        "Lift-and-shift paths (_experience.analytics.customDimensions.eVars.eVarN, props.propN, event1to100.eventN.value) map through xdmMapping; arrays (lists, listProps, productListItems) need code; stringify policy is Q19; automatic toggle is Q16.",
+        "Batching: batch_size default 100 (10-250), hidden batch_bytes 800000 under the 1 MB 413 limit, hidden batch_keys imsOrgId/sandboxName/inletId.",
+        "x-api-key header is not in the ingestion spec (Q10); flowId required in spec but omitted in Adobe's tutorial (Q15).",
+        "Late/future timestamps: no blocking in the destination (Q8); Adobe's class says timestamp must be in the past."
+      ],
+      "apiOperation": "postBatchOfStreamingMessages",
+      "httpMethod": "POST",
+      "endpointUri": "https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}",
+      "matchType": "direct",
+      "singleEndpoint": {
+        "apiOperation": "sendMessage",
+        "httpMethod": "POST",
+        "endpointUri": "https://dcs.adobedc.net/collection/{CONNECTION_ID}",
+        "notes": "Same message format, 200 StreamingIngestionResponse. Fallback only; perform uses the batch endpoint with one message."
+      },
+      "batchEndpoint": {
+        "supported": true,
+        "apiOperation": "postBatchOfStreamingMessages",
+        "httpMethod": "POST",
+        "endpointUri": "https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}",
+        "sameAsSingle": false,
+        "arrayWrapperKey": "messages",
+        "maxRecordsPerRequest": null,
+        "notes": "Preferred delivery path; backs performBatch. No documented count limit; 1 MB per request (413). Adobe's tutorial example bundles 200 x 1 KB messages. Returns 207 with responses[] index-matched to messages[]."
+      },
+      "fieldMappings": [
+        { "sourceField": "inletId", "segmentPath": null, "targetField": "path.CONNECTION_ID", "targetType": "string", "transform": "direct", "transformDetail": "User-entered streaming connection ID", "requiredByApi": true },
+        { "sourceField": "sandboxName", "segmentPath": null, "targetField": "header:x-sandbox-name", "targetType": "string", "transform": "direct", "transformDetail": "Request header, user-entered", "requiredByApi": true },
+        { "sourceField": "imsOrgId", "segmentPath": null, "targetField": "$.messages[i].header.imsOrgId", "targetType": "string", "transform": "direct", "transformDetail": null, "requiredByApi": true },
+        { "sourceField": "schemaRefId", "segmentPath": null, "targetField": "$.messages[i].header.schemaRef.id", "targetType": "string", "transform": "nest", "transformDetail": "Also written to body.xdmMeta.schemaRef.id; values must match", "requiredByApi": true },
+        { "sourceField": "schemaRefId", "segmentPath": null, "targetField": "$.messages[i].body.xdmMeta.schemaRef.id", "targetType": "string", "transform": "nest", "transformDetail": "Same value as header.schemaRef.id", "requiredByApi": true },
+        { "sourceField": "schemaRefContentType", "segmentPath": null, "targetField": "$.messages[i].header.schemaRef.contentType", "targetType": "string", "transform": "nest", "transformDetail": "e.g. application/vnd.adobe.xed-full+json;version=1", "requiredByApi": true },
+        { "sourceField": "schemaRefContentType", "segmentPath": null, "targetField": "$.messages[i].body.xdmMeta.schemaRef.contentType", "targetType": "string", "transform": "nest", "transformDetail": "Same value as header.schemaRef.contentType", "requiredByApi": true },
+        { "sourceField": "datasetId", "segmentPath": null, "targetField": "$.messages[i].header.datasetId", "targetType": "string", "transform": "direct", "transformDetail": null, "requiredByApi": true },
+        { "sourceField": "flowId", "segmentPath": null, "targetField": "$.messages[i].header.flowId", "targetType": "string", "transform": "direct", "transformDetail": "Required by spec; omitted in Adobe's tutorial (Q15)", "requiredByApi": true },
+        { "sourceField": "sourceName", "segmentPath": null, "targetField": "$.messages[i].header.source.name", "targetType": "string", "transform": "nest", "transformDetail": "Optional; Adobe fills the source ID if omitted", "requiredByApi": false },
+        { "sourceField": "eventId", "segmentPath": "$.messageId", "targetField": "$.messages[i].body.xdmEntity._id", "targetType": "string", "transform": "hash", "transformDetail": "SHA-256 hex; satisfies no / \\ ? # and <= 1,023 bytes. Required by the ExperienceEvent class, not by this spec", "requiredByApi": true },
+        { "sourceField": "timestamp", "segmentPath": "$.timestamp", "targetField": "$.messages[i].body.xdmEntity.timestamp", "targetType": "string", "transform": "format", "transformDetail": "ISO 8601 / RFC 3339. Required by the ExperienceEvent class", "requiredByApi": true },
+        { "sourceField": "ecid", "segmentPath": "$.anonymousId", "targetField": "$.messages[i].body.xdmEntity.identityMap.ECID[0]", "targetType": "object[] {id, primary}", "transform": "conditional", "transformDetail": "Nest into identityMap; dropped if blank; primary only when no PID or custom identity (Q5)", "requiredByApi": false },
+        { "sourceField": "pid", "segmentPath": "$.userId", "targetField": "$.messages[i].body.xdmEntity.identityMap.PID[0]", "targetType": "object[] {id, primary}", "transform": "conditional", "transformDetail": "Nest into identityMap; dropped if blank; primary unless a custom identity is flagged primary (Q5)", "requiredByApi": false },
+        { "sourceField": "customIdentities", "segmentPath": null, "targetField": "$.messages[i].body.xdmEntity.identityMap.<namespace>[]", "targetType": "object[] {id, primary}", "transform": "enumerate", "transformDetail": "Group {namespace, value, primary?} entries by namespace; drop blank; first flagged primary wins (Q5). Namespace must exist in Identity Service (Q7)", "requiredByApi": false },
+        { "sourceField": "xdmMapping", "segmentPath": "$.properties.* (user-mapped)", "targetField": "$.messages[i].body.xdmEntity.<dotted path>", "targetType": "object", "transform": "nest", "transformDetail": "setPath on '.'; reject __proto__/constructor/prototype; collision rule. Includes lift-and-shift keys such as _experience.analytics.customDimensions.eVars.eVarN (string; Q19 stringify)", "requiredByApi": false },
+        { "sourceField": "enable_batching", "segmentPath": null, "targetField": null, "targetType": "boolean", "transform": "direct", "transformDetail": "Platform batching; default on", "requiredByApi": false },
+        { "sourceField": "batch_size", "segmentPath": null, "targetField": null, "targetType": "number", "transform": "direct", "transformDetail": "Platform batching; default 100, min 10, max 250", "requiredByApi": false },
+        { "sourceField": "batch_bytes", "segmentPath": null, "targetField": null, "targetType": "number", "transform": "direct", "transformDetail": "Hidden; default 800000, under the 1 MB 413 limit", "requiredByApi": false },
+        { "sourceField": "batch_keys", "segmentPath": null, "targetField": null, "targetType": "string[]", "transform": "direct", "transformDetail": "Hidden; ['imsOrgId','sandboxName','inletId']", "requiredByApi": false }
+      ],
+      "mandatoryApiParams": [
+        { "parameter": "CONNECTION_ID", "location": "path", "source": "action field", "value": "payload.inletId" },
+        { "parameter": "x-sandbox-name", "location": "header", "source": "action field", "value": "payload.sandboxName" },
+        { "parameter": "Content-Type", "location": "header", "source": "hardcoded", "value": "application/json" },
+        { "parameter": "Authorization", "location": "header", "source": "derived", "value": "Bearer {access_token} via extendRequest (authenticated inlets only)" },
+        { "parameter": "x-api-key", "location": "header", "source": "settings", "value": "settings.clientId (not in ingestion spec; Q10)" },
+        { "parameter": "messages", "location": "body", "source": "derived", "value": "One {header, body} entry per payload" }
+      ],
+      "responseHandling": {
+        "successField": "responses[i].xactionId",
+        "errorStrategy": "multistatus",
+        "details": "207 BatchResponseDTO: responses[i] index-matched to messages[i]; xactionId = success (setSuccessResponseAtIndex). Failed entries carry statusCode and message per Adobe's tutorial (not in spec's BatchResponseMessage; verify live). 400 not retried; 401 refresh+retry; 403 reported as 401; 413 not retried; 429/500/503 retried. Request-level non-207 fails every message with that status. Local Q5 rejection: setErrorResponseAtIndex 400 PAYLOAD_VALIDATION_FAILED, not sent; no HTTP call if all rejected. Single message over 1 MB: 413 at its index."
+      }
+    },
+    {
+      "actionName": "Upsert Profile",
+      "actionSlug": "upsert-profile",
+      "actionCamelCase": "upsertProfile",
+      "actionDescription": "Send Segment Identify traits to an AEP Profile dataset as XDM Individual Profile records, for a CJA query-time join with the event dataset.",
+      "defaultTrigger": "identify",
+      "defaultSubscription": "type = \"identify\"",
+      "considerations": [
+        "P0 in the PRD but conditional: only if JPMC picks the CJA query-time join (Q2).",
+        "Same endpoint and envelope as sendEvent (Q4) with an Individual Profile schema and a Profile- and Identity-enabled dataset; possibly a separate inlet.",
+        "Must send the same primary identity as sendEvent (e.g. PID from userId) or CJA's Person ID join returns nothing.",
+        "_id and timestamp are not sent (record class). Required fields of the Individual Profile class are not stated by Adobe; confirm live.",
+        "Same Q5 identity rules; Profile requires a primary identity.",
+        "Reuses envelope, identity, setPath and 207 handling from sendEvent; same batching fields and batch keys.",
+        "sourceName is not in the refined-actions field list for this action; header.source.name omitted (Adobe fills it)."
+      ],
+      "apiOperation": "postBatchOfStreamingMessages",
+      "httpMethod": "POST",
+      "endpointUri": "https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}",
+      "matchType": "direct",
+      "singleEndpoint": {
+        "apiOperation": "sendMessage",
+        "httpMethod": "POST",
+        "endpointUri": "https://dcs.adobedc.net/collection/{CONNECTION_ID}",
+        "notes": "Same message format. Fallback only."
+      },
+      "batchEndpoint": {
+        "supported": true,
+        "apiOperation": "postBatchOfStreamingMessages",
+        "httpMethod": "POST",
+        "endpointUri": "https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}",
+        "sameAsSingle": false,
+        "arrayWrapperKey": "messages",
+        "maxRecordsPerRequest": null,
+        "notes": "Preferred delivery path; backs performBatch. 1 MB per request; no documented count limit."
+      },
+      "fieldMappings": [
+        { "sourceField": "inletId", "segmentPath": null, "targetField": "path.CONNECTION_ID", "targetType": "string", "transform": "direct", "transformDetail": null, "requiredByApi": true },
+        { "sourceField": "sandboxName", "segmentPath": null, "targetField": "header:x-sandbox-name", "targetType": "string", "transform": "direct", "transformDetail": null, "requiredByApi": true },
+        { "sourceField": "imsOrgId", "segmentPath": null, "targetField": "$.messages[i].header.imsOrgId", "targetType": "string", "transform": "direct", "transformDetail": null, "requiredByApi": true },
+        { "sourceField": "schemaRefId", "segmentPath": null, "targetField": "$.messages[i].header.schemaRef.id", "targetType": "string", "transform": "nest", "transformDetail": "Individual Profile schema; also written to body.xdmMeta.schemaRef.id", "requiredByApi": true },
+        { "sourceField": "schemaRefId", "segmentPath": null, "targetField": "$.messages[i].body.xdmMeta.schemaRef.id", "targetType": "string", "transform": "nest", "transformDetail": "Same value as header", "requiredByApi": true },
+        { "sourceField": "schemaRefContentType", "segmentPath": null, "targetField": "$.messages[i].header.schemaRef.contentType", "targetType": "string", "transform": "nest", "transformDetail": null, "requiredByApi": true },
+        { "sourceField": "schemaRefContentType", "segmentPath": null, "targetField": "$.messages[i].body.xdmMeta.schemaRef.contentType", "targetType": "string", "transform": "nest", "transformDetail": "Same value as header", "requiredByApi": true },
+        { "sourceField": "datasetId", "segmentPath": null, "targetField": "$.messages[i].header.datasetId", "targetType": "string", "transform": "direct", "transformDetail": "Profile dataset", "requiredByApi": true },
+        { "sourceField": "flowId", "segmentPath": null, "targetField": "$.messages[i].header.flowId", "targetType": "string", "transform": "direct", "transformDetail": "Required by spec (Q15)", "requiredByApi": true },
+        { "sourceField": "ecid", "segmentPath": "$.anonymousId", "targetField": "$.messages[i].body.xdmEntity.identityMap.ECID[0]", "targetType": "object[] {id, primary}", "transform": "conditional", "transformDetail": "Q5 rules", "requiredByApi": false },
+        { "sourceField": "pid", "segmentPath": "$.userId", "targetField": "$.messages[i].body.xdmEntity.identityMap.PID[0]", "targetType": "object[] {id, primary}", "transform": "conditional", "transformDetail": "Q5 rules; must match sendEvent's PID for the CJA join", "requiredByApi": false },
+        { "sourceField": "customIdentities", "segmentPath": null, "targetField": "$.messages[i].body.xdmEntity.identityMap.<namespace>[]", "targetType": "object[] {id, primary}", "transform": "enumerate", "transformDetail": "Group by namespace; Q5 rules", "requiredByApi": false },
+        { "sourceField": "xdmMapping", "segmentPath": "$.traits.* (user-mapped)", "targetField": "$.messages[i].body.xdmEntity.<dotted path>", "targetType": "object", "transform": "nest", "transformDetail": "setPath with the same guards; Individual Profile paths", "requiredByApi": false },
+        { "sourceField": "enable_batching", "segmentPath": null, "targetField": null, "targetType": "boolean", "transform": "direct", "transformDetail": "Platform batching", "requiredByApi": false },
+        { "sourceField": "batch_size", "segmentPath": null, "targetField": null, "targetType": "number", "transform": "direct", "transformDetail": "Same defaults as sendEvent", "requiredByApi": false },
+        { "sourceField": "batch_bytes", "segmentPath": null, "targetField": null, "targetType": "number", "transform": "direct", "transformDetail": "Hidden; 800000", "requiredByApi": false },
+        { "sourceField": "batch_keys", "segmentPath": null, "targetField": null, "targetType": "string[]", "transform": "direct", "transformDetail": "Hidden; ['imsOrgId','sandboxName','inletId']", "requiredByApi": false }
+      ],
+      "mandatoryApiParams": [
+        { "parameter": "CONNECTION_ID", "location": "path", "source": "action field", "value": "payload.inletId" },
+        { "parameter": "x-sandbox-name", "location": "header", "source": "action field", "value": "payload.sandboxName" },
+        { "parameter": "Content-Type", "location": "header", "source": "hardcoded", "value": "application/json" },
+        { "parameter": "Authorization", "location": "header", "source": "derived", "value": "Bearer {access_token} via extendRequest (authenticated inlets only)" },
+        { "parameter": "x-api-key", "location": "header", "source": "settings", "value": "settings.clientId (not in ingestion spec; Q10)" },
+        { "parameter": "messages", "location": "body", "source": "derived", "value": "One {header, body} entry per payload" }
+      ],
+      "responseHandling": {
+        "successField": "responses[i].xactionId",
+        "errorStrategy": "multistatus",
+        "details": "Same as sendEvent: index-matched 207 entries, 403 reported as 401, 429/500/503 retried, 400/413 not; local Q5 rejection; MultiStatusResponse."
+      }
+    }
+  ],
+  "gapReconciliations": [],
+  "openItems": [
+    { "item": "Per-message error shape", "affects": ["sendEvent", "upsertProfile"], "notes": "statusCode/message on failed responses[] entries are from Adobe's tutorial, not the spec; capture a live 207." },
+    { "item": "x-api-key header", "affects": ["sendEvent", "upsertProfile"], "notes": "Not in the ingestion spec (Q10)." },
+    { "item": "flowId enforcement", "affects": ["sendEvent", "upsertProfile"], "notes": "Spec requires it; tutorial omits it (Q15)." },
+    { "item": "Records-per-request and rate limits", "affects": ["sendEvent", "upsertProfile"], "notes": "Only 1 MB documented in spec; 1,000 requests/sec and 10,000 messages/sec from the streaming overview page (Q14)." },
+    { "item": "Lift-and-shift toggle", "affects": ["sendEvent"], "notes": "Paths work via xdmMapping; automatic toggle needs a property-to-eVar table of unknown source (Q16); arrays need code; stringify policy Q19." },
+    { "item": "Individual Profile required fields", "affects": ["upsertProfile"], "notes": "Not stated on Adobe's class page; confirm live." }
+  ],
+  "coverageSummary": [
+    { "action": "sendEvent", "endpoint": "POST /collection/batch/{CONNECTION_ID}", "matchType": "direct", "hasGap": false },
+    { "action": "upsertProfile", "endpoint": "POST /collection/batch/{CONNECTION_ID}", "matchType": "direct", "hasGap": false }
+  ]
+}

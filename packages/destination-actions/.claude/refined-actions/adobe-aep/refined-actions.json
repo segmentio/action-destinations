@@ -1,0 +1,594 @@
+{
+  "destination": "Adobe Customer Journey Analytics (AEP)",
+  "generatedAt": "2026-10-29",
+  "updatedAt": "2026-10-30",
+  "configuration": {
+    "authType": "oauth2",
+    "authNotes": "Bearer token is only required when the customer's inlet has authentication enabled (Adobe returns 401/403 only for authenticated inlets). Tokens expire every 24 hours. Scopes and token endpoint not confirmed.",
+    "authImplementation": {
+      "scheme": "oauth2",
+      "refresh": "custom refreshAccessToken doing a client_credentials request with the customer's own client ID/secret (not oauth-managed)",
+      "template": "listrak/index.ts",
+      "extendRequest": "Authorization: Bearer plus x-api-key; must not send a bad header when credentials are absent on an unauthenticated inlet",
+      "reauth": "core refreshes the token and retries on a 401 in an HTTP response or in a multistatus entry (MAX_ATTEMPTS bound); it keys on 401 only, so map Adobe 403 (invalid/expired token) to 401 in the per-message status",
+      "unknown": [
+        "token endpoint URL",
+        "scope string",
+        "whether clientId/clientSecret are optional for unauthenticated inlets"
+      ]
+    },
+    "settings": [
+      {
+        "name": "clientId",
+        "type": "string",
+        "required": true,
+        "description": "Adobe IMS OAuth server-to-server Client ID (required per PRD; may be optional for unauthenticated inlets, Q10)",
+        "howToObtain": "Shown as API key (Client ID) on the same OAuth Server-to-Server credential page, after adding the Experience Platform API to a Developer Console project."
+      },
+      {
+        "name": "clientSecret",
+        "type": "password",
+        "required": true,
+        "description": "Adobe IMS OAuth server-to-server Client Secret (required per PRD; may be optional for unauthenticated inlets, Q10)",
+        "howToObtain": "Retrieved from the same OAuth Server-to-Server credential page (unverified: Adobe's authentication page names the API key and Org ID but not the secret). Sensitive; anyone with project access can view it."
+      }
+    ],
+    "settingsNote": "Settings are only clientId and clientSecret (Q12 decision). imsOrgId, sandboxName and inletId are action-level fields on every action."
+  },
+  "background": {
+    "streamingIngestion": "Sends XDM-formatted JSON records over HTTP to a customer-created inlet; records land in an AEP dataset that CJA reads. Latency under 60 min to data lake, under 15 min to Real-Time Customer Profile if profile-enabled.",
+    "request": {
+      "method": "POST",
+      "url": "https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}",
+      "headers": [
+        "x-sandbox-name: {sandboxName} (required per Adobe reference spec)",
+        "Content-Type: application/json (required; application/x-jackson-smile also accepted)",
+        "Authorization: Bearer {ACCESS_TOKEN} (only for inlets with authorization enabled)"
+      ],
+      "headerSchemaRequired": [
+        "schemaRef",
+        "imsOrgId",
+        "datasetId",
+        "flowId"
+      ],
+      "headerSchemaOptional": [
+        "source.name",
+        "createdAt (Adobe: automatically generated; appears in the tutorial example)"
+      ],
+      "specDiscrepancy": "Adobe's tutorial example shows only Authorization and Content-Type headers and omits flowId; the OpenAPI reference spec requires x-sandbox-name and flowId. Blueprint follows the reference; confirm on a live inlet.",
+      "bodyShape": {
+        "messages": [
+          {
+            "header": {
+              "schemaRef": {
+                "id": "string",
+                "contentType": "string"
+              },
+              "imsOrgId": "string",
+              "datasetId": "string",
+              "flowId": "string",
+              "source": {
+                "name": "string (optional)"
+              }
+            },
+            "body": {
+              "xdmMeta": {
+                "schemaRef": {
+                  "id": "string",
+                  "contentType": "string"
+                }
+              },
+              "xdmEntity": {
+                "_id": "string",
+                "timestamp": "ISO-8601",
+                "identityMap": {}
+              }
+            }
+          }
+        ]
+      },
+      "limits": [
+        "Request payload max 1 MB (413)",
+        "No documented max message count per request",
+        "All messages in a request must be same org and sandbox; may target different datasets and schemas"
+      ]
+    },
+    "response": {
+      "status": "207 Multi-Status for success, partial success and failure",
+      "shape": {
+        "inletId": "string",
+        "batchId": "string",
+        "receivedTimeMs": "number",
+        "responses": [
+          {
+            "xactionId": "success entry"
+          },
+          {
+            "statusCode": "number",
+            "message": "failure entry"
+          }
+        ]
+      },
+      "handling": "Check each entry in responses[]; resend only failed messages"
+    },
+    "statusCodes": {
+      "207": "per-message results",
+      "400": "bad request / unknown XDM format",
+      "401": "missing auth header (authenticated inlets only)",
+      "403": "invalid or expired token (authenticated inlets only)",
+      "413": "request over 1 MB",
+      "429": "too many requests",
+      "500": "internal/processing error (Adobe tutorial gives schema mismatch as an example; assumed to be 400 instead)",
+      "503": "retry at least 3 times with exponential backoff"
+    },
+    "terms": {
+      "xdm": "Adobe's JSON schema format; each dataset is tied to one schema",
+      "inlet": "Customer-created streaming connection endpoint; ID is the CONNECTION_ID",
+      "imsOrgId": "Customer's Adobe tenant identifier",
+      "sandbox": "Isolated partition of an org; the inlet belongs to one sandbox",
+      "identityMap": "Field inside the XDM record listing identities by namespace (ECID, PID, ...)"
+    }
+  },
+  "actions": [
+    {
+      "name": "Send Event",
+      "camelCase": "sendEvent",
+      "slug": "send-event",
+      "trigger": "Segment Track, Page or Screen call",
+      "segmentSource": "track,page,screen",
+      "defaultSubscription": "type = \"track\" or type = \"page\" or type = \"screen\"",
+      "pattern": "batch",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "https://dcs.adobedc.net/collection/batch/{inletId}"
+        }
+      ],
+      "priority": "P0",
+      "fields": [
+        {
+          "name": "imsOrgId",
+          "destinationField": "header.imsOrgId (every message); x-gw-ims-org-id for Schema Registry calls",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "Customer's Adobe IMS Org ID; sent in each message header and must match the inlet",
+          "howToObtain": "Shown as Organization ID on the OAuth Server-to-Server credential page of their Adobe Developer Console project."
+        },
+        {
+          "name": "sandboxName",
+          "destinationField": "x-sandbox-name request header",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "AEP sandbox name; sent as the x-sandbox-name request header, which Adobe's reference spec marks required: true on both ingestion operations. Also needed for Schema Registry introspection.",
+          "howToObtain": "Name of the sandbox that holds their inlet, schema and dataset, listed in the AEP UI under Sandboxes (lookup path unverified; the requirement itself is from Adobe's reference spec)."
+        },
+        {
+          "name": "inletId",
+          "destinationField": "URL path /collection/batch/{inletId}",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "Streaming connection (inlet) ID; the {CONNECTION_ID} in POST https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}. Per-action (Q12 decision).",
+          "howToObtain": "Create an HTTP API streaming connection (Flow Service API, or AEP UI Sources > HTTP API), then take the hex ID at the end of its inletUrl (https://dcs.adobedc.net/collection/<id>). UI path: Sources > HTTP API > View accounts > account details (from a community post, not official docs)."
+        },
+        {
+          "name": "schemaRefId",
+          "destinationField": "header.schemaRef.id, body.xdmMeta.schemaRef.id",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": "must reference an existing XDM schema; must match in header and xdmMeta",
+          "description": "XDM schema ID, e.g. https://ns.adobe.com/{TENANT_ID}/schemas/{SCHEMA_ID}"
+        },
+        {
+          "name": "schemaRefContentType",
+          "destinationField": "header.schemaRef.contentType, body.xdmMeta.schemaRef.contentType",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "e.g. application/vnd.adobe.xed-full+json;version={SCHEMA_VERSION}"
+        },
+        {
+          "name": "datasetId",
+          "destinationField": "header.datasetId",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": "dataset schema must match schemaRef",
+          "description": "Target AEP dataset ID for ExperienceEvents"
+        },
+        {
+          "name": "flowId",
+          "destinationField": "header.flowId",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": "listed as required in the message header by Adobe's reference spec; enforcement unconfirmed (Q15)",
+          "description": "ID of the dataflow created for the customer's HTTP API streaming source"
+        },
+        {
+          "name": "sourceName",
+          "destinationField": "header.source.name",
+          "type": "string",
+          "required": false,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "Optional source name; if omitted Adobe adds the source ID from the streaming connection definition"
+        },
+        {
+          "name": "eventId",
+          "destinationField": "body.xdmEntity._id",
+          "type": "string",
+          "required": true,
+          "segmentSource": "$.messageId",
+          "transform": "SHA-256 hex",
+          "validation": "Required by the XDM ExperienceEvent class and sender-generated; no / \\ ? #, max 1,023 bytes (Q9 resolved)",
+          "description": "Unique event ID"
+        },
+        {
+          "name": "timestamp",
+          "destinationField": "body.xdmEntity.timestamp",
+          "type": "string",
+          "required": true,
+          "segmentSource": "$.timestamp",
+          "transform": null,
+          "validation": "ISO-8601; required by the ExperienceEvent class; must be in the past and from 1970 (Q9 resolved)",
+          "description": "Event timestamp"
+        },
+        {
+          "name": "ecid",
+          "destinationField": "xdmEntity.identityMap.ECID[].id",
+          "type": "string",
+          "required": false,
+          "segmentSource": "$.anonymousId",
+          "transform": null,
+          "validation": "at least one valid identity required across ecid/pid/customIdentities; else rejected 400 PAYLOAD_VALIDATION_FAILED (Q5)",
+          "description": "ECID/MID identity, mapped from anonymousId by default"
+        },
+        {
+          "name": "pid",
+          "destinationField": "xdmEntity.identityMap.PID[].id",
+          "type": "string",
+          "required": false,
+          "segmentSource": "$.userId",
+          "transform": null,
+          "validation": "at least one valid identity required across ecid/pid/customIdentities; else rejected 400 PAYLOAD_VALIDATION_FAILED (Q5)",
+          "description": "PID identity, mapped from userId by default"
+        },
+        {
+          "name": "customIdentities",
+          "destinationField": "xdmEntity.identityMap.<namespace>[].id",
+          "type": "object",
+          "required": false,
+          "segmentSource": "user-mapped",
+          "transform": null,
+          "validation": "namespace must exist in AEP Identity Service",
+          "description": "Custom identity namespaces, e.g. ECI cross-device anchor"
+        },
+        {
+          "name": "xdmMapping",
+          "destinationField": "xdmEntity.*",
+          "type": "object",
+          "required": true,
+          "segmentSource": "user-mapped from $.properties",
+          "transform": "build nested JSON from XDM paths; drop/flag non-conforming fields",
+          "validation": "paths should conform to the customer's XDM schema where detectable",
+          "description": "Event properties mapped to XDM ExperienceEvent field paths"
+        },
+        {
+          "name": "enable_batching",
+          "destinationField": null,
+          "type": "boolean",
+          "required": false,
+          "segmentSource": null,
+          "transform": null,
+          "validation": null,
+          "description": "Enable batching of events to /collection/batch"
+        },
+        {
+          "name": "batch_bytes",
+          "destinationField": null,
+          "type": "number",
+          "required": false,
+          "segmentSource": null,
+          "transform": null,
+          "validation": "must stay below the 1 MB hard limit with headroom; unsafe_hidden true",
+          "description": "Maximum batch payload size in bytes"
+        },
+        {
+          "name": "batch_keys",
+          "destinationField": null,
+          "type": "string[]",
+          "required": false,
+          "segmentSource": null,
+          "transform": null,
+          "validation": "unsafe_hidden true",
+          "description": "Default ['imsOrgId','sandboxName','inletId']: per-request values (URL path and x-sandbox-name header), so events with different values never share a batch"
+        }
+      ],
+      "considerations": [
+        "Wrap each mapped XDM record in header + body.xdmMeta + body.xdmEntity; schemaRef must be identical in header and xdmMeta",
+        "Identity mapping builds identityMap inside xdmEntity; not a separate action",
+        "Property mapping targets XDM paths, not fixed eVar slots",
+        "207 is returned for success, partial success and failure: read responses[] per message and retry only failures",
+        "performBatch MUST return a MultiStatusResponse (from @segment/actions-core); any other return value makes the platform assume the whole batch succeeded and silently swallows Adobe's 207 failures",
+        "One HTTP request; loop over responses[] and match entry n to payload n by index into the payloads passed to performBatch (validation failures are filtered upstream)",
+        "Use setSuccessResponseAtIndex(i, {status, sent, body}) and setErrorResponseAtIndex(i, {status, errormessage, sent, body}); include sent and body on API errors so they are attributed to the destination; templates: rokt-capi/send/functions.ts, ms-bing-capi/sendEvent, quora/trackConversion, amazon-conversions-api/trackConversion",
+        "Property mapping UI: object field with additionalProperties true and defaultObjectUI 'keyvalue' (customer types the XDM path); 'object' UI is an alternative; offer flat dotted paths as default",
+        "Core has no dotted-key-to-nested-JSON helper: write a unit-tested setPath in the destination with collision handling (later key wins vs PayloadValidationError) and rejection of __proto__, constructor and prototype keys since keys are customer-entered",
+        "Ship manual XDM path entry in P0; Schema Registry introspection is P1 (dynamic dropdown of schemas for schemaRefId plus path validation); dynamic fields give choice lists not per-key autocomplete and no dependsOn between dynamic fields was found",
+        "Batching is chunked by the platform before performBatch: set batch_bytes hidden with headroom (about 800-900 KB) and guard in code, reporting a single oversized message's index as 413; examples: aws-kinesis/send, altertable/identify",
+        "No documented max message count per request",
+        "Failed messages are stored in an error batch in the target dataset",
+        "Lift-and-shift (Analytics ExperienceEvent Full Extension) handled via xdmMapping presets, no separate action",
+        "Schema Registry introspection desired for path suggestions and conformance flags",
+        "Late/future timestamp handling unresolved",
+        "Throughput conflict: Adobe lists 10,000 messages/sec vs PRD target of 25-30k events/sec (see throughputConcern)"
+      ],
+      "errorHandling": {
+        "207": "inspect responses[]; success entries have xactionId, failures have statusCode and message; report each failure at its index via MultiStatusResponse; resend only failures",
+        "400": "report as error 400; not retried (core does not retry 400)",
+        "401": "missing auth header (authenticated inlets only); report as 401 so core refreshes the token and retries",
+        "403": "invalid/expired token (authenticated inlets only); MAP TO 401 in the per-message status, otherwise core's refresh does not fire",
+        "413": "report as error 413; not retried; should not occur with byte-bounded batching",
+        "429": "report as error 429; retried",
+        "500": "internal/processing error: treated as transient and retried (decision: a schema mismatch is assumed to be 400, not retried; verify in a live org)",
+        "503": "report as error 503; retried; Adobe advises at least 3 retries with exponential backoff"
+      },
+      "retryNote": "Core retryable statuses (core/src/errors.ts:28): 408, 423, 429, 500, 502-511, 598, 599. Per-entry multistatus retry is done by a platform component outside this repo; confirm with the platform team (Q13)."
+    },
+    {
+      "name": "Upsert Profile",
+      "camelCase": "upsertProfile",
+      "slug": "upsert-profile",
+      "trigger": "Segment Identify call",
+      "segmentSource": "identify",
+      "defaultSubscription": "type = \"identify\"",
+      "pattern": "upsert",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "https://dcs.adobedc.net/collection/batch/{inletId}",
+          "note": "same endpoint and envelope for profile records (Q4 resolved from Adobe docs)"
+        }
+      ],
+      "priority": "P1",
+      "fields": [
+        {
+          "name": "imsOrgId",
+          "destinationField": "header.imsOrgId (every message); x-gw-ims-org-id for Schema Registry calls",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "Customer's Adobe IMS Org ID; sent in each message header and must match the inlet",
+          "howToObtain": "Shown as Organization ID on the OAuth Server-to-Server credential page of their Adobe Developer Console project."
+        },
+        {
+          "name": "sandboxName",
+          "destinationField": "x-sandbox-name request header",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "AEP sandbox name; sent as the x-sandbox-name request header, which Adobe's reference spec marks required: true on both ingestion operations. Also needed for Schema Registry introspection.",
+          "howToObtain": "Name of the sandbox that holds their inlet, schema and dataset, listed in the AEP UI under Sandboxes (lookup path unverified; the requirement itself is from Adobe's reference spec)."
+        },
+        {
+          "name": "inletId",
+          "destinationField": "URL path /collection/batch/{inletId}",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "Streaming connection (inlet) ID; the {CONNECTION_ID} in POST https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}. Per-action (Q12 decision).",
+          "howToObtain": "Create an HTTP API streaming connection (Flow Service API, or AEP UI Sources > HTTP API), then take the hex ID at the end of its inletUrl (https://dcs.adobedc.net/collection/<id>). UI path: Sources > HTTP API > View accounts > account details (from a community post, not official docs)."
+        },
+        {
+          "name": "schemaRefId",
+          "destinationField": "header.schemaRef.id, body.xdmMeta.schemaRef.id",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": "must reference the Individual Profile XDM schema",
+          "description": "Profile XDM schema ID"
+        },
+        {
+          "name": "schemaRefContentType",
+          "destinationField": "header.schemaRef.contentType, body.xdmMeta.schemaRef.contentType",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": null,
+          "description": "Profile schema content type with version"
+        },
+        {
+          "name": "datasetId",
+          "destinationField": "header.datasetId",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": "profile dataset schema must match schemaRef",
+          "description": "Target AEP Profile Dataset ID"
+        },
+        {
+          "name": "flowId",
+          "destinationField": "header.flowId",
+          "type": "string",
+          "required": true,
+          "segmentSource": "user-entered",
+          "transform": null,
+          "validation": "listed as required in the message header by Adobe's reference spec; enforcement unconfirmed (Q15)",
+          "description": "ID of the dataflow for the profile streaming source"
+        },
+        {
+          "name": "ecid",
+          "destinationField": "xdmEntity.identityMap.ECID[].id",
+          "type": "string",
+          "required": false,
+          "segmentSource": "$.anonymousId",
+          "transform": null,
+          "validation": "at least one valid identity required; else rejected 400 PAYLOAD_VALIDATION_FAILED (Q5)",
+          "description": "ECID/MID identity"
+        },
+        {
+          "name": "pid",
+          "destinationField": "xdmEntity.identityMap.PID[].id",
+          "type": "string",
+          "required": false,
+          "segmentSource": "$.userId",
+          "transform": null,
+          "validation": "at least one valid identity required; else rejected 400 PAYLOAD_VALIDATION_FAILED (Q5)",
+          "description": "PID identity"
+        },
+        {
+          "name": "customIdentities",
+          "destinationField": "xdmEntity.identityMap.<namespace>[].id",
+          "type": "object",
+          "required": false,
+          "segmentSource": "user-mapped",
+          "transform": null,
+          "validation": null,
+          "description": "Custom identity namespaces"
+        },
+        {
+          "name": "xdmMapping",
+          "destinationField": "Individual Profile XDM paths in xdmEntity",
+          "type": "object",
+          "required": true,
+          "segmentSource": "user-mapped from $.traits",
+          "transform": "build nested JSON from XDM paths",
+          "validation": null,
+          "description": "User traits (e.g. CI3 Customer Attributes) mapped to the Individual Profile XDM schema"
+        }
+      ],
+      "considerations": [
+        "Only needed if the customer chooses the Profile Dataset enrichment option (Q2)",
+        "Needs a separate schema and dataset from Send Event, and possibly a separate inlet (supported, since the inlet is chosen per action)",
+        "Reuses envelope, identity and XDM-building helpers from Send Event"
+      ],
+      "errorHandling": {
+        "207": "inspect responses[] and resend only failures",
+        "429": "throttled: backoff and retry (RetryableError)",
+        "503": "retry at least 3 times with exponential backoff"
+      }
+    }
+  ],
+  "throughputConcern": {
+    "prdAssumption": "25-30k events/sec with at least 30 events/request to stay under a 1,000 RPS soft cap; 4,000-5,000 RPS for non-profile datasets",
+    "adobeDocumented": "1,000 requests/sec and 10,000 individual messages/sec; guardrails tied to license entitlement; development sandboxes capped at 10% of total profiles",
+    "conflict": "30 events/request at 1,000 requests/sec would be 30,000 messages/sec, above the documented 10,000 messages/sec; the PRD's 4,000-5,000 RPS figure does not match the overview page",
+    "actionNeeded": "Confirm with Adobe which limit applies (e.g. JPMC provisioned entitlement) before committing to the 25-30k events/sec target"
+  },
+  "prerequisites": {
+    "requiresLicensedAepOrgForFullVerification": true,
+    "summary": "A licensed Adobe Experience Platform org is required to fully build and verify this destination. Code can be unit-tested against mocks without it.",
+    "developmentAndTesting": [
+      "Adobe org with AEP entitlement and a sandbox; without it the Experience Platform API cannot be added to a Developer Console project (shown disabled)",
+      "Developer added to an Experience Platform product profile in Admin Console; system admin grants ABAC permissions for writes",
+      "Adobe Developer Console project with Experience Platform API and OAuth Server-to-Server credentials (JWT deprecated); tokens refresh every 24 hours",
+      "HTTP API streaming connection (inlet) with its dataflow (the ID is the required flowId), XDM schema and dataset for ExperienceEvents; separate schema and dataset for upsertProfile"
+    ],
+    "requiresLiveAepToVerify": [
+      "Whether flowId and the x-sandbox-name header are actually enforced (Adobe's reference spec requires them; its tutorial example omits both)",
+      "Whether the Bearer token is needed on authenticated vs unauthenticated inlets, and how the customer enables it",
+      "OAuth scopes and token endpoint",
+      "Schema conformance, silent field drops, real 207 per-message results, 413/429 behavior and real throttling limits",
+      "Schema Registry introspection and the token-only testAuthentication against real credentials",
+      "Late/future timestamp handling"
+    ],
+    "canProceedWithoutLiveAep": [
+      "Action definitions and field schemas",
+      "Envelope, identityMap and nested XDM JSON building",
+      "Byte-bounded batching and 207 per-message error handling, tested with nock fixtures from Adobe's documented examples"
+    ],
+    "customerRequirement": "Each customer needs a licensed AEP org with a Developer Console project (OAuth Server-to-Server), streaming connection, schema and dataset",
+    "actionNeeded": "Obtain an AEP-enabled org or sandbox (internal, via Adobe partner contact, or a cooperating customer) before integration testing and any beta release"
+  },
+  "implementationOrder": [
+    {
+      "order": 1,
+      "action": "authentication",
+      "reason": "IMS OAuth and 24h token refresh underpin every request; testAuthentication validates the credentials only"
+    },
+    {
+      "order": 2,
+      "action": "sendEvent",
+      "reason": "Core P0: envelope, identityMap, XDM property mapping, byte-bounded batching, 207 per-message handling"
+    },
+    {
+      "order": 3,
+      "action": "sendEvent (lift-and-shift presets)",
+      "reason": "P1; layered on the same action"
+    },
+    {
+      "order": 4,
+      "action": "upsertProfile",
+      "reason": "P1; conditional on the profile enrichment decision, reuses helpers from sendEvent"
+    }
+  ],
+  "resolvedQuestions": [
+    "Q1: endpoint is POST https://dcs.adobedc.net/collection/batch/{CONNECTION_ID}; the connection ID is the customer's inlet ID (inletId action field)",
+    "Q3: schemaRef (id + contentType), datasetId, imsOrgId and flowId are required per message header (Adobe reference spec); modeled as action-level fields",
+    "flowId (previously missing from this blueprint): required in the message header per Adobe's reference spec; it is the ID of the dataflow; added as a required action-level field on both actions plus optional source.name; enforcement and best placement remain open (Q12, Q15)",
+    "Q11 sandboxName: x-sandbox-name is a required header on both ingestion operations, so sandboxName is a required action field sent on every request",
+    "operations header field: not present in the reference spec; dropped",
+    "Auth necessity: 401/403 are returned only for inlets with authentication enabled, so the Bearer token is only needed for authenticated inlets"
+  ],
+  "resolvedByRepoResearch": [
+    "Multi-status handling: performBatch must return a MultiStatusResponse or 207 failures are silently treated as success",
+    "Q10 scheme: oauth2 with custom refreshAccessToken (client_credentials), not oauth-managed; map Adobe 403 to 401 so core's refresh fires (token URL, scope and auth-optional behavior remain open)",
+    "Q6 nested JSON/UI: key-value object field plus a destination-owned dotted-path helper with collision and prototype-key guards (schema choice lift-and-shift vs clean semantic remains a product decision)",
+    "Batching design: hidden batch_bytes with headroom plus per-message oversize guard",
+    "Q11 (partly): dynamic fields give schema pickers, not per-key autocomplete, so P0 is manual path entry and introspection is P1",
+    "Q13 (mostly): retryable status set known and per-message mapping proposed; per-entry retry owner remains; 500 decision made (schema mismatch assumed 400, 500 retried as transient)",
+    "Q12 (decision): settings are only clientId and clientSecret; imsOrgId, sandboxName, inletId, schemaRefId, schemaRefContentType, datasetId and flowId are action fields; testAuthentication checks credentials only (token fetch); Q15 still covers flowId vs inlet"
+  ],
+  "openQuestions": [
+    "Q2: Profile enrichment path: per-event enrichment vs CJA query-time join (decides whether upsertProfile ships)",
+    "Q4: resolved (Adobe docs): same batch endpoint and envelope for profile records; profile dataset must be Profile- and Identity-enabled",
+    "Q5: resolved (decision): drop blank identities; exactly one primary (custom flagged, else PID, else first custom, else ECID); no valid identity means the event is rejected with a per-message 400 PAYLOAD_VALIDATION_FAILED before sending, not retried; confirm in a live org",
+    "Q6: XDM schema approach (lift-and-shift vs clean semantic): product decision (nested JSON UI support is resolved)",
+    "Q7: Is ECI-based cross-device stitching depended upon; ECI namespace config in Identity Service",
+    "Q8: Handling of severely out-of-order timestamps; keep late/future blocking logic?",
+    "Q9: resolved (Adobe docs): ExperienceEvent class requires _id (sender-generated, hash of messageId) and timestamp (past, from 1970); msgType/msgId/xdmSchema form is only an invalid example, not supported",
+    "Q10: OAuth token endpoint URL and scope (not answerable from the repo); are clientId/clientSecret optional for unauthenticated inlets (if so required false and extendRequest must not send a bad header); which header carries the Client ID (x-api-key). Scheme is resolved: oauth2 + refreshAccessToken",
+    "Q11: plan is manual path entry in P0 and introspection in P1 (per-key autocomplete would be a UI-team ask); the sandboxName half is resolved (required ingestion header)",
+    "Q12: resolved (decision): org, sandbox and inlet are action fields; settings are only clientId and clientSecret",
+    "Q15: flowId: how does a customer find it, is it enforced in practice (Adobe's tutorial example omits it), and is a flow tied one-to-one to an inlet (making it an inlet-level setting)? Adobe describes it only as the ID of the dataflow when the account has been used to create multiple dataflows",
+    "Q13: Which platform component retries individual multistatus entries (outside this repo; confirm with the platform team); decision made: schema mismatch assumed to be 400 (not retried), 500 retried as transient; verify in a live org",
+    "Q14: Throughput conflict: Adobe's 10,000 messages/sec vs the PRD's 25-30k events/sec target; confirm entitlements with Adobe",
+    "The reference spec was read from Adobe's docs repo (a static file that may lag the live reference page); re-check flowId and the headers against the rendered API reference when AEP access is available",
+    "eVar/prop remapping acknowledgement for existing Adobe Analytics customers (migration concern)",
+    "Group and Alias are not covered by the PRD (events and profile only)"
+  ],
+  "sources": [
+    "https://github.com/AdobeDocs/experience-platform-apis/blob/main/static/swagger-specs/streaming-ingestion.yaml (Adobe's OpenAPI spec: source for flowId, x-sandbox-name, syncValidation and schema definitions; rendered at https://developer.adobe.com/experience-platform-apis/references/streaming-ingestion)",
+    "repo-research-findings.md (same folder; repo-side research by peer session action-destinations-e5; code references not independently re-checked)",
+    "https://experienceleague.adobe.com/en/docs/experience-platform/ingestion/tutorials/streaming-multiple-messages",
+    "https://experienceleague.adobe.com/en/docs/experience-platform/ingestion/streaming/overview",
+    "https://experienceleague.adobe.com/en/docs/experience-platform/sources/api-tutorials/create/streaming/http",
+    "https://experienceleague.adobe.com/en/docs/experience-platform/landing/platform-apis/api-authentication",
+    "https://experienceleaguecommunities.adobe.com/t5/journey-optimizer-questions/discover-inletid-for-profile-automating-update/td-p/789580"
+  ]
+}
