@@ -39,7 +39,7 @@ export interface E2EReport {
   ms: number
   results: E2EResult[]
   setupErrors: string[]
-  /** 0 all passed or excused, 1 a fixture failed, 2 setup error. */
+  /** 0 all passed or excused, 1 a fixture failed, 2 setup error. A harness maps it to its process exit. */
   exitCode: 0 | 1 | 2
 }
 
@@ -150,8 +150,14 @@ export async function runSuites(
       }
     }
   }
-  const concurrency = Math.max(1, options.concurrency ?? 4)
-  await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+  const concurrency = options.concurrency ?? 4
+  if (Number.isInteger(concurrency) && concurrency >= 1) {
+    await Promise.all(Array.from({ length: Math.min(concurrency, queue.length) }, worker))
+  } else {
+    setupErrors.push(`concurrency must be a positive integer, got ${concurrency}`)
+  }
+  // A run that judged nothing must not pass.
+  if (results.length === 0 && setupErrors.length === 0) setupErrors.push('no fixtures ran')
 
   const exitCode = setupErrors.length > 0 ? 2 : results.some((result) => result.outcome === 'failed') ? 1 : 0
   return {

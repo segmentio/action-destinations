@@ -156,6 +156,18 @@ describe('runSuites', () => {
     expect(adapter.calls).toHaveLength(0)
   })
 
+  it('treats an invalid concurrency or a run with no fixtures as a setup error', async () => {
+    const adapter = new FakeAdapter(() => ok)
+    const invalid = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, concurrency: NaN })
+    const empty = await runSuites(adapter, [suite('fake', [])], opts)
+
+    expect(invalid.exitCode).toBe(2)
+    expect(invalid.setupErrors).toEqual(['concurrency must be a positive integer, got NaN'])
+    expect(empty.exitCode).toBe(2)
+    expect(empty.setupErrors).toEqual(['no fixtures ran'])
+    expect(adapter.calls).toHaveLength(0)
+  })
+
   it('treats an unknown destination or an empty selection as a setup error', async () => {
     const adapter = new FakeAdapter(() => ok)
     const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, destinations: ['nope'] })
