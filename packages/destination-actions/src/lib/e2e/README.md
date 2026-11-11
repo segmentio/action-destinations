@@ -53,7 +53,8 @@ E2E_REPORT=/tmp/e2e.json            # also write the JSON report
 ```
 
 Without chamber access, export the same `E2E_*` variables. A suite whose variables are missing
-is a setup error (exit 2), never a silent skip. Webhook needs none. `yarn cloud test` never runs
+is a setup error (report `exitCode` 2), never a silent skip. Webhook needs none. Locally `yarn e2e`
+fails on any non-zero `exitCode`; the summary and `E2E_REPORT` say which. `yarn cloud test` never runs
 these: the live entry has its own jest config, `jest.e2e.config.js`, without the nock setup that
 blocks network access.
 
