@@ -52,6 +52,62 @@ const presets: DestinationDefinition['presets'] = [
   }
 ]
 
+// The early `changeUser` hands Braze the Segment user id. That is only the id Update User Profile
+// goes on to identify when it is enabled and `external_id` keeps its default mapping (`$.userId`).
+// Two kinds of customers are left alone:
+// - those with no enabled Update User Profile subscription: nothing in Segment identifies the user in
+//   Braze, so who the events belong to is not ours to decide (the site may identify in Braze itself);
+// - those who remapped `external_id` (a trait, say): the Segment id would put the events sent before
+//   their first identify on a different profile than Braze would merge them into today.
+// Anything that is not recognisably the default counts as remapped.
+type SubscriptionLike = { partnerAction?: string; enabled?: boolean; mapping?: Record<string, unknown> }
+
+function updateUserProfileKeepsDefaultExternalId(subscriptions: unknown): boolean {
+  if (!Array.isArray(subscriptions)) {
+    return false
+  }
+  const enabled = subscriptions.filter(
+    (subscription: SubscriptionLike | null) =>
+      subscription?.partnerAction === 'updateUserProfile' && subscription.enabled !== false
+  ) as SubscriptionLike[]
+  return (
+    enabled.length > 0 &&
+    enabled.every((subscription) => {
+      const externalId = subscription.mapping?.external_id as Record<string, unknown> | undefined
+      return (
+        externalId &&
+        typeof externalId === 'object' &&
+        Object.keys(externalId).length === 1 &&
+        externalId['@path'] === '$.userId'
+      )
+    })
+  )
+}
+
+// SDK 3.x only hands out the user id through a callback, and 6.x returns it (the callback is
+// deprecated there). Both read it from local storage, so it is available synchronously (checked
+// on SDK 3.3, 3.5 and 6.10, in Jest and against a live Braze workspace). When
+// the answer is anything but an explicit `null`, or the SDK cannot answer at all, Braze is
+// treated as having a user: the safe outcome is to leave Braze alone and open the session as before.
+function brazeHasNoUser(instance: BrazeDestinationClient['instance']): boolean {
+  try {
+    const user = instance.getUser() as
+      | { getUserId?: (callback?: (id: string | null) => void) => unknown }
+      | null
+      | undefined
+    if (!user || typeof user.getUserId !== 'function') {
+      return false
+    }
+    let fromCallback: string | null | undefined
+    const returned = user.getUserId((id) => {
+      fromCallback = id
+    })
+    return (returned === undefined ? fromCallback : returned) === null
+  } catch (e) {
+    return false
+  }
+}
+
 export const destination: BrowserDestinationDefinition<Settings, BrazeDestinationClient> = {
   name: 'Braze Web Mode (Actions)',
   slug: 'actions-braze-web',
@@ -353,6 +409,8 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
         await dependencies.loadScript(`https://js.appboycdn.com/web-sdk/${version}/braze.no-module.min.js`)
       }
 
+      const handUserToBrazeEarly = deferUntilIdentified && updateUserProfileKeepsDefaultExternalId(subscriptions)
+
       let initialized = false
 
       const client: BrazeDestinationClient = {
@@ -384,6 +442,27 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
               client.instance.display.automaticallyShowNewInAppMessages()
             } else {
               client.instance.automaticallyShowInAppMessages()
+            }
+          }
+
+          // "Only Track Known Users": the gate above already guarantees Segment knows the user.
+          // Hand a user to Braze before the session opens, so the session belongs to the user
+          // from its first request. Otherwise Braze opens an anonymous session (and an orphan
+          // profile) whenever the id is saved in Segment but Braze has no state of its own
+          // (a first login, or a browser where only Segment's storage survived), and the user's
+          // own profile only appears when Update User Profile later calls `changeUser`.
+          // Customers without Update User Profile, or who remapped `external_id`, are skipped, see
+          // `updateUserProfileKeepsDefaultExternalId`. A user
+          // Braze already holds is left alone.
+          // Whatever happens here must never stop the session from opening.
+          if (handUserToBrazeEarly && brazeHasNoUser(client.instance)) {
+            try {
+              const userId = analytics.user().id()
+              if (typeof userId === 'string' && userId.trim() !== '') {
+                client.instance.changeUser(userId)
+              }
+            } catch (e) {
+              // fall through: open the session as before
             }
           }
 
