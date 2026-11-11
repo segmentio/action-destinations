@@ -1,5 +1,4 @@
-import { RequestClient } from '@segment/actions-core'
-import { HUBSPOT_BASE_URL } from '../properties'
+import { Features, RequestClient } from '@segment/actions-core'
 import {
   AssociationsReq,
   ObjReqType,
@@ -15,21 +14,23 @@ import {
   ReadListResp,
   AddRemoveFromListReq
 } from './types'
-import { HUBSPOT_CRM_API_VERSION, HUBSPOT_CRM_ASSOCIATIONS_API_VERSION } from '../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../versioning-info'
 
 export class Client {
   request: RequestClient
   objectType: string
+  urls: HubspotUrls
 
-  constructor(request: RequestClient, objectType: string) {
+  constructor(request: RequestClient, objectType: string, features?: Features) {
     this.request = request
     this.objectType = objectType
+    this.urls = hubspotUrls(features)
   }
 
   async readProperties(sensitive: boolean) {
     const sensitivity = '?dataSensitivity=sensitive'
     const response = await this.request<ReadPropsResp>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${this.objectType}${sensitive ? sensitivity : ''}`,
+      `${this.urls.properties}/${this.objectType}${sensitive ? sensitivity : ''}`,
       {
         method: 'GET',
         skipResponseCloning: true
@@ -39,42 +40,33 @@ export class Client {
   }
 
   async createPropertiesDefinition(json: CreatePropsReq) {
-    const response = this.request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${this.objectType}/batch/create`,
-      {
-        method: 'POST',
-        skipResponseCloning: true,
-        json
-      }
-    )
+    const response = this.request(`${this.urls.properties}/${this.objectType}/batch/create`, {
+      method: 'POST',
+      skipResponseCloning: true,
+      json
+    })
     return response
   }
 
   async batchObjectRequest(action: ObjReqType, objectType: string, json: ReadReq | UpsertReq | UpdateReq | CreateReq) {
-    const response = await this.request<BatchObjResp>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/${objectType}/batch/${action}`,
-      {
-        method: 'POST',
-        json
-      }
-    )
+    const response = await this.request<BatchObjResp>(`${this.urls.objects}/${objectType}/batch/${action}`, {
+      method: 'POST',
+      json
+    })
     return response
   }
 
   async batchAssociationsRequest(json: AssociationsReq, toObjectType: string) {
-    const response = await this.request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/associations/${this.objectType}/${toObjectType}/batch/create`,
-      {
-        method: 'POST',
-        json
-      }
-    )
+    const response = await this.request(`${this.urls.associations}/${this.objectType}/${toObjectType}/batch/create`, {
+      method: 'POST',
+      json
+    })
     return response
   }
 
   async batchDissociationsRequest(json: AssociationsReq, toObjectType: string) {
     const response = await this.request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/associations/${this.objectType}/${toObjectType}/batch/labels/archive`,
+      `${this.urls.associations}/${this.objectType}/${toObjectType}/batch/labels/archive`,
       {
         method: 'POST',
         json
@@ -85,7 +77,7 @@ export class Client {
 
   async readList(name: string) {
     const response = await this.request<ReadListResp>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/lists/object-type-id/${this.objectType}/name/${name}`,
+      `${this.urls.lists}/object-type-id/${this.objectType}/name/${name}`,
       {
         method: 'GET'
       }
@@ -94,7 +86,7 @@ export class Client {
   }
 
   async createList(json: CreateListReq) {
-    const response = await this.request<CreateListResp>(`${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/lists`, {
+    const response = await this.request<CreateListResp>(`${this.urls.lists}`, {
       method: 'POST',
       json
     })
@@ -102,13 +94,10 @@ export class Client {
   }
 
   async addRemoveFromList(listId: string, json: AddRemoveFromListReq) {
-    const response = await this.request<CreateListResp>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/lists/${listId}/memberships/add-and-remove`,
-      {
-        method: 'PUT',
-        json
-      }
-    )
+    const response = await this.request<CreateListResp>(`${this.urls.lists}/${listId}/memberships/add-and-remove`, {
+      method: 'PUT',
+      json
+    })
     return response
   }
 }

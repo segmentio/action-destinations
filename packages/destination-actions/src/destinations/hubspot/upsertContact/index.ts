@@ -2,10 +2,9 @@ import { HTTPError } from '@segment/actions-core'
 import { ActionDefinition, RequestClient, IntegrationError } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HUBSPOT_BASE_URL } from '../properties'
 import { flattenObject } from '../utils'
 import split from 'lodash/split'
-import { HUBSPOT_CRM_API_VERSION } from '../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../versioning-info'
 
 interface ContactProperties {
   company?: string | undefined
@@ -194,7 +193,8 @@ const action: ActionDefinition<Settings, Payload> = {
       default: false
     }
   },
-  perform: async (request, { payload, transactionContext }) => {
+  perform: async (request, { payload, transactionContext, features }) => {
+    const urls = hubspotUrls(features)
     const contactProperties = {
       company: payload.company?.trim(),
       firstname: payload.firstname?.trim(),
@@ -217,7 +217,7 @@ const action: ActionDefinition<Settings, Payload> = {
      */
 
     try {
-      const response = await updateContact(request, payload.email, contactProperties)
+      const response = await updateContact(request, urls, payload.email, contactProperties)
 
       // cache contact_id for it to be available for company action
       transactionContext?.setTransaction('contact_id', response.data.id)
@@ -232,14 +232,14 @@ const action: ActionDefinition<Settings, Payload> = {
         const hasLCSChanged = currentLCS === payload.lifecyclestage.toLowerCase()
         if (hasLCSChanged) return response
         // reset lifecycle stage
-        await updateContact(request, payload.email, { lifecyclestage: '' })
+        await updateContact(request, urls, payload.email, { lifecyclestage: '' })
         // update contact again with new lifecycle stage
-        return updateContact(request, payload.email, contactProperties)
+        return updateContact(request, urls, payload.email, contactProperties)
       }
       return response
     } catch (ex) {
       if ((ex as HTTPError)?.response?.status == 404) {
-        const result = await createContact(request, contactProperties)
+        const result = await createContact(request, urls, contactProperties)
 
         // cache contact_id for it to be available for company action
         transactionContext?.setTransaction('contact_id', result.data.id)
@@ -249,13 +249,14 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
 
-  performBatch: async (request, { payload }) => {
+  performBatch: async (request, { payload, features }) => {
+    const urls = hubspotUrls(features)
     // Create a map of email & id to contact upsert payloads
     // Record<Email and ID, ContactsUpsertMapItem>
     let contactsUpsertMap = mapUpsertContactPayload(payload)
 
     // Fetch the list of contacts from HubSpot
-    const readResponse = await readContactsBatch(request, Object.keys(contactsUpsertMap))
+    const readResponse = await readContactsBatch(request, urls, Object.keys(contactsUpsertMap))
     contactsUpsertMap = updateActionsForBatchedContacts(readResponse, contactsUpsertMap)
 
     // Divide Contacts into two maps - one for insert and one for update
@@ -276,20 +277,20 @@ const action: ActionDefinition<Settings, Payload> = {
 
     // Create contacts that don't exist in HubSpot
     if (createList.length > 0) {
-      await createContactsBatch(request, createList)
+      await createContactsBatch(request, urls, createList)
     }
 
     if (updateList.length > 0) {
       // Update contacts that already exist in HubSpot
-      const updateContactResponse = await updateContactsBatch(request, updateList)
+      const updateContactResponse = await updateContactsBatch(request, urls, updateList)
       // Check if Life Cycle Stage update was successful, and pick the ones that didn't succeed
-      await checkAndRetryUpdatingLifecycleStage(request, updateContactResponse, contactsUpsertMap)
+      await checkAndRetryUpdatingLifecycleStage(request, urls, updateContactResponse, contactsUpsertMap)
     }
   }
 }
 
-async function createContact(request: RequestClient, contactProperties: ContactProperties) {
-  return request<ContactSuccessResponse>(`${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/contacts`, {
+async function createContact(request: RequestClient, urls: HubspotUrls, contactProperties: ContactProperties) {
+  return request<ContactSuccessResponse>(`${urls.objects}/contacts`, {
     method: 'POST',
     json: {
       properties: contactProperties
@@ -297,19 +298,16 @@ async function createContact(request: RequestClient, contactProperties: ContactP
   })
 }
 
-async function updateContact(request: RequestClient, email: string, properties: ContactProperties) {
-  return request<ContactSuccessResponse>(
-    `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/contacts/${email}?idProperty=email`,
-    {
-      method: 'PATCH',
-      json: {
-        properties: properties
-      }
+async function updateContact(request: RequestClient, urls: HubspotUrls, email: string, properties: ContactProperties) {
+  return request<ContactSuccessResponse>(`${urls.objects}/contacts/${email}?idProperty=email`, {
+    method: 'PATCH',
+    json: {
+      properties: properties
     }
-  )
+  })
 }
 
-async function readContactsBatch(request: RequestClient, emails: string[]) {
+async function readContactsBatch(request: RequestClient, urls: HubspotUrls, emails: string[]) {
   const requestPayload = {
     properties: ['email', 'lifecyclestage', 'hs_additional_emails'],
     idProperty: 'email',
@@ -318,37 +316,36 @@ async function readContactsBatch(request: RequestClient, emails: string[]) {
     }))
   }
 
-  return request<ContactBatchResponse>(
-    `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/contacts/batch/read`,
-    {
-      method: 'POST',
-      json: requestPayload
-    }
-  )
+  return request<ContactBatchResponse>(`${urls.objects}/contacts/batch/read`, {
+    method: 'POST',
+    json: requestPayload
+  })
 }
 
-async function createContactsBatch(request: RequestClient, contactCreatePayload: ContactCreateRequestPayload[]) {
-  return request<ContactBatchResponse>(
-    `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/contacts/batch/create`,
-    {
-      method: 'POST',
-      json: {
-        inputs: contactCreatePayload
-      }
+async function createContactsBatch(
+  request: RequestClient,
+  urls: HubspotUrls,
+  contactCreatePayload: ContactCreateRequestPayload[]
+) {
+  return request<ContactBatchResponse>(`${urls.objects}/contacts/batch/create`, {
+    method: 'POST',
+    json: {
+      inputs: contactCreatePayload
     }
-  )
+  })
 }
 
-async function updateContactsBatch(request: RequestClient, contactUpdatePayload: ContactUpdateRequestPayload[]) {
-  return request<ContactBatchResponse>(
-    `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/objects/contacts/batch/update`,
-    {
-      method: 'POST',
-      json: {
-        inputs: contactUpdatePayload
-      }
+async function updateContactsBatch(
+  request: RequestClient,
+  urls: HubspotUrls,
+  contactUpdatePayload: ContactUpdateRequestPayload[]
+) {
+  return request<ContactBatchResponse>(`${urls.objects}/contacts/batch/update`, {
+    method: 'POST',
+    json: {
+      inputs: contactUpdatePayload
     }
-  )
+  })
 }
 
 function mapUpsertContactPayload(payload: Payload[]) {
@@ -414,6 +411,7 @@ function updateActionsForBatchedContacts(
 }
 async function checkAndRetryUpdatingLifecycleStage(
   request: RequestClient,
+  urls: HubspotUrls,
   updateContactResponse: BatchContactResponse,
   contactsUpsertMap: Record<string, ContactsUpsertMapItem>
 ) {
@@ -445,10 +443,10 @@ async function checkAndRetryUpdatingLifecycleStage(
   // Retry Life Cycle Stage Updates
   if (retryLifeCycleStagePayload.length > 0) {
     // Reset Life Cycle Stage
-    await updateContactsBatch(request, resetLifeCycleStagePayload)
+    await updateContactsBatch(request, urls, resetLifeCycleStagePayload)
 
     // Set the new Life Cycle Stage
-    await updateContactsBatch(request, retryLifeCycleStagePayload)
+    await updateContactsBatch(request, urls, retryLifeCycleStagePayload)
   }
 }
 

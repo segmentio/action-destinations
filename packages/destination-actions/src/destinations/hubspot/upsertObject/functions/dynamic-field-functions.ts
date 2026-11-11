@@ -1,11 +1,10 @@
-import { RequestClient } from '@segment/actions-core'
+import { Features, RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../../errors'
-import { HUBSPOT_BASE_URL } from '../../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES } from '../constants'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
 import { DynamicFieldContext } from '@segment/actions-core/destination-kittypes'
-import { HUBSPOT_CRM_API_VERSION, HUBSPOT_CRM_ASSOCIATIONS_API_VERSION } from '../../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../../versioning-info'
 
 enum AssociationCategory {
   HUBSPOT_DEFINED = 'HUBSPOT_DEFINED',
@@ -15,57 +14,64 @@ enum AssociationCategory {
 
 export const dynamicFields = {
   object_details: {
-    object_type: async (request: RequestClient) => {
-      return await dynamicReadObjectTypes(request)
+    object_type: async (request: RequestClient, { features }: { features?: Features }) => {
+      return await dynamicReadObjectTypes(request, hubspotUrls(features))
     },
-    id_field_name: async (request: RequestClient, { payload }: { payload: Payload }) => {
+    id_field_name: async (request: RequestClient, { payload, features }: { payload: Payload; features?: Features }) => {
       const fromObjectType = payload?.object_details?.object_type
 
       if (!fromObjectType) {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadIdFields(request, fromObjectType)
+      return await dynamicReadIdFields(request, hubspotUrls(features), fromObjectType)
     },
-    property_group: async (request: RequestClient, { payload }: { payload: Payload }) => {
+    property_group: async (
+      request: RequestClient,
+      { payload, features }: { payload: Payload; features?: Features }
+    ) => {
       const fromObjectType = payload?.object_details?.object_type
 
       if (!fromObjectType) {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadPropertyGroups(request, fromObjectType)
+      return await dynamicReadPropertyGroups(request, hubspotUrls(features), fromObjectType)
     }
   },
   properties: {
-    __keys__: async (request: RequestClient, { payload }: { payload: Payload }) => {
+    __keys__: async (request: RequestClient, { payload, features }: { payload: Payload; features?: Features }) => {
       const fromObjectType = payload?.object_details?.object_type
 
       if (!fromObjectType) {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadProperties(request, fromObjectType, false)
+      return await dynamicReadProperties(request, hubspotUrls(features), fromObjectType, false)
     }
   },
   sensitive_properties: {
-    __keys__: async (request: RequestClient, { payload }: { payload: Payload }) => {
+    __keys__: async (request: RequestClient, { payload, features }: { payload: Payload; features?: Features }) => {
       const fromObjectType = payload?.object_details?.object_type
 
       if (!fromObjectType) {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadProperties(request, fromObjectType, true)
+      return await dynamicReadProperties(request, hubspotUrls(features), fromObjectType, true)
     }
   },
   associations: {
-    object_type: async (request: RequestClient) => {
-      return await dynamicReadObjectTypes(request)
+    object_type: async (request: RequestClient, { features }: { features?: Features }) => {
+      return await dynamicReadObjectTypes(request, hubspotUrls(features))
     },
     association_label: async (
       request: RequestClient,
-      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+      {
+        dynamicFieldContext,
+        payload,
+        features
+      }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload; features?: Features }
     ) => {
       const selectedIndex = dynamicFieldContext?.selectedArrayIndex
 
@@ -84,11 +90,15 @@ export const dynamicFields = {
         throw new Error("Select a value from the 'To Object Type' field")
       }
 
-      return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
+      return await dynamicReadAssociationLabels(request, hubspotUrls(features), fromObjectType, toObjectType)
     },
     id_field_name: async (
       request: RequestClient,
-      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+      {
+        dynamicFieldContext,
+        payload,
+        features
+      }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload; features?: Features }
     ) => {
       const selectedIndex = dynamicFieldContext?.selectedArrayIndex
 
@@ -102,16 +112,20 @@ export const dynamicFields = {
         throw new Error("Select a value from the 'To Object Type' field")
       }
 
-      return await dynamicReadIdFields(request, toObjectType)
+      return await dynamicReadIdFields(request, hubspotUrls(features), toObjectType)
     }
   },
   dissociations: {
-    object_type: async (request: RequestClient) => {
-      return await dynamicReadObjectTypes(request)
+    object_type: async (request: RequestClient, { features }: { features?: Features }) => {
+      return await dynamicReadObjectTypes(request, hubspotUrls(features))
     },
     association_label: async (
       request: RequestClient,
-      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+      {
+        dynamicFieldContext,
+        payload,
+        features
+      }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload; features?: Features }
     ) => {
       const selectedIndex = dynamicFieldContext?.selectedArrayIndex
 
@@ -130,11 +144,15 @@ export const dynamicFields = {
         throw new Error("Select a value from the 'To Object Type' field")
       }
 
-      return await dynamicReadAssociationLabels(request, fromObjectType, toObjectType)
+      return await dynamicReadAssociationLabels(request, hubspotUrls(features), fromObjectType, toObjectType)
     },
     id_field_name: async (
       request: RequestClient,
-      { dynamicFieldContext, payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+      {
+        dynamicFieldContext,
+        payload,
+        features
+      }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload; features?: Features }
     ) => {
       const selectedIndex = dynamicFieldContext?.selectedArrayIndex
 
@@ -148,13 +166,13 @@ export const dynamicFields = {
         throw new Error("Select a value from the 'To Object Type' field")
       }
 
-      return await dynamicReadIdFields(request, toObjectType)
+      return await dynamicReadIdFields(request, hubspotUrls(features), toObjectType)
     }
   },
   list_details: {
     list_name: async (
       request: RequestClient,
-      { payload }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload }
+      { payload, features }: { dynamicFieldContext?: DynamicFieldContext; payload: Payload; features?: Features }
     ) => {
       const objectType = payload?.object_details?.object_type
 
@@ -162,12 +180,16 @@ export const dynamicFields = {
         throw new Error("Select a value from the 'Object Type' field")
       }
 
-      return await dynamicReadLists(request, objectType)
+      return await dynamicReadLists(request, hubspotUrls(features), objectType)
     }
   }
 }
 
-async function dynamicReadIdFields(request: RequestClient, objectType: string): Promise<DynamicFieldResponse> {
+async function dynamicReadIdFields(
+  request: RequestClient,
+  urls: HubspotUrls,
+  objectType: string
+): Promise<DynamicFieldResponse> {
   interface ResultItem {
     label: string
     name: string
@@ -181,13 +203,10 @@ async function dynamicReadIdFields(request: RequestClient, objectType: string): 
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${objectType}`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.properties}/${objectType}`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     return {
       choices: [
@@ -238,7 +257,11 @@ async function dynamicReadIdFields(request: RequestClient, objectType: string): 
   }
 }
 
-async function dynamicReadPropertyGroups(request: RequestClient, objectType: string): Promise<DynamicFieldResponse> {
+async function dynamicReadPropertyGroups(
+  request: RequestClient,
+  urls: HubspotUrls,
+  objectType: string
+): Promise<DynamicFieldResponse> {
   interface ResultItem {
     label: string
     name: string
@@ -253,13 +276,10 @@ async function dynamicReadPropertyGroups(request: RequestClient, objectType: str
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${objectType}/groups`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.properties}/${objectType}/groups`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     return {
       choices: response.data.results
@@ -295,6 +315,7 @@ async function dynamicReadPropertyGroups(request: RequestClient, objectType: str
 
 async function dynamicReadAssociationLabels(
   request: RequestClient,
+  urls: HubspotUrls,
   fromObjectType: string,
   toObjectType: string
 ): Promise<DynamicFieldResponse> {
@@ -310,13 +331,10 @@ async function dynamicReadAssociationLabels(
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/associations/${fromObjectType}/${toObjectType}/labels`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.associations}/${fromObjectType}/${toObjectType}/labels`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     return {
       choices: response?.data?.results
@@ -351,7 +369,7 @@ async function dynamicReadAssociationLabels(
   }
 }
 
-async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
+async function dynamicReadObjectTypes(request: RequestClient, urls: HubspotUrls): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: { singular: string; plural: string }
     fullyQualifiedName: string
@@ -364,13 +382,10 @@ async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFi
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas?archived=false`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.schemas}?archived=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
     const choices = response.data.results
       .map((schema) => ({
         label: `${schema.labels.plural} (Custom)`,
@@ -403,6 +418,7 @@ async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFi
 
 async function dynamicReadProperties(
   request: RequestClient,
+  urls: HubspotUrls,
   objectType: string,
   sensitive: boolean
 ): Promise<DynamicFieldResponse> {
@@ -423,9 +439,7 @@ async function dynamicReadProperties(
   }
 
   try {
-    const url = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/properties/${objectType}${
-      sensitive ? '?dataSensitivity=sensitive' : ''
-    }`
+    const url = `${urls.properties}/${objectType}${sensitive ? '?dataSensitivity=sensitive' : ''}`
     const response: ResponseType = await request(url, {
       method: 'GET',
       skipResponseCloning: true
@@ -467,7 +481,7 @@ async function dynamicReadProperties(
   }
 }
 
-async function dynamicReadLists(request: RequestClient, objectType: string) {
+async function dynamicReadLists(request: RequestClient, urls: HubspotUrls, objectType: string) {
   interface ResultItem {
     listId: string
     processingType: 'MANUAL'
@@ -491,7 +505,7 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
   let objectTypeId: string | undefined = undefined
 
   try {
-    objectTypeId = await readObjectSchema(request, objectType)
+    objectTypeId = await readObjectSchema(request, urls, objectType)
   } catch (err) {
     const code: string = (err as HubSpotError)?.response?.status ? String((err as HubSpotError).response.status) : '500'
 
@@ -509,7 +523,7 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
   }
 
   try {
-    const url = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/lists/search`
+    const url = `${urls.lists}/search`
     let allLists: ResultItem[] = []
     let hasMore = true
     let offset: number | undefined = undefined
@@ -551,14 +565,14 @@ async function dynamicReadLists(request: RequestClient, objectType: string) {
   }
 }
 
-async function readObjectSchema(request: RequestClient, objectType: string): Promise<string> {
+async function readObjectSchema(request: RequestClient, urls: HubspotUrls, objectType: string): Promise<string> {
   interface ResponseType {
     data: {
       objectTypeId: string
     }
   }
 
-  const url = `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas/${objectType}`
+  const url = `${urls.schemas}/${objectType}`
   const response: ResponseType = await request(url, {
     method: 'GET'
   })

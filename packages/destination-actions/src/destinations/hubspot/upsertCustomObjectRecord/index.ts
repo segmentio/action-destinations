@@ -2,7 +2,6 @@ import type { ActionDefinition } from '@segment/actions-core'
 import { RequestClient } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { HUBSPOT_BASE_URL } from '../properties'
 import {
   CustomSearchThrowableError,
   HubSpotError,
@@ -21,7 +20,7 @@ import {
 import { ModifiedResponse } from '@segment/actions-core'
 import { HTTPError } from '@segment/actions-core'
 import { Hubspot } from '../api'
-import { HUBSPOT_CRM_API_VERSION, HUBSPOT_CRM_ASSOCIATIONS_API_VERSION } from '../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../versioning-info'
 
 interface ObjectSchema {
   labels: { singular: string; plural: string }
@@ -102,23 +101,28 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   dynamicFields: {
-    objectType: async (request, { payload }) => {
-      return getCustomObjects(request, defaultChoices, payload.toObjectType)
+    objectType: async (request, { payload, features }) => {
+      return getCustomObjects(request, hubspotUrls(features), defaultChoices, payload.toObjectType)
     },
-    toObjectType: async (request, { payload }) => {
-      return getCustomObjects(request, [...defaultChoices, ...defaultToObjectTypeChoices], payload.objectType)
+    toObjectType: async (request, { payload, features }) => {
+      return getCustomObjects(
+        request,
+        hubspotUrls(features),
+        [...defaultChoices, ...defaultToObjectTypeChoices],
+        payload.objectType
+      )
     },
-    associationLabel: async (request, { payload }) => {
-      return getAssociationLabel(request, payload)
+    associationLabel: async (request, { payload, features }) => {
+      return getAssociationLabel(request, hubspotUrls(features), payload)
     }
   },
-  perform: async (request, { payload }) => {
+  perform: async (request, { payload, features }) => {
     // Attempt to search Custom Object record with Custom Search Fields
     // If Custom Search Fields doesn't have any defined property, skip the search and assume record was not found
     let searchCustomResponse: ModifiedResponse<SearchResponse> | null = null
     // If Search Fields to Associate custom Object doesn't have any defined property , skip the associate
     let searchCustomResponseToAssociate: ModifiedResponse<SearchResponse> | null = null
-    const hubspotApiClient: Hubspot = new Hubspot(request, payload.objectType, payload.toObjectType)
+    const hubspotApiClient: Hubspot = new Hubspot(request, payload.objectType, payload.toObjectType, features)
     let association: CreateAssociation | null = null
 
     try {
@@ -194,21 +198,18 @@ const action: ActionDefinition<Settings, Payload> = {
 
 async function getCustomObjects(
   request: RequestClient,
+  urls: HubspotUrls,
   defaultChoices: { label: string; value: string }[],
   objectType: string | undefined
 ) {
   // List of HubSpot defined Objects that segment has OAuth Scope to access
 
   try {
-    // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
-    //
-    const response = await request<GetSchemasResponse>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas?archived=false`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    // API Doc - https://developers.hubspot.com/docs/api-reference/latest/crm/objects/schemas/get-schemas
+    const response = await request<GetSchemasResponse>(`${urls.schemas}?archived=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
     const choices = response.data.results
       .filter((res) => res.fullyQualifiedName != objectType)
       .map((schema) => ({
@@ -229,12 +230,11 @@ async function getCustomObjects(
   }
 }
 
-async function getAssociationLabel(request: RequestClient, payload: Payload) {
+async function getAssociationLabel(request: RequestClient, urls: HubspotUrls, payload: Payload) {
   try {
-    // API Doc - https://developers.hubspot.com/docs/api/crm/crm-custom-objects#endpoint?spec=GET-/crm/v3/schemas
-    //
+    // API Doc - https://developers.hubspot.com/docs/api-reference/latest/crm/objects/schemas/get-schemas
     const response = await request<GetAssociationLabelResponse>(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_ASSOCIATIONS_API_VERSION}/associations/${payload.objectType}/${payload.toObjectType}/labels`,
+      `${urls.associations}/${payload.objectType}/${payload.toObjectType}/labels`,
       {
         method: 'GET',
         skipResponseCloning: true
