@@ -1,0 +1,208 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for actions-adobe-aep destination: sendEvent action - all fields 1`] = `
+Object {
+  "messages": Array [
+    Object {
+      "body": Object {
+        "xdmEntity": Object {
+          "_id": "ea53b6101c50e2c1b4d1a032852b470397a6f2e50371a98670c4f97d54679b8f",
+          "identityMap": Object {
+            "ECID": Array [
+              Object {
+                "id": "w[ma$^6o",
+                "primary": false,
+              },
+            ],
+            "PID": Array [
+              Object {
+                "id": "w[ma$^6o",
+                "primary": false,
+              },
+            ],
+            "w[ma$^6o": Array [
+              Object {
+                "id": "w[ma$^6o",
+                "primary": true,
+              },
+            ],
+          },
+          "timestamp": "2026-01-15T12:34:56.000Z",
+          "web": Object {
+            "webPageDetails": Object {
+              "URL": "https://example.com/snapshot",
+            },
+          },
+        },
+        "xdmMeta": Object {
+          "schemaRef": Object {
+            "contentType": "w[ma$^6o",
+            "id": "w[ma$^6o",
+          },
+        },
+      },
+      "header": Object {
+        "datasetId": "w[ma$^6o",
+        "flowId": "w[ma$^6o",
+        "imsOrgId": "w[ma$^6o",
+        "schemaRef": Object {
+          "contentType": "w[ma$^6o",
+          "id": "w[ma$^6o",
+        },
+        "source": Object {
+          "name": "w[ma$^6o",
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-adobe-aep destination: sendEvent action - required fields 1`] = `
+Object {
+  "messages": Array [
+    Object {
+      "body": Object {
+        "xdmEntity": Object {
+          "_id": "ea53b6101c50e2c1b4d1a032852b470397a6f2e50371a98670c4f97d54679b8f",
+          "identityMap": Object {
+            "ECID": Array [
+              Object {
+                "id": "snapshot-ecid",
+                "primary": false,
+              },
+            ],
+            "PID": Array [
+              Object {
+                "id": "w[ma$^6o",
+                "primary": true,
+              },
+            ],
+          },
+          "timestamp": "2026-01-15T12:34:56.000Z",
+          "web": Object {
+            "webPageDetails": Object {
+              "URL": "https://example.com/snapshot",
+            },
+          },
+        },
+        "xdmMeta": Object {
+          "schemaRef": Object {
+            "contentType": "w[ma$^6o",
+            "id": "w[ma$^6o",
+          },
+        },
+      },
+      "header": Object {
+        "datasetId": "w[ma$^6o",
+        "flowId": "w[ma$^6o",
+        "imsOrgId": "w[ma$^6o",
+        "schemaRef": Object {
+          "contentType": "w[ma$^6o",
+          "id": "w[ma$^6o",
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-adobe-aep destination: upsertProfile action - all fields 1`] = `
+Object {
+  "messages": Array [
+    Object {
+      "body": Object {
+        "xdmEntity": Object {
+          "identityMap": Object {
+            "ECID": Array [
+              Object {
+                "id": "gfeyyOZH)",
+                "primary": false,
+              },
+            ],
+            "PID": Array [
+              Object {
+                "id": "gfeyyOZH)",
+                "primary": false,
+              },
+            ],
+            "gfeyyOZH)": Array [
+              Object {
+                "id": "gfeyyOZH)",
+                "primary": true,
+              },
+            ],
+          },
+          "web": Object {
+            "webPageDetails": Object {
+              "URL": "https://example.com/snapshot",
+            },
+          },
+        },
+        "xdmMeta": Object {
+          "schemaRef": Object {
+            "contentType": "gfeyyOZH)",
+            "id": "gfeyyOZH)",
+          },
+        },
+      },
+      "header": Object {
+        "datasetId": "gfeyyOZH)",
+        "flowId": "gfeyyOZH)",
+        "imsOrgId": "gfeyyOZH)",
+        "schemaRef": Object {
+          "contentType": "gfeyyOZH)",
+          "id": "gfeyyOZH)",
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`Testing snapshot for actions-adobe-aep destination: upsertProfile action - required fields 1`] = `
+Object {
+  "messages": Array [
+    Object {
+      "body": Object {
+        "xdmEntity": Object {
+          "identityMap": Object {
+            "ECID": Array [
+              Object {
+                "id": "snapshot-ecid",
+                "primary": false,
+              },
+            ],
+            "PID": Array [
+              Object {
+                "id": "gfeyyOZH)",
+                "primary": true,
+              },
+            ],
+          },
+          "web": Object {
+            "webPageDetails": Object {
+              "URL": "https://example.com/snapshot",
+            },
+          },
+        },
+        "xdmMeta": Object {
+          "schemaRef": Object {
+            "contentType": "gfeyyOZH)",
+            "id": "gfeyyOZH)",
+          },
+        },
+      },
+      "header": Object {
+        "datasetId": "gfeyyOZH)",
+        "flowId": "gfeyyOZH)",
+        "imsOrgId": "gfeyyOZH)",
+        "schemaRef": Object {
+          "contentType": "gfeyyOZH)",
+          "id": "gfeyyOZH)",
+        },
+      },
+    },
+  ],
+}
+`;
