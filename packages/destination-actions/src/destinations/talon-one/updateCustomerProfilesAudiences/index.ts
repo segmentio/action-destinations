@@ -3,7 +3,12 @@ import type { ActionDefinition, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { addAudienceId, customerProfileId, deleteAudienceId } from '../t1-properties'
-import { ENDPOINT, MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT, SEGMENT_EVENTS_PER_BATCH } from './constants'
+import {
+  ENDPOINT,
+  MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT,
+  REQUEST_TIMEOUT_MS,
+  SEGMENT_EVENTS_PER_BATCH
+} from './constants'
 import { buildChunks, findConflictedIndexes, findOversizedIndexes } from './functions'
 import type { RequestError, UpdateAudiencesJSON } from './types'
 
@@ -53,7 +58,8 @@ const action: ActionDefinition<Settings, Payload> = {
     const json: UpdateAudiencesJSON = { data: payload.data }
     return request(ENDPOINT, {
       method: 'put',
-      json
+      json,
+      timeout: REQUEST_TIMEOUT_MS
     })
   },
   performBatch: async (request, { payload }) => {
@@ -87,7 +93,8 @@ const action: ActionDefinition<Settings, Payload> = {
       try {
         await request(ENDPOINT, {
           method: 'put',
-          json
+          json,
+          timeout: REQUEST_TIMEOUT_MS
         })
         chunk.indexes.forEach((index) => {
           multiStatus.setSuccessResponseAtIndex(index, {
