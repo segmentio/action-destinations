@@ -15,16 +15,6 @@
         "choices": null,
         "default": null,
         "depends_on": null
-      },
-      "api_key": {
-        "label": "Conversion API Key",
-        "description": "Your AppLovin Conversion API key. Create one on the API keys page of the AppLovin Ads Manager.",
-        "type": "password",
-        "required": true,
-        "multiple": false,
-        "choices": null,
-        "default": null,
-        "depends_on": null
       }
     }
   },
@@ -271,13 +261,7 @@
               }
             },
             "esi": {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.device.type"
-                },
-                "then": "app",
-                "else": "web"
-              }
+              "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
             },
             "phone": {
               "@if": {
@@ -1644,18 +1628,6 @@
           "additionalProperties": false
         }
       }
-    },
-    "applovinPlugin": {
-      "title": "AppLovin Browser Plugin",
-      "description": "Enriches Segment payloads with identifiers from the AppLovin Pixel and AppLovin ad clicks.",
-      "platform": "web",
-      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
-      "hidden": false,
-      "hasPerformBatch": false,
-      "syncMode": null,
-      "hooks": null,
-      "dynamicFields": null,
-      "fields": {}
     }
   },
   "presets": [
@@ -1745,13 +1717,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -1915,13 +1881,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -2085,13 +2045,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -2255,13 +2209,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -2425,13 +2373,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -2595,13 +2537,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -2765,13 +2701,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -2870,7 +2800,7 @@
           "@path": "$.context.page.url"
         },
         "dedupe_id": {
-          "@path": "$.messageId"
+          "@path": "$.properties.order_id"
         },
         "user_data": {
           "aleid": {
@@ -2935,13 +2865,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -3115,13 +3039,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -3285,13 +3203,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -3455,13 +3367,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -3625,13 +3531,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {
@@ -3795,13 +3695,7 @@
             }
           },
           "esi": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.device.type"
-              },
-              "then": "app",
-              "else": "web"
-            }
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
           },
           "phone": {
             "@if": {

@@ -273,7 +273,6 @@ function sendRequest(request: RequestClient, settings: Settings, events: AppLovi
   return request(`${API_BASE_URL}/${APPLOVIN_CONVERSIONS_API_VERSION}/event`, {
     method: 'post',
     searchParams: { pixel_id: settings.pixel_id },
-    headers: { Authorization: settings.api_key },
     json: body,
     throwHttpErrors
   })
