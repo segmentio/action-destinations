@@ -73,14 +73,23 @@ describe('InProcessAdapter on the Mixpanel suite', () => {
     nock('https://api.mixpanel.com')
       .matchHeader('authorization', auth)
       .post('/import?strict=1', mappedEvents)
-      .reply(200, { code: 200, status: 'OK', num_records_imported: 2 })
+      .reply(400, {
+        code: 400,
+        status: 'Bad Request',
+        num_records_imported: 1,
+        failed_records: [{ index: 1, insert_id: 'x', field: 'time', message: 'bad' }]
+      })
 
     const [suite] = suites
     const fixture = suite.fixtures.find((f) => f.mode === 'batchWithMultistatus')
     if (!fixture) throw new Error('the Mixpanel suite has no batchWithMultistatus fixture')
     const observation = await new InProcessAdapter().run(buildInvocation(suite, fixture, env), suite)
 
+    // Only the flag's path splits one response into per-event results; without it this would throw.
     expect(observation.error).toBeUndefined()
-    expect(observation.multistatus?.map((item) => item.status)).toEqual([200, 200])
+    expect(observation.multistatus?.map((item) => [item.status, item.errormessage])).toEqual([
+      [200, undefined],
+      [400, 'bad']
+    ])
   })
 })

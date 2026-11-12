@@ -47,16 +47,26 @@ export function validate(expectation: E2EExpectation, observation: E2EObservatio
   const last = exchanges[exchanges.length - 1]
 
   if (expectation.status === 'error') {
-    if (!error) return fail('expected our code to throw, but it did not')
+    // In batch modes core reports each rejected event as a multistatus item instead of throwing.
+    const errors = error
+      ? [error]
+      : (multistatus ?? []).map((item) => ({
+          type: item.errortype,
+          message: item.errormessage ?? '',
+          status: item.status
+        }))
+    if (errors.length === 0) return fail('expected our code to reject the event, but it did not')
     if (exchanges.length > 0) return fail(`expected no partner request, but ${exchanges.length} were sent`)
-    if (error.type !== expectation.errorType) {
-      return fail(`expected error type ${expectation.errorType}, got ${error.type}: ${error.message}`)
-    }
-    if (expectation.httpStatus !== undefined && error.status !== expectation.httpStatus) {
-      return fail(`expected error status ${expectation.httpStatus}, got ${error.status}`)
-    }
-    if (expectation.errorMessage && !error.message.includes(expectation.errorMessage)) {
-      return fail(`error message does not contain "${expectation.errorMessage}": ${error.message}`)
+    for (const e of errors) {
+      if (e.type !== expectation.errorType) {
+        return fail(`expected error type ${expectation.errorType}, got ${e.type ?? `status ${e.status}`}: ${e.message}`)
+      }
+      if (expectation.httpStatus !== undefined && e.status !== expectation.httpStatus) {
+        return fail(`expected error status ${expectation.httpStatus}, got ${e.status}`)
+      }
+      if (expectation.errorMessage && !e.message.includes(expectation.errorMessage)) {
+        return fail(`error message does not contain "${expectation.errorMessage}": ${e.message}`)
+      }
     }
     return { passed: true }
   }

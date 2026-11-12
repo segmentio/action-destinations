@@ -81,8 +81,9 @@ integrations uses, and maps errors the way integrations does.
   Optional `httpStatus`, `bodyContains`, `jsonContains` (partial deep match) on the last response.
 - `failure`: the partner returned non-2xx (proves we reject known-bad input). `httpStatus`
   required; optional `bodyContains` / `jsonContains`.
-- `error`: our code threw before any request left. `errorType` is the Segment error code;
-  optional `httpStatus` and `errorMessage`.
+- `error`: our code rejected the event before any request left: it threw, or in batch modes every
+  multistatus item carries the error. `errorType` is the Segment error code; optional `httpStatus` and
+  `errorMessage`.
 
 ## Dynamic markers
 
