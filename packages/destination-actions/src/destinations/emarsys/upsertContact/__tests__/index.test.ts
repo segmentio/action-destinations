@@ -1,16 +1,21 @@
 import nock from 'nock'
-import { createTestIntegration } from '@segment/actions-core'
+import { createTestIntegration, RetryableError } from '@segment/actions-core'
 import Destination from '../../index'
-import { API_HOST, API_PATH } from '../../emarsys-helper'
-import { RetryableError } from '@segment/actions-core'
-// import { IntegrationError } from '@segment/actions-core'
-// import { RetryableError } from '@segment/actions-core'
+import { tokenCache } from '../../emarsys-helper'
 
 const testDestination = createTestIntegration(Destination)
 
+const AUTH_HOST = 'https://auth.example.com'
+const AUTH_PATH = '/oauth/token'
+const API_HOST = 'https://api.example.com'
+const API_BASE_PATH = '/api/'
+
 const SETTINGS = {
-  api_user: 'testuser001',
-  api_password: 'supersecret'
+  auth_type: 'new',
+  apiAuthEndpoint: `${AUTH_HOST}${AUTH_PATH}`,
+  apiBaseUrl: `${API_HOST}${API_BASE_PATH}`,
+  apiClientId: 'testclient',
+  apiClientSecret: 'supersecret'
 }
 
 const TESTPAYLOAD = {
@@ -21,14 +26,20 @@ const TESTPAYLOAD = {
   }
 }
 
+function mockAuth() {
+  nock(AUTH_HOST).post(AUTH_PATH).reply(200, { token_type: 'Bearer', access_token: 'test-token', expires_in: 3600 })
+}
+
 beforeEach(() => {
   nock.cleanAll()
+  tokenCache.clear()
 })
 
 describe('Emarsys.upsertContact', () => {
-  const regex = new RegExp(`${API_PATH}contact/`, 'g')
+  const regex = new RegExp(`${API_BASE_PATH}contact/`, 'g')
 
   it('should get a replyCode=0', async () => {
+    mockAuth()
     nock(`${API_HOST}`)
       .put(regex)
       .reply(
@@ -50,6 +61,7 @@ describe('Emarsys.upsertContact', () => {
   })
 
   it('should get an error because of missing key value', async () => {
+    mockAuth()
     nock(`${API_HOST}`)
       .put(regex)
       .reply(
@@ -78,6 +90,7 @@ describe('Emarsys.upsertContact', () => {
   })
 
   it('should throw an RetryableError if the API responds with a server error', async () => {
+    mockAuth()
     nock(`${API_HOST}`).put(regex).reply(500, 'Internal server error')
     await expect(
       testDestination.testAction('upsertContact', {
@@ -88,6 +101,7 @@ describe('Emarsys.upsertContact', () => {
   })
 
   it('should throw an RetryableError if the rate limit was reached', async () => {
+    mockAuth()
     nock(`${API_HOST}`).put(regex).reply(429, 'Too many requests')
     await expect(
       testDestination.testAction('upsertContact', {

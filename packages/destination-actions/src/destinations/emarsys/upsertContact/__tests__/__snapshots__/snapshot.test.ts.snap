@@ -11,6 +11,22 @@ Object {
 }
 `;
 
+exports[`Testing snapshot for Emarsys's upsertContact destination action: all fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
+}
+`;
+
 exports[`Testing snapshot for Emarsys's upsertContact destination action: required fields 1`] = `
 Object {
   "contacts": Array [
@@ -19,5 +35,21 @@ Object {
     },
   ],
   "key_id": "UAl@hlNFqwIzyXq",
+}
+`;
+
+exports[`Testing snapshot for Emarsys's upsertContact destination action: required fields 2`] = `
+Headers {
+  Symbol(map): Object {
+    "authorization": Array [
+      "Bearer test-token",
+    ],
+    "content-type": Array [
+      "application/json",
+    ],
+    "user-agent": Array [
+      "segmentio-emarsys/1.5",
+    ],
+  },
 }
 `;
