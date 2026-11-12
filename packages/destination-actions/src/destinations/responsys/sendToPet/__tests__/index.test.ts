@@ -223,4 +223,125 @@ describe('Responsys.sendToPet', () => {
       })
     })
   })
+
+  describe('Prototype pollution hardening', () => {
+    const settings = {
+      baseUrl: responsysHost,
+      username: 'abcd',
+      userPassword: 'abcd',
+      insertOnNoMatch: false,
+      matchColumnName1: 'EMAIL_ADDRESS_',
+      updateOnMatch: 'REPLACE_ALL',
+      defaultPermissionStatus: 'OPTOUT',
+      profileListName
+    }
+    const auth = { accessToken: 'abcd1234', refreshToken: 'efgh5678' }
+    const makeMapping = (folder: string, pet: string) => ({
+      folder_name: folder,
+      pet_name: pet,
+      userData: { EMAIL_ADDRESS_: { '@path': '$.traits.email' }, CUSTOMER_ID_: { '@path': '$.userId' } }
+    })
+    const event = createTestEvent({ type: 'identify', userId: '12345', traits: { email: 'a@b.com' } })
+
+    afterEach(() => {
+      delete (Object.prototype as Record<string, unknown>)['TEST_PET']
+      nock.cleanAll()
+    })
+
+    it('still groups records by folder and PET', async () => {
+      nock(responsysHost)
+        .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
+        .reply(200, [{ profileExtension: { objectName: petName, folderName } }])
+      nock(responsysHost)
+        .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`)
+        .reply(200, { requestId: '23456' })
+      nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+      let petBody: any
+      nock(responsysHost)
+        .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${petName}/members`, (body) => {
+          petBody = body
+          return true
+        })
+        .reply(200, { requestId: '34567' })
+
+      await testDestination.testBatchAction('sendToPet', {
+        events: [event, createTestEvent({ type: 'identify', userId: '67890', traits: { email: 'c@d.com' } })],
+        mapping: makeMapping(folderName, petName),
+        settings,
+        auth
+      })
+
+      expect(petBody.recordData.records).toHaveLength(2)
+    })
+
+    it.each(['__proto__', 'constructor', 'prototype'])(
+      'rejects %s as folder_name or pet_name for a single event without polluting Object.prototype',
+      async (bad) => {
+        for (const mapping of [makeMapping(bad, petName), makeMapping(folderName, bad)]) {
+          await expect(testDestination.testAction('sendToPet', { event, mapping, settings, auth })).rejects.toThrow(
+            /not allowed/
+          )
+        }
+        expect(Object.keys(Object.prototype)).toEqual([])
+        expect(({} as Record<string, unknown>)[petName]).toBeUndefined()
+      }
+    )
+
+    it.each(['__proto__', 'constructor', 'prototype'])(
+      'returns a per-item error for %s in a batch and still sends the other items',
+      async (bad) => {
+        const upsertBodies: any[] = []
+        let petBody: any
+        nock(responsysHost)
+          .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
+          .reply(200, [{ profileExtension: { objectName: petName, folderName } }])
+        nock(responsysHost)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`, (body) => {
+            upsertBodies.push(body)
+            return true
+          })
+          .reply(200, { requestId: '23456' })
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost)
+          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${petName}/members`, (body) => {
+            petBody = body
+            return true
+          })
+          .reply(200, {})
+
+        const mkEvent = (userId: string, email: string, folder: string) =>
+          createTestEvent({ type: 'identify', userId, traits: { email, folder } })
+        await testDestination.testBatchAction('sendToPet', {
+          events: [
+            mkEvent('1', 'bad@x.com', bad),
+            mkEvent('2', 'good@x.com', folderName),
+            mkEvent('3', 'bad2@x.com', bad)
+          ],
+          mapping: { ...makeMapping(folderName, petName), folder_name: { '@path': '$.traits.folder' } },
+          settings,
+          auth
+        })
+
+        const multistatus = (testDestination.results[0] as any).multistatus
+        expect(multistatus[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+        expect(multistatus[1]).toMatchObject({ status: 200 })
+        expect(multistatus[2]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
+        expect(upsertBodies).toHaveLength(1)
+        expect(upsertBodies[0].recordData.records).toEqual([['good@x.com', '2']])
+        expect(petBody.recordData.records).toEqual([['good@x.com', '2']])
+        expect(Object.keys(Object.prototype)).toEqual([])
+      }
+    )
+
+    it('makes no requests when every item in a batch is unsafe', async () => {
+      await testDestination.testBatchAction('sendToPet', {
+        events: [event, event],
+        mapping: makeMapping('__proto__', petName),
+        settings,
+        auth
+      })
+      const multistatus = (testDestination.results[0] as any).multistatus
+      expect(multistatus.map((r: any) => r.status)).toEqual([400, 400])
+    })
+  })
 })
