@@ -258,7 +258,7 @@ function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: st
     } else if (typeof wire.v === 'object') {
       // New format: v is already an object mapping JSON-stringified arrays to event IDs
       // Use the event IDs from wire.v directly (they specify which events this constraint applies to)
-      result.allowedValues = {}
+      result.allowedValues = Object.create(null) as Record<string, string[]>
       for (const [allowedArrayJson, vEventIds] of Object.entries(wire.v)) {
         result.allowedValues[allowedArrayJson] = [...vEventIds]
       }
@@ -280,7 +280,7 @@ function convertWirePropToConstraints(wire: PropertyConstraintWire, eventIds: st
   const nestedSchema =
     depth < MAX_WIRE_DEPTH && wire && typeof wire.t === 'object' && wire.t !== null ? wire.t : undefined
   if (nestedSchema) {
-    result.children = {}
+    result.children = Object.create(null) as Record<string, PropertyConstraint>
     for (const [childName, childWire] of Object.entries(nestedSchema)) {
       result.children[childName] = convertWirePropToConstraints(childWire, eventIds, depth + 1)
     }
@@ -296,6 +296,10 @@ function isEventProperty(child: unknown): child is EventProperty {
   return typeof child === 'object' && child !== null && !Array.isArray(child) && 'propertyName' in child
 }
 
+function hasOwn(obj: object, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(obj, key)
+}
+
 /**
  * Merges validation results into the event schema properties.
  * Recursively walks the schema and attaches failedEventIds/passedEventIds to matching properties.
@@ -305,7 +309,7 @@ export function mergeValidationResults(
   propertyResults: Record<string, PropertyValidationResult>
 ): void {
   for (const prop of eventProperties) {
-    const validationResult = propertyResults[prop.propertyName]
+    const validationResult = hasOwn(propertyResults, prop.propertyName) ? propertyResults[prop.propertyName] : undefined
     if (validationResult) {
       // Attach validation results to the property
       if (validationResult.failedEventIds && validationResult.failedEventIds.length > 0) {
@@ -319,7 +323,7 @@ export function mergeValidationResults(
       if (prop.children && Array.isArray(prop.children) && validationResult.children) {
         // Convert children array to a lookup map for efficient matching
         // Filter to only include EventProperty objects (not strings)
-        const childrenMap: Record<string, EventProperty> = {}
+        const childrenMap: Record<string, EventProperty> = Object.create(null)
         for (const child of prop.children) {
           if (isEventProperty(child)) {
             childrenMap[child.propertyName] = child
@@ -327,7 +331,7 @@ export function mergeValidationResults(
         }
         // Merge validation results for each child
         for (const [childName, childValidationResult] of Object.entries(validationResult.children)) {
-          const childProp = childrenMap[childName]
+          const childProp = hasOwn(childrenMap, childName) ? childrenMap[childName] : undefined
           if (childProp) {
             // Attach validation results to the child property
             if (childValidationResult.failedEventIds && childValidationResult.failedEventIds.length > 0) {
