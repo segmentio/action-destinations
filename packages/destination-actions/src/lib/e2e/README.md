@@ -44,15 +44,16 @@ keep it unique within its action.
 ## Running
 
 ```bash
-# from the repo root
-chamber exec action-destinations-e2e -- yarn cloud e2e
+# from the repo root, with the destination's E2E_* variables exported
+yarn cloud e2e
 
 E2E_DESTINATIONS=mixpanel,webhook   # only these destination folders
 E2E_CONCURRENCY=4                   # suites in parallel
 E2E_REPORT=/tmp/e2e.json            # also write the JSON report
 ```
 
-Without chamber access, export the same `E2E_*` variables. A suite whose variables are missing
+Once the `action-destinations-e2e` chamber service exists, `chamber exec action-destinations-e2e -- yarn cloud e2e`
+supplies them instead. A suite whose variables are missing
 is a setup error (report `exitCode` 2), never a silent skip. Webhook needs none. Locally `yarn e2e`
 fails on any non-zero `exitCode`; the summary and `E2E_REPORT` say which. `yarn cloud test` never runs
 these: the live entry has its own jest config, `jest.e2e.config.js`, without the nock setup that

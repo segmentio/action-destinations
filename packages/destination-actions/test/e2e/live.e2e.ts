@@ -1,7 +1,7 @@
 /**
  * Local E2E run: every registered suite through the InProcessAdapter, against live partner sandboxes.
  *
- *   chamber exec action-destinations-e2e -- yarn cloud e2e
+ *   E2E_MIXPANEL_PROJECT_TOKEN=... E2E_MIXPANEL_API_SECRET=... yarn cloud e2e
  *
  * E2E_DESTINATIONS=mixpanel,webhook   only these destination folders
  * E2E_CONCURRENCY=4                   suites in parallel
