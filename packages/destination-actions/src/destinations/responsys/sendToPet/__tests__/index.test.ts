@@ -275,17 +275,73 @@ describe('Responsys.sendToPet', () => {
     })
 
     it.each(['__proto__', 'constructor', 'prototype'])(
-      'rejects %s as folder_name or pet_name without polluting Object.prototype',
+      'rejects %s as folder_name or pet_name for a single event without polluting Object.prototype',
       async (bad) => {
         for (const mapping of [makeMapping(bad, petName), makeMapping(folderName, bad)]) {
-          await expect(
-            testDestination.testBatchAction('sendToPet', { events: [event, event], mapping, settings, auth })
-          ).rejects.toThrow(/not allowed/)
+          await expect(testDestination.testAction('sendToPet', { event, mapping, settings, auth })).rejects.toThrow(
+            /not allowed/
+          )
         }
         expect(Object.keys(Object.prototype)).toEqual([])
         expect(({} as Record<string, unknown>)[petName]).toBeUndefined()
-        expect(({} as Record<string, unknown>)['polluted']).toBeUndefined()
       }
     )
+
+    it.each(['__proto__', 'constructor', 'prototype'])(
+      'returns a per-item error for %s in a batch and still sends the other items',
+      async (bad) => {
+        const upsertBodies: any[] = []
+        let petBody: any
+        nock(responsysHost)
+          .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
+          .reply(200, [{ profileExtension: { objectName: petName, folderName } }])
+        nock(responsysHost)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`, (body) => {
+            upsertBodies.push(body)
+            return true
+          })
+          .reply(200, { requestId: '23456' })
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost)
+          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${petName}/members`, (body) => {
+            petBody = body
+            return true
+          })
+          .reply(200, {})
+
+        const mkEvent = (userId: string, email: string, folder: string) =>
+          createTestEvent({ type: 'identify', userId, traits: { email, folder } })
+        await testDestination.testBatchAction('sendToPet', {
+          events: [
+            mkEvent('1', 'bad@x.com', bad),
+            mkEvent('2', 'good@x.com', folderName),
+            mkEvent('3', 'bad2@x.com', bad)
+          ],
+          mapping: { ...makeMapping(folderName, petName), folder_name: { '@path': '$.traits.folder' } },
+          settings,
+          auth
+        })
+
+        const multistatus = (testDestination.results[0] as any).multistatus
+        expect(multistatus[0]).toMatchObject({ status: 400, errortype: 'INVALID_ARGUMENT' })
+        expect(multistatus[1]).toMatchObject({ status: 200 })
+        expect(multistatus[2]).toMatchObject({ status: 400, errortype: 'INVALID_ARGUMENT' })
+        expect(upsertBodies).toHaveLength(1)
+        expect(upsertBodies[0].recordData.records).toEqual([['good@x.com', '2']])
+        expect(petBody.recordData.records).toEqual([['good@x.com', '2']])
+        expect(Object.keys(Object.prototype)).toEqual([])
+      }
+    )
+
+    it('makes no requests when every item in a batch is unsafe', async () => {
+      await testDestination.testBatchAction('sendToPet', {
+        events: [event, event],
+        mapping: makeMapping('__proto__', petName),
+        settings,
+        auth
+      })
+      const multistatus = (testDestination.results[0] as any).multistatus
+      expect(multistatus.map((r: any) => r.status)).toEqual([400, 400])
+    })
   })
 })

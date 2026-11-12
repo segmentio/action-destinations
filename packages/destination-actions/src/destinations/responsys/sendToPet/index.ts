@@ -1,4 +1,4 @@
-import { ActionDefinition, IntegrationError } from '@segment/actions-core'
+import { ActionDefinition, IntegrationError, JSONLikeObject, MultiStatusResponse } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 
@@ -11,7 +11,7 @@ import {
 } from '../shared-properties'
 import { getUserDataFieldNames, validateListMemberPayload } from '../utils'
 import { Data } from '../types'
-import { sendToPet } from './functions'
+import { hasUnsafeFolderOrPetName, sendToPet, UNSAFE_NAME_ERROR_MESSAGE } from './functions'
 import { AuthTokens } from '@segment/actions-core/destination-kit/parse-settings'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -79,19 +79,44 @@ const action: ActionDefinition<Settings, Payload> = {
 
     const userDataFieldNames = getUserDataFieldNames(data as unknown as Data)
 
+    const multiStatusResponse = new MultiStatusResponse()
     const validatedPayloads: Payload[] = []
-    for (const item of payload) {
-      const profileExtensionTable = String(item.pet_name || settings.profileExtensionTable)
-      if (!profileExtensionTable || profileExtensionTable.trim().length === 0) {
-        continue
+    const validatedIndices: number[] = []
+    payload.forEach((item, index) => {
+      if (hasUnsafeFolderOrPetName(item, settings)) {
+        multiStatusResponse.setErrorResponseAtIndex(index, {
+          status: 400,
+          errortype: 'INVALID_ARGUMENT',
+          errormessage: UNSAFE_NAME_ERROR_MESSAGE
+        })
+        return
       }
 
-      if (item.userData.EMAIL_ADDRESS_ || item.userData.RIID_ || item.userData.CUSTOMER_ID_) {
-        validatedPayloads.push(item)
+      const profileExtensionTable = String(item.pet_name || settings.profileExtensionTable)
+      if (profileExtensionTable && profileExtensionTable.trim().length > 0) {
+        if (item.userData.EMAIL_ADDRESS_ || item.userData.RIID_ || item.userData.CUSTOMER_ID_) {
+          validatedPayloads.push(item)
+          validatedIndices.push(index)
+          return
+        }
+      }
+
+      // Items without a PET name or identifier are skipped, as before, and reported as handled.
+      multiStatusResponse.setSuccessResponseAtIndex(index, { status: 200, sent: {}, body: 'Skipped' })
+    })
+
+    if (validatedPayloads.length > 0) {
+      await sendToPet(request, auth as AuthTokens, validatedPayloads, settings, userDataFieldNames)
+      for (const index of validatedIndices) {
+        multiStatusResponse.setSuccessResponseAtIndex(index, {
+          status: 200,
+          sent: payload[index] as unknown as JSONLikeObject,
+          body: 'Success'
+        })
       }
     }
 
-    return sendToPet(request, auth as AuthTokens, validatedPayloads, settings, userDataFieldNames)
+    return multiStatusResponse
   }
 }
 

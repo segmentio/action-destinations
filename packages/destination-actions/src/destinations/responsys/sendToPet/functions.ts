@@ -56,6 +56,14 @@ export const createPet = async (
 // Object.prototype when used as object keys.
 const UNSAFE_KEYS = ['__proto__', 'constructor', 'prototype']
 
+export const UNSAFE_NAME_ERROR_MESSAGE = 'Invalid folder or PET name: reserved names are not allowed.'
+
+export const hasUnsafeFolderOrPetName = (item: Payload, settings: Settings): boolean => {
+  const petName = String(item.pet_name || settings.profileExtensionTable)
+  const folderName = String(item.folder_name || settings.defaultFolderName)
+  return UNSAFE_KEYS.includes(petName) || UNSAFE_KEYS.includes(folderName)
+}
+
 export const sendToPet = async (
   request: RequestClient,
   authTokens: AuthTokens,
@@ -83,22 +91,6 @@ export const sendToPet = async (
   // Around 1 request every 120ms.
   const sendToPetWaitInterval = 120
 
-  // Reject unsafe folder/PET names before any request is made.
-  for (const item of payload) {
-    const petName = String(item.pet_name || settings.profileExtensionTable)
-    const folderName = String(item.folder_name || settings.defaultFolderName)
-    if (UNSAFE_KEYS.includes(petName) || UNSAFE_KEYS.includes(folderName)) {
-      throw new IntegrationError(
-        `Invalid folder or PET name: "${UNSAFE_KEYS.includes(folderName) ? folderName : petName}" is not allowed.`,
-        'INVALID_ARGUMENT',
-        400
-      )
-    }
-  }
-
-  // First, update the profile list. No PETs will accept records from non-existing profiles.
-  await upsertListMembers(request, authTokens, payload, settings, usingAsyncApi)
-
   // petRecords[folderName][petName] = [record1, record2, ...]
   const folderRecords: {
     [key: string]: {
@@ -113,6 +105,10 @@ export const sendToPet = async (
     }
   } = Object.create(null)
   for (const item of payload) {
+    // Reject unsafe names here, before any request is made.
+    if (hasUnsafeFolderOrPetName(item, settings)) {
+      throw new IntegrationError(UNSAFE_NAME_ERROR_MESSAGE, 'INVALID_ARGUMENT', 400)
+    }
     const petName = String(item.pet_name || settings.profileExtensionTable)
     const folderName = String(item.folder_name || settings.defaultFolderName)
     if (!Object.prototype.hasOwnProperty.call(folderRecords, folderName)) {
@@ -125,6 +121,9 @@ export const sendToPet = async (
 
     folderRecords[folderName][petName].push(item.stringify ? stringifyObject(item.userData) : item.userData)
   }
+
+  // First, update the profile list. No PETs will accept records from non-existing profiles.
+  await upsertListMembers(request, authTokens, payload, settings, usingAsyncApi)
 
   // Take a break.
   await new Promise((resolve) => setTimeout(resolve, getAllPetsWaitInterval))
