@@ -1,68 +1,96 @@
-# Local E2E (component) test framework
+# E2E (component) test framework
 
-A small, self-contained framework for running **live** end-to-end tests of a cloud-mode
-destination against a **real partner API** — no `nock` mocks. It drives the CLI `serve`
-server over HTTP, so any developer can run the same fixtures locally.
+Runs a cloud-mode destination's fixtures **live** against a real partner sandbox, no `nock`
+mocks. Unit tests prove our code matches our mock; these prove the live partner accepts what the
+destination sends.
 
-It complements unit tests: unit tests prove our code matches our mock; these prove the
-**live partner accepts what the destination sends**. The same fixtures and the exported
-`frame` / `validate` functions are designed to be reused by the deploy-time gating harness
-that lives in the integrations service (see the RFC), so a fixture written here is the unit
-of coverage both locally and at CD.
-
-Nothing here lives in `packages/core` (core bans `http`/`crypto`/`process`); the fixture
-types and event builders are ported from PR #3829 and kept alongside the runner.
+The runner core is adapter-neutral. Locally, fixtures run in-process through the destination
+definition. The integrations pre-deploy harness runs the same fixtures, from this package, through
+its own adapter against the integrations service. A fixture written here is the unit of coverage in
+both places.
 
 ## Layout
 
 ```
-src/lib/e2e/                         # the framework (import from '../../lib/e2e')
-  types.ts        # E2EFixture + expectation types (single | batch | batchWithMultistatus)
-  helpers.ts      # createE2EEvent + Engage/Journeys/RETL event builders
-  e2e-runner.ts   # runE2EFixtures (jest) + pure frame/validate/resolve* functions
-  index.ts        # barrel
+src/lib/e2e/
+  types.ts          # fixtures, expectations, E2ESuite, E2EResult
+  helpers.ts        # createE2EEvent + Engage/Journeys/RETL event builders
+  resolve.ts        # { $env } settings and $now / $guid markers
+  invocation.ts     # buildInvocation: fixture -> adapter-neutral E2EInvocation
+  validate.ts       # expectation vs observation, no jest
+  run.ts            # runSuites(adapter, suites, opts): scope, preflight, concurrency, retries, quarantine, exit code
+  registry.ts       # every onboarded destination's suites
+  adapters/
+    types.ts        # E2EAdapter, E2EInvocation, E2EObservation, E2ESetupError
+    in-process.ts   # InProcessAdapter (local; not exported from index.ts)
+  index.ts          # what the integrations harness imports
 
-src/destinations/<dest>/__e2e__/index.ts             # config: settings via { $env: 'NAME' }
-src/destinations/<dest>/<action>/__e2e__/fixtures.e2e.ts   # default-export E2EFixture[]
-src/destinations/<dest>/__test__/e2e.test.ts         # guarded entrypoint (RUN_E2E)
+src/destinations/<dest>/__e2e__/index.ts                # config (settings via { $env }) + suites
+src/destinations/<dest>/<action>/__e2e__/*.e2e.ts       # default-export E2EFixture[]
+test/e2e/live.e2e.ts                                    # local entry: registry through InProcessAdapter
 ```
+
+## Onboarding a destination
+
+1. Add `<dest>/<action>/__e2e__/*.e2e.ts`, each `export default` an `E2EFixture[]`.
+2. Add `<dest>/__e2e__/index.ts` with its `config` and `export const suites: E2ESuite[]`, one per action.
+3. Add one import line to `registry.ts`.
+
+Fixture files import from `lib/e2e/helpers` and `lib/e2e/types`, not the `lib/e2e` index: the
+index loads the registry, which loads the fixtures. Fixtures hold no secrets or partner account
+IDs, only `{ $env: 'E2E_<DEST>_<KEY>' }` names. A fixture's `description` is its result ID, so
+keep it unique within its action.
 
 ## Running
 
 ```bash
-# 1. Start the serve server (use the destination FOLDER name; binds 127.0.0.1:3000)
-./bin/run serve --destination mixpanel --noUI
+# from the repo root, with the destination's E2E_* variables exported
+yarn cloud e2e
 
-# 2. Run the fixtures (from packages/destination-actions)
-RUN_E2E=1 BASE_URL=http://127.0.0.1:3000 \
-  ./node_modules/.bin/jest --testPathPattern="mixpanel/__test__/e2e"
+E2E_DESTINATIONS=mixpanel,webhook   # only these destination folders
+E2E_CONCURRENCY=4                   # suites in parallel
+E2E_REPORT=/tmp/e2e.json            # also write the JSON report
 ```
 
-Fixtures whose `expect.status` is `success` or `failure` need real partner secrets exported
-(e.g. via `chamber`) — referenced only by name in the config as `{ $env: 'NAME' }`. Fixtures
-whose `expect.status` is `error` run with **no secrets** (our code throws before any request
-leaves), so they are a good smoke test of the whole pipeline.
+Once the `action-destinations-e2e` chamber service exists, `chamber exec action-destinations-e2e -- yarn cloud e2e`
+supplies them instead. A suite whose variables are missing
+is a setup error (report `exitCode` 2), never a silent skip. Webhook needs none. Locally `yarn e2e`
+fails on any non-zero `exitCode`; the summary and `E2E_REPORT` say which. `yarn cloud test` never runs
+these: the live entry has its own jest config, `jest.e2e.config.js`, without the nock setup that
+blocks network access.
 
-Without `RUN_E2E`, the entrypoint uses `describe.skip`, so normal `yarn cloud test` and CI
-stay green and require no serve server.
+## Writing an adapter
+
+Implement `E2EAdapter` and call `runSuites(adapter, suites, opts)`. The core hands the adapter an
+`E2EInvocation`: settings with secrets resolved, the events with markers resolved, the
+`subscribe` FQL, and the mapping with the action's field defaults overlaid by the fixture's, as a
+stored subscription carries it. The adapter sends it and returns an `E2EObservation`:
+
+- `exchanges`: the partner request/response pairs (`url`, `method`, response `status` and `body`).
+- `error`: what our code threw, as the Segment error code integrations reports (for example
+  `PAYLOAD_VALIDATION_FAILED`) and its status.
+- `multistatus`: the per-event results of a batch.
+
+Throw `E2ESetupError` when the target itself is unusable. `InProcessAdapter` calls
+`destination.onEvent` / `onBatch` with the subscription in settings, the same entry points
+integrations uses, and maps errors the way integrations does.
 
 ## Expectation shapes
 
-- `success` — a request was sent and the partner returned 2xx. Optional `httpStatus`,
-  `bodyContains`, `jsonContains` (partial deep match) against the outbound exchange's response.
-- `failure` — a request was sent and the partner returned non-2xx (proves we correctly reject
-  known-bad input). `httpStatus` required; optional `bodyContains` / `jsonContains`.
-- `error` — our code threw before any request left (e.g. a missing required field). Assert
-  `httpStatus` (the status the error class carries) and optionally `errorMessage`.
+- `success`: a request was sent and the partner returned 2xx, and every batch item is 2xx.
+  Optional `httpStatus`, `bodyContains`, `jsonContains` (partial deep match) on the last response.
+- `failure`: the partner returned non-2xx (proves we reject known-bad input). `httpStatus`
+  required; optional `bodyContains` / `jsonContains`.
+- `error`: our code rejected the event before any request left: it threw, or in batch modes every
+  multistatus item carries the error. `errorType` is the Segment error code; optional `httpStatus` and
+  `errorMessage`.
 
 ## Dynamic markers
 
 `$now` (ISO timestamp), `$guid` (fresh UUID), `$guid:<name>` (UUID stable within one fixture
-run) — resolved in events and mappings before each request.
+attempt), resolved in events and mappings.
 
-## Boundary
+## Not yet supported
 
-The local serve runner asserts the **outbound HTTP exchange**. Segment's per-item
-`MultiStatusResponse` is not returned by `serve`, so per-item MultiStatus index assertions are
-a capability of the in-process / integrations gating harness, not this runner. `batch` and
-`batchWithMultistatus` fixtures here assert the partner's batch HTTP response.
+Audience fixtures (`E2EAudienceDestinationConfig`: createAudience, getAudience, teardown) have
+types but no runner support.
