@@ -7,7 +7,9 @@ const action: BrowserActionDefinition<Settings, unknown, Payload> = {
   description: 'Does nothing.',
   platform: 'web',
   fields: {},
-  perform: () => {}
+  perform: () => {
+    return {}
+  }
 }
 
 export default action
