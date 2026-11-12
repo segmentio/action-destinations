@@ -6,6 +6,8 @@
  *
  *  - `error`   — a track event with no `event` name. `event` is a required field, so our code
  *                throws a payload-validation error BEFORE any request leaves.
+ *  - `error` (batch) — the same in a batch: core reports each event's validation error as a
+ *                multistatus item instead of throwing, and sends nothing.
  *  - `success` — a single valid track event; asserts the live Mixpanel `/import` response is 2xx.
  *  - `success` (batch) — two valid track events sent as a batch (performBatch).
  *  - `success` (batchWithMultistatus) — the same batch with per-item multistatus enabled; every
@@ -38,6 +40,22 @@ const fixtures: E2EFixture[] = [
       errorMessage: "missing the required field 'event'"
     },
     verboseFailureHint: 'The required "event" field is missing, so validation should fail before any request.'
+  },
+  {
+    description: 'batch of track events with no event name is rejected by our validation before any request',
+    mode: 'batch',
+    subscribe: 'type = "track"',
+    events: [
+      { type: 'track', messageId: '$guid', timestamp: '$now', userId: 'e2e-user-error-002' },
+      { type: 'track', messageId: '$guid', timestamp: '$now', userId: 'e2e-user-error-003' }
+    ],
+    mapping: {},
+    expect: {
+      status: 'error',
+      errorType: 'PAYLOAD_VALIDATION_FAILED',
+      httpStatus: 400,
+      errorMessage: "missing the required field 'event'"
+    }
   },
   {
     description: 'single valid track event is accepted by Mixpanel /import',
