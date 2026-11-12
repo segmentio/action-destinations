@@ -701,4 +701,29 @@ describe('retlOnMappingSave hook', () => {
 
     expect(r).toMatchObject({ error: { code: '404', message: 'List not found' } })
   })
+
+  it('returns an error when the list name is blank', async () => {
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', {
+      ...hookInputNew,
+      hookInputs: {}
+    })
+
+    expect(r).toMatchObject({ error: { code: 'PAYLOAD_VALIDATION_FAILED', message: 'Missing audience name value' } })
+  })
+
+  it('returns the Klaviyo status and detail when creating the list fails', async () => {
+    nock(`${API_URL}`)
+      .post('/lists')
+      .reply(400, {
+        errors: [
+          {
+            detail: 'A list with this name already exists.'
+          }
+        ]
+      })
+
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputNew)
+
+    expect(r).toMatchObject({ error: { code: '400', message: 'A list with this name already exists.' } })
+  })
 })
