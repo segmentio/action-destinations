@@ -86,7 +86,7 @@ const action: ActionDefinition<Settings, Payload> = {
       if (hasUnsafeFolderOrPetName(item, settings)) {
         multiStatusResponse.setErrorResponseAtIndex(index, {
           status: 400,
-          errortype: 'INVALID_ARGUMENT',
+          errortype: 'PAYLOAD_VALIDATION_FAILED',
           errormessage: UNSAFE_NAME_ERROR_MESSAGE
         })
         return

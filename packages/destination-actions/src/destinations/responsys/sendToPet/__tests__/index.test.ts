@@ -323,9 +323,9 @@ describe('Responsys.sendToPet', () => {
         })
 
         const multistatus = (testDestination.results[0] as any).multistatus
-        expect(multistatus[0]).toMatchObject({ status: 400, errortype: 'INVALID_ARGUMENT' })
+        expect(multistatus[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
         expect(multistatus[1]).toMatchObject({ status: 200 })
-        expect(multistatus[2]).toMatchObject({ status: 400, errortype: 'INVALID_ARGUMENT' })
+        expect(multistatus[2]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
         expect(upsertBodies).toHaveLength(1)
         expect(upsertBodies[0].recordData.records).toEqual([['good@x.com', '2']])
         expect(petBody.recordData.records).toEqual([['good@x.com', '2']])
