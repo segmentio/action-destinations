@@ -1,0 +1,193 @@
+# How each rule in .claude/rules/ is enforced: one entry per live rule ID, and the only
+# file that says so. The schema is the one cnd-domain-check's claudeRulesEnforcementV1
+# check reads.
+#
+# enforcement:
+#   ci            a CI job runs a check that fails on a break: name the job and the check
+#   review-agent  only judgment decides it, so the review agent gets the rule's text
+#   both          a check decides part of it and the review agent the rest
+#   platform      a GitHub or other platform setting stops a break: give its https URL
+#   guidance      it governs how a person or agent session behaves, which no diff or
+#                 setting shows: no check is claimed, so no ci, checks, mode, enforced
+#                 or platform
+#   pending       nothing checks it yet: a comment on the ID line names the plan or why
+#
+# A check that only warns is `mode: report-only` plus `enforced: partial` on its ci entry,
+# so the review agent still reads the rule. A test named under `checks` names its rule
+# (test_arc_01_..., or a tag such as @enforces("ARC-01")), so the claim is provable.
+#
+# Write only a YAML subset, so a stdlib checker can read it: two-space indents, `key: value`,
+# `key: [a, b]` on one line, `key: {}` and `#` comments. No `- item` lists, no `{a: b}` maps.
+#
+#   jobs:
+#     unit-tests:
+#       step: unit-tests            # the CI step's key (a CND repo: block + derived step)
+#       command: make test
+#       runs: always                # always | on-change
+version: 1
+
+jobs: {}
+
+rules:
+  ARC-01:
+    file: .claude/rules/architecture.md
+    enforcement: review-agent
+  ARC-02:
+    file: .claude/rules/architecture.md
+    enforcement: review-agent
+  ARC-03:
+    file: .claude/rules/architecture.md
+    enforcement: review-agent
+  ARC-04:
+    file: .claude/rules/architecture.md
+    enforcement: review-agent
+  CTX-01:
+    file: .claude/rules/external-context.md
+    enforcement: review-agent
+  PRI-01:
+    file: .claude/rules/principles.md
+    enforcement: review-agent
+  PRI-02:
+    file: .claude/rules/principles.md
+    enforcement: review-agent
+  PRI-03:
+    file: .claude/rules/principles.md
+    enforcement: review-agent
+  PRI-04:
+    file: .claude/rules/principles.md
+    enforcement: review-agent
+  PRI-05:
+    file: .claude/rules/principles.md
+    enforcement: review-agent
+  PRI-06:
+    file: .claude/rules/principles.md
+    enforcement: review-agent
+  REQ-01:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-02:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-03:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-04:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-05:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-06:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-07:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-08:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-09:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  REQ-10:
+    file: .claude/rules/requirements.md
+    enforcement: review-agent
+  SEC-01:
+    file: .claude/rules/security.md
+    enforcement: review-agent
+  SEC-02:
+    file: .claude/rules/security.md
+    enforcement: review-agent
+  SEC-03:
+    file: .claude/rules/security.md
+    enforcement: review-agent
+  SEC-04:
+    file: .claude/rules/security.md
+    enforcement: guidance
+  TST-01:
+    file: .claude/rules/testing.md
+    enforcement: review-agent
+  TST-02:
+    file: .claude/rules/testing.md
+    enforcement: review-agent
+  TST-03:
+    file: .claude/rules/testing.md
+    enforcement: review-agent
+  TST-04:
+    file: .claude/rules/testing.md
+    enforcement: guidance
+  TST-05:
+    file: .claude/rules/testing.md
+    enforcement: review-agent
+  WFL-01:  # branch protection not read via API
+    file: .claude/rules/workflow.md
+    enforcement: pending
+  WFL-03:
+    file: .claude/rules/workflow.md
+    enforcement: review-agent
+  WFL-04:  # branch protection not read via API
+    file: .claude/rules/workflow.md
+    enforcement: pending
+  WFL-05:
+    file: .claude/rules/workflow.md
+    enforcement: guidance
+  RUL-01:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-02:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-03:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-04:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-05:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-06:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-13:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-07:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-08:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-09:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-10:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-11:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  RUL-12:
+    file: .claude/rules/writing.md
+    enforcement: review-agent
+  EAR-01:
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: review-agent
+  EAR-02:
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: review-agent
+  EAR-03:
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: review-agent
+  EAR-04:
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: review-agent
+  EAR-05:
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: review-agent
+  EAR-06:  # no diff shows an archived repo or a removed App
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: pending
+  EAR-07:
+    file: .claude/rules/eng-automated-reviews.md
+    enforcement: review-agent
