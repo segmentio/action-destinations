@@ -4,7 +4,7 @@ import Destination from '../index'
 import { processHashing } from '../../../lib/hashing-utils'
 
 const testDestination = createTestIntegration(Destination)
-const settings = { pixel_id: 'pixel-123', api_key: 'api-key-abc' }
+const settings = { pixel_id: 'pixel-123' }
 const API = 'https://b.applovin.com'
 const EVENT_TIME = '2026-11-01T10:00:00.000Z'
 
@@ -74,15 +74,30 @@ const purchaseMapping = { name: 'purchase', value: { '@path': '$.properties.subt
 
 describe('AppLovin Conversions API', () => {
   beforeEach(() => {
+    process.env.ACTIONS_APPLOVIN_CONVERSIONS_API_KEY = 'api-key-abc'
     jest.spyOn(Date, 'now').mockReturnValue(Date.parse(EVENT_TIME))
   })
 
   afterEach(() => {
+    delete process.env.ACTIONS_APPLOVIN_CONVERSIONS_API_KEY
     nock.cleanAll()
     jest.restoreAllMocks()
   })
 
   describe('perform', () => {
+    it('throws a configuration error when the API key env variable is not set', async () => {
+      delete process.env.ACTIONS_APPLOVIN_CONVERSIONS_API_KEY
+
+      await expect(
+        testDestination.testAction('sendEvent', {
+          event: orderCompleted(),
+          settings,
+          useDefaultMappings: true,
+          mapping: purchaseMapping
+        })
+      ).rejects.toThrowError('AppLovin Conversions API key is not set')
+    })
+
     it('sends a purchase event with the expected request', async () => {
       let body: unknown
       nock(API)
@@ -103,6 +118,26 @@ describe('AppLovin Conversions API', () => {
 
       expect(responses[0].status).toBe(200)
       expect(body).toEqual({ events: [expectedPurchase('msg-1')] })
+    })
+
+    it('defaults esi to app when context.device.type is present', async () => {
+      let body: { events: { user_data: { esi: string } }[] } | undefined
+      nock(API)
+        .post('/v1/event')
+        .query(true)
+        .reply(200, (_uri, requestBody) => {
+          body = requestBody as typeof body
+          return {}
+        })
+
+      await testDestination.testAction('sendEvent', {
+        event: orderCompleted({ context: { ...baseContext, device: { type: 'ios' } } }),
+        settings,
+        useDefaultMappings: true,
+        mapping: purchaseMapping
+      })
+
+      expect(body?.events[0].user_data.esi).toBe('app')
     })
 
     it('throws when AppLovin rejects the credentials', async () => {
