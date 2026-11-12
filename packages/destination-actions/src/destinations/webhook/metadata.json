@@ -194,6 +194,18 @@
           "additionalProperties": false
         }
       }
+    },
+    "noop": {
+      "title": "No-op",
+      "description": "Does nothing.",
+      "platform": "web",
+      "defaultSubscription": null,
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
     }
   },
   "presets": []
