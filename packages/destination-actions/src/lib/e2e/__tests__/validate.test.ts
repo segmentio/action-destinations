@@ -91,6 +91,17 @@ describe('validate', () => {
       ).toBe(false)
     })
 
+    it('judges batch modes by the multistatus items, which must all carry the error', () => {
+      const item = {
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: "missing the required field 'event'"
+      }
+      expect(validate(expectation, { exchanges: [], multistatus: [item, item] })).toEqual({ passed: true })
+      expect(validate(expectation, { exchanges: [], multistatus: [item, { status: 200 }] }).passed).toBe(false)
+      expect(validate(expectation, { exchanges: [], multistatus: [] }).passed).toBe(false)
+    })
+
     it('fails on a different status or message', () => {
       const error = { type: 'PAYLOAD_VALIDATION_FAILED', message: "missing the required field 'event'", status: 400 }
       expect(validate(expectation, { exchanges: [], error: { ...error, status: 500 } }).passed).toBe(false)
