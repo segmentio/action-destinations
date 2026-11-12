@@ -6,9 +6,10 @@ import addToAudience from './addToAudience'
 import removeFromAudience from './removeFromAudience'
 import syncAudience from './syncAudience'
 
-import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL } from './constants'
+import { CREATE_AUDIENCE_URL, GET_AUDIENCE_URL, FLAGON_NAME_DATA_MANAGER } from './constants'
 import { buildHeaders, getAuthToken, getAuthSettings } from './shared'
 import { handleRequestError } from './errors'
+import { createDataManagerPartnerLink, createDataManagerUserList, getDataManagerUserList } from './dataManager'
 
 const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
   name: 'Display and Video 360 (Actions)',
@@ -40,7 +41,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings, statsContext } = createAudienceInput
+      const { audienceName, audienceSettings, statsContext, features } = createAudienceInput
       const { accountType } = audienceSettings || {}
       const advertiserId = audienceSettings?.advertiserId.trim()
       const { statsClient, tags: statsTags } = statsContext || {}
@@ -66,6 +67,34 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+        let authToken: string
+        try {
+          authToken = await getAuthToken(request, authSettings)
+        } catch (error) {
+          throw handleRequestError(error, statsName, statsContext)
+        }
+        const dmAudienceSettings = { ...audienceSettings, advertiserId, accountType }
+
+        // Best-effort partner link creation, errors must not block audience creation.
+        try {
+          await createDataManagerPartnerLink(request, dmAudienceSettings, authToken)
+        } catch (_) {
+          // intentionally swallowed
+        }
+
+        // Data Manager errors are already mapped to the repo's error classes.
+        const externalId = await createDataManagerUserList(
+          request,
+          audienceName,
+          dmAudienceSettings,
+          authToken,
+          statsContext
+        )
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return { externalId }
       }
 
       const listTypeMap = { basicUserList: {}, type: 'REMARKETING', membershipStatus: 'OPEN' }
@@ -105,7 +134,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const { statsContext, audienceSettings } = getAudienceInput
+      const { statsContext, audienceSettings, features } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { accountType } = audienceSettings || {}
       const advertiserId = audienceSettings?.advertiserId.trim()
@@ -125,6 +154,24 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         statsTags?.push('error:missing-settings')
         statsClient?.incr(`${statsName}.error`, 1, statsTags)
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
+      }
+
+      if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+        let authToken: string
+        try {
+          authToken = await getAuthToken(request, authSettings)
+        } catch (error) {
+          throw handleRequestError(error, statsName, statsContext)
+        }
+        await getDataManagerUserList(
+          request,
+          getAudienceInput.externalId,
+          { ...audienceSettings, advertiserId, accountType },
+          authToken,
+          statsContext
+        )
+        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        return { externalId: getAudienceInput.externalId }
       }
 
       const advertiserGetAudienceUrl = GET_AUDIENCE_URL.replace('advertiserID', advertiserId).replace(

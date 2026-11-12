@@ -30,3 +30,18 @@ export type UserOperation = {
 
 export type ListOperation = 'add' | 'remove'
 export type UpdateHandlerPayload = AddToAudiencePayload & RemoveFromAudiencePayload
+
+export interface DataManagerErrorResponse {
+  error: {
+    code?: number
+    message?: string
+    status?: string
+  }
+}
+
+export interface DataManagerUserList {
+  name: string
+  id: string
+  displayName?: string
+  membershipStatus?: string
+}
