@@ -173,7 +173,7 @@ export interface Payload {
      */
     price?: number
     /**
-     * The quantity of the item purchased. Defaults to 1 if not specified.
+     * The quantity of the item purchased. Defaults to 1 if not specified. (Action Destination Bot Test)
      */
     quantity?: number
     /**
