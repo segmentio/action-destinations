@@ -697,8 +697,8 @@ describe('retlOnMappingSave hook', () => {
         ]
       })
 
-    await expect(
-      testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputExisting)
-    ).rejects.toThrow('List not found')
+    const r = await testDestination.actions.upsertProfile.executeHook('retlOnMappingSave', hookInputExisting)
+
+    expect(r).toMatchObject({ error: { code: '404', message: 'List not found' } })
   })
 })
