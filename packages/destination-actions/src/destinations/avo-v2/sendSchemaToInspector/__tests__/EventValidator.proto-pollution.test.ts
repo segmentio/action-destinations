@@ -1,5 +1,6 @@
 import { validateEvent } from '../functions/event-validator-functions'
-import type { EventSpec } from '../types'
+import { mergeValidationResults } from '../functions/functions'
+import type { EventProperty, EventSpec, PropertyValidationResult } from '../types'
 
 // Property names and constraint keys come from the tracking plan response. JSON.parse keeps
 // `__proto__` as an own key, so specs and payloads below are built via JSON.parse.
@@ -145,5 +146,47 @@ describe('EventValidator prototype-safe merging', () => {
       })
       expectNoPollution()
     })
+  })
+})
+
+describe('mergeValidationResults with unusual property names', () => {
+  const failed = { failedEventIds: ['evt_1'] }
+
+  it('does not write onto Object.prototype when results contain an own __proto__ key', () => {
+    const eventProperties: EventProperty[] = [
+      { propertyName: 'plan', propertyType: 'object', children: [{ propertyName: 'name', propertyType: 'string' }] }
+    ]
+    const children = JSON.parse(
+      '{"__proto__":{"failedEventIds":["evt_1"],"passedEventIds":["evt_2"]},"name":{"failedEventIds":["evt_1"]}}'
+    )
+    const propertyResults: Record<string, PropertyValidationResult> = Object.create(null)
+    propertyResults.plan = { children }
+
+    mergeValidationResults(eventProperties, propertyResults)
+
+    expect(({} as Record<string, unknown>).failedEventIds).toBeUndefined()
+    expect(({} as Record<string, unknown>).passedEventIds).toBeUndefined()
+    expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'failedEventIds')).toBe(false)
+    expect((eventProperties[0].children as EventProperty[])[0].failedEventIds).toEqual(['evt_1'])
+  })
+
+  it('attaches results to schema properties named __proto__ and constructor', () => {
+    const eventProperties: EventProperty[] = [
+      {
+        propertyName: 'plan',
+        propertyType: 'object',
+        children: [
+          { propertyName: '__proto__', propertyType: 'string' },
+          { propertyName: 'constructor', propertyType: 'string' }
+        ]
+      }
+    ]
+    const children = JSON.parse('{"__proto__":{"failedEventIds":["evt_1"]},"constructor":{"failedEventIds":["evt_1"]}}')
+    mergeValidationResults(eventProperties, { plan: { children } })
+
+    const [protoChild, ctorChild] = eventProperties[0].children as EventProperty[]
+    expect(protoChild.failedEventIds).toEqual(failed.failedEventIds)
+    expect(ctorChild.failedEventIds).toEqual(failed.failedEventIds)
+    expect(({} as Record<string, unknown>).failedEventIds).toBeUndefined()
   })
 })
