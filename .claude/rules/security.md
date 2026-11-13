@@ -10,6 +10,7 @@ A leaked checkout exposes no credential, and text Claude reads cannot steer it i
 
 - SEC-01: Code reads credentials at run time from a secret store.
 - SEC-02: A person reviews every change to permissions or access.
+- SEC-05: The gitleaks pre-commit hook is not bypassed with `--no-verify` except for a confirmed false positive.
 
 ## Constraints
 

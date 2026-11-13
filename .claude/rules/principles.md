@@ -17,3 +17,7 @@ Changes stay small and look like the rest of the repo, so a reviewer spends thei
 - PRI-04: No error handling for a case that cannot happen.
 - PRI-05: No refactor of untouched code inside a bug fix.
 - PRI-06: No TODO comment is left for later work. (not yet met)
+
+## Notes
+
+No repo rule (HD-35): searched CLAUDE.md, README.md, CONTRIBUTING.md and docs/ for a stated design principle beyond the pattern-following the default rules already cover.

@@ -13,3 +13,4 @@ review_context:
     - .claude/rules/security.md
     - .claude/rules/workflow.md
     - .claude/rules/eng-automated-reviews.md
+    - .claude/rules/writing.md

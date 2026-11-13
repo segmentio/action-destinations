@@ -26,7 +26,11 @@
 #       runs: always                # always | on-change
 version: 1
 
-jobs: {}
+jobs:
+  validate:
+    step: validate
+    command: bash scripts/assert-types-updated.sh && bash scripts/assert-lockfile-updated.sh
+    runs: always
 
 rules:
   ARC-01:
@@ -92,6 +96,16 @@ rules:
   REQ-10:
     file: .claude/rules/requirements.md
     enforcement: review-agent
+  REQ-11:
+    file: .claude/rules/requirements.md
+    enforcement: ci
+    ci: [validate]
+    checks: [scripts/assert-types-updated.sh]
+  REQ-12:
+    file: .claude/rules/requirements.md
+    enforcement: ci
+    ci: [validate]
+    checks: [scripts/assert-lockfile-updated.sh]
   SEC-01:
     file: .claude/rules/security.md
     enforcement: review-agent
@@ -104,6 +118,9 @@ rules:
   SEC-04:
     file: .claude/rules/security.md
     enforcement: guidance
+  SEC-05:
+    file: .claude/rules/security.md
+    enforcement: guidance
   TST-01:
     file: .claude/rules/testing.md
     enforcement: review-agent
@@ -111,6 +128,12 @@ rules:
     file: .claude/rules/testing.md
     enforcement: review-agent
   TST-03:
+    file: .claude/rules/testing.md
+    enforcement: review-agent
+  TST-06:
+    file: .claude/rules/testing.md
+    enforcement: pending  # no CI step or script sets TZ=UTC; plan: set it in the test script
+  TST-07:
     file: .claude/rules/testing.md
     enforcement: review-agent
   TST-04:

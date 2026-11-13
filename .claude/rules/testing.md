@@ -11,6 +11,8 @@ A green build means the change works, and Claude gets fast feedback each time it
 - TST-01: A change that alters behavior adds or updates a test of that behavior in the same PR.
 - TST-02: CI runs the repo's tests on every PR.
 - TST-03: A flaky test is made deterministic, or skipped with a link to a ticket.
+- TST-06: Tests run with `TZ=UTC`, so snapshot output does not depend on the developer's timezone.
+- TST-07: A cloud-mode destination test mocks its outbound HTTP calls with `nock`.
 
 ## Constraints
 

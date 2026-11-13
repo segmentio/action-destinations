@@ -13,6 +13,8 @@ Existing customer mappings keep working, and events are delivered or fail with a
 - REQ-03: PII is hashed with the `processHashing` utility.
 - REQ-04: A high-volume destination, such as Facebook, Google or Snapchat, rolls out a change behind a feature flag.
 - REQ-05: A destination or action that is new is registered in `packages/destination-actions/src/index.ts` (cloud) or `packages/destinations-manifest/index.ts` (browser).
+- REQ-11: A change to an action's fields commits the regenerated `generated-types.ts` from `yarn types`.
+- REQ-12: A change to a `package.json` dependency commits the matching `yarn.lock` update.
 
 ## Constraints
 
