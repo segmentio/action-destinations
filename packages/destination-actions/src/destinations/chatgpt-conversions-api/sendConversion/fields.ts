@@ -11,7 +11,6 @@ import {
   EVENT_TYPE_LABELS,
   EVENT_TYPE_SUPPORTS_CONTENTS,
   EVENT_TYPE_SUPPORTS_PLAN_ID,
-  GAID_LENGTH,
   ISO_COUNTRY_CODES,
   MAX_BATCH_SIZE,
   POSTAL_CODE_MAX_LENGTH,
@@ -67,20 +66,14 @@ export const fields: Record<string, InputField> = {
     type: 'string',
     required: true,
     choices: toChoices(ACTION_SOURCE_LABELS),
-    default: {
-      '@if': {
-        exists: { '@path': '$.context.page.url' },
-        then: 'web',
-        else: 'other'
-      }
-    }
+    default: { '@liquid': '{% if context.page.url %}web{% else %}other{% endif %}' }
   },
   source_url: {
     label: 'Source URL',
-    description: 'The URL of the page where the event occurred, including scheme and host. Required for Web events.',
+    description:
+      'The URL of the page where the event occurred, including scheme and host. Required when Action Source is Web. Optional for all other Action Sources.',
     type: 'string',
     required: ACTION_SOURCE_IS_WEB,
-    depends_on: ACTION_SOURCE_IS_WEB,
     default: { '@path': '$.context.page.url' }
   },
   oppref: {
@@ -109,10 +102,10 @@ export const fields: Record<string, InputField> = {
   },
   currency: {
     label: 'Currency',
-    description: 'The ISO 4217 currency code of the amount, for example USD. Required when an amount is mapped.',
+    description:
+      'The ISO 4217 currency code of the amount, for example USD. Required when Amount is provided. Optional when there is no Amount.',
     type: 'string',
     required: AMOUNT_IS_PRESENT,
-    depends_on: AMOUNT_IS_PRESENT,
     minimum: CURRENCY_LENGTH,
     maximum: CURRENCY_LENGTH,
     default: { '@path': '$.properties.currency' }
@@ -139,7 +132,8 @@ export const fields: Record<string, InputField> = {
       name: { label: 'Name', description: 'A human readable name for the item.', type: 'string' },
       content_type: {
         label: 'Content Type',
-        description: 'A category for the item, for example product, plan or page.',
+        description:
+          'A category for the item. Optional, and any non-empty text is accepted. For example product, plan or page.',
         type: 'string'
       },
       quantity: { label: 'Quantity', description: 'The number of units. Sent as an integer.', type: 'integer' },
@@ -158,11 +152,11 @@ export const fields: Record<string, InputField> = {
       }
     }
   },
-  essential_identifiers: {
-    label: 'Essential Identifiers',
-    description: 'At least one essential identifier is required.',
+  user: {
+    label: 'User',
+    description:
+      'Identifiers and user details that help ChatGPT Conversions API match the event to a user. At least one of Email, Phone or Android Advertising ID is recommended, but events are still delivered without them. Matching works best when more details are sent together.',
     type: 'object',
-    required: true,
     additionalProperties: false,
     defaultObjectUI: 'keyvalue',
     properties: {
@@ -184,49 +178,8 @@ export const fields: Record<string, InputField> = {
         label: 'Android Advertising ID',
         description:
           "The user's Android Google Advertising ID (GAID) as a 36 character UUID, for example 123e4567-e89b-12d3-a456-426614174000. Sent unhashed. IDFA is not supported.",
-        type: 'string',
-        minimum: GAID_LENGTH,
-        maximum: GAID_LENGTH
-      }
-    },
-    default: {
-      email: [
-        {
-          '@if': {
-            exists: { '@path': '$.context.traits.email' },
-            then: { '@path': '$.context.traits.email' },
-            else: { '@path': '$.properties.email' }
-          }
-        }
-      ],
-      phone: [
-        {
-          '@if': {
-            exists: { '@path': '$.context.traits.phone' },
-            then: { '@path': '$.context.traits.phone' },
-            else: { '@path': '$.properties.phone' }
-          }
-        }
-      ],
-      android_advertising_id: {
-        '@if': {
-          blank: {
-            '@liquid':
-              "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
-          },
-          then: { '@path': '$.context.device.advertisingId' }
-        }
-      }
-    }
-  },
-  matching_data: {
-    label: 'Matching Data',
-    description:
-      'Optional identifiers and user details that help ChatGPT Conversions API match the event to a user. They work best when sent together.',
-    type: 'object',
-    additionalProperties: false,
-    defaultObjectUI: 'keyvalue',
-    properties: {
+        type: 'string'
+      },
       obref: {
         label: 'OpenAI Browser Reference',
         description:
@@ -291,6 +244,24 @@ export const fields: Record<string, InputField> = {
       }
     },
     default: {
+      email: {
+        '@if': {
+          exists: { '@path': '$.context.traits.email' },
+          then: { '@path': '$.context.traits.email' },
+          else: { '@path': '$.properties.email' }
+        }
+      },
+      phone: {
+        '@if': {
+          exists: { '@path': '$.context.traits.phone' },
+          then: { '@path': '$.context.traits.phone' },
+          else: { '@path': '$.properties.phone' }
+        }
+      },
+      android_advertising_id: {
+        '@liquid':
+          "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+      },
       obref: {
         '@if': {
           exists: { '@path': '$.integrations.ChatGPT Conversions API.obref' },
@@ -315,10 +286,34 @@ export const fields: Record<string, InputField> = {
           else: { '@path': '$.properties.last_name' }
         }
       },
-      city: { '@path': '$.context.traits.address.city' },
-      region: { '@path': '$.context.traits.address.state' },
-      country: { '@path': '$.context.traits.address.country' },
-      postal_code: { '@path': '$.context.traits.address.postalCode' }
+      city: {
+        '@if': {
+          exists: { '@path': '$.context.traits.address.city' },
+          then: { '@path': '$.context.traits.address.city' },
+          else: { '@path': '$.properties.address.city' }
+        }
+      },
+      region: {
+        '@if': {
+          exists: { '@path': '$.context.traits.address.state' },
+          then: { '@path': '$.context.traits.address.state' },
+          else: { '@path': '$.properties.address.state' }
+        }
+      },
+      country: {
+        '@if': {
+          exists: { '@path': '$.context.traits.address.country' },
+          then: { '@path': '$.context.traits.address.country' },
+          else: { '@path': '$.properties.address.country' }
+        }
+      },
+      postal_code: {
+        '@if': {
+          exists: { '@path': '$.context.traits.address.postalCode' },
+          then: { '@path': '$.context.traits.address.postalCode' },
+          else: { '@path': '$.properties.address.postalCode' }
+        }
+      }
     }
   },
   enable_batching: {

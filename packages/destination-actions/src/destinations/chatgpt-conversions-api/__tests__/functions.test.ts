@@ -11,7 +11,7 @@ const basePayload: Payload = {
   timestamp: '2026-11-03T11:59:00.000Z',
   action_source: 'web',
   source_url: 'https://example.com/checkout',
-  essential_identifiers: { email: ['jane@example.com'] }
+  user: { email: ['jane@example.com'] }
 }
 
 beforeEach(() => {
@@ -45,12 +45,10 @@ describe('buildJSON', () => {
           },
           { id: '   ' }
         ],
-        essential_identifiers: {
+        user: {
           email: [' Jane@Example.com '],
           phone: ['+1 (415) 555-0100'],
-          android_advertising_id: 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE'
-        },
-        matching_data: {
+          android_advertising_id: 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE',
           obref: ' anon_1 ',
           external_id: ' User-1 ',
           user_agent: ' Mozilla/5.0 ',
@@ -111,8 +109,7 @@ describe('buildJSON', () => {
     const nameHash = sha256('jane')
     const { user } = buildJSON({
       ...basePayload,
-      essential_identifiers: { email: [emailHash] },
-      matching_data: { first_name: nameHash.toUpperCase() }
+      user: { email: [emailHash], first_name: nameHash.toUpperCase() }
     })
     expect(user.emails_sha256).toEqual([emailHash])
     expect(user.first_names_sha256).toEqual([nameHash])
@@ -121,7 +118,7 @@ describe('buildJSON', () => {
   it('sends up to 3 hashed emails and phones, skipping blanks and ignoring extras', () => {
     const { user } = buildJSON({
       ...basePayload,
-      essential_identifiers: {
+      user: {
         email: ['A@example.com', '  ', 'b@example.com', 'c@example.com', 'd@example.com'],
         phone: ['+14155550100', '12345', '+14155550101']
       }
@@ -131,36 +128,36 @@ describe('buildJSON', () => {
   })
 
   it('accepts any single essential identifier', () => {
-    expect(buildJSON({ ...basePayload, essential_identifiers: { phone: ['4155550100'] } }).user).toEqual({
+    expect(buildJSON({ ...basePayload, user: { phone: ['4155550100'] } }).user).toEqual({
       phone_numbers_sha256: [sha256('4155550100')]
     })
     expect(
       buildJSON({
         ...basePayload,
-        essential_identifiers: { android_advertising_id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
+        user: { android_advertising_id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' }
       }).user
     ).toEqual({ android_advertising_id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee' })
   })
 
   it.each([
-    ['no essential identifiers', {}],
-    ['blank essential identifiers', { email: ['   '], phone: [' '] }],
+    ['no user details', undefined],
+    ['an empty user', {}],
+    ['blank identifiers', { email: ['   '], phone: [' '] }],
     ['a phone that normalises to nothing', { phone: ['12345'] }],
     ['an all-zero GAID', { android_advertising_id: '00000000-0000-0000-0000-000000000000' }]
-  ])('rejects %s', (_label, essentialIdentifiers) => {
-    expect(() => buildJSON({ ...basePayload, essential_identifiers: essentialIdentifiers })).toThrow(
-      'At least one valid essential identifier'
-    )
+  ] as [string, Payload['user']][])('sends the event with %s', (_label, user) => {
+    expect(buildJSON({ ...basePayload, user }).user).toEqual({})
   })
 
-  it('does not count matching data identifiers as an essential identifier', () => {
-    expect(() =>
-      buildJSON({
-        ...basePayload,
-        essential_identifiers: {},
-        matching_data: { external_id: 'user-1', obref: 'anon_1' }
-      })
-    ).toThrow('At least one valid essential identifier')
+  it.each(['', 'too-short'])('drops a malformed Android advertising id %p', (android_advertising_id) => {
+    expect(buildJSON({ ...basePayload, user: { android_advertising_id } }).user).toEqual({})
+  })
+
+  it('sends the event with only non-essential user details', () => {
+    expect(buildJSON({ ...basePayload, user: { external_id: 'user-1', obref: 'anon_1' } }).user).toEqual({
+      external_ids_sha256: [sha256('user-1')],
+      obref: 'anon_1'
+    })
   })
 
   it('omits contents for customer_action events and plan_id for contents events', () => {
@@ -210,8 +207,8 @@ describe('buildJSON', () => {
     ['amount without currency', { amount: 5 }, 'Currency is required'],
     ['blank event ID', { event_id: '   ' }, 'Event ID is required'],
     ['stale timestamp', { timestamp: '2026-10-01T00:00:00.000Z' }, 'more than 7 days old'],
-    ['unknown country', { matching_data: { country: 'ZZ' } }, 'ISO 3166-1'],
-    ['invalid IP address', { matching_data: { ip_address: 'nope' } }, 'IPv4 or IPv6'],
+    ['unknown country', { user: { country: 'ZZ' } }, 'ISO 3166-1'],
+    ['invalid IP address', { user: { ip_address: 'nope' } }, 'IPv4 or IPv6'],
     ['item amount without currency', { contents: [{ id: 'a', amount: 1 }] }, 'Currency is required']
   ] as [string, Partial<Payload>, string][])('rejects %s', (_label, overrides, message) => {
     expect(() => buildJSON({ ...basePayload, ...overrides })).toThrow(message)
