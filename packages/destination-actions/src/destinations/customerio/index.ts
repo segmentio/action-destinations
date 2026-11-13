@@ -18,6 +18,7 @@ import trackScreenView from './trackScreenView'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import { AccountRegion, trackApiEndpoint } from './utils'
+import updateSubscriptionPreferences from './updateSubscriptionPreferences'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Actions Customerio',
@@ -75,7 +76,8 @@ const destination: DestinationDefinition<Settings> = {
     suppressPerson,
     unsuppressPerson,
     reportDeliveryEvent,
-    reportContentEvent
+    reportContentEvent,
+    updateSubscriptionPreferences
   },
 
   presets: [
@@ -140,7 +142,8 @@ const destination: DestinationDefinition<Settings> = {
         and event != "User Unsuppressed"
         and event != "Object Deleted"
         and event != "Report Delivery Event"
-        and event != "Report Content Event"
+        and event != "Report Content Event",
+        and event != "Subscription Preferences Updated"
       `,
       partnerAction: 'trackEvent',
       mapping: defaultValues(trackEvent.fields),
@@ -261,6 +264,13 @@ const destination: DestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'warehouse_audience_membership_changed_identify'
+    },
+    {
+      name: 'Update Subscription Preferences',
+      subscribe: 'event = "Subscription Preferences Updated"',
+      partnerAction: 'updateSubscriptionPreferences',
+      mapping: defaultValues(updateSubscriptionPreferences.fields),
+      type: 'automatic'
     },
     {
       name: 'Journeys Step Transition Track',
