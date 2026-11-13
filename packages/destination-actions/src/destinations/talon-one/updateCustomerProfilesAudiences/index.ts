@@ -53,7 +53,6 @@ const action: ActionDefinition<Settings, Payload> = {
       default: DEFAULT_SEGMENT_EVENTS_PER_BATCH,
       minimum: 1,
       maximum: SEGMENT_EVENTS_PER_BATCH,
-      unsafe_hidden: true,
       required: false
     }
   },
