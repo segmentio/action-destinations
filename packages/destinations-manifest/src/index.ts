@@ -81,3 +81,4 @@ register('697088b36245ed59c958d615', '@segment/analytics-browser-actions-rokt-pl
 register('69805c55324ed9e25f234a1a', '@segment/analytics-browser-actions-moengage-web')
 register('698aff47f133996889ade37e', '@segment/analytics-browser-appcues-web-actions')
 register('614a3c7d791c91c41bae7599', '@segment/analytics-browser-actions-webhook-browser-plugin')
+register('6af304f713eaa964139f779b', '@segment/analytics-browser-actions-applovin-conversions-api-plugins')

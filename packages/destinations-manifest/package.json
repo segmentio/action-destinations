@@ -21,6 +21,7 @@
     "@segment/analytics-browser-actions-adobe-target": "1.110.1-staging-26cb48cf2.0",
     "@segment/analytics-browser-actions-algolia-plugins": "^1.86.0",
     "@segment/analytics-browser-actions-amplitude-plugins": "^1.109.0",
+    "@segment/analytics-browser-actions-applovin-conversions-api-plugins": "^1.1.0",
     "@segment/analytics-browser-actions-braze": "1.126.1-staging-10feea44c.0",
     "@segment/analytics-browser-actions-braze-cloud-plugins": "1.126.1-staging-10feea44c.0",
     "@segment/analytics-browser-actions-bucket": "^1.90.0",

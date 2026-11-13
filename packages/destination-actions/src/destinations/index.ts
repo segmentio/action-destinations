@@ -243,6 +243,7 @@ register('6a68baf59e9ffb3aafc3c3c8', './marketo-private')
 register('6a8461f58f98175178f49c3c', './heap-cloud')
 register('6aeaf4f730ae4c0220fc250a', './tatari-web-events')
 register('6af40ef66a704e776d1affac', './adobe-aep')
+register('6af304f713eaa964139f779b', './applovin-conversions-api')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
