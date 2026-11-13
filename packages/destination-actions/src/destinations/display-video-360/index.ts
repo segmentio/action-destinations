@@ -70,11 +70,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+        const dmStatsName = 'createAudience.dataManager'
         let authToken: string
         try {
           authToken = await getAuthToken(request, authSettings)
         } catch (error) {
-          throw handleRequestError(error, statsName, statsContext)
+          throw handleRequestError(error, dmStatsName, statsContext)
         }
         const dmAudienceSettings = { ...audienceSettings, advertiserId, accountType }
 
@@ -93,7 +94,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           authToken,
           statsContext
         )
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        statsClient?.incr(`${dmStatsName}.success`, 1, statsTags)
         return { externalId }
       }
 
@@ -157,11 +158,12 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+        const dmStatsName = 'getAudience.dataManager'
         let authToken: string
         try {
           authToken = await getAuthToken(request, authSettings)
         } catch (error) {
-          throw handleRequestError(error, statsName, statsContext)
+          throw handleRequestError(error, dmStatsName, statsContext)
         }
         await getDataManagerUserList(
           request,
@@ -170,7 +172,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           authToken,
           statsContext
         )
-        statsClient?.incr(`${statsName}.success`, 1, statsTags)
+        statsClient?.incr(`${dmStatsName}.success`, 1, statsTags)
         return { externalId: getAudienceInput.externalId }
       }
 
