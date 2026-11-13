@@ -119,12 +119,23 @@ export function buildJSON(payload: Payload): EventJSON {
     currency,
     plan_id,
     contents,
-    essential_identifiers,
-    matching_data
+    user
   } = payload
-  const { email, phone, android_advertising_id } = essential_identifiers
-  const { obref, external_id, user_agent, ip_address, first_name, last_name, city, region, country, postal_code } =
-    matching_data ?? {}
+  const {
+    email,
+    phone,
+    android_advertising_id,
+    obref,
+    external_id,
+    user_agent,
+    ip_address,
+    first_name,
+    last_name,
+    city,
+    region,
+    country,
+    postal_code
+  } = user ?? {}
 
   const eventType = event_type as EventType
   const actionSource = action_source as ActionSource
@@ -141,12 +152,6 @@ export function buildJSON(payload: Payload): EventJSON {
   const emailHashes = hashValues(email, cleanEmail)
   const phoneHashes = hashValues(phone, cleanPhone)
   const gaid = toGaid(android_advertising_id)
-
-  if (emailHashes.length === 0 && phoneHashes.length === 0 && !gaid) {
-    throw new PayloadValidationError(
-      'At least one valid essential identifier is required: Email, Phone or Android Advertising ID.'
-    )
-  }
 
   const externalIdHash = hashValue(external_id, cleanExternalId)
   const firstNameHash = hashValue(first_name, cleanName)

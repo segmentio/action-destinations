@@ -22,7 +22,7 @@ export interface Payload {
    */
   action_source: string
   /**
-   * The URL of the page where the event occurred, including scheme and host. Required for Web events.
+   * The URL of the page where the event occurred, including scheme and host. Required when Action Source is Web. Optional for all other Action Sources.
    */
   source_url?: string
   /**
@@ -38,7 +38,7 @@ export interface Payload {
    */
   amount?: number
   /**
-   * The ISO 4217 currency code of the amount, for example USD. Required when an amount is mapped.
+   * The ISO 4217 currency code of the amount, for example USD. Required when Amount is provided. Optional when there is no Amount.
    */
   currency?: string
   /**
@@ -80,9 +80,9 @@ export interface Payload {
     [k: string]: unknown
   }[]
   /**
-   * At least one essential identifier is required.
+   * Identifiers and user details that help ChatGPT Conversions API match the event to a user. At least one of Email, Phone or Android Advertising ID is recommended, but events are still delivered without them. Matching works best when more details are sent together.
    */
-  essential_identifiers: {
+  user?: {
     /**
      * The user's email addresses, up to 3, for example jane@example.com. Segment trims each one, lowercases it and SHA-256 hashes it. A SHA-256 hash (64 hex characters) is sent as is. Any values after the first 3 are ignored.
      */
@@ -95,11 +95,6 @@ export interface Payload {
      * The user's Android Google Advertising ID (GAID) as a 36 character UUID, for example 123e4567-e89b-12d3-a456-426614174000. Sent unhashed. IDFA is not supported.
      */
     android_advertising_id?: string
-  }
-  /**
-   * Optional identifiers and user details that help ChatGPT Conversions API match the event to a user. They work best when sent together.
-   */
-  matching_data?: {
     /**
      * The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API browser plugin reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.
      */

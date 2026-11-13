@@ -231,13 +231,7 @@
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.page.url"
-              },
-              "then": "web",
-              "else": "other"
-            }
+            "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
           },
           "choices": [
             {
@@ -285,7 +279,7 @@
         },
         "source_url": {
           "label": "Source URL",
-          "description": "The URL of the page where the event occurred, including scheme and host. Required for Web events.",
+          "description": "The URL of the page where the event occurred, including scheme and host. Required when Action Source is Web. Optional for all other Action Sources.",
           "type": "string",
           "required": {
             "match": "all",
@@ -307,16 +301,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "action_source",
-                "operator": "is",
-                "value": "web"
-              }
-            ]
-          },
+          "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": null,
@@ -413,7 +398,7 @@
         },
         "currency": {
           "label": "Currency",
-          "description": "The ISO 4217 currency code of the amount, for example USD. Required when an amount is mapped.",
+          "description": "The ISO 4217 currency code of the amount, for example USD. Required when Amount is provided. Optional when there is no Amount.",
           "type": "string",
           "required": {
             "match": "all",
@@ -434,15 +419,7 @@
           "placeholder": null,
           "properties": null,
           "category": null,
-          "depends_on": {
-            "match": "all",
-            "conditions": [
-              {
-                "fieldKey": "amount",
-                "operator": "is_not"
-              }
-            ]
-          },
+          "depends_on": null,
           "readOnly": null,
           "hidden": null,
           "minimum": 3,
@@ -735,52 +712,141 @@
           "format": null,
           "additionalProperties": true
         },
-        "essential_identifiers": {
-          "label": "Essential Identifiers",
-          "description": "At least one essential identifier is required.",
+        "user": {
+          "label": "User",
+          "description": "Identifiers and user details that help ChatGPT Conversions API match the event to a user. At least one of Email, Phone or Android Advertising ID is recommended, but events are still delivered without them. Matching works best when more details are sent together.",
           "type": "object",
-          "required": true,
+          "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
           "default": {
-            "email": [
-              {
-                "@if": {
-                  "exists": {
-                    "@path": "$.context.traits.email"
-                  },
-                  "then": {
-                    "@path": "$.context.traits.email"
-                  },
-                  "else": {
-                    "@path": "$.properties.email"
-                  }
-                }
-              }
-            ],
-            "phone": [
-              {
-                "@if": {
-                  "exists": {
-                    "@path": "$.context.traits.phone"
-                  },
-                  "then": {
-                    "@path": "$.context.traits.phone"
-                  },
-                  "else": {
-                    "@path": "$.properties.phone"
-                  }
-                }
-              }
-            ],
-            "android_advertising_id": {
+            "email": {
               "@if": {
-                "blank": {
-                  "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+                "exists": {
+                  "@path": "$.context.traits.email"
                 },
                 "then": {
-                  "@path": "$.context.device.advertisingId"
+                  "@path": "$.context.traits.email"
+                },
+                "else": {
+                  "@path": "$.properties.email"
+                }
+              }
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.phone"
+                },
+                "then": {
+                  "@path": "$.context.traits.phone"
+                },
+                "else": {
+                  "@path": "$.properties.phone"
+                }
+              }
+            },
+            "android_advertising_id": {
+              "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+            },
+            "obref": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.ChatGPT Conversions API.obref"
+                },
+                "then": {
+                  "@path": "$.integrations.ChatGPT Conversions API.obref"
+                },
+                "else": {
+                  "@path": "$.anonymousId"
+                }
+              }
+            },
+            "external_id": {
+              "@path": "$.userId"
+            },
+            "user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "ip_address": {
+              "@path": "$.context.ip"
+            },
+            "first_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.first_name"
+                },
+                "then": {
+                  "@path": "$.context.traits.first_name"
+                },
+                "else": {
+                  "@path": "$.properties.first_name"
+                }
+              }
+            },
+            "last_name": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.last_name"
+                },
+                "then": {
+                  "@path": "$.context.traits.last_name"
+                },
+                "else": {
+                  "@path": "$.properties.last_name"
+                }
+              }
+            },
+            "city": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.city"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.city"
+                },
+                "else": {
+                  "@path": "$.properties.address.city"
+                }
+              }
+            },
+            "region": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.state"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.state"
+                },
+                "else": {
+                  "@path": "$.properties.address.state"
+                }
+              }
+            },
+            "country": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.country"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.country"
+                },
+                "else": {
+                  "@path": "$.properties.address.country"
+                }
+              }
+            },
+            "postal_code": {
+              "@if": {
+                "exists": {
+                  "@path": "$.context.traits.address.postalCode"
+                },
+                "then": {
+                  "@path": "$.context.traits.address.postalCode"
+                },
+                "else": {
+                  "@path": "$.properties.address.postalCode"
                 }
               }
             }
@@ -852,100 +918,14 @@
               "depends_on": null,
               "readOnly": null,
               "hidden": null,
-              "minimum": 36,
-              "maximum": 36,
+              "minimum": null,
+              "maximum": null,
               "defaultObjectUI": null,
               "disabledInputMethods": null,
               "displayMode": null,
               "format": null,
               "additionalProperties": false
-            }
-          },
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": "keyvalue",
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": null,
-          "additionalProperties": false
-        },
-        "matching_data": {
-          "label": "Matching Data",
-          "description": "Optional identifiers and user details that help ChatGPT Conversions API match the event to a user. They work best when sent together.",
-          "type": "object",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "obref": {
-              "@if": {
-                "exists": {
-                  "@path": "$.integrations.ChatGPT Conversions API.obref"
-                },
-                "then": {
-                  "@path": "$.integrations.ChatGPT Conversions API.obref"
-                },
-                "else": {
-                  "@path": "$.anonymousId"
-                }
-              }
             },
-            "external_id": {
-              "@path": "$.userId"
-            },
-            "user_agent": {
-              "@path": "$.context.userAgent"
-            },
-            "ip_address": {
-              "@path": "$.context.ip"
-            },
-            "first_name": {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.first_name"
-                },
-                "then": {
-                  "@path": "$.context.traits.first_name"
-                },
-                "else": {
-                  "@path": "$.properties.first_name"
-                }
-              }
-            },
-            "last_name": {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.last_name"
-                },
-                "then": {
-                  "@path": "$.context.traits.last_name"
-                },
-                "else": {
-                  "@path": "$.properties.last_name"
-                }
-              }
-            },
-            "city": {
-              "@path": "$.context.traits.address.city"
-            },
-            "region": {
-              "@path": "$.context.traits.address.state"
-            },
-            "country": {
-              "@path": "$.context.traits.address.country"
-            },
-            "postal_code": {
-              "@path": "$.context.traits.address.postalCode"
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": {
             "obref": {
               "label": "OpenAI Browser Reference",
               "description": "The user's OpenAI browser reference (obref) value. Sent unhashed. The ChatGPT Conversions API browser plugin reads it from the __obref cookie, which requires the user's measurement consent. Falls back to the anonymous ID.",
@@ -2303,49 +2283,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -2395,16 +2362,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -2448,49 +2455,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -2540,16 +2534,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -2571,13 +2605,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -2601,49 +2629,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -2693,16 +2708,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -2724,13 +2779,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -2754,49 +2803,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -2846,16 +2882,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -2913,13 +2989,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -2943,49 +3013,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -3035,16 +3092,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -3089,13 +3186,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -3119,49 +3210,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -3211,16 +3289,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -3265,13 +3383,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -3295,49 +3407,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -3387,16 +3486,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -3418,13 +3557,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -3448,49 +3581,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -3540,16 +3660,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -3607,13 +3767,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -3637,49 +3791,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -3729,16 +3870,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -3760,13 +3941,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -3790,49 +3965,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -3882,16 +4044,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -3913,13 +4115,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -3943,49 +4139,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -4035,16 +4218,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,
@@ -4069,13 +4292,7 @@
           "@path": "$.timestamp"
         },
         "action_source": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.page.url"
-            },
-            "then": "web",
-            "else": "other"
-          }
+          "@liquid": "{% if context.page.url %}web{% else %}other{% endif %}"
         },
         "source_url": {
           "@path": "$.context.page.url"
@@ -4099,49 +4316,36 @@
         "plan_id": {
           "@path": "$.properties.plan_id"
         },
-        "essential_identifiers": {
-          "email": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.email"
-                },
-                "then": {
-                  "@path": "$.context.traits.email"
-                },
-                "else": {
-                  "@path": "$.properties.email"
-                }
-              }
-            }
-          ],
-          "phone": [
-            {
-              "@if": {
-                "exists": {
-                  "@path": "$.context.traits.phone"
-                },
-                "then": {
-                  "@path": "$.context.traits.phone"
-                },
-                "else": {
-                  "@path": "$.properties.phone"
-                }
-              }
-            }
-          ],
-          "android_advertising_id": {
+        "user": {
+          "email": {
             "@if": {
-              "blank": {
-                "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+              "exists": {
+                "@path": "$.context.traits.email"
               },
               "then": {
-                "@path": "$.context.device.advertisingId"
+                "@path": "$.context.traits.email"
+              },
+              "else": {
+                "@path": "$.properties.email"
               }
             }
-          }
-        },
-        "matching_data": {
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.phone"
+              },
+              "then": {
+                "@path": "$.context.traits.phone"
+              },
+              "else": {
+                "@path": "$.properties.phone"
+              }
+            }
+          },
+          "android_advertising_id": {
+            "@liquid": "{% if context.device.advertisingId and context.device.type == 'android' %}{{ context.device.advertisingId }}{% endif %}"
+          },
           "obref": {
             "@if": {
               "exists": {
@@ -4191,16 +4395,56 @@
             }
           },
           "city": {
-            "@path": "$.context.traits.address.city"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.city"
+              },
+              "then": {
+                "@path": "$.context.traits.address.city"
+              },
+              "else": {
+                "@path": "$.properties.address.city"
+              }
+            }
           },
           "region": {
-            "@path": "$.context.traits.address.state"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.state"
+              },
+              "then": {
+                "@path": "$.context.traits.address.state"
+              },
+              "else": {
+                "@path": "$.properties.address.state"
+              }
+            }
           },
           "country": {
-            "@path": "$.context.traits.address.country"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.country"
+              },
+              "then": {
+                "@path": "$.context.traits.address.country"
+              },
+              "else": {
+                "@path": "$.properties.address.country"
+              }
+            }
           },
           "postal_code": {
-            "@path": "$.context.traits.address.postalCode"
+            "@if": {
+              "exists": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "then": {
+                "@path": "$.context.traits.address.postalCode"
+              },
+              "else": {
+                "@path": "$.properties.address.postalCode"
+              }
+            }
           }
         },
         "enable_batching": true,

@@ -19,7 +19,7 @@ const mapping = {
   source_url: { '@path': '$.context.page.url' },
   amount: { '@path': '$.properties.total' },
   currency: { '@path': '$.properties.currency' },
-  essential_identifiers: { email: [{ '@path': '$.context.traits.email' }] },
+  user: { email: [{ '@path': '$.context.traits.email' }] },
   enable_batching: true
 }
 
@@ -109,14 +109,22 @@ describe('ChatGPT Conversions API', () => {
       expect(scope.isDone()).toBe(false)
     })
 
-    it('rejects an event with no valid essential identifier', async () => {
-      await expect(
-        testDestination.testAction('sendConversion', {
-          event: makeEvent('msg-1', { context: { page: { url: 'https://example.com' }, traits: {} } }),
-          settings,
-          mapping
+    it('sends an event with no email, phone or advertising id', async () => {
+      let body: { events: Record<string, any>[] } = { events: [] }
+      nock('https://bzr.openai.com')
+        .post('/v1/events', (requestBody) => {
+          body = requestBody
+          return true
         })
-      ).rejects.toThrow('At least one valid essential identifier')
+        .query(true)
+        .reply(200, {})
+      const responses = await testDestination.testAction('sendConversion', {
+        event: makeEvent('msg-1', { context: { page: { url: 'https://example.com' }, traits: {} } }),
+        settings,
+        mapping
+      })
+      expect(responses[responses.length - 1].status).toBe(200)
+      expect(body.events[0].user).toEqual({})
     })
 
     it('surfaces a 400 from ChatGPT Conversions API', async () => {
@@ -147,12 +155,11 @@ describe('ChatGPT Conversions API', () => {
       await rejectedBySchema({ event_type: 'custom', custom_event_name: 'a'.repeat(65) })
       await rejectedBySchema({ currency: 'USDD' })
       await rejectedBySchema({ currency: 'US' })
-      await rejectedBySchema({ matching_data: { country: 'USA' } })
-      await rejectedBySchema({ matching_data: { country: 'U' } })
-      await rejectedBySchema({ matching_data: { postal_code: 'x'.repeat(33) } })
-      await rejectedBySchema({ matching_data: { city: 'x'.repeat(129) } })
-      await rejectedBySchema({ matching_data: { region: 'x'.repeat(129) } })
-      await rejectedBySchema({ essential_identifiers: { android_advertising_id: 'too-short' } })
+      await rejectedBySchema({ user: { country: 'USA' } })
+      await rejectedBySchema({ user: { country: 'U' } })
+      await rejectedBySchema({ user: { postal_code: 'x'.repeat(33) } })
+      await rejectedBySchema({ user: { city: 'x'.repeat(129) } })
+      await rejectedBySchema({ user: { region: 'x'.repeat(129) } })
     })
 
     it('accepts strings at the length limits', async () => {
@@ -162,7 +169,7 @@ describe('ChatGPT Conversions API', () => {
         settings,
         mapping: {
           ...mapping,
-          matching_data: { country: 'US', postal_code: 'x'.repeat(32), city: 'x'.repeat(128), region: 'x'.repeat(128) }
+          user: { country: 'US', postal_code: 'x'.repeat(32), city: 'x'.repeat(128), region: 'x'.repeat(128) }
         }
       })
       expect(responses[responses.length - 1].status).toBe(200)
@@ -174,17 +181,21 @@ describe('ChatGPT Conversions API', () => {
       await rejectedBySchema({}, { properties: { total: 5 } })
     })
 
-    it('requires the essential identifiers group', async () => {
-      const { essential_identifiers: _omitted, ...withoutGroup } = mapping
-      await expect(
-        testDestination.testAction('sendConversion', { event: makeEvent('msg-1'), settings, mapping: withoutGroup })
-      ).rejects.toThrow()
+    it('sends the event when no user details are mapped', async () => {
+      nock('https://bzr.openai.com').post('/v1/events').query(true).reply(200, {})
+      const { user: _omitted, ...withoutUser } = mapping
+      const responses = await testDestination.testAction('sendConversion', {
+        event: makeEvent('msg-1'),
+        settings,
+        mapping: withoutUser
+      })
+      expect(responses[responses.length - 1].status).toBe(200)
     })
   })
 
   describe('advertising id default mapping', () => {
     const gaid = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
-    const { essential_identifiers: _omitted, ...mappingWithDefaultIdentifiers } = mapping
+    const { user: _omitted, ...mappingWithDefaultIdentifiers } = mapping
 
     const send = async (deviceType: string | undefined, traits: Record<string, unknown>) => {
       let body: { events: Record<string, any>[] } = { events: [] }
@@ -224,8 +235,78 @@ describe('ChatGPT Conversions API', () => {
       expect((await send(undefined, { email: 'jane@example.com' })).android_advertising_id).toBeUndefined()
     })
 
-    it('rejects an iOS event whose only identifier is the advertising id', async () => {
-      await expect(send('ios', {})).rejects.toThrow('At least one valid essential identifier')
+    it('sends an iOS event with no identifiers', async () => {
+      const user = await send('ios', {})
+      expect(user.android_advertising_id).toBeUndefined()
+      expect(user.emails_sha256).toBeUndefined()
+      expect(user.phone_numbers_sha256).toBeUndefined()
+    })
+  })
+
+  describe('user default mappings', () => {
+    const { user: _omitted, ...mappingWithDefaultUser } = mapping
+
+    const send = async (event: ReturnType<typeof makeEvent>) => {
+      let body: { events: Record<string, any>[] } = { events: [] }
+      nock('https://bzr.openai.com')
+        .post('/v1/events', (requestBody) => {
+          body = requestBody
+          return true
+        })
+        .query(true)
+        .reply(200, {})
+      await testDestination.testAction('sendConversion', {
+        event,
+        settings,
+        mapping: mappingWithDefaultUser,
+        useDefaultMappings: true
+      })
+      return body.events[0].user
+    }
+
+    it('maps a single email and phone from traits without array wrapping', async () => {
+      const user = await send(
+        makeEvent('msg-1', {
+          context: {
+            page: { url: 'https://example.com/thanks' },
+            traits: { email: 'jane@example.com', phone: '+14155550100' }
+          }
+        })
+      )
+      expect(user.emails_sha256).toEqual([sha256('jane@example.com')])
+      expect(user.phone_numbers_sha256).toEqual([sha256('14155550100')])
+    })
+
+    it('maps address fields from context traits', async () => {
+      const user = await send(
+        makeEvent('msg-1', {
+          context: {
+            page: { url: 'https://example.com/thanks' },
+            traits: { address: { city: 'Austin', state: 'Texas', country: 'US', postalCode: '78701' } }
+          }
+        })
+      )
+      expect(user.cities).toEqual(['Austin'])
+      expect(user.regions).toEqual(['Texas'])
+      expect(user.countries).toEqual(['US'])
+      expect(user.postal_codes).toEqual(['78701'])
+    })
+
+    it('falls back to address fields in event properties', async () => {
+      const user = await send(
+        makeEvent('msg-1', {
+          context: { page: { url: 'https://example.com/thanks' } },
+          properties: {
+            total: 25.99,
+            currency: 'USD',
+            address: { city: 'Dublin', state: 'Leinster', country: 'IE', postalCode: 'D02' }
+          }
+        })
+      )
+      expect(user.cities).toEqual(['Dublin'])
+      expect(user.regions).toEqual(['Leinster'])
+      expect(user.countries).toEqual(['IE'])
+      expect(user.postal_codes).toEqual(['D02'])
     })
   })
 
@@ -555,7 +636,7 @@ describe('ChatGPT Conversions API', () => {
 
   describe('sendConversion batch multistatus response', () => {
     const staleTimestamp = '2026-10-01T00:00:00.000Z'
-    const noIdentifiers = { context: { page: { url: 'https://example.com/thanks' } } }
+    const noCurrency = { properties: { total: 25.99 } }
 
     const sentEvent = (id: string) => ({
       id,
@@ -574,11 +655,12 @@ describe('ChatGPT Conversions API', () => {
       errormessage: 'Timestamp is more than 7 days old, which ChatGPT Conversions API rejects.'
     }
 
-    const invalidIdentifiers = {
+    const invalidCurrency = {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
       errorreporter: 'INTEGRATIONS',
-      errormessage: expect.stringContaining('At least one valid essential identifier')
+      errormessage:
+        'The root value is missing the required field \'currency\'. The root value must match "then" schema.'
     }
 
     const invalidEventBody = (position: number, field: string, code: string, message: string) => ({
@@ -619,7 +701,7 @@ describe('ChatGPT Conversions API', () => {
           makeEvent('msg-1'),
           makeEvent('msg-2', { timestamp: staleTimestamp }),
           makeEvent('msg-3'),
-          makeEvent('msg-4', noIdentifiers)
+          makeEvent('msg-4', noCurrency)
         ],
         settings,
         mapping
@@ -629,7 +711,7 @@ describe('ChatGPT Conversions API', () => {
         { status: 200, sent: sentEvent('msg-1'), body: { accepted_events: 2 } },
         invalidTimestamp,
         { status: 200, sent: sentEvent('msg-3'), body: { accepted_events: 2 } },
-        invalidIdentifiers
+        invalidCurrency
       ])
     })
 
@@ -641,7 +723,7 @@ describe('ChatGPT Conversions API', () => {
           makeEvent('msg-1'),
           makeEvent('msg-2', { timestamp: staleTimestamp }),
           makeEvent('msg-3'),
-          makeEvent('msg-4', noIdentifiers)
+          makeEvent('msg-4', noCurrency)
         ],
         settings,
         mapping
@@ -665,7 +747,7 @@ describe('ChatGPT Conversions API', () => {
           sent: sentEvent('msg-3'),
           body: { error: 'invalid user list' }
         },
-        invalidIdentifiers
+        invalidCurrency
       ])
     })
 
@@ -858,7 +940,7 @@ describe('ChatGPT Conversions API', () => {
         events: [
           makeEvent('msg-1'),
           makeEvent('msg-2', { timestamp: staleTimestamp }),
-          makeEvent('msg-3', noIdentifiers),
+          makeEvent('msg-3', noCurrency),
           makeEvent('msg-4'),
           makeEvent('msg-5')
         ],
@@ -870,7 +952,7 @@ describe('ChatGPT Conversions API', () => {
       expect(results).toEqual([
         retriedEvent('msg-1', reason, apiBody),
         invalidTimestamp,
-        invalidIdentifiers,
+        invalidCurrency,
         rejectedEvent('msg-4', 400, 'BAD_REQUEST', reason, apiBody),
         retriedEvent('msg-5', reason, apiBody)
       ])
