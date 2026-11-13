@@ -26,6 +26,7 @@
     "@segment/analytics-browser-actions-braze-cloud-plugins": "1.126.1-staging-10feea44c.0",
     "@segment/analytics-browser-actions-bucket": "^1.90.0",
     "@segment/analytics-browser-actions-cdpresolution": "^1.96.0",
+    "@segment/analytics-browser-actions-chatgpt-conversions-api-plugins": "^1.1.0",
     "@segment/analytics-browser-actions-cj": "^1.23.0",
     "@segment/analytics-browser-actions-commandbar": "^1.109.0",
     "@segment/analytics-browser-actions-contentstack-web": "^1.52.0",
