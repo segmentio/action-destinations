@@ -62,7 +62,7 @@ export interface Payload {
      */
     name?: string
     /**
-     * A category for the item, for example product, plan or page.
+     * A category for the item. Optional, and any non-empty text is accepted. For example product, plan or page.
      */
     content_type?: string
     /**

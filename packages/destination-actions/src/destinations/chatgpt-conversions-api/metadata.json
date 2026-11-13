@@ -561,7 +561,7 @@
             },
             "content_type": {
               "label": "Content Type",
-              "description": "A category for the item, for example product, plan or page.",
+              "description": "A category for the item. Optional, and any non-empty text is accepted. For example product, plan or page.",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -2963,7 +2963,6 @@
               "name": {
                 "@path": "$.name"
               },
-              "content_type": "product",
               "quantity": {
                 "@path": "$.quantity"
               },
@@ -3160,7 +3159,6 @@
               "name": {
                 "@path": "$.name"
               },
-              "content_type": "product",
               "quantity": {
                 "@path": "$.quantity"
               },
@@ -3357,7 +3355,6 @@
               "name": {
                 "@path": "$.name"
               },
-              "content_type": "product",
               "quantity": {
                 "@path": "$.quantity"
               },
@@ -3741,7 +3738,6 @@
               "name": {
                 "@path": "$.name"
               },
-              "content_type": "product",
               "quantity": {
                 "@path": "$.quantity"
               },

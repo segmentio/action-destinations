@@ -482,7 +482,6 @@ describe('ChatGPT Conversions API', () => {
             id: 'sku_1',
             group_id: 'cat_1',
             name: 'Shirt',
-            content_type: 'product',
             quantity: 2,
             amount: 5002,
             currency: 'USD'
@@ -515,7 +514,6 @@ describe('ChatGPT Conversions API', () => {
             id: 'sku_1',
             group_id: 'cat_1',
             name: 'Shirt',
-            content_type: 'product',
             quantity: 2,
             amount: 5002,
             currency: 'USD'

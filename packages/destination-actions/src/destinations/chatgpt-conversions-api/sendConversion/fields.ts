@@ -132,7 +132,8 @@ export const fields: Record<string, InputField> = {
       name: { label: 'Name', description: 'A human readable name for the item.', type: 'string' },
       content_type: {
         label: 'Content Type',
-        description: 'A category for the item, for example product, plan or page.',
+        description:
+          'A category for the item. Optional, and any non-empty text is accepted. For example product, plan or page.',
         type: 'string'
       },
       quantity: { label: 'Quantity', description: 'The number of units. Sent as an integer.', type: 'integer' },
