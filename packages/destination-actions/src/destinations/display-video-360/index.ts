@@ -70,7 +70,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (features?.[FLAGON_NAME_DATA_MANAGER]) {
-        const dmStatsName = 'createAudience.dataManager'
+        const dmStatsName = 'createAudienceDataManager'
         let authToken: string
         try {
           authToken = await getAuthToken(request, authSettings)
@@ -158,7 +158,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
 
       if (features?.[FLAGON_NAME_DATA_MANAGER]) {
-        const dmStatsName = 'getAudience.dataManager'
+        const dmStatsName = 'getAudienceDataManager'
         let authToken: string
         try {
           authToken = await getAuthToken(request, authSettings)
