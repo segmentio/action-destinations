@@ -5,4 +5,12 @@ review_context:
     - docs/authentication.md
     - docs/pr-guidelines/pull-request-guidance.md
     - docs/pr-guidelines/pr-checks.md
+    - .claude/rules/requirements.md
+    - .claude/rules/architecture.md
+    - .claude/rules/testing.md
+    - .claude/rules/principles.md
+    - .claude/rules/external-context.md
+    - .claude/rules/security.md
+    - .claude/rules/workflow.md
     - .claude/rules/eng-automated-reviews.md
+    - .claude/rules/writing.md
