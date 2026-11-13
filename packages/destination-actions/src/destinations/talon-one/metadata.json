@@ -987,7 +987,7 @@
             },
             "adds": {
               "label": "List of audience ID to associate with the customer profile.",
-              "description": "You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most 50 audiences in total across Adds and Deletes. Events over this limit are rejected.",
+              "description": "You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most 5 audiences in total across Adds and Deletes. Events over this limit are rejected. Segment sends one request of up to 1000 audience changes per batch, and events beyond that are retried in a later batch. To reduce retries, keep Batch Size multiplied by the changes per event at or below 1000.",
               "type": "integer",
               "required": false,
               "multiple": true,
@@ -1011,7 +1011,7 @@
             },
             "deletes": {
               "label": "List of audience ID to dissociate with the customer profile.",
-              "description": "You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most 50 audiences in total across Adds and Deletes. Events over this limit are rejected.",
+              "description": "You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most 5 audiences in total across Adds and Deletes. Events over this limit are rejected. Segment sends one request of up to 1000 audience changes per batch, and events beyond that are retried in a later batch. To reduce retries, keep Batch Size multiplied by the changes per event at or below 1000.",
               "type": "integer",
               "required": false,
               "multiple": true,
@@ -1072,13 +1072,13 @@
         },
         "batch_size": {
           "label": "Batch Size",
-          "description": "Maximum number of events to include in each batch. Actual batch sizes may be smaller.",
+          "description": "Maximum number of events to include in each batch. Actual batch sizes may be smaller. Segment sends one request of up to 1000 audience changes per batch, and events beyond that are retried in a later batch, which uses up their limited retries. To reduce retries, keep this value multiplied by the changes per event at or below 1000.",
           "type": "number",
           "required": false,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
-          "default": 1000,
+          "default": 200,
           "choices": null,
           "placeholder": null,
           "properties": null,
