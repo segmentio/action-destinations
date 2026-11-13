@@ -3,9 +3,17 @@ import type { ActionDefinition, JSONLikeObject } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { addAudienceId, customerProfileId, deleteAudienceId } from '../t1-properties'
-import { ENDPOINT, MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT, SEGMENT_EVENTS_PER_BATCH } from './constants'
+import {
+  DEFAULT_SEGMENT_EVENTS_PER_BATCH,
+  ENDPOINT,
+  MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT,
+  MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST,
+  SEGMENT_EVENTS_PER_BATCH
+} from './constants'
 import { buildChunks, findConflictedIndexes, findOversizedIndexes } from './functions'
 import type { RequestError, UpdateAudiencesJSON } from './types'
+
+const AUDIENCE_IDS_DESCRIPTION = `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected. Segment sends one request of up to ${MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST} audience changes per batch, and events beyond that are retried in a later batch. To reduce retries, keep Batch Size multiplied by the changes per event at or below ${MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST}.`
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Update Multiple Customer Profiles’ Audiences',
@@ -21,11 +29,11 @@ const action: ActionDefinition<Settings, Payload> = {
         customerProfileId: { ...customerProfileId },
         adds: {
           ...addAudienceId,
-          description: `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected.`
+          description: AUDIENCE_IDS_DESCRIPTION
         },
         deletes: {
           ...deleteAudienceId,
-          description: `You should get these audience IDs from Talon.One. When batching is enabled, an event can add or remove at most ${MAX_AUDIENCE_CHANGES_PER_SEGMENT_EVENT} audiences in total across Adds and Deletes. Events over this limit are rejected.`
+          description: AUDIENCE_IDS_DESCRIPTION
         }
       },
       required: true
@@ -40,9 +48,9 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be smaller.',
+      description: `Maximum number of events to include in each batch. Actual batch sizes may be smaller. Segment sends one request of up to ${MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST} audience changes per batch, and events beyond that are retried in a later batch, which uses up their limited retries. To reduce retries, keep this value multiplied by the changes per event at or below ${MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST}.`,
       type: 'number',
-      default: SEGMENT_EVENTS_PER_BATCH,
+      default: DEFAULT_SEGMENT_EVENTS_PER_BATCH,
       minimum: 1,
       maximum: SEGMENT_EVENTS_PER_BATCH,
       unsafe_hidden: true,
@@ -82,14 +90,26 @@ const action: ActionDefinition<Settings, Payload> = {
       .map((p, index) => ({ index, data: p.data }))
       .filter(({ index }) => !oversized.has(index) && !conflicted.has(index))
 
-    for (const chunk of buildChunks(valid)) {
-      const json: UpdateAudiencesJSON = { data: chunk.data }
+    const [firstChunk, ...deferredChunks] = buildChunks(valid)
+
+    deferredChunks.forEach((chunk) => {
+      chunk.indexes.forEach((index) => {
+        multiStatus.setErrorResponseAtIndex(index, {
+          status: 503,
+          errortype: ErrorCodes.RETRYABLE_ERROR,
+          errormessage: `This batch has more than ${MAX_AUDIENCE_CHANGES_PER_TALON_ONE_REQUEST} audience changes, which is the most Segment sends to Talon.One in one request. The event will be retried in a later batch.`
+        })
+      })
+    })
+
+    if (firstChunk) {
+      const json: UpdateAudiencesJSON = { data: firstChunk.data }
       try {
         await request(ENDPOINT, {
           method: 'put',
           json
         })
-        chunk.indexes.forEach((index) => {
+        firstChunk.indexes.forEach((index) => {
           multiStatus.setSuccessResponseAtIndex(index, {
             status: 200,
             sent: { data: payload[index].data } as JSONLikeObject,
@@ -102,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
         const talonOneError = err.response?.data
         const body = (talonOneError ?? err.message ?? '') as JSONLikeObject | string
         const errormessage = talonOneError?.Error ?? err.message ?? 'Request to Talon.One failed'
-        chunk.indexes.forEach((index) => {
+        firstChunk.indexes.forEach((index) => {
           multiStatus.setErrorResponseAtIndex(index, {
             status,
             errormessage,
