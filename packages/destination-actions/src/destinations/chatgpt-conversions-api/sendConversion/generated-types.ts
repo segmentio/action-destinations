@@ -92,7 +92,7 @@ export interface Payload {
      */
     phone?: string[]
     /**
-     * The user's Android Google Advertising ID (GAID) as a 36 character UUID, for example 123e4567-e89b-12d3-a456-426614174000. Sent unhashed. IDFA is not supported.
+     * The user's Android Google Advertising ID (GAID) as a 36 character UUID, for example 123e4567-e89b-12d3-a456-426614174000. Sent unhashed. Values that are not a valid 36 character UUID are ignored and the event is sent without it. IDFA is not supported.
      */
     android_advertising_id?: string
     /**
