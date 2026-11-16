@@ -1,6 +1,6 @@
 {
   "name": "@segment/destinations-manifest",
-  "version": "1.178.0",
+  "version": "1.179.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/segmentio/action-destinations",
@@ -44,7 +44,7 @@
     "@segment/analytics-browser-actions-iterate": "^1.110.0",
     "@segment/analytics-browser-actions-jimo": "^1.100.0",
     "@segment/analytics-browser-actions-koala": "^1.111.0",
-    "@segment/analytics-browser-actions-logrocket": "^1.110.0",
+    "@segment/analytics-browser-actions-logrocket": "^1.111.0",
     "@segment/analytics-browser-actions-moengage-web": "^1.19.0",
     "@segment/analytics-browser-actions-ms-bing-capi": "^1.23.0",
     "@segment/analytics-browser-actions-pendo-web-actions": "^1.100.0",
