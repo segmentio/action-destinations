@@ -35,7 +35,7 @@ describe(`Testing snapshot for ${destination.name}'s ${actionSlug} destination a
         event_id: 'evt_required',
         timestamp: '2026-11-03T11:59:00.000Z',
         action_source: 'other',
-        essential_identifiers: { email: ['jane@example.com'] }
+        user: { email: ['jane@example.com'] }
       })
     ).toMatchSnapshot()
   })
@@ -65,12 +65,10 @@ describe(`Testing snapshot for ${destination.name}'s ${actionSlug} destination a
           },
           { id: 'sku_2', name: 'Hat', quantity: 1, amount: 4.99 }
         ],
-        essential_identifiers: {
+        user: {
           email: ['jane@example.com', 'Jane.Doe@Example.com'],
           phone: ['+1 415 555 0100'],
-          android_advertising_id: '11111111-2222-3333-4444-555555555555'
-        },
-        matching_data: {
+          android_advertising_id: '11111111-2222-3333-4444-555555555555',
           obref: 'obr_123',
           external_id: 'user_1',
           user_agent: 'Mozilla/5.0',

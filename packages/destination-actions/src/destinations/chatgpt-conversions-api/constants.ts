@@ -544,7 +544,6 @@ const PRODUCT_PROPERTIES = {
   id: { '@path': '$.product_id' },
   group_id: { '@path': '$.category_id' },
   name: { '@path': '$.name' },
-  content_type: 'product',
   quantity: { '@path': '$.quantity' },
   amount: { '@path': '$.price' }
 }
