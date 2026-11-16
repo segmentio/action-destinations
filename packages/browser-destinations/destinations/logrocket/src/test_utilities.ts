@@ -17,6 +17,13 @@ class WorkerStub {
   addEventListener() {}
 }
 
+// logrocket >= 12 treats browsers without HTMLScriptElement.supports as unsupported and
+// returns a no-op instance. The jsdom version used here doesn't implement it, so shim it.
+// This runs on import, so test files must import this module before 'logrocket' or '../index'.
+if (typeof HTMLScriptElement.supports !== 'function') {
+  HTMLScriptElement.supports = () => true
+}
+
 export function mockWorkerAndXMLHttpRequest(): void {
   window.XMLHttpRequest = jest.fn() as any
   window.Worker = WorkerStub as any

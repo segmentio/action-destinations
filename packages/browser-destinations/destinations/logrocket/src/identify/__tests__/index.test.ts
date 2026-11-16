@@ -1,7 +1,7 @@
+import { identifySubscription, mockWorkerAndXMLHttpRequest } from '../../test_utilities'
 import { Analytics, Context } from '@segment/analytics-next'
 import plugins from '../../index'
 import LogRocket from 'logrocket'
-import { identifySubscription, mockWorkerAndXMLHttpRequest } from '../../test_utilities'
 
 describe('Logrocket.identify', () => {
   const settings = { appID: 'log/rocket' }

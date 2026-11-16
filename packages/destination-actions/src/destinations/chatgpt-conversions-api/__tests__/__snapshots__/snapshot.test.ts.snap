@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Testing snapshot for ChatGPT Conversions API's sendConversion destination action: all fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "action_source": "web",
+      "data": Object {
+        "amount": 2599,
+        "contents": Array [
+          Object {
+            "amount": 1050,
+            "content_type": "product",
+            "currency": "USD",
+            "group_id": "group_1",
+            "id": "sku_1",
+            "name": "Shirt",
+            "quantity": 2,
+            "variant_dict": Object {
+              "color": "blue",
+            },
+          },
+          Object {
+            "amount": 499,
+            "currency": "USD",
+            "id": "sku_2",
+            "name": "Hat",
+            "quantity": 1,
+          },
+        ],
+        "currency": "USD",
+        "type": "contents",
+      },
+      "id": "evt_all",
+      "oppref": "opp_123",
+      "opt_out": true,
+      "source_url": "https://example.com/thanks",
+      "timestamp_ms": 1793707140000,
+      "type": "order_created",
+      "user": Object {
+        "android_advertising_id": "11111111-2222-3333-4444-555555555555",
+        "cities": Array [
+          "Austin",
+        ],
+        "countries": Array [
+          "US",
+        ],
+        "emails_sha256": Array [
+          "8c87b489ce35cf2e2f39f80e282cb2e804932a56a213983eeeb428407d43b52d",
+          "86e0b9e56c17cc4d12387e1949b85053fbe73bc3ce5a1188713a9d300cc6133d",
+        ],
+        "external_ids_sha256": Array [
+          "79b0aa0042b3c05617c378046a6553ec2cd81e9995959a6012f9b497a18ec82b",
+        ],
+        "first_names_sha256": Array [
+          "81f8f6dde88365f3928796ec7aa53f72820b06db8664f5fe76a7eb13e24546a2",
+        ],
+        "ip_address": "203.0.113.9",
+        "last_names_sha256": Array [
+          "799ef92a11af918e3fb741df42934f3b568ed2d93ac1df74f1b8d41a27932a6f",
+        ],
+        "obref": "obr_123",
+        "phone_numbers_sha256": Array [
+          "5e7ec4c79ccac6e420876e65ad0e6b4b2ccf73ec3dccb50297bf2890a1ec73b9",
+        ],
+        "postal_codes": Array [
+          "78701",
+        ],
+        "regions": Array [
+          "Texas",
+        ],
+        "user_agent": "Mozilla/5.0",
+      },
+    },
+  ],
+  "integration_source": "Segment",
+}
+`;
+
+exports[`Testing snapshot for ChatGPT Conversions API's sendConversion destination action: required fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "action_source": "other",
+      "data": Object {
+        "type": "customer_action",
+      },
+      "id": "evt_required",
+      "timestamp_ms": 1793707140000,
+      "type": "lead_created",
+      "user": Object {
+        "emails_sha256": Array [
+          "8c87b489ce35cf2e2f39f80e282cb2e804932a56a213983eeeb428407d43b52d",
+        ],
+      },
+    },
+  ],
+  "integration_source": "Segment",
+}
+`;
