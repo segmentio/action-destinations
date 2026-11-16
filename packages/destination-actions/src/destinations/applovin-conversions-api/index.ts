@@ -1,4 +1,4 @@
-import { defaultValues } from '@segment/actions-core'
+import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 import sendEvent from './sendEvent'
@@ -35,14 +35,16 @@ const destination: DestinationDefinition<Settings> = {
           "Your AppLovin Event Key, found in the AppLovin Ads Manager under Keys. AppLovin's API documentation calls this the pixel ID, but it is the same value.",
         type: 'string',
         required: true
-      },
-      api_key: {
-        label: 'Conversion API Key',
-        description: 'Your AppLovin Conversion API key. Create one on the API keys page of the AppLovin Ads Manager.',
-        type: 'password',
-        required: true
       }
     }
+  },
+
+  extendRequest() {
+    const apiKey = process.env.ACTIONS_APPLOVIN_CONVERSIONS_API_KEY
+    if (!apiKey) {
+      throw new IntegrationError('AppLovin Conversions API key is not set', 'Configuration Error', 400)
+    }
+    return { headers: { Authorization: apiKey } }
   },
 
   presets: [
@@ -109,6 +111,7 @@ const destination: DestinationDefinition<Settings> = {
       mapping: {
         ...baseMapping,
         name: 'purchase',
+        dedupe_id: { '@path': '$.properties.order_id' },
         value: {
           '@if': {
             exists: { '@path': '$.properties.subtotal' },
