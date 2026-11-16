@@ -22,7 +22,7 @@
   "dependencies": {
     "@segment/actions-core": "^3.179.0",
     "@segment/browser-destination-runtime": "^1.108.0",
-    "logrocket": "^9.0.0"
+    "logrocket": "^12.4.0"
   },
   "peerDependencies": {
     "@segment/analytics-next": ">=1.55.0"

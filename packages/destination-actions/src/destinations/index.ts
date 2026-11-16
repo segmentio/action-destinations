@@ -242,6 +242,9 @@ register('6a6748e14c5666d0bc0d3a66', './vibe-conversions')
 register('6a68baf59e9ffb3aafc3c3c8', './marketo-private')
 register('6a8461f58f98175178f49c3c', './heap-cloud')
 register('6aeaf4f730ae4c0220fc250a', './tatari-web-events')
+register('6af304bafc0b2123be885e1d', './chatgpt-conversions-api')
+register('6af304f713eaa964139f779b', './applovin-conversions-api')
+register('6af3053d308bca0fc8aa46df', './eventguard')
 
 function register(id: MetadataId, destinationPath: string) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
