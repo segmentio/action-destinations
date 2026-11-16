@@ -333,6 +333,85 @@ describe('Responsys.sendToPet', () => {
       }
     )
 
+    describe('performBatch multistatus', () => {
+      const mkEvent = (userId: string, traits: Record<string, unknown>) =>
+        createTestEvent({ type: 'identify', userId, traits })
+      const batchMapping = {
+        folder_name: folderName,
+        pet_name: { '@path': '$.traits.pet' },
+        userData: {
+          EMAIL_ADDRESS_: { '@path': '$.traits.email' },
+          PERSONALIZED1: { '@path': '$.traits.p1' }
+        }
+      }
+      const getStatuses = () => (testDestination.results[0] as any).multistatus
+
+      it('reports skipped items as 200 Skipped and sends only valid records', async () => {
+        const upsertBodies: any[] = []
+        const petBodies: any[] = []
+        nock(responsysHost)
+          .get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`)
+          .reply(200, [{ profileExtension: { objectName: petName, folderName } }])
+        nock(responsysHost)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`, (body) => {
+            upsertBodies.push(body)
+            return true
+          })
+          .reply(200, { requestId: '23456' })
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost)
+          .post(`/rest/api/v1.3/lists/${profileListName}/listExtensions/${petName}/members`, (body) => {
+            petBodies.push(body)
+            return true
+          })
+          .reply(200, {})
+
+        await testDestination.testBatchAction('sendToPet', {
+          events: [
+            mkEvent('1', { email: 'a@x.com', p1: 'v1', pet: petName }),
+            mkEvent('2', { p1: 'no identifier', pet: petName }),
+            mkEvent('3', { email: 'b@x.com', p1: 'v3', pet: petName }),
+            mkEvent('4', { p1: 'also no identifier', pet: petName })
+          ],
+          mapping: batchMapping,
+          settings: { ...settings, profileExtensionTable: petName } as any,
+          auth
+        })
+
+        const multistatus = getStatuses()
+        expect(multistatus[0]).toMatchObject({ status: 200, body: 'Success' })
+        expect(multistatus[1]).toMatchObject({ status: 200, body: 'Skipped' })
+        expect(multistatus[2]).toMatchObject({ status: 200, body: 'Success' })
+        expect(multistatus[3]).toMatchObject({ status: 200, body: 'Skipped' })
+        expect(upsertBodies).toHaveLength(1)
+        expect(upsertBodies[0].recordData.records).toEqual([['a@x.com'], ['b@x.com']])
+        expect(petBodies).toHaveLength(1)
+        expect(petBodies[0].recordData.records).toHaveLength(2)
+        expect(JSON.stringify(petBodies[0].recordData.records)).not.toContain('no identifier')
+      })
+
+      it('fails the whole batch when the PET list request fails', async () => {
+        nock(responsysHost)
+          .post(`/rest/asyncApi/v1.3/lists/${profileListName}/members`)
+          .reply(200, { requestId: '23456' })
+        nock(responsysHost).get(`/rest/asyncApi/v1.3/requests/23456`).reply(200, {})
+        nock(responsysHost).get(`/rest/api/v1.3/lists/${profileListName}/listExtensions`).reply(500, {})
+
+        await expect(
+          testDestination.testBatchAction('sendToPet', {
+            events: [
+              mkEvent('1', { email: 'a@x.com', p1: 'v1', pet: petName }),
+              mkEvent('2', { email: 'bad@x.com', p1: 'v2', pet: '__proto__' })
+            ],
+            mapping: batchMapping,
+            settings,
+            auth
+          })
+        ).rejects.toThrow()
+        expect(Object.keys(Object.prototype)).toEqual([])
+      })
+    })
+
     it('makes no requests when every item in a batch is unsafe', async () => {
       await testDestination.testBatchAction('sendToPet', {
         events: [event, event],
