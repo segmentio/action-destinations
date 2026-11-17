@@ -65,6 +65,8 @@ type AsyncUpsertRowsPollResultsResponse = {
   count: number
   items: {
     errorCode?: number
+    // Per-row detail (e.g. 70006 invalid email). `message` is often just the generic "Errors Occurred".
+    errors?: { errorMessage: string; name?: string; errorCode?: number }[]
     message: string
     status: 'OK' | 'Error'
   }[]
@@ -156,10 +158,13 @@ function applyResultItems(
       continue
     }
 
-    const errormessage = items[i].message
+    // `message` is often SFMC's generic "Errors Occurred"; the specific reason (e.g. invalid
+    // email) lives in errors[0].errorMessage, so prefer that when present.
+    const errormessage = items[i].errors?.[0]?.errorMessage || items[i].message
     // Substring match anywhere in the message -- inherently tolerant of leading/trailing
     // whitespace and surrounding text, so no trim/normalization is needed here.
-    const isTransientRowError = errormessage.includes(TRANSIENT_ROW_ERROR_PHRASE)
+    // Matched on `message` (where SFMC reports the deadlock), not the errors[] detail.
+    const isTransientRowError = items[i].message.includes(TRANSIENT_ROW_ERROR_PHRASE)
 
     if (isTransientRowError) {
       recoveredTransientCount++
@@ -174,7 +179,12 @@ function applyResultItems(
       })
     } else {
       permanentErrorCount++
-      multiStatusResponse.setErrorResponseAtIndex(i, { status: 400, errormessage, sent: {}, body: items[i].message })
+      multiStatusResponse.setErrorResponseAtIndex(i, {
+        status: 400,
+        errormessage,
+        sent: {},
+        body: items[i] as Object as JSONLikeObject
+      })
     }
   }
 
