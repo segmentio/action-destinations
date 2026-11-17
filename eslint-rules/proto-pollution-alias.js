@@ -59,6 +59,10 @@ module.exports = {
       const v = resolve(node, n)
       return v && tainted.has(v) ? n.name : null
     }
+    const unmarkTarget = (node, id) => {
+      const v = resolve(node, id)
+      if (v) tainted.delete(v)
+    }
     const markTarget = (node, id) => {
       const v = resolve(node, id)
       if (v) tainted.add(v)
@@ -101,7 +105,11 @@ module.exports = {
       },
       AssignmentExpression(node) {
         const left = unwrap(node.left)
-        if (left && left.type === 'Identifier' && yieldsDyn(node.right)) markTarget(node, left)
+        if (left && left.type === 'Identifier') {
+          if (yieldsDyn(node.right)) markTarget(node, left)
+          // a plain reassignment (t = {}) clears the taint; flow-insensitive, so the last assignment seen wins
+          else if (node.operator === '=') unmarkTarget(node, left)
+        }
         checkWrite(node, left)
         if (isDyn(left) && fnStack.length) {
           // record writes of the form param[dynamicKey](.x)* = v

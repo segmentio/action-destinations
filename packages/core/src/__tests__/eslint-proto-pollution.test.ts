@@ -55,6 +55,10 @@ const vulnerable: [string, string, string][] = [
     'function mergeC(t, s) { for (const p of Object.keys(s)) { if (!t[p]) { t[p] = s[p]; continue } t[p].pinned = s[p].pinned; mergeC(t[p].children, s[p].children) } }',
     'proto-pollution-alias'
   ],
+  ['mixed chain', 'a.b[x][y] = v', 'no-restricted-syntax'],
+  ['Object.assign into mixed chain', 'Object.assign(a.b[x], src)', 'no-restricted-syntax'],
+  ['index-named written key', 'acc[k][i] = v', 'no-restricted-syntax'],
+  ['alias reassigned to a dynamic lookup', 'let t = {}; t = acc[a]; t[b] = v', 'proto-pollution-alias'],
   ['lodash set', "const { set } = require('lodash'); set(obj, path, v)", 'no-restricted-syntax'],
   ['lodash merge', "const _ = require('lodash'); _.merge(target, JSON.parse(body))", 'no-restricted-syntax']
 ]
@@ -66,7 +70,16 @@ const clean: [string, string][] = [
   ['read only', 'const v = acc[a][b]'],
   ['numeric indexes', 'grid[i][j] = 0'],
   ['numeric index then static key', 'parts[i].err = e'],
-  ['static outer key', 'acc.header[key] = value']
+  ['static outer key', 'acc.header[key] = value'],
+  ['alias reassigned to a fresh object', 'let t = acc[a]; t = {}; t[b] = v'],
+  ['index-named lookup key', 'rows[index].name = v']
+]
+
+// Known blind spots, asserted so the limits stay explicit: values passed through function
+// parameters/returns are not tracked, and neither are aliased reflective writers.
+const blindSpots: [string, string][] = [
+  ['value returned from a helper', 'function get(o, k) { return o[k] } const t = get(acc, a); t[b] = v'],
+  ['destructured Object.assign', 'const { assign } = Object; assign(acc[a], src)']
 ]
 
 describe('prototype-pollution lint rules', () => {
@@ -75,6 +88,10 @@ describe('prototype-pollution lint rules', () => {
   })
 
   it.each(clean)('does not flag %s', (_name, code) => {
+    expect(ruleIds(code)).toEqual([])
+  })
+
+  it.each(blindSpots)('documents blind spot (not flagged): %s', (_name, code) => {
     expect(ruleIds(code)).toEqual([])
   })
 

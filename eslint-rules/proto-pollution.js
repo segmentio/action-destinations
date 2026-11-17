@@ -7,6 +7,8 @@
 // Data-flow shapes (aliases, loop walkers, recursive merges) are covered by the custom
 // rule in ./proto-pollution-alias.js.
 const DYN = "MemberExpression[computed=true][property.type!='Literal'][property.name!=/^(i|j|idx|index)$/]"
+// the written key itself may be anything, including an index: Object.prototype[i] = v is still pollution
+const DYNW = "MemberExpression[computed=true][property.type!='Literal']"
 const NAMED = (o, p) => `[callee.type='MemberExpression'][callee.object.name='${o}'][callee.property.name='${p}']`
 
 const HOWTO =
@@ -14,19 +16,19 @@ const HOWTO =
   'If reviewed and safe: // eslint-disable-next-line no-restricted-syntax -- reviewed: <reason>'
 
 const selectors = {
-  nested: [`AssignmentExpression > ${DYN}.left > ${DYN}.object`, 'Nested dynamic property write a[x][y] = v'],
+  nested: [`AssignmentExpression > ${DYNW}.left > ${DYN}.object`, 'Nested dynamic property write a[x][y] = v'],
   staticInner: [
     `AssignmentExpression > MemberExpression.left[computed=false] > ${DYN}.object`,
     'Write to a static property of a dynamic lookup a[x].y = v'
   ],
   initThenWrite: [
-    `AssignmentExpression > ${DYN}.left > :matches(AssignmentExpression, LogicalExpression).object`,
+    `AssignmentExpression > ${DYNW}.left > :matches(AssignmentExpression, LogicalExpression).object`,
     'Write through an initialised dynamic lookup (a[x] ||= {})[y] = v'
   ],
-  update: [`UpdateExpression > ${DYN}.argument > ${DYN}.object`, 'Nested dynamic update a[x][y]++'],
-  del: [`UnaryExpression[operator='delete'] > ${DYN}.argument > ${DYN}.object`, 'Nested dynamic delete a[x][y]'],
+  update: [`UpdateExpression > ${DYNW}.argument > ${DYN}.object`, 'Nested dynamic update a[x][y]++'],
+  del: [`UnaryExpression[operator='delete'] > ${DYNW}.argument > ${DYN}.object`, 'Nested dynamic delete a[x][y]'],
   destructure: [
-    `:matches(ArrayPattern, Property, AssignmentPattern) > ${DYN} > ${DYN}.object`,
+    `:matches(ArrayPattern, Property, AssignmentPattern) > ${DYNW} > ${DYN}.object`,
     'Destructuring into a nested dynamic target a[x][y]'
   ],
   reflectiveWrite: [
