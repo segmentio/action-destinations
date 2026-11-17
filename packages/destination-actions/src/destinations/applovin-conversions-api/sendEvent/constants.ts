@@ -3,6 +3,8 @@ import type { AppLovinOs } from './types'
 export const API_BASE_URL = 'https://b.applovin.com'
 export const MAX_BATCH_SIZE = 100
 export const MIN_USER_ID_LENGTH = 6
+export const ALEID_LENGTH = 40
+export const MAX_CATEGORY_RESULTS = 50
 export const MAX_EVENT_AGE_DAYS = 730
 export const MAX_EVENT_FUTURE_HOURS = 1
 export const HOUR_MS = 60 * 60 * 1000
@@ -39,7 +41,9 @@ export const EVENTS_REQUIRING_ITEMS: EventName[] = [
 
 export const EVENTS_WITH_ITEMS: EventName[] = [...EVENTS_REQUIRING_ITEMS, 'add_payment_info']
 
-export const EVENTS_REQUIRING_QUANTITY: EventName[] = ['add_to_cart', 'remove_from_cart', 'purchase']
+export const EVENTS_REQUIRING_QUANTITY: EventName[] = ['add_to_cart', 'remove_from_cart', 'begin_checkout', 'purchase']
+
+export const EVENTS_REQUIRING_NAME_AND_PRICE: EventName[] = ['begin_checkout', 'purchase']
 
 export const EVENTS_WITH_VALUE: EventName[] = [
   'view_item',
