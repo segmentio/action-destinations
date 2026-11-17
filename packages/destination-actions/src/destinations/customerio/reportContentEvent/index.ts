@@ -1,7 +1,7 @@
 import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
-import { sendBatch, sendSingle } from '../utils'
+import { sendBatch, sendSingle, validateIdentifiers, VALIDATE_IDENTIFIERS_FLAG } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -66,8 +66,13 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
 
-  perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: payload.actionType, payload: mapPayload(payload), settings, type: 'person' })
+  perform: (request, { payload, settings, features }) => {
+    const body = mapPayload(payload)
+    if (features && features[VALIDATE_IDENTIFIERS_FLAG]) {
+      validateIdentifiers(body, ['Anonymous ID'])
+    }
+
+    return sendSingle(request, { action: payload.actionType, payload: body, settings, type: 'person' })
   }
 }
 
