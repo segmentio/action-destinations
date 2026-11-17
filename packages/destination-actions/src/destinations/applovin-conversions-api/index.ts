@@ -33,7 +33,7 @@ const destination: DestinationDefinition<Settings> = {
         label: 'Event Key',
         description:
           "Your AppLovin Event Key, found in the AppLovin Ads Manager under Keys. AppLovin's API documentation calls this the pixel ID, but it is the same value.",
-        type: 'string',
+        type: 'password',
         required: true
       }
     }

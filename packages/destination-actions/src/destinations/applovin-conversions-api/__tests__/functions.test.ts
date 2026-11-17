@@ -1,18 +1,32 @@
 import { processHashing } from '../../../lib/hashing-utils'
-import { buildEvent, hashLast10Digits, normalizeEmail, normalizePhone, parseCurrency } from '../sendEvent/functions'
+import {
+  buildEvent,
+  hashLast10Digits,
+  normalizeEmail,
+  normalizePhone,
+  parseCategoryId,
+  parseCurrency
+} from '../sendEvent/functions'
 import type { Payload } from '../sendEvent/generated-types'
 
 const EVENT_TIME = '2026-11-01T10:00:00.000Z'
 
 const sha256 = (value: string) => processHashing(value, 'sha256', 'hex')
 
-const payload = (overrides: Partial<Payload> = {}, userData: Partial<Payload['user_data']> = {}): Payload => ({
+const ALEID = 'a1'.repeat(20)
+
+const payload = (
+  overrides: Partial<Payload> = {},
+  userData: Partial<Payload['user_data']> = {},
+  identifiers: Payload['required_identifiers'] = { client_id: 'anon-1' }
+): Payload => ({
   name: 'page_view',
   event_time: EVENT_TIME,
+  event_source_url: 'https://shop.example.com/',
   dedupe_id: 'dedupe-1',
+  required_identifiers: identifiers,
   user_data: {
-    aleid: 'ale-1',
-    client_id: 'anon-1',
+    aleid: ALEID,
     client_ip_address: '203.0.113.7',
     client_user_agent: 'Mozilla/5.0 Test',
     esi: 'web',
@@ -85,8 +99,9 @@ describe('AppLovin Conversions API functions', () => {
             transaction_id: 'order-9',
             shipping: 5,
             tax: 7,
-            items: [{ item_id: 'sku-1', quantity: 2 }]
+            items: [{ item_id: 'sku-1', item_name: 'Shoe', price: 45, quantity: 2 }]
           },
+          {},
           { email: 'Jane.Doe+Work@Gmail.com', phone: '+1 (415) 555-9317', user_id: 'customer-12345' }
         )
       )
@@ -99,7 +114,7 @@ describe('AppLovin Conversions API functions', () => {
       })
       expect(event).toMatchObject({
         event_time: Date.parse(EVENT_TIME),
-        data: { currency: 'USD', value: 90, items: [{ item_id: 'sku-1', quantity: 2 }] }
+        data: { currency: 'USD', value: 90, items: [{ item_id: 'sku-1', item_name: 'Shoe', price: 45, quantity: 2 }] }
       })
       expect(JSON.stringify(event)).not.toContain('Jane')
       expect(JSON.stringify(event)).not.toContain('555-9317')
@@ -110,7 +125,8 @@ describe('AppLovin Conversions API functions', () => {
       const event = buildEvent(
         payload(
           {},
-          { us_zip: '94107-1234', non_us_zip: 'SW1A 1AA', os: 'iOS', email: hashed.toUpperCase(), user_id: 'abc' }
+          { us_zip: '94107-1234', non_us_zip: 'SW1A 1AA', os: 'iOS' },
+          { email: hashed.toUpperCase(), user_id: 'abc' }
         )
       )
 
@@ -133,10 +149,81 @@ describe('AppLovin Conversions API functions', () => {
       expect(buildEvent(payload({}, { os: name })).user_data.os).toBe(expected)
     })
 
-    it('does not count ALEID as the additional identifier', () => {
-      expect(() => buildEvent(payload({}, { client_id: undefined }))).toThrowError(
-        'At least one identifier other than ALEID is required'
+    it.each([
+      ['client_id', { client_id: 'anon-1' }],
+      ['user_id', { user_id: 'customer-12345' }],
+      ['email', { email: 'jane@example.com' }],
+      ['phone', { phone: '+1 415 555 9317' }]
+    ])('accepts %s as the only identifier', (_key: string, identifiers: Payload['required_identifiers']) => {
+      expect(() => buildEvent(payload({}, {}, identifiers))).not.toThrow()
+    })
+
+    it('does not count ALEID, ALART, AXWRT or a short user ID as an identifier', () => {
+      expect(() =>
+        buildEvent(payload({}, { alart: 'alart-1', axwrt: 'axwrt-1' }, { user_id: 'abc', email: 'not-an-email' }))
+      ).toThrowError('At least one of Client ID, User ID, Email or Phone is required.')
+    })
+
+    it('accepts multiple identifiers', () => {
+      const event = buildEvent(payload({}, {}, { client_id: 'anon-1', user_id: 'customer-12345' }))
+      expect(event.user_data).toMatchObject({ client_id: 'anon-1', user_id: 'customer-12345' })
+    })
+
+    it('does not require ALEID', () => {
+      const event = buildEvent(payload({}, { aleid: undefined }))
+      expect(event.user_data).not.toHaveProperty('aleid')
+    })
+
+    it.each(['short', 'a1'.repeat(19), 'a1'.repeat(21)])(
+      'rejects an ALEID that is not 40 characters: %s',
+      (aleid: string) => {
+        expect(() => buildEvent(payload({}, { aleid }))).toThrowError('ALEID must be exactly 40 characters.')
+      }
+    )
+
+    it('requires Event Source URL when the event source is web', () => {
+      expect(() => buildEvent(payload({ event_source_url: undefined }))).toThrowError(
+        'Event Source URL is required when Event Source is web.'
       )
+      expect(() => buildEvent(payload({ event_source_url: undefined }, { esi: 'app' }))).not.toThrow()
+    })
+
+    it.each(['begin_checkout', 'purchase'] as const)(
+      'requires Item Name, Price and Quantity on every item for %s',
+      (name) => {
+        const base = { name, currency: 'USD', value: 10, transaction_id: 'order-1', shipping: 0, tax: 0 }
+        const good = { item_id: 'sku-1', item_name: 'Shoe', price: 45, quantity: 1 }
+        expect(() => buildEvent(payload({ ...base, items: [good] }))).not.toThrow()
+        expect(() => buildEvent(payload({ ...base, items: [good, { ...good, item_name: undefined }] }))).toThrowError(
+          `Each item requires an Item Name and Price for ${name} events.`
+        )
+        expect(() => buildEvent(payload({ ...base, items: [{ ...good, price: undefined }] }))).toThrowError(
+          `Each item requires an Item Name and Price for ${name} events.`
+        )
+        expect(() => buildEvent(payload({ ...base, items: [{ ...good, quantity: undefined }] }))).toThrowError(
+          `Each item requires a quantity for ${name} events.`
+        )
+      }
+    )
+
+    it('does not require item name or price for other events', () => {
+      expect(() =>
+        buildEvent(payload({ name: 'add_to_cart', items: [{ item_id: 'sku-1', quantity: 1 }] }))
+      ).not.toThrow()
+    })
+
+    it('sends only the numeric category ID and rejects unknown categories', () => {
+      const items = (item_category_id: string) => [{ item_id: 'sku-1', item_category_id }]
+      const event = buildEvent(payload({ name: 'view_item', items: items('166 (Apparel & Accessories)') }))
+      expect(event).toMatchObject({ data: { items: [{ item_id: 'sku-1', item_category_id: 166 }] } })
+      expect(buildEvent(payload({ name: 'view_item', items: items('166') }))).toMatchObject({
+        data: { items: [{ item_category_id: 166 }] }
+      })
+      for (const bad of ['Apparel', '99999999 (Nope)']) {
+        expect(() => buildEvent(payload({ name: 'view_item', items: items(bad) }))).toThrowError(
+          'Each Item Category ID must be a valid category from the AppLovin category list.'
+        )
+      }
     })
 
     it('sends data null for page_view and omits data for app_open', () => {
@@ -177,12 +264,23 @@ describe('AppLovin Conversions API functions', () => {
         buildEvent(
           payload(
             { name: 'purchase', dedupe_id: ' ', transaction_id: ' ', items: [{ item_id: 'sku-1' }] },
-            { aleid: ' ', client_id: undefined }
+            { aleid: 'short' },
+            {}
           )
         )
       ).toThrowError(
-        'Dedupe ID is required. ALEID is required. At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone. Transaction ID is required for purchase events. Each item requires a quantity for purchase events. Currency is required for purchase events.'
+        'Dedupe ID is required. ALEID must be exactly 40 characters. At least one of Client ID, User ID, Email or Phone is required. Transaction ID is required for purchase events. Each item requires a quantity for purchase events. Each item requires an Item Name and Price for purchase events. Currency is required for purchase events.'
       )
+    })
+  })
+
+  describe('parseCategoryId', () => {
+    it('parses the leading ID and only accepts IDs in the list', () => {
+      expect(parseCategoryId('166 (Apparel & Accessories)')).toBe(166)
+      expect(parseCategoryId(' 1 ')).toBe(1)
+      expect(parseCategoryId('0')).toBeUndefined()
+      expect(parseCategoryId('Apparel')).toBeUndefined()
+      expect(parseCategoryId(undefined)).toBeUndefined()
     })
   })
 })

@@ -12,6 +12,7 @@ import {
   is_new_customer,
   items,
   payment_type,
+  required_identifiers,
   search_term,
   shipping,
   sign_up_method,
@@ -21,6 +22,7 @@ import {
   value
 } from './fields'
 import { send, sendBatch } from './functions'
+import { searchCategories } from './dynamic-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
@@ -31,6 +33,7 @@ const action: ActionDefinition<Settings, Payload> = {
     event_time,
     event_source_url,
     dedupe_id,
+    required_identifiers,
     user_data,
     items,
     currency,
@@ -44,6 +47,13 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method,
     enable_batching,
     batch_size
+  },
+  dynamicFields: {
+    items: {
+      item_category_id: async (_request, { dynamicFieldContext }) => {
+        return { choices: searchCategories(dynamicFieldContext?.query) }
+      }
+    }
   },
   perform: (request, { settings, payload }) => {
     return send(request, settings, payload)

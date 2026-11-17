@@ -5,9 +5,11 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { isAlreadyHashed, processHashing } from '../../../lib/hashing-utils'
 import {
+  ALEID_LENGTH,
   API_BASE_URL,
   DAY_MS,
   EVENTS_REQUIRING_ITEMS,
+  EVENTS_REQUIRING_NAME_AND_PRICE,
   EVENTS_REQUIRING_QUANTITY,
   EVENTS_REQUIRING_VALUE,
   EVENTS_WITH_ITEMS,
@@ -19,10 +21,26 @@ import {
   OS_VALUES
 } from './constants'
 import type { EventName } from './constants'
-import type { AppLovinEvent, AppLovinOs, AppLovinRequest, ParsedCurrency, ValidationInput } from './types'
+import { CATEGORIES } from './categories'
+import type { AppLovinEvent, AppLovinItem, AppLovinOs, AppLovinRequest, ParsedCurrency, ValidationInput } from './types'
 import { APPLOVIN_CONVERSIONS_API_VERSION } from '../versioning-info'
 
 const GMAIL_DOMAINS = ['gmail.com', 'googlemail.com']
+
+const CATEGORY_IDS = new Set(CATEGORIES.map(([id]) => id))
+
+export function parseCategoryId(value: string | undefined): number | undefined {
+  const match = /^\s*(\d+)/.exec(value ?? '')
+  const id = match ? Number(match[1]) : undefined
+  return id !== undefined && CATEGORY_IDS.has(id) ? id : undefined
+}
+
+function toAppLovinItems(items: NonNullable<Payload['items']>): AppLovinItem[] {
+  return items.map(({ item_category_id, ...item }) => {
+    const categoryId = parseCategoryId(item_category_id)
+    return { ...item, ...(categoryId !== undefined ? { item_category_id: categoryId } : {}) }
+  })
+}
 
 export function normalizeEmail(email: string): string {
   const trimmed = email.replace(/^[ \t\n\r\f\v]+|[ \t\n\r\f\v]+$/g, '').toLowerCase()
@@ -97,7 +115,9 @@ function validate({
   client_user_agent,
   dedupe_id,
   aleid,
-  hasOtherIdentifier,
+  esi,
+  event_source_url,
+  hasIdentifier,
   transaction_id,
   search_term,
   items,
@@ -123,13 +143,14 @@ function validate({
   if (!dedupe_id) {
     errors.push('Dedupe ID is required.')
   }
-  if (!aleid) {
-    errors.push('ALEID is required.')
+  if (aleid && aleid.length !== ALEID_LENGTH) {
+    errors.push(`ALEID must be exactly ${ALEID_LENGTH} characters.`)
   }
-  if (!hasOtherIdentifier) {
-    errors.push(
-      'At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.'
-    )
+  if (!hasIdentifier) {
+    errors.push('At least one of Client ID, User ID, Email or Phone is required.')
+  }
+  if (esi === 'web' && !event_source_url) {
+    errors.push('Event Source URL is required when Event Source is web.')
   }
   if (name === 'purchase' && !transaction_id) {
     errors.push('Transaction ID is required for purchase events.')
@@ -142,6 +163,18 @@ function validate({
   }
   if (EVENTS_REQUIRING_QUANTITY.includes(name) && items?.some((item) => typeof item.quantity !== 'number')) {
     errors.push(`Each item requires a quantity for ${name} events.`)
+  }
+  if (
+    EVENTS_REQUIRING_NAME_AND_PRICE.includes(name) &&
+    items?.some((item) => !item.item_name || typeof item.price !== 'number')
+  ) {
+    errors.push(`Each item requires an Item Name and Price for ${name} events.`)
+  }
+  if (
+    EVENTS_WITH_ITEMS.includes(name) &&
+    items?.some((item) => item.item_category_id && parseCategoryId(item.item_category_id) === undefined)
+  ) {
+    errors.push('Each Item Category ID must be a valid category from the AppLovin category list.')
   }
   if (currency.error) {
     errors.push(currency.error)
@@ -170,6 +203,7 @@ export function buildEvent(payload: Payload): AppLovinEvent {
     payment_type,
     search_term,
     sign_up_method,
+    required_identifiers: { client_id, user_id, email: rawEmail, phone: rawPhone },
     user_data: {
       client_ip_address,
       client_user_agent,
@@ -177,10 +211,6 @@ export function buildEvent(payload: Payload): AppLovinEvent {
       aleid,
       alart,
       axwrt,
-      client_id,
-      user_id,
-      email: rawEmail,
-      phone: rawPhone,
       ifa,
       idfv,
       os,
@@ -210,7 +240,9 @@ export function buildEvent(payload: Payload): AppLovinEvent {
     client_user_agent,
     dedupe_id,
     aleid,
-    hasOtherIdentifier: [alart, axwrt, client_id, userId, email, phone].some(Boolean),
+    esi,
+    event_source_url,
+    hasIdentifier: [client_id, userId, email, phone].some(Boolean),
     transaction_id,
     search_term,
     items,
@@ -219,7 +251,7 @@ export function buildEvent(payload: Payload): AppLovinEvent {
   const currencyCode = currencyResult.code
 
   const data = {
-    ...(EVENTS_WITH_ITEMS.includes(name) && items?.length ? { items } : {}),
+    ...(EVENTS_WITH_ITEMS.includes(name) && items?.length ? { items: toAppLovinItems(items) } : {}),
     ...(EVENTS_WITH_VALUE.includes(name)
       ? {
           ...(currencyCode ? { currency: currencyCode } : {}),
