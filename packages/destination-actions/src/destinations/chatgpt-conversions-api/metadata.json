@@ -2252,7 +2252,7 @@
       "name": "App Installed",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Application Installed\"",
+      "subscribe": "type = \"track\" and event = \"Application Installed\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -2424,7 +2424,7 @@
       "name": "App Opened",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Application Opened\"",
+      "subscribe": "type = \"track\" and event = \"Application Opened\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -2596,7 +2596,7 @@
       "name": "Appointment Scheduled",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Appointment Scheduled\"",
+      "subscribe": "type = \"track\" and event = \"Appointment Scheduled\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -2770,7 +2770,7 @@
       "name": "Checkout Started",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Checkout Started\"",
+      "subscribe": "type = \"track\" and event = \"Checkout Started\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -2979,7 +2979,7 @@
       "name": "Contents Viewed",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Product Viewed\"",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -3175,7 +3175,7 @@
       "name": "Items Added",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Product Added\"",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -3371,7 +3371,7 @@
       "name": "Lead Created",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Lead Created\"",
+      "subscribe": "type = \"track\" and event = \"Lead Created\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -3545,7 +3545,7 @@
       "name": "Order Created",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Order Completed\"",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -3928,7 +3928,7 @@
       "name": "Registration Completed",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Signed Up\"",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -4102,7 +4102,7 @@
       "name": "Subscription Created",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Subscription Created\"",
+      "subscribe": "type = \"track\" and event = \"Subscription Created\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
@@ -4279,7 +4279,7 @@
       "name": "Trial Started",
       "type": "automatic",
       "partnerAction": "sendConversion",
-      "subscribe": "type = \"track\" AND event = \"Trial Started\"",
+      "subscribe": "type = \"track\" and event = \"Trial Started\"",
       "mapping": {
         "event_id": {
           "@path": "$.messageId"
