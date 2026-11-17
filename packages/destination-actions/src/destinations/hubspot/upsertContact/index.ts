@@ -401,7 +401,10 @@ function updateActionsForBatchedContacts(
       if (error.status === 'error' && error.category === 'OBJECT_NOT_FOUND') {
         // Set the action to create for contacts that don't exist in HubSpot
         for (const id of error.context.ids) {
+          // ids come from the HubSpot response: only touch keys this batch created
+          if (!Object.prototype.hasOwnProperty.call(contactsUpsertMap, id)) continue
           //Set Action to create
+          // eslint-disable-next-line no-restricted-syntax -- reviewed: own-property check above
           contactsUpsertMap[id].action = 'create'
         }
       } else {
@@ -459,7 +462,7 @@ function createPayloadToUpdateContact(
   for (const result of readResponse.data.results) {
     let email: string | undefined | null
     //Each Hubspot Contact can have mutiple email addresses ,one as primary and others as secondary emails
-    if (!contactsUpsertMap[`${result.properties.email}`]) {
+    if (!Object.prototype.hasOwnProperty.call(contactsUpsertMap, `${result.properties.email}`)) {
       // If contact is not getting mapped with Primary email then checking it in secondary email for same contact.
       if (result.properties.hs_additional_emails) {
         const secondaryEmails = split(result.properties.hs_additional_emails, ';')
@@ -470,6 +473,7 @@ function createPayloadToUpdateContact(
     }
     if (email) {
       // Set the action to update for contacts that exist in HubSpot
+      // eslint-disable-next-line no-restricted-syntax -- reviewed: email is an own key of contactsUpsertMap (hasOwnProperty check or Object.keys above)
       contactsUpsertMap[email].action = 'update'
       // Set the id for contacts that exist in HubSpot
       contactsUpsertMap[email].payload.id = result.id

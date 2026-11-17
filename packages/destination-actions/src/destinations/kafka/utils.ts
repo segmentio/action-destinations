@@ -160,6 +160,7 @@ export const getOrCreateProducer = async (
   if (cached) {
     const isExpired = now - cached.lastUsed > PRODUCER_TTL_MS
     if (!isExpired) {
+      // eslint-disable-next-line proto-pollution-alias -- reviewed: key is an internal hash of the connection settings, not a user-controlled property name
       cached.lastUsed = now
       statsContext?.statsClient?.incr('kafka_connection_reused', 1, statsContext?.tags)
       await cached.producer.connect() // this is idempotent, so is safe
@@ -283,6 +284,7 @@ export const sendData = async (
       if (features && features[FLAGON_NAME]) {
         const key = serializeKafkaConfig(settings)
         if (producersByConfig[key]) {
+          // eslint-disable-next-line no-restricted-syntax -- reviewed: key is an internal hash of the connection settings, not a user-controlled property name
           producersByConfig[key].lastUsed = Date.now()
         }
       } else {

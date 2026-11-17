@@ -27,7 +27,8 @@ module.exports = {
   ],
   plugins: ['@typescript-eslint', 'lodash'],
   rules: {
-    'no-restricted-syntax': ['error', protoPollution],
+    'no-restricted-syntax': ['error', ...protoPollution],
+    'proto-pollution-alias': 'error',
     'lodash/import-scope': ['error', 'method'],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/ban-ts-comment': [
@@ -71,7 +72,8 @@ module.exports = {
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-empty-function': 'off',
-        'no-restricted-syntax': 'off'
+        'no-restricted-syntax': 'off',
+        'proto-pollution-alias': 'off'
       }
     },
     {
@@ -99,14 +101,29 @@ module.exports = {
     {
       files: ['packages/destination-actions/**/*.ts'],
       rules: {
-        'no-restricted-syntax': ['error', protoPollution, createHashRestriction]
+        'no-restricted-syntax': ['error', ...protoPollution, createHashRestriction]
       }
     },
     {
-      // Tests are exempt from the nested-write rule; keep the createHash restriction.
-      files: ['packages/destination-actions/**/*.test.ts', 'packages/destination-actions/**/__tests__/**/*.ts', 'packages/destination-actions/**/test/**/*.ts'],
+      // Tests are exempt from the prototype-pollution rules; keep the createHash restriction.
+      files: [
+        'packages/destination-actions/**/*.test.ts',
+        'packages/destination-actions/**/__tests__/**/*.ts',
+        'packages/destination-actions/**/test/**/*.ts'
+      ],
       rules: {
-        'no-restricted-syntax': ['error', createHashRestriction]
+        'no-restricted-syntax': ['error', createHashRestriction],
+        'proto-pollution-alias': 'off'
+      }
+    },
+    {
+      // Temporary: pending #4141 (null-prototype containers). Remove this override once it lands.
+      files: [
+        'packages/destination-actions/src/destinations/avo-v2/sendSchemaToInspector/functions/event-validator-functions.ts',
+        'packages/destination-actions/src/destinations/avo-v2/sendSchemaToInspector/functions/functions.ts'
+      ],
+      rules: {
+        'proto-pollution-alias': 'warn'
       }
     },
     {

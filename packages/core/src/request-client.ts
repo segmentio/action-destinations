@@ -149,6 +149,7 @@ function merge<T>(...sources: T[]): T {
       for (let [key, value] of Object.entries(source)) {
         // Recurse over objects
         if (isObjectLike(value) && key in result) {
+          // eslint-disable-next-line no-restricted-syntax -- reviewed: merge only writes into a fresh object it creates
           value = merge(result[key], value)
         }
 
@@ -179,6 +180,7 @@ function mergeOptions(...sources: Array<NormalizedOptions | AllRequestOptions>):
     }
   }
 
+  // eslint-disable-next-line no-restricted-syntax -- reviewed: merge only writes into a fresh object it creates
   return merge({}, ...sources) as AllRequestOptions
 }
 

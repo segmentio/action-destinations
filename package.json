@@ -27,7 +27,7 @@
     "cloud": "yarn workspace @segment/action-destinations",
     "warehouse": "yarn workspace @segment/warehouse-destinations",
     "core": "yarn workspace @segment/actions-core",
-    "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
+    "lint": "ls -d ./packages/* | xargs -I {} eslint --rulesdir eslint-rules '{}/**/*.ts' --cache",
     "postversion": "bash scripts/postversion.sh",
     "prepare": "husky install",
     "release": "bash scripts/release.sh",
@@ -110,7 +110,7 @@
       "git add **/metadata.json"
     ],
     "!(**/templates/**)/*.ts": [
-      "eslint --fix --cache",
+      "eslint --rulesdir eslint-rules --fix --cache",
       "prettier --write"
     ],
     "*.{yml,md,json}": [

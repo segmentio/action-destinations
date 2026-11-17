@@ -381,6 +381,7 @@ function getMappingToProcess(mapping: JSONLikeObject): JSONLikeObject {
     if (!rootDirective || typeof rootDirective !== 'object') {
       throw new Error('The root directive must be an object')
     }
+    // eslint-disable-next-line proto-pollution-alias -- reviewed: key comes from Object.keys(mappingToProcess), so rootDirective is an own property value
     rootDirective.mapping = customerMappings
   }
 

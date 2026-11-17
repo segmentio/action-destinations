@@ -112,6 +112,7 @@ export const updateProfileListAndPet = async (
 
   for (const [audienceKey, recordCategories] of Object.entries(records)) {
     if (recordCategories.recordsWithUserId.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax -- reviewed: audienceKey comes from Object.entries(records), so it is an own key of records
       records[audienceKey].requestBodyUserId = buildPetUpdatePayloads(
         recordCategories.recordsWithUserId,
         'CUSTOMER_ID',
@@ -119,6 +120,7 @@ export const updateProfileListAndPet = async (
       )
     }
     if (recordCategories.recordsWithEmail.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax -- reviewed: audienceKey comes from Object.entries(records), so it is an own key of records
       records[audienceKey].requestBodyEmail = buildPetUpdatePayloads(
         recordCategories.recordsWithEmail,
         'EMAIL_ADDRESS',
@@ -126,6 +128,7 @@ export const updateProfileListAndPet = async (
       )
     }
     if (recordCategories.recordsWithRiid.length > 0) {
+      // eslint-disable-next-line no-restricted-syntax -- reviewed: audienceKey comes from Object.entries(records), so it is an own key of records
       records[audienceKey].requestBodyRiid = buildPetUpdatePayloads(recordCategories.recordsWithRiid, 'RIID', settings)
     }
   }
