@@ -287,6 +287,17 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
     const excused = await runSuites(new InProcessAdapter(), [hooked], { env, quarantine })
     expect(excused.exitCode).toBe(0)
     expect(excused.results.map((r) => r.outcome)).toEqual(['quarantined', 'quarantined'])
+
+    // A malformed fixture stays a setup error, not hidden behind the refresh failure.
+    nock('https://auth.fake.test').post('/token').reply(400, { error: 'invalid_grant' })
+    const broken = {
+      ...send('c', { status: 'multistatus', items: [{ status: '2xx' }] })
+    } as E2ESuite['fixtures'][number]
+    const withBroken = await runSuites(new InProcessAdapter(), [{ ...hooked, fixtures: [broken] }], { env, quarantine })
+    expect(withBroken.exitCode).toBe(2)
+    expect(withBroken.results).toEqual([])
+    expect(withBroken.setupErrors).toHaveLength(1)
+    expect(withBroken.setupErrors[0]).toMatch(/^fake-oauth\/send › c: /)
   })
 
   it('shares one refresh before hooks across suites on the same credentials, and reports it', async () => {

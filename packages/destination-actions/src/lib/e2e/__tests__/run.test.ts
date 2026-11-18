@@ -419,4 +419,33 @@ describe('runSuites', () => {
     ])
     expect(refreshed).toEqual([['one', tokens]])
   })
+
+  it('awaits onTokenRefresh after a fixture refresh, and a lost rotated refresh token is a setup error', async () => {
+    const oauthSuite: E2ESuite = {
+      ...suite('one', [fixture('a'), fixture('b')]),
+      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
+    }
+    const reply = (tokens: { accessToken: string; refreshToken?: string }) =>
+      new FakeAdapter((_, call) => (call === 1 ? { ...ok, refreshedTokens: tokens } : ok))
+    const reject = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5))
+      throw new Error('vault down')
+    }
+
+    const kept = await runSuites(reply({ accessToken: 'fresh' }), [oauthSuite], { ...opts, onTokenRefresh: reject })
+    expect(kept.results.map((r) => [r.outcome, r.reason])).toEqual([
+      ['passed', undefined],
+      ['passed', undefined]
+    ])
+    expect(kept.warnings).toEqual(['one: onTokenRefresh failed: vault down'])
+    expect(kept.exitCode).toBe(0)
+
+    const lost = await runSuites(reply({ accessToken: 'fresh', refreshToken: 'rotated' }), [oauthSuite], {
+      ...opts,
+      onTokenRefresh: reject
+    })
+    expect(lost.results.map((r) => r.outcome)).toEqual(['passed', 'passed'])
+    expect(lost.setupErrors).toEqual(['one: onTokenRefresh failed: vault down; the new refresh token was not saved'])
+    expect(lost.exitCode).toBe(2)
+  })
 })
