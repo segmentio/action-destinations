@@ -36,8 +36,8 @@ export interface E2ERunOptions {
   /** Handed to hooks for naming partner resources. Defaults to a fresh short id. */
   runId?: string
   onResult?: (result: E2EResult) => void
-  /** Called with each refresh's tokens, so a harness can save a rotated refresh token. */
-  onTokenRefresh?: (destination: string, tokens: RefreshAccessTokenResult) => void
+  /** Called with each refresh's tokens, so a harness can save a rotated refresh token. Awaited; a throw is a warning. */
+  onTokenRefresh?: (destination: string, tokens: RefreshAccessTokenResult) => void | Promise<void>
 }
 
 export interface E2EReport {
@@ -143,7 +143,18 @@ export async function runSuites(
     return true
   })
 
-  /** Attempts one fixture, reusing and updating the suite's refreshed tokens. Rethrows E2ESetupError. */
+  const reportTokens = async (destination: string, tokens: RefreshAccessTokenResult) => {
+    try {
+      await options.onTokenRefresh?.(destination, tokens)
+    } catch (err) {
+      warnings.push(`${destination}: onTokenRefresh failed: ${message(err)}`)
+    }
+  }
+
+  const failedOutcome = (suite: E2ESuite, fixture: E2EFixture) =>
+    isQuarantined(suite, fixture, options.quarantine ?? [], now) ? 'quarantined' : 'failed'
+
+  /** Attempts one fixture, reusing and updating the run's refreshed tokens. Rethrows E2ESetupError. */
   const runFixture = async (
     suite: E2ESuite,
     fixture: E2EFixture,
@@ -166,7 +177,7 @@ export async function runSuites(
         observation = await adapter.run(invocation, suite)
         if (observation.refreshedTokens) {
           auth.tokens = observation.refreshedTokens
-          options.onTokenRefresh?.(suite.destination, observation.refreshedTokens)
+          await reportTokens(suite.destination, observation.refreshedTokens)
         }
         const verdict = validate(expectation, observation, {
           mode: fixture.mode,
@@ -180,11 +191,10 @@ export async function runSuites(
       }
     }
 
-    const failedOutcome = isQuarantined(suite, fixture, options.quarantine ?? [], now) ? 'quarantined' : 'failed'
     const result: E2EResult = {
       suite: `${suite.destination}/${suite.action}`,
       fixture: fixture.description,
-      outcome: passed ? 'passed' : failedOutcome,
+      outcome: passed ? 'passed' : failedOutcome(suite, fixture),
       attempts,
       ms: Date.now() - fixtureStarted,
       ...(passed
@@ -194,7 +204,8 @@ export async function runSuites(
     return { result, observation }
   }
 
-  // Keyed by destination and stored refresh token, so suites on the same credentials refresh once.
+  // Keyed by destination and stored refresh token, so suites on the same credentials share tokens.
+  // Only the refresh before hooks is deduplicated; fixtures that hit a 401 at once each refresh.
   const authStates = new Map<string, E2EAuthState>()
   const authFor = (destination: string, settings: Record<string, unknown>): E2EAuthState => {
     const refreshToken = (settings.oauth as Record<string, unknown> | undefined)?.refresh_token
@@ -216,18 +227,31 @@ export async function runSuites(
 
     // Hooks can call the partner before any fixture has refreshed the stored access token.
     if (hasHooks(suite) && !auth.tokens) {
-      auth.hookRefresh ??= refreshForHooks(suite, settings).then((tokens) => {
+      auth.hookRefresh ??= refreshForHooks(suite, settings).then(async (tokens) => {
         if (!tokens) return
         auth.tokens = tokens
-        options.onTokenRefresh?.(suite.destination, tokens)
+        await reportTokens(suite.destination, tokens)
       })
       try {
         await auth.hookRefresh
       } catch (err) {
         auth.hookRefresh = undefined
-        setupErrors.push(
-          `${label}: OAuth refresh failed: re-authorize the sandbox app or check refreshAccessToken. ${message(err)}`
-        )
+        // Failed fixtures, not a setup error, so a quarantine entry can excuse a revoked sandbox token.
+        const reason = `OAuth refresh failed before hooks: re-authorize the sandbox app or check refreshAccessToken. ${message(
+          err
+        )}`
+        for (const fixture of suite.fixtures) {
+          const result: E2EResult = {
+            suite: label,
+            fixture: fixture.description,
+            outcome: failedOutcome(suite, fixture),
+            attempts: 0,
+            ms: 0,
+            reason
+          }
+          results.push(result)
+          options.onResult?.(result)
+        }
         return
       }
     }

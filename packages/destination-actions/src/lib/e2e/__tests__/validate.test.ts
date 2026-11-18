@@ -262,6 +262,8 @@ describe('validate', () => {
       const expectation = { status: 'error', errorType: 'OAUTH_REFRESH_FAILED' } as const
       expect(validate(expectation, { ...failedRefresh, refreshFailed: true }).passed).toBe(true)
       expect(validate(expectation, failedRefresh).passed).toBe(false)
+      // An adapter that can't see the refresh still reports core's own OAUTH_REFRESH_FAILED.
+      expect(validate(expectation, observation).passed).toBe(true)
     })
   })
 })

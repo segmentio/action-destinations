@@ -12,7 +12,7 @@ export interface E2EInvocation {
   mode: E2EExecutionMode
   /** One event for 'single', otherwise the batch. Dynamic markers are resolved. */
   events: SegmentEvent[]
-  /** Destination settings with `{ $env }` markers resolved, and tokens refreshed earlier in the suite. No subscription. */
+  /** Destination settings with `{ $env }` markers resolved, and tokens refreshed earlier in the run. No subscription. */
   settings: Record<string, unknown>
   subscribe: string
   /** The action's field defaults overlaid with the fixture's mapping, as a stored subscription carries it. */
@@ -55,7 +55,7 @@ export interface E2EObservation {
   returnedMultiStatus?: boolean
   /**
    * The tokens core passed to onTokenRefresh after a 401, which the runner reuses for the rest of
-   * the suite. Unset when nothing was refreshed or the adapter keeps tokens itself.
+   * the run. Unset when nothing was refreshed or the adapter keeps tokens itself.
    */
   refreshedTokens?: RefreshAccessTokenResult
   /**

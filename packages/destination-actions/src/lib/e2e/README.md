@@ -76,7 +76,7 @@ stored subscription carries it. The adapter sends it and returns an `E2EObservat
   turns any other return into per-event results that copy one status. Leave it unset when the
   adapter can't see it.
 - `refreshedTokens`: the tokens core passed to `onTokenRefresh` after a 401. The runner writes them
-  over `settings.oauth` for the rest of the suite, so a suite refreshes once. Leave it unset when the
+  over `settings.oauth` for the rest of the run (see OAuth below). Leave it unset when the
   target keeps tokens itself, as integrations' token store does.
 - `refreshFailed`: the destination's `refreshAccessToken` threw or returned nothing. Core reports a
   throw as the token request's own error, so the report needs this to name the cause.
@@ -146,11 +146,15 @@ Point the suite's settings at chamber under `settings.oauth` (`access_token`, `r
 `clientId`, `clientSecret`), the keys core reads. The first 401 makes core refresh and retry; the
 runner keeps the new tokens for the rest of the run, shared by every suite of that destination with
 the same stored refresh token. A suite with hooks refreshes once before its first hook, since hooks
-call the partner before any fixture could; a failed refresh there is a setup error (exit 2). A failed
-refresh in a fixture fails it (exit 1). Either reason starts "OAuth refresh failed: re-authorize the
-sandbox app or check refreshAccessToken".
+call the partner before any fixture could; suites on the same credentials share that one refresh.
+A failed refresh fails the fixture, or every fixture of a suite whose pre-hook refresh failed (exit 1,
+so a quarantine entry can excuse it). The reason includes "OAuth refresh failed".
 
-`onTokenRefresh(destination, tokens)` in the run options gets each refresh. A partner that rotates
-refresh tokens invalidates the stored one, so a harness for one must save `tokens.refreshToken`
-and run that destination's suites with `concurrency: 1`: two fixtures that hit a 401 at once each
-refresh with the same token.
+That refresh happens on every run, even when the stored access token is still valid, so a partner
+that rotates refresh tokens rotates it each run with hooks.
+
+`onTokenRefresh(destination, tokens)` in the run options gets each refresh; it is awaited, and a
+throw is a report warning. A partner that rotates refresh tokens invalidates the stored one, so a
+harness for one must save `tokens.refreshToken`, and run it alone (`destinations: [name]`) with
+`concurrency: 1`: two fixtures that hit a 401 at once each refresh with the same token. The local
+run only logs that a refresh happened.

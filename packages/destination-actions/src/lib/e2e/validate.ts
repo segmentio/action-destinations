@@ -148,7 +148,7 @@ export function validate(
         }))
     if (errors.length === 0) return fail('expected our code to reject the event, but it did not')
     // A failed refresh follows a partner 401, so it always has an exchange.
-    const refreshError = Boolean(error && observation.refreshFailed)
+    const refreshError = Boolean(error && (observation.refreshFailed || error.type === OAUTH_REFRESH_FAILED))
     if (exchanges.length > 0 && !refreshError) {
       return fail(`expected no partner request, but ${exchanges.length} were sent`)
     }

@@ -7,7 +7,7 @@ import type { E2EFixture, E2EHookValues, E2ESuite } from './types'
 export interface E2EInvocationState {
   /** The suite's and fixture's `before` values, for '$before:<key>'. */
   values?: E2EHookValues
-  /** Tokens refreshed earlier in the suite, written over `settings.oauth`. */
+  /** Tokens refreshed earlier in the run, written over `settings.oauth`. */
   tokens?: RefreshAccessTokenResult
 }
 
