@@ -21,7 +21,12 @@ test(
   async () => {
     const report = await runSuites(new InProcessAdapter(), suites, {
       destinations: list(process.env.E2E_DESTINATIONS),
-      concurrency: process.env.E2E_CONCURRENCY ? Number(process.env.E2E_CONCURRENCY) : undefined
+      concurrency: process.env.E2E_CONCURRENCY ? Number(process.env.E2E_CONCURRENCY) : undefined,
+      onTokenRefresh: (destination, tokens) => {
+        const rotated = tokens.refreshToken ? '; a new refresh token came back, update the stored secret' : ''
+        // eslint-disable-next-line no-console
+        console.log(`${destination}: OAuth tokens refreshed${rotated}`)
+      }
     })
     if (process.env.E2E_REPORT) writeFileSync(process.env.E2E_REPORT, JSON.stringify(report, null, 2))
     // eslint-disable-next-line no-console

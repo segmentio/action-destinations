@@ -268,17 +268,72 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
     expect(created.isDone()).toBe(true)
   })
 
-  it('makes a failed refresh before hooks a setup error', async () => {
-    nock('https://auth.fake.test').post('/token').reply(400, { error: 'invalid_grant' })
+  it('fails every fixture of a suite whose refresh before hooks fails, which quarantine can excuse', async () => {
+    nock('https://auth.fake.test').post('/token').times(2).reply(400, { error: 'invalid_grant' })
+    const hooked = oauthSuite([send('a', { status: 'success' }), send('b', { status: 'success' })], {
+      before: async () => ({})
+    })
+
+    const report = await runSuites(new InProcessAdapter(), [hooked], { env })
+    expect(report.exitCode).toBe(1)
+    expect(report.setupErrors).toEqual([])
+    expect(report.results.map((r) => [r.fixture, r.outcome])).toEqual([
+      ['a', 'failed'],
+      ['b', 'failed']
+    ])
+    expect(report.results[0].reason).toMatch(/^OAuth refresh failed before hooks: re-authorize the sandbox app/)
+
+    const quarantine = [{ destination: 'fake-oauth', expires: '2999-01-01' }]
+    const excused = await runSuites(new InProcessAdapter(), [hooked], { env, quarantine })
+    expect(excused.exitCode).toBe(0)
+    expect(excused.results.map((r) => r.outcome)).toEqual(['quarantined', 'quarantined'])
+  })
+
+  it('shares one refresh before hooks across suites on the same credentials, and reports it', async () => {
+    const token = nock('https://auth.fake.test').post('/token').once().reply(200, { access_token: 'fresh' })
+    nock('https://api.fake.test').persist().post('/send').reply(200, { ok: true })
+    const seen: unknown[] = []
+    const hooked = (description: string) =>
+      oauthSuite([send(description, { status: 'success' })], {
+        before: async ({ settings }) => {
+          seen.push((settings.oauth as { access_token: string }).access_token)
+          return {}
+        }
+      })
+    const refreshed: string[] = []
+
+    const report = await runSuites(new InProcessAdapter(), [hooked('one'), hooked('two')], {
+      env,
+      concurrency: 2,
+      onTokenRefresh: async (destination, tokens) => {
+        await new Promise((resolve) => setTimeout(resolve, 5))
+        refreshed.push(`${destination}:${tokens.accessToken}`)
+      }
+    })
+
+    expect(report.exitCode).toBe(0)
+    expect(token.isDone()).toBe(true)
+    expect(seen).toEqual(['fresh', 'fresh'])
+    expect(refreshed).toEqual(['fake-oauth:fresh'])
+  })
+
+  it('turns an onTokenRefresh throw into a warning, not a failure', async () => {
+    nock('https://auth.fake.test').post('/token').reply(200, { access_token: 'fresh' })
+    nock('https://api.fake.test').post('/send').reply(200, { ok: true })
+
     const report = await runSuites(
       new InProcessAdapter(),
-      [oauthSuite([send('never runs', { status: 'success' })], { before: async () => ({}) })],
-      { env }
+      [oauthSuite([send('a', { status: 'success' })], { before: async () => ({}) })],
+      {
+        env,
+        onTokenRefresh: async () => {
+          throw new Error('vault down')
+        }
+      }
     )
 
-    expect(report.exitCode).toBe(2)
-    expect(report.results).toEqual([])
-    expect(report.setupErrors[0]).toMatch(/fake-oauth\/send: OAuth refresh failed: re-authorize the sandbox app/)
+    expect(report.exitCode).toBe(0)
+    expect(report.warnings).toEqual(['fake-oauth: onTokenRefresh failed: vault down'])
   })
 
   it('names a failed refresh in batch mode, after multistatus 401s', async () => {
