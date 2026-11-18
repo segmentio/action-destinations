@@ -6,6 +6,18 @@ export interface ImsTokenResponse {
   expires_in: number
 }
 
+// ---------- Adobe Identity Service ----------
+
+// One item of the GET /data/core/idnamespace/identities array. Only the fields we read are typed.
+export interface IdentityNamespace {
+  code: string
+  name?: string
+  id?: number
+  idType?: string
+  status?: string
+  custom?: boolean
+}
+
 // ---------- XDM message envelope ----------
 
 export interface SchemaRef {

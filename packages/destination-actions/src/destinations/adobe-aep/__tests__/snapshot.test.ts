@@ -8,8 +8,9 @@ const destinationSlug = 'actions-adobe-aep'
 const auth = { accessToken: 'snapshot-token', refreshToken: '' }
 
 // generateTestData produces random strings, which fail timestamp parsing and can produce
-// conflicting XDM paths, so these fields are pinned.
+// conflicting XDM paths, so these fields are pinned. primaryIdentity must name a mapped identity.
 const pinned = {
+  primaryIdentity: 'ECID',
   timestamp: '2026-01-15T12:34:56.000Z',
   xdmMapping: { 'web.webPageDetails.URL': 'https://example.com/snapshot' }
 }

@@ -4,7 +4,8 @@ import {
   DEFAULT_BATCH_SIZE,
   DEFAULT_SCHEMA_CONTENT_TYPE,
   MAX_BATCH_SIZE,
-  MIN_BATCH_SIZE
+  MIN_BATCH_SIZE,
+  PID_NAMESPACE
 } from './constants'
 
 // Fields shared by Send Event and Upsert Profile.
@@ -65,7 +66,7 @@ export const flowId: InputField = {
 export const ecid: InputField = {
   label: 'ECID',
   description:
-    'Identity sent in the `ECID` namespace of `identityMap`. Primary only when no PID or custom identity is present.',
+    'Identity sent in the `ECID` namespace of `identityMap`. Select `ECID` in Primary Identity to make it the primary identity.',
   type: 'string',
   required: false,
   default: { '@path': '$.anonymousId' }
@@ -74,7 +75,7 @@ export const ecid: InputField = {
 export const pid: InputField = {
   label: 'PID',
   description:
-    'Identity sent in the `PID` namespace of `identityMap`. Primary by default. Send Event and Upsert Profile must send the same PID for Customer Journey Analytics to join profiles to events.',
+    'Identity sent in the `PID` namespace of `identityMap`. Select `PID` in Primary Identity to make it the primary identity. Send Event and Upsert Profile must send the same PID for Customer Journey Analytics to join profiles to events.',
   type: 'string',
   required: false,
   default: { '@path': '$.userId' }
@@ -83,7 +84,7 @@ export const pid: InputField = {
 export const customIdentities: InputField = {
   label: 'Custom Identities',
   description:
-    'Additional identities for `identityMap`. Each namespace must exist in AEP Identity Service. The first entry marked primary becomes the primary identity.',
+    'Additional identities for `identityMap`. Each namespace must exist in AEP Identity Service. Choose the primary identity in the Primary Identity field below.',
   type: 'object',
   multiple: true,
   required: false,
@@ -92,23 +93,29 @@ export const customIdentities: InputField = {
   properties: {
     namespace: {
       label: 'Namespace',
-      description: 'Identity namespace code, for example `ECI` or `Email`.',
+      description:
+        'Identity namespace code, for example `ECI` or `Email`. Choices come from the identity namespaces in your sandbox, so enter the IMS Organization ID and Sandbox Name as values first. The code is case-sensitive.',
       type: 'string',
-      required: true
+      required: true,
+      dynamic: true
     },
     value: {
       label: 'Value',
       description: 'Identity value.',
       type: 'string',
       required: true
-    },
-    primary: {
-      label: 'Primary',
-      description: 'Whether this identity should be the primary identity.',
-      type: 'boolean',
-      required: false
     }
   }
+}
+
+export const primaryIdentity: InputField = {
+  label: 'Primary Identity',
+  description:
+    'The identity sent with `primary: true` in `identityMap`. AEP allows exactly one. Choose from the identities mapped above: `PID`, `ECID` or a custom namespace. The event is rejected if the chosen identity has no value.',
+  type: 'string',
+  required: true,
+  dynamic: true,
+  default: PID_NAMESPACE
 }
 
 export const xdmMappingDescription =
@@ -162,6 +169,6 @@ export const commonFields = {
   flowId
 }
 
-export const identityFields = { ecid, pid, customIdentities }
+export const identityFields = { ecid, pid, customIdentities, primaryIdentity }
 
 export const batchFields = { enable_batching, batch_size, batch_bytes, batch_keys }

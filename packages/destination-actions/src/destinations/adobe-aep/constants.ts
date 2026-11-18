@@ -14,13 +14,16 @@ export const IMS_TOKEN_URL = 'https://ims-na1.adobelogin.com/ims/token/v3'
 // OAuth server-to-server credential for the Experience Platform API.
 export const IMS_SCOPE = 'openid,AdobeID,read_organizations,additional_info.projectedProductContext,session'
 
+// Identity Service: lists the identity namespaces (standard and custom) available in a sandbox.
+export const IDENTITY_NAMESPACES_URL = 'https://platform.adobe.io/data/core/idnamespace/identities'
+
 // Header required on every streaming request.
 export const SANDBOX_HEADER = 'x-sandbox-name'
 
 // Default XDM schema content type.
 export const DEFAULT_SCHEMA_CONTENT_TYPE = 'application/vnd.adobe.xed-full+json;version=1'
 
-// Identity namespaces populated from the dedicated identity fields (Q5).
+// Identity namespaces populated from the dedicated identity fields.
 export const ECID_NAMESPACE = 'ECID'
 export const PID_NAMESPACE = 'PID'
 
