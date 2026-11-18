@@ -156,6 +156,24 @@ describe('runSuites', () => {
     expect(adapter.calls).toHaveLength(0)
   })
 
+  it('treats an empty secret as missing', async () => {
+    const adapter = new FakeAdapter(() => ok)
+    const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, env: { E2E_FAKE_KEY: '' } })
+
+    expect(report.exitCode).toBe(2)
+    expect(report.setupErrors).toEqual(['fake/send: missing environment variables E2E_FAKE_KEY'])
+    expect(adapter.calls).toHaveLength(0)
+  })
+
+  it('treats a quarantine entry whose expires is not a date as a setup error', async () => {
+    const adapter = new FakeAdapter(() => ok)
+    const quarantine = [{ destination: 'fake', expires: '2026-13-45' }]
+    const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, quarantine })
+
+    expect(report.exitCode).toBe(2)
+    expect(report.setupErrors).toEqual(['quarantine entry for fake: expires "2026-13-45" is not a date'])
+  })
+
   it('treats an invalid concurrency or a run with no fixtures as a setup error', async () => {
     const adapter = new FakeAdapter(() => ok)
     const invalid = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, concurrency: NaN })
@@ -317,7 +335,7 @@ describe('runSuites', () => {
       ])
     })
 
-    it('makes a failed before or an unknown $before key a setup error, and still runs after', async () => {
+    it('makes a failed before or an unknown $before key a setup error, skipping only that fixture after', async () => {
       const calls: string[] = []
       const adapter = new FakeAdapter(() => ok)
       const failing: E2ESuite = {
@@ -362,11 +380,8 @@ describe('runSuites', () => {
         'fake/send › unknown key: no before hook returned missing',
         'other/send: suite before failed: sandbox down'
       ])
-      expect(calls).toEqual([
-        'broken before: after',
-        'suite after broken before:not run,unknown key:not run,fine:passed',
-        'other after'
-      ])
+      // A fixture's after is skipped when its own before threw; the suite's after still runs.
+      expect(calls).toEqual(['suite after broken before:not run,unknown key:not run,fine:passed', 'other after'])
     })
 
     it('reports a failed after as a warning without changing the exit code', async () => {
@@ -409,7 +424,9 @@ describe('runSuites', () => {
     await runSuites(adapter, [oauthSuite('one'), oauthSuite('one'), oauthSuite('two')], {
       ...opts,
       concurrency: 1,
-      onTokenRefresh: (destination, t) => refreshed.push([destination, t])
+      onTokenRefresh: (destination, t) => {
+        refreshed.push([destination, t])
+      }
     })
 
     expect(adapter.calls.map((call) => call.settings.oauth)).toEqual([
@@ -418,6 +435,25 @@ describe('runSuites', () => {
       { access_token: 'stale', refresh_token: 'secret' }
     ])
     expect(refreshed).toEqual([['one', tokens]])
+  })
+
+  it('keeps a rotated refresh token when a later refresh returns none', async () => {
+    const adapter = new FakeAdapter((_, call) => {
+      if (call === 1) return { ...ok, refreshedTokens: { accessToken: 'first', refreshToken: 'rotated' } }
+      if (call === 2) return { ...ok, refreshedTokens: { accessToken: 'second' } }
+      return ok
+    })
+    const oauthSuite: E2ESuite = {
+      ...suite('one', [fixture('a'), fixture('b'), fixture('c')]),
+      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
+    }
+    await runSuites(adapter, [oauthSuite], opts)
+
+    expect(adapter.calls.map((call) => call.settings.oauth)).toEqual([
+      { access_token: 'stale', refresh_token: 'secret' },
+      { access_token: 'first', refresh_token: 'rotated' },
+      { access_token: 'second', refresh_token: 'rotated' }
+    ])
   })
 
   it('awaits onTokenRefresh after a fixture refresh, and a lost rotated refresh token is a setup error', async () => {

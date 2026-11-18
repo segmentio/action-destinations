@@ -137,7 +137,9 @@ suite.after({ ...ctx, values: S, fixtures })        // always
 parallel runs don't collide, and name anything `after` deletes in `before`, not with `$guid`, which
 changes on each retry. `before` runs once per fixture, not per attempt; a throw, or a
 `$before:` key no hook returned, is a setup error and the suite or fixture doesn't run. `after`
-always runs, and a throw is a report warning. `fixtures[].cleaned` tells the suite's `after` which
+always runs, and a throw is a report warning, with two exceptions: a fixture's `after` is skipped when
+its own `before` threw, and a suite's `after` when the OAuth refresh before its hooks failed (no hook
+ran). `fixtures[].cleaned` tells the suite's `after` which
 fixtures' own `after` succeeded.
 
 ## OAuth

@@ -167,6 +167,10 @@ export function validate(
     return { passed: true }
   }
 
+  // A thrown error explains a success fixture's failure better than its request count.
+  if (expectation.status === 'success' && error) {
+    return fail(`expected success, got ${describeError(error, observation.refreshFailed)}`)
+  }
   if (expectation.exchangeCount !== undefined && exchanges.length !== expectation.exchangeCount) {
     const sent = exchanges.map((exchange) => `${exchange.method} ${exchange.url} ${exchange.status}`).join(', ')
     return fail(`expected ${expectation.exchangeCount} partner request(s), got ${exchanges.length}: ${sent}`)
@@ -184,7 +188,6 @@ export function validate(
     return checkBody(exchange.body, expectation)
   }
 
-  if (error) return fail(`expected success, got ${describeError(error, observation.refreshFailed)}`)
   if (!exchange) return fail(noExchange(exchanges, expectation, 'expected a partner request, but none was sent'))
   const statusOk =
     expectation.httpStatus !== undefined

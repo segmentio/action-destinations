@@ -1,3 +1,4 @@
+import type { E2EMultiStatusItem } from '../adapters/types'
 import { validate } from '../validate'
 
 const exchange = (status: number, body: unknown = {}) => ({ method: 'POST', url: 'https://fake.test', status, body })
@@ -137,7 +138,7 @@ describe('validate', () => {
     })
 
     it('fails on a different count, status, type, message or reporter', () => {
-      const withItem = (item: Record<string, unknown>) => ({ ...observation, multistatus: [{ status: 200 }, item] })
+      const withItem = (item: E2EMultiStatusItem) => ({ ...observation, multistatus: [{ status: 200 }, item] })
       expect(validate(expectation, { ...observation, multistatus: [{ status: 200 }] }).reason).toBe(
         'expected 2 per-event result(s), got 1'
       )
@@ -246,6 +247,16 @@ describe('validate', () => {
       expect(passes({ error: '$absent', result: { errors: '$absent' } })).toBe(true)
       expect(passes({ ok: '$absent' })).toBe(false)
       expect(passes({ result: { warnings: '$absent' } })).toBe(false)
+    })
+
+    it("reports a success fixture's error rather than its request count", () => {
+      const observation = {
+        exchanges: [],
+        error: { type: 'PAYLOAD_VALIDATION_FAILED', message: 'email is required', status: 400 }
+      }
+      expect(validate({ status: 'success', exchangeCount: 1 }, observation).reason).toBe(
+        'expected success, got PAYLOAD_VALIDATION_FAILED (400): email is required'
+      )
     })
 
     it('names a failed OAuth refresh', () => {

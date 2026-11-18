@@ -72,7 +72,7 @@ export function missingSecrets(settings: E2ESettingsObject, env: NodeJS.ProcessE
   const walk = (obj: E2ESettingsObject) => {
     for (const value of Object.values(obj)) {
       if (isSecret(value)) {
-        if (env[value.$env] === undefined) missing.push(value.$env)
+        if (!env[value.$env]) missing.push(value.$env)
       } else if (value && typeof value === 'object') {
         walk(value)
       }
@@ -89,8 +89,10 @@ export function resolveSettings(settings: E2ESettingsObject, env: NodeJS.Process
     for (const [key, value] of Object.entries(obj)) {
       if (isSecret(value)) {
         const resolved = env[value.$env]
-        if (resolved === undefined) {
-          throw new Error(`E2E: environment variable "${value.$env}" is not set (needed for setting "${key}").`)
+        if (!resolved) {
+          throw new Error(
+            `E2E: environment variable "${value.$env}" is not set or empty (needed for setting "${key}").`
+          )
         }
         out[key] = resolved
       } else if (value && typeof value === 'object') {

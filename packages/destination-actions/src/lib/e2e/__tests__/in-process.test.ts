@@ -270,8 +270,12 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
 
   it('fails every fixture of a suite whose refresh before hooks fails, which quarantine can excuse', async () => {
     nock('https://auth.fake.test').post('/token').times(2).reply(400, { error: 'invalid_grant' })
+    let suiteAfterRan = false
     const hooked = oauthSuite([send('a', { status: 'success' }), send('b', { status: 'success' })], {
-      before: async () => ({})
+      before: async () => ({}),
+      after: async () => {
+        suiteAfterRan = true
+      }
     })
 
     const report = await runSuites(new InProcessAdapter(), [hooked], { env })
@@ -282,6 +286,8 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
       ['b', 'failed']
     ])
     expect(report.results[0].reason).toMatch(/^OAuth refresh failed before hooks: re-authorize the sandbox app/)
+    // No hook ran, so there is nothing for the suite's after to clean up.
+    expect(suiteAfterRan).toBe(false)
 
     const quarantine = [{ destination: 'fake-oauth', expires: '2999-01-01' }]
     const excused = await runSuites(new InProcessAdapter(), [hooked], { env, quarantine })
