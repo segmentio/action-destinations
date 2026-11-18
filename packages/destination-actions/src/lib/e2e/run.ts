@@ -1,8 +1,11 @@
+import { randomUUID } from 'node:crypto'
+import type { RefreshAccessTokenResult } from '@segment/actions-core'
 import { E2ESetupError } from './adapters/types'
-import type { E2EAdapter } from './adapters/types'
-import { buildInvocation } from './invocation'
-import { missingSecrets } from './resolve'
-import type { E2EFixture, E2EResult, E2ESuite } from './types'
+import type { E2EAdapter, E2EObservation } from './adapters/types'
+import { hookContext } from './hooks'
+import { buildInvocation, withRefreshedTokens } from './invocation'
+import { missingBeforeKeys, missingSecrets, resolveSettings } from './resolve'
+import type { E2EExpectation, E2EFixture, E2EFixtureCleanup, E2EHookValues, E2EResult, E2ESuite } from './types'
 import { validate } from './validate'
 
 /** Excuses failures until `expires`. Without `action` / `fixture`, it covers the whole destination or action. */
@@ -30,15 +33,20 @@ export interface E2ERunOptions {
   env?: NodeJS.ProcessEnv
   /** Clock for quarantine expiry. Defaults to now. */
   now?: Date
+  /** Handed to hooks for naming partner resources. Defaults to a fresh short id. */
+  runId?: string
   onResult?: (result: E2EResult) => void
 }
 
 export interface E2EReport {
   adapter: string
+  runId: string
   startedAt: string
   ms: number
   results: E2EResult[]
   setupErrors: string[]
+  /** Failed `after` hooks: resources may be left behind, but the exit code is unaffected. */
+  warnings: string[]
   /** 0 all passed or excused, 1 a fixture failed, 2 setup error. A harness maps it to its process exit. */
   exitCode: 0 | 1 | 2
 }
@@ -68,9 +76,27 @@ function selectSuites(suites: E2ESuite[], options: E2ERunOptions, setupErrors: s
   return selected
 }
 
+const message = (err: unknown) => (err as Error)?.message ?? String(err)
+
+/** A fixture that can't be judged as written, or undefined. */
+function fixtureProblem(fixture: E2EFixture): string | undefined {
+  if (fixture.expect.status !== 'multistatus') return undefined
+  if (fixture.mode !== 'batchWithMultistatus') return `a multistatus expectation needs mode 'batchWithMultistatus'`
+  if (fixture.expect.items.length !== fixture.events.length) {
+    return `multistatus lists ${fixture.expect.items.length} item(s) for ${fixture.events.length} event(s)`
+  }
+  return undefined
+}
+
+function expectationFor(suite: E2ESuite, fixture: E2EFixture): E2EExpectation {
+  return fixture.expect.status === 'success' && suite.defaultSuccess
+    ? { ...suite.defaultSuccess, ...fixture.expect }
+    : fixture.expect
+}
+
 /**
  * Run suites through any adapter. Fixtures inside a suite run in order; suites run in parallel.
- * The core owns scoping, preflight, retries, quarantine and the exit code; the adapter only sends.
+ * The core owns scoping, preflight, hooks, retries, quarantine and the exit code; the adapter only sends.
  */
 export async function runSuites(
   adapter: E2EAdapter,
@@ -81,7 +107,9 @@ export async function runSuites(
   const env = options.env ?? process.env
   const now = options.now ?? new Date()
   const backoffMs = options.backoffMs ?? 250
+  const runId = options.runId ?? randomUUID().slice(0, 8)
   const setupErrors: string[] = []
+  const warnings: string[] = []
   const results: E2EResult[] = []
 
   const selected = selectSuites(suites, options, setupErrors)
@@ -98,32 +126,51 @@ export async function runSuites(
       setupErrors.push(`${label}: missing environment variables ${missing.join(', ')}`)
       return false
     }
+    const descriptions = suite.fixtures.map((fixture) => fixture.description)
+    const duplicates = [...new Set(descriptions.filter((d, i) => descriptions.indexOf(d) !== i))]
+    if (duplicates.length > 0) {
+      setupErrors.push(`${label}: fixture descriptions must be unique, repeated: ${duplicates.join(', ')}`)
+      return false
+    }
     return true
   })
 
-  const runFixture = async (suite: E2ESuite, fixture: E2EFixture): Promise<E2EResult> => {
+  /** Attempts one fixture, reusing and updating the suite's refreshed tokens. Rethrows E2ESetupError. */
+  const runFixture = async (
+    suite: E2ESuite,
+    fixture: E2EFixture,
+    values: E2EHookValues,
+    auth: { tokens?: RefreshAccessTokenResult }
+  ): Promise<{ result: E2EResult; observation?: E2EObservation }> => {
     const fixtureStarted = Date.now()
     const retries = fixture.retries ?? suite.retries ?? options.defaultRetries ?? 0
+    const expectation = expectationFor(suite, fixture)
     let attempts = 0
     let reason: string | undefined
     let passed = false
+    let observation: E2EObservation | undefined
 
     while (!passed && attempts <= retries) {
       if (attempts > 0) await sleep(backoffMs * 2 ** (attempts - 1))
       attempts++
       try {
-        const observation = await adapter.run(buildInvocation(suite, fixture, env), suite)
-        const verdict = validate(fixture.expect, observation)
+        const invocation = buildInvocation(suite, fixture, env, { values, tokens: auth.tokens })
+        observation = await adapter.run(invocation, suite)
+        auth.tokens = observation.refreshedTokens ?? auth.tokens
+        const verdict = validate(expectation, observation, {
+          mode: fixture.mode,
+          eventCount: invocation.events.length
+        })
         passed = verdict.passed
         reason = verdict.reason
       } catch (err) {
         if (err instanceof E2ESetupError) throw err
-        reason = `adapter threw: ${(err as Error)?.message ?? String(err)}`
+        reason = `adapter threw: ${message(err)}`
       }
     }
 
     const failedOutcome = isQuarantined(suite, fixture, options.quarantine ?? [], now) ? 'quarantined' : 'failed'
-    return {
+    const result: E2EResult = {
       suite: `${suite.destination}/${suite.action}`,
       fixture: fixture.description,
       outcome: passed ? 'passed' : failedOutcome,
@@ -133,22 +180,88 @@ export async function runSuites(
         ? {}
         : { reason: fixture.verboseFailureHint ? `${reason} (hint: ${fixture.verboseFailureHint})` : reason })
     }
+    return { result, observation }
+  }
+
+  const runSuite = async (suite: E2ESuite) => {
+    const label = `${suite.destination}/${suite.action}`
+    const auth: { tokens?: RefreshAccessTokenResult } = {}
+    // Hooks see the latest refreshed tokens too.
+    const context = () =>
+      hookContext(suite, withRefreshedTokens(resolveSettings(suite.config.settings, env), auth.tokens), runId)
+    let suiteValues: E2EHookValues = {}
+    const cleanups: E2EFixtureCleanup[] = []
+
+    try {
+      if (suite.before) {
+        try {
+          suiteValues = await suite.before(context())
+        } catch (err) {
+          setupErrors.push(`${label}: suite before failed: ${message(err)}`)
+          return
+        }
+      }
+
+      for (const fixture of suite.fixtures) {
+        const fixtureLabel = `${label} › ${fixture.description}`
+        const problem = fixtureProblem(fixture)
+        if (problem) {
+          setupErrors.push(`${fixtureLabel}: ${problem}`)
+          continue
+        }
+        let values = suiteValues
+        let observation: E2EObservation | undefined
+        let outcome: E2EResult['outcome'] | undefined
+        try {
+          if (fixture.before) {
+            try {
+              values = { ...suiteValues, ...(await fixture.before({ ...context(), values: suiteValues })) }
+            } catch (err) {
+              setupErrors.push(`${fixtureLabel}: fixture before failed: ${message(err)}`)
+              continue
+            }
+          }
+          const events = fixture.mode === 'single' ? [fixture.event] : fixture.events
+          const missing = missingBeforeKeys([events, fixture.mapping], values)
+          if (missing.length > 0) {
+            setupErrors.push(`${fixtureLabel}: no before hook returned ${missing.join(', ')}`)
+            continue
+          }
+          const run = await runFixture(suite, fixture, values, auth)
+          observation = run.observation
+          outcome = run.result.outcome
+          results.push(run.result)
+          options.onResult?.(run.result)
+        } catch (err) {
+          setupErrors.push(`${label}: ${message(err)}`)
+          break
+        } finally {
+          let cleaned = false
+          if (fixture.after) {
+            try {
+              await fixture.after({ ...context(), values, observation })
+              cleaned = true
+            } catch (err) {
+              warnings.push(`${fixtureLabel}: fixture after failed: ${message(err)}`)
+            }
+          }
+          cleanups.push({ description: fixture.description, values, outcome, cleaned })
+        }
+      }
+    } finally {
+      if (suite.after) {
+        try {
+          await suite.after({ ...context(), values: suiteValues, fixtures: cleanups })
+        } catch (err) {
+          warnings.push(`${label}: suite after failed: ${message(err)}`)
+        }
+      }
+    }
   }
 
   const queue = [...runnable]
   const worker = async () => {
-    for (let suite = queue.shift(); suite; suite = queue.shift()) {
-      for (const fixture of suite.fixtures) {
-        try {
-          const result = await runFixture(suite, fixture)
-          results.push(result)
-          options.onResult?.(result)
-        } catch (err) {
-          setupErrors.push(`${suite.destination}/${suite.action}: ${(err as Error).message}`)
-          break
-        }
-      }
-    }
+    for (let suite = queue.shift(); suite; suite = queue.shift()) await runSuite(suite)
   }
   const concurrency = options.concurrency ?? 4
   if (Number.isInteger(concurrency) && concurrency >= 1) {
@@ -162,10 +275,12 @@ export async function runSuites(
   const exitCode = setupErrors.length > 0 ? 2 : results.some((result) => result.outcome === 'failed') ? 1 : 0
   return {
     adapter: adapter.name,
+    runId,
     startedAt: new Date(started).toISOString(),
     ms: Date.now() - started,
     results,
     setupErrors,
+    warnings,
     exitCode
   }
 }
@@ -178,10 +293,11 @@ export function formatSummary(report: E2EReport): string {
     return `${mark}  ${result.suite} › ${result.fixture} (${result.attempts} attempt(s), ${result.ms}ms)${detail}`
   })
   for (const error of report.setupErrors) lines.push(`SETUP ${error}`)
+  for (const warning of report.warnings) lines.push(`WARN  ${warning}`)
   const count = (outcome: E2EResult['outcome']) => report.results.filter((result) => result.outcome === outcome).length
   lines.push(
     `${count('passed')} passed, ${count('failed')} failed, ${count('quarantined')} quarantined, ` +
-      `${report.setupErrors.length} setup error(s) · adapter ${report.adapter} · exit ${report.exitCode}`
+      `${report.setupErrors.length} setup error(s), ${report.warnings.length} warning(s) · adapter ${report.adapter} · exit ${report.exitCode}`
   )
   return lines.join('\n')
 }
