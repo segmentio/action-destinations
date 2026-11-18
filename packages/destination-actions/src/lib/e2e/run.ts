@@ -36,7 +36,7 @@ export interface E2ERunOptions {
   /** Handed to hooks for naming partner resources. Defaults to a fresh short id. */
   runId?: string
   onResult?: (result: E2EResult) => void
-  /** Called with each refresh's tokens, so a harness can save a rotated refresh token. Awaited; a throw is a warning. */
+  /** Called with each refresh's tokens, so a harness can save a rotated refresh token. Awaited; a throw is a setup error when the refresh token changed (it would be lost), otherwise a warning. */
   onTokenRefresh?: (destination: string, tokens: RefreshAccessTokenResult) => void | Promise<void>
 }
 
@@ -84,6 +84,8 @@ const message = (err: unknown) => (err as Error)?.message ?? String(err)
 interface E2EAuthState {
   tokens?: RefreshAccessTokenResult
   hookRefresh?: Promise<void>
+  /** The refresh token in the suite's stored settings. */
+  storedRefreshToken?: string
 }
 
 /** A fixture that can't be judged as written, or undefined. */
@@ -143,13 +145,17 @@ export async function runSuites(
     return true
   })
 
-  const reportTokens = async (destination: string, tokens: RefreshAccessTokenResult) => {
+  /** Store a refresh's tokens, then hand them to onTokenRefresh. */
+  const refreshed = async (destination: string, auth: E2EAuthState, tokens: RefreshAccessTokenResult) => {
+    const previous = auth.tokens?.refreshToken ?? auth.storedRefreshToken
+    auth.tokens = tokens
+    const rotated = Boolean(tokens.refreshToken) && tokens.refreshToken !== previous
     try {
       await options.onTokenRefresh?.(destination, tokens)
     } catch (err) {
       // A lost rotated refresh token breaks the next run, so that one is a setup error.
       const problem = `${destination}: onTokenRefresh failed: ${message(err)}`
-      if (tokens.refreshToken) setupErrors.push(`${problem}; the new refresh token was not saved`)
+      if (rotated) setupErrors.push(`${problem}; the new refresh token was not saved`)
       else warnings.push(problem)
     }
   }
@@ -162,7 +168,7 @@ export async function runSuites(
     suite: E2ESuite,
     fixture: E2EFixture,
     values: E2EHookValues,
-    auth: { tokens?: RefreshAccessTokenResult }
+    auth: E2EAuthState
   ): Promise<{ result: E2EResult; observation?: E2EObservation }> => {
     const fixtureStarted = Date.now()
     const retries = fixture.retries ?? suite.retries ?? options.defaultRetries ?? 0
@@ -179,8 +185,7 @@ export async function runSuites(
         const invocation = buildInvocation(suite, fixture, env, { values, tokens: auth.tokens })
         observation = await adapter.run(invocation, suite)
         if (observation.refreshedTokens) {
-          auth.tokens = observation.refreshedTokens
-          await reportTokens(suite.destination, observation.refreshedTokens)
+          await refreshed(suite.destination, auth, observation.refreshedTokens)
         }
         const verdict = validate(expectation, observation, {
           mode: fixture.mode,
@@ -215,7 +220,7 @@ export async function runSuites(
     if (typeof refreshToken !== 'string') return {}
     const key = `${destination}\0${refreshToken}`
     let state = authStates.get(key)
-    if (!state) authStates.set(key, (state = {}))
+    if (!state) authStates.set(key, (state = { storedRefreshToken: refreshToken }))
     return state
   }
 
@@ -232,8 +237,7 @@ export async function runSuites(
     if (hasHooks(suite) && !auth.tokens) {
       auth.hookRefresh ??= refreshForHooks(suite, settings).then(async (tokens) => {
         if (!tokens) return
-        auth.tokens = tokens
-        await reportTokens(suite.destination, tokens)
+        await refreshed(suite.destination, auth, tokens)
       })
       try {
         await auth.hookRefresh
