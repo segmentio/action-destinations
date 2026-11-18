@@ -129,7 +129,7 @@ suite.before(ctx)                                   → S
     fixture.before({ ...ctx, values: S })           → F, merged over S as V
     attempts, with '$before:<key>' → V[key]
     fixture.after({ ...ctx, values: V, observation })
-suite.after({ ...ctx, values: S, fixtures })        // always
+suite.after({ ...ctx, values: S, fixtures })        // even when suite.before threw
 ```
 
 `ctx` holds the resolved `settings`, `request` (the destination's own client, built from its
@@ -138,8 +138,8 @@ parallel runs don't collide, and name anything `after` deletes in `before`, not 
 changes on each retry. `before` runs once per fixture, not per attempt; a throw, or a
 `$before:` key no hook returned, is a setup error and the suite or fixture doesn't run. `after`
 always runs, and a throw is a report warning, with two exceptions: a fixture's `after` is skipped when
-its own `before` threw, and a suite's `after` when the OAuth refresh before its hooks failed (no hook
-ran). `fixtures[].cleaned` tells the suite's `after` which
+its own `before` threw (so a `before` that throws deletes what it created first), and a suite's
+`after` when the OAuth refresh before its hooks failed (no hook ran). `fixtures[].cleaned` tells the suite's `after` which
 fixtures' own `after` succeeded.
 
 ## OAuth
@@ -161,4 +161,5 @@ error when the refresh returned a different refresh token, which is then lost, a
 otherwise. A partner that rotates refresh tokens invalidates the stored one, so a
 harness for one must save `tokens.refreshToken`, and run it alone (`destinations: [name]`) with
 `concurrency: 1`: two fixtures that hit a 401 at once each refresh with the same token. The local
-run only logs that a refresh happened.
+run logs each refresh and can't save tokens, so a returned refresh token is a setup error if it
+changed and a warning if not.

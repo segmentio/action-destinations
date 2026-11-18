@@ -157,7 +157,7 @@ export interface E2EBaseFixture {
    * '$before:<key>', merged over the suite's. A throw is a setup error and the fixture does not run.
    */
   before?: (ctx: E2EHookContext & { values: E2EHookValues }) => Promise<E2EHookValues>
-  /** Runs after the fixture, unless its own `before` threw. `observation` is the last attempt's, unset if none ran. A throw is a warning. */
+  /** Runs after the fixture, unless its own `before` threw, so a throwing `before` cleans up first. `observation` is the last attempt's, unset if none ran. A throw is a warning. */
   after?: (ctx: E2EHookContext & { values: E2EHookValues; observation?: E2EObservation }) => Promise<void>
 }
 
