@@ -447,5 +447,14 @@ describe('runSuites', () => {
     expect(lost.results.map((r) => r.outcome)).toEqual(['passed', 'passed'])
     expect(lost.setupErrors).toEqual(['one: onTokenRefresh failed: vault down; the new refresh token was not saved'])
     expect(lost.exitCode).toBe(2)
+
+    // A partner that hands the stored refresh token back has rotated nothing.
+    const echoed = await runSuites(reply({ accessToken: 'fresh', refreshToken: 'secret' }), [oauthSuite], {
+      ...opts,
+      onTokenRefresh: reject
+    })
+    expect(echoed.setupErrors).toEqual([])
+    expect(echoed.warnings).toEqual(['one: onTokenRefresh failed: vault down'])
+    expect(echoed.exitCode).toBe(0)
   })
 })

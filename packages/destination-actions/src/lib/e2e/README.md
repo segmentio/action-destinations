@@ -147,15 +147,16 @@ Point the suite's settings at chamber under `settings.oauth` (`access_token`, `r
 runner keeps the new tokens for the rest of the run, shared by every suite of that destination with
 the same stored refresh token. A suite with hooks refreshes once before its first hook, since hooks
 call the partner before any fixture could; suites on the same credentials share that one refresh.
-A failed refresh fails the fixture, or every fixture of a suite whose pre-hook refresh failed (exit 1,
-so a quarantine entry can excuse it). For a success or multistatus expectation, the reason
+A failed refresh fails the fixture, or every well-formed fixture of a suite whose pre-hook refresh
+failed (exit 1, so a quarantine entry can excuse it). For a success or multistatus expectation, the reason
 includes "OAuth refresh failed".
 
 That refresh happens on every run, even when the stored access token is still valid, so a partner
 that rotates refresh tokens rotates it each run with hooks.
 
 `onTokenRefresh(destination, tokens)` in the run options gets each refresh; it is awaited. A throw is a setup
-error when the refresh returned a new refresh token, which is then lost, and a warning otherwise. A partner that rotates refresh tokens invalidates the stored one, so a
+error when the refresh returned a different refresh token, which is then lost, and a warning
+otherwise. A partner that rotates refresh tokens invalidates the stored one, so a
 harness for one must save `tokens.refreshToken`, and run it alone (`destinations: [name]`) with
 `concurrency: 1`: two fixtures that hit a 401 at once each refresh with the same token. The local
 run only logs that a refresh happened.
