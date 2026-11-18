@@ -257,10 +257,11 @@ describe('validate', () => {
         'expected success, got OAuth refresh failed: re-authorize the sandbox app or check refreshAccessToken. ' +
           'OAUTH_REFRESH_FAILED (401): Failed to refresh access token'
       )
-      // A fixture that expects the refresh to fail still can.
-      expect(
-        validate({ status: 'error', errorType: 'OAUTH_REFRESH_FAILED' }, { ...observation, exchanges: [] }).passed
-      ).toBe(true)
+      // A fixture can expect the refresh to fail, though the 401 before it is an exchange.
+      const failedRefresh = { ...observation, error: { type: '400', message: 'invalid_grant', status: 400 } }
+      const expectation = { status: 'error', errorType: 'OAUTH_REFRESH_FAILED' } as const
+      expect(validate(expectation, { ...failedRefresh, refreshFailed: true }).passed).toBe(true)
+      expect(validate(expectation, failedRefresh).passed).toBe(false)
     })
   })
 })

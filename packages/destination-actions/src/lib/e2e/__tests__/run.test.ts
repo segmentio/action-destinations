@@ -398,20 +398,25 @@ describe('runSuites', () => {
     })
   })
 
-  it('reuses refreshed OAuth tokens for the rest of the suite, never across suites', async () => {
+  it('shares refreshed OAuth tokens across suites on the same credentials, and reports them', async () => {
     const tokens = { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' }
     const adapter = new FakeAdapter((_, call) => (call === 1 ? { ...ok, refreshedTokens: tokens } : ok))
     const oauthSuite = (destination: string): E2ESuite => ({
-      ...suite(destination, [fixture('a'), fixture('b')]),
+      ...suite(destination, [fixture('a')]),
       config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
     })
-    await runSuites(adapter, [oauthSuite('one'), oauthSuite('two')], { ...opts, concurrency: 1 })
+    const refreshed: [string, unknown][] = []
+    await runSuites(adapter, [oauthSuite('one'), oauthSuite('one'), oauthSuite('two')], {
+      ...opts,
+      concurrency: 1,
+      onTokenRefresh: (destination, t) => refreshed.push([destination, t])
+    })
 
     expect(adapter.calls.map((call) => call.settings.oauth)).toEqual([
       { access_token: 'stale', refresh_token: 'secret' },
       { access_token: 'fresh-access', refresh_token: 'fresh-refresh' },
-      { access_token: 'stale', refresh_token: 'secret' },
       { access_token: 'stale', refresh_token: 'secret' }
     ])
+    expect(refreshed).toEqual([['one', tokens]])
   })
 })

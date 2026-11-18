@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type { RefreshAccessTokenResult } from '@segment/actions-core'
 import { E2ESetupError } from './adapters/types'
 import type { E2EAdapter, E2EObservation } from './adapters/types'
-import { hookContext } from './hooks'
+import { hasHooks, hookContext, refreshForHooks } from './hooks'
 import { buildInvocation, withRefreshedTokens } from './invocation'
 import { missingBeforeKeys, missingSecrets, resolveSettings } from './resolve'
 import type { E2EExpectation, E2EFixture, E2EFixtureCleanup, E2EHookValues, E2EResult, E2ESuite } from './types'
@@ -36,6 +36,8 @@ export interface E2ERunOptions {
   /** Handed to hooks for naming partner resources. Defaults to a fresh short id. */
   runId?: string
   onResult?: (result: E2EResult) => void
+  /** Called with each refresh's tokens, so a harness can save a rotated refresh token. */
+  onTokenRefresh?: (destination: string, tokens: RefreshAccessTokenResult) => void
 }
 
 export interface E2EReport {
@@ -77,6 +79,12 @@ function selectSuites(suites: E2ESuite[], options: E2ERunOptions, setupErrors: s
 }
 
 const message = (err: unknown) => (err as Error)?.message ?? String(err)
+
+/** Tokens one set of OAuth credentials has refreshed to, shared by every suite that uses them. */
+interface E2EAuthState {
+  tokens?: RefreshAccessTokenResult
+  hookRefresh?: Promise<void>
+}
 
 /** A fixture that can't be judged as written, or undefined. */
 function fixtureProblem(fixture: E2EFixture): string | undefined {
@@ -156,7 +164,10 @@ export async function runSuites(
       try {
         const invocation = buildInvocation(suite, fixture, env, { values, tokens: auth.tokens })
         observation = await adapter.run(invocation, suite)
-        auth.tokens = observation.refreshedTokens ?? auth.tokens
+        if (observation.refreshedTokens) {
+          auth.tokens = observation.refreshedTokens
+          options.onTokenRefresh?.(suite.destination, observation.refreshedTokens)
+        }
         const verdict = validate(expectation, observation, {
           mode: fixture.mode,
           eventCount: invocation.events.length
@@ -183,14 +194,43 @@ export async function runSuites(
     return { result, observation }
   }
 
+  // Keyed by destination and stored refresh token, so suites on the same credentials refresh once.
+  const authStates = new Map<string, E2EAuthState>()
+  const authFor = (destination: string, settings: Record<string, unknown>): E2EAuthState => {
+    const refreshToken = (settings.oauth as Record<string, unknown> | undefined)?.refresh_token
+    if (typeof refreshToken !== 'string') return {}
+    const key = `${destination}\0${refreshToken}`
+    let state = authStates.get(key)
+    if (!state) authStates.set(key, (state = {}))
+    return state
+  }
+
   const runSuite = async (suite: E2ESuite) => {
     const label = `${suite.destination}/${suite.action}`
-    const auth: { tokens?: RefreshAccessTokenResult } = {}
+    const settings = resolveSettings(suite.config.settings, env)
+    const auth = authFor(suite.destination, settings)
     // Hooks see the latest refreshed tokens too.
-    const context = () =>
-      hookContext(suite, withRefreshedTokens(resolveSettings(suite.config.settings, env), auth.tokens), runId)
+    const context = () => hookContext(suite, withRefreshedTokens(settings, auth.tokens), runId)
     let suiteValues: E2EHookValues = {}
     const cleanups: E2EFixtureCleanup[] = []
+
+    // Hooks can call the partner before any fixture has refreshed the stored access token.
+    if (hasHooks(suite) && !auth.tokens) {
+      auth.hookRefresh ??= refreshForHooks(suite, settings).then((tokens) => {
+        if (!tokens) return
+        auth.tokens = tokens
+        options.onTokenRefresh?.(suite.destination, tokens)
+      })
+      try {
+        await auth.hookRefresh
+      } catch (err) {
+        auth.hookRefresh = undefined
+        setupErrors.push(
+          `${label}: OAuth refresh failed: re-authorize the sandbox app or check refreshAccessToken. ${message(err)}`
+        )
+        return
+      }
+    }
 
     try {
       if (suite.before) {
