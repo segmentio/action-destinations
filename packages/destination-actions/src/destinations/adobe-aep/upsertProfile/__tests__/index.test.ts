@@ -82,6 +82,38 @@ describe('Adobe AEP - Upsert Profile', () => {
     expect(body.messages[0].body.xdmEntity._tenant).toEqual({ customerTier: 'gold' })
   })
 
+  it('marks the chosen primary identity and rejects one with no value', async () => {
+    let body: any
+    nock(DCS_BASE_URL)
+      .post(batchPath, (b) => {
+        body = b
+        return true
+      })
+      .reply(207, { responses: [{ xactionId: 'x1' }] })
+
+    await testDestination.testAction('upsertProfile', {
+      event,
+      settings,
+      auth,
+      useDefaultMappings: true,
+      mapping: { ...connection, primaryIdentity: 'ECID' }
+    })
+    expect(body.messages[0].body.xdmEntity.identityMap).toEqual({
+      PID: [{ id: 'user-42', primary: false }],
+      ECID: [{ id: 'anon-1', primary: true }]
+    })
+
+    await expect(
+      testDestination.testAction('upsertProfile', {
+        event,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { ...connection, primaryIdentity: 'ECI' }
+      })
+    ).rejects.toThrowError('Primary Identity "ECI" has no value in this event')
+  })
+
   it('rejects a profile with no identity', async () => {
     await expect(
       testDestination.testAction('upsertProfile', {

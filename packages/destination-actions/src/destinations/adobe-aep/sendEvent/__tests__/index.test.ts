@@ -88,7 +88,7 @@ describe('Adobe AEP - Send Event', () => {
     })
   })
 
-  it('makes a custom identity flagged primary the only primary identity', async () => {
+  it('marks only the chosen custom identity primary', async () => {
     let body: any
     nock(DCS_BASE_URL)
       .post(batchPath, (b) => {
@@ -104,9 +104,10 @@ describe('Adobe AEP - Send Event', () => {
       useDefaultMappings: true,
       mapping: {
         ...connection,
+        primaryIdentity: 'ECI',
         customIdentities: [
-          { namespace: 'ECI', value: 'eci-7', primary: true },
-          { namespace: 'Email', value: '  ', primary: true }
+          { namespace: 'ECI', value: 'eci-7' },
+          { namespace: 'Email', value: '  ' }
         ]
       }
     })
@@ -118,7 +119,30 @@ describe('Adobe AEP - Send Event', () => {
     })
   })
 
-  it('makes ECID primary when it is the only identity', async () => {
+  it('defaults the primary identity to PID', async () => {
+    let body: any
+    nock(DCS_BASE_URL)
+      .post(batchPath, (b) => {
+        body = b
+        return true
+      })
+      .reply(207, { responses: [{ xactionId: 'x1' }] })
+
+    await testDestination.testAction('sendEvent', {
+      event,
+      settings,
+      auth,
+      useDefaultMappings: true,
+      mapping: connection
+    })
+
+    expect(body.messages[0].body.xdmEntity.identityMap).toEqual({
+      PID: [{ id: 'user-42', primary: true }],
+      ECID: [{ id: 'anon-1', primary: false }]
+    })
+  })
+
+  it('makes ECID primary when it is chosen', async () => {
     let body: any
     nock(DCS_BASE_URL)
       .post(batchPath, (b) => {
@@ -132,10 +156,35 @@ describe('Adobe AEP - Send Event', () => {
       settings,
       auth,
       useDefaultMappings: true,
-      mapping: connection
+      mapping: { ...connection, primaryIdentity: 'ECID' }
     })
 
     expect(body.messages[0].body.xdmEntity.identityMap).toEqual({ ECID: [{ id: 'anon-1', primary: true }] })
+  })
+
+  it('rejects an event when the chosen primary identity has no value, without calling AEP', async () => {
+    await expect(
+      testDestination.testAction('sendEvent', {
+        event: createTestEvent({ ...event, userId: null }),
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: connection
+      })
+    ).rejects.toThrowError('Primary Identity "PID" has no value in this event')
+    expect(nock.isDone()).toBe(true)
+  })
+
+  it('treats the primary identity as case-sensitive', async () => {
+    await expect(
+      testDestination.testAction('sendEvent', {
+        event,
+        settings,
+        auth,
+        useDefaultMappings: true,
+        mapping: { ...connection, primaryIdentity: 'pid' }
+      })
+    ).rejects.toThrowError('Primary Identity "pid" has no value in this event')
   })
 
   it('rejects an event with no identity without calling AEP', async () => {

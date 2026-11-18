@@ -30,30 +30,30 @@ export interface Payload {
    */
   flowId: string
   /**
-   * Identity sent in the `ECID` namespace of `identityMap`. Primary only when no PID or custom identity is present.
+   * Identity sent in the `ECID` namespace of `identityMap`. Select `ECID` in Primary Identity to make it the primary identity.
    */
   ecid?: string
   /**
-   * Identity sent in the `PID` namespace of `identityMap`. Primary by default. Send Event and Upsert Profile must send the same PID for Customer Journey Analytics to join profiles to events.
+   * Identity sent in the `PID` namespace of `identityMap`. Select `PID` in Primary Identity to make it the primary identity. Send Event and Upsert Profile must send the same PID for Customer Journey Analytics to join profiles to events.
    */
   pid?: string
   /**
-   * Additional identities for `identityMap`. Each namespace must exist in AEP Identity Service. The first entry marked primary becomes the primary identity.
+   * Additional identities for `identityMap`. Each namespace must exist in AEP Identity Service. Choose the primary identity in the Primary Identity field below.
    */
   customIdentities?: {
     /**
-     * Identity namespace code, for example `ECI` or `Email`.
+     * Identity namespace code, for example `ECI` or `Email`. Choices come from the identity namespaces in your sandbox, so enter the IMS Organization ID and Sandbox Name as values first. The code is case-sensitive.
      */
     namespace: string
     /**
      * Identity value.
      */
     value: string
-    /**
-     * Whether this identity should be the primary identity.
-     */
-    primary?: boolean
   }[]
+  /**
+   * The identity sent with `primary: true` in `identityMap`. AEP allows exactly one. Choose from the identities mapped above: `PID`, `ECID` or a custom namespace. The event is rejected if the chosen identity has no value.
+   */
+  primaryIdentity: string
   /**
    * XDM fields to send. Each key is a dotted XDM path (for example `commerce.order.priceTotal`) and each value is the Segment field or constant to write there. Paths must exist in your schema. Use Individual Profile paths such as `person.name.firstName`, or tenant fields such as `_<tenant>.customerTier`.
    */

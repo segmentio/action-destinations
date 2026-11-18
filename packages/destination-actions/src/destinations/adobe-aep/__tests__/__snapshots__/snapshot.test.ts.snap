@@ -11,7 +11,7 @@ Object {
             "ECID": Array [
               Object {
                 "id": "w[ma$^6o",
-                "primary": false,
+                "primary": true,
               },
             ],
             "PID": Array [
@@ -23,7 +23,7 @@ Object {
             "w[ma$^6o": Array [
               Object {
                 "id": "w[ma$^6o",
-                "primary": true,
+                "primary": false,
               },
             ],
           },
@@ -69,13 +69,13 @@ Object {
             "ECID": Array [
               Object {
                 "id": "snapshot-ecid",
-                "primary": false,
+                "primary": true,
               },
             ],
             "PID": Array [
               Object {
                 "id": "w[ma$^6o",
-                "primary": true,
+                "primary": false,
               },
             ],
           },
@@ -117,7 +117,7 @@ Object {
             "ECID": Array [
               Object {
                 "id": "gfeyyOZH)",
-                "primary": false,
+                "primary": true,
               },
             ],
             "PID": Array [
@@ -129,7 +129,7 @@ Object {
             "gfeyyOZH)": Array [
               Object {
                 "id": "gfeyyOZH)",
-                "primary": true,
+                "primary": false,
               },
             ],
           },
@@ -170,13 +170,13 @@ Object {
             "ECID": Array [
               Object {
                 "id": "snapshot-ecid",
-                "primary": false,
+                "primary": true,
               },
             ],
             "PID": Array [
               Object {
                 "id": "gfeyyOZH)",
-                "primary": true,
+                "primary": false,
               },
             ],
           },

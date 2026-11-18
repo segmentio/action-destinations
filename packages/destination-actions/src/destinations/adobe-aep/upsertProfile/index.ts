@@ -3,6 +3,7 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { batchFields, commonFields, identityFields, xdmMappingDescription } from '../fields'
 import { send } from '../utils'
+import { getIdentityNamespaces, getPrimaryIdentityChoices } from '../dynamic-fields'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -26,6 +27,13 @@ const action: ActionDefinition<Settings, Payload> = {
       }
     },
     ...batchFields
+  },
+  dynamicFields: {
+    customIdentities: {
+      namespace: (request, { payload, dynamicFieldContext }) =>
+        getIdentityNamespaces(request, payload, dynamicFieldContext?.query)
+    },
+    primaryIdentity: (_request, { payload }) => getPrimaryIdentityChoices(payload)
   },
   perform: (request, { payload }) => {
     return send(request, [payload], 'profile', false)

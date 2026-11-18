@@ -46,7 +46,8 @@ export interface AepPayload {
   timestamp?: string | number
   ecid?: string
   pid?: string
-  customIdentities?: { namespace: string; value: string; primary?: boolean }[]
+  customIdentities?: { namespace: string; value: string }[]
+  primaryIdentity?: string
   xdmMapping?: { [k: string]: unknown }
 }
 
@@ -115,40 +116,29 @@ export function setPath(target: XdmObject, path: string, value: unknown): void {
 }
 
 /**
- * Builds `identityMap` (spec: Q5 decision).
- * 1. Blank identities are dropped; namespaces left empty are omitted.
- * 2. Exactly one primary: first custom identity flagged primary, else PID, else first custom identity, else ECID.
- * 3. No identity at all rejects the event.
+ * Builds `identityMap`.
+ * 1. Blank identities are dropped. Duplicates (same namespace and id) keep the first occurrence.
+ * 2. No identity at all rejects the event.
+ * 3. Exactly one identity is primary: the first one in the namespace chosen in `primaryIdentity`
+ *    (case-sensitive, as in AEP). A missing or unmapped choice rejects the event.
  */
 export function buildIdentityMap(payload: AepPayload): IdentityMap {
-  type Candidate = { namespace: string; id: string; flagged: boolean }
-  const custom: Candidate[] = []
+  type Candidate = { namespace: string; id: string }
+  const all: Candidate[] = []
+  const add = (namespace: string, id: string) => {
+    if (!all.some((c) => c.namespace === namespace && c.id === id)) all.push({ namespace, id })
+  }
+
   for (const entry of payload.customIdentities ?? []) {
     if (isBlank(entry?.namespace) || isBlank(entry?.value)) continue
     const namespace = String(entry.namespace).trim()
     if (FORBIDDEN_PATH_SEGMENTS.has(namespace)) {
       throw new PayloadValidationError(`Identity namespace "${namespace}" is not allowed.`)
     }
-    custom.push({ namespace, id: String(entry.value).trim(), flagged: entry.primary === true })
+    add(namespace, String(entry.value).trim())
   }
-  const pid: Candidate | undefined = isBlank(payload.pid)
-    ? undefined
-    : { namespace: PID_NAMESPACE, id: String(payload.pid).trim(), flagged: false }
-  const ecid: Candidate | undefined = isBlank(payload.ecid)
-    ? undefined
-    : { namespace: ECID_NAMESPACE, id: String(payload.ecid).trim(), flagged: false }
-
-  // Order: custom identities, PID, ECID. Duplicates (same namespace and id) keep the first occurrence.
-  const all: Candidate[] = []
-  for (const candidate of [...custom, pid, ecid]) {
-    if (!candidate) continue
-    const duplicate = all.find((c) => c.namespace === candidate.namespace && c.id === candidate.id)
-    if (duplicate) {
-      duplicate.flagged = duplicate.flagged || candidate.flagged
-    } else {
-      all.push({ ...candidate })
-    }
-  }
+  if (!isBlank(payload.pid)) add(PID_NAMESPACE, String(payload.pid).trim())
+  if (!isBlank(payload.ecid)) add(ECID_NAMESPACE, String(payload.ecid).trim())
 
   if (all.length === 0) {
     throw new PayloadValidationError(
@@ -156,12 +146,16 @@ export function buildIdentityMap(payload: AepPayload): IdentityMap {
     )
   }
 
-  const flaggedCustom = all.find((c) => c.flagged)
-  const primary =
-    flaggedCustom ??
-    all.find((c) => c.namespace === PID_NAMESPACE && pid && c.id === pid.id) ??
-    all.find((c) => custom.some((k) => k.namespace === c.namespace && k.id === c.id)) ??
-    all[0]
+  const selected = isBlank(payload.primaryIdentity) ? '' : String(payload.primaryIdentity).trim()
+  if (!selected) {
+    throw new PayloadValidationError('Primary Identity is required. Choose which mapped identity is primary.')
+  }
+  const primary = all.find((c) => c.namespace === selected)
+  if (!primary) {
+    throw new PayloadValidationError(
+      `Primary Identity "${selected}" has no value in this event. Map a value for it, or choose a different Primary Identity.`
+    )
+  }
 
   const identityMap: IdentityMap = {}
   for (const candidate of all) {
