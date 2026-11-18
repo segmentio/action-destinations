@@ -40,7 +40,7 @@ type ViewCartEvent = BaseEvent<'view_cart'> & {
 }
 
 type BeginCheckoutEvent = BaseEvent<'begin_checkout'> & {
-  data: { items: AppLovinItem[]; currency: string; value: number }
+  data: { items: CheckoutItem[]; currency: string; value: number }
 }
 
 type AddPaymentInfoEvent = BaseEvent<'add_payment_info'> & {
@@ -49,7 +49,7 @@ type AddPaymentInfoEvent = BaseEvent<'add_payment_info'> & {
 
 type PurchaseEvent = BaseEvent<'purchase'> & {
   data: {
-    items: CartItem[]
+    items: CheckoutItem[]
     currency: string
     value: number
     transaction_id: string
@@ -73,22 +73,27 @@ type SubscribeEvent = BaseEvent<'subscribe'> & { data: { currency?: string; valu
 
 type AppOpenEvent = BaseEvent<'app_open'>
 
-interface BaseEvent<N extends EventName> {
+// Requires at least one key of T to be set. The other keys stay optional.
+type AtLeastOne<T> = { [K in keyof T]-?: Required<Pick<T, K>> & Partial<Omit<T, K>> }[keyof T]
+
+// AppLovin rejects events that have none of these identifiers.
+type Identifiers = AtLeastOne<{ client_id: string; user_id: string; email: string; phone: string }>
+
+// Web events must say which page they came from. App events can omit the URL.
+type Source =
+  | { event_source_url: string; user_data: { esi: 'web' } }
+  | { event_source_url?: string; user_data: { esi: 'app' } }
+
+type BaseEvent<N extends EventName> = Source & {
   name: N
   event_time: number
-  event_source_url?: string
   dedupe_id: string
-  user_data: {
+  user_data: Identifiers & {
     client_ip_address: string
     client_user_agent: string
-    esi: 'web' | 'app'
     aleid?: string
     alart?: string
     axwrt?: string
-    client_id?: string
-    user_id?: string
-    email?: string
-    phone?: string
     phone_last10_hashed?: string
     ifa?: string
     idfv?: string
@@ -114,7 +119,11 @@ export interface AppLovinItem {
   affiliation?: string
 }
 
+// add_to_cart and remove_from_cart items only need a quantity.
 type CartItem = AppLovinItem & { quantity: number }
+
+// begin_checkout and purchase: AppLovin rejects the whole event if any item lacks these.
+type CheckoutItem = AppLovinItem & { item_name: string; price: number; quantity: number }
 
 export interface ParsedCurrency {
   code?: string
@@ -131,6 +140,8 @@ export interface ValidationInput {
   search_term?: string
   items?: Payload['items']
   aleid?: string
-  hasOtherIdentifier: boolean
+  esi?: string
+  event_source_url?: string
+  hasIdentifier: boolean
   currency: ParsedCurrency
 }

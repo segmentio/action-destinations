@@ -10,7 +10,7 @@ export interface Payload {
    */
   event_time: string | number
   /**
-   * The full URL of the page where the event occurred. Include it for web events, including events sent server-side. It can be omitted for app events.
+   * The full URL of the page where the event occurred. Required when Event Source is web, including events sent server-side. It can be omitted for app events.
    */
   event_source_url?: string
   /**
@@ -18,13 +18,34 @@ export interface Payload {
    */
   dedupe_id: string
   /**
-   * User and device details used by AppLovin to match the event to a user. Required: ALEID, IP Address, User Agent, Event Source, and at least one of ALART, AXWRT, Client ID, Email, Phone or User ID. All other fields are optional. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.
+   * At least one of Client ID, User ID, Email or Phone is required. More than one can be set. Use the same identifier on every analytics event for a given user, so AppLovin can connect the events across the whole user journey. Email and phone are normalized and SHA-256 hashed before sending.
+   */
+  required_identifiers: {
+    /**
+     * The web session ID, or the Segment anonymous ID if there is no session ID. Use the same value on every event for a given user.
+     */
+    client_id?: string
+    /**
+     * Your canonical identifier for the end user. Must be at least 6 characters. Shorter values are ignored and do not count as an identifier.
+     */
+    user_id?: string
+    /**
+     * The user's email address.
+     */
+    email?: string
+    /**
+     * The user's phone number, including the country code.
+     */
+    phone?: string
+  }
+  /**
+   * User and device details used by AppLovin to match the event to a user. Required: IP Address, User Agent and Event Source. All other fields are optional. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.
    */
   user_data: {
     /**
-     * Required. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.
+     * The attributed event ID. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie. Not required, but if provided it must be exactly 40 characters.
      */
-    aleid: string
+    aleid?: string
     /**
      * Required. The public IP address of the user. IPv4 is preferred.
      */
@@ -34,33 +55,17 @@ export interface Payload {
      */
     client_user_agent: string
     /**
-     * Required. Where the event came from.
+     * Required. Where the event came from. Event Source URL is required when this is web.
      */
     esi: string
     /**
-     * The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
+     * The ad ID. The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie.
      */
     alart?: string
     /**
-     * The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
+     * The web token set by the AppLovin Pixel, stored in the _axwrt cookie.
      */
     axwrt?: string
-    /**
-     * A stable first-party identifier for the user. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
-     */
-    client_id?: string
-    /**
-     * The user's email address. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
-     */
-    email?: string
-    /**
-     * The user's phone number, including the country code. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
-     */
-    phone?: string
-    /**
-     * Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.
-     */
-    user_id?: string
     /**
      * The ISO 3166 billing country code.
      */
@@ -91,7 +96,7 @@ export interface Payload {
     non_us_zip?: string
   }
   /**
-   * The products involved in the event. Quantity is required for add_to_cart, remove_from_cart and purchase events.
+   * The products involved in the event. Item ID is required on every item. Quantity is required for add_to_cart and remove_from_cart. Item Name, Price and Quantity are required on every item for begin_checkout and purchase events: AppLovin rejects the entire event if any is missing.
    */
   items?: {
     /**
@@ -99,7 +104,7 @@ export interface Payload {
      */
     item_id: string
     /**
-     * The name of the item.
+     * The name of the item. Required for begin_checkout and purchase events.
      */
     item_name?: string
     /**
@@ -111,19 +116,19 @@ export interface Payload {
      */
     item_variant_id?: string
     /**
-     * The numeric category ID from AppLovin's supported category list, for example 1 for Animals & Pet Supplies. Must be an integer, not a category name. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids
+     * The category of the item, chosen from AppLovin's supported category list, for example 166 (Apparel & Accessories). Start typing a number or a name to search. Only the number is sent to AppLovin. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids
      */
-    item_category_id?: number
+    item_category_id?: string
     /**
      * URL of an image of the item, ending in .png, .jpg or .jpeg.
      */
     image_url?: string
     /**
-     * The unit price of the item. Use the discounted price if a discount applies.
+     * The unit price of the item. Use the discounted price if a discount applies. Required for begin_checkout and purchase events.
      */
     price?: number
     /**
-     * The quantity of the item.
+     * The quantity of the item. Required for add_to_cart, remove_from_cart, begin_checkout and purchase events.
      */
     quantity?: number
     /**
