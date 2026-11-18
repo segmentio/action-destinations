@@ -2,6 +2,7 @@ import nock from 'nock'
 import { createTestIntegration } from '@segment/actions-core'
 import Definition from '../index'
 import { IDENTITY_NAMESPACES_URL, IMS_TOKEN_URL, SCHEMA_REGISTRY_URL } from '../constants'
+import { clearDynamicFieldCaches } from '../dynamic-fields'
 
 const testDestination = createTestIntegration(Definition)
 const settings = { client_id: 'client-id', client_secret: 'client-secret' }
@@ -20,6 +21,7 @@ const namespaces = [
 const connection = { imsOrgId: 'ORG123@AdobeOrg', sandboxName: 'prod' }
 
 describe('Adobe AEP - dynamic fields', () => {
+  beforeEach(() => clearDynamicFieldCaches())
   afterEach(() => nock.cleanAll())
 
   describe.each(['sendEvent', 'upsertProfile'])('%s', (action: string) => {
@@ -178,8 +180,8 @@ describe('Adobe AEP - dynamic fields', () => {
           .matchHeader('authorization', 'Bearer access-token')
           .matchHeader('x-gw-ims-org-id', 'ORG123@AdobeOrg')
           .matchHeader('x-sandbox-name', 'prod')
-          .matchHeader('accept', 'application/vnd.adobe.xed-full+json;version=1')
-          .reply(200, schema, { 'content-type': 'application/vnd.adobe.xed-full+json;version=1' })
+          .matchHeader('accept', 'application/vnd.adobe.xed-full-notext+json;version=1')
+          .reply(200, schema, { 'content-type': 'application/vnd.adobe.xed-full-notext+json;version=1' })
 
       it('lists the dotted paths in the schema, without the paths the action sets itself', async () => {
         mockSchema()
@@ -205,6 +207,74 @@ describe('Adobe AEP - dynamic fields', () => {
           value: 'customMap',
           description: 'map'
         })
+      })
+
+      it('reads a schema from Adobe once, then serves repeat opens from the cache', async () => {
+        mockSchema() // a single reply: a second Adobe call would fail the test
+
+        const open = () =>
+          testDestination.testDynamicField(action, 'xdmMapping.__keys__', {
+            payload: { ...connection, schemaRefId: schemaId },
+            settings,
+            auth
+          })
+        const first = await open()
+        const second = await open()
+
+        expect(first.error).toBeUndefined()
+        expect(second.choices).toEqual(first.choices)
+        expect(nock.isDone()).toBe(true)
+      })
+
+      it('shares one Adobe call between overlapping opens, so a retry reuses an abandoned load', async () => {
+        mockSchema()
+
+        const open = () =>
+          testDestination.testDynamicField(action, 'xdmMapping.__keys__', {
+            payload: { ...connection, schemaRefId: schemaId },
+            settings,
+            auth
+          })
+        const [a, b] = await Promise.all([open(), open()])
+
+        expect(a.error).toBeUndefined()
+        expect(b.choices).toEqual(a.choices)
+      })
+
+      it('does not cache a failed load', async () => {
+        nock(registry.origin)
+          .get(`${registry.pathname}/${encodeURIComponent(schemaId)}`)
+          .reply(500, {})
+        mockSchema()
+
+        const open = () =>
+          testDestination.testDynamicField(action, 'xdmMapping.__keys__', {
+            payload: { ...connection, schemaRefId: schemaId },
+            settings,
+            auth
+          })
+        const failed = await open()
+        const retried = await open()
+
+        expect(failed.error).toBeDefined()
+        expect(retried.error).toBeUndefined()
+        expect(retried.choices.length).toBeGreaterThan(0)
+      })
+
+      it('does not share cached paths between credentials', async () => {
+        mockSchema()
+        mockSchema()
+
+        const open = (client_id: string) =>
+          testDestination.testDynamicField(action, 'xdmMapping.__keys__', {
+            payload: { ...connection, schemaRefId: schemaId },
+            settings: { ...settings, client_id },
+            auth
+          })
+        await open('client-a')
+        await open('client-b')
+
+        expect(nock.isDone()).toBe(true)
       })
 
       it('asks for a schema first', async () => {
@@ -266,6 +336,25 @@ describe('Adobe AEP - dynamic fields', () => {
 
         expect(response.error).toBeUndefined()
         expect(response.choices).toEqual(choices)
+      })
+
+      it('reuses a minted token for later calls', async () => {
+        nock(ims.origin).post(ims.pathname).once().reply(200, { access_token: 'minted-token' })
+        nock(registry.origin)
+          .get(registry.pathname)
+          .query(true)
+          .times(2)
+          .matchHeader('authorization', 'Bearer minted-token')
+          .reply(200, results)
+
+        await testDestination.testDynamicField(action, 'schemaRefId', { payload: connection, settings })
+        const second = await testDestination.testDynamicField(action, 'schemaRefId', {
+          payload: { ...connection, sandboxName: 'dev' },
+          settings
+        })
+
+        expect(second.error).toBeUndefined()
+        expect(nock.isDone()).toBe(true)
       })
 
       it('gets a new token and retries once when the supplied token is rejected', async () => {
