@@ -39,10 +39,10 @@ function resolveBatchErrorDetail(data: AsyncUpsertRowsV2Response): { errormessag
   }
   // 2. Validation error (400): messages live in a `resultMessages[]` array.
   if (data.resultMessages && data.resultMessages.length > 0) {
-    return { errormessage: data.resultMessages[0]?.message ?? 'Unknown error', body: {} }
+    return { errormessage: data.resultMessages[0]?.message ?? 'Unknown error', body: data as Object as JSONLikeObject }
   }
   // 3. Unrecognized shape: surface the raw response so it isn't lost.
-  return { errormessage: `SFMC API responded with ${JSON.stringify(data)}.`, body: {} }
+  return { errormessage: `SFMC API responded with ${JSON.stringify(data)}.`, body: data as Object as JSONLikeObject }
 }
 
 type AsyncUpsertRowsJobStatusResponse = {
@@ -152,7 +152,7 @@ function applyResultItems(
   for (let i = 0; i < items.length; i++) {
     if (items[i].status === 'OK') {
       successCount++
-      multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: 'OK' })
+      multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: items[i].message })
       continue
     }
 
@@ -166,11 +166,15 @@ function applyResultItems(
       multiStatusResponse.setSuccessResponseAtIndex(i, {
         status: 200,
         sent: {},
-        body: 'OK (row reported a transient SFMC deadlock; SFMC lands these on internal retry)'
+        body: {
+          ...items[i],
+          _segment_note_:
+            'Row reported a transient SFMC SQL deadlock. SFMC lands these on its own internal retry, so it is counted as delivered.'
+        }
       })
     } else {
       permanentErrorCount++
-      multiStatusResponse.setErrorResponseAtIndex(i, { status: 400, errormessage, body: {} })
+      multiStatusResponse.setErrorResponseAtIndex(i, { status: 400, errormessage, sent: {}, body: items[i].message })
     }
   }
 
