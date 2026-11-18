@@ -41,7 +41,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       full_audience_sync: false
     },
     async createAudience(request, createAudienceInput) {
-      const { audienceName, audienceSettings, statsContext, features } = createAudienceInput
+      const { audienceName, audienceSettings, statsContext } = createAudienceInput
       const { accountType } = audienceSettings || {}
       const advertiserId = audienceSettings?.advertiserId.trim()
       const { statsClient, tags: statsTags } = statsContext || {}
@@ -69,7 +69,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+      if (FLAGON_NAME_DATA_MANAGER) {
         const dmStatsName = 'createAudienceDataManager'
         let authToken: string
         try {
@@ -135,7 +135,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
       }
     },
     async getAudience(request, getAudienceInput) {
-      const { statsContext, audienceSettings, features } = getAudienceInput
+      const { statsContext, audienceSettings } = getAudienceInput
       const { statsClient, tags: statsTags } = statsContext || {}
       const { accountType } = audienceSettings || {}
       const advertiserId = audienceSettings?.advertiserId.trim()
@@ -157,7 +157,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
         throw new IntegrationError('Missing account type value', 'MISSING_REQUIRED_FIELD', 400)
       }
 
-      if (features?.[FLAGON_NAME_DATA_MANAGER]) {
+      if (FLAGON_NAME_DATA_MANAGER) {
         const dmStatsName = 'getAudienceDataManager'
         let authToken: string
         try {
