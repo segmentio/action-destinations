@@ -20,7 +20,7 @@ export interface E2EResponseChecks {
    * partial-matched. The value '$absent' requires the key to be missing.
    */
   jsonContains?: unknown
-  /** The whole body, as text, after trimming both sides. */
+  /** The whole body after trimming both sides. A JSON body is compared as compact `JSON.stringify` output. */
   bodyEquals?: string
   /** Which exchange to judge: the last one matching `method` and a substring of `url`. Defaults to the last. */
   exchange?: E2EExchangeSelector
@@ -157,7 +157,7 @@ export interface E2EBaseFixture {
    * '$before:<key>', merged over the suite's. A throw is a setup error and the fixture does not run.
    */
   before?: (ctx: E2EHookContext & { values: E2EHookValues }) => Promise<E2EHookValues>
-  /** Runs after the fixture, unless its own `before` threw, so a throwing `before` cleans up first. `observation` is the last attempt's, unset if none ran. A throw is a warning. */
+  /** Runs after the fixture, unless its own `before` threw, so a throwing `before` cleans up first. `observation` is the last attempt's, unset if it threw or none ran. A throw is a warning. */
   after?: (ctx: E2EHookContext & { values: E2EHookValues; observation?: E2EObservation }) => Promise<void>
 }
 

@@ -187,6 +187,7 @@ export async function runSuites(
     while (!passed && attempts <= retries) {
       if (attempts > 0) await sleep(backoffMs * 2 ** (attempts - 1))
       attempts++
+      observation = undefined
       try {
         const invocation = buildInvocation(suite, fixture, env, { values, tokens: auth.tokens })
         observation = await adapter.run(invocation, suite)

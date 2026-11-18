@@ -106,6 +106,22 @@ describe('runSuites', () => {
     expect(report.exitCode).toBe(0)
   })
 
+  it("gives after no observation when the last attempt threw, not an earlier attempt's", async () => {
+    const seen: unknown[] = []
+    const adapter = new FakeAdapter((_, call) => {
+      if (call === 2) throw new Error('socket hang up')
+      return { exchanges: [] }
+    })
+    const report = await runSuites(
+      adapter,
+      [suite('fake', [fixture('a', { retries: 1, after: async ({ observation }) => void seen.push(observation) })])],
+      opts
+    )
+
+    expect(report.results[0].outcome).toBe('failed')
+    expect(seen).toEqual([undefined])
+  })
+
   it('counts an adapter throw as a fixture failure', async () => {
     const adapter = new FakeAdapter(() => {
       throw new Error('socket hang up')
