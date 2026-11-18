@@ -12,12 +12,8 @@ import {
   normalizeCountry
 } from '../functions'
 import { Payload } from '../generated-types'
-import { FLAGON_NAME_BATCH_DISCARD_FIX } from '../../constants'
 
 const sha256 = (value: string) => crypto.createHash('sha256').update(value).digest('hex')
-
-// The empty-phone discard fix is gated behind this flag; pass it to exercise the fixed behavior.
-const fixOn = { [FLAGON_NAME_BATCH_DISCARD_FIX]: true }
 
 const basePayload: Payload = {
   externalId: 'user-123',
@@ -142,30 +138,25 @@ describe('getData', () => {
     expect(row[14]).toBe('AB1234CD-E123-12FG-J123')
   })
 
-  it('with the fix flag ON, returns empty string for a phone that normalizes to an empty string (e.g. "+0000000000")', () => {
+  it('returns empty string for a phone that normalizes to an empty string (e.g. "+0000000000")', () => {
     const payload = { ...basePayload, phone: '+0000000000' }
-    const [row] = getData([payload], fixOn)
+    const [row] = getData([payload])
     expect(row[2]).toBe('')
   })
 
-  it('with the fix flag OFF (legacy), a phone that normalizes to an empty string throws', () => {
-    const payload = { ...basePayload, phone: '+0000000000' }
-    expect(() => getData([payload])).toThrow('Cannot hash an empty string')
-  })
-
-  it('with the fix flag ON, passes an already-hashed phone through unchanged', () => {
+  it('passes an already-hashed phone through unchanged', () => {
     const prehashed = sha256('+15551234567')
     const payload = { ...basePayload, phone: prehashed }
-    const [row] = getData([payload], fixOn)
+    const [row] = getData([payload])
     expect(row[2]).toBe(prehashed)
   })
 
-  it('with the fix flag ON, passes an already-hashed phone with no digits through unchanged', () => {
+  it('passes an already-hashed phone with no digits through unchanged', () => {
     // Pathological but valid sha256/hex value (only a-f). normalizePhone() would
     // reduce it to '', so it must be detected as pre-hashed BEFORE normalizing.
     const prehashed = 'abcdef'.repeat(11).slice(0, 64)
     const payload = { ...basePayload, phone: prehashed }
-    const [row] = getData([payload], fixOn)
+    const [row] = getData([payload])
     expect(row[2]).toBe(prehashed)
   })
 
