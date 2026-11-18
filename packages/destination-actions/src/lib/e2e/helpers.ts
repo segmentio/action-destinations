@@ -28,6 +28,7 @@ export function createE2EEvent(
       event: name,
       messageId: '$guid',
       timestamp: '$now',
+      receivedAt: '$now',
       ...overrides
     }
   }
@@ -38,6 +39,7 @@ export function createE2EEvent(
       name,
       messageId: '$guid',
       timestamp: '$now',
+      receivedAt: '$now',
       ...overrides
     }
   }
@@ -52,6 +54,7 @@ export function createE2EEvent(
     type,
     messageId: '$guid',
     timestamp: '$now',
+    receivedAt: '$now',
     ...overrides
   }
 }
@@ -70,6 +73,7 @@ function buildAudienceEventBase(options: E2EAudienceEventBase) {
   return {
     messageId: '$guid',
     timestamp: '$now',
+    receivedAt: '$now',
     ...(userId && { userId }),
     ...(anonymousId && { anonymousId }),
     context: {
@@ -146,6 +150,7 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
   const event = {
     messageId: '$guid',
     timestamp: '$now',
+    receivedAt: '$now',
     ...(userId && { userId }),
     ...(anonymousId && { anonymousId }),
     type: 'track',
@@ -197,6 +202,7 @@ export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
   const event = {
     messageId: '$guid',
     timestamp: '$now',
+    receivedAt: '$now',
     ...(userId && { userId }),
     ...(anonymousId && { anonymousId }),
     type: 'track',

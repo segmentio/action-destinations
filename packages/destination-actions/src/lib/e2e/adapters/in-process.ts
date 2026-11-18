@@ -1,5 +1,5 @@
-import { Destination } from '@segment/actions-core'
-import type { DecoratedResponse, JSONObject, Result } from '@segment/actions-core'
+import { Destination, MultiStatusResponse } from '@segment/actions-core'
+import type { DecoratedResponse, JSONObject, RefreshAccessTokenResult, Result } from '@segment/actions-core'
 import type { E2ESuite } from '../types'
 import type { E2EAdapter, E2EExchange, E2EInvocation, E2EObservation, E2EObservedError } from './types'
 
@@ -30,13 +30,59 @@ export class InProcessAdapter implements E2EAdapter {
   readonly name = 'in-process'
 
   async run(invocation: E2EInvocation, suite: E2ESuite): Promise<E2EObservation> {
-    // A fresh Destination per run, so `responses` holds only this fixture's exchanges.
-    const destination = new Destination(suite.definition)
+    // A fresh Destination per run, so `responses` holds only this fixture's exchanges. It is built
+    // from a copy that records what performBatch returned and whether a token refresh failed;
+    // patching the shared definition would leak into suites running at the same time.
+    let returnedMultiStatus: boolean | undefined
+    let refreshFailed: boolean | undefined
+    let definition = suite.definition
+    const actionDefinition = definition.actions[invocation.action]
+    const performBatch = actionDefinition?.performBatch
+    if (performBatch) {
+      definition = {
+        ...definition,
+        actions: {
+          ...definition.actions,
+          [invocation.action]: {
+            ...actionDefinition,
+            performBatch: async (...args: Parameters<typeof performBatch>) => {
+              const response = await performBatch(...args)
+              returnedMultiStatus = response instanceof MultiStatusResponse
+              return response
+            }
+          }
+        }
+      }
+    }
+    const authentication = definition.authentication
+    if (authentication && 'refreshAccessToken' in authentication && authentication.refreshAccessToken) {
+      // A union across oauth2 and oauth-managed, so typed loosely to forward its arguments.
+      const refresh = authentication.refreshAccessToken as (...args: unknown[]) => Promise<RefreshAccessTokenResult>
+      definition = {
+        ...definition,
+        authentication: {
+          ...authentication,
+          refreshAccessToken: async (...args: unknown[]) => {
+            refreshFailed = true
+            const tokens = await refresh(...args)
+            refreshFailed = !tokens
+            return tokens
+          }
+        }
+      }
+    }
+    const destination = new Destination(definition)
     const settings = {
       ...invocation.settings,
       subscription: { subscribe: invocation.subscribe, partnerAction: invocation.action, mapping: invocation.mapping }
     } as unknown as JSONObject
-    const options = { features: invocation.features }
+    let refreshedTokens: RefreshAccessTokenResult | undefined
+    const options = {
+      features: invocation.features,
+      onTokenRefresh: async (tokens: RefreshAccessTokenResult) => {
+        refreshedTokens = tokens
+      }
+    }
 
     try {
       const results: Result[] =
@@ -45,10 +91,17 @@ export class InProcessAdapter implements E2EAdapter {
           : await destination.onBatch(invocation.events, settings, options)
       return {
         exchanges: destination.responses.map(toExchange),
-        multistatus: results.find((result) => result.multistatus)?.multistatus
+        multistatus: results.find((result) => result.multistatus)?.multistatus,
+        returnedMultiStatus,
+        refreshedTokens
       }
     } catch (err) {
-      return { exchanges: destination.responses.map(toExchange), error: toObservedError(err) }
+      return {
+        exchanges: destination.responses.map(toExchange),
+        error: toObservedError(err),
+        refreshedTokens,
+        refreshFailed
+      }
     }
   }
 }

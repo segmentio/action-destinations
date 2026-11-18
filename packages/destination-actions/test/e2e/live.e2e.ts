@@ -8,8 +8,7 @@
  * E2E_REPORT=/tmp/e2e.json            also write the JSON report
  */
 import { writeFileSync } from 'node:fs'
-import { formatSummary, runSuites, suites } from '../../src/lib/e2e'
-import { InProcessAdapter } from '../../src/lib/e2e/adapters/in-process'
+import { InProcessAdapter, formatSummary, runSuites, suites } from '../../src/lib/e2e'
 
 const list = (value?: string) =>
   value

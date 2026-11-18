@@ -17,12 +17,13 @@ src/lib/e2e/
   helpers.ts        # createE2EEvent + Engage/Journeys/RETL event builders
   resolve.ts        # { $env } settings and $now / $guid markers
   invocation.ts     # buildInvocation: fixture -> adapter-neutral E2EInvocation
+  hooks.ts          # the context before / after hooks get
   validate.ts       # expectation vs observation, no jest
   run.ts            # runSuites(adapter, suites, opts): scope, preflight, concurrency, retries, quarantine, exit code
   registry.ts       # every onboarded destination's suites
   adapters/
     types.ts        # E2EAdapter, E2EInvocation, E2EObservation, E2ESetupError
-    in-process.ts   # InProcessAdapter (local; not exported from index.ts)
+    in-process.ts   # InProcessAdapter (local runs and the integrations gate's first pass)
   index.ts          # what the integrations harness imports
 
 src/destinations/<dest>/__e2e__/index.ts                # config (settings via { $env }) + suites
@@ -37,8 +38,9 @@ test/e2e/live.e2e.ts                                    # local entry: registry 
 3. Add one import line to `registry.ts`.
 
 Fixture files import from `lib/e2e/helpers` and `lib/e2e/types`, not the `lib/e2e` index: the
-index loads the registry, which loads the fixtures. Fixtures hold no secrets or partner account
-IDs, only `{ $env: 'E2E_<DEST>_<KEY>' }` names. A fixture's `description` is its result ID, so
+index loads the registry, which loads the fixtures. Fixtures hold no secrets, only
+`{ $env: 'E2E_<DEST>_<KEY>' }` names. Partner resource IDs (catalog, audience) aren't secrets and
+live as constants in `<dest>/__e2e__/index.ts`. Event builders set `timestamp` and `receivedAt` to `$now`. A fixture's `description` is its result ID, so
 keep it unique within its action.
 
 ## Running
@@ -70,6 +72,14 @@ stored subscription carries it. The adapter sends it and returns an `E2EObservat
 - `error`: what our code threw, as the Segment error code integrations reports (for example
   `PAYLOAD_VALIDATION_FAILED`) and its status.
 - `multistatus`: the per-event results of a batch.
+- `returnedMultiStatus`: whether the action's `performBatch` returned a `MultiStatusResponse`. Core
+  turns any other return into per-event results that copy one status. Leave it unset when the
+  adapter can't see it.
+- `refreshedTokens`: the tokens core passed to `onTokenRefresh` after a 401. The runner writes them
+  over `settings.oauth` for the rest of the suite, so a suite refreshes once. Leave it unset when the
+  target keeps tokens itself, as integrations' token store does.
+- `refreshFailed`: the destination's `refreshAccessToken` threw or returned nothing. Core reports a
+  throw as the token request's own error, so the report needs this to name the cause.
 
 Throw `E2ESetupError` when the target itself is unusable. `InProcessAdapter` calls
 `destination.onEvent` / `onBatch` with the subscription in settings, the same entry points
@@ -78,19 +88,61 @@ integrations uses, and maps errors the way integrations does.
 ## Expectation shapes
 
 - `success`: a request was sent and the partner returned 2xx, and every batch item is 2xx.
-  Optional `httpStatus`, `bodyContains`, `jsonContains` (partial deep match) on the last response.
+  Optional `httpStatus` and the response checks below. A suite's `defaultSuccess` is merged into
+  each of its `success` expectations; the fixture's own keys win.
 - `failure`: the partner returned non-2xx (proves we reject known-bad input). `httpStatus`
-  required; optional `bodyContains` / `jsonContains`.
+  required; optional response checks.
 - `error`: our code rejected the event before any request left: it threw, or in batch modes every
   multistatus item carries the error. `errorType` is the Segment error code; optional `httpStatus` and
   `errorMessage`.
+- `multistatus`: a batch's per-event results, one `items` entry per event in order. `status` is exact
+  or `'2xx'`; a rejected item also needs `errortype` (exact) and `errormessage` (substring), and may
+  set `errorreporter`. Use with `batchWithMultistatus`.
+
+Response checks, on `success` and `failure`:
+
+- `exchange: { method?, url? }` picks the last exchange with that method and a URL containing
+  `url`; without it, the last exchange is judged. `exchangeCount` asserts how many requests the
+  action sent: an OAuth 401 and its retry are 2. The token request itself is not an exchange.
+- `bodyContains` (substring), `bodyEquals` (whole body, trimmed), `jsonContains` (partial deep
+  match, where `'$absent'` requires a key to be missing).
+
+A multistatus expectation needs `batchWithMultistatus` and one item per event; anything else is a
+setup error. Batch modes need one result per event. `batchWithMultistatus` fails when `performBatch` returned
+anything but a `MultiStatusResponse`, for example when a destination's multistatus flag is off.
 
 ## Dynamic markers
 
 `$now` (ISO timestamp), `$guid` (fresh UUID), `$guid:<name>` (UUID stable within one fixture
-attempt), resolved in events and mappings.
+attempt) and `$before:<key>` (a value a `before` hook returned), resolved in events and mappings.
 
-## Not yet supported
+## Hooks
 
-Audience fixtures (`E2EAudienceDestinationConfig`: createAudience, getAudience, teardown) have
-types but no runner support.
+Suites and fixtures can set `before` and `after` to create and delete quick partner resources.
+Slow or async resources are created in the sandbox by hand and kept as constants in
+`<dest>/__e2e__/index.ts`.
+
+```
+suite.before(ctx)                                   → S
+  each fixture:
+    fixture.before({ ...ctx, values: S })           → F, merged over S as V
+    attempts, with '$before:<key>' → V[key]
+    fixture.after({ ...ctx, values: V, observation })
+suite.after({ ...ctx, values: S, fixtures })        // always
+```
+
+`ctx` holds the resolved `settings`, `request` (the destination's own client, built from its
+`extendRequest`; it doesn't refresh OAuth tokens) and `runId`. Put `runId` in resource names so
+parallel runs don't collide, and name anything `after` deletes in `before`, not with `$guid`, which
+changes on each retry. `before` runs once per fixture, not per attempt; a throw, or a
+`$before:` key no hook returned, is a setup error and the suite or fixture doesn't run. `after`
+always runs, and a throw is a report warning. `fixtures[].cleaned` tells the suite's `after` which
+fixtures' own `after` succeeded.
+
+## OAuth
+
+Point the suite's settings at chamber under `settings.oauth` (`access_token`, `refresh_token`,
+`clientId`, `clientSecret`), the keys core reads. The first 401 makes core refresh and retry; the
+runner keeps the new tokens for the rest of the suite. A failed refresh fails the fixture (exit 1),
+and the reason starts "OAuth refresh failed: re-authorize the sandbox app or check
+refreshAccessToken".

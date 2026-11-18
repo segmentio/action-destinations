@@ -1,7 +1,7 @@
 // The seam between the runner core and whatever executes a fixture. The core builds an
 // E2EInvocation and judges the E2EObservation; an adapter only sends and reports. The in-process
 // adapter lives here; integrations implements its own against its CloudEvents route.
-import type { JSONObject, SegmentEvent } from '@segment/actions-core'
+import type { JSONObject, RefreshAccessTokenResult, SegmentEvent } from '@segment/actions-core'
 import type { E2EExecutionMode, E2ESuite } from '../types'
 
 /** Everything needed to run one fixture, already resolved, independent of how it is sent. */
@@ -12,7 +12,7 @@ export interface E2EInvocation {
   mode: E2EExecutionMode
   /** One event for 'single', otherwise the batch. Dynamic markers are resolved. */
   events: SegmentEvent[]
-  /** Destination settings with `{ $env }` markers resolved. No subscription. */
+  /** Destination settings with `{ $env }` markers resolved, and tokens refreshed earlier in the suite. No subscription. */
   settings: Record<string, unknown>
   subscribe: string
   /** The action's field defaults overlaid with the fixture's mapping, as a stored subscription carries it. */
@@ -39,6 +39,7 @@ export interface E2EMultiStatusItem {
   status: number
   errortype?: string
   errormessage?: string
+  errorreporter?: string
 }
 
 /** What happened, in terms both adapters can observe. */
@@ -46,6 +47,22 @@ export interface E2EObservation {
   exchanges: E2EExchange[]
   error?: E2EObservedError
   multistatus?: E2EMultiStatusItem[]
+  /**
+   * Whether the action's performBatch returned a MultiStatusResponse. Core turns any other return
+   * into per-event results that copy one status. Unset when performBatch threw or never ran, or the
+   * adapter can't see it.
+   */
+  returnedMultiStatus?: boolean
+  /**
+   * The tokens core passed to onTokenRefresh after a 401, which the runner reuses for the rest of
+   * the suite. Unset when nothing was refreshed or the adapter keeps tokens itself.
+   */
+  refreshedTokens?: RefreshAccessTokenResult
+  /**
+   * The destination's refreshAccessToken threw or returned nothing. Core reports the first as the
+   * token request's own error, so `error` alone can't tell. Unset when the adapter can't see it.
+   */
+  refreshFailed?: boolean
 }
 
 export interface E2EAdapter {

@@ -199,4 +199,219 @@ describe('runSuites', () => {
 
     expect(formatSummary(report)).toMatch(/^PASS {2}fake\/send › a \(1 attempt\(s\), \d+ms\)\n1 passed, 0 failed/)
   })
+
+  it('merges the suite defaultSuccess into success expectations, with the fixture winning', async () => {
+    const adapter = new FakeAdapter(() => ok)
+    const withDefaults = (fixtures: E2EFixture[]) => ({
+      ...suite('fake', fixtures),
+      defaultSuccess: { jsonContains: { ok: false } }
+    })
+    const report = await runSuites(
+      adapter,
+      [
+        withDefaults([
+          fixture('default'),
+          fixture('own', { expect: { status: 'success', jsonContains: { ok: true } } }),
+          fixture('failure', {
+            expect: { status: 'failure', httpStatus: 400 }
+          })
+        ])
+      ],
+      opts
+    )
+
+    expect(report.results.map((r) => [r.fixture, r.outcome])).toEqual([
+      ['default', 'failed'],
+      ['own', 'passed'],
+      ['failure', 'failed']
+    ])
+    expect(report.results[0].reason).toMatch(/^response body does not match jsonContains/)
+    expect(report.results[2].reason).toBe('expected partner status 400, got 200')
+  })
+
+  it('rejects fixtures that cannot be judged as written, and repeated descriptions', async () => {
+    const batch = (description: string, mode: string, items: number) =>
+      fixture(description, {
+        mode,
+        events: [
+          { type: 'track', event: 'a' },
+          { type: 'track', event: 'b' }
+        ],
+        expect: { status: 'multistatus', items: Array.from({ length: items }, () => ({ status: '2xx' })) }
+      } as Partial<E2EFixture>)
+    const report = await runSuites(
+      new FakeAdapter(() => ({ ...ok, multistatus: [{ status: 200 }, { status: 200 }] })),
+      [
+        suite('fake', [
+          batch('plain', 'batch', 2),
+          batch('short', 'batchWithMultistatus', 1),
+          batch('ok', 'batchWithMultistatus', 2)
+        ]),
+        suite('dupes', [fixture('a'), fixture('a')])
+      ],
+      opts
+    )
+
+    expect(report.results.map((r) => [r.fixture, r.outcome])).toEqual([['ok', 'passed']])
+    // Repeated descriptions are caught in preflight, so they come first.
+    expect(report.setupErrors).toEqual([
+      'dupes/send: fixture descriptions must be unique, repeated: a',
+      "fake/send › plain: a multistatus expectation needs mode 'batchWithMultistatus'",
+      'fake/send › short: multistatus lists 1 item(s) for 2 event(s)'
+    ])
+    expect(report.exitCode).toBe(2)
+  })
+
+  describe('hooks', () => {
+    it('runs before and after around the fixtures and resolves $before markers on every attempt', async () => {
+      const calls: string[] = []
+      const adapter = new FakeAdapter((_, call) => (call === 1 ? { exchanges: [] } : ok))
+      const hooked: E2ESuite = {
+        ...suite('fake', [
+          fixture('a', {
+            event: { type: 'track', event: '$before:name', userId: '$before:user' },
+            mapping: { list: '$before:list' },
+            retries: 1,
+            before: async ({ values, runId }) => {
+              calls.push(`fixture before ${JSON.stringify(values)}`)
+              return { user: `user-${runId}` }
+            },
+            after: async ({ values, observation }) => {
+              calls.push(`fixture after ${values.user} ${observation?.exchanges.length}`)
+            }
+          }),
+          fixture('b')
+        ]),
+        before: async ({ settings, request, runId }) => {
+          calls.push(`suite before ${settings.apiKey} ${typeof request} ${runId}`)
+          return { name: 'Signed Up', list: 7 }
+        },
+        after: async ({ values, fixtures }) => {
+          calls.push(`suite after ${JSON.stringify(values)} ${JSON.stringify(fixtures)}`)
+        }
+      }
+      const report = await runSuites(adapter, [hooked], { ...opts, runId: 'run1' })
+
+      expect(report.exitCode).toBe(0)
+      expect(report.runId).toBe('run1')
+      expect(
+        adapter.calls.slice(0, 2).map((call) => [call.events[0].event, call.events[0].userId, call.mapping.list])
+      ).toEqual([
+        ['Signed Up', 'user-run1', 7],
+        ['Signed Up', 'user-run1', 7]
+      ])
+      expect(calls).toEqual([
+        'suite before secret function run1',
+        'fixture before {"name":"Signed Up","list":7}',
+        'fixture after user-run1 1',
+        'suite after {"name":"Signed Up","list":7} ' +
+          JSON.stringify([
+            {
+              description: 'a',
+              values: { name: 'Signed Up', list: 7, user: 'user-run1' },
+              outcome: 'passed',
+              cleaned: true
+            },
+            { description: 'b', values: { name: 'Signed Up', list: 7 }, outcome: 'passed', cleaned: false }
+          ])
+      ])
+    })
+
+    it('makes a failed before or an unknown $before key a setup error, and still runs after', async () => {
+      const calls: string[] = []
+      const adapter = new FakeAdapter(() => ok)
+      const failing: E2ESuite = {
+        ...suite('fake', [
+          fixture('broken before', {
+            before: async () => {
+              throw new Error('partner said no')
+            },
+            after: async () => {
+              calls.push('broken before: after')
+            }
+          }),
+          fixture('unknown key', { mapping: { list: '$before:missing' } }),
+          fixture('fine')
+        ]),
+        after: async ({ fixtures }) => {
+          calls.push(`suite after ${fixtures.map((f) => `${f.description}:${f.outcome ?? 'not run'}`).join(',')}`)
+        }
+      }
+      const report = await runSuites(
+        adapter,
+        [
+          failing,
+          {
+            ...suite('other', [fixture('x')]),
+            before: async () => {
+              throw new Error('sandbox down')
+            },
+            after: async () => {
+              calls.push('other after')
+            }
+          }
+        ],
+        { ...opts, concurrency: 1 }
+      )
+
+      expect(report.exitCode).toBe(2)
+      expect(adapter.calls).toHaveLength(1)
+      expect(report.results.map((r) => r.fixture)).toEqual(['fine'])
+      expect(report.setupErrors).toEqual([
+        'fake/send › broken before: fixture before failed: partner said no',
+        'fake/send › unknown key: no before hook returned missing',
+        'other/send: suite before failed: sandbox down'
+      ])
+      expect(calls).toEqual([
+        'broken before: after',
+        'suite after broken before:not run,unknown key:not run,fine:passed',
+        'other after'
+      ])
+    })
+
+    it('reports a failed after as a warning without changing the exit code', async () => {
+      const report = await runSuites(
+        new FakeAdapter(() => ok),
+        [
+          {
+            ...suite('fake', [
+              fixture('a', {
+                after: async () => {
+                  throw new Error('delete failed')
+                }
+              })
+            ]),
+            after: async ({ fixtures }) => {
+              throw new Error(`left ${fixtures.filter((f) => !f.cleaned).length}`)
+            }
+          }
+        ],
+        opts
+      )
+
+      expect(report.exitCode).toBe(0)
+      expect(report.warnings).toEqual([
+        'fake/send › a: fixture after failed: delete failed',
+        'fake/send: suite after failed: left 1'
+      ])
+      expect(formatSummary(report)).toMatch(/WARN {2}fake\/send › a: fixture after failed: delete failed/)
+    })
+  })
+
+  it('reuses refreshed OAuth tokens for the rest of the suite, never across suites', async () => {
+    const tokens = { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' }
+    const adapter = new FakeAdapter((_, call) => (call === 1 ? { ...ok, refreshedTokens: tokens } : ok))
+    const oauthSuite = (destination: string): E2ESuite => ({
+      ...suite(destination, [fixture('a'), fixture('b')]),
+      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
+    })
+    await runSuites(adapter, [oauthSuite('one'), oauthSuite('two')], { ...opts, concurrency: 1 })
+
+    expect(adapter.calls.map((call) => call.settings.oauth)).toEqual([
+      { access_token: 'stale', refresh_token: 'secret' },
+      { access_token: 'fresh-access', refresh_token: 'fresh-refresh' },
+      { access_token: 'stale', refresh_token: 'secret' },
+      { access_token: 'stale', refresh_token: 'secret' }
+    ])
+  })
 })

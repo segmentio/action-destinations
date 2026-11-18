@@ -1,5 +1,7 @@
 // The InProcessAdapter end to end on the registered suites, with the partners mocked by nock.
 import nock from 'nock'
+import type { DestinationDefinition } from '@segment/actions-core'
+import type { E2ESuite } from '../types'
 import { InProcessAdapter } from '../adapters/in-process'
 import { buildInvocation } from '../invocation'
 import { runSuites } from '../run'
@@ -91,5 +93,173 @@ describe('InProcessAdapter on the Mixpanel suite', () => {
       [200, undefined],
       [400, 'bad']
     ])
+  })
+})
+
+describe('batchWithMultistatus on a destination without per-event results', () => {
+  it('fails when performBatch returned a plain response', async () => {
+    nock('https://httpbin.org').post('/anything').reply(200, { json: [] })
+    const [suite] = webhookSuites
+    const fixture = suite.fixtures.find((f) => f.mode === 'batch')
+    if (!fixture) throw new Error('the Webhook suite has no batch fixture')
+    const asMultistatus = { ...fixture, mode: 'batchWithMultistatus' as const, expect: { status: 'success' as const } }
+
+    const report = await runSuites(new InProcessAdapter(), [{ ...suite, retries: 0, fixtures: [asMultistatus] }], {
+      env: {}
+    })
+    nock.cleanAll()
+
+    expect(report.results[0].outcome).toBe('failed')
+    expect(report.results[0].reason).toBe(
+      'performBatch did not return a MultiStatusResponse, so per-event results only copy one response'
+    )
+  })
+
+  it('fails the Mixpanel multistatus fixture when its flag is off', async () => {
+    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, { code: 200, status: 'OK' })
+    const [suite] = suites
+    const fixture = suite.fixtures.find((f) => f.mode === 'batchWithMultistatus')
+    if (!fixture) throw new Error('the Mixpanel suite has no batchWithMultistatus fixture')
+
+    const report = await runSuites(new InProcessAdapter(), [{ ...suite, fixtures: [{ ...fixture, features: {} }] }], {
+      env
+    })
+    nock.cleanAll()
+
+    expect(report.results[0].reason).toMatch(/^performBatch did not return a MultiStatusResponse/)
+  })
+})
+
+describe('OAuth refresh and hooks through InProcessAdapter', () => {
+  // An oauth2 destination whose API answers 401 to any token but 'fresh'.
+  const definition: DestinationDefinition<{ region: string }> = {
+    name: 'Fake OAuth',
+    slug: 'actions-fake-oauth',
+    mode: 'cloud',
+    authentication: {
+      scheme: 'oauth2',
+      fields: { region: { label: 'Region', description: 'Region', type: 'string' } },
+      refreshAccessToken: async (request, { auth }) => {
+        const res = await request<{ access_token: string }>('https://auth.fake.test/token', {
+          method: 'POST',
+          json: { refresh_token: auth.refreshToken }
+        })
+        return { accessToken: res.data.access_token }
+      }
+    },
+    extendRequest: ({ settings, auth }) => ({
+      headers: { authorization: `Bearer ${auth?.accessToken}`, 'x-region': settings.region }
+    }),
+    actions: {
+      send: {
+        title: 'Send',
+        description: 'Send',
+        fields: { name: { label: 'Name', description: 'Name', type: 'string', default: { '@path': '$.event' } } },
+        perform: (request, { payload }) => request('https://api.fake.test/send', { method: 'POST', json: payload })
+      }
+    }
+  }
+  const env = { E2E_FAKE_REFRESH: 'long-lived' }
+  const oauthSuite = (fixtures: E2ESuite['fixtures'], extra: Partial<E2ESuite> = {}): E2ESuite => ({
+    destination: 'fake-oauth',
+    action: 'send',
+    definition,
+    config: {
+      settings: { region: 'eu', oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_REFRESH' } } }
+    },
+    fixtures,
+    ...extra
+  })
+  const send = (description: string, expect: E2ESuite['fixtures'][number]['expect']) =>
+    ({
+      description,
+      mode: 'single',
+      subscribe: 'type = "track"',
+      event: { type: 'track', event: description, messageId: '$guid', timestamp: '$now' },
+      mapping: {},
+      expect
+    } as E2ESuite['fixtures'][number])
+
+  afterEach(() => nock.cleanAll())
+
+  it('refreshes once on a 401, then reuses the new token for the rest of the suite', async () => {
+    const token = nock('https://auth.fake.test')
+      .post('/token', { refresh_token: 'long-lived' })
+      .once()
+      .reply(200, { access_token: 'fresh' })
+    nock('https://api.fake.test')
+      .persist()
+      .post('/send')
+      .reply(function () {
+        return String(this.req.headers.authorization) === 'Bearer fresh'
+          ? [200, { ok: true }]
+          : [401, { message: 'expired' }]
+      })
+
+    const report = await runSuites(
+      new InProcessAdapter(),
+      [
+        oauthSuite([
+          send('first call refreshes', { status: 'success', exchangeCount: 2, jsonContains: { ok: true } }),
+          send('second call reuses the token', { status: 'success', exchangeCount: 1 })
+        ])
+      ],
+      { env }
+    )
+
+    expect(report.results.map((r) => [r.fixture, r.outcome, r.reason])).toEqual([
+      ['first call refreshes', 'passed', undefined],
+      ['second call reuses the token', 'passed', undefined]
+    ])
+    expect(token.isDone()).toBe(true)
+  })
+
+  it('names a failed refresh', async () => {
+    nock('https://auth.fake.test').post('/token').reply(400, { error: 'invalid_grant' })
+    nock('https://api.fake.test').post('/send').reply(401, { message: 'expired' })
+
+    const report = await runSuites(
+      new InProcessAdapter(),
+      [oauthSuite([send('refresh fails', { status: 'success' })])],
+      {
+        env
+      }
+    )
+
+    expect(report.exitCode).toBe(1)
+    expect(report.results[0].reason).toMatch(/OAuth refresh failed: re-authorize the sandbox app/)
+  })
+
+  it("gives hooks the destination's own request client", async () => {
+    const created = nock('https://api.fake.test', { reqheaders: { authorization: 'Bearer stale', 'x-region': 'eu' } })
+      .post('/lists', { name: 'e2e-run1' })
+      .reply(201, { id: 'list-1' })
+      .delete('/lists/list-1')
+      .reply(204)
+    nock('https://api.fake.test').post('/send', { name: 'list-1' }).reply(200, { ok: true })
+
+    const fixture = { ...send('uses the list', { status: 'success' }), mapping: { name: '$before:listId' } }
+    const report = await runSuites(
+      new InProcessAdapter(),
+      [
+        oauthSuite([fixture], {
+          before: async ({ request, runId }) => {
+            const res = await request<{ id: string }>('https://api.fake.test/lists', {
+              method: 'POST',
+              json: { name: `e2e-${runId}` }
+            })
+            return { listId: res.data.id }
+          },
+          after: async ({ request, values }) => {
+            await request(`https://api.fake.test/lists/${values.listId}`, { method: 'DELETE' })
+          }
+        })
+      ],
+      { env, runId: 'run1' }
+    )
+
+    expect(report.results.map((r) => [r.outcome, r.reason])).toEqual([['passed', undefined]])
+    expect(report.warnings).toEqual([])
+    expect(created.isDone()).toBe(true)
   })
 })
