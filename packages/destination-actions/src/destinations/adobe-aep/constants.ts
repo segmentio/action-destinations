@@ -17,6 +17,13 @@ export const IMS_SCOPE = 'openid,AdobeID,read_organizations,additional_info.proj
 // Identity Service: lists the identity namespaces (standard and custom) available in a sandbox.
 export const IDENTITY_NAMESPACES_URL = 'https://platform.adobe.io/data/core/idnamespace/identities'
 
+// Schema Registry: lists the schemas created in the customer's tenant (one sandbox per request).
+export const SCHEMA_REGISTRY_URL = 'https://platform.adobe.io/data/foundation/schemaregistry/tenant/schemas'
+
+// XDM classes, used to offer only the schemas an action can write to.
+export const EXPERIENCE_EVENT_CLASS = 'https://ns.adobe.com/xdm/context/experienceevent'
+export const INDIVIDUAL_PROFILE_CLASS = 'https://ns.adobe.com/xdm/context/profile'
+
 // Header required on every streaming request.
 export const SANDBOX_HEADER = 'x-sandbox-name'
 

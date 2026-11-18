@@ -39,7 +39,11 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
-      "dynamicFields": null,
+      "dynamicFields": {
+        "xdmMapping": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "imsOrgId": {
           "label": "IMS Organization ID",
@@ -120,7 +124,7 @@
           "required": true,
           "multiple": false,
           "allowNull": false,
-          "dynamic": false,
+          "dynamic": true,
           "default": null,
           "choices": null,
           "placeholder": null,
@@ -132,7 +136,12 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "enrichment",
+            "freeform"
+          ],
           "displayMode": null,
           "format": null,
           "additionalProperties": false
@@ -441,7 +450,7 @@
           "required": true,
           "multiple": false,
           "allowNull": false,
-          "dynamic": false,
+          "dynamic": true,
           "default": {
             "web.webPageDetails.URL": {
               "@path": "$.context.page.url"
@@ -459,7 +468,7 @@
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": "keyvalue:only",
+          "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
@@ -576,7 +585,11 @@
       "hasPerformBatch": true,
       "syncMode": null,
       "hooks": null,
-      "dynamicFields": null,
+      "dynamicFields": {
+        "xdmMapping": [
+          "__keys__"
+        ]
+      },
       "fields": {
         "imsOrgId": {
           "label": "IMS Organization ID",
@@ -657,7 +670,7 @@
           "required": true,
           "multiple": false,
           "allowNull": false,
-          "dynamic": false,
+          "dynamic": true,
           "default": null,
           "choices": null,
           "placeholder": null,
@@ -669,7 +682,12 @@
           "minimum": null,
           "maximum": null,
           "defaultObjectUI": null,
-          "disabledInputMethods": null,
+          "disabledInputMethods": [
+            "variable",
+            "function",
+            "enrichment",
+            "freeform"
+          ],
           "displayMode": null,
           "format": null,
           "additionalProperties": false
@@ -902,7 +920,7 @@
           "required": true,
           "multiple": false,
           "allowNull": false,
-          "dynamic": false,
+          "dynamic": true,
           "default": {
             "person.name.firstName": {
               "@path": "$.traits.first_name"
@@ -923,7 +941,7 @@
           "hidden": null,
           "minimum": null,
           "maximum": null,
-          "defaultObjectUI": "keyvalue:only",
+          "defaultObjectUI": "keyvalue",
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,

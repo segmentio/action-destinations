@@ -180,7 +180,7 @@ export function formatTimestamp(timestamp: string | number): string {
   return date.toISOString()
 }
 
-const RESERVED_KEYS: Record<MessageKind, string[]> = {
+export const RESERVED_KEYS: Record<MessageKind, string[]> = {
   event: ['_id', 'timestamp', 'identityMap'],
   profile: ['identityMap']
 }

@@ -3,7 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { batchFields, commonFields, identityFields, xdmMappingDescription } from '../fields'
 import { send } from '../utils'
-import { getIdentityNamespaces, getPrimaryIdentityChoices } from '../dynamic-fields'
+import { getIdentityNamespaces, getPrimaryIdentityChoices, getSchemas, getXdmPaths } from '../dynamic-fields'
+import { INDIVIDUAL_PROFILE_CLASS } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Upsert Profile',
@@ -18,7 +19,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `${xdmMappingDescription} Use Individual Profile paths such as \`person.name.firstName\`, or tenant fields such as \`_<tenant>.customerTier\`.`,
       type: 'object',
       required: true,
-      defaultObjectUI: 'keyvalue:only',
+      dynamic: true,
+      defaultObjectUI: 'keyvalue',
       additionalProperties: true,
       default: {
         'person.name.firstName': { '@path': '$.traits.first_name' },
@@ -29,9 +31,13 @@ const action: ActionDefinition<Settings, Payload> = {
     ...batchFields
   },
   dynamicFields: {
+    xdmMapping: {
+      __keys__: (request, { payload, settings, auth }) => getXdmPaths(request, payload, 'profile', { settings, auth })
+    },
+    schemaRefId: (request, { payload, settings, auth }) =>
+      getSchemas(request, payload, INDIVIDUAL_PROFILE_CLASS, { settings, auth }),
     customIdentities: {
-      namespace: (request, { payload, dynamicFieldContext }) =>
-        getIdentityNamespaces(request, payload, dynamicFieldContext?.query)
+      namespace: (request, { payload, settings, auth }) => getIdentityNamespaces(request, payload, { settings, auth })
     },
     primaryIdentity: (_request, { payload }) => getPrimaryIdentityChoices(payload)
   },
