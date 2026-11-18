@@ -47,7 +47,7 @@ export interface E2EReport {
   ms: number
   results: E2EResult[]
   setupErrors: string[]
-  /** Failed `after` hooks: resources may be left behind, but the exit code is unaffected. */
+  /** Failed `after` hooks and onTokenRefresh calls; the exit code is unaffected. */
   warnings: string[]
   /** 0 all passed or excused, 1 a fixture failed, 2 setup error. A harness maps it to its process exit. */
   exitCode: 0 | 1 | 2
@@ -147,7 +147,10 @@ export async function runSuites(
     try {
       await options.onTokenRefresh?.(destination, tokens)
     } catch (err) {
-      warnings.push(`${destination}: onTokenRefresh failed: ${message(err)}`)
+      // A lost rotated refresh token breaks the next run, so that one is a setup error.
+      const problem = `${destination}: onTokenRefresh failed: ${message(err)}`
+      if (tokens.refreshToken) setupErrors.push(`${problem}; the new refresh token was not saved`)
+      else warnings.push(problem)
     }
   }
 
@@ -241,6 +244,11 @@ export async function runSuites(
           err
         )}`
         for (const fixture of suite.fixtures) {
+          const problem = fixtureProblem(fixture)
+          if (problem) {
+            setupErrors.push(`${label} › ${fixture.description}: ${problem}`)
+            continue
+          }
           const result: E2EResult = {
             suite: label,
             fixture: fixture.description,
