@@ -39,10 +39,10 @@ function resolveBatchErrorDetail(data: AsyncUpsertRowsV2Response): { errormessag
   }
   // 2. Validation error (400): messages live in a `resultMessages[]` array.
   if (data.resultMessages && data.resultMessages.length > 0) {
-    return { errormessage: data.resultMessages[0]?.message ?? 'Unknown error', body: {} }
+    return { errormessage: data.resultMessages[0]?.message ?? 'Unknown error', body: data as Object as JSONLikeObject }
   }
   // 3. Unrecognized shape: surface the raw response so it isn't lost.
-  return { errormessage: `SFMC API responded with ${JSON.stringify(data)}.`, body: {} }
+  return { errormessage: `SFMC API responded with ${JSON.stringify(data)}.`, body: data as Object as JSONLikeObject }
 }
 
 type AsyncUpsertRowsJobStatusResponse = {
@@ -65,6 +65,8 @@ type AsyncUpsertRowsPollResultsResponse = {
   count: number
   items: {
     errorCode?: number
+    // Per-row detail (e.g. 70006 invalid email). `message` is often just the generic "Errors Occurred".
+    errors?: { errorMessage: string; name?: string; errorCode?: number }[]
     message: string
     status: 'OK' | 'Error'
   }[]
@@ -152,25 +154,37 @@ function applyResultItems(
   for (let i = 0; i < items.length; i++) {
     if (items[i].status === 'OK') {
       successCount++
-      multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: 'OK' })
+      multiStatusResponse.setSuccessResponseAtIndex(i, { status: 200, sent: {}, body: items[i].message })
       continue
     }
 
-    const errormessage = items[i].message
+    // `message` is often SFMC's generic "Errors Occurred"; the specific reason (e.g. invalid
+    // email) lives in errors[0].errorMessage, so prefer that when present.
+    const errormessage = items[i].errors?.[0]?.errorMessage || items[i].message
     // Substring match anywhere in the message -- inherently tolerant of leading/trailing
     // whitespace and surrounding text, so no trim/normalization is needed here.
-    const isTransientRowError = errormessage.includes(TRANSIENT_ROW_ERROR_PHRASE)
+    // Matched on `message` (where SFMC reports the deadlock), not the errors[] detail.
+    const isTransientRowError = items[i].message.includes(TRANSIENT_ROW_ERROR_PHRASE)
 
     if (isTransientRowError) {
       recoveredTransientCount++
       multiStatusResponse.setSuccessResponseAtIndex(i, {
         status: 200,
         sent: {},
-        body: 'OK (row reported a transient SFMC deadlock; SFMC lands these on internal retry)'
+        body: {
+          ...items[i],
+          _segment_note_:
+            'Row reported a transient SFMC SQL deadlock. SFMC lands these on its own internal retry, so it is counted as delivered.'
+        }
       })
     } else {
       permanentErrorCount++
-      multiStatusResponse.setErrorResponseAtIndex(i, { status: 400, errormessage, body: {} })
+      multiStatusResponse.setErrorResponseAtIndex(i, {
+        status: 400,
+        errormessage,
+        sent: {},
+        body: items[i] as Object as JSONLikeObject
+      })
     }
   }
 

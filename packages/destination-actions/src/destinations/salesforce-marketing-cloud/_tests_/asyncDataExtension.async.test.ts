@@ -807,6 +807,25 @@ describe('Salesforce Marketing Cloud - Async', () => {
         expect(response.multiStatusResponse?.isSuccessResponseAtIndex(2)).toBe(true)
         expect(response.multiStatusResponse?.errorCount).toBe(2)
         expect(response.multiStatusResponse?.successCount).toBe(2)
+        // errormessage prefers errors[0].errorMessage over the generic top-level message
+        const errorRow = response.multiStatusResponse?.getResponseAtIndex(0)
+        expect(errorRow instanceof ActionDestinationErrorResponse && errorRow.value().errormessage).toEqual(
+          'Column [contactkey] does not allow null value.'
+        )
+        // Error rows carry the full SFMC item (including errors[] detail) as the body
+        expect(response.multiStatusResponse?.getResponseAtIndex(0).value().body).toEqual({
+          errorCode: 2,
+          errors: [
+            {
+              errorMessage: 'Column [contactkey] does not allow null value.',
+              name: 'contactkey',
+              errorCode: 70001
+            }
+          ],
+          message: 'Cannot locate the existing record. Required keys are missing.',
+          status: 'Error'
+        })
+        expect(response.multiStatusResponse?.getResponseAtIndex(1).value().body).toBe('Upserted DataExtensionObject')
       })
 
       it('should fetch every /results page instead of only the first when count exceeds pageSize', async () => {
