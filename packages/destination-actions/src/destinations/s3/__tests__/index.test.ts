@@ -132,6 +132,89 @@ describe('syncToS3 perform / performBatch (end to end through the real client)',
   })
 })
 
+describe('fix_filename_extension through the action (opt-in vs default)', () => {
+  const ORIGINAL_ROLE_ADDRESS = process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS
+  const ORIGINAL_EXTERNAL_ID = process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID
+  beforeAll(() => {
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = 'arn:aws:iam::555555555555:role/segment-intermediary'
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = 'segment-intermediary-external-id'
+  })
+  afterAll(() => {
+    process.env.AMAZON_S3_ACTIONS_ROLE_ADDRESS = ORIGINAL_ROLE_ADDRESS
+    process.env.AMAZON_S3_ACTIONS_EXTERNAL_ID = ORIGINAL_EXTERNAL_ID
+  })
+  beforeEach(() => {
+    mockStsSend.mockReset()
+    mockS3Send.mockReset()
+    mockStsSend.mockResolvedValue({
+      Credentials: { AccessKeyId: 'AKIA', SecretAccessKey: 'secret', SessionToken: 'token' }
+    })
+    mockS3Send.mockResolvedValue({})
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+  })
+
+  const ts = '\\d{4}-\\d{2}-\\d{2}T[\\d-]+Z'
+  const baseMapping = {
+    columns: { email: { '@path': '$.properties.email' } },
+    audience_action_column_name: '',
+    batch_size_column_name: '',
+    delimiter: ',',
+    file_extension: 'csv',
+    enable_batching: true,
+    filename_prefix: 'csv_export.csv',
+    s3_aws_folder_name: 'audiences'
+  }
+  const event = () => createTestEvent({ userId: 'u-1', properties: { email: 'a@b.com' } })
+  const keyOf = () => (PutObjectCommand as unknown as jest.Mock).mock.calls[0][0].Key as string
+  const legacyKey = new RegExp(`^audiences/_${ts}\\.csv_export\\.csv$`)
+  const fixedKey = new RegExp(`^audiences/csv_export_${ts}\\.csv$`)
+
+  it('a mapping that omits the field keeps the legacy (mangled) key', async () => {
+    await destination.testAction('syncToS3', { event: event(), settings, mapping: baseMapping })
+    expect(keyOf()).toMatch(legacyKey)
+  })
+
+  it('an explicit false keeps the legacy key', async () => {
+    await destination.testAction('syncToS3', {
+      event: event(),
+      settings,
+      mapping: { ...baseMapping, fix_filename_extension: false }
+    })
+    expect(keyOf()).toMatch(legacyKey)
+  })
+
+  it('an explicit true produces the fixed key', async () => {
+    await destination.testAction('syncToS3', {
+      event: event(),
+      settings,
+      mapping: { ...baseMapping, fix_filename_extension: true }
+    })
+    expect(keyOf()).toMatch(fixedKey)
+  })
+
+  it('a mapping built from field defaults gets the fixed key', async () => {
+    await destination.testAction('syncToS3', {
+      event: event(),
+      settings,
+      useDefaultMappings: true,
+      mapping: baseMapping
+    })
+    expect(keyOf()).toMatch(fixedKey)
+  })
+
+  it('performBatch honors the field the same way (omitted = legacy, true = fixed)', async () => {
+    await destination.testBatchAction('syncToS3', { events: [event()], settings, mapping: baseMapping })
+    expect(keyOf()).toMatch(legacyKey)
+    ;(PutObjectCommand as unknown as jest.Mock).mockClear()
+    await destination.testBatchAction('syncToS3', {
+      events: [event()],
+      settings,
+      mapping: { ...baseMapping, fix_filename_extension: true }
+    })
+    expect(keyOf()).toMatch(fixedKey)
+  })
+})
+
 describe('extendRequest', () => {
   it('enforces a minimum 30s request timeout on every request', () => {
     const extendRequest = destination.definition.extendRequest
