@@ -379,6 +379,28 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
             client.instance.addSdkMetadata([client.instance.BrazeSdkMetadata.SEGMENT])
           }
 
+          // Surface SDK Authentication failures instead of letting them fail silently.
+          // Braze never invokes this subscriber unless SDK Authentication is enabled on
+          // the dashboard, but we still gate on the setting so that customers who have it
+          // off get no new code paths at all. `subscribeToSdkAuthenticationFailures` does
+          // not exist on SDK 3.1, hence the guard.
+          if (
+            settings.enableSdkAuthentication &&
+            typeof client.instance.subscribeToSdkAuthenticationFailures === 'function'
+          ) {
+            client.instance.subscribeToSdkAuthenticationFailures((error) => {
+              // Deliberately does not log `error.signature`: that is the customer's JWT. The
+              // optional chaining keeps a surprise payload shape from any of the supported SDK
+              // versions from throwing inside the SDK's failure handling.
+              const reason = error?.reason
+              console.error(
+                `Braze SDK Authentication failed with error code ${error?.errorCode}${
+                  reason ? `: ${reason}` : ''
+                }. See https://www.braze.com/docs/developer_guide/sdk_integration/authentication for the error code reference.`
+              )
+            })
+          }
+
           if (automaticallyDisplayMessages) {
             if ('display' in client.instance) {
               client.instance.display.automaticallyShowNewInAppMessages()
@@ -390,6 +412,46 @@ export const destination: BrowserDestinationDefinition<Settings, BrazeDestinatio
           client.instance.openSession()
 
           return (initialized = true)
+        },
+        identifyUser: (userId: string, sdkAuthSignature?: string) => {
+          // The setting is the gate. With SDK Authentication off, a mapped token is ignored
+          // entirely, so the call is identical to the pre-SDK-Authentication behavior and no
+          // credential is stored in the browser.
+          //
+          // The browser runtime does not enforce the field's `string` type, so the page can hand
+          // us anything (an object, a number, an un-awaited Promise). Braze's `changeUser` returns
+          // without switching the user when the signature is not a string, and the profile writes
+          // that follow would land on the previous user. Anything but a non-empty string is
+          // therefore treated as no signature, so the user switch always happens.
+          const signature =
+            settings.enableSdkAuthentication && typeof sdkAuthSignature === 'string' && sdkAuthSignature.trim() !== ''
+              ? sdkAuthSignature
+              : undefined
+          if (settings.enableSdkAuthentication && sdkAuthSignature != null && typeof sdkAuthSignature !== 'string') {
+            // Deliberately does not log the value: it may be the customer's JWT.
+            console.warn(
+              `Braze SDK Authentication signature must be a string, got ${typeof sdkAuthSignature}; identifying the user without it.`
+            )
+          }
+
+          // Pass the signature only when we actually have one, rather than relying on how each
+          // supported SDK version handles an explicitly-undefined second argument.
+          if (!signature) {
+            client.instance.changeUser(userId)
+            return
+          }
+
+          client.instance.changeUser(userId, signature)
+
+          // On SDK 3.3, `changeUser` applies the signature only when the user actually changes.
+          // A same-user call returns without touching it, and that covers every returning
+          // visitor on a fresh page load as well as a mid-session refresh, so the token would be
+          // silently dropped. Setting it explicitly covers that case. On 3.5+ this is a no-op,
+          // because `changeUser` has already stored the same value. Missing on SDK 3.1, hence
+          // the guard.
+          if (typeof client.instance.setSdkAuthenticationSignature === 'function') {
+            client.instance.setSdkAuthenticationSignature(signature)
+          }
         }
       }
 

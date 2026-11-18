@@ -410,6 +410,42 @@
           "format": null,
           "additionalProperties": false
         },
+        "sdk_auth_signature": {
+          "label": "SDK Authentication Signature",
+          "description": "The JWT used to authenticate this user when the **Enable SDK Authentication** setting is on. Supply it on your `analytics.identify()` call under `integrations[\"Braze Web Mode (Actions)\"].sdk_auth_signature`. The token must be signed by your server with `sub` set to the same value sent as the External User ID. [See Braze docs](https://www.braze.com/docs/developer_guide/sdk_integration/authentication).",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.Braze Web Mode (Actions).sdk_auth_signature"
+              },
+              "then": {
+                "@path": "$.integrations.Braze Web Mode (Actions).sdk_auth_signature"
+              },
+              "else": {
+                "@path": "$.integrations.Braze Web Mode (Actions).sdkAuthSignature"
+              }
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "country": {
           "label": "Country",
           "description": "The country code of the user",
@@ -1167,6 +1203,19 @@
       "mapping": {
         "external_id": {
           "@path": "$.userId"
+        },
+        "sdk_auth_signature": {
+          "@if": {
+            "exists": {
+              "@path": "$.integrations.Braze Web Mode (Actions).sdk_auth_signature"
+            },
+            "then": {
+              "@path": "$.integrations.Braze Web Mode (Actions).sdk_auth_signature"
+            },
+            "else": {
+              "@path": "$.integrations.Braze Web Mode (Actions).sdkAuthSignature"
+            }
+          }
         },
         "country": {
           "@path": "$.context.location.country"
