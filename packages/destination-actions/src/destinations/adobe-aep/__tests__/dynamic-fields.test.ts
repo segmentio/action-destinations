@@ -99,7 +99,7 @@ describe('Adobe AEP - dynamic fields', () => {
           .matchHeader('x-gw-ims-org-id', 'ORG123@AdobeOrg')
           .matchHeader('x-sandbox-name', 'prod')
           .matchHeader('accept', 'application/vnd.adobe.xed-id+json')
-          .reply(200, schemas)
+          .reply(200, schemas, { 'content-type': 'application/vnd.adobe.xed-id+json' })
 
         const response = await testDestination.testDynamicField(action, 'schemaRefId', {
           payload: connection,
@@ -179,7 +179,7 @@ describe('Adobe AEP - dynamic fields', () => {
           .matchHeader('x-gw-ims-org-id', 'ORG123@AdobeOrg')
           .matchHeader('x-sandbox-name', 'prod')
           .matchHeader('accept', 'application/vnd.adobe.xed-full+json;version=1')
-          .reply(200, schema)
+          .reply(200, schema, { 'content-type': 'application/vnd.adobe.xed-full+json;version=1' })
 
       it('lists the dotted paths in the schema, without the paths the action sets itself', async () => {
         mockSchema()

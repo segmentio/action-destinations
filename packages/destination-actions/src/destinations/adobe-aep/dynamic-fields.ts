@@ -38,12 +38,24 @@ async function adobeGet<T>(
   headers: Record<string, string>,
   searchParams?: Record<string, string>
 ) {
-  const call = (token?: string) =>
-    request<T>(url, {
+  // Adobe's Schema Registry replies with vendor JSON types (application/vnd.adobe.xed-*+json), which the
+  // request client does not parse because it only recognises application/json. Parse the body here.
+  const call = async (token?: string): Promise<{ data: T }> => {
+    const response = await request<T>(url, {
       method: 'GET',
       searchParams,
       headers: { ...headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }
     })
+    const raw: unknown = response.data
+    if (typeof raw === 'string') {
+      try {
+        return { data: JSON.parse(raw) as T }
+      } catch {
+        return { data: {} as T }
+      }
+    }
+    return { data: raw as T }
+  }
   const fresh = async () => call(await getAccessToken(request, settings.client_id, settings.client_secret))
 
   if (!auth?.accessToken) return fresh()
