@@ -50,8 +50,11 @@ const action: ActionDefinition<Settings, Payload> = {
   },
   dynamicFields: {
     items: {
-      item_category_id: async (_request, { dynamicFieldContext }) => {
-        return { choices: searchCategories(dynamicFieldContext?.query) }
+      item_category_id: async (_request, { dynamicFieldContext, payload }) => {
+        const items = Array.isArray(payload?.items) ? payload.items : []
+        const typed = items[dynamicFieldContext?.selectedArrayIndex ?? 0]?.item_category_id
+        const query = dynamicFieldContext?.query || (typeof typed === 'string' ? typed : undefined)
+        return { choices: searchCategories(query) }
       }
     }
   },
