@@ -1,5 +1,5 @@
-import { createRequestClient, getAuthData } from '@segment/actions-core'
-import type { ExecuteInput, JSONObject } from '@segment/actions-core'
+import { createRequestClient, Destination, getAuthData } from '@segment/actions-core'
+import type { ExecuteInput, JSONObject, RefreshAccessTokenResult } from '@segment/actions-core'
 import type { E2EHookContext, E2ESuite } from './types'
 
 /**
@@ -15,4 +15,24 @@ export function hookContext(suite: E2ESuite, settings: Record<string, unknown>, 
   } as ExecuteInput<unknown, undefined>
   const options = suite.definition.extendRequest?.(input) ?? {}
   return { settings, request: createRequestClient(options), runId }
+}
+
+/** Whether the suite or any fixture has a hook. */
+export function hasHooks(suite: E2ESuite): boolean {
+  return Boolean(suite.before || suite.after || suite.fixtures.some((fixture) => fixture.before || fixture.after))
+}
+
+/**
+ * Refresh OAuth tokens through the destination's refreshAccessToken, so hooks don't call the partner
+ * with a stale stored access token. Undefined when the suite has no refresh token to use.
+ */
+export async function refreshForHooks(
+  suite: E2ESuite,
+  settings: Record<string, unknown>
+): Promise<RefreshAccessTokenResult | undefined> {
+  const oauth = settings.oauth as Record<string, unknown> | undefined
+  const authentication = suite.definition.authentication
+  if (!oauth?.refresh_token || !authentication || !('refreshAccessToken' in authentication)) return undefined
+  if (!authentication.refreshAccessToken) return undefined
+  return new Destination(suite.definition).refreshTokenAndGetNewToken(settings as JSONObject)
 }

@@ -147,9 +147,14 @@ export function validate(
           status: item.status
         }))
     if (errors.length === 0) return fail('expected our code to reject the event, but it did not')
-    if (exchanges.length > 0) return fail(`expected no partner request, but ${exchanges.length} were sent`)
+    // A failed refresh follows a partner 401, so it always has an exchange.
+    const refreshError = Boolean(error && observation.refreshFailed)
+    if (exchanges.length > 0 && !refreshError) {
+      return fail(`expected no partner request, but ${exchanges.length} were sent`)
+    }
     for (const e of errors) {
-      if (e.type !== expectation.errorType) {
+      const type = refreshError && expectation.errorType === OAUTH_REFRESH_FAILED ? OAUTH_REFRESH_FAILED : e.type
+      if (type !== expectation.errorType) {
         return fail(`expected error type ${expectation.errorType}, got ${e.type ?? `status ${e.status}`}: ${e.message}`)
       }
       if (expectation.httpStatus !== undefined && e.status !== expectation.httpStatus) {

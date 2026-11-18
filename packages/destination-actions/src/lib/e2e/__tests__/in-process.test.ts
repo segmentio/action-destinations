@@ -1,5 +1,6 @@
 // The InProcessAdapter end to end on the registered suites, with the partners mocked by nock.
 import nock from 'nock'
+import { MultiStatusResponse } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
 import type { E2ESuite } from '../types'
 import { InProcessAdapter } from '../adapters/in-process'
@@ -230,8 +231,12 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
     expect(report.results[0].reason).toMatch(/OAuth refresh failed: re-authorize the sandbox app/)
   })
 
-  it("gives hooks the destination's own request client", async () => {
-    const created = nock('https://api.fake.test', { reqheaders: { authorization: 'Bearer stale', 'x-region': 'eu' } })
+  it("gives hooks the destination's own request client, with a refreshed token", async () => {
+    nock('https://auth.fake.test')
+      .post('/token', { refresh_token: 'long-lived' })
+      .once()
+      .reply(200, { access_token: 'fresh' })
+    const created = nock('https://api.fake.test', { reqheaders: { authorization: 'Bearer fresh', 'x-region': 'eu' } })
       .post('/lists', { name: 'e2e-run1' })
       .reply(201, { id: 'list-1' })
       .delete('/lists/list-1')
@@ -261,5 +266,49 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
     expect(report.results.map((r) => [r.outcome, r.reason])).toEqual([['passed', undefined]])
     expect(report.warnings).toEqual([])
     expect(created.isDone()).toBe(true)
+  })
+
+  it('makes a failed refresh before hooks a setup error', async () => {
+    nock('https://auth.fake.test').post('/token').reply(400, { error: 'invalid_grant' })
+    const report = await runSuites(
+      new InProcessAdapter(),
+      [oauthSuite([send('never runs', { status: 'success' })], { before: async () => ({}) })],
+      { env }
+    )
+
+    expect(report.exitCode).toBe(2)
+    expect(report.results).toEqual([])
+    expect(report.setupErrors[0]).toMatch(/fake-oauth\/send: OAuth refresh failed: re-authorize the sandbox app/)
+  })
+
+  it('names a failed refresh in batch mode, after multistatus 401s', async () => {
+    nock('https://auth.fake.test').post('/token').reply(400, { error: 'invalid_grant' })
+    nock('https://api.fake.test').post('/batch').reply(200, { ok: true })
+    const batchDefinition: DestinationDefinition<{ region: string }> = {
+      ...definition,
+      actions: {
+        send: {
+          ...definition.actions.send,
+          performBatch: async (request, { payload }) => {
+            await request('https://api.fake.test/batch', { method: 'POST', json: payload })
+            const response = new MultiStatusResponse()
+            payload.forEach(() => response.pushErrorResponse({ status: 401, errormessage: 'expired' }))
+            return response
+          }
+        }
+      }
+    }
+    const fixture = {
+      ...send('batch refresh fails', { status: 'error', errorType: 'OAUTH_REFRESH_FAILED' }),
+      mode: 'batchWithMultistatus',
+      events: [{ type: 'track', event: 'a', messageId: '$guid', timestamp: '$now' }]
+    } as unknown as E2ESuite['fixtures'][number]
+    const report = await runSuites(
+      new InProcessAdapter(),
+      [{ ...oauthSuite([fixture]), definition: batchDefinition }],
+      { env }
+    )
+
+    expect(report.results.map((r) => [r.outcome, r.reason])).toEqual([['passed', undefined]])
   })
 })

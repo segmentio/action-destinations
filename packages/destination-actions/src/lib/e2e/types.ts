@@ -166,7 +166,7 @@ export interface E2ESingleFixture extends E2EBaseFixture {
   mode: 'single'
   /**
    * The Segment event (track, identify, page, screen, etc.) sent into the action.
-   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * String values may use dynamic markers ($now, $guid, $guid:<name>, $before:<key>) that the
    * runner resolves before execution.
    */
   event: SegmentEvent
@@ -177,7 +177,7 @@ export interface E2EBatchFixture extends E2EBaseFixture {
   mode: 'batch'
   /**
    * Array of Segment events sent into the action as a batch.
-   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * String values may use dynamic markers ($now, $guid, $guid:<name>, $before:<key>) that the
    * runner resolves before execution.
    */
   events: SegmentEvent[]
@@ -188,7 +188,7 @@ export interface E2EBatchWithMultistatusFixture extends E2EBaseFixture {
   mode: 'batchWithMultistatus'
   /**
    * Array of Segment events sent into the action as a batch.
-   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * String values may use dynamic markers ($now, $guid, $guid:<name>, $before:<key>) that the
    * runner resolves before execution.
    */
   events: SegmentEvent[]

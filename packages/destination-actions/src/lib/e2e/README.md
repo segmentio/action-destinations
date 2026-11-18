@@ -15,7 +15,7 @@ both places.
 src/lib/e2e/
   types.ts          # fixtures, expectations, E2ESuite, E2EResult
   helpers.ts        # createE2EEvent + Engage/Journeys/RETL event builders
-  resolve.ts        # { $env } settings and $now / $guid markers
+  resolve.ts        # { $env } settings and $now / $guid / $before markers
   invocation.ts     # buildInvocation: fixture -> adapter-neutral E2EInvocation
   hooks.ts          # the context before / after hooks get
   validate.ts       # expectation vs observation, no jest
@@ -104,7 +104,8 @@ Response checks, on `success` and `failure`:
 - `exchange: { method?, url? }` picks the last exchange with that method and a URL containing
   `url`; without it, the last exchange is judged. `exchangeCount` asserts how many requests the
   action sent: an OAuth 401 and its retry are 2. The token request itself is not an exchange.
-- `bodyContains` (substring), `bodyEquals` (whole body, trimmed), `jsonContains` (partial deep
+- `bodyContains` (substring), `bodyEquals` (whole body, trimmed; a JSON body is
+  compared as compact `JSON.stringify` output, so paste it on one line), `jsonContains` (partial deep
   match, where `'$absent'` requires a key to be missing).
 
 A multistatus expectation needs `batchWithMultistatus` and one item per event; anything else is a
@@ -132,7 +133,7 @@ suite.after({ ...ctx, values: S, fixtures })        // always
 ```
 
 `ctx` holds the resolved `settings`, `request` (the destination's own client, built from its
-`extendRequest`; it doesn't refresh OAuth tokens) and `runId`. Put `runId` in resource names so
+`extendRequest`; it doesn't refresh on a 401, but see OAuth below) and `runId`. Put `runId` in resource names so
 parallel runs don't collide, and name anything `after` deletes in `before`, not with `$guid`, which
 changes on each retry. `before` runs once per fixture, not per attempt; a throw, or a
 `$before:` key no hook returned, is a setup error and the suite or fixture doesn't run. `after`
@@ -143,6 +144,13 @@ fixtures' own `after` succeeded.
 
 Point the suite's settings at chamber under `settings.oauth` (`access_token`, `refresh_token`,
 `clientId`, `clientSecret`), the keys core reads. The first 401 makes core refresh and retry; the
-runner keeps the new tokens for the rest of the suite. A failed refresh fails the fixture (exit 1),
-and the reason starts "OAuth refresh failed: re-authorize the sandbox app or check
-refreshAccessToken".
+runner keeps the new tokens for the rest of the run, shared by every suite of that destination with
+the same stored refresh token. A suite with hooks refreshes once before its first hook, since hooks
+call the partner before any fixture could; a failed refresh there is a setup error (exit 2). A failed
+refresh in a fixture fails it (exit 1). Either reason starts "OAuth refresh failed: re-authorize the
+sandbox app or check refreshAccessToken".
+
+`onTokenRefresh(destination, tokens)` in the run options gets each refresh. A partner that rotates
+refresh tokens invalidates the stored one, so a harness for one must save `tokens.refreshToken`
+and run that destination's suites with `concurrency: 1`: two fixtures that hit a 401 at once each
+refresh with the same token.
