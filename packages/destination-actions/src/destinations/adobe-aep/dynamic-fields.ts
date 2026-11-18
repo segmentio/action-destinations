@@ -26,6 +26,52 @@ interface DynamicContext {
   auth?: { accessToken?: string }
 }
 
+// ---------- caching ----------
+// A resolved schema can be ~1 MB and take several seconds to build on Adobe's side, which is longer than a dynamic
+// call is allowed to take. Results are cached per process, and the in-flight promise is cached too, so a call the
+// caller gave up on keeps running and the retry gets its result instead of starting over.
+const CACHE_TTL_MS = 10 * 60 * 1000
+const CACHE_MAX_ENTRIES = 50
+const SCHEMA_REQUEST_TIMEOUT_MS = 30_000
+
+interface CacheEntry<T> {
+  expires: number
+  value: Promise<T>
+}
+
+const cacheGet = <T>(cache: Map<string, CacheEntry<T>>, key: string): Promise<T> | undefined => {
+  const entry = cache.get(key)
+  if (!entry) return undefined
+  if (entry.expires < Date.now()) {
+    cache.delete(key)
+    return undefined
+  }
+  return entry.value
+}
+
+const cacheSet = <T>(cache: Map<string, CacheEntry<T>>, key: string, value: Promise<T>): void => {
+  if (cache.size >= CACHE_MAX_ENTRIES) {
+    const oldest: string | undefined = [...cache.keys()][0]
+    if (oldest !== undefined) cache.delete(oldest)
+  }
+  cache.set(key, { expires: Date.now() + CACHE_TTL_MS, value })
+  // A failed load must not be served again.
+  value.catch(() => {
+    if (cache.get(key)?.value === value) cache.delete(key)
+  })
+}
+
+const schemaPathCache = new Map<string, CacheEntry<{ label: string; value: string; description?: string }[]>>()
+const tokenCache = new Map<string, CacheEntry<string>>()
+
+const cacheKeyOf = (...parts: (string | undefined)[]) => parts.map((part) => part ?? '').join('\u0000')
+
+/** Test hook: the caches are per process, so tests must start from empty ones. */
+export const clearDynamicFieldCaches = (): void => {
+  schemaPathCache.clear()
+  tokenCache.clear()
+}
+
 /**
  * GET against an Adobe API from a dynamic field. Core only refreshes OAuth tokens while delivering events, so a
  * dynamic call can arrive with no token, or an expired one. Mint a token from the client credentials in those
@@ -43,6 +89,7 @@ async function adobeGet<T>(
   const call = async (token?: string): Promise<{ data: T }> => {
     const response = await request<T>(url, {
       method: 'GET',
+      timeout: SCHEMA_REQUEST_TIMEOUT_MS,
       searchParams,
       headers: { ...headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }
     })
@@ -56,13 +103,30 @@ async function adobeGet<T>(
     }
     return { data: raw as T }
   }
-  const fresh = async () => call(await getAccessToken(request, settings.client_id, settings.client_secret))
+  const tokenKey = cacheKeyOf(settings.client_id, settings.client_secret)
+  const fresh = async () => {
+    tokenCache.delete(tokenKey)
+    const token = getAccessToken(request, settings.client_id, settings.client_secret)
+    cacheSet(tokenCache, tokenKey, token)
+    return call(await token)
+  }
+  const isUnauthorized = (error: unknown) => (error as { response?: { status?: number } })?.response?.status === 401
+  const minted = async () => {
+    const cachedToken = cacheGet(tokenCache, tokenKey)
+    if (!cachedToken) return fresh()
+    try {
+      return await call(await cachedToken)
+    } catch (error) {
+      if (isUnauthorized(error)) return fresh()
+      throw error
+    }
+  }
 
-  if (!auth?.accessToken) return fresh()
+  if (!auth?.accessToken) return minted()
   try {
     return await call()
   } catch (error) {
-    if ((error as { response?: { status?: number } })?.response?.status === 401) return fresh()
+    if (isUnauthorized(error)) return fresh()
     throw error
   }
 }
@@ -244,23 +308,32 @@ export async function getXdmPaths(
   }
 
   try {
-    const response = await adobeGet<XdmSchemaNode>(
-      request,
-      `${SCHEMA_REGISTRY_URL}/${encodeURIComponent(schemaId)}`,
-      context,
-      {
-        'x-gw-ims-org-id': imsOrgId,
-        [SANDBOX_HEADER]: sandboxName,
-        Accept: 'application/vnd.adobe.xed-full+json;version=1'
-      }
-    )
-    const choices = flattenXdmPaths(response.data?.properties)
-      .filter(({ path }) => !RESERVED_KEYS[kind].includes(path.split('.')[0]))
-      .sort((a, b) => a.path.localeCompare(b.path))
-      .map(({ path, node }) => {
-        const detail = [node.title, node['meta:xdmType'] ?? node.type].filter(Boolean).join(' · ')
-        return { label: path, value: path, ...(detail ? { description: detail } : {}) }
-      })
+    const cacheKey = cacheKeyOf(context.settings.client_id, imsOrgId, sandboxName, schemaId, kind)
+    let loading = cacheGet(schemaPathCache, cacheKey)
+    if (!loading) {
+      loading = (async () => {
+        const response = await adobeGet<XdmSchemaNode>(
+          request,
+          `${SCHEMA_REGISTRY_URL}/${encodeURIComponent(schemaId)}`,
+          context,
+          {
+            'x-gw-ims-org-id': imsOrgId,
+            [SANDBOX_HEADER]: sandboxName,
+            // notext omits titles and descriptions: less than half the size and about a third faster on a large schema
+            Accept: 'application/vnd.adobe.xed-full-notext+json;version=1'
+          }
+        )
+        return flattenXdmPaths(response.data?.properties)
+          .filter(({ path }) => !RESERVED_KEYS[kind].includes(path.split('.')[0]))
+          .sort((a, b) => a.path.localeCompare(b.path))
+          .map(({ path, node }) => {
+            const detail = node['meta:xdmType'] ?? node.type
+            return { label: path, value: path, ...(detail ? { description: detail } : {}) }
+          })
+      })()
+      cacheSet(schemaPathCache, cacheKey, loading)
+    }
+    const choices = await loading
     return { choices, nextPage: '' }
   } catch (error) {
     const status = (error as { response?: { status?: number } })?.response?.status
