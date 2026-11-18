@@ -157,7 +157,7 @@ export interface E2EBaseFixture {
    * '$before:<key>', merged over the suite's. A throw is a setup error and the fixture does not run.
    */
   before?: (ctx: E2EHookContext & { values: E2EHookValues }) => Promise<E2EHookValues>
-  /** Runs after the fixture, always. `observation` is the last attempt's, unset if none ran. A throw is a warning. */
+  /** Runs after the fixture, unless its own `before` threw. `observation` is the last attempt's, unset if none ran. A throw is a warning. */
   after?: (ctx: E2EHookContext & { values: E2EHookValues; observation?: E2EObservation }) => Promise<void>
 }
 
@@ -383,7 +383,7 @@ export interface E2ESuite {
   defaultSuccess?: Omit<E2ESuccessExpectation, 'status'>
   /** Runs once before the suite's fixtures. Its values reach every fixture. A throw is a setup error and the suite does not run. */
   before?: (ctx: E2EHookContext) => Promise<E2EHookValues>
-  /** Runs after the suite's fixtures, always, even when `before` threw. A throw is a warning. */
+  /** Runs after the suite's fixtures, even when `before` threw; not when the OAuth refresh before hooks failed. A throw is a warning. */
   after?: (ctx: E2EHookContext & { values: E2EHookValues; fixtures: E2EFixtureCleanup[] }) => Promise<void>
 }
 

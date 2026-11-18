@@ -123,6 +123,11 @@ export async function runSuites(
   const results: E2EResult[] = []
 
   const selected = selectSuites(suites, options, setupErrors)
+  for (const entry of options.quarantine ?? []) {
+    if (Number.isNaN(Date.parse(entry.expires))) {
+      setupErrors.push(`quarantine entry for ${entry.destination}: expires "${entry.expires}" is not a date`)
+    }
+  }
 
   // Preflight: a missing secret is a setup error, never a silent skip.
   const runnable = selected.filter((suite) => {
@@ -148,7 +153,8 @@ export async function runSuites(
   /** Store a refresh's tokens, then hand them to onTokenRefresh. */
   const refreshed = async (destination: string, auth: E2EAuthState, tokens: RefreshAccessTokenResult) => {
     const previous = auth.tokens?.refreshToken ?? auth.storedRefreshToken
-    auth.tokens = tokens
+    // A refresh that returns no refresh token keeps the last rotated one, as core's updateOAuthSettings does.
+    auth.tokens = { ...tokens, refreshToken: tokens.refreshToken ?? auth.tokens?.refreshToken }
     const rotated = Boolean(tokens.refreshToken) && tokens.refreshToken !== previous
     try {
       await options.onTokenRefresh?.(destination, tokens)
@@ -224,6 +230,18 @@ export async function runSuites(
     return state
   }
 
+  const record = (result: E2EResult) => {
+    results.push(result)
+    options.onResult?.(result)
+  }
+
+  /** False, with a setup error, for a fixture that can't be judged as written. */
+  const wellFormed = (label: string, fixture: E2EFixture) => {
+    const problem = fixtureProblem(fixture)
+    if (problem) setupErrors.push(`${label} › ${fixture.description}: ${problem}`)
+    return !problem
+  }
+
   const runSuite = async (suite: E2ESuite) => {
     const label = `${suite.destination}/${suite.action}`
     const settings = resolveSettings(suite.config.settings, env)
@@ -247,22 +265,17 @@ export async function runSuites(
         const reason = `OAuth refresh failed before hooks: re-authorize the sandbox app or check refreshAccessToken. ${message(
           err
         )}`
+        // No hook ran, so the suite's `after` doesn't either.
         for (const fixture of suite.fixtures) {
-          const problem = fixtureProblem(fixture)
-          if (problem) {
-            setupErrors.push(`${label} › ${fixture.description}: ${problem}`)
-            continue
-          }
-          const result: E2EResult = {
+          if (!wellFormed(label, fixture)) continue
+          record({
             suite: label,
             fixture: fixture.description,
             outcome: failedOutcome(suite, fixture),
             attempts: 0,
             ms: 0,
             reason
-          }
-          results.push(result)
-          options.onResult?.(result)
+          })
         }
         return
       }
@@ -280,12 +293,9 @@ export async function runSuites(
 
       for (const fixture of suite.fixtures) {
         const fixtureLabel = `${label} › ${fixture.description}`
-        const problem = fixtureProblem(fixture)
-        if (problem) {
-          setupErrors.push(`${fixtureLabel}: ${problem}`)
-          continue
-        }
+        if (!wellFormed(label, fixture)) continue
         let values = suiteValues
+        let beforeFailed = false
         let observation: E2EObservation | undefined
         let outcome: E2EResult['outcome'] | undefined
         try {
@@ -294,6 +304,7 @@ export async function runSuites(
               values = { ...suiteValues, ...(await fixture.before({ ...context(), values: suiteValues })) }
             } catch (err) {
               setupErrors.push(`${fixtureLabel}: fixture before failed: ${message(err)}`)
+              beforeFailed = true
               continue
             }
           }
@@ -306,14 +317,14 @@ export async function runSuites(
           const run = await runFixture(suite, fixture, values, auth)
           observation = run.observation
           outcome = run.result.outcome
-          results.push(run.result)
-          options.onResult?.(run.result)
+          record(run.result)
         } catch (err) {
           setupErrors.push(`${label}: ${message(err)}`)
           break
         } finally {
           let cleaned = false
-          if (fixture.after) {
+          // A fixture whose `before` threw has none of its own values to clean up with.
+          if (fixture.after && !beforeFailed) {
             try {
               await fixture.after({ ...context(), values, observation })
               cleaned = true

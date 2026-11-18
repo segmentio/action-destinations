@@ -23,9 +23,10 @@ test(
       destinations: list(process.env.E2E_DESTINATIONS),
       concurrency: process.env.E2E_CONCURRENCY ? Number(process.env.E2E_CONCURRENCY) : undefined,
       onTokenRefresh: (destination, tokens) => {
-        const rotated = tokens.refreshToken ? '; a new refresh token came back, update the stored secret' : ''
         // eslint-disable-next-line no-console
-        console.log(`${destination}: OAuth tokens refreshed${rotated}`)
+        console.log(`${destination}: OAuth tokens refreshed`)
+        // A local run can't save a refresh token; the runner makes a rotated one a setup error.
+        if (tokens.refreshToken) throw new Error('a refresh token came back; update the stored secret if it changed')
       }
     })
     if (process.env.E2E_REPORT) writeFileSync(process.env.E2E_REPORT, JSON.stringify(report, null, 2))
