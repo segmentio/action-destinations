@@ -3,7 +3,8 @@ import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { batchFields, commonFields, identityFields, xdmMappingDescription } from '../fields'
 import { send } from '../utils'
-import { getIdentityNamespaces, getPrimaryIdentityChoices } from '../dynamic-fields'
+import { getIdentityNamespaces, getPrimaryIdentityChoices, getSchemas, getXdmPaths } from '../dynamic-fields'
+import { EXPERIENCE_EVENT_CLASS } from '../constants'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
@@ -39,7 +40,8 @@ const action: ActionDefinition<Settings, Payload> = {
       description: `${xdmMappingDescription} To keep existing Adobe Analytics reports working, map to \`_experience.analytics.customDimensions.eVars.eVarN\` or \`.props.propN\` (strings only). These require the Adobe Analytics ExperienceEvent Full Extension field group.`,
       type: 'object',
       required: true,
-      defaultObjectUI: 'keyvalue:only',
+      dynamic: true,
+      defaultObjectUI: 'keyvalue',
       additionalProperties: true,
       default: {
         'web.webPageDetails.URL': { '@path': '$.context.page.url' },
@@ -49,9 +51,13 @@ const action: ActionDefinition<Settings, Payload> = {
     ...batchFields
   },
   dynamicFields: {
+    xdmMapping: {
+      __keys__: (request, { payload, settings, auth }) => getXdmPaths(request, payload, 'event', { settings, auth })
+    },
+    schemaRefId: (request, { payload, settings, auth }) =>
+      getSchemas(request, payload, EXPERIENCE_EVENT_CLASS, { settings, auth }),
     customIdentities: {
-      namespace: (request, { payload, dynamicFieldContext }) =>
-        getIdentityNamespaces(request, payload, dynamicFieldContext?.query)
+      namespace: (request, { payload, settings, auth }) => getIdentityNamespaces(request, payload, { settings, auth })
     },
     primaryIdentity: (_request, { payload }) => getPrimaryIdentityChoices(payload)
   },

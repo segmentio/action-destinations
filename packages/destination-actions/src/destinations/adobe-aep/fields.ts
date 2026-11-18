@@ -35,6 +35,9 @@ export const inletId: InputField = {
 
 export const schemaRefId: InputField = {
   label: 'Schema ID',
+  dynamic: true,
+  // XDM Mapping loads its paths from this schema, so it must be a chosen or typed value, not an event variable.
+  disabledInputMethods: ['variable', 'function', 'enrichment', 'freeform'],
   description:
     'The `$id` of the XDM schema used by the dataset, for example `https://ns.adobe.com/<tenant>/schemas/<id>`.',
   type: 'string',

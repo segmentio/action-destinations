@@ -20,6 +20,25 @@ export interface IdentityNamespace {
 
 // ---------- XDM message envelope ----------
 
+export interface SchemaRegistryEntry {
+  $id: string
+  title?: string
+  'meta:altId'?: string
+  version?: string
+}
+
+export interface XdmSchemaNode {
+  title?: string
+  type?: string
+  description?: string
+  properties?: Record<string, XdmSchemaNode>
+  'meta:xdmType'?: string
+}
+
+export interface SchemaRegistryListResponse {
+  results?: SchemaRegistryEntry[]
+}
+
 export interface SchemaRef {
   id: string
   contentType: string
