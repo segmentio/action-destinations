@@ -86,7 +86,7 @@ const destination: AudienceDestinationDefinition<Settings, AudienceSettings> = {
           // intentionally swallowed
         }
 
-        // Data Manager errors are already mapped to the repo's error classes.
+        // Data Manager errors are already mapped to the repo's error classes here
         const externalId = await createDataManagerUserList(
           request,
           audienceName,
