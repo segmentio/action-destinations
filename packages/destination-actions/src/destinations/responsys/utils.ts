@@ -92,9 +92,9 @@ export const getUserDataFieldNames = (data: Data): string[] => {
 }
 
 export const stringifyObject = (obj: Record<string, unknown>): Record<string, string> => {
-  const stringifiedObj: Record<string, string> = {}
+  const stringifiedObj: Record<string, string> = Object.create(null)
   for (const key in obj) {
-    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : (obj[key] as string)
+    stringifiedObj[key] = typeof obj[key] !== 'string' ? JSON.stringify(obj[key]) : obj[key]
   }
   return stringifiedObj
 }
@@ -170,7 +170,7 @@ export const upsertListMembers = async (
 ) => {
   const userDataArray = payload.map((obj) => (obj.stringify ? stringifyObject(obj.userData) : obj.userData))
 
-  const recordSets: { [key: string]: string[][] } = {}
+  const recordSets: { [key: string]: string[][] } = Object.create(null)
   for (const item of userDataArray) {
     const recordSetKey = Object.keys(item).join(',')
     const record: string[] = []
@@ -191,7 +191,7 @@ export const upsertListMembers = async (
       record.push((item as Record<string, string>)[fieldName])
     }
 
-    if (recordSetKey in recordSets) {
+    if (Object.prototype.hasOwnProperty.call(recordSets, recordSetKey)) {
       recordSets[recordSetKey].push(record)
     } else {
       recordSets[recordSetKey] = [record]
