@@ -1,33 +1,54 @@
 // E2E fixture types. Ported from action-destinations PR #3829, which placed these in
 // packages/core. They live here (outside core) on purpose: the E2E framework must own
-// transport (node:http) and secret resolution (process.env), which core forbids via
-// no-restricted-imports. SegmentEvent / JSONObject / JSONValue are consumed from the
-// published core package — using core, not modifying it.
-import type { SegmentEvent, JSONObject, JSONValue } from '@segment/actions-core'
+// secret resolution (process.env), which core forbids via no-restricted-imports.
+// SegmentEvent / JSONObject / JSONValue are consumed from the published core package —
+// using core, not modifying it.
+import type { DestinationDefinition, RequestClient, SegmentEvent, JSONObject, JSONValue } from '@segment/actions-core'
+import type { E2EObservation } from './adapters/types'
 
-export type E2EExpectation = E2ESuccessExpectation | E2EFailureExpectation | E2EErrorExpectation
+export type E2EExpectation =
+  | E2ESuccessExpectation
+  | E2EFailureExpectation
+  | E2EErrorExpectation
+  | E2EMultistatusExpectation
+
+/** Response checks shared by `success` and `failure`, judged on the selected exchange. */
+export interface E2EResponseChecks {
+  bodyContains?: string
+  /**
+   * Partial deep match against the JSON response body. Arrays must match length and each item is
+   * partial-matched. The value '$absent' requires the key to be missing.
+   */
+  jsonContains?: unknown
+  /** The whole body after trimming both sides. A JSON body is compared as compact `JSON.stringify` output. */
+  bodyEquals?: string
+  /** Which exchange to judge: the last one matching `method` and a substring of `url`. Defaults to the last. */
+  exchange?: E2EExchangeSelector
+  /** How many partner requests the action sent, e.g. 2 for a 401 followed by a retry. */
+  exchangeCount?: number
+}
+
+export interface E2EExchangeSelector {
+  method?: string
+  /** Substring of the request URL. */
+  url?: string
+}
 
 /**
  * The HTTP request was sent and the destination API returned a 2xx response.
  */
-export interface E2ESuccessExpectation {
+export interface E2ESuccessExpectation extends E2EResponseChecks {
   status: 'success'
   httpStatus?: E2EHttpSuccessCode
-  bodyContains?: string
-  /** Partial deep match against the JSON response body. Arrays must match length and each item is partial-matched. */
-  jsonContains?: unknown
 }
 
 /**
  * The HTTP request was sent and the destination API returned a non-2xx response.
  * Use this to verify that the destination rejects specific inputs (e.g., bad auth, invalid payload).
  */
-export interface E2EFailureExpectation {
+export interface E2EFailureExpectation extends E2EResponseChecks {
   status: 'failure'
   httpStatus: E2EHttpFailureCode
-  bodyContains?: string
-  /** Partial deep match against the JSON response body. Arrays must match length and each item is partial-matched. */
-  jsonContains?: unknown
 }
 
 /**
@@ -37,6 +58,10 @@ export interface E2EFailureExpectation {
  */
 export interface E2EErrorExpectation {
   status: 'error'
+  /**
+   * The Segment error code integrations reports for the thrown error (e.g. 'PAYLOAD_VALIDATION_FAILED'),
+   * not the JS class name: integrations never sees the class, so both adapters assert the code.
+   */
   errorType: string
   errorMessage?: string
   /**
@@ -48,23 +73,61 @@ export interface E2EErrorExpectation {
 }
 
 /**
+ * A batch's per-event results, as core returns them from onBatch, judged item by item in event
+ * order. Use with 'batchWithMultistatus', where performBatch must return a MultiStatusResponse;
+ * on a plain response every item is a copy of one status.
+ */
+export interface E2EMultistatusExpectation {
+  status: 'multistatus'
+  /** One per event, in event order. */
+  items: E2EMultistatusItemExpectation[]
+}
+
+export type E2EMultistatusItemExpectation =
+  | { status: '2xx' | E2EHttpSuccessCode }
+  | {
+      status: E2EHttpFailureCode
+      /** Exact Segment error code, e.g. 'PAYLOAD_VALIDATION_FAILED'. */
+      errortype: string
+      /** Substring of the item's error message. */
+      errormessage: string
+      /** INTEGRATIONS when our code rejected the event, DESTINATION when the partner did. */
+      errorreporter?: 'INTEGRATIONS' | 'DESTINATION'
+    }
+
+/**
  * Dynamic value markers that the runner resolves at execution time.
  *
- * - '$now'                  → current ISO 8601 timestamp (e.g., '2026-05-28T14:32:01.000Z')
- * - '$guid'                 → fresh UUID v4, unique each occurrence
- * - '$guid:<name>'          → UUID v4, consistent within a single fixture execution.
- *                             All occurrences of the same name resolve to the same value.
- * - '$externalAudienceId'   → resolved after createAudience step returns the destination's audience ID.
- *                             With several audiences configured, this is the first one.
- * - '$externalAudienceId:<key>' → the id of the audience declared with that `key`, for destinations
- *                             which configure more than one (e.g. one per audience type).
+ * - '$now'           → current ISO 8601 timestamp (e.g., '2026-05-28T14:32:01.000Z')
+ * - '$guid'          → fresh UUID v4, unique each occurrence
+ * - '$guid:<name>'   → UUID v4, consistent within a single fixture execution.
+ *                      All occurrences of the same name resolve to the same value.
+ * - '$before:<key>'  → the value the suite's or fixture's `before` hook returned under `key`, the
+ *                      same on every attempt. A key no hook returned is a setup error.
  */
-export type E2EDynamicValue =
-  | '$now'
-  | '$guid'
-  | `$guid:${string}`
-  | '$externalAudienceId'
-  | `$externalAudienceId:${string}`
+export type E2EDynamicValue = '$now' | '$guid' | `$guid:${string}` | `$before:${string}`
+
+/** What `before` hooks return, and `$before:<key>` reads. */
+export type E2EHookValues = Record<string, JSONValue>
+
+export interface E2EHookContext {
+  /** Destination settings with `{ $env }` resolved. */
+  settings: Record<string, unknown>
+  /** The destination's own request client (its extendRequest), for creating and deleting partner resources. */
+  request: RequestClient
+  /** Unique to this run. Put it in resource names so parallel runs never collide. */
+  runId: string
+}
+
+/** What the suite's `after` learns about each fixture, so it cleans up only what is left. */
+export interface E2EFixtureCleanup {
+  description: string
+  values: E2EHookValues
+  /** Unset when the fixture did not run, e.g. its `before` failed. */
+  outcome?: E2EResult['outcome']
+  /** The fixture's own `after` ran and succeeded. */
+  cleaned: boolean
+}
 
 export type E2EExecutionMode = 'single' | 'batch' | 'batchWithMultistatus'
 
@@ -84,16 +147,18 @@ export interface E2EBaseFixture {
   /** Feature flags passed to the action, to exercise flag-gated code branches end-to-end. */
   features?: Record<string, boolean>
   /**
-   * Which configured audience this fixture runs against, by `key`. Selects the audienceSettings
-   * injected into each event's context.personas.audience_settings. Defaults to the first audience.
-   */
-  audience?: string
-  /**
    * Max times the runner re-runs this fixture if it fails, with exponential backoff between attempts.
    * Overrides the run-level retry default. Useful for destinations with eventual consistency
    * (e.g. writes to a freshly-created audience that briefly return a transient error).
    */
   retries?: number
+  /**
+   * Runs once before the fixture's attempts, after the suite's `before`. Returns values for
+   * '$before:<key>', merged over the suite's. A throw is a setup error and the fixture does not run.
+   */
+  before?: (ctx: E2EHookContext & { values: E2EHookValues }) => Promise<E2EHookValues>
+  /** Runs after the fixture, unless its own `before` threw, so a throwing `before` cleans up first. `observation` is the last attempt's, unset if it threw or none ran. A throw is a warning. */
+  after?: (ctx: E2EHookContext & { values: E2EHookValues; observation?: E2EObservation }) => Promise<void>
 }
 
 export interface E2ESingleFixture extends E2EBaseFixture {
@@ -101,7 +166,7 @@ export interface E2ESingleFixture extends E2EBaseFixture {
   mode: 'single'
   /**
    * The Segment event (track, identify, page, screen, etc.) sent into the action.
-   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * String values may use dynamic markers ($now, $guid, $guid:<name>, $before:<key>) that the
    * runner resolves before execution.
    */
   event: SegmentEvent
@@ -112,7 +177,7 @@ export interface E2EBatchFixture extends E2EBaseFixture {
   mode: 'batch'
   /**
    * Array of Segment events sent into the action as a batch.
-   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * String values may use dynamic markers ($now, $guid, $guid:<name>, $before:<key>) that the
    * runner resolves before execution.
    */
   events: SegmentEvent[]
@@ -123,7 +188,7 @@ export interface E2EBatchWithMultistatusFixture extends E2EBaseFixture {
   mode: 'batchWithMultistatus'
   /**
    * Array of Segment events sent into the action as a batch.
-   * String values may use dynamic markers ($now, $guid, $guid:<name>) that the
+   * String values may use dynamic markers ($now, $guid, $guid:<name>, $before:<key>) that the
    * runner resolves before execution.
    */
   events: SegmentEvent[]
@@ -302,37 +367,34 @@ export interface E2EDestinationConfig {
   settings: E2ESettingsObject
 }
 
-export interface E2ETeardownContext {
-  settings: Record<string, unknown>
+/** One action's fixtures, as listed in `registry.ts`. */
+export interface E2ESuite {
+  /** Destination folder name, e.g. 'mixpanel'. `--destinations` scopes by this. */
+  destination: string
+  /** Action slug. */
+  action: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  definition: DestinationDefinition<any>
+  config: E2EDestinationConfig
+  fixtures: E2EFixture[]
+  /** Retries for this suite's fixtures that set none. */
+  retries?: number
+  /** Checks merged into every `success` expectation in the suite; a fixture's own keys win. */
+  defaultSuccess?: Omit<E2ESuccessExpectation, 'status'>
+  /** Runs once before the suite's fixtures. Its values reach every fixture. A throw is a setup error and the suite does not run. */
+  before?: (ctx: E2EHookContext) => Promise<E2EHookValues>
+  /** Runs after the suite's fixtures, even when `before` threw; not when the OAuth refresh before hooks failed. A throw is a warning. */
+  after?: (ctx: E2EHookContext & { values: E2EHookValues; fixtures: E2EFixtureCleanup[] }) => Promise<void>
 }
 
-export interface E2ETeardownAudienceContext extends E2ETeardownContext {
-  externalAudienceId: string
-  audienceSettings: Record<string, unknown>
-}
-
-export interface E2EAudienceConfig {
-  /**
-   * Identifies this audience when a destination declares more than one, for example one per
-   * audience type. Fixtures select it with `audience`, and reference its id with
-   * '$externalAudienceId:<key>'. Optional when there is only one audience.
-   */
-  key?: string
-  /** Name of the audience to create/test against. Used as the audienceName param for createAudience. */
-  audienceName: string
-  /** Audience-level settings passed to createAudience and getAudience (e.g., id_type, owner_email). */
-  audienceSettings: Record<string, unknown>
-  /** When true, the runner calls createAudience before executing fixtures and captures the externalAudienceId. */
-  createAudience: boolean
-  /** When true, the runner calls getAudience after fixtures to verify the audience still exists. */
-  getAudience: boolean
-  /** When a function, the runner calls it after all tests to clean up the audience. Set to false to skip. */
-  teardown: false | ((context: E2ETeardownAudienceContext) => Promise<void>)
-}
-
-export interface E2EAudienceDestinationConfig extends E2EDestinationConfig {
-  /** A single audience, or several when the destination supports more than one audience type. */
-  audience: E2EAudienceConfig | E2EAudienceConfig[]
+/** The outcome of one fixture. `fixture` is its `description`, the stable result ID. */
+export interface E2EResult {
+  suite: string
+  fixture: string
+  outcome: 'passed' | 'failed' | 'quarantined'
+  attempts: number
+  ms: number
+  reason?: string
 }
 
 export type E2EHttpSuccessCode = 200 | 201 | 202 | 203 | 204 | 205 | 206 | 207 | 208 | 226
