@@ -59,7 +59,12 @@ const destination: DestinationDefinition<Settings> = {
         res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            // extendRequest adds `Authorization: Bearer ${auth?.accessToken}` to every request. On the refresh call
+            // core passes no token, so it goes out as "Bearer undefined", and LinkedIn then often rejects the new
+            // token for a few seconds (STRATCONN-6544). Core deletes a header whose per-request value is the string
+            // "undefined", so this keeps Authorization off the token endpoint call.
+            authorization: undefined as unknown as string
           },
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
