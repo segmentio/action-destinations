@@ -1,133 +1,160 @@
-// The InProcessAdapter end to end on the registered suites, with the partners mocked by nock.
+// The InProcessAdapter end to end on a fake destination defined here, with its API mocked by nock.
 import nock from 'nock'
 import { MultiStatusResponse } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
-import type { E2ESuite } from '../types'
+import type { E2EFixture, E2ESuite } from '../types'
 import { InProcessAdapter } from '../adapters/in-process'
 import { buildInvocation } from '../invocation'
 import { runSuites } from '../run'
-import { suites } from '../../../destinations/mixpanel/__e2e__'
-import { suites as webhookSuites } from '../../../destinations/webhook/__e2e__'
 
-describe('InProcessAdapter on the Webhook suite', () => {
-  it('passes success, failure and error fixtures', async () => {
-    // Echo the request body back the way httpbin's /anything does.
-    const echo = (method: string) => (_uri: string, body: unknown) => [200, { method, json: body }] as [number, unknown]
-    nock('https://httpbin.org').persist().post('/anything').reply(echo('POST')).put('/anything').reply(echo('PUT'))
-    nock('https://httpbin.org').post('/status/404').reply(404, '')
+// An API-key destination; with the 'fake-multistatus' flag, performBatch returns per-event results.
+const fakeApi: DestinationDefinition<{ apiKey: string }> = {
+  name: 'Fake API',
+  slug: 'actions-fake-api',
+  mode: 'cloud',
+  authentication: {
+    scheme: 'custom',
+    fields: { apiKey: { label: 'API Key', description: 'API Key', type: 'password', required: true } }
+  },
+  extendRequest: ({ settings }) => ({ headers: { 'x-api-key': settings.apiKey } }),
+  actions: {
+    send: {
+      title: 'Send',
+      description: 'Send',
+      fields: {
+        name: { label: 'Name', description: 'Name', type: 'string', required: true, default: { '@path': '$.event' } },
+        id: { label: 'Id', description: 'Id', type: 'string', default: { '@path': '$.messageId' } }
+      },
+      perform: (request, { payload }) => request('https://api.fake.test/send', { method: 'POST', json: payload }),
+      performBatch: async (request, { payload, features }) => {
+        const response = await request<{ results: { status: number; message?: string }[] }>(
+          'https://api.fake.test/batch',
+          { method: 'POST', json: payload, throwHttpErrors: false }
+        )
+        if (!features?.['fake-multistatus']) return response
+        const multistatus = new MultiStatusResponse()
+        response.data.results.forEach(({ status, message }, i) =>
+          status < 300
+            ? multistatus.setSuccessResponseAtIndex(i, { status, body: 'ok', sent: payload[i] })
+            : multistatus.setErrorResponseAtIndex(i, { status, errormessage: message ?? '', sent: payload[i] })
+        )
+        return multistatus
+      }
+    }
+  }
+}
 
-    const report = await runSuites(new InProcessAdapter(), webhookSuites, { env: {} })
-    nock.cleanAll()
-
-    expect(report.results.map((r) => [r.fixture, r.outcome, r.reason])).toEqual(
-      webhookSuites[0].fixtures.map((fixture) => [fixture.description, 'passed', undefined])
-    )
-    expect(report.exitCode).toBe(0)
-  })
+const env = { E2E_FAKE_API_KEY: 'secret' }
+const event = (name?: string) => ({
+  type: 'track',
+  ...(name ? { event: name } : {}),
+  messageId: '$guid',
+  timestamp: '$now'
+})
+const fixture = (description: string, rest: Partial<E2EFixture>): E2EFixture =>
+  ({
+    description,
+    mode: 'single',
+    subscribe: 'type = "track"',
+    event: event(description),
+    mapping: {},
+    ...rest
+  } as E2EFixture)
+const apiSuite = (fixtures: E2EFixture[]): E2ESuite => ({
+  destination: 'fake-api',
+  action: 'send',
+  definition: fakeApi,
+  config: { settings: { apiKey: { $env: 'E2E_FAKE_API_KEY' } } },
+  fixtures
 })
 
-const env = { E2E_MIXPANEL_PROJECT_TOKEN: 'test-token', E2E_MIXPANEL_API_SECRET: 'test-secret' }
-const auth = `Basic ${Buffer.from('test-secret:').toString('base64')}`
-// The adapter must send resolved settings and the mapped events, not just reach the right path.
-type SentEvent = { event?: unknown; properties?: { $insert_id?: unknown } }
-const mappedEvents = (body: unknown) =>
-  Array.isArray(body) &&
-  body.length > 0 &&
-  (body as SentEvent[]).every(
-    (e) => typeof e.event === 'string' && e.event.startsWith('E2E ') && typeof e.properties?.$insert_id === 'string'
-  )
+const accepted = fixture('accepted', { expect: { status: 'success', jsonContains: { ok: true } } })
+const rejected = fixture('rejected', { expect: { status: 'failure', httpStatus: 404 } })
+const invalid = fixture('invalid', {
+  event: event(),
+  expect: {
+    status: 'error',
+    errorType: 'PAYLOAD_VALIDATION_FAILED',
+    httpStatus: 400,
+    errorMessage: "missing the required field 'name'"
+  }
+})
+const batch = fixture('batch', {
+  mode: 'batch',
+  events: [event('a'), event('b')],
+  expect: { status: 'success' }
+} as Partial<E2EFixture>)
+const multistatus = fixture('multistatus', {
+  mode: 'batchWithMultistatus',
+  events: [event('a'), event('b')],
+  features: { 'fake-multistatus': true },
+  expect: { status: 'success' }
+} as Partial<E2EFixture>)
 
-describe('InProcessAdapter on the Mixpanel suite', () => {
-  it('passes every fixture when Mixpanel accepts the events', async () => {
-    nock('https://api.mixpanel.com')
-      .matchHeader('authorization', auth)
-      .post('/import?strict=1', mappedEvents)
-      .times(3)
-      .reply(200, { code: 200, status: 'OK', num_records_imported: 2 })
+// The adapter must send resolved settings and the mapped payload: `name` and `id` come from field defaults.
+type Sent = { name?: unknown; id?: unknown }
+const mapped = (name: string) => (body: Sent) => body.name === name && typeof body.id === 'string'
 
-    const report = await runSuites(new InProcessAdapter(), suites, { env })
+describe('InProcessAdapter on a fake destination', () => {
+  afterEach(() => nock.cleanAll())
 
-    expect(report.results.map((r) => [r.fixture, r.outcome, r.reason])).toEqual(
-      suites[0].fixtures.map((fixture) => [fixture.description, 'passed', undefined])
-    )
+  it('passes success, failure, error and batch fixtures, sending resolved settings and mapped payloads', async () => {
+    const api = nock('https://api.fake.test')
+      .matchHeader('x-api-key', 'secret')
+      .post('/send', mapped('accepted'))
+      .reply(200, { ok: true })
+      .post('/send', mapped('rejected'))
+      .reply(404, { error: 'nope' })
+      .post('/batch', (body: Sent[]) => body.map((e) => e.name).join() === 'a,b')
+      .reply(200, { results: [] })
+
+    const report = await runSuites(new InProcessAdapter(), [apiSuite([accepted, rejected, invalid, batch])], { env })
+
+    expect(report.results.map((r) => [r.fixture, r.outcome, r.reason])).toEqual([
+      ['accepted', 'passed', undefined],
+      ['rejected', 'passed', undefined],
+      ['invalid', 'passed', undefined],
+      ['batch', 'passed', undefined]
+    ])
     expect(report.exitCode).toBe(0)
-    expect(nock.isDone()).toBe(true)
+    expect(api.isDone()).toBe(true)
   })
 
-  it('reports the partner exchange when Mixpanel rejects the request', async () => {
-    nock('https://api.mixpanel.com').post('/import?strict=1').reply(401, { error: 'Invalid API secret', status: 0 })
+  it('reports the partner exchange when the partner rejects the request', async () => {
+    nock('https://api.fake.test').post('/send').reply(401, { error: 'Invalid API key' })
+    const suite = apiSuite([accepted])
 
-    const [suite] = suites
-    const fixture = suite.fixtures.find((f) => f.mode === 'single' && f.expect.status === 'success')
-    if (!fixture) throw new Error('the Mixpanel suite has no single success fixture')
-    const report = await runSuites(new InProcessAdapter(), [{ ...suite, fixtures: [fixture] }], { env })
+    const observation = await new InProcessAdapter().run(buildInvocation(suite, accepted, env), suite)
 
-    expect(report.results[0].outcome).toBe('failed')
-    expect(report.results[0].reason).toMatch(/^expected success, got .+\(401\)/)
-
-    nock('https://api.mixpanel.com').post('/import?strict=1').reply(401, { error: 'Invalid API secret', status: 0 })
-    const observation = await new InProcessAdapter().run(buildInvocation(suite, fixture, env), suite)
     expect(observation.exchanges).toEqual([
-      expect.objectContaining({ method: 'POST', status: 401, body: { error: 'Invalid API secret', status: 0 } })
+      expect.objectContaining({ method: 'POST', status: 401, body: { error: 'Invalid API key' } })
     ])
   })
 
-  it('returns per-event multistatus when the mixpanel-multistatus flag is on', async () => {
-    nock('https://api.mixpanel.com')
-      .matchHeader('authorization', auth)
-      .post('/import?strict=1', mappedEvents)
-      .reply(400, {
-        code: 400,
-        status: 'Bad Request',
-        num_records_imported: 1,
-        failed_records: [{ index: 1, insert_id: 'x', field: 'time', message: 'bad' }]
-      })
+  it('returns per-event multistatus when performBatch returns a MultiStatusResponse', async () => {
+    nock('https://api.fake.test')
+      .post('/batch')
+      .reply(200, { results: [{ status: 200 }, { status: 400, message: 'bad' }] })
+    const suite = apiSuite([multistatus])
 
-    const [suite] = suites
-    const fixture = suite.fixtures.find((f) => f.mode === 'batchWithMultistatus')
-    if (!fixture) throw new Error('the Mixpanel suite has no batchWithMultistatus fixture')
-    const observation = await new InProcessAdapter().run(buildInvocation(suite, fixture, env), suite)
+    const observation = await new InProcessAdapter().run(buildInvocation(suite, multistatus, env), suite)
 
-    // Only the flag's path splits one response into per-event results; without it this would throw.
     expect(observation.error).toBeUndefined()
     expect(observation.multistatus?.map((item) => [item.status, item.errormessage])).toEqual([
       [200, undefined],
       [400, 'bad']
     ])
   })
-})
 
-describe('batchWithMultistatus on a destination without per-event results', () => {
-  it('fails when performBatch returned a plain response', async () => {
-    nock('https://httpbin.org').post('/anything').reply(200, { json: [] })
-    const [suite] = webhookSuites
-    const fixture = suite.fixtures.find((f) => f.mode === 'batch')
-    if (!fixture) throw new Error('the Webhook suite has no batch fixture')
-    const asMultistatus = { ...fixture, mode: 'batchWithMultistatus' as const, expect: { status: 'success' as const } }
+  it('fails batchWithMultistatus when performBatch returned a plain response', async () => {
+    nock('https://api.fake.test').post('/batch').reply(200, { results: [] })
 
-    const report = await runSuites(new InProcessAdapter(), [{ ...suite, retries: 0, fixtures: [asMultistatus] }], {
-      env: {}
-    })
-    nock.cleanAll()
+    const report = await runSuites(new InProcessAdapter(), [apiSuite([{ ...multistatus, features: {} }])], { env })
 
     expect(report.results[0].outcome).toBe('failed')
     expect(report.results[0].reason).toBe(
       'performBatch did not return a MultiStatusResponse, so per-event results only copy one response'
     )
-  })
-
-  it('fails the Mixpanel multistatus fixture when its flag is off', async () => {
-    nock('https://api.mixpanel.com').post('/import?strict=1').reply(200, { code: 200, status: 'OK' })
-    const [suite] = suites
-    const fixture = suite.fixtures.find((f) => f.mode === 'batchWithMultistatus')
-    if (!fixture) throw new Error('the Mixpanel suite has no batchWithMultistatus fixture')
-
-    const report = await runSuites(new InProcessAdapter(), [{ ...suite, fixtures: [{ ...fixture, features: {} }] }], {
-      env
-    })
-    nock.cleanAll()
-
-    expect(report.results[0].reason).toMatch(/^performBatch did not return a MultiStatusResponse/)
   })
 })
 
