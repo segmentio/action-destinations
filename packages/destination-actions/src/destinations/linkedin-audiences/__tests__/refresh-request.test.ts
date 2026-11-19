@@ -5,8 +5,9 @@ import { BASE_URL } from '../constants'
 
 /**
  * STRATCONN-6544. extendRequest adds `Authorization: Bearer <access token>` to every request, and core builds the
- * refresh request client from it, so the token refresh call used to carry the expired access token. Against LinkedIn,
- * the new token was then rejected on its first use about half the time (31/60 vs 0/60 without the header).
+ * refresh request client from it with no token, so the refresh call went out with `Authorization: Bearer undefined`
+ * (confirmed by capturing the real request). Against LinkedIn, the new token was then rejected on its first use for a
+ * few seconds: 15/20 with that exact header vs 0/20 without it.
  */
 
 const testDestination = createTestIntegration(Destination)
@@ -49,7 +50,7 @@ describe('LinkedIn Audiences: token refresh request (STRATCONN-6544)', () => {
     nock.cleanAll()
   })
 
-  it('does not send the expired access token as an Authorization header on the refresh call', async () => {
+  it('does not send an Authorization header on the refresh call', async () => {
     let refreshAuthorization: unknown = 'refresh not called'
     let refreshContentType: unknown
     const apiAuthorizations: unknown[] = []
