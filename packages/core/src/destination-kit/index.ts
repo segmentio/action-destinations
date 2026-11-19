@@ -35,7 +35,13 @@ import type {
   ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
+import {
+  ErrorCodes,
+  IntegrationError,
+  InvalidAuthenticationError,
+  MultiStatusErrorReporter,
+  RetryableError
+} from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -294,6 +300,8 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
     request: RequestClient,
     input: RefreshAuthSettings<Settings>
   ) => Promise<RefreshAccessTokenResult>
+  /** See {@link DeferRetryAfterRefresh}. */
+  deferRetryAfterRefresh?: DeferRetryAfterRefresh
 }
 
 /**
@@ -307,7 +315,31 @@ export interface OAuthManagedAuthentication<Settings> extends Authentication<Set
     request: RequestClient,
     input: RefreshAuthSettings<Settings>
   ) => Promise<RefreshAccessTokenResult>
+  /** See {@link DeferRetryAfterRefresh}. */
+  deferRetryAfterRefresh?: DeferRetryAfterRefresh
 }
+
+/**
+ * Opt-in behaviour for providers that sometimes reject an access token that was issued moments earlier
+ * (eventual consistency on the provider's side).
+ *
+ * By default a 401 refreshes the token and immediately retries the call in-process, which is where such a
+ * freshly issued token gets rejected. When this is enabled, a 401 still refreshes the token (and saves it through
+ * `onTokenRefresh`), but the event is then failed with a `RetryableError(503)` so Segment retries it after a backoff,
+ * by which time the new token has propagated. To avoid retrying forever against a token that is genuinely rejected,
+ * at most `MAX_REFRESH_DEFERRALS` deferrals are allowed within `REFRESH_DEFERRAL_WINDOW_MINUTES`; after that the 401 is
+ * surfaced as an `InvalidAuthenticationError`.
+ *
+ * It is a function of the request's feature flags so that a rollout can be gated.
+ */
+export type DeferRetryAfterRefresh = (features?: Features) => boolean
+
+/** Max retries deferred to Segment after a refresh before the 401 is surfaced as an authentication error. */
+const MAX_REFRESH_DEFERRALS = 3
+/** How long deferrals are counted for (the counter lives in the response state context with this TTL). */
+const REFRESH_DEFERRAL_WINDOW_MINUTES = 15
+/** State context key holding how many retries have been deferred so far within the last REFRESH_DEFERRAL_WINDOW_MINUTES. */
+const REFRESH_DEFERRAL_CONTEXT_KEY = 'token_refresh_deferrals'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AuthenticationScheme<Settings = any> =
@@ -1181,13 +1213,42 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     options?: OnEventOptions
   ): Promise<JSONObject> {
     const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
-    const needsReauthentication =
-      statusCode === 401 &&
-      (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+    const auth = this.authentication
+    const needsReauthentication = statusCode === 401 && (auth?.scheme === 'oauth2' || auth?.scheme === 'oauth-managed')
     if (!needsReauthentication) {
       throw error
     }
+    // The deferral cap is kept in the state context, so without one we cannot bound the retries and keep the default flow.
+    if (options?.stateContext && auth.deferRetryAfterRefresh?.(options.features)) {
+      return this.refreshAndDeferRetry(settings, options)
+    }
     return this.handleAuthError(settings, options)
+  }
+
+  /**
+   * Refreshes the token, then fails the event with a retryable error instead of retrying in-process, so the retry
+   * happens after Segment's backoff. The refreshed token is saved by `onTokenRefresh` inside `handleAuthError` and is
+   * picked up by the retried event. Gives up after MAX_REFRESH_DEFERRALS in a row.
+   */
+  private async refreshAndDeferRetry(settings: JSONObject, options?: OnEventOptions): Promise<never> {
+    const statsContext = options?.statsContext
+    const deferralsSoFar = Number(options?.stateContext?.getRequestContext(REFRESH_DEFERRAL_CONTEXT_KEY)) || 0
+
+    if (deferralsSoFar >= MAX_REFRESH_DEFERRALS) {
+      statsContext?.statsClient?.incr('token_refresh.deferral_cap_hit', 1, statsContext?.tags)
+      throw new InvalidAuthenticationError(
+        `The provider kept rejecting the access token after ${deferralsSoFar} refreshes. Please reauthenticate to retrieve a valid access token.`
+      )
+    }
+
+    // If the refresh itself fails (for example an expired or revoked refresh token) that error is thrown as is.
+    await this.handleAuthError(settings, options)
+
+    options?.stateContext?.setResponseContext(REFRESH_DEFERRAL_CONTEXT_KEY, String(deferralsSoFar + 1), {
+      minute: REFRESH_DEFERRAL_WINDOW_MINUTES
+    })
+    statsContext?.statsClient?.incr('token_refresh.deferred', 1, statsContext?.tags)
+    throw new RetryableError('Access token was refreshed. Retrying the request after a delay.', 503)
   }
 
   /**
