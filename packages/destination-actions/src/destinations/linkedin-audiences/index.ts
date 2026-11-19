@@ -6,7 +6,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 import updateCompanyAudience from './updateCompanyAudience'
-import { getApiVersion } from './constants'
+import { getApiVersion, FLAGON_DEFER_RETRY_NAME } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
@@ -24,6 +24,9 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
+    // LinkedIn can reject an access token within a second of issuing it (STRATCONN-6544). Behind a flag, retry after
+    // Segment's backoff instead of immediately.
+    deferRetryAfterRefresh: (features) => !!features?.[FLAGON_DEFER_RETRY_NAME],
     fields: {
       ad_account_id: {
         label: 'LinkedIn Ad Account Id',
