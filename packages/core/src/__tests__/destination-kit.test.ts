@@ -1675,21 +1675,51 @@ describe('destination kit', () => {
         expect(written['token_refresh_deferrals'].value).toBe('1')
       })
 
-      test('gives up with an authentication error, without refreshing, once the cap is reached', async () => {
+      test('falls back to the in-process refresh and retry once the deferral budget is used, and delivers', async () => {
         const refreshSpy = jest.spyOn(authentication, 'refreshAccessToken')
         const { options, written } = buildOptions({ token_refresh_deferrals: '3' }, { [DEFER_FLAG]: true })
 
-        await expect(destinationWithDeferral().onEvent(testEvent, buildSettings(), options)).rejects.toBeInstanceOf(
-          InvalidAuthenticationError
-        )
-        expect(refreshSpy).not.toHaveBeenCalled()
-        expect(options.onTokenRefresh).not.toHaveBeenCalled()
+        const res = await destinationWithDeferral().onEvent(testEvent, buildSettings(), options)
+
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+        expect(refreshSpy).toHaveBeenCalledTimes(1)
+        expect(options.onTokenRefresh).toHaveBeenCalledWith({ accessToken: 'fresh-token' })
+        // The counter is left alone, so the budget recovers once the window lapses.
         expect(written).toEqual({})
         expect(options.statsContext.statsClient.incr).toHaveBeenCalledWith(
           'token_refresh.deferral_cap_hit',
           1,
           expect.arrayContaining(['test:tag'])
         )
+      })
+
+      test('never drops an event when other events of the same instance used up the budget', async () => {
+        // A state context shared by every event, like the integration's: writes are visible to later events.
+        const shared: Record<string, string> = {}
+        const sharedOptions = () => {
+          const { options } = buildOptions({}, { [DEFER_FLAG]: true })
+          options.stateContext = {
+            getRequestContext: (key: string) => shared[key],
+            setResponseContext: (key: string, value: string) => {
+              shared[key] = value
+            }
+          } as unknown as StateContext
+          return options
+        }
+        const destination = destinationWithDeferral()
+
+        // Four events hit a 401 (for example in flight when the token expired). The first three are deferred.
+        for (let i = 0; i < 3; i++) {
+          await expect(destination.onEvent(testEvent, buildSettings(), sharedOptions())).rejects.toBeInstanceOf(
+            RetryableError
+          )
+        }
+        expect(shared['token_refresh_deferrals']).toBe('3')
+
+        // The fourth is refreshed and retried in-process (the default flow) and delivered, not failed.
+        const res = await destination.onEvent(testEvent, buildSettings(), sharedOptions())
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+        expect(shared['token_refresh_deferrals']).toBe('3')
       })
 
       test('does not defer when the option returns false for the request features', async () => {
@@ -2349,6 +2379,49 @@ describe('destination kit', () => {
           },
         ]
       `)
+    })
+    test('keeps the in-process retry for a multistatus 401 even when deferRetryAfterRefresh is on', async () => {
+      // Deferring would fail the whole batch and make Segment resend the items that were already delivered.
+      const mockRefreshToken = jest.fn().mockReturnValue({ accessToken: 'new-access-token' })
+      const setResponseContext = jest.fn()
+      const multiStatusDestination = new Destination({
+        ...multiStatusCompatibleDestination,
+        authentication: {
+          scheme: 'oauth2',
+          fields: {},
+          refreshAccessToken: mockRefreshToken,
+          deferRetryAfterRefresh: () => true
+        } as OAuth2Authentication<any>
+      })
+      multiStatusDestination.refreshAccessToken = mockRefreshToken
+
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+      const events: SegmentEvent[] = [
+        { event: 'Add to Cart', type: 'track', properties: { email: 'user.one@example.com' }, receivedAt },
+        { event: 'Add to Cart', type: 'track', properties: {}, receivedAt }
+      ]
+      const settings = {
+        apiSecret: 'test_key',
+        oauth: { access_token: 'OldToken' },
+        subscription: {
+          subscribe: 'type = "track" and event != "Order Completed"',
+          partnerAction: 'trackEvent',
+          mapping: {
+            name: { '@path': '$.event' },
+            email: { '@path': '$.properties.email' },
+            phone: { '@path': '$.properties.phone' }
+          }
+        }
+      }
+
+      const response = await multiStatusDestination.onBatch(events, settings, {
+        onTokenRefresh: jest.fn().mockReturnValue(Promise.resolve()),
+        stateContext: { getRequestContext: () => undefined, setResponseContext } as unknown as StateContext
+      })
+
+      expect(mockRefreshToken).toHaveBeenCalledTimes(1)
+      expect(setResponseContext).not.toHaveBeenCalled()
+      expect((response as any)[0].multistatus[0].status).toBe(200)
     })
     test('should refresh access token and retry events in case multistatus response contains 401 for oauth-managed destinations', async () => {
       const mockRefreshToken = jest.fn().mockReturnValue({

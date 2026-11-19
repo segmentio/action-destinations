@@ -147,7 +147,7 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       expect(onTokenRefresh).not.toHaveBeenCalled()
     })
 
-    it('counts consecutive deferrals', async () => {
+    it('adds to the deferrals already counted for this instance', async () => {
       dmpGet().reply(401, AUTH_FAILED)
       tokenEndpoint().reply(200, { access_token: 'new-access-token' })
       const { options, responseContext } = makeOptions({ flag: true, requestContext: { token_refresh_deferrals: '2' } })
@@ -156,16 +156,25 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       expect(responseContext['token_refresh_deferrals'].value).toBe('3')
     })
 
-    it('gives up after 3 deferrals with an authentication error and does not refresh again', async () => {
+    it('after 3 deferrals, falls back to refreshing and retrying in-process, and delivers the event', async () => {
       dmpGet().reply(401, AUTH_FAILED)
       const refresh = tokenEndpoint().reply(200, { access_token: 'new-access-token' })
-      const { options, onTokenRefresh } = makeOptions({ flag: true, requestContext: { token_refresh_deferrals: '3' } })
+      dmpGet().reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      const users = nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
+      const { options, onTokenRefresh, stateContext } = makeOptions({
+        flag: true,
+        requestContext: { token_refresh_deferrals: '3' }
+      })
 
-      await expect(testDestination.onEvent(event, settingsWithToken, options)).rejects.toBeInstanceOf(
-        InvalidAuthenticationError
+      await expect(testDestination.onEvent(event, settingsWithToken, options)).resolves.not.toThrow()
+      expect(refresh.isDone()).toBe(true)
+      expect(users.isDone()).toBe(true)
+      expect(onTokenRefresh).toHaveBeenCalledTimes(1)
+      expect(stateContext.setResponseContext).not.toHaveBeenCalledWith(
+        'token_refresh_deferrals',
+        expect.anything(),
+        expect.anything()
       )
-      expect(refresh.isDone()).toBe(false)
-      expect(onTokenRefresh).not.toHaveBeenCalled()
     })
 
     it('surfaces the refresh error, and does not defer, when the refresh token is invalid', async () => {
