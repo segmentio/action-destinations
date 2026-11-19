@@ -147,13 +147,22 @@ function merge<T>(...sources: T[]): T {
     } else if (isObjectLike(source)) {
       // eslint-disable-next-line prefer-const
       for (let [key, value] of Object.entries(source)) {
-        // Recurse over objects
-        if (isObjectLike(value) && key in result) {
+        // Recurse over objects. Only consider keys we own: `key in result` is also true for inherited
+        // keys such as `__proto__`, `constructor` and `toString`, which would make us recurse into
+        // Object.prototype (or Function.prototype) as if it were user data.
+        if (isObjectLike(value) && Object.prototype.hasOwnProperty.call(result, key)) {
           value = merge(result[key], value)
         }
 
-        // Update the key's value in our copy
-        result[key] = value
+        // Update the key's value in our copy. A plain `result['__proto__'] = value` invokes the
+        // prototype setter (changing the result's prototype) instead of storing data, so define it as an
+        // own data property. Other keys, including own `constructor`/`prototype`, are legitimate JSON
+        // data and are kept: with own-property checks they can never resolve to inherited objects.
+        if (key === '__proto__') {
+          Object.defineProperty(result, key, { value, writable: true, enumerable: true, configurable: true })
+        } else {
+          result[key] = value
+        }
       }
 
       // Merge headers more carefully to handle duplicates

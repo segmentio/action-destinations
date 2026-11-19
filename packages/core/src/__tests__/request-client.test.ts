@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import createTestServer from 'create-test-server'
 import createInstance, { isRetryableNetworkError, RETRYABLE_NETWORK_ERROR_CODES } from '../request-client'
-import { Response } from '../fetch'
+import { Response, Headers } from '../fetch'
 
 jest.setTimeout(12000)
 
@@ -537,6 +537,67 @@ describe('request()', () => {
       expect(isRetryableNetworkError(Object.assign(new Error('x'), { code: 'EPERM' }))).toBe(false)
       expect(isRetryableNetworkError(undefined)).toBe(false)
       expect(isRetryableNetworkError(null)).toBe(false)
+    })
+  })
+
+  describe('option merging hardening', () => {
+    const polluted = () => (({} as Record<string, unknown>).polluted)
+
+    it('keeps normal merge semantics', async () => {
+      const server = await createTestServer()
+      server.post('/', (_req, res) => res.sendStatus(200))
+      let captured: any
+      const client = createInstance({
+        headers: { a: '1', b: '2' },
+        json: { nested: { x: 1 }, arr: [1], p: 1 },
+        afterResponse: [
+          (_r, options) => {
+            captured = options
+          }
+        ]
+      })
+      const ext = client.extend({ headers: { b: '3' }, json: { nested: { y: 2 }, arr: [2], p: 'two' } })
+      await ext(server.url, { method: 'post', headers: { c: '4' } })
+      const h = new Headers(captured.headers)
+      expect([h.get('a'), h.get('b'), h.get('c')]).toEqual(['1', '3', '4'])
+      expect(JSON.parse(captured.body)).toMatchObject({ nested: { x: 1, y: 2 }, arr: [1, 2], p: 'two' })
+      await server.close()
+    })
+
+    it('does not pollute prototypes or mutate inputs when merging __proto__ keys', () => {
+      const evil = JSON.parse('{"json":{"__proto__":{"polluted":"yes"},"keep":1}}')
+      const before = JSON.stringify(evil)
+      const base = { json: { keep: 0 } }
+      const client = createInstance({})
+      const extended = client.extend(base).extend(evil).extend(evil)
+      expect(extended).toBeDefined()
+      expect(polluted()).toBeUndefined()
+      expect((Object.prototype as Record<string, unknown>).polluted).toBeUndefined()
+      expect(JSON.stringify(evil)).toBe(before)
+      expect(base).toEqual({ json: { keep: 0 } })
+    })
+
+    it('keeps __proto__ as own data without changing prototypes', async () => {
+      const server = await createTestServer()
+      server.post('/', (_req, res) => res.sendStatus(200))
+      let captured: any
+      const evil = JSON.parse('{"__proto__":{"polluted":"yes"},"constructor":{"prototype":{"polluted":"yes"}},"k":1}')
+      const client = createInstance({
+        json: JSON.parse('{"__proto__":{"a":1}}'),
+        afterResponse: [
+          (_r, options) => {
+            captured = options
+          }
+        ]
+      })
+      await client.extend({ json: evil })(server.url, { method: 'post', json: evil })
+      const body = JSON.parse(captured.body)
+      expect(Object.keys(body)).toEqual(expect.arrayContaining(['__proto__', 'constructor', 'k']))
+      expect(Object.getPrototypeOf(body)).toBe(Object.prototype)
+      expect(body.k).toBe(1)
+      expect(body.constructor.prototype.polluted).toBe('yes')
+      expect(polluted()).toBeUndefined()
+      await server.close()
     })
   })
 })
