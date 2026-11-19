@@ -90,6 +90,8 @@ async function adobeGet<T>(
     const response = await request<T>(url, {
       method: 'GET',
       timeout: SCHEMA_REQUEST_TIMEOUT_MS,
+      // Schemas are large. The default response.clone() path stalls on bodies over 16KB.
+      skipResponseCloning: true,
       searchParams,
       headers: { ...headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }
     })
