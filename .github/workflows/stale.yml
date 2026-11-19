@@ -1,0 +1,22 @@
+name: Close stale pull requests
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest-large
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: write # needed by the delete-branch option
+
+    steps:
+      - uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
+        with:
+          days-before-stale: 5
+          days-before-close: 5
+          stale-pr-message: 'Marking this PR as stale (5 days with no activity). It will be closed in another 5 days.'
+          close-pr-message: 'Closing this PR due to inactivity.'
+          delete-branch: true
