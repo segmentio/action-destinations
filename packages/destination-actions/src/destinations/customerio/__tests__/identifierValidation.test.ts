@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, PayloadValidationError, SegmentEvent } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
-import { AccountRegion, VALIDATE_IDENTIFIERS_FLAG } from '../utils'
+import { AccountRegion } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 
@@ -11,9 +11,6 @@ const settings: Settings = {
   apiKey: 'abcde',
   accountRegion: AccountRegion.US
 }
-
-// The fail-fast check is behind a feature flag that is off by default; these tests turn it on explicitly.
-const features = { [VALIDATE_IDENTIFIERS_FLAG]: true }
 
 const errorMessage = (fields: string) =>
   `Customer.io requires an identifier, but none was found in the payload. Map a value to at least one of: ${fields}.`
@@ -99,9 +96,9 @@ const performCases: [string, Record<string, unknown>, string][] = [
   ['unsuppressPerson', { person_id: '' }, 'Person ID']
 ]
 
-// Actions that validate a hand-built `{ object_id, object_type_id }` rather than the payload itself. With the flag on,
-// a valid object id must still let the request through, or a wrong field reference in that extraction would reject
-// every valid object request once the flag is enabled.
+// Actions that validate a hand-built `{ object_id, object_type_id }` rather than the payload itself. A valid object id
+// must still let the request through, or a wrong field reference in that extraction would reject every valid object
+// request.
 const objectPerformCases: [string, Record<string, unknown>][] = [
   ['createUpdateObject', { id: 'obj_123', user_id: 'user_123' }],
   ['deleteRelationship', { person_id: 'user_123', object_id: 'obj_123' }]
@@ -121,26 +118,12 @@ describe('CustomerIO', () => {
           const result = testDestination.testAction(action, {
             event: createTestEvent(event),
             settings,
-            features,
             useDefaultMappings: true
           })
 
           await expect(result).rejects.toThrow(PayloadValidationError)
           await expect(result).rejects.toThrow(errorMessage(fields))
           expect(scope.isDone()).toBe(false)
-        })
-
-        it('should send the request unchanged when the flag is off, even without an identifier', async () => {
-          const scope = nock('https://track.customer.io').post('/api/v2/entity').reply(200, {})
-
-          const responses = await testDestination.testAction(action, {
-            event: createTestEvent(event),
-            settings,
-            useDefaultMappings: true
-          })
-
-          expect(scope.isDone()).toBe(true)
-          expect(responses[0].status).toBe(200)
         })
 
         present.forEach(([field, extra, identifiers]) => {
@@ -150,7 +133,6 @@ describe('CustomerIO', () => {
             const responses = await testDestination.testAction(action, {
               event: createTestEvent({ ...event, ...extra }),
               settings,
-              features,
               useDefaultMappings: true
             })
 
@@ -167,28 +149,19 @@ describe('CustomerIO', () => {
         const request = jest.fn()
         const { perform } = CustomerIO.actions[action]
 
-        await expect(
-          Promise.resolve().then(() => perform(request, { payload, settings, features } as never))
-        ).rejects.toThrow(new PayloadValidationError(errorMessage(fields)))
+        await expect(Promise.resolve().then(() => perform(request, { payload, settings } as never))).rejects.toThrow(
+          new PayloadValidationError(errorMessage(fields))
+        )
         expect(request).not.toHaveBeenCalled()
-      })
-
-      it(`${action} should still send the request when the flag is off and the payload has no identifier`, async () => {
-        const request = jest.fn().mockResolvedValue({})
-        const { perform } = CustomerIO.actions[action]
-
-        await perform(request, { payload, settings } as never)
-
-        expect(request).toHaveBeenCalledTimes(1)
       })
     })
 
     objectPerformCases.forEach(([action, payload]) => {
-      it(`${action} should send the request with the flag on when the object id is present`, async () => {
+      it(`${action} should send the request when the object id is present`, async () => {
         const request = jest.fn().mockResolvedValue({})
         const { perform } = CustomerIO.actions[action]
 
-        await perform(request, { payload, settings, features } as never)
+        await perform(request, { payload, settings } as never)
 
         expect(request).toHaveBeenCalledTimes(1)
         expect(request.mock.calls[0][1].json.identifiers).toEqual({ object_id: 'obj_123', object_type_id: '1' })
