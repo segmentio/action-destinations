@@ -95,6 +95,7 @@ export function mapEventHelper(map: EventMap, analyticsPayload: AnalyticsPayload
             value = stringify(rawValue)
           }
 
+          // eslint-disable-next-line proto-pollution-alias -- reviewed: container and field names come from the static Friendbuy field map, not from input
           unmappedFieldObject[key] = value
         }
       }
@@ -135,6 +136,7 @@ export function mapEventHelper(map: EventMap, analyticsPayload: AnalyticsPayload
             }
             o = o[name[i]] as JSONObject
           }
+          // eslint-disable-next-line proto-pollution-alias -- reviewed: path segments come from the static Friendbuy field map, not from input
           o[name[name.length - 1]] = value
         }
       }

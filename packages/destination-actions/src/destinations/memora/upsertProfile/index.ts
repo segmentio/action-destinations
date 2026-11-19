@@ -505,6 +505,7 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
           if (!Object.prototype.hasOwnProperty.call(traitGroups, traitGroupName)) {
             traitGroups[traitGroupName] = {}
           }
+          // eslint-disable-next-line no-restricted-syntax -- reviewed: own-property guard above; traitGroups is a plain object so "__proto__" only re-parents this local object, never Object.prototype
           traitGroups[traitGroupName][traitName] = value
         } else {
           // Track invalid keys for error reporting
@@ -540,6 +541,7 @@ function buildTraitGroups(payload: Payload): Record<string, Record<string, unkno
           if (!Object.prototype.hasOwnProperty.call(traitGroups, traitGroupName)) {
             traitGroups[traitGroupName] = {}
           }
+          // eslint-disable-next-line no-restricted-syntax -- reviewed: own-property guard above; "__proto__" only re-parents this local object, never Object.prototype
           traitGroups[traitGroupName][traitName] = value
         } else {
           invalidIdentifierKeys.push(key)

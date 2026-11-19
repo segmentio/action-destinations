@@ -44,7 +44,7 @@ export const getManifest: () => Record<string, CloudManifest | BrowserManifest> 
   const { manifest: cloudManifest } = require(require.resolve('@segment/action-destinations', { paths: [cwd] }))
   const { mergeWith } = require('lodash')
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, no-restricted-syntax -- reviewed: merges local build manifests in a developer tool, no untrusted input
   return mergeWith({}, cloudManifest, browserManifest, (objValue: ManifestEntry, srcValue: ManifestEntry) => {
     if (Object.keys(objValue?.definition?.actions ?? {}).length === 0) {
       return
