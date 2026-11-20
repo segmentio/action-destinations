@@ -334,8 +334,9 @@ export interface OAuthManagedAuthentication<Settings> extends Authentication<Set
  * to the default refresh-and-retry-in-process flow until the window lapses. So the worst case is the default behaviour,
  * never a dropped event, and a token the provider keeps rejecting cannot cause an unbounded stream of deferred retries.
  *
- * Only the single-request error path is deferred. A 401 inside a multistatus response keeps the in-process retry,
- * because failing the whole batch would make Segment resend the items that were already delivered.
+ * A multistatus response with a 401 is deferred only when no item in it succeeded, which is the shape of a request the
+ * provider rejected as a whole (every item 401, possibly next to items that failed validation). If any item succeeded,
+ * it keeps the in-process retry, so a deferral never fails the event for items the provider already accepted.
  *
  * It is a function of the request's feature flags so that a rollout can be gated.
  */
@@ -345,7 +346,7 @@ export type DeferRetryAfterRefresh = (features?: Features) => boolean
 const MAX_REFRESH_DEFERRALS = 3
 /** Sliding window for the deferral budget: the counter lives in the state context with this TTL, restarted on each write. */
 const REFRESH_DEFERRAL_WINDOW_MINUTES = 15
-/** State context key (shared by all events of a destination instance) holding the deferrals counted in the window. */
+/** State context key (shared by all events of a destination instance) holding the deferrals counted in the current window period. */
 const REFRESH_DEFERRAL_CONTEXT_KEY = 'token_refresh_deferrals'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1170,13 +1171,19 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           If the multistatus response contains a 401 status code, we should retry the request
           if we haven't already retried the request the maximum number of times.
           So, we throw an InvalidAuthenticationError to retry the request.
-          deferRetryAfterRefresh is intentionally not applied here: failing the whole batch with a retryable error
-          would make Segment resend the items that were already delivered.
+          With deferRetryAfterRefresh on, the retry is deferred to Segment's backoff instead, but only when no item
+          succeeded: then the provider rejected the request as a whole and failing the batch fails nothing it accepted.
          */
         const has401Errors = result?.multistatus?.some((event) => event.status === 401)
         const isOAuthDestination =
           this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed'
         if (attemptCount <= MAX_ATTEMPTS && has401Errors && isOAuthDestination) {
+          const anyItemSucceeded = result.multistatus?.some((event) => event.status >= 200 && event.status < 300)
+          if (!anyItemSucceeded && this.isRetryDeferredAfterRefresh(options)) {
+            // Throws the RetryableError, or once the budget is used up refreshes for the in-process retry below.
+            await this.refreshAndDeferRetry(settings, options)
+            return false
+          }
           await this.handleAuthError(settings, options)
           return false
         }
@@ -1227,11 +1234,20 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     if (!needsReauthentication) {
       throw error
     }
-    // The deferral cap is kept in the state context, so without one we cannot bound the retries and keep the default flow.
-    if (options?.stateContext && auth.deferRetryAfterRefresh?.(options.features)) {
+    if (this.isRetryDeferredAfterRefresh(options)) {
       return this.refreshAndDeferRetry(settings, options)
     }
     return this.handleAuthError(settings, options)
+  }
+
+  /** Whether a 401 should be refreshed and then deferred to Segment's backoff (see {@link DeferRetryAfterRefresh}). */
+  private isRetryDeferredAfterRefresh(options?: OnEventOptions): boolean {
+    const auth = this.authentication
+    if (auth?.scheme !== 'oauth2' && auth?.scheme !== 'oauth-managed') {
+      return false
+    }
+    // The deferral cap is kept in the state context, so without one we cannot bound the retries and keep the default flow.
+    return !!options?.stateContext && !!auth.deferRetryAfterRefresh?.(options.features)
   }
 
   /**
