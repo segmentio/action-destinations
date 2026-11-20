@@ -3,7 +3,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 import type { Settings } from './generated-types'
 import { LinkedInConversions } from './api'
 import type { LinkedInTestAuthenticationError, RefreshTokenResponse, LinkedInRefreshTokenError } from './types'
-import { getApiVersion } from './constants'
+import { getApiVersion, FLAGON_DEFER_RETRY_NAME } from './constants'
 import https from 'https'
 import streamConversion from './streamConversion'
 
@@ -14,6 +14,9 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
+    // LinkedIn can reject an access token within a second of issuing it (STRATCONN-6544). Behind a flag, retry after
+    // Segment's backoff instead of immediately.
+    deferRetryAfterRefresh: (features) => !!features?.[FLAGON_DEFER_RETRY_NAME],
     fields: {},
     testAuthentication: async (request, { auth }) => {
       if (!auth?.accessToken) {
