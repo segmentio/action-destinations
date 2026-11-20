@@ -391,3 +391,7 @@ Approval & process expectations (flag anything that looks bypassed):
 
 7. **+2 code review approvals** before merge to the protected branch — two +1s from two
    different reviewers, or a single +2 from a subject-matter expert for small/urgent changes.
+
+## Rules
+
+Repo rules live in `.claude/rules/`; `.claude/rules/enforcement.yml` records what enforces each rule ID. Some rules above (error handling, security, breaking-change prevention) are also stated as REQ-xx rules there.

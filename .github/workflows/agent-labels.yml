@@ -1,0 +1,213 @@
+# Standalone copy of twilio-internal/github-actions-library's
+# .github/workflows/agent-labels.yml at v1.0.3 (aa222b5a99393015f114875ad205e1848a44d9da),
+# for a repo outside twilio-internal, which cannot call that private reusable workflow.
+# It keeps the agent-* labels the review and merge agents use, with their names, colors
+# and descriptions, the same as in every other repo. Changes from the original: it runs
+# on merge, weekly and by hand instead of being called by a caller, on the org's own
+# runners, and its two inputs are fixed below. Retired labels are kept and named in a notice; deleting them is opt-in
+# per repo: DELETE_RETIRED 'true' removes claude-review-requested, claude-review-deep,
+# in-progress, AUTHOR_DECISION_NEEDED and ccr/ready_for_review from every issue and PR, and
+# people may use the generic ones. To pick up a new label set, copy the workflow again from
+# a newer release. Replace the org placeholder in runs-on below with the repo's GitHub org
+# every time the file is copied, a re-copy from a newer release too: a job left on the
+# placeholder never starts.
+name: Agent labels
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+  # Also on merge of this file, so the labels exist right away. start writes the
+  # repo's default branch here.
+  push:
+    branches: [main]
+    paths: ['.github/workflows/agent-labels.yml']
+permissions:
+  issues: write          # create, update, rename and delete labels; label issues
+  pull-requests: write   # add the renamed label to PRs that carry the old one
+
+jobs:
+  labels:
+    # The org's self-hosted runner, as twilio-internal's is twilio-internal-ubuntu-latest-slim:
+    # Twilio's other orgs use their own org-named ubuntu-latest-slim runner too, per the
+    # claude-native-repo plugin's owner. Replace the org placeholder with the repo's GitHub
+    # org, such as segmentio-ubuntu-latest-slim.
+    runs-on: ubuntu-latest
+    # Two runs that overlap would each try the same renames and creates.
+    concurrency:
+      group: agent-labels-${{ github.repository }}
+      cancel-in-progress: false
+    steps:
+      - name: Sync agent labels
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          DELETE_RETIRED: 'false'  # 'true' deletes the retired labels; opt-in per repo
+          EXTRA_RETIRED: ''
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            const STANDARD = [
+              { name: 'agent-review-requested', color: '1d76db', description: 'Ask the review agent to review this PR' },
+              { name: 'agent-review-started', color: '8250df', description: 'Review agent is reviewing this PR' },
+              { name: 'agent-review-stop', color: 'b60205', description: 'Stop the review agent on this PR' },
+              { name: 'agent-review-needs-human', color: 'd93f0b', description: 'Review agent needs a person to decide' },
+              { name: 'agent-review-human', color: 'd93f0b', description: 'Review agent recommends a person decide' },
+              { name: 'agent-review-deep', color: 'c5def5', description: 'Review agent does a deep review of each new commit' },
+              { name: 'agent-review-force', color: 'c5def5', description: 'Review agent runs once more, past its readiness and already-reviewed checks' },
+              { name: 'agent-review-approve', color: '0e8a16', description: 'Review agent recommends approval' },
+              { name: 'agent-review-changes', color: 'fbca04', description: 'Review agent recommends changes' },
+              { name: 'agent-merge-requested', color: '1d76db', description: 'Ask the merge agent to land this PR' },
+              { name: 'agent-merge-started', color: '8250df', description: 'Merge agent is landing this PR' },
+              { name: 'agent-merge-stop', color: 'b60205', description: 'Stop the merge agent on this PR' },
+              { name: 'agent-merge-refused', color: 'd93f0b', description: 'Merge agent refused; see its comment' },
+            ];
+            // [old, new]: new is always a STANDARD name.
+            const RENAMES = [
+              ['AI-RECOMMEND-APPROVAL', 'agent-review-approve'],
+              ['AI-RECOMMEND-CHANGES', 'agent-review-changes'],
+              ['AI-HUMAN-NEEDED', 'agent-review-human'],
+            ];
+            const RETIRED = [
+              'claude-review-requested',
+              'claude-review-deep',
+              'in-progress',
+              'AUTHOR_DECISION_NEEDED',
+              'ccr/ready_for_review',
+            ];
+
+            const deleteRetired = process.env.DELETE_RETIRED === 'true';
+            const extraRetired = (process.env.EXTRA_RETIRED || '')
+              .split(',').map((s) => s.trim()).filter(Boolean);
+
+            // GitHub label names are unique regardless of case, so match that way.
+            const key = (name) => name.toLowerCase();
+            const standardBy = new Map(STANDARD.map((l) => [key(l.name), l]));
+            const failures = [];
+            async function attempt(what, fn) {
+              try {
+                await fn();
+                return true;
+              } catch (error) {
+                core.error(`Failed to ${what}: ${error.status || ''} ${error.message}`.trim());
+                failures.push(what);
+                return false;
+              }
+            }
+
+            const existing = await github.paginate(github.rest.issues.listLabelsForRepo, {
+              owner, repo, per_page: 100,
+            });
+            const have = new Map(existing.map((l) => [key(l.name), l]));
+
+            // ---- 1. renames ----
+            for (const [oldName, newName] of RENAMES) {
+              const old = have.get(key(oldName));
+              const want = standardBy.get(key(newName));
+              if (!old) {
+                core.info(`= ${oldName} not present; nothing to rename.`);
+                continue;
+              }
+              if (!have.has(key(newName))) {
+                const ok = await attempt(`rename ${old.name} to ${want.name}`, () =>
+                  github.rest.issues.updateLabel({
+                    owner, repo, name: old.name, new_name: want.name,
+                    color: want.color, description: want.description,
+                  }));
+                if (ok) {
+                  have.delete(key(oldName));
+                  have.set(key(newName), { ...want });
+                  core.info(`> renamed ${old.name} to ${want.name}.`);
+                }
+                continue;
+              }
+              // Both exist: move the old label's issues and PRs to the new one.
+              const items = await github.paginate(github.rest.issues.listForRepo, {
+                owner, repo, state: 'all', labels: old.name, per_page: 100,
+              });
+              let allMoved = true;
+              for (const item of items) {
+                const kind = item.pull_request ? 'PR' : 'issue';
+                const ok = await attempt(`add ${want.name} to ${kind} #${item.number}`, () =>
+                  github.rest.issues.addLabels({ owner, repo, issue_number: item.number, labels: [want.name] }));
+                if (ok) core.info(`+ added ${want.name} to ${kind} #${item.number} (had ${old.name}).`);
+                else allMoved = false;
+              }
+              if (!allMoved) {
+                core.warning(`Kept ${old.name}: it could not be moved to ${want.name} on every issue and PR. The next run tries again.`);
+                continue;
+              }
+              const ok = await attempt(`delete ${old.name}`, () =>
+                github.rest.issues.deleteLabel({ owner, repo, name: old.name }));
+              if (ok) {
+                have.delete(key(oldName));
+                core.info(`- deleted ${old.name} after moving it to ${want.name} on ${items.length} issue(s) and PR(s).`);
+              }
+            }
+
+            // ---- 2. standard set ----
+            for (const want of STANDARD) {
+              const cur = have.get(key(want.name));
+              if (!cur) {
+                const ok = await attempt(`create ${want.name}`, async () => {
+                  try {
+                    await github.rest.issues.createLabel({ owner, repo, ...want });
+                  } catch (error) {
+                    // Another workflow (claude-review-label, agent-merge-label, the
+                    // trigger) may have created it since the list was read.
+                    if (error.status !== 422) throw error;
+                    await github.rest.issues.updateLabel({
+                      owner, repo, name: want.name, new_name: want.name,
+                      color: want.color, description: want.description,
+                    });
+                  }
+                });
+                if (ok) core.info(`+ created ${want.name}.`);
+                continue;
+              }
+              const drift = [];
+              if (cur.name !== want.name) drift.push(`name ${cur.name}`);
+              if ((cur.color || '').toLowerCase() !== want.color) drift.push(`color ${cur.color}`);
+              if ((cur.description || '') !== want.description) drift.push(`description "${cur.description || ''}"`);
+              if (drift.length === 0) {
+                core.info(`= ${want.name} unchanged.`);
+                continue;
+              }
+              const ok = await attempt(`update ${want.name}`, () =>
+                github.rest.issues.updateLabel({
+                  owner, repo, name: cur.name, new_name: want.name,
+                  color: want.color, description: want.description,
+                }));
+              if (ok) core.info(`~ updated ${want.name} (was ${drift.join(', ')}).`);
+            }
+
+            // ---- 3. retired ----
+            const seen = new Set();
+            const renameOld = new Set(RENAMES.map(([o]) => key(o)));
+            for (const name of [...RETIRED, ...extraRetired]) {
+              if (seen.has(key(name))) continue;
+              seen.add(key(name));
+              if (standardBy.has(key(name))) {
+                core.warning(`Not deleting ${name}: it is in the standard agent label set.`);
+                continue;
+              }
+              const cur = have.get(key(name));
+              if (!cur) {
+                core.info(`= ${name} not present.`);
+                continue;
+              }
+              if (renameOld.has(key(name))) {
+                core.warning(`Not deleting ${cur.name}: it is still waiting to be renamed, and deleting it would drop it from its issues and PRs.`);
+                continue;
+              }
+              if (!deleteRetired) {
+                core.notice(`Kept retired label ${cur.name}; set DELETE_RETIRED to 'true' in this file to delete it.`);
+                continue;
+              }
+              const ok = await attempt(`delete ${cur.name}`, () =>
+                github.rest.issues.deleteLabel({ owner, repo, name: cur.name }));
+              if (ok) core.info(`- deleted retired label ${cur.name}.`);
+            }
+
+            if (failures.length > 0) {
+              core.setFailed(`${failures.length} label action(s) failed: ${failures.join('; ')}.`);
+            }

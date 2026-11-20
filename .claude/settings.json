@@ -1,0 +1,6 @@
+{
+  "extraKnownMarketplaces": {
+    "twilio": {"source": {"source": "github", "repo": "twilio-internal/claude-marketplace"}}
+  },
+  "enabledPlugins": {"review-toolkit@twilio": true, "github-cli@twilio": true}
+}
