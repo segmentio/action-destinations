@@ -25,7 +25,8 @@ const event = createTestEvent({
   context: { traits: { email: 'testing@testing.com' } }
 })
 
-const settingsWithToken = {
+// Built per test: a refresh writes the new token into the settings object it was given.
+const settingsWithToken = () => ({
   ad_account_id: '123',
   send_email: true,
   send_google_advertising_id: false,
@@ -41,7 +42,7 @@ const settingsWithToken = {
       enable_batching: false
     }
   }
-}
+})
 
 const EXPIRED = {
   code: 'EXPIRED_ACCESS_TOKEN',
@@ -74,7 +75,10 @@ function makeOptions(opts: { flag: boolean; requestContext?: Record<string, stri
   }
 }
 
-const dmpGet = () => nock(`${BASE_URL}/dmpSegments`).get(/.*/).query(true)
+const dmpGet = (token?: string) => {
+  const scope = nock(`${BASE_URL}/dmpSegments`)
+  return (token ? scope.matchHeader('authorization', `Bearer ${token}`) : scope).get(/.*/).query(true)
+}
 const tokenEndpoint = () => nock('https://www.linkedin.com').post('/oauth/v2/accessToken')
 
 describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () => {
@@ -95,7 +99,7 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       const retriedGet = dmpGet().reply(401, AUTH_FAILED)
       const { options, onTokenRefresh, responseContext } = makeOptions({ flag: true })
 
-      const err = await testDestination.onEvent(event, settingsWithToken, options).catch((e: unknown) => e)
+      const err = await testDestination.onEvent(event, settingsWithToken(), options).catch((e: unknown) => e)
 
       expect(err).toBeInstanceOf(RetryableError)
       expect((err as RetryableError).status).toBe(503)
@@ -116,7 +120,7 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       tokenEndpoint().reply(200, { access_token: 'new-access-token' })
       const { options } = makeOptions({ flag: true })
 
-      await expect(testDestination.onEvent(event, settingsWithToken, options)).rejects.toBeInstanceOf(RetryableError)
+      await expect(testDestination.onEvent(event, settingsWithToken(), options)).rejects.toBeInstanceOf(RetryableError)
     })
 
     it('defers for a batch as well as a single event', async () => {
@@ -124,10 +128,10 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       tokenEndpoint().reply(200, { access_token: 'new-access-token' })
       const { options, responseContext } = makeOptions({ flag: true })
       const batchSettings = {
-        ...settingsWithToken,
+        ...settingsWithToken(),
         subscription: {
-          ...settingsWithToken.subscription,
-          mapping: { ...settingsWithToken.subscription.mapping, enable_batching: true }
+          ...settingsWithToken().subscription,
+          mapping: { ...settingsWithToken().subscription.mapping, enable_batching: true }
         }
       }
 
@@ -140,7 +144,7 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       const refresh = tokenEndpoint().reply(200, { access_token: 'new-access-token' })
       const { options, onTokenRefresh } = makeOptions({ flag: true })
 
-      const err = await testDestination.onEvent(event, settingsWithToken, options).catch((e: unknown) => e)
+      const err = await testDestination.onEvent(event, settingsWithToken(), options).catch((e: unknown) => e)
 
       expect(err).not.toBeInstanceOf(InvalidAuthenticationError)
       expect(refresh.isDone()).toBe(false)
@@ -152,21 +156,21 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       tokenEndpoint().reply(200, { access_token: 'new-access-token' })
       const { options, responseContext } = makeOptions({ flag: true, requestContext: { token_refresh_deferrals: '2' } })
 
-      await expect(testDestination.onEvent(event, settingsWithToken, options)).rejects.toBeInstanceOf(RetryableError)
+      await expect(testDestination.onEvent(event, settingsWithToken(), options)).rejects.toBeInstanceOf(RetryableError)
       expect(responseContext['token_refresh_deferrals'].value).toBe('3')
     })
 
     it('after 3 deferrals, falls back to refreshing and retrying in-process, and delivers the event', async () => {
       dmpGet().reply(401, AUTH_FAILED)
       const refresh = tokenEndpoint().reply(200, { access_token: 'new-access-token' })
-      dmpGet().reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      dmpGet('new-access-token').reply(200, { elements: [{ id: 'dmp_segment_id' }] })
       const users = nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
       const { options, onTokenRefresh, stateContext } = makeOptions({
         flag: true,
         requestContext: { token_refresh_deferrals: '3' }
       })
 
-      await expect(testDestination.onEvent(event, settingsWithToken, options)).resolves.not.toThrow()
+      await expect(testDestination.onEvent(event, settingsWithToken(), options)).resolves.not.toThrow()
       expect(refresh.isDone()).toBe(true)
       expect(users.isDone()).toBe(true)
       expect(onTokenRefresh).toHaveBeenCalledTimes(1)
@@ -185,7 +189,7 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
       })
       const { options, onTokenRefresh, stateContext } = makeOptions({ flag: true })
 
-      const err = await testDestination.onEvent(event, settingsWithToken, options).catch((e: unknown) => e)
+      const err = await testDestination.onEvent(event, settingsWithToken(), options).catch((e: unknown) => e)
 
       expect(err).not.toBeInstanceOf(RetryableError)
       expect((err as Error).message).toContain('Your refresh token is invalid or expired')
@@ -194,15 +198,88 @@ describe('LinkedIn Audiences: retry after token refresh (STRATCONN-6544)', () =>
     })
   })
 
+  describe('company audiences', () => {
+    const SEGMENT_ID = 'company_dmp_segment_id'
+    const companyEvent = createTestEvent({ type: 'track', traits: { company_domain: 'microsoft.com' } })
+    const companySettings = () => ({
+      ...settingsWithToken(),
+      subscription: {
+        subscribe: 'type = "track"',
+        partnerAction: 'updateCompanyAudience',
+        mapping: {
+          dmp_company_action: 'ADD',
+          audience_source: 'ENGAGE_RETL',
+          computation_key: 'aud_key',
+          identifiers: { companyDomain: { '@path': '$.traits.company_domain' } },
+          enable_batching: true
+        }
+      }
+    })
+    // The DMP segment id is cached, so the first call to LinkedIn is the companies update itself.
+    const cachedSegment = { company_dmpsegment_id_aud_key: SEGMENT_ID }
+
+    const mockCompanies = () => {
+      const tokensSeen: string[] = []
+      nock(`${BASE_URL}/dmpSegments/${SEGMENT_ID}`)
+        .post('/companies')
+        .times(3)
+        .reply(function (this: nock.ReplyFnContext) {
+          const authorization = String(this.req.headers['authorization'])
+          tokensSeen.push(authorization)
+          return authorization === 'Bearer expired-access-token'
+            ? [401, EXPIRED]
+            : [200, { elements: [{ status: 201 }] }]
+        })
+      return tokensSeen
+    }
+
+    it('flag on: a 401 on the companies batch refreshes and defers without resending', async () => {
+      const tokensSeen = mockCompanies()
+      tokenEndpoint().reply(200, { access_token: 'new-access-token' })
+      const { options, responseContext } = makeOptions({ flag: true, requestContext: cachedSegment })
+
+      await expect(testDestination.onBatch([companyEvent], companySettings(), options)).rejects.toBeInstanceOf(
+        RetryableError
+      )
+      expect(tokensSeen).toEqual(['Bearer expired-access-token'])
+      expect(responseContext['token_refresh_deferrals'].value).toBe('1')
+    })
+
+    it('flag off: refreshes and resends the companies batch in-process', async () => {
+      const tokensSeen = mockCompanies()
+      tokenEndpoint().reply(200, { access_token: 'new-access-token' })
+      const { options, responseContext } = makeOptions({ flag: false, requestContext: cachedSegment })
+
+      await testDestination.onBatch([companyEvent], companySettings(), options)
+
+      expect(tokensSeen).toEqual(['Bearer expired-access-token', 'Bearer new-access-token'])
+      expect(responseContext['token_refresh_deferrals']).toBeUndefined()
+    })
+  })
+
   describe('flag off (existing behaviour)', () => {
+    it('is not turned on by the LinkedIn Conversions flag', async () => {
+      dmpGet().reply(401, EXPIRED)
+      tokenEndpoint().reply(200, { access_token: 'new-access-token' })
+      dmpGet('new-access-token').reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
+      const { options } = makeOptions({ flag: false })
+      const conversionsFlagOnly = {
+        ...options,
+        features: { 'linkedin-conversions-defer-retry-after-refresh': true }
+      } as OnEventOptions
+
+      await expect(testDestination.onEvent(event, settingsWithToken(), conversionsFlagOnly)).resolves.not.toThrow()
+    })
+
     it('refreshes and retries the call in-process', async () => {
       dmpGet().reply(401, EXPIRED)
       const refresh = tokenEndpoint().reply(200, { access_token: 'new-access-token' })
-      dmpGet().reply(200, { elements: [{ id: 'dmp_segment_id' }] })
+      dmpGet('new-access-token').reply(200, { elements: [{ id: 'dmp_segment_id' }] })
       nock(`${BASE_URL}/dmpSegments/dmp_segment_id/users`).post(/.*/).reply(200)
       const { options, onTokenRefresh, stateContext } = makeOptions({ flag: false })
 
-      await expect(testDestination.onEvent(event, settingsWithToken, options)).resolves.not.toThrow()
+      await expect(testDestination.onEvent(event, settingsWithToken(), options)).resolves.not.toThrow()
       expect(refresh.isDone()).toBe(true)
       expect(onTokenRefresh).toHaveBeenCalledTimes(1)
       // The action caches the DMP segment id in the state context; the deferral counter must not be written.
