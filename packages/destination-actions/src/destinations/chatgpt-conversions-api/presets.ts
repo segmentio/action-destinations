@@ -15,7 +15,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'App Installed',
-    subscribe: 'type = "track" AND event = "Application Installed"',
+    subscribe: 'type = "track" and event = "Application Installed"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -26,7 +26,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'App Opened',
-    subscribe: 'type = "track" AND event = "Application Opened"',
+    subscribe: 'type = "track" and event = "Application Opened"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -37,7 +37,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Appointment Scheduled',
-    subscribe: 'type = "track" AND event = "Appointment Scheduled"',
+    subscribe: 'type = "track" and event = "Appointment Scheduled"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -47,7 +47,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Checkout Started',
-    subscribe: 'type = "track" AND event = "Checkout Started"',
+    subscribe: 'type = "track" and event = "Checkout Started"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -65,7 +65,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Contents Viewed',
-    subscribe: 'type = "track" AND event = "Product Viewed"',
+    subscribe: 'type = "track" and event = "Product Viewed"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -76,7 +76,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Items Added',
-    subscribe: 'type = "track" AND event = "Product Added"',
+    subscribe: 'type = "track" and event = "Product Added"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -87,7 +87,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Lead Created',
-    subscribe: 'type = "track" AND event = "Lead Created"',
+    subscribe: 'type = "track" and event = "Lead Created"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -97,7 +97,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Order Created',
-    subscribe: 'type = "track" AND event = "Order Completed"',
+    subscribe: 'type = "track" and event = "Order Completed"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -125,7 +125,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Registration Completed',
-    subscribe: 'type = "track" AND event = "Signed Up"',
+    subscribe: 'type = "track" and event = "Signed Up"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -135,7 +135,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Subscription Created',
-    subscribe: 'type = "track" AND event = "Subscription Created"',
+    subscribe: 'type = "track" and event = "Subscription Created"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
@@ -146,7 +146,7 @@ export const presets: Preset[] = [
   },
   {
     name: 'Trial Started',
-    subscribe: 'type = "track" AND event = "Trial Started"',
+    subscribe: 'type = "track" and event = "Trial Started"',
     partnerAction: 'sendConversion',
     mapping: {
       ...defaults,
