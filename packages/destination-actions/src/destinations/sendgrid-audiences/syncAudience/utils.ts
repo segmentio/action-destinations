@@ -292,12 +292,19 @@ function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
   return chunks
 }
 
+// Identifier values are placed inside single-quoted string literals in the search query built by getQueryPart.
+// SendGrid query strings use backslash as the escape character, and the backslash itself must be escaped:
+// https://www.twilio.com/docs/sendgrid/for-developers/sending-email/segmentation-query-language
+export function escapeQueryValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+}
+
 function getQueryPart(identifier: keyof IndexedPayload['identifiers'], payloads: IndexedPayload[]): string {
   const values = payloads
     .filter((payload) => payload.identifiers[identifier] !== undefined && payload.identifiers[identifier] !== null)
     .map((payload) => payload.identifiers[identifier])
 
-  const part = values.length > 0 ? `${identifier} IN (${values.map((value) => `'${value}'`).join(',')})` : ''
+  const part = values.length > 0 ? `${identifier} IN (${values.map((value) => `'${escapeQueryValue(String(value))}'`).join(',')})` : ''
   return part
 }
 

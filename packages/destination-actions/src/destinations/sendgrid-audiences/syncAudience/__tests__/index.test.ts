@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { validatePhone, toDateFormat } from '../utils'
+import { validatePhone, toDateFormat, escapeQueryValue } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -497,6 +497,158 @@ describe('SendgridAudiences.syncAudience', () => {
     ).rejects.toThrowError(
       new IntegrationError(`At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
     )
+  })
+
+  describe('identifiers with special characters', () => {
+    const setIdentifier = (payload: any, field: string, value: string) => {
+      if (field === 'anonymous_id') {
+        payload.anonymousId = value
+      } else {
+        payload.traits[field] = value
+      }
+    }
+
+    it.each([
+      ['external_id', "o'brien_id", "external_id IN ('o\\'brien_id')"],
+      ['external_id', 'trailing_backslash\\', "external_id IN ('trailing_backslash\\\\')"],
+      ['anonymous_id', "a\\'b", "anonymous_id IN ('a\\\\\\'b')"],
+      ['email', "o'brien@gmail.com", "email IN ('o\\'brien@gmail.com')"]
+    ])('should escape %s %j in the search query when removing', async (field, value, expectedPart) => {
+      const payload = JSON.parse(JSON.stringify(removePayload))
+      setIdentifier(payload, field, value)
+
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [] })
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(responses[responses.length - 1].status).toBe(200)
+      expect(searchBody?.query).toContain(expectedPart)
+    })
+
+    it.each([
+      ['anonymous_id', 'line\nbreak'],
+      ['external_id', 'tab\tchar'],
+      ['external_id', 'del\u007fchar']
+    ])('should send %s %j to the search unchanged when removing', async (field, value) => {
+      const payload = JSON.parse(JSON.stringify(removePayload))
+      setIdentifier(payload, field, value)
+
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [] })
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(responses[responses.length - 1].status).toBe(200)
+      expect(searchBody?.query).toContain(`${field} IN ('${value}')`)
+    })
+
+    it.each([
+      ['', ''],
+      ["'", "\\'"],
+      ["''", "\\'\\'"],
+      ['\\\\', '\\\\\\\\'],
+      ["x') OR email LIKE ('%", "x\\') OR email LIKE (\\'%"]
+    ])('escapeQueryValue(%j) should return %j', (input, expected) => {
+      expect(escapeQueryValue(input)).toBe(expected)
+    })
+
+    it('should build the exact search query for several escaped values and identifier types', async () => {
+      const p1 = JSON.parse(JSON.stringify(removePayload))
+      p1.traits.email = "o'brien@gmail.com"
+      p1.traits.external_id = "ext'1"
+      const p2 = JSON.parse(JSON.stringify(removePayload2))
+      p2.traits.external_id = "x') OR email LIKE ('%"
+
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [] })
+
+      await testDestination.executeBatch('syncAudience', {
+        events: [createTestEvent(p1), createTestEvent(p2)],
+        settings,
+        mapping
+      })
+
+      expect(searchBody?.query).toBe(
+        "email IN ('o\\'brien@gmail.com','testemail2@gmail.com') OR phone_number_id IN ('+353123456789','+353123456789') OR external_id IN ('ext\\'1','x\\') OR email LIKE (\\'%') OR anonymous_id IN ('some_anonymous_id','some_anonymous_id2')"
+      )
+    })
+
+    it('should keep an external_id with several quoted segments as one value and remove only the matched Contact', async () => {
+      const payload = JSON.parse(JSON.stringify(removePayload))
+      payload.traits.external_id = "id_a') OR external_id LIKE 'id_b' OR external_id IN ('id_a"
+
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [{ id: 'contact_1_id' }] })
+      const deleteScope = nock('https://api.sendgrid.com')
+        .delete('/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=contact_1_id')
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(searchBody?.query).toBe(
+        "email IN ('testemail@gmail.com') OR phone_number_id IN ('+353123456789') OR external_id IN ('id_a\\') OR external_id LIKE \\'id_b\\' OR external_id IN (\\'id_a') OR anonymous_id IN ('some_anonymous_id')"
+      )
+      expect(deleteScope.isDone()).toBe(true)
+      expect(responses[responses.length - 1].status).toBe(200)
+    })
+
+    it('should still add a Contact whose identifier contains a single quote', async () => {
+      const payload = JSON.parse(JSON.stringify(addPayload))
+      payload.traits.external_id = "o'brien_id"
+
+      nock('https://api.sendgrid.com')
+        .put('/v3/marketing/contacts', (body) => body.contacts[0].external_id === "o'brien_id")
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(responses[0].status).toBe(200)
+    })
   })
 
   it('should return multistatus response with all errors if all payloads in a batch are invalid', async () => {
