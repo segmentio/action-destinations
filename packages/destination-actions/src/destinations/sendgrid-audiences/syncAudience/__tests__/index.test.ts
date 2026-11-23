@@ -2,7 +2,7 @@ import nock from 'nock'
 import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
-import { validatePhone, toDateFormat } from '../utils'
+import { validatePhone, toDateFormat, escapeQueryValue } from '../utils'
 
 let testDestination = createTestIntegration(Definition)
 
@@ -260,7 +260,7 @@ describe('SendgridAudiences.syncAudience', () => {
       "{\"query\":\"email IN ('testemail@gmail.com') OR phone_number_id IN ('+353123456789') OR external_id IN ('some_external_id') OR anonymous_id IN ('some_anonymous_id')\"}"
 
     const searchResponse = {
-      result: [{ id: 'contact_1_id' }]
+      result: [{ id: 'contact_1_id', email: 'testemail@gmail.com' }]
     }
 
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddExpectedPayload).reply(200, {})
@@ -309,7 +309,10 @@ describe('SendgridAudiences.syncAudience', () => {
       "{\"query\":\"email IN ('testemail@gmail.com','testemail2@gmail.com') OR phone_number_id IN ('+353123456789','+353123456789') OR external_id IN ('some_external_id','some_external_id2') OR anonymous_id IN ('some_anonymous_id','some_anonymous_id2')\"}"
 
     const searchResponse = {
-      result: [{ id: 'contact_1_id' }, { id: 'contact_2_id' }]
+      result: [
+        { id: 'contact_1_id', email: 'testemail@gmail.com' },
+        { id: 'contact_2_id', external_id: 'some_external_id2' }
+      ]
     }
 
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertNoAddBatchExpectedPayload).reply(200, {})
@@ -343,7 +346,10 @@ describe('SendgridAudiences.syncAudience', () => {
       "{\"query\":\"email IN ('testemail@gmail.com','testemail2@gmail.com') OR phone_number_id IN ('+353123456789','+353123456789') OR external_id IN ('some_external_id','some_external_id2') OR anonymous_id IN ('some_anonymous_id','some_anonymous_id2')\"}"
 
     const searchResponse = {
-      result: [{ id: 'contact_1_id' }, { id: 'contact_2_id' }]
+      result: [
+        { id: 'contact_1_id', email: 'testemail@gmail.com' },
+        { id: 'contact_2_id', external_id: 'some_external_id2' }
+      ]
     }
 
     const upsertAddBatchExpectedPayload = {
@@ -563,6 +569,93 @@ describe('SendgridAudiences.syncAudience', () => {
       nock.cleanAll()
     })
 
+    it.each([
+      ['', ''],
+      ["'", "\\'"],
+      ["''", "\\'\\'"],
+      ['\\\\', '\\\\\\\\'],
+      ["x') OR email LIKE ('%", "x\\') OR email LIKE (\\'%"]
+    ])('escapeQueryValue(%j) should return %j', (input, expected) => {
+      expect(escapeQueryValue(input)).toBe(expected)
+    })
+
+    it('should build the exact search query for several escaped values and identifier types', async () => {
+      const p1 = JSON.parse(JSON.stringify(removePayload))
+      p1.traits.email = "o'brien@gmail.com"
+      p1.traits.external_id = "ext'1"
+      const p2 = JSON.parse(JSON.stringify(removePayload2))
+      p2.traits.external_id = "x') OR email LIKE ('%"
+
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [] })
+
+      await testDestination.executeBatch('syncAudience', {
+        events: [createTestEvent(p1), createTestEvent(p2)],
+        settings,
+        mapping
+      })
+
+      expect(searchBody?.query).toBe(
+        "email IN ('o\\'brien@gmail.com','testemail2@gmail.com') OR phone_number_id IN ('+353123456789','+353123456789') OR external_id IN ('ext\\'1','x\\') OR email LIKE (\\'%') OR anonymous_id IN ('some_anonymous_id','some_anonymous_id2')"
+      )
+    })
+
+    it('should only remove search results that exactly match an identifier from the batch', async () => {
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search')
+        .reply(200, {
+          result: [
+            { id: 'match_email', email: 'TestEmail@gmail.com' },
+            { id: 'match_anon', anonymous_id: 'some_anonymous_id' },
+            { id: 'other_1', email: 'someone.else@gmail.com' },
+            { id: 'other_2', external_id: 'unrelated_id' },
+            { id: 'other_3' }
+          ]
+        })
+      const del = nock('https://api.sendgrid.com')
+        .delete('/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=match_email,match_anon')
+        .reply(200, {})
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events: [createTestEvent(removePayload)],
+        settings,
+        mapping
+      })
+
+      expect(responses[0]).toMatchObject({ status: 200 })
+      expect(del.isDone()).toBe(true)
+    })
+
+    it('should not search or remove anything when every remove payload in a batch is rejected', async () => {
+      const p1 = JSON.parse(JSON.stringify(removePayload))
+      p1.anonymousId = 'anon\nid'
+      const p2 = JSON.parse(JSON.stringify(removePayload2))
+      p2.traits.external_id = 'ext\tid'
+
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      const search = nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search').reply(200, { result: [] })
+      const del = nock('https://api.sendgrid.com').delete(/.*/).reply(200, {})
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events: [createTestEvent(p1), createTestEvent(p2)],
+        settings,
+        mapping
+      })
+
+      expect(responses[0]).toMatchObject({ status: 400, errormessage: unsupportedMessage('anonymous_id') })
+      expect(responses[1]).toMatchObject({ status: 400, errormessage: unsupportedMessage('external_id') })
+      expect(search.isDone()).toBe(false)
+      expect(del.isDone()).toBe(false)
+      nock.cleanAll()
+    })
+
     it('should still add a Contact whose identifier contains a single quote', async () => {
       const payload = JSON.parse(JSON.stringify(addPayload))
       payload.traits.external_id = "o'brien_id"
@@ -672,9 +765,9 @@ describe('SendgridAudiences.syncAudience', () => {
     const searchQuery3 =
       "{\"query\":\"email IN ('test25@gmail.com','test26@gmail.com','test27@gmail.com','test28@gmail.com','test29@gmail.com','test30@gmail.com') OR phone_number_id IN ('+3531234567825','+3531234567826','+3531234567827','+3531234567828','+3531234567829','+3531234567830') OR external_id IN ('some_external_id_25','some_external_id_26','some_external_id_27','some_external_id_28','some_external_id_29','some_external_id_30') OR anonymous_id IN ('some_anonymous_id_25','some_anonymous_id_26','some_anonymous_id_27','some_anonymous_id_28','some_anonymous_id_29','some_anonymous_id_30')\"}"
 
-    const searchResponse = { result: Array.from({ length: 12 }, (_, i) => ({ id: `contact_${i + 1}_id` })) }
-    const searchResponse2 = { result: Array.from({ length: 12 }, (_, i) => ({ id: `contact_${i + 13}_id` })) }
-    const searchResponse3 = { result: Array.from({ length: 6 }, (_, i) => ({ id: `contact_${i + 25}_id` })) }
+    const searchResponse = { result: Array.from({ length: 12 }, (_, i) => ({ id: `contact_${i + 1}_id`, email: `test${i + 1}@gmail.com` })) }
+    const searchResponse2 = { result: Array.from({ length: 12 }, (_, i) => ({ id: `contact_${i + 13}_id`, email: `test${i + 13}@gmail.com` })) }
+    const searchResponse3 = { result: Array.from({ length: 6 }, (_, i) => ({ id: `contact_${i + 25}_id`, email: `test${i + 25}@gmail.com` })) }
 
     const deletePath = `/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=contact_1_id,contact_2_id,contact_3_id,contact_4_id,contact_5_id,contact_6_id,contact_7_id,contact_8_id,contact_9_id,contact_10_id,contact_11_id,contact_12_id,contact_13_id,contact_14_id,contact_15_id,contact_16_id,contact_17_id,contact_18_id,contact_19_id,contact_20_id,contact_21_id,contact_22_id,contact_23_id,contact_24_id,contact_25_id,contact_26_id,contact_27_id,contact_28_id,contact_29_id,contact_30_id`
 
@@ -728,9 +821,9 @@ describe('SendgridAudiences.syncAudience', () => {
     const searchQuery3 =
       "{\"query\":\"email IN ('test101@gmail.com','test102@gmail.com','test103@gmail.com','test104@gmail.com','test105@gmail.com','test106@gmail.com','test107@gmail.com','test108@gmail.com','test109@gmail.com','test110@gmail.com','test111@gmail.com','test112@gmail.com','test113@gmail.com','test114@gmail.com','test115@gmail.com','test116@gmail.com','test117@gmail.com','test118@gmail.com','test119@gmail.com','test120@gmail.com')\"}"
 
-    const searchResponse = { result: Array.from({ length: 50 }, (_, i) => ({ id: `contact_${i + 1}_id` })) }
-    const searchResponse2 = { result: Array.from({ length: 50 }, (_, i) => ({ id: `contact_${i + 51}_id` })) }
-    const searchResponse3 = { result: Array.from({ length: 20 }, (_, i) => ({ id: `contact_${i + 101}_id` })) }
+    const searchResponse = { result: Array.from({ length: 50 }, (_, i) => ({ id: `contact_${i + 1}_id`, email: `test${i + 1}@gmail.com` })) }
+    const searchResponse2 = { result: Array.from({ length: 50 }, (_, i) => ({ id: `contact_${i + 51}_id`, email: `test${i + 51}@gmail.com` })) }
+    const searchResponse3 = { result: Array.from({ length: 20 }, (_, i) => ({ id: `contact_${i + 101}_id`, email: `test${i + 101}@gmail.com` })) }
 
     const deletePath = `/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=${Array.from(
       { length: 100 },

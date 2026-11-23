@@ -239,7 +239,10 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
     return
   }
 
-  const contact_ids = responses.flatMap((response) => response.data.result.map((item) => item.id))
+  const requested = getRequestedIdentifiers(chunks.flat(), identifierTypes)
+  const contact_ids = responses.flatMap((response) =>
+    response.data.result.filter((item) => matchesRequestedIdentifier(item, requested, identifierTypes)).map((item) => item.id)
+  )
   const chunkedContactIds = chunk(contact_ids, MAX_CHUNK_SIZE_REMOVE)
   const listId = payloads[0].external_audience_id
   
@@ -259,6 +262,35 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
     assignErrors(payloads, 'remove', 400, `Error occurred while removing Contacts from a List in SendGrid`, ErrorCodes.UNKNOWN_ERROR)
     return
   }
+}
+
+// Only Contacts with an identifier that exactly matches one from the batch are removed from the List.
+// Emails are compared case-insensitively, as SendGrid stores them in lowercase.
+function normalizeIdentifier(idType: keyof IndexedPayload['identifiers'], value: string): string {
+  return idType === 'email' ? value.toLowerCase() : value
+}
+
+function getRequestedIdentifiers(payloads: IndexedPayload[], identifierTypes: (keyof IndexedPayload['identifiers'])[]) {
+  const requested = new Map<keyof IndexedPayload['identifiers'], Set<string>>()
+  identifierTypes.forEach((t) => {
+    const values = payloads
+      .map((p) => p.identifiers[t])
+      .filter((v): v is string => typeof v === 'string')
+      .map((v) => normalizeIdentifier(t, v))
+    requested.set(t, new Set(values))
+  })
+  return requested
+}
+
+function matchesRequestedIdentifier(
+  item: SearchContactsResp['result'][number],
+  requested: Map<keyof IndexedPayload['identifiers'], Set<string>>,
+  identifierTypes: (keyof IndexedPayload['identifiers'])[]
+): boolean {
+  return identifierTypes.some((t) => {
+    const value = item[t]
+    return typeof value === 'string' && (requested.get(t)?.has(normalizeIdentifier(t, value)) ?? false)
+  })
 }
 
 function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
