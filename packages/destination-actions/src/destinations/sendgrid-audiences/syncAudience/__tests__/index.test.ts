@@ -1,11 +1,5 @@
 import nock from 'nock'
-import {
-  createTestEvent,
-  createTestIntegration,
-  SegmentEvent,
-  IntegrationError,
-  ErrorCodes
-} from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, SegmentEvent, IntegrationError, ErrorCodes } from '@segment/actions-core'
 import Definition from '../../index'
 import { Settings } from '../../generated-types'
 import { validatePhone, toDateFormat } from '../utils'
@@ -120,19 +114,19 @@ describe('SendgridAudiences.syncAudience', () => {
     expect(responses[0].status).toBe(200)
   })
 
-  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => {
-    const event = createTestEvent({
-      ...addPayload,
-      traits: {
-        ...addPayload.traits,
-        first_name: 'fname',
-        last_name: 'lname',
+  it('should upsert a single Contact with user attributes and custom fields, and add it to a Sendgrid list correctly', async () => { 
+    const event = createTestEvent({ 
+      ...addPayload, 
+      traits: { 
+        ...addPayload.traits, 
+        first_name: 'fname', 
+        last_name: 'lname', 
         street: '123 Main St',
-        address_line_2: 'address line 2',
-        city: 'SF',
+        address_line_2: "address line 2", 
+        city: 'SF', 
         state: 'CA',
         country: 'US',
-        postal_code: 'N88EU',
+        postal_code: "N88EU",
         custom_text_fields: {
           custom_field_1: 'custom_field_1_value'
         },
@@ -140,9 +134,9 @@ describe('SendgridAudiences.syncAudience', () => {
           custom_field_2: 2345
         },
         custom_date_fields: {
-          custom_field_3: '2024-01-01T00:00:00.000Z'
+          custom_field_3: '2024-01-01T00:00:00.000Z',
         }
-      }
+      } 
     })
 
     const addExpectedPayloadWithAttributes = {
@@ -157,14 +151,14 @@ describe('SendgridAudiences.syncAudience', () => {
           last_name: 'lname',
           address_line_1: '123 Main St',
           address_line_2: 'address line 2',
-          city: 'SF',
+          city: 'SF', 
           state_province_region: 'CA',
           country: 'US',
-          postal_code: 'N88EU',
+          postal_code: "N88EU",
           custom_fields: {
             custom_field_1: 'custom_field_1_value',
             custom_field_2: 2345,
-            custom_field_3: '01/01/2024'
+            custom_field_3: "01/01/2024"
           }
         }
       ]
@@ -456,23 +450,20 @@ describe('SendgridAudiences.syncAudience', () => {
     }
 
     const multiStatusRespError1 = {
-      status: 429,
-      errortype: 'RETRYABLE_ERROR',
-      errormessage:
-        'Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).',
-      errorreporter: 'INTEGRATIONS'
+      "status": 429,
+      "errortype": "RETRYABLE_ERROR",
+      "errormessage": "Batch payload rejected by SendGrid due to at least one invalid email. Batch payload will be retried without the invalid email(s).",
+      "errorreporter": "INTEGRATIONS"
     }
 
     const multiStatusRespError2 = {
-      status: 400,
-      errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage: 'SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid',
-      errorreporter: 'INTEGRATIONS'
+      "status": 400,
+      "errortype": "PAYLOAD_VALIDATION_FAILED",
+      "errormessage": "SendGrid rejected email address not_a_valid_email_address@gmail.com as invalid",
+      "errorreporter": "INTEGRATIONS"
     }
 
-    nock('https://api.sendgrid.com')
-      .put('/v3/marketing/contacts', upsertAddBatchExpectedPayload)
-      .reply(400, responseError)
+    nock('https://api.sendgrid.com').put('/v3/marketing/contacts', upsertAddBatchExpectedPayload).reply(400, responseError)
     nock('https://api.sendgrid.com').put('/v3/marketing/contacts', addBatchExpectedPayload2).reply(200, {})
 
     const responses = await testDestination.executeBatch('syncAudience', {
@@ -504,56 +495,89 @@ describe('SendgridAudiences.syncAudience', () => {
         mapping
       })
     ).rejects.toThrowError(
-      new IntegrationError(
-        `At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`,
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        400
-      )
+      new IntegrationError(`At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
     )
   })
 
-  it('should reject a remove payload whose identifier contains unsupported characters', async () => {
-    const specialCharPayload = JSON.parse(JSON.stringify(removePayload))
-    specialCharPayload.traits.external_id = "o'brien_id"
+  describe('identifiers with unsupported characters', () => {
+    const unsupportedMessage = (field: string) =>
+      `${field} contains characters that are not supported when removing a Contact from a List: single quotes, backslashes and control characters.`
 
-    // no HTTP requests should be made for the rejected payload
-    await expect(
-      testDestination.testAction('syncAudience', {
-        event: createTestEvent(specialCharPayload),
+    it.each([
+      ['external_id', "o'brien_id"],
+      ['external_id', 'trailing_backslash\\'],
+      ['anonymous_id', 'line\nbreak'],
+      ['anonymous_id', 'del\u007fchar'],
+      ['email', "o'brien@gmail.com"]
+    ])('should reject a remove payload whose %s is %j without searching SendGrid', async (field, value) => {
+      const payload = JSON.parse(JSON.stringify(removePayload))
+      if (field === 'anonymous_id') {
+        payload.anonymousId = value
+      } else {
+        payload.traits[field] = value
+      }
+
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      const search = nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search').reply(200, { result: [] })
+
+      await expect(
+        testDestination.testAction('syncAudience', {
+          event: createTestEvent(payload),
+          settings,
+          useDefaultMappings: true,
+          mapping
+        })
+      ).rejects.toThrowError(new IntegrationError(unsupportedMessage(field), ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400))
+
+      expect(search.isDone()).toBe(false)
+      nock.cleanAll()
+    })
+
+    it('should still add a Contact whose identifier contains a single quote', async () => {
+      const payload = JSON.parse(JSON.stringify(addPayload))
+      payload.traits.external_id = "o'brien_id"
+
+      nock('https://api.sendgrid.com')
+        .put('/v3/marketing/contacts', (body) => body.contacts[0].external_id === "o'brien_id")
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
         settings,
         useDefaultMappings: true,
         mapping
       })
-    ).rejects.toThrowError(
-      new IntegrationError(
-        'external_id contains characters that are not supported when removing a Contact from a List: single quotes, backslashes and control characters.',
-        ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-        400
-      )
-    )
-  })
 
-  it('should only reject the remove payload with unsupported characters in a batch and still search for the others', async () => {
-    const specialCharPayload = JSON.parse(JSON.stringify(removePayload))
-    specialCharPayload.traits.anonymous_id = "anon'id"
-    specialCharPayload.anonymousId = "anon'id"
+      expect(responses[0].status).toBe(200)
+    })
 
-    const events = [createTestEvent(specialCharPayload), createTestEvent(removePayload2)]
+    it('should only reject the remove payload with unsupported characters in a batch', async () => {
+      const payload = JSON.parse(JSON.stringify(removePayload))
+      payload.anonymousId = "anon'id"
 
-    let searchBody: { query: string } | undefined
-    nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
-    nock('https://api.sendgrid.com')
-      .post('/v3/marketing/contacts/search', (body) => {
-        searchBody = body
-        return true
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [] })
+
+      const responses = await testDestination.executeBatch('syncAudience', {
+        events: [createTestEvent(payload), createTestEvent(removePayload2)],
+        settings,
+        mapping
       })
-      .reply(200, { result: [] })
 
-    const responses = await testDestination.executeBatch('syncAudience', { events, settings, mapping })
-
-    expect(responses[0]).toMatchObject({ status: 400, errortype: 'PAYLOAD_VALIDATION_FAILED' })
-    expect(responses[1]).toMatchObject({ status: 200 })
-    expect(searchBody?.query).not.toContain("anon'id")
+      expect(responses[0]).toMatchObject({
+        status: 400,
+        errortype: 'PAYLOAD_VALIDATION_FAILED',
+        errormessage: unsupportedMessage('anonymous_id')
+      })
+      expect(responses[1]).toMatchObject({ status: 200 })
+      expect(searchBody?.query).not.toContain("anon'id")
+    })
   })
 
   it('should return multistatus response with all errors if all payloads in a batch are invalid', async () => {
@@ -568,8 +592,7 @@ describe('SendgridAudiences.syncAudience', () => {
     const responseError = {
       status: 400,
       errortype: 'PAYLOAD_VALIDATION_FAILED',
-      errormessage:
-        'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
+      errormessage: 'At least one identifier from Email Address, Phone Number ID, Anonymous ID or External ID is required.',
       errorreporter: 'INTEGRATIONS'
     }
 
@@ -600,12 +623,14 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const upsertNoAddBatchExpectedPayload = {
       list_ids: [],
-      contacts: Array.from({ length: 30 }, (_, i) => ({
-        email: `test${i + 1}@gmail.com`,
-        external_id: `some_external_id_${i + 1}`,
-        phone_number_id: `+35312345678${i + 1}`,
-        anonymous_id: `some_anonymous_id_${i + 1}`
-      }))
+      contacts: Array.from({ length: 30 }, (_, i) => (
+        {
+          email: `test${i + 1}@gmail.com`,
+          external_id: `some_external_id_${i + 1}`,
+          phone_number_id: `+35312345678${i + 1}`,
+          anonymous_id: `some_anonymous_id_${i + 1}`
+        }
+      ))
     }
 
     const events = payloads.map(createTestEvent)
@@ -638,7 +663,7 @@ describe('SendgridAudiences.syncAudience', () => {
     })
 
     expect(responses.length).toBe(30)
-    for (let i = 0; i < 30; i++) {
+    for(let i = 0; i < 30; i++) {
       expect(responses[i].status).toBe(200)
     }
   })
@@ -657,9 +682,11 @@ describe('SendgridAudiences.syncAudience', () => {
 
     const upsertNoAddBatchExpectedPayload = {
       list_ids: [],
-      contacts: Array.from({ length: 120 }, (_, i) => ({
-        email: `test${i + 1}@gmail.com`
-      }))
+      contacts: Array.from({ length: 120 }, (_, i) => (
+        {
+          email: `test${i + 1}@gmail.com`
+        }
+      ))
     }
 
     const events = payloads.map(createTestEvent)
@@ -700,14 +727,14 @@ describe('SendgridAudiences.syncAudience', () => {
     })
 
     expect(responses.length).toBe(120)
-    for (let i = 0; i < 120; i++) {
+    for(let i = 0; i < 120; i++) {
       expect(responses[i].status).toBe(200)
     }
   })
 
   it('phone number should be E.164', async () => {
     const goodPhone = '+353123456789' // E.164
-    const badPhone = '123456789' // no +
+    const badPhone = '123456789' // no + 
     const badPhone2 = '+3531234567890678' // too long
 
     expect(validatePhone(goodPhone)).toBe(true)
@@ -716,20 +743,21 @@ describe('SendgridAudiences.syncAudience', () => {
   })
 
   it('dates are formatted correctly to Sendgrid', async () => {
-    const goodDate = '01-01-2024'
-    const goodDate2 = '01-24-2024'
+    const goodDate = "01-01-2024"
+    const goodDate2 = "01-24-2024"
     const goodDate3 = '2024-01-01T00:00:00.000Z'
-    const goodDate4 = '01/24/2024' // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
-    const badDate = '13-01-2024'
-    const badDate2 = '24/01/2024'
+    const goodDate4 = "01/24/2024" // default for ambiguous dates is US ISO 8601 format MM/DD/YYYY
+    const badDate = "13-01-2024"
+    const badDate2 = "24/01/2024"
     const badDate3 = '+3531234567890678'
 
-    expect(toDateFormat(goodDate)).toBe('01/01/2024')
-    expect(toDateFormat(goodDate2)).toBe('01/24/2024')
-    expect(toDateFormat(goodDate3)).toBe('01/01/2024')
-    expect(toDateFormat(goodDate4)).toBe('01/24/2024')
+    expect(toDateFormat(goodDate)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate2)).toBe("01/24/2024")
+    expect(toDateFormat(goodDate3)).toBe("01/01/2024")
+    expect(toDateFormat(goodDate4)).toBe("01/24/2024")
     expect(toDateFormat(badDate)).toBe(undefined)
     expect(toDateFormat(badDate2)).toBe(undefined)
     expect(toDateFormat(badDate3)).toBe(undefined)
   })
+  
 })
