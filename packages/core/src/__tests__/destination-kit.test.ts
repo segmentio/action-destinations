@@ -1,4 +1,4 @@
-import { ErrorCodes, IntegrationError } from '../errors'
+import { ErrorCodes, IntegrationError, InvalidAuthenticationError, RetryableError } from '../errors'
 import {
   ActionDefinition,
   AsyncActionDefinition,
@@ -1593,6 +1593,231 @@ describe('destination kit', () => {
         expect(spy).toHaveBeenCalledTimes(0)
       })
     })
+    describe('deferRetryAfterRefresh', () => {
+      const DEFER_FLAG = 'defer-retry-after-refresh'
+      const testEvent: SegmentEvent = {
+        properties: { a: 'foo' },
+        userId: '3456fff',
+        type: 'track'
+      }
+      // The access token is rejected (401) until it is refreshed, like a token that expired. Built per test because
+      // a refresh writes the new token into the settings object it was given.
+      const buildSettings = () => ({
+        apiSecret: 'test_key',
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'customEvent',
+          mapping: { name: 'fancy_event123', advertiserId: '1231241241' }
+        },
+        oauth: { access_token: 'invalid-access-token', refresh_token: 'refresh-token' }
+      })
+
+      const deferWhenFlagIsOn = (features?: Record<string, boolean>) => !!features?.[DEFER_FLAG]
+      const destinationWithDeferral = (authOverrides: Partial<OAuth2Authentication<JSONObject>> = {}) =>
+        new Destination({
+          ...destinationOAuth3,
+          authentication: { ...authentication, deferRetryAfterRefresh: deferWhenFlagIsOn, ...authOverrides }
+        } as DestinationDefinition<JSONObject>)
+
+      // Stands in for the integration's state context: reads come from `previousContext`, writes are recorded.
+      const buildOptions = (previousContext: Record<string, string> = {}, features: Record<string, boolean> = {}) => {
+        const written: Record<string, { value: string; ttl: { hour?: number; minute?: number; second?: number } }> = {}
+        const options = {
+          features,
+          statsContext: { statsClient: { incr: jest.fn() } as unknown as StatsClient, tags: ['test:tag'] },
+          onTokenRefresh: jest.fn(async (_tokens: RefreshAccessTokenResult) => undefined),
+          stateContext: {
+            getRequestContext: (key: string) => previousContext[key],
+            setResponseContext: (key: string, value: string, ttl: { hour?: number; minute?: number }) => {
+              written[key] = { value, ttl }
+            }
+          } as unknown as StateContext
+        }
+        return { options, written }
+      }
+
+      test('refreshes the token and fails the event with a retryable 503 instead of retrying in-process', async () => {
+        const refreshSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const { options, written } = buildOptions({}, { [DEFER_FLAG]: true })
+
+        // With the fresh token the action would succeed, so a rejection shows there was no in-process retry.
+        const error = await destinationWithDeferral()
+          .onEvent(testEvent, buildSettings(), options)
+          .catch((e) => e)
+
+        expect(error).toBeInstanceOf(RetryableError)
+        expect(error.status).toBe(503)
+        expect(refreshSpy).toHaveBeenCalledTimes(1)
+        expect(options.onTokenRefresh).toHaveBeenCalledWith({ accessToken: 'fresh-token' })
+        expect(written['token_refresh_deferrals']).toEqual({ value: '1', ttl: { minute: 15 } })
+        expect(options.statsContext.statsClient.incr).toHaveBeenCalledWith(
+          'token_refresh.deferred',
+          1,
+          expect.arrayContaining(['test:tag'])
+        )
+      })
+
+      test('adds to the deferrals already counted in the window', async () => {
+        const { options, written } = buildOptions({ token_refresh_deferrals: '2' }, { [DEFER_FLAG]: true })
+
+        await expect(destinationWithDeferral().onEvent(testEvent, buildSettings(), options)).rejects.toBeInstanceOf(
+          RetryableError
+        )
+        expect(written['token_refresh_deferrals'].value).toBe('3')
+      })
+
+      test('treats an unreadable counter as zero', async () => {
+        const { options, written } = buildOptions({ token_refresh_deferrals: 'not-a-number' }, { [DEFER_FLAG]: true })
+
+        await expect(destinationWithDeferral().onEvent(testEvent, buildSettings(), options)).rejects.toBeInstanceOf(
+          RetryableError
+        )
+        expect(written['token_refresh_deferrals'].value).toBe('1')
+      })
+
+      test('falls back to the in-process refresh and retry once the deferral budget is used, and delivers', async () => {
+        const refreshSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const { options, written } = buildOptions({ token_refresh_deferrals: '3' }, { [DEFER_FLAG]: true })
+
+        const res = await destinationWithDeferral().onEvent(testEvent, buildSettings(), options)
+
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+        expect(refreshSpy).toHaveBeenCalledTimes(1)
+        expect(options.onTokenRefresh).toHaveBeenCalledWith({ accessToken: 'fresh-token' })
+        // The counter is left alone, so the budget recovers once the window lapses.
+        expect(written).toEqual({})
+        expect(options.statsContext.statsClient.incr).toHaveBeenCalledWith(
+          'token_refresh.deferral_cap_hit',
+          1,
+          expect.arrayContaining(['test:tag'])
+        )
+      })
+
+      test('never drops an event when other events of the same instance used up the budget', async () => {
+        // A state context shared by every event, like the integration's: writes are visible to later events.
+        const shared: Record<string, string> = {}
+        const sharedOptions = () => {
+          const { options } = buildOptions({}, { [DEFER_FLAG]: true })
+          options.stateContext = {
+            getRequestContext: (key: string) => shared[key],
+            setResponseContext: (key: string, value: string) => {
+              shared[key] = value
+            }
+          } as unknown as StateContext
+          return options
+        }
+        const destination = destinationWithDeferral()
+
+        // Four events hit a 401 (for example in flight when the token expired). The first three are deferred.
+        for (let i = 0; i < 3; i++) {
+          await expect(destination.onEvent(testEvent, buildSettings(), sharedOptions())).rejects.toBeInstanceOf(
+            RetryableError
+          )
+        }
+        expect(shared['token_refresh_deferrals']).toBe('3')
+
+        // The fourth is refreshed and retried in-process (the default flow) and delivered, not failed.
+        const res = await destination.onEvent(testEvent, buildSettings(), sharedOptions())
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+        expect(shared['token_refresh_deferrals']).toBe('3')
+      })
+
+      test('does not defer when the option returns false for the request features', async () => {
+        const refreshSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const { options, written } = buildOptions({}, {})
+
+        const res = await destinationWithDeferral().onEvent(testEvent, buildSettings(), options)
+
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+        expect(refreshSpy).toHaveBeenCalledTimes(1)
+        expect(written).toEqual({})
+      })
+
+      test('does not defer when the destination does not set the option', async () => {
+        const { options, written } = buildOptions({}, { [DEFER_FLAG]: true })
+
+        const res = await new Destination(destinationOAuth3).onEvent(testEvent, buildSettings(), options)
+
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+        expect(written).toEqual({})
+      })
+
+      test('does not defer without a state context, because the cap would have nowhere to live', async () => {
+        const { options } = buildOptions({}, { [DEFER_FLAG]: true })
+
+        const res = await destinationWithDeferral().onEvent(testEvent, buildSettings(), {
+          ...options,
+          stateContext: undefined
+        })
+
+        expect(res).toContainEqual({ data: 'this is a test', output: 'Action Executed' })
+      })
+
+      test('does not defer on errors other than 401', async () => {
+        const refreshSpy = jest.spyOn(authentication, 'refreshAccessToken')
+        const { options, written } = buildOptions({}, { [DEFER_FLAG]: true })
+        const badBatch: SegmentEvent[] = [
+          { properties: { advertiserId: WRONG_ADVERTISER_ID }, userId: '3456fff', type: 'track' }
+        ]
+        const baseSettings = buildSettings()
+        const settings = {
+          ...baseSettings,
+          subscription: {
+            ...baseSettings.subscription,
+            mapping: { name: 'fancy_event123', advertiserId: { '@path': '$.properties.advertiserId' } }
+          },
+          oauth: { access_token: 'valid-access-token', refresh_token: 'refresh-token' }
+        }
+
+        await expect(destinationWithDeferral().onBatch(badBatch, settings, options)).rejects.toThrowError(
+          'Wrong AdvertiserId Value'
+        )
+        expect(refreshSpy).not.toHaveBeenCalled()
+        expect(written).toEqual({})
+      })
+
+      test('defers for a batch as well as a single event', async () => {
+        const { options, written } = buildOptions({}, { [DEFER_FLAG]: true })
+        const batch: SegmentEvent[] = [{ properties: { advertiserId: '123456789' }, userId: '3456fff', type: 'track' }]
+        const baseSettings = buildSettings()
+        const settings = {
+          ...baseSettings,
+          subscription: {
+            ...baseSettings.subscription,
+            mapping: { name: 'fancy_event123', advertiserId: { '@path': '$.properties.advertiserId' } }
+          }
+        }
+
+        await expect(destinationWithDeferral().onBatch(batch, settings, options)).rejects.toBeInstanceOf(RetryableError)
+        expect(written['token_refresh_deferrals'].value).toBe('1')
+      })
+
+      test('works for the oauth-managed scheme', async () => {
+        const { options, written } = buildOptions({}, {})
+        const managed = new Destination({
+          ...destinationOAuth3,
+          authentication: {
+            scheme: 'oauth-managed',
+            fields: {},
+            refreshAccessToken: authentication.refreshAccessToken,
+            deferRetryAfterRefresh: () => true
+          } as OAuthManagedAuthentication<JSONObject>
+        } as DestinationDefinition<JSONObject>)
+
+        await expect(managed.onEvent(testEvent, buildSettings(), options)).rejects.toBeInstanceOf(RetryableError)
+        expect(written['token_refresh_deferrals'].value).toBe('1')
+      })
+
+      test('surfaces a failed refresh as it is, without deferring or counting', async () => {
+        const failure = new InvalidAuthenticationError('Your refresh token is invalid or expired')
+        jest.spyOn(authentication, 'refreshAccessToken').mockRejectedValueOnce(failure)
+        const { options, written } = buildOptions({}, { [DEFER_FLAG]: true })
+
+        await expect(destinationWithDeferral().onEvent(testEvent, buildSettings(), options)).rejects.toBe(failure)
+        expect(options.onTokenRefresh).not.toHaveBeenCalled()
+        expect(written).toEqual({})
+      })
+    })
     describe('onBatch', () => {
       test('should refresh the access-token in case of Unauthorized(401)', async () => {
         const destinationTest = new Destination(destinationOAuth3)
@@ -2154,6 +2379,163 @@ describe('destination kit', () => {
           },
         ]
       `)
+    })
+    describe('deferRetryAfterRefresh with a multistatus 401', () => {
+      const DEFER_FLAG = 'defer-retry-after-refresh'
+      const receivedAt = '2024-08-03T17:40:04.055Z'
+
+      // Each item's `outcome` property says how the provider answers it: 'invalid' fails validation (400), 'accepted'
+      // succeeds whatever the token, and anything else is rejected with 401 while the token is the old one.
+      const itemsWith = (...outcomes: string[]): SegmentEvent[] =>
+        outcomes.map((outcome) => ({ event: 'Add to Cart', type: 'track', properties: { outcome }, receivedAt }))
+
+      const build = (deferRetryAfterRefresh?: OAuth2Authentication<any>['deferRetryAfterRefresh']) => {
+        const refreshAccessToken = jest.fn().mockResolvedValue({ accessToken: 'new-access-token' })
+        const tokensSeen: (string | undefined)[] = []
+        const destination = new Destination({
+          name: 'Multistatus deferral',
+          mode: 'cloud',
+          authentication: { scheme: 'oauth2', fields: {}, refreshAccessToken, deferRetryAfterRefresh },
+          actions: {
+            trackEvent: {
+              title: 'Track Event',
+              description: 'Track Event',
+              fields: {
+                name: { label: 'Name', description: 'Name', type: 'string', required: true },
+                outcome: { label: 'Outcome', description: 'Outcome', type: 'string' }
+              },
+              perform: () => ({}),
+              performBatch: (_request, { payload, auth }) => {
+                tokensSeen.push(auth?.accessToken)
+                const response = new MultiStatusResponse()
+                payload.forEach((item) => {
+                  if (item.outcome === 'invalid') {
+                    response.pushErrorResponse({ status: 400, errortype: ErrorCodes.BAD_REQUEST, errormessage: 'bad' })
+                  } else if (item.outcome !== 'accepted' && auth?.accessToken === 'OldToken') {
+                    response.pushErrorResponse({
+                      status: 401,
+                      errortype: ErrorCodes.INVALID_AUTHENTICATION,
+                      errormessage: 'Invalid Auth'
+                    })
+                  } else {
+                    response.pushSuccessResponse({ status: 200, sent: {}, body: {} })
+                  }
+                })
+                return response
+              }
+            }
+          }
+        } as DestinationDefinition<JSONObject>)
+        destination.refreshAccessToken = refreshAccessToken
+        return { destination, refreshAccessToken, tokensSeen }
+      }
+
+      const settings = () => ({
+        oauth: { access_token: 'OldToken', refresh_token: 'refresh-token' },
+        subscription: {
+          subscribe: 'type = "track"',
+          partnerAction: 'trackEvent',
+          mapping: { name: { '@path': '$.event' }, outcome: { '@path': '$.properties.outcome' } }
+        }
+      })
+
+      const buildOptions = (previousContext: Record<string, string> = {}, flagOn = true) => {
+        const written: Record<string, { value: string; ttl: unknown }> = {}
+        const options = {
+          features: (flagOn ? { [DEFER_FLAG]: true } : {}) as Record<string, boolean>,
+          statsContext: { statsClient: { incr: jest.fn() } as unknown as StatsClient, tags: ['test:tag'] },
+          onTokenRefresh: jest.fn(async (_tokens: RefreshAccessTokenResult) => undefined),
+          stateContext: {
+            getRequestContext: (key: string) => previousContext[key],
+            setResponseContext: (key: string, value: string, ttl: unknown) => {
+              written[key] = { value, ttl }
+            }
+          } as unknown as StateContext
+        }
+        return { options, written }
+      }
+
+      const deferWhenFlagIsOn = (features?: Record<string, boolean>) => !!features?.[DEFER_FLAG]
+
+      test('every item 401: refreshes, saves the token and fails the batch with a retryable 503', async () => {
+        const { destination, refreshAccessToken, tokensSeen } = build(deferWhenFlagIsOn)
+        const { options, written } = buildOptions()
+
+        const error = await destination.onBatch(itemsWith('401', '401'), settings(), options).catch((e) => e)
+
+        expect(error).toBeInstanceOf(RetryableError)
+        expect(error.status).toBe(503)
+        // One call to the provider: the batch is not resent in-process with the new token.
+        expect(tokensSeen).toEqual(['OldToken'])
+        expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+        expect(options.onTokenRefresh).toHaveBeenCalledWith({ accessToken: 'new-access-token' })
+        expect(written['token_refresh_deferrals']).toEqual({ value: '1', ttl: { minute: 15 } })
+        expect(options.statsContext.statsClient.incr).toHaveBeenCalledWith(
+          'token_refresh.deferred',
+          1,
+          expect.arrayContaining(['test:tag'])
+        )
+      })
+
+      test('401 next to items that failed validation still defers, since nothing was accepted', async () => {
+        const { destination, tokensSeen } = build(deferWhenFlagIsOn)
+        const { options, written } = buildOptions()
+
+        await expect(
+          destination.onBatch(itemsWith('401', 'invalid', '401'), settings(), options)
+        ).rejects.toBeInstanceOf(RetryableError)
+        expect(tokensSeen).toEqual(['OldToken'])
+        expect(written['token_refresh_deferrals'].value).toBe('1')
+      })
+
+      test('401 next to an accepted item keeps the in-process retry and does not count a deferral', async () => {
+        const { destination, refreshAccessToken, tokensSeen } = build(deferWhenFlagIsOn)
+        const { options, written } = buildOptions()
+
+        const response = await destination.onBatch(itemsWith('accepted', '401'), settings(), options)
+
+        expect(tokensSeen).toEqual(['OldToken', 'new-access-token'])
+        expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+        expect((response as any)[0].multistatus.map((item: { status: number }) => item.status)).toEqual([200, 200])
+        expect(written).toEqual({})
+      })
+
+      test('once the budget is used up, falls back to the in-process retry and delivers', async () => {
+        const { destination, refreshAccessToken, tokensSeen } = build(deferWhenFlagIsOn)
+        const { options, written } = buildOptions({ token_refresh_deferrals: '3' })
+
+        const response = await destination.onBatch(itemsWith('401', '401'), settings(), options)
+
+        expect(tokensSeen).toEqual(['OldToken', 'new-access-token'])
+        expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+        expect((response as any)[0].multistatus.map((item: { status: number }) => item.status)).toEqual([200, 200])
+        expect(written).toEqual({})
+        expect(options.statsContext.statsClient.incr).toHaveBeenCalledWith(
+          'token_refresh.deferral_cap_hit',
+          1,
+          expect.arrayContaining(['test:tag'])
+        )
+      })
+
+      test.each([
+        ['the flag is off', deferWhenFlagIsOn, false, true],
+        ['the destination does not set the option', undefined, true, true],
+        ['there is no state context', deferWhenFlagIsOn, true, false]
+      ])('keeps the in-process retry when %s', async (_name, option, flagOn, withStateContext) => {
+        const { destination, refreshAccessToken, tokensSeen } = build(option)
+        const { options, written } = buildOptions({}, flagOn)
+
+        const response = await destination.onBatch(
+          itemsWith('401', '401'),
+          settings(),
+          withStateContext ? options : { ...options, stateContext: undefined }
+        )
+
+        expect(tokensSeen).toEqual(['OldToken', 'new-access-token'])
+        expect(refreshAccessToken).toHaveBeenCalledTimes(1)
+        expect((response as any)[0].multistatus.map((item: { status: number }) => item.status)).toEqual([200, 200])
+        expect(written).toEqual({})
+      })
     })
     test('should refresh access token and retry events in case multistatus response contains 401 for oauth-managed destinations', async () => {
       const mockRefreshToken = jest.fn().mockReturnValue({

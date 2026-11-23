@@ -5,6 +5,8 @@ import { LINKEDIN_CONVERSIONS_API_VERSION, LINKEDIN_CONVERSIONS_CANARY_API_VERSI
 export const LINKEDIN_API_VERSION = LINKEDIN_CONVERSIONS_API_VERSION
 export const LINKEDIN_CANARY_API_VERSION = LINKEDIN_CONVERSIONS_CANARY_API_VERSION
 export const FLAGON_NAME = 'linkedin-conversions-canary-version'
+// Gates deferring the retry after a token refresh to Segment's backoff (STRATCONN-6544).
+export const FLAGON_DEFER_RETRY_NAME = 'linkedin-conversions-defer-retry-after-refresh'
 
 export function getApiVersion(features?: Features): string {
   return features && features[FLAGON_NAME] ? LINKEDIN_CANARY_API_VERSION : LINKEDIN_API_VERSION

@@ -35,7 +35,13 @@ import type {
   ResultMultiStatusNode
 } from './types'
 import type { AllRequestOptions } from '../request-client'
-import { ErrorCodes, IntegrationError, InvalidAuthenticationError, MultiStatusErrorReporter } from '../errors'
+import {
+  ErrorCodes,
+  IntegrationError,
+  InvalidAuthenticationError,
+  MultiStatusErrorReporter,
+  RetryableError
+} from '../errors'
 import { AuthTokens, getAuthData, getOAuth2Data, updateOAuthSettings } from './parse-settings'
 import { InputData, Features } from '../mapping-kit'
 import { retry } from '../retry'
@@ -294,6 +300,8 @@ export interface OAuth2Authentication<Settings> extends Authentication<Settings>
     request: RequestClient,
     input: RefreshAuthSettings<Settings>
   ) => Promise<RefreshAccessTokenResult>
+  /** See {@link DeferRetryAfterRefresh}. */
+  deferRetryAfterRefresh?: DeferRetryAfterRefresh
 }
 
 /**
@@ -307,7 +315,39 @@ export interface OAuthManagedAuthentication<Settings> extends Authentication<Set
     request: RequestClient,
     input: RefreshAuthSettings<Settings>
   ) => Promise<RefreshAccessTokenResult>
+  /** See {@link DeferRetryAfterRefresh}. */
+  deferRetryAfterRefresh?: DeferRetryAfterRefresh
 }
+
+/**
+ * Opt-in behaviour for providers that sometimes reject an access token that was issued moments earlier
+ * (eventual consistency on the provider's side).
+ *
+ * By default a 401 refreshes the token and immediately retries the call in-process, which is where such a
+ * freshly issued token gets rejected. When this is enabled, a 401 still refreshes the token (and saves it through
+ * `onTokenRefresh`), but the event is then failed with a `RetryableError(503)` so Segment retries it after a backoff,
+ * by which time the new token has propagated.
+ *
+ * Deferrals are budgeted per destination instance, not per event: the state context is shared by all events of the
+ * instance, and core has no per-event attempt count. Once `MAX_REFRESH_DEFERRALS` deferrals have happened with no gap
+ * longer than `REFRESH_DEFERRAL_WINDOW_MINUTES` between them (each deferral restarts the window), further 401s fall back
+ * to the default refresh-and-retry-in-process flow until the window lapses. So the worst case is the default behaviour,
+ * never a dropped event, and a token the provider keeps rejecting cannot cause an unbounded stream of deferred retries.
+ *
+ * A multistatus response with a 401 is deferred only when no item in it succeeded, which is the shape of a request the
+ * provider rejected as a whole (every item 401, possibly next to items that failed validation). If any item succeeded,
+ * it keeps the in-process retry, so a deferral never fails the event for items the provider already accepted.
+ *
+ * It is a function of the request's feature flags so that a rollout can be gated.
+ */
+export type DeferRetryAfterRefresh = (features?: Features) => boolean
+
+/** Deferrals allowed per destination instance within the sliding window before falling back to the in-process retry. */
+const MAX_REFRESH_DEFERRALS = 3
+/** Sliding window for the deferral budget: the counter lives in the state context with this TTL, restarted on each write. */
+const REFRESH_DEFERRAL_WINDOW_MINUTES = 15
+/** State context key (shared by all events of a destination instance) holding the deferrals counted in the current window period. */
+const REFRESH_DEFERRAL_CONTEXT_KEY = 'token_refresh_deferrals'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type AuthenticationScheme<Settings = any> =
@@ -1131,11 +1171,19 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
           If the multistatus response contains a 401 status code, we should retry the request
           if we haven't already retried the request the maximum number of times.
           So, we throw an InvalidAuthenticationError to retry the request.
+          With deferRetryAfterRefresh on, the retry is deferred to Segment's backoff instead, but only when no item
+          succeeded: then the provider rejected the request as a whole and failing the batch fails nothing it accepted.
          */
         const has401Errors = result?.multistatus?.some((event) => event.status === 401)
         const isOAuthDestination =
           this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed'
         if (attemptCount <= MAX_ATTEMPTS && has401Errors && isOAuthDestination) {
+          const anyItemSucceeded = result.multistatus?.some((event) => event.status >= 200 && event.status < 300)
+          if (!anyItemSucceeded && this.isRetryDeferredAfterRefresh(options)) {
+            // Throws the RetryableError, or once the budget is used up refreshes for the in-process retry below.
+            await this.refreshAndDeferRetry(settings, options)
+            return false
+          }
           await this.handleAuthError(settings, options)
           return false
         }
@@ -1181,13 +1229,50 @@ export class Destination<Settings = JSONObject, AudienceSettings = JSONObject> {
     options?: OnEventOptions
   ): Promise<JSONObject> {
     const statusCode = (error as ResponseError).status ?? (error as HTTPError)?.response?.status ?? 500
-    const needsReauthentication =
-      statusCode === 401 &&
-      (this.authentication?.scheme === 'oauth2' || this.authentication?.scheme === 'oauth-managed')
+    const auth = this.authentication
+    const needsReauthentication = statusCode === 401 && (auth?.scheme === 'oauth2' || auth?.scheme === 'oauth-managed')
     if (!needsReauthentication) {
       throw error
     }
+    if (this.isRetryDeferredAfterRefresh(options)) {
+      return this.refreshAndDeferRetry(settings, options)
+    }
     return this.handleAuthError(settings, options)
+  }
+
+  /** Whether a 401 should be refreshed and then deferred to Segment's backoff (see {@link DeferRetryAfterRefresh}). */
+  private isRetryDeferredAfterRefresh(options?: OnEventOptions): boolean {
+    const auth = this.authentication
+    if (auth?.scheme !== 'oauth2' && auth?.scheme !== 'oauth-managed') {
+      return false
+    }
+    // The deferral cap is kept in the state context, so without one we cannot bound the retries and keep the default flow.
+    return !!options?.stateContext && !!auth.deferRetryAfterRefresh?.(options.features)
+  }
+
+  /**
+   * Refreshes the token, then fails the event with a retryable error instead of retrying in-process, so the retry
+   * happens after Segment's backoff. The refreshed token is saved by `onTokenRefresh` inside `handleAuthError` and is
+   * picked up by the retried event. When the instance's deferral budget is used up, falls back to the default
+   * refresh-and-retry-in-process flow (see {@link DeferRetryAfterRefresh}).
+   */
+  private async refreshAndDeferRetry(settings: JSONObject, options?: OnEventOptions): Promise<JSONObject> {
+    const statsContext = options?.statsContext
+    const deferralsSoFar = Number(options?.stateContext?.getRequestContext(REFRESH_DEFERRAL_CONTEXT_KEY)) || 0
+
+    if (deferralsSoFar >= MAX_REFRESH_DEFERRALS) {
+      statsContext?.statsClient?.incr('token_refresh.deferral_cap_hit', 1, statsContext?.tags)
+      return this.handleAuthError(settings, options)
+    }
+
+    // If the refresh itself fails (for example an expired or revoked refresh token) that error is thrown as is.
+    await this.handleAuthError(settings, options)
+
+    options?.stateContext?.setResponseContext(REFRESH_DEFERRAL_CONTEXT_KEY, String(deferralsSoFar + 1), {
+      minute: REFRESH_DEFERRAL_WINDOW_MINUTES
+    })
+    statsContext?.statsClient?.incr('token_refresh.deferred', 1, statsContext?.tags)
+    throw new RetryableError('Access token was refreshed. Retrying the request after a delay.', 503)
   }
 
   /**

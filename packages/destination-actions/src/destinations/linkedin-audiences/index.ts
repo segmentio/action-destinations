@@ -6,7 +6,7 @@ import { InvalidAuthenticationError, IntegrationError, ErrorCodes } from '@segme
 import type { Settings } from './generated-types'
 import updateAudience from './updateAudience'
 import updateCompanyAudience from './updateCompanyAudience'
-import { getApiVersion } from './constants'
+import { getApiVersion, FLAGON_DEFER_RETRY_NAME } from './constants'
 import { LinkedInAudiences } from './api'
 import type {
   RefreshTokenResponse,
@@ -24,6 +24,9 @@ const destination: DestinationDefinition<Settings> = {
 
   authentication: {
     scheme: 'oauth2',
+    // LinkedIn can reject an access token within a second of issuing it (STRATCONN-6544). Behind a flag, retry after
+    // Segment's backoff instead of immediately.
+    deferRetryAfterRefresh: (features) => !!features?.[FLAGON_DEFER_RETRY_NAME],
     fields: {
       ad_account_id: {
         label: 'LinkedIn Ad Account Id',
@@ -129,7 +132,12 @@ const destination: DestinationDefinition<Settings> = {
         res = await request<RefreshTokenResponse>('https://www.linkedin.com/oauth/v2/accessToken', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            // extendRequest adds `Authorization: Bearer ${auth?.accessToken}` to every request. On the refresh call
+            // core passes no token, so it goes out as "Bearer undefined", and LinkedIn then often rejects the new
+            // token for a few seconds (STRATCONN-6544). Core deletes a header whose per-request value is the string
+            // "undefined", so this keeps Authorization off the token endpoint call.
+            authorization: undefined as unknown as string
           },
           body: new URLSearchParams({
             refresh_token: auth.refreshToken,
