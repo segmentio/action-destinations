@@ -602,6 +602,36 @@ describe('SendgridAudiences.syncAudience', () => {
       )
     })
 
+    it('should keep an external_id with several quoted segments as one value and remove only the matched Contact', async () => {
+      const payload = JSON.parse(JSON.stringify(removePayload))
+      payload.traits.external_id = "id_a') OR external_id LIKE 'id_b' OR external_id IN ('id_a"
+
+      let searchBody: { query: string } | undefined
+      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
+        })
+        .reply(200, { result: [{ id: 'contact_1_id' }] })
+      const deleteScope = nock('https://api.sendgrid.com')
+        .delete('/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=contact_1_id')
+        .reply(200, {})
+
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(searchBody?.query).toBe(
+        "email IN ('testemail@gmail.com') OR phone_number_id IN ('+353123456789') OR external_id IN ('id_a\\') OR external_id LIKE \\'id_b\\' OR external_id IN (\\'id_a') OR anonymous_id IN ('some_anonymous_id')"
+      )
+      expect(deleteScope.isDone()).toBe(true)
+      expect(responses[responses.length - 1].status).toBe(200)
+    })
+
     it('should still add a Contact whose identifier contains a single quote', async () => {
       const payload = JSON.parse(JSON.stringify(addPayload))
       payload.traits.external_id = "o'brien_id"
