@@ -48,7 +48,7 @@ export function retlOnMappingSaveHook<Payload>(): ActionHookDefinition<
     performHook: async (request, { settings, hookInputs = {} }) => {
       if (hookInputs.list_identifier) {
         try {
-          return getList(request, settings, hookInputs.list_identifier)
+          return await getList(request, settings, hookInputs.list_identifier)
         } catch (e) {
           const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to get list'
           const code = (e as IntegrationError).code || 'GET_LIST_FAILURE'
@@ -61,7 +61,7 @@ export function retlOnMappingSaveHook<Payload>(): ActionHookDefinition<
         }
       }
       try {
-        return createList(request, settings, hookInputs.list_name ?? '')
+        return await createList(request, settings, hookInputs.list_name ?? '')
       } catch (e) {
         const message = (e as IntegrationError).message || JSON.stringify(e) || 'Failed to create list'
         const code = (e as IntegrationError).code || 'CREATE_LIST_FAILURE'
