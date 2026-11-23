@@ -293,11 +293,17 @@ function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
   return chunks
 }
 
-// Identifier values are placed inside single-quoted values in the search query built by getQueryPart.
-// Quotes, backslashes and control characters are not supported there, so those payloads are rejected
-// before the query is built.
+// Identifier values are placed inside single-quoted string literals in the search query built by getQueryPart.
+// Quotes and backslashes are escaped there (see escapeQueryValue). Control characters can't be represented,
+// so those payloads are rejected before the query is built.
 // eslint-disable-next-line no-control-regex
-const UNSUPPORTED_ID_CHARS = /['\\\u0000-\u001f\u007f]/
+const UNSUPPORTED_ID_CHARS = /[\u0000-\u001f\u007f]/
+
+// SendGrid query strings use backslash as the escape character, and the backslash itself must be escaped:
+// https://www.twilio.com/docs/sendgrid/for-developers/sending-email/segmentation-query-language
+export function escapeQueryValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+}
 
 function rejectUnsupportedIdentifiers(payloads: IndexedPayload[], identifierTypes: (keyof IndexedPayload['identifiers'])[]) {
   payloads
@@ -308,7 +314,7 @@ function rejectUnsupportedIdentifiers(payloads: IndexedPayload[], identifierType
         return typeof value === 'string' && UNSUPPORTED_ID_CHARS.test(value)
       })
       if (idType) {
-        assignErrors([p], 'remove', 400, `${idType} contains characters that are not supported when removing a Contact from a List: single quotes, backslashes and control characters.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
+        assignErrors([p], 'remove', 400, `${idType} contains characters that are not supported when removing a Contact from a List: control characters.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
       }
     })
 }
@@ -318,7 +324,7 @@ function getQueryPart(identifier: keyof IndexedPayload['identifiers'], payloads:
     .filter((payload) => payload.identifiers[identifier] !== undefined && payload.identifiers[identifier] !== null)
     .map((payload) => payload.identifiers[identifier])
 
-  const part = values.length > 0 ? `${identifier} IN (${values.map((value) => `'${value}'`).join(',')})` : ''
+  const part = values.length > 0 ? `${identifier} IN (${values.map((value) => `'${escapeQueryValue(String(value))}'`).join(',')})` : ''
   return part
 }
 
