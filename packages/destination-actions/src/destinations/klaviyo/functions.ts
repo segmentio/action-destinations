@@ -536,8 +536,16 @@ export async function createList(request: RequestClient, settings: Settings, lis
     headers: buildHeaders(apiKey),
     json: {
       data: { type: 'list', attributes: { name: listName } }
-    }
+    },
+    throwHttpErrors: false
   })
+
+  if (!response.ok) {
+    const errorResponse = await response.json()
+    const klaviyoErrorDetail = errorResponse.errors[0].detail
+    throw new APIError(klaviyoErrorDetail, response.status)
+  }
+
   const r = await response.json()
 
   return {
