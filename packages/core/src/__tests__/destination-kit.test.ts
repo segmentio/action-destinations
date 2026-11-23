@@ -2442,7 +2442,7 @@ describe('destination kit', () => {
       const buildOptions = (previousContext: Record<string, string> = {}, flagOn = true) => {
         const written: Record<string, { value: string; ttl: unknown }> = {}
         const options = {
-          features: flagOn ? { [DEFER_FLAG]: true } : {},
+          features: (flagOn ? { [DEFER_FLAG]: true } : {}) as Record<string, boolean>,
           statsContext: { statsClient: { incr: jest.fn() } as unknown as StatsClient, tags: ['test:tag'] },
           onTokenRefresh: jest.fn(async (_tokens: RefreshAccessTokenResult) => undefined),
           stateContext: {
