@@ -506,9 +506,6 @@ describe('SendgridAudiences.syncAudience', () => {
   })
 
   describe('identifiers with special characters', () => {
-    const unsupportedMessage = (field: string) =>
-      `${field} contains characters that are not supported when removing a Contact from a List: control characters.`
-
     const setIdentifier = (payload: any, field: string, value: string) => {
       if (field === 'anonymous_id') {
         payload.anonymousId = value
@@ -548,25 +545,30 @@ describe('SendgridAudiences.syncAudience', () => {
 
     it.each([
       ['anonymous_id', 'line\nbreak'],
+      ['external_id', 'tab\tchar'],
       ['external_id', 'del\u007fchar']
-    ])('should reject a remove payload whose %s is %j without searching SendGrid', async (field, value) => {
+    ])('should send %s %j to the search unchanged when removing', async (field, value) => {
       const payload = JSON.parse(JSON.stringify(removePayload))
       setIdentifier(payload, field, value)
 
+      let searchBody: { query: string } | undefined
       nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
-      const search = nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search').reply(200, { result: [] })
-
-      await expect(
-        testDestination.testAction('syncAudience', {
-          event: createTestEvent(payload),
-          settings,
-          useDefaultMappings: true,
-          mapping
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search', (body) => {
+          searchBody = body
+          return true
         })
-      ).rejects.toThrowError(new IntegrationError(unsupportedMessage(field), ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400))
+        .reply(200, { result: [] })
 
-      expect(search.isDone()).toBe(false)
-      nock.cleanAll()
+      const responses = await testDestination.testAction('syncAudience', {
+        event: createTestEvent(payload),
+        settings,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(responses[responses.length - 1].status).toBe(200)
+      expect(searchBody?.query).toContain(`${field} IN ('${value}')`)
     })
 
     it.each([
@@ -616,7 +618,7 @@ describe('SendgridAudiences.syncAudience', () => {
             { id: 'match_anon', anonymous_id: 'some_anonymous_id' },
             { id: 'other_1', email: 'someone.else@gmail.com' },
             { id: 'other_2', external_id: 'unrelated_id' },
-            { id: 'other_3' }
+            { id: 'other_3', anonymous_id: 'unrelated_anon' }
           ]
         })
       const del = nock('https://api.sendgrid.com')
@@ -633,27 +635,23 @@ describe('SendgridAudiences.syncAudience', () => {
       expect(del.isDone()).toBe(true)
     })
 
-    it('should not search or remove anything when every remove payload in a batch is rejected', async () => {
-      const p1 = JSON.parse(JSON.stringify(removePayload))
-      p1.anonymousId = 'anon\nid'
-      const p2 = JSON.parse(JSON.stringify(removePayload2))
-      p2.traits.external_id = 'ext\tid'
-
+    it('should still remove search results that carry no identifier fields', async () => {
       nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
-      const search = nock('https://api.sendgrid.com').post('/v3/marketing/contacts/search').reply(200, { result: [] })
-      const del = nock('https://api.sendgrid.com').delete(/.*/).reply(200, {})
+      nock('https://api.sendgrid.com')
+        .post('/v3/marketing/contacts/search')
+        .reply(200, { result: [{ id: 'no_fields' }, { id: 'other', email: 'someone.else@gmail.com' }] })
+      const del = nock('https://api.sendgrid.com')
+        .delete('/v3/marketing/lists/sg_audience_id_12345/contacts?contact_ids=no_fields')
+        .reply(200, {})
 
       const responses = await testDestination.executeBatch('syncAudience', {
-        events: [createTestEvent(p1), createTestEvent(p2)],
+        events: [createTestEvent(removePayload)],
         settings,
         mapping
       })
 
-      expect(responses[0]).toMatchObject({ status: 400, errormessage: unsupportedMessage('anonymous_id') })
-      expect(responses[1]).toMatchObject({ status: 400, errormessage: unsupportedMessage('external_id') })
-      expect(search.isDone()).toBe(false)
-      expect(del.isDone()).toBe(false)
-      nock.cleanAll()
+      expect(responses[0]).toMatchObject({ status: 200 })
+      expect(del.isDone()).toBe(true)
     })
 
     it('should still add a Contact whose identifier contains a single quote', async () => {
@@ -672,34 +670,6 @@ describe('SendgridAudiences.syncAudience', () => {
       })
 
       expect(responses[0].status).toBe(200)
-    })
-
-    it('should only reject the remove payload with unsupported characters in a batch', async () => {
-      const payload = JSON.parse(JSON.stringify(removePayload))
-      payload.anonymousId = 'anon\nid'
-
-      let searchBody: { query: string } | undefined
-      nock('https://api.sendgrid.com').put('/v3/marketing/contacts').reply(200, {})
-      nock('https://api.sendgrid.com')
-        .post('/v3/marketing/contacts/search', (body) => {
-          searchBody = body
-          return true
-        })
-        .reply(200, { result: [] })
-
-      const responses = await testDestination.executeBatch('syncAudience', {
-        events: [createTestEvent(payload), createTestEvent(removePayload2)],
-        settings,
-        mapping
-      })
-
-      expect(responses[0]).toMatchObject({
-        status: 400,
-        errortype: 'PAYLOAD_VALIDATION_FAILED',
-        errormessage: unsupportedMessage('anonymous_id')
-      })
-      expect(responses[1]).toMatchObject({ status: 200 })
-      expect(searchBody?.query).not.toContain('anon\nid')
     })
   })
 

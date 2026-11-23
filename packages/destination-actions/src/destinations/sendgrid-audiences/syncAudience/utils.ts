@@ -211,7 +211,6 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
   }
 
   const identifierTypes: (keyof IndexedPayload['identifiers'])[] = ['email', 'phone_number_id', 'external_id', 'anonymous_id']
-  rejectUnsupportedIdentifiers(payloads, identifierTypes)
   const chunks = chunkPayloads(payloads)
 
   const queries = chunks.map((c) =>
@@ -266,6 +265,7 @@ async function removeFromList(request: RequestClient, payloads: IndexedPayload[]
 
 // Only Contacts with an identifier that exactly matches one from the batch are removed from the List.
 // Emails are compared case-insensitively, as SendGrid stores them in lowercase.
+// A search result that carries none of the identifier fields can't be checked, so it is kept (previous behavior).
 function normalizeIdentifier(idType: keyof IndexedPayload['identifiers'], value: string): string {
   return idType === 'email' ? value.toLowerCase() : value
 }
@@ -287,6 +287,9 @@ function matchesRequestedIdentifier(
   requested: Map<keyof IndexedPayload['identifiers'], Set<string>>,
   identifierTypes: (keyof IndexedPayload['identifiers'])[]
 ): boolean {
+  if (identifierTypes.every((t) => typeof item[t] !== 'string')) {
+    return true
+  }
   return identifierTypes.some((t) => {
     const value = item[t]
     return typeof value === 'string' && (requested.get(t)?.has(normalizeIdentifier(t, value)) ?? false)
@@ -326,29 +329,10 @@ function chunkPayloads(payloads: IndexedPayload[]): IndexedPayload[][] {
 }
 
 // Identifier values are placed inside single-quoted string literals in the search query built by getQueryPart.
-// Quotes and backslashes are escaped there (see escapeQueryValue). Control characters can't be represented,
-// so those payloads are rejected before the query is built.
-// eslint-disable-next-line no-control-regex
-const UNSUPPORTED_ID_CHARS = /[\u0000-\u001f\u007f]/
-
 // SendGrid query strings use backslash as the escape character, and the backslash itself must be escaped:
 // https://www.twilio.com/docs/sendgrid/for-developers/sending-email/segmentation-query-language
 export function escapeQueryValue(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
-}
-
-function rejectUnsupportedIdentifiers(payloads: IndexedPayload[], identifierTypes: (keyof IndexedPayload['identifiers'])[]) {
-  payloads
-    .filter((p) => !p.error && p.action === 'remove')
-    .forEach((p) => {
-      const idType = identifierTypes.find((t) => {
-        const value = p.identifiers[t]
-        return typeof value === 'string' && UNSUPPORTED_ID_CHARS.test(value)
-      })
-      if (idType) {
-        assignErrors([p], 'remove', 400, `${idType} contains characters that are not supported when removing a Contact from a List: control characters.`, ErrorCodes.PAYLOAD_VALIDATION_FAILED)
-      }
-    })
 }
 
 function getQueryPart(identifier: keyof IndexedPayload['identifiers'], payloads: IndexedPayload[]): string {
