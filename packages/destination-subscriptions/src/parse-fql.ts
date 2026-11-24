@@ -208,16 +208,9 @@ const parse = (tokens: Token[]): Condition => {
             value: String(getTokenValue(valueToken))
           })
         } else if (conditionType === 'name') {
-          if (isExists) {
-            nodes.push({
-              type: 'name',
-              operator: 'exists'
-            })
-          } else if (isNotExists) {
-            nodes.push({
-              type: 'name',
-              operator: 'not_exists'
-            })
+          if (isExists || isNotExists) {
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, operator })
           } else {
             nodes.push({
               type: 'name',
@@ -226,16 +219,9 @@ const parse = (tokens: Token[]): Condition => {
             })
           }
         } else if (conditionType === 'userId') {
-          if (isExists) {
-            nodes.push({
-              type: 'userId',
-              operator: 'exists'
-            })
-          } else if (isNotExists) {
-            nodes.push({
-              type: 'userId',
-              operator: 'not_exists'
-            })
+          if (isExists || isNotExists) {
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, operator } as Condition)
           } else if (isTrue) {
             nodes.push({
               type: 'userId',
@@ -254,28 +240,21 @@ const parse = (tokens: Token[]): Condition => {
             })
           }
         } else if (conditionType === 'event-property') {
-          if (isExists) {
-            nodes.push({
-              type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
-              operator: 'exists'
-            })
-          } else if (isNotExists) {
-            nodes.push({
-              type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
-              operator: 'not_exists'
-            })
+          const name = token.value.replace(/^(properties)\./, '')
+
+          if (isExists || isNotExists) {
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, name, operator })
           } else if (isTrue) {
             nodes.push({
               type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              name,
               operator: 'is_true'
             })
           } else if (isFalse) {
             nodes.push({
               type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              name,
               operator: 'is_false'
             })
           } else if (isNumberEquals) {
@@ -295,34 +274,27 @@ const parse = (tokens: Token[]): Condition => {
           } else {
             nodes.push({
               type: 'event-property',
-              name: token.value.replace(/^(properties)\./, ''),
+              name,
               operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
         } else if (conditionType === 'event-trait') {
-          if (isExists) {
-            nodes.push({
-              type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
-              operator: 'exists'
-            })
-          } else if (isNotExists) {
-            nodes.push({
-              type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
-              operator: 'not_exists'
-            })
+          const name = token.value.replace(/^(traits)\./, '')
+
+          if (isExists || isNotExists) {
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, name, operator })
           } else if (isTrue) {
             nodes.push({
               type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
+              name,
               operator: 'is_true'
             })
           } else if (isFalse) {
             nodes.push({
               type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
+              name,
               operator: 'is_false'
             })
           } else if (isNumberEquals) {
@@ -342,34 +314,27 @@ const parse = (tokens: Token[]): Condition => {
           } else {
             nodes.push({
               type: 'event-trait',
-              name: token.value.replace(/^(traits)\./, ''),
+              name,
               operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
           }
         } else if (conditionType === 'event-context') {
-          if (isExists) {
-            nodes.push({
-              type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
-              operator: 'exists'
-            })
-          } else if (isNotExists) {
-            nodes.push({
-              type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
-              operator: 'not_exists'
-            })
+          const name = token.value.replace(/^(context)\./, '')
+
+          if (isExists || isNotExists) {
+            const operator = isExists ? 'exists' : 'not_exists'
+            nodes.push({ type: conditionType, name, operator })
           } else if (isTrue) {
             nodes.push({
               type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
+              name,
               operator: 'is_true'
             })
           } else if (isFalse) {
             nodes.push({
               type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
+              name,
               operator: 'is_false'
             })
           } else if (isNumberEquals) {
@@ -389,7 +354,7 @@ const parse = (tokens: Token[]): Condition => {
           } else {
             nodes.push({
               type: 'event-context',
-              name: token.value.replace(/^(context)\./, ''),
+              name,
               operator: operatorToken.value as Operator,
               value: getTokenValue(valueToken)
             })
