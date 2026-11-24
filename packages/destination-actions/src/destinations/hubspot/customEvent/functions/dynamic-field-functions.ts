@@ -1,33 +1,32 @@
-import { RequestClient } from '@segment/actions-core'
+import { Features, RequestClient } from '@segment/actions-core'
 import { HubSpotError } from '../../errors'
-import { HUBSPOT_BASE_URL } from '../../properties'
 import { SUPPORTED_HUBSPOT_OBJECT_TYPES, DEFAULT_CUSTOM_EVENT_PROPERTIES } from '../constants'
 import { cleanEventName } from './validation-functions'
 import { DynamicFieldResponse } from '@segment/actions-core'
 import { Payload } from '../generated-types'
-import { HUBSPOT_CRM_API_VERSION } from '../../versioning-info'
+import { HubspotUrls, hubspotUrls } from '../../versioning-info'
 
 export const dynamicFields = {
-  event_name: async (request: RequestClient) => {
-    return await dynamicReadEventNames(request)
+  event_name: async (request: RequestClient, { features }: { features?: Features }) => {
+    return await dynamicReadEventNames(request, hubspotUrls(features))
   },
   record_details: {
-    object_type: async (request: RequestClient) => {
-      return await dynamicReadObjectTypes(request)
+    object_type: async (request: RequestClient, { features }: { features?: Features }) => {
+      return await dynamicReadObjectTypes(request, hubspotUrls(features))
     }
   },
   properties: {
-    __keys__: async (request: RequestClient, { payload }: { payload: Payload }) => {
+    __keys__: async (request: RequestClient, { payload, features }: { payload: Payload; features?: Features }) => {
       const eventName = payload?.event_name
       if (!eventName) {
         throw new Error("Select from 'Event Name' first")
       }
-      return await dynamicReadProperties(request, eventName)
+      return await dynamicReadProperties(request, hubspotUrls(features), eventName)
     }
   }
 }
 
-async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFieldResponse> {
+async function dynamicReadEventNames(request: RequestClient, urls: HubspotUrls): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -44,13 +43,10 @@ async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFie
   }
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions/?includeProperties=false`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.events}/event-definitions/?includeProperties=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     return {
       choices: response.data.results
@@ -76,7 +72,7 @@ async function dynamicReadEventNames(request: RequestClient): Promise<DynamicFie
   }
 }
 
-async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFieldResponse> {
+async function dynamicReadObjectTypes(request: RequestClient, urls: HubspotUrls): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: { singular: string; plural: string }
     fullyQualifiedName: string
@@ -91,13 +87,10 @@ async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFi
   const defaultChoices = SUPPORTED_HUBSPOT_OBJECT_TYPES
 
   try {
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/crm/${HUBSPOT_CRM_API_VERSION}/schemas?archived=false`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.schemas}?archived=false`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
     const choices = response.data.results.map((schema) => ({
       label: `${schema.labels.plural} (Custom)`,
       value: schema.fullyQualifiedName
@@ -120,7 +113,11 @@ async function dynamicReadObjectTypes(request: RequestClient): Promise<DynamicFi
   }
 }
 
-async function dynamicReadProperties(request: RequestClient, eventName: string): Promise<DynamicFieldResponse> {
+async function dynamicReadProperties(
+  request: RequestClient,
+  urls: HubspotUrls,
+  eventName: string
+): Promise<DynamicFieldResponse> {
   interface ResultItem {
     labels: {
       singular: string | null
@@ -146,13 +143,10 @@ async function dynamicReadProperties(request: RequestClient, eventName: string):
 
   try {
     // initially get full list of events. API doesn't offer ability to filter using fullyQualifiedName
-    const response: ResponseType = await request(
-      `${HUBSPOT_BASE_URL}/events/${HUBSPOT_CRM_API_VERSION}/event-definitions/?includeProperties=true`,
-      {
-        method: 'GET',
-        skipResponseCloning: true
-      }
-    )
+    const response: ResponseType = await request(`${urls.events}/event-definitions/?includeProperties=true`, {
+      method: 'GET',
+      skipResponseCloning: true
+    })
 
     const cleanedEventName = cleanEventName(eventName)
 
