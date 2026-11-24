@@ -3,6 +3,8 @@ import { defaultValues, IntegrationError } from '@segment/actions-core'
 import type { Settings } from './generated-types'
 
 import addToList from './addToList'
+import addToListAsync from './addToListAsync'
+import addToListAsyncPipeline from './addToListAsync/index.async'
 import removeFromList from './removeFromList'
 import syncList from './syncList'
 import { MarketoListResponse, GET_LIST_ENDPOINT } from './constants'
@@ -98,7 +100,11 @@ const destination: AudienceDestinationDefinition<Settings> = {
   actions: {
     addToList,
     removeFromList,
-    syncList
+    syncList,
+    addToListAsync
+  },
+  asyncActions: {
+    addToListAsync: addToListAsyncPipeline
   },
   presets: [
     {

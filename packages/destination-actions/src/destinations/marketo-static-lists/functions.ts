@@ -193,8 +193,7 @@ export async function removeFromList(
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
-  const deleteLeadsUrl =
-    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
+  const deleteLeadsUrl = api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -259,8 +258,7 @@ export async function removeFromListBatch(
 
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
-  const deleteLeadsUrl =
-    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
+  const deleteLeadsUrl = api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -295,7 +293,7 @@ export async function removeFromListBatch(
   return multiStatusResponse
 }
 
-function createFormData(csvData: string) {
+export function createFormData(csvData: string) {
   const boundary = '--SEGMENT-DATA--'
   const formData = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="leads.csv"\r\nContent-Type: text/csv\r\n\r\n${csvData}\r\n--${boundary}--\r\n`
   return formData
@@ -335,7 +333,7 @@ function extractLeadIds(leads: MarketoLeads[] = []) {
 // Explicitly retryable (NOT listed here): 1016 (too many imports), 1019 (import in progress),
 //   1020 (daily clone quota), 1029 (bulk extract queue/quota).
 // Reference: https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/error-codes
-const MARKETO_NON_RETRYABLE_CODES = new Set([
+export const MARKETO_NON_RETRYABLE_CODES = new Set([
   // HTTP-level errors
   '603', // Access denied
   '605', // HTTP method not supported
