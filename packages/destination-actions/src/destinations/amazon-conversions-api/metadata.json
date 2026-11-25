@@ -1529,7 +1529,7 @@
       "name": "Add to Shopping Cart",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Product Added\"",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -1769,7 +1769,7 @@
       "name": "Application",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Application Submitted\"",
+      "subscribe": "type = \"track\" and event = \"Application Submitted\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -2009,7 +2009,7 @@
       "name": "Checkout",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Checkout Started\"",
+      "subscribe": "type = \"track\" and event = \"Checkout Started\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -2249,7 +2249,7 @@
       "name": "Contact",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Callback Started\"",
+      "subscribe": "type = \"track\" and event = \"Callback Started\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -2489,7 +2489,7 @@
       "name": "Lead",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Lead Generated\"",
+      "subscribe": "type = \"track\" and event = \"Lead Generated\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -2729,7 +2729,7 @@
       "name": "Off Amazon Purchases",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Order Completed\"",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -2969,7 +2969,7 @@
       "name": "Mobile App First Start",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Application Opened\"",
+      "subscribe": "type = \"track\" and event = \"Application Opened\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -3449,7 +3449,7 @@
       "name": "Search",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Products Searched\"",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -3689,7 +3689,7 @@
       "name": "Sign Up",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Signed Up\"",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -3929,7 +3929,7 @@
       "name": "Subscribe",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Subscription Created\"",
+      "subscribe": "type = \"track\" and event = \"Subscription Created\"",
       "mapping": {
         "name": {
           "@path": "$.event"
@@ -4169,7 +4169,7 @@
       "name": "Other",
       "type": "automatic",
       "partnerAction": "trackConversion",
-      "subscribe": "type = \"track\" AND event = \"Other\"",
+      "subscribe": "type = \"track\" and event = \"Other\"",
       "mapping": {
         "name": {
           "@path": "$.event"

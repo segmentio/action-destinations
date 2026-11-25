@@ -187,13 +187,7 @@ export const user_data: InputField = {
     client_ip_address: { '@path': '$.context.ip' },
     client_user_agent: { '@path': '$.context.userAgent' },
     email: fromPropertyOrTrait('email'),
-    esi: {
-      '@if': {
-        exists: { '@path': '$.context.device.type' },
-        then: 'app',
-        else: 'web'
-      }
-    },
+    esi: { '@liquid': '{% if context.device.type %}app{% else %}web{% endif %}' },
     phone: fromPropertyOrTrait('phone'),
     user_id: { '@path': '$.userId' },
     ifa: { '@path': '$.context.device.advertisingId' },
