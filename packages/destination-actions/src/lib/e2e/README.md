@@ -88,8 +88,7 @@ integrations uses, and maps errors the way integrations does.
 ## Expectation shapes
 
 - `success`: a request was sent and the partner returned 2xx, and every batch item is 2xx.
-  Optional `httpStatus` and the response checks below. A suite's `defaultSuccess` is merged into
-  each of its `success` expectations; the fixture's own keys win.
+  Optional `httpStatus` and the response checks below.
 - `failure`: the partner returned non-2xx (proves we reject known-bad input). `httpStatus`
   required; optional response checks.
 - `error`: our code rejected the event before any request left: it threw, or in batch modes every

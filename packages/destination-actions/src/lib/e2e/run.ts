@@ -5,7 +5,7 @@ import type { E2EAdapter, E2EObservation } from './adapters/types'
 import { hasHooks, hookContext, refreshForHooks } from './hooks'
 import { buildInvocation, withRefreshedTokens } from './invocation'
 import { missingBeforeKeys, missingSecrets, resolveSettings } from './resolve'
-import type { E2EExpectation, E2EFixture, E2EFixtureCleanup, E2EHookValues, E2EResult, E2ESuite } from './types'
+import type { E2EFixture, E2EFixtureCleanup, E2EHookValues, E2EResult, E2ESuite } from './types'
 import { validate } from './validate'
 
 /** Excuses failures until `expires`. Without `action` / `fixture`, it covers the whole destination or action. */
@@ -98,12 +98,6 @@ function fixtureProblem(fixture: E2EFixture): string | undefined {
   return undefined
 }
 
-function expectationFor(suite: E2ESuite, fixture: E2EFixture): E2EExpectation {
-  return fixture.expect.status === 'success' && suite.defaultSuccess
-    ? { ...suite.defaultSuccess, ...fixture.expect }
-    : fixture.expect
-}
-
 /**
  * Run suites through any adapter. Fixtures inside a suite run in order; suites run in parallel.
  * The core owns scoping, preflight, hooks, retries, quarantine and the exit code; the adapter only sends.
@@ -178,7 +172,7 @@ export async function runSuites(
   ): Promise<{ result: E2EResult; observation?: E2EObservation }> => {
     const fixtureStarted = Date.now()
     const retries = fixture.retries ?? suite.retries ?? options.defaultRetries ?? 0
-    const expectation = expectationFor(suite, fixture)
+    const expectation = fixture.expect
     let attempts = 0
     let reason: string | undefined
     let passed = false

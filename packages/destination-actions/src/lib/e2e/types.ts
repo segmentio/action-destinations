@@ -379,8 +379,6 @@ export interface E2ESuite {
   fixtures: E2EFixture[]
   /** Retries for this suite's fixtures that set none. */
   retries?: number
-  /** Checks merged into every `success` expectation in the suite; a fixture's own keys win. */
-  defaultSuccess?: Omit<E2ESuccessExpectation, 'status'>
   /** Runs once before the suite's fixtures. Its values reach every fixture. A throw is a setup error and the suite does not run. */
   before?: (ctx: E2EHookContext) => Promise<E2EHookValues>
   /** Runs after the suite's fixtures, even when `before` threw; not when the OAuth refresh before hooks failed. A throw is a warning. */

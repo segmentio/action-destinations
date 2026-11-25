@@ -234,35 +234,6 @@ describe('runSuites', () => {
     expect(formatSummary(report)).toMatch(/^PASS {2}fake\/send › a \(1 attempt\(s\), \d+ms\)\n1 passed, 0 failed/)
   })
 
-  it('merges the suite defaultSuccess into success expectations, with the fixture winning', async () => {
-    const adapter = new FakeAdapter(() => ok)
-    const withDefaults = (fixtures: E2EFixture[]) => ({
-      ...suite('fake', fixtures),
-      defaultSuccess: { jsonContains: { ok: false } }
-    })
-    const report = await runSuites(
-      adapter,
-      [
-        withDefaults([
-          fixture('default'),
-          fixture('own', { expect: { status: 'success', jsonContains: { ok: true } } }),
-          fixture('failure', {
-            expect: { status: 'failure', httpStatus: 400 }
-          })
-        ])
-      ],
-      opts
-    )
-
-    expect(report.results.map((r) => [r.fixture, r.outcome])).toEqual([
-      ['default', 'failed'],
-      ['own', 'passed'],
-      ['failure', 'failed']
-    ])
-    expect(report.results[0].reason).toMatch(/^response body does not match jsonContains/)
-    expect(report.results[2].reason).toBe('expected partner status 400, got 200')
-  })
-
   it('rejects fixtures that cannot be judged as written, and repeated descriptions', async () => {
     const batch = (description: string, mode: string, items: number) =>
       fixture(description, {
