@@ -8,3 +8,4 @@ export type EventEmitterSlug =
   | 'warehouse_all_events_track'
   | 'journeys_step_entered_track'
   | 'journey_step_all_events_track'
+  | 'journey_step_analytics_track'

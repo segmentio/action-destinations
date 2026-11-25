@@ -4,6 +4,7 @@ import { Settings } from './generated-types'
 import sendCustomEvent from './sendCustomEvent'
 import audienceDefaultFields from './sendCustomEvent/audience-default-fields'
 import journeysDefaultFields from './sendCustomEvent/journeys-default-fields'
+import journeyAnalyticsDefaultFields from './sendCustomEvent/journey-analytics-default-fields'
 
 const destination: WarehouseDestinationDefinition<Settings> = {
   name: 'Redshift',
@@ -69,6 +70,16 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step Analytics',
+      partnerAction: 'sendCustomEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        ...defaultValues(journeyAnalyticsDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journey_step_analytics_track'
     }
   ],
 

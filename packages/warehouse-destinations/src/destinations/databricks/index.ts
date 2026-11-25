@@ -3,6 +3,7 @@ import { defaultValues } from '@segment/actions-core'
 import { Settings } from './generated-types'
 import sendCustomEvent from './sendCustomEvent'
 import journeysDefaultFields from './sendCustomEvent/journeys-default-fields'
+import journeyAnalyticsDefaultFields from './sendCustomEvent/journey-analytics-default-fields'
 import audienceDefaultFields from './sendCustomEvent/audience-default-fields'
 
 const destination: WarehouseDestinationDefinition<Settings> = {
@@ -69,6 +70,16 @@ const destination: WarehouseDestinationDefinition<Settings> = {
       },
       type: 'specificEvent',
       eventSlug: 'journeys_step_entered_track'
+    },
+    {
+      name: 'Journey Step Analytics',
+      partnerAction: 'sendCustomEvent',
+      mapping: {
+        ...defaultValues(sendCustomEvent.fields),
+        ...defaultValues(journeyAnalyticsDefaultFields)
+      },
+      type: 'specificEvent',
+      eventSlug: 'journey_step_analytics_track'
     }
   ],
 
