@@ -39,9 +39,10 @@ Object {
     "$utm_medium": "UM[e12E",
     "$utm_source": "UM[e12E",
     "$utm_term": "UM[e12E",
-    "$viewport": "-62074548073267.2x-62074548073267.2",
+    "$viewport": "UM[e12E",
     "testType": "UM[e12E",
   },
+  "session_id": "UM[e12E",
   "timestamp": "2024-06-01T12:00:00.000Z",
 }
 `;
@@ -55,6 +56,7 @@ Object {
     "$lib": "altertable-segment",
     "testType": "UM[e12E",
   },
+  "session_id": "UM[e12E",
   "timestamp": "2024-06-01T12:00:00.000Z",
 }
 `;
@@ -78,7 +80,7 @@ Object {
     "$utm_medium": "&03lz0I0LT8Hl)",
     "$utm_source": "&03lz0I0LT8Hl)",
     "$utm_term": "&03lz0I0LT8Hl)",
-    "$viewport": "19449315013427.2x19449315013427.2",
+    "$viewport": "&03lz0I0LT8Hl)",
     "testType": "&03lz0I0LT8Hl)",
   },
 }

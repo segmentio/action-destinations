@@ -1,0 +1,22 @@
+{
+  "slug": "altertable-plugins",
+  "name": "Altertable Plugins",
+  "mode": "device",
+  "authentication": null,
+  "audienceConfig": null,
+  "actions": {
+    "altertablePlugin": {
+      "title": "Altertable Browser Plugin",
+      "description": "Adds the Altertable session ID, device ID and viewport to every browser event. A new session starts after 30 minutes without events.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": []
+}

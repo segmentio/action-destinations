@@ -34,6 +34,7 @@ export function buildContextProps(context: ContextFields | undefined, channel?: 
       utm_medium,
       utm_term,
       utm_content,
+      viewport,
       screen_width,
       screen_height,
       library_name,
@@ -70,7 +71,9 @@ export function buildContextProps(context: ContextFields | undefined, channel?: 
     if (utm_content) {
       result.$utm_content = utm_content
     }
-    if (screen_width && screen_height) {
+    if (viewport) {
+      result.$viewport = viewport
+    } else if (screen_width && screen_height) {
       result.$viewport = `${screen_width}x${screen_height}`
     }
 
@@ -102,6 +105,7 @@ function buildTrackJSON(settings: Settings, payload: EventPayload): EventJSON {
     distinct_id: userId || anonymousId,
     anonymous_id: userId && anonymousId ? anonymousId : undefined,
     device_id,
+    session_id: payload.session_id,
     event: payload.event,
     properties: {
       ...contextProps,
