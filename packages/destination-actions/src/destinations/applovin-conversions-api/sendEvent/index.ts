@@ -22,7 +22,6 @@ import {
   value
 } from './fields'
 import { send, sendBatch } from './functions'
-import { searchCategories } from './dynamic-functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Send Event',
@@ -47,16 +46,6 @@ const action: ActionDefinition<Settings, Payload> = {
     sign_up_method,
     enable_batching,
     batch_size
-  },
-  dynamicFields: {
-    items: {
-      item_category_id: async (_request, { dynamicFieldContext, payload }) => {
-        const items = Array.isArray(payload?.items) ? payload.items : []
-        const typed = items[dynamicFieldContext?.selectedArrayIndex ?? 0]?.item_category_id
-        const query = dynamicFieldContext?.query || (typeof typed === 'string' ? typed : undefined)
-        return { choices: searchCategories(query) }
-      }
-    }
   },
   perform: (request, { settings, payload }) => {
     return send(request, settings, payload)
