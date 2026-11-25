@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Vero snapshots aliasUser request 1`] = `
+Object {
+  "id": "old-id",
+  "new_id": "new-id",
+}
+`;
+
+exports[`Vero snapshots aliasUser request 2`] = `"https://api.getvero.com/api/v2/users/reidentify?auth_token=REDACTED"`;
+
+exports[`Vero snapshots identifyUser request 1`] = `
+Object {
+  "channels": Array [
+    Object {
+      "address": "tok",
+      "platform": "android",
+      "type": "push",
+    },
+  ],
+  "data": Object {
+    "email": "user@example.com",
+    "language": "en-US",
+    "plan": "pro",
+    "timezone": 10,
+    "userAgent": "UA",
+  },
+  "email": "user@example.com",
+  "extras": Object {
+    "created_at": "2024-01-01T00:00:00.000Z",
+  },
+  "id": "user-1",
+  "preferences": Object {
+    "topics": Array [
+      Object {
+        "name": "News",
+        "status": "subscribed",
+      },
+    ],
+  },
+}
+`;
+
+exports[`Vero snapshots identifyUser request 2`] = `"https://api.getvero.com/api/v2/users/track?auth_token=REDACTED"`;
+
+exports[`Vero snapshots manageSubscriptions request 1`] = `
+Object {
+  "id": "user-1",
+}
+`;
+
+exports[`Vero snapshots manageSubscriptions request 2`] = `"https://api.getvero.com/api/v2/users/unsubscribe?auth_token=REDACTED"`;
+
+exports[`Vero snapshots manageTags request 1`] = `
+Object {
+  "add": Array [
+    "a",
+  ],
+  "id": "user-1",
+  "remove": Array [
+    "b",
+  ],
+}
+`;
+
+exports[`Vero snapshots manageTags request 2`] = `"https://api.getvero.com/api/v2/users/tags/edit?auth_token=REDACTED"`;
+
+exports[`Vero snapshots trackEvent request 1`] = `
+Object {
+  "data": Object {
+    "coupon": "SAVE",
+    "segment_event_id": "msg-1",
+    "total": "10",
+  },
+  "event_name": "Order Completed",
+  "extras": Object {
+    "created_at": "2024-01-01T00:00:00.000Z",
+    "source": "Segment",
+  },
+  "identity": Object {
+    "email": "user@example.com",
+    "id": "user-1",
+  },
+}
+`;
+
+exports[`Vero snapshots trackEvent request 2`] = `"https://api.getvero.com/api/v2/events/track?auth_token=REDACTED"`;
