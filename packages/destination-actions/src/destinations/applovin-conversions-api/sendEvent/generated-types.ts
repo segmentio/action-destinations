@@ -116,7 +116,7 @@ export interface Payload {
      */
     item_variant_id?: string
     /**
-     * The category of the item, chosen from AppLovin's supported category list, for example 166 (Apparel & Accessories). Start typing a number or a name to search. Only the number is sent to AppLovin. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids
+     * The numeric ID of the item's category from AppLovin's supported category list, for example 166 for Apparel & Accessories. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids
      */
     item_category_id?: string
     /**

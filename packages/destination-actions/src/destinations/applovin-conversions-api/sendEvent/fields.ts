@@ -232,9 +232,8 @@ export const items: InputField = {
     item_category_id: {
       label: 'Item Category ID',
       description:
-        "The category of the item, chosen from AppLovin's supported category list, for example 166 (Apparel & Accessories). Start typing a number or a name to search. Only the number is sent to AppLovin. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
-      type: 'string',
-      dynamic: true
+        "The numeric ID of the item's category from AppLovin's supported category list, for example 166 for Apparel & Accessories. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
+      type: 'string'
     },
     image_url: {
       label: 'Image URL',
