@@ -18,9 +18,6 @@ on:
 
 jobs:
   build-and-version-packages:
-    strategy:
-      matrix:
-        node-version: [22.x]
     env:
       HUSKY: 0
       NX_DISABLE_DB: true
@@ -37,10 +34,10 @@ jobs:
           fetch-tags: true
           ref: ${{ env.BASE_BRANCH }}
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js (.nvmrc)
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           registry-url: 'https://registry.npmjs.org'
           cache: yarn
 
