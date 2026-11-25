@@ -27,7 +27,7 @@
     "cloud": "yarn workspace @segment/action-destinations",
     "warehouse": "yarn workspace @segment/warehouse-destinations",
     "core": "yarn workspace @segment/actions-core",
-    "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache",
+    "lint": "ls -d ./packages/* | xargs -I {} eslint '{}/**/*.ts' --cache --cache-strategy content",
     "postversion": "bash scripts/postversion.sh",
     "prepare": "husky install",
     "release": "bash scripts/release.sh",
