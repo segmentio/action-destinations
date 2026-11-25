@@ -30,7 +30,6 @@ export default {
       step_id: { '@path': '$.properties.journey_context.analytics_event.step_id' },
       step_name: { '@path': '$.properties.journey_context.analytics_event.step_name' },
       instance_id: { '@path': '$.properties.journey_context.analytics_event.instance_id' },
-      concurrency_key: { '@path': '$.properties.journey_context.analytics_event.concurrency_key' },
       user_id: { '@path': '$.userId' },
       personas_computation_key: { '@path': '$.context.personas.computation_key' },
       personas_computation_id: { '@path': '$.context.personas.computation_id' },
