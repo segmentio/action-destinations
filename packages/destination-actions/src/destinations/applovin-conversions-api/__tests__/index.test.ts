@@ -8,6 +8,8 @@ const settings = { pixel_id: 'pixel-123' }
 const API = 'https://b.applovin.com'
 const EVENT_TIME = '2026-11-01T10:00:00.000Z'
 
+const ALEID = 'a1'.repeat(20)
+
 const sha256 = (value: string) => processHashing(value, 'sha256', 'hex')
 
 const baseContext = {
@@ -38,7 +40,7 @@ const orderCompleted = (overrides = {}) =>
     anonymousId: 'anon-1',
     timestamp: EVENT_TIME,
     context: baseContext,
-    integrations: { 'AppLovin Conversions Api': { aleid: 'ale-1', axwrt: 'wrt-1' } },
+    integrations: { 'AppLovin Conversions Api': { aleid: ALEID, axwrt: 'wrt-1' } },
     properties: orderProperties,
     ...overrides
   })
@@ -52,7 +54,7 @@ const expectedPurchase = (dedupeId: string) => ({
     client_ip_address: '203.0.113.7',
     client_user_agent: 'Mozilla/5.0 Test',
     esi: 'web',
-    aleid: 'ale-1',
+    aleid: ALEID,
     axwrt: 'wrt-1',
     client_id: 'anon-1',
     user_id: 'customer-12345',
@@ -140,6 +142,30 @@ describe('AppLovin Conversions API', () => {
       expect(body?.events[0].user_data.esi).toBe('app')
     })
 
+    it('rejects a web event without an Event Source URL at schema validation', async () => {
+      await expect(
+        testDestination.testAction('sendEvent', {
+          event: orderCompleted({ context: { ...baseContext, page: undefined } }),
+          settings,
+          useDefaultMappings: true,
+          mapping: purchaseMapping
+        })
+      ).rejects.toThrowError("The root value is missing the required field 'event_source_url'.")
+    })
+
+    it('does not require an Event Source URL for app events', async () => {
+      nock(API).post('/v1/event').query(true).reply(200, {})
+
+      const responses = await testDestination.testAction('sendEvent', {
+        event: orderCompleted({ context: { ...baseContext, page: undefined, device: { type: 'ios' } } }),
+        settings,
+        useDefaultMappings: true,
+        mapping: purchaseMapping
+      })
+
+      expect(responses[0].status).toBe(200)
+    })
+
     it('throws when AppLovin rejects the credentials', async () => {
       nock(API).post('/v1/event').query(true).reply(401, { error: 'unauthorized' })
 
@@ -165,7 +191,7 @@ describe('AppLovin Conversions API', () => {
         messageId,
         userId: undefined,
         anonymousId: undefined,
-        integrations: { 'AppLovin Conversions Api': { aleid: 'ale-1' } },
+        integrations: { 'AppLovin Conversions Api': { aleid: ALEID } },
         properties: { ...orderProperties, email: undefined, phone: undefined }
       })
 
@@ -207,8 +233,7 @@ describe('AppLovin Conversions API', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage:
-            'At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.',
+          errormessage: 'At least one of Client ID, User ID, Email or Phone is required.',
           errorreporter: 'INTEGRATIONS'
         },
         { status: 200, sent: expectedPurchase('msg-4'), body: { success: true } }
@@ -232,8 +257,7 @@ describe('AppLovin Conversions API', () => {
         {
           status: 400,
           errortype: 'BAD_REQUEST',
-          errormessage:
-            'At least one identifier other than ALEID is required: alart, axwrt, client ID, user ID, email or phone.',
+          errormessage: 'At least one of Client ID, User ID, Email or Phone is required.',
           errorreporter: 'INTEGRATIONS'
         }
       ])

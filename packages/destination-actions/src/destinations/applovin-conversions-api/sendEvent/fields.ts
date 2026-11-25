@@ -52,9 +52,9 @@ export const event_time: InputField = {
 export const event_source_url: InputField = {
   label: 'Event Source URL',
   description:
-    'The full URL of the page where the event occurred. Include it for web events, including events sent server-side. It can be omitted for app events.',
+    'The full URL of the page where the event occurred. Required when Event Source is web, including events sent server-side. It can be omitted for app events.',
   type: 'string',
-  required: false,
+  required: { conditions: [{ fieldKey: 'user_data.esi', operator: 'is', value: 'web' }] },
   default: { '@path': '$.context.page.url' }
 }
 
@@ -67,10 +67,50 @@ export const dedupe_id: InputField = {
   default: { '@path': '$.messageId' }
 }
 
+export const required_identifiers: InputField = {
+  label: 'Required Identifiers',
+  description:
+    'At least one of Client ID, User ID, Email or Phone is required. More than one can be set. Use the same identifier on every analytics event for a given user, so AppLovin can connect the events across the whole user journey. Email and phone are normalized and SHA-256 hashed before sending.',
+  type: 'object',
+  required: true,
+  defaultObjectUI: 'keyvalue',
+  additionalProperties: false,
+  properties: {
+    client_id: {
+      label: 'Client ID',
+      description:
+        'The web session ID, or the Segment anonymous ID if there is no session ID. Use the same value on every event for a given user.',
+      type: 'string'
+    },
+    user_id: {
+      label: 'User ID',
+      description:
+        'Your canonical identifier for the end user. Must be at least 6 characters. Shorter values are ignored and do not count as an identifier.',
+      type: 'string'
+    },
+    email: {
+      label: 'Email',
+      description: "The user's email address.",
+      type: 'string'
+    },
+    phone: {
+      label: 'Phone',
+      description: "The user's phone number, including the country code.",
+      type: 'string'
+    }
+  },
+  default: {
+    client_id: { '@path': '$.anonymousId' },
+    user_id: { '@path': '$.userId' },
+    email: fromPropertyOrTrait('email'),
+    phone: fromPropertyOrTrait('phone')
+  }
+}
+
 export const user_data: InputField = {
   label: 'User Data',
   description:
-    'User and device details used by AppLovin to match the event to a user. Required: ALEID, IP Address, User Agent, Event Source, and at least one of ALART, AXWRT, Client ID, Email, Phone or User ID. All other fields are optional. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.',
+    'User and device details used by AppLovin to match the event to a user. Required: IP Address, User Agent and Event Source. All other fields are optional. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.',
   type: 'object',
   required: true,
   defaultObjectUI: 'keyvalue',
@@ -79,9 +119,8 @@ export const user_data: InputField = {
     aleid: {
       label: 'ALEID',
       description:
-        'Required. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.',
-      type: 'string',
-      required: true
+        'The attributed event ID. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie. Not required, but if provided it must be exactly 40 characters.',
+      type: 'string'
     },
     client_ip_address: {
       label: 'IP Address',
@@ -97,7 +136,7 @@ export const user_data: InputField = {
     },
     esi: {
       label: 'Event Source',
-      description: 'Required. Where the event came from.',
+      description: 'Required. Where the event came from. Event Source URL is required when this is web.',
       type: 'string',
       required: true,
       choices: [
@@ -108,37 +147,12 @@ export const user_data: InputField = {
     alart: {
       label: 'ALART',
       description:
-        'The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
+        'The ad ID. The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie.',
       type: 'string'
     },
     axwrt: {
       label: 'AXWRT',
-      description:
-        'The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
-      type: 'string'
-    },
-    client_id: {
-      label: 'Client ID',
-      description:
-        'A stable first-party identifier for the user. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
-      type: 'string'
-    },
-    email: {
-      label: 'Email',
-      description:
-        "The user's email address. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
-      type: 'string'
-    },
-    phone: {
-      label: 'Phone',
-      description:
-        "The user's phone number, including the country code. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
-      type: 'string'
-    },
-    user_id: {
-      label: 'User ID',
-      description:
-        'Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.',
+      description: 'The web token set by the AppLovin Pixel, stored in the _axwrt cookie.',
       type: 'string'
     },
     country_code: {
@@ -183,13 +197,9 @@ export const user_data: InputField = {
     aleid: fromIntegrationOrProperty('aleid', '$.properties.aleid'),
     alart: fromIntegrationOrProperty('alart', '$.properties.alart'),
     axwrt: fromIntegrationOrProperty('axwrt', '$.properties.axwrt'),
-    client_id: { '@path': '$.anonymousId' },
     client_ip_address: { '@path': '$.context.ip' },
     client_user_agent: { '@path': '$.context.userAgent' },
-    email: fromPropertyOrTrait('email'),
     esi: { '@liquid': '{% if context.device.type %}app{% else %}web{% endif %}' },
-    phone: fromPropertyOrTrait('phone'),
-    user_id: { '@path': '$.userId' },
     ifa: { '@path': '$.context.device.advertisingId' },
     idfv: { '@path': '$.context.device.id' },
     os: { '@path': '$.context.os.name' }
@@ -199,7 +209,7 @@ export const user_data: InputField = {
 export const items: InputField = {
   label: 'Items',
   description:
-    'The products involved in the event. Quantity is required for add_to_cart, remove_from_cart and purchase events.',
+    'The products involved in the event. Item ID is required on every item. Quantity is required for add_to_cart and remove_from_cart. Item Name, Price and Quantity are required on every item for begin_checkout and purchase events: AppLovin rejects the entire event if any is missing.',
   type: 'object',
   multiple: true,
   required: when(EVENTS_REQUIRING_ITEMS),
@@ -208,7 +218,11 @@ export const items: InputField = {
   additionalProperties: false,
   properties: {
     item_id: { label: 'Item ID', description: 'The ID of the item.', type: 'string', required: true },
-    item_name: { label: 'Item Name', description: 'The name of the item.', type: 'string' },
+    item_name: {
+      label: 'Item Name',
+      description: 'The name of the item. Required for begin_checkout and purchase events.',
+      type: 'string'
+    },
     item_brand: { label: 'Item Brand', description: 'The brand of the item.', type: 'string' },
     item_variant_id: {
       label: 'Item Variant ID',
@@ -218,8 +232,8 @@ export const items: InputField = {
     item_category_id: {
       label: 'Item Category ID',
       description:
-        "The numeric category ID from AppLovin's supported category list, for example 1 for Animals & Pet Supplies. Must be an integer, not a category name. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
-      type: 'integer'
+        "The numeric ID of the item's category from AppLovin's supported category list, for example 166 for Apparel & Accessories. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
+      type: 'string'
     },
     image_url: {
       label: 'Image URL',
@@ -228,10 +242,16 @@ export const items: InputField = {
     },
     price: {
       label: 'Price',
-      description: 'The unit price of the item. Use the discounted price if a discount applies.',
+      description:
+        'The unit price of the item. Use the discounted price if a discount applies. Required for begin_checkout and purchase events.',
       type: 'number'
     },
-    quantity: { label: 'Quantity', description: 'The quantity of the item.', type: 'integer' },
+    quantity: {
+      label: 'Quantity',
+      description:
+        'The quantity of the item. Required for add_to_cart, remove_from_cart, begin_checkout and purchase events.',
+      type: 'integer'
+    },
     discount: { label: 'Discount', description: 'The discount applied to a single unit.', type: 'number' },
     affiliation: {
       label: 'Affiliation',
