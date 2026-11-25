@@ -34,7 +34,7 @@ const destination: DestinationDefinition<Settings> = {
   },
   onDelete: async (request, { payload }) => {
     const json: DeleteUserJSON = { id: requireId(payload.userId) }
-    return await request(`${API_URL}/users/delete`, {
+    return request(`${API_URL}/users/delete`, {
       method: 'post',
       json
     })

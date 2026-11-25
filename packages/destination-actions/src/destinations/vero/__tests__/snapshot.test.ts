@@ -46,6 +46,10 @@ const cases: Record<string, { event: ReturnType<typeof createTestEvent>; mapping
   }
 }
 
+afterEach(() => {
+  nock.cleanAll()
+})
+
 describe('Vero snapshots', () => {
   for (const [actionSlug, { event, mapping }] of Object.entries(cases)) {
     it(`${actionSlug} request`, async () => {
