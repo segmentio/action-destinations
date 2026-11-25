@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     batch_size: {
       label: 'Batch Size',
-      description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',
+      description: 'Maximum number of event to include in each batch. Actual batch sizes may be lower.',
       type: 'number',
       required: false,
       default: 0
