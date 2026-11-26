@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
+  BATCH_MULTISTATUS_FLAG,
   convertAttributeTimestamps,
   sendSingle,
   sendBatch,
@@ -96,16 +97,28 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
-    // Send `identify` and `identify_anonymous` entries in a single batch request, preserving the
-    // original payload order so the per-entry multi-status response lines up with `payloads`.
-    return sendBatch(
-      request,
-      payloads.map((payload) => {
-        const { action, body } = mapPayload(payload)
+  performBatch: (request, { payload: payloads, settings, features }) => {
+    const entries = payloads.map((payload) => {
+      const { action, body } = mapPayload(payload)
 
-        return { action, payload: body, settings, type: 'object' }
-      })
+      return { action, payload: body, settings, type: 'object' }
+    })
+
+    if (features?.[BATCH_MULTISTATUS_FLAG]) {
+      // Send `identify` and `identify_anonymous` entries in a single batch request, preserving the
+      // original payload order so the per-entry multi-status response lines up with `payloads`.
+      return sendBatch(request, entries, features)
+    }
+
+    // Without the flag, send one batch request per action, as before multi-status handling was added.
+    return Promise.all(
+      (['identify', 'identify_anonymous'] as const).map((action) =>
+        sendBatch(
+          request,
+          entries.filter((entry) => entry.action === action),
+          features
+        )
+      )
     )
   },
 

@@ -1,4 +1,5 @@
 import {
+  Features,
   HTTPError,
   JSONLikeObject,
   ModifiedResponse,
@@ -284,27 +285,36 @@ export const validateIdentifiers = (payload: IdentifierFields, acceptedFields: s
   }
 }
 
+// Feature flag that turns on per-entry multi-status handling in `sendBatch`. While it is off, a batch is sent and
+// reported as one request, as before this handling was added.
+export const BATCH_MULTISTATUS_FLAG = 'customerio-batch-multistatus'
+
 export const sendBatch = async <Payload extends BasePayload>(
   request: Function,
-  options: RequestPayload<Payload>[]
-): Promise<MultiStatusResponse> => {
+  options: RequestPayload<Payload>[],
+  features?: Features
+): Promise<MultiStatusResponse | ModifiedResponse | undefined> => {
+  const multiStatus = Boolean(features?.[BATCH_MULTISTATUS_FLAG])
+
   if (!options?.length) {
-    return new MultiStatusResponse()
+    return multiStatus ? new MultiStatusResponse() : undefined
   }
 
   const [{ settings }] = options
   const batch = options.map((opts) => buildPayload(opts))
+  const url = `${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`
+
+  if (!multiStatus) {
+    return request(url, { method: 'post', json: { batch } })
+  }
 
   try {
-    const response: ModifiedResponse<CustomerIOBatchResponse> = await request(
-      `${trackApiEndpoint(settings)}/api/${CUSTOMERIO_TRACK_API_VERSION}/batch`,
-      {
-        method: 'post',
-        json: {
-          batch
-        }
+    const response: ModifiedResponse<CustomerIOBatchResponse> = await request(url, {
+      method: 'post',
+      json: {
+        batch
       }
-    )
+    })
 
     return buildBatchMultiStatusResponse(batch as JSONLikeObject[], response)
   } catch (error) {
@@ -454,7 +464,9 @@ const buildBatchMultiStatusErrorResponse = (
 
   const multiStatusResponse = new MultiStatusResponse()
   const { byIndex, requestLevel } = groupBatchErrors(errors, batch.length)
-  const requestLevelMessage = requestLevel.length ? requestLevel.map(formatBatchError).join('; ') : error.message
+  const requestLevelMessage = requestLevel.length
+    ? requestLevel.map(formatBatchError).join('; ')
+    : error.message || `Request failed with status ${status}`
 
   batch.forEach((sent, index) => {
     const entryErrors = byIndex.get(index)

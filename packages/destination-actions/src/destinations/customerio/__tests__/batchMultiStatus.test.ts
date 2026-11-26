@@ -1,9 +1,9 @@
 import nock from 'nock'
-import { createTestEvent, createTestIntegration } from '@segment/actions-core'
+import { createTestEvent, createTestIntegration, Features, MultiStatusResponse } from '@segment/actions-core'
 import CustomerIO from '../index'
 import { Settings } from '../generated-types'
 import { getDefaultMappings } from '../test-helper'
-import { AccountRegion, sendBatch } from '../utils'
+import { AccountRegion, BATCH_MULTISTATUS_FLAG, sendBatch } from '../utils'
 
 const testDestination = createTestIntegration(CustomerIO)
 const trackService = nock('https://track.customer.io/api/v2')
@@ -15,6 +15,8 @@ const settings: Settings = {
 }
 
 const timestamp = '2023-01-01T00:00:00.000Z'
+
+const flagOn: Features = { [BATCH_MULTISTATUS_FLAG]: true }
 
 const trackEvents = () =>
   ['user-0', 'user-1', 'user-2'].map((userId, index) =>
@@ -28,14 +30,21 @@ const trackEvents = () =>
     })
   )
 
-const executeTrackEventBatch = () =>
+const executeTrackEventBatch = (features: Features = flagOn) =>
   testDestination.executeBatch('trackEvent', {
     events: trackEvents(),
     settings,
+    features,
     mapping: getDefaultMappings('trackEvent')
   })
 
-describe('CustomerIO batch multi-status handling', () => {
+const objectEvents = () => [
+  createTestEvent({ type: 'group', groupId: 'object-0', userId: 'user-0', timestamp }),
+  createTestEvent({ type: 'group', groupId: 'object-1', userId: undefined, anonymousId: 'anon-1', timestamp }),
+  createTestEvent({ type: 'group', groupId: 'object-2', userId: 'user-2', timestamp })
+]
+
+describe('CustomerIO batch multi-status handling with the customerio-batch-multistatus flag on', () => {
   afterEach(() => {
     nock.cleanAll()
   })
@@ -238,26 +247,46 @@ describe('CustomerIO batch multi-status handling', () => {
     })
     const request = jest.fn().mockRejectedValue(error)
 
-    const response = await sendBatch(request, [
-      { action: 'event', type: 'person', settings, payload: { person_id: 'user-0', name: 'Event 0' } }
-    ])
+    const response = (await sendBatch(
+      request,
+      [{ action: 'event', type: 'person', settings, payload: { person_id: 'user-0', name: 'Event 0' } }],
+      flagOn
+    )) as MultiStatusResponse
 
     expect(response.getAllResponses()).toHaveLength(1)
     expect(response.getResponseAtIndex(0).value()).toMatchObject({ status: 400, errormessage: 'no identifiers' })
   })
 
+  it('falls back to the status for entries without their own error when the HTTPError has no message', async () => {
+    const error = Object.assign(new Error(''), {
+      name: 'HTTPError',
+      response: { status: 400, data: { errors: [{ batch_index: 0, message: 'no identifiers' }] } }
+    })
+    const request = jest.fn().mockRejectedValue(error)
+
+    const response = (await sendBatch(
+      request,
+      [
+        { action: 'event', type: 'person', settings, payload: { person_id: 'user-0', name: 'Event 0' } },
+        { action: 'event', type: 'person', settings, payload: { person_id: 'user-1', name: 'Event 1' } }
+      ],
+      flagOn
+    )) as MultiStatusResponse
+
+    expect(response.getResponseAtIndex(0).value()).toMatchObject({ status: 400, errormessage: 'no identifiers' })
+    expect(response.getResponseAtIndex(1).value()).toMatchObject({
+      status: 400,
+      errormessage: 'Request failed with status 400'
+    })
+  })
+
   it('keeps createUpdateObject entries in their original order across identify actions', async () => {
     trackService.post('/batch').reply(207, { errors: [{ batch_index: 1, message: 'bad object' }] })
 
-    const events = [
-      createTestEvent({ type: 'group', groupId: 'object-0', userId: 'user-0', timestamp }),
-      createTestEvent({ type: 'group', groupId: 'object-1', userId: undefined, anonymousId: 'anon-1', timestamp }),
-      createTestEvent({ type: 'group', groupId: 'object-2', userId: 'user-2', timestamp })
-    ]
-
     const response = await testDestination.executeBatch('createUpdateObject', {
-      events,
+      events: objectEvents(),
       settings,
+      features: flagOn,
       mapping: getDefaultMappings('createUpdateObject')
     })
 
@@ -275,5 +304,96 @@ describe('CustomerIO batch multi-status handling', () => {
       status: 200,
       sent: { action: 'identify', identifiers: { object_id: 'object-2' } }
     })
+  })
+
+  it('returns an empty multi-status response for an empty batch without sending a request', async () => {
+    const request = jest.fn()
+
+    const response = await sendBatch(request, [], flagOn)
+
+    expect(response).toBeInstanceOf(MultiStatusResponse)
+    expect((response as MultiStatusResponse).length()).toBe(0)
+    expect(request).not.toHaveBeenCalled()
+  })
+})
+
+// With the flag off, batches must behave exactly as they did before multi-status handling was added: one result
+// for the whole batch, thrown errors for rejected batches, and separate requests per createUpdateObject action.
+describe('CustomerIO batch handling with the customerio-batch-multistatus flag off', () => {
+  const flagOffCases: [string, Features | undefined][] = [
+    ['no features', undefined],
+    ['the flag missing', {}],
+    ['the flag false', { [BATCH_MULTISTATUS_FLAG]: false }]
+  ]
+
+  afterEach(() => {
+    nock.cleanAll()
+  })
+
+  it.each(flagOffCases)(
+    'reports a 207 with the response status on every entry (%s)',
+    async (_: string, features: Features | undefined) => {
+      const body = { errors: [{ batch_index: 2, reason: 'invalid', message: 'identifiers must not be empty' }] }
+      trackService.post('/batch').reply(207, body)
+
+      const response = await testDestination.executeBatch('trackEvent', {
+        events: trackEvents(),
+        settings,
+        features,
+        mapping: getDefaultMappings('trackEvent')
+      })
+
+      expect(response).toHaveLength(3)
+      response.forEach((entry, index) => {
+        expect(entry).toMatchObject({ status: 207, body, sent: { name: `Event ${index}` } })
+      })
+    }
+  )
+
+  it.each(flagOffCases)(
+    'lets a 400 with batch_index errors fail the whole batch (%s)',
+    async (_: string, features: Features | undefined) => {
+      trackService.post('/batch').reply(400, {
+        errors: [{ batch_index: 1, reason: 'invalid', field: 'type', message: 'unknown type' }]
+      })
+
+      await expect(
+        testDestination.executeBatch('trackEvent', {
+          events: trackEvents(),
+          settings,
+          features,
+          mapping: getDefaultMappings('trackEvent')
+        })
+      ).rejects.toThrow('Bad Request')
+    }
+  )
+
+  it('sends createUpdateObject identify and identify_anonymous entries as separate batch requests', async () => {
+    type BatchBody = { batch: { action: string }[] }
+    const actionsOf = (body: BatchBody) => body.batch.map((entry) => entry.action)
+    const identify = trackService
+      .post('/batch', (body: BatchBody) => actionsOf(body).join() === 'identify,identify')
+      .reply(200, {})
+    const identifyAnonymous = trackService
+      .post('/batch', (body: BatchBody) => actionsOf(body).join() === 'identify_anonymous')
+      .reply(200, {})
+
+    const response = await testDestination.executeBatch('createUpdateObject', {
+      events: objectEvents(),
+      settings,
+      mapping: getDefaultMappings('createUpdateObject')
+    })
+
+    expect(identify.isDone()).toBe(true)
+    expect(identifyAnonymous.isDone()).toBe(true)
+    expect(response).toHaveLength(3)
+    response.forEach((entry) => expect(entry).toMatchObject({ status: 200 }))
+  })
+
+  it('returns undefined for an empty batch without sending a request', async () => {
+    const request = jest.fn()
+
+    await expect(sendBatch(request, [])).resolves.toBeUndefined()
+    expect(request).not.toHaveBeenCalled()
   })
 })

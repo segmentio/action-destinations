@@ -21,7 +21,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
+  performBatch: (request, { payload: payloads, settings, features }) => {
     return sendBatch(
       request,
       payloads.map((payload) => ({
@@ -29,7 +29,8 @@ const action: ActionDefinition<Settings, Payload> = {
         payload,
         settings,
         type: 'person'
-      }))
+      })),
+      features
     )
   },
 
