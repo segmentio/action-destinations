@@ -232,6 +232,98 @@
           "format": null,
           "additionalProperties": false
         },
+        "sendIdentify": {
+          "label": "Send Identify First",
+          "description": "If enabled and an email is present, Segment sends an identify call with the email and traits before the track call, so Inflection can attach the event to the user profile.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": false,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "The email address of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "sendIdentify",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "Traits of the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "conditions": [
+              {
+                "fieldKey": "sendIdentify",
+                "operator": "is",
+                "value": true
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
         "nestedValueHandling": {
           "label": "Nested Value Handling",
           "description": "How to send objects and arrays nested inside the properties or traits.",
@@ -1149,6 +1241,13 @@
         },
         "groupId": {
           "@path": "$.context.groupId"
+        },
+        "sendIdentify": false,
+        "email": {
+          "@path": "$.context.traits.email"
+        },
+        "traits": {
+          "@path": "$.context.traits"
         },
         "nestedValueHandling": {
           "objectHandling": "stringify",
