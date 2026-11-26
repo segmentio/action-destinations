@@ -168,9 +168,6 @@
             "utm_content": {
               "@path": "$.context.campaign.content"
             },
-            "viewport": {
-              "@path": "$.integrations.Altertable.viewport"
-            },
             "screen_width": {
               "@path": "$.context.screen.width"
             },
@@ -184,17 +181,7 @@
               "@path": "$.context.library.version"
             },
             "device_id": {
-              "@if": {
-                "exists": {
-                  "@path": "$.integrations.Altertable.device_id"
-                },
-                "then": {
-                  "@path": "$.integrations.Altertable.device_id"
-                },
-                "else": {
-                  "@path": "$.context.device.id"
-                }
-              }
+              "@path": "$.context.device.id"
             }
           },
           "choices": null,
@@ -419,30 +406,6 @@
             "utm_content": {
               "label": "UTM Content",
               "description": "The UTM content",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
-            "viewport": {
-              "label": "Viewport",
-              "description": "The browser viewport (e.g. 1280x720), set by the Altertable Browser Plugin",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -786,7 +749,7 @@
         },
         "session_id": {
           "label": "Session ID",
-          "description": "The session ID, set by the Altertable Browser Plugin",
+          "description": "The session ID, set by the Altertable Session Plugin",
           "type": "string",
           "required": false,
           "multiple": false,
@@ -901,9 +864,6 @@
             "utm_content": {
               "@path": "$.context.campaign.content"
             },
-            "viewport": {
-              "@path": "$.integrations.Altertable.viewport"
-            },
             "screen_width": {
               "@path": "$.context.screen.width"
             },
@@ -917,17 +877,7 @@
               "@path": "$.context.library.version"
             },
             "device_id": {
-              "@if": {
-                "exists": {
-                  "@path": "$.integrations.Altertable.device_id"
-                },
-                "then": {
-                  "@path": "$.integrations.Altertable.device_id"
-                },
-                "else": {
-                  "@path": "$.context.device.id"
-                }
-              }
+              "@path": "$.context.device.id"
             }
           },
           "choices": null,
@@ -1152,30 +1102,6 @@
             "utm_content": {
               "label": "UTM Content",
               "description": "The UTM content",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
-            "viewport": {
-              "label": "Viewport",
-              "description": "The browser viewport (e.g. 1280x720), set by the Altertable Browser Plugin",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -1582,9 +1508,6 @@
             "utm_content": {
               "@path": "$.context.campaign.content"
             },
-            "viewport": {
-              "@path": "$.integrations.Altertable.viewport"
-            },
             "screen_width": {
               "@path": "$.context.screen.width"
             },
@@ -1598,17 +1521,7 @@
               "@path": "$.context.library.version"
             },
             "device_id": {
-              "@if": {
-                "exists": {
-                  "@path": "$.integrations.Altertable.device_id"
-                },
-                "then": {
-                  "@path": "$.integrations.Altertable.device_id"
-                },
-                "else": {
-                  "@path": "$.context.device.id"
-                }
-              }
+              "@path": "$.context.device.id"
             }
           },
           "choices": null,
@@ -1833,30 +1746,6 @@
             "utm_content": {
               "label": "UTM Content",
               "description": "The UTM content",
-              "type": "string",
-              "required": false,
-              "multiple": false,
-              "allowNull": false,
-              "dynamic": false,
-              "default": null,
-              "choices": null,
-              "placeholder": null,
-              "properties": null,
-              "category": null,
-              "depends_on": null,
-              "readOnly": null,
-              "hidden": null,
-              "minimum": null,
-              "maximum": null,
-              "defaultObjectUI": null,
-              "disabledInputMethods": null,
-              "displayMode": null,
-              "format": null,
-              "additionalProperties": false
-            },
-            "viewport": {
-              "label": "Viewport",
-              "description": "The browser viewport (e.g. 1280x720), set by the Altertable Browser Plugin",
               "type": "string",
               "required": false,
               "multiple": false,
@@ -2135,9 +2024,9 @@
         }
       }
     },
-    "altertablePlugin": {
-      "title": "Altertable Browser Plugin",
-      "description": "Adds the Altertable session ID, device ID and viewport to every browser event. A new session starts after 30 minutes without events.",
+    "sessionId": {
+      "title": "Session Plugin",
+      "description": "Generates a session ID and attaches it to every Altertable browser event. A new session starts after 30 minutes without events.",
       "platform": "web",
       "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
       "hidden": false,
@@ -2150,9 +2039,9 @@
   },
   "presets": [
     {
-      "name": "Altertable Browser Plugin",
+      "name": "Browser Session Tracking",
       "type": "automatic",
-      "partnerAction": "altertablePlugin",
+      "partnerAction": "sessionId",
       "subscribe": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
       "mapping": {},
       "eventSlug": null
@@ -2209,9 +2098,6 @@
           "utm_content": {
             "@path": "$.context.campaign.content"
           },
-          "viewport": {
-            "@path": "$.integrations.Altertable.viewport"
-          },
           "screen_width": {
             "@path": "$.context.screen.width"
           },
@@ -2225,17 +2111,7 @@
             "@path": "$.context.library.version"
           },
           "device_id": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "then": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "else": {
-                "@path": "$.context.device.id"
-              }
-            }
+            "@path": "$.context.device.id"
           }
         },
         "timestamp": {
@@ -2297,9 +2173,6 @@
           "utm_content": {
             "@path": "$.context.campaign.content"
           },
-          "viewport": {
-            "@path": "$.integrations.Altertable.viewport"
-          },
           "screen_width": {
             "@path": "$.context.screen.width"
           },
@@ -2313,17 +2186,7 @@
             "@path": "$.context.library.version"
           },
           "device_id": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "then": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "else": {
-                "@path": "$.context.device.id"
-              }
-            }
+            "@path": "$.context.device.id"
           }
         },
         "timestamp": {
@@ -2385,9 +2248,6 @@
           "utm_content": {
             "@path": "$.context.campaign.content"
           },
-          "viewport": {
-            "@path": "$.integrations.Altertable.viewport"
-          },
           "screen_width": {
             "@path": "$.context.screen.width"
           },
@@ -2401,17 +2261,7 @@
             "@path": "$.context.library.version"
           },
           "device_id": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "then": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "else": {
-                "@path": "$.context.device.id"
-              }
-            }
+            "@path": "$.context.device.id"
           }
         },
         "timestamp": {
@@ -2469,9 +2319,6 @@
           "utm_content": {
             "@path": "$.context.campaign.content"
           },
-          "viewport": {
-            "@path": "$.integrations.Altertable.viewport"
-          },
           "screen_width": {
             "@path": "$.context.screen.width"
           },
@@ -2485,17 +2332,7 @@
             "@path": "$.context.library.version"
           },
           "device_id": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "then": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "else": {
-                "@path": "$.context.device.id"
-              }
-            }
+            "@path": "$.context.device.id"
           }
         },
         "timestamp": {
@@ -2553,9 +2390,6 @@
           "utm_content": {
             "@path": "$.context.campaign.content"
           },
-          "viewport": {
-            "@path": "$.integrations.Altertable.viewport"
-          },
           "screen_width": {
             "@path": "$.context.screen.width"
           },
@@ -2569,17 +2403,7 @@
             "@path": "$.context.library.version"
           },
           "device_id": {
-            "@if": {
-              "exists": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "then": {
-                "@path": "$.integrations.Altertable.device_id"
-              },
-              "else": {
-                "@path": "$.context.device.id"
-              }
-            }
+            "@path": "$.context.device.id"
           }
         },
         "timestamp": {

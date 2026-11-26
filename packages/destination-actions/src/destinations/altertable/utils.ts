@@ -34,7 +34,6 @@ export function buildContextProps(context: ContextFields | undefined, channel?: 
       utm_medium,
       utm_term,
       utm_content,
-      viewport,
       screen_width,
       screen_height,
       library_name,
@@ -71,9 +70,7 @@ export function buildContextProps(context: ContextFields | undefined, channel?: 
     if (utm_content) {
       result.$utm_content = utm_content
     }
-    if (viewport) {
-      result.$viewport = viewport
-    } else if (screen_width && screen_height) {
+    if (screen_width && screen_height) {
       result.$viewport = `${screen_width}x${screen_height}`
     }
 

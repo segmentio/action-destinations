@@ -12,7 +12,7 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
-   * The session ID, set by the Altertable Browser Plugin
+   * The session ID, set by the Altertable Session Plugin
    */
   session_id?: string
   /**
@@ -67,10 +67,6 @@ export interface Payload {
      * The UTM content
      */
     utm_content?: string
-    /**
-     * The browser viewport (e.g. 1280x720), set by the Altertable Browser Plugin
-     */
-    viewport?: string
     /**
      * The width of the screen
      */

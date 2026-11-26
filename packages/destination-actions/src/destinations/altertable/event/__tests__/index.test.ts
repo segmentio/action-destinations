@@ -53,7 +53,7 @@ describe('Altertable.event', () => {
     })
   })
 
-  it('should send the session ID set by the Altertable Browser Plugin', async () => {
+  it('should send the session ID set by the Altertable Session Plugin', async () => {
     const event = createTestEvent({
       context: {},
       integrations: {
@@ -77,37 +77,6 @@ describe('Altertable.event', () => {
 
     const payload = JSON.parse(responses[0].options.body as string)
     expect(payload.session_id).toBe('session-abc')
-  })
-
-  it('should prefer the device ID and viewport set by the Altertable Browser Plugin', async () => {
-    const event = createTestEvent({
-      context: {
-        device: { id: 'context-device-id' },
-        screen: { width: 1920, height: 1080 }
-      },
-      integrations: {
-        Altertable: {
-          device_id: 'device-abc',
-          viewport: '1280x720'
-        }
-      }
-    })
-
-    nock(endpoint).post('/track').reply(200, {})
-
-    const responses = await testDestination.testAction('event', {
-      event,
-      useDefaultMappings: true,
-      settings: {
-        apiKey: apiKey,
-        endpoint: endpoint,
-        environment: environment
-      }
-    })
-
-    const payload = JSON.parse(responses[0].options.body as string)
-    expect(payload.device_id).toBe('device-abc')
-    expect(payload.properties.$viewport).toBe('1280x720')
   })
 
   it('should not send a session ID when the event has none', async () => {

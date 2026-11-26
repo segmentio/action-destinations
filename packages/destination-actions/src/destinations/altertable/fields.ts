@@ -76,11 +76,6 @@ export const commonFields: Record<string, InputField> = {
         description: 'The UTM content',
         type: 'string'
       },
-      viewport: {
-        label: 'Viewport',
-        description: 'The browser viewport (e.g. 1280x720), set by the Altertable Browser Plugin',
-        type: 'string'
-      },
       screen_width: {
         label: 'Screen Width',
         description: 'The width of the screen',
@@ -138,9 +133,6 @@ export const commonFields: Record<string, InputField> = {
       utm_content: {
         '@path': '$.context.campaign.content'
       },
-      viewport: {
-        '@path': '$.integrations.Altertable.viewport'
-      },
       screen_width: {
         '@path': '$.context.screen.width'
       },
@@ -154,11 +146,7 @@ export const commonFields: Record<string, InputField> = {
         '@path': '$.context.library.version'
       },
       device_id: {
-        '@if': {
-          exists: { '@path': '$.integrations.Altertable.device_id' },
-          then: { '@path': '$.integrations.Altertable.device_id' },
-          else: { '@path': '$.context.device.id' }
-        }
+        '@path': '$.context.device.id'
       }
     },
     required: false

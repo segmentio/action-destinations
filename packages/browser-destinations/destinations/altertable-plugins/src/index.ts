@@ -1,13 +1,13 @@
 import type { Settings } from './generated-types'
 import type { BrowserDestinationDefinition } from '@segment/browser-destination-runtime/types'
 import { browserDestination } from '@segment/browser-destination-runtime/shim'
-import altertablePlugin from './altertablePlugin'
+import sessionId from './sessionId'
 
 export const destination: BrowserDestinationDefinition<Settings, unknown> = {
   name: 'Altertable Plugins',
   mode: 'device',
   settings: {},
-  actions: { altertablePlugin },
+  actions: { sessionId },
   initialize: async () => {
     return {}
   }

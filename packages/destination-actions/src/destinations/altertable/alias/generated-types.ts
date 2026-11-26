@@ -58,10 +58,6 @@ export interface Payload {
      */
     utm_content?: string
     /**
-     * The browser viewport (e.g. 1280x720), set by the Altertable Browser Plugin
-     */
-    viewport?: string
-    /**
      * The width of the screen
      */
     screen_width?: number

@@ -51,9 +51,9 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
-      name: 'Altertable Browser Plugin',
+      name: 'Browser Session Tracking',
       subscribe: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
-      partnerAction: 'altertablePlugin',
+      partnerAction: 'sessionId',
       mapping: {},
       type: 'automatic'
     },

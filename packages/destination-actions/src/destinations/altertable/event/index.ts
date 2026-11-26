@@ -29,7 +29,7 @@ const action: ActionDefinition<Settings, Payload> = {
     },
     session_id: {
       label: 'Session ID',
-      description: 'The session ID, set by the Altertable Browser Plugin',
+      description: 'The session ID, set by the Altertable Session Plugin',
       type: 'string',
       required: false,
       default: {
