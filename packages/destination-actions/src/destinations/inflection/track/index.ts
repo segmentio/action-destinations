@@ -1,4 +1,4 @@
-import type { ActionDefinition } from '@segment/actions-core'
+import type { ActionDefinition, DependsOnConditions } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -16,6 +16,10 @@ import {
   userId
 } from '../fields'
 import { buildAttributes, buildIdentifyJSON, optionalString, requiredString, send } from '../functions'
+
+const identifyDependency: DependsOnConditions = {
+  conditions: [{ fieldKey: 'sendIdentify', operator: 'is', value: true }]
+}
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -36,8 +40,13 @@ const action: ActionDefinition<Settings, Payload> = {
     timestamp,
     groupId,
     sendIdentify,
-    email: { ...email, required: false, default: { '@path': '$.context.traits.email' } },
-    traits: { ...traits, default: { '@path': '$.context.traits' } },
+    email: {
+      ...email,
+      required: false,
+      default: { '@path': '$.context.traits.email' },
+      depends_on: identifyDependency
+    },
+    traits: { ...traits, default: { '@path': '$.context.traits' }, depends_on: identifyDependency },
     nestedValueHandling,
     properties: {
       label: 'Properties',
