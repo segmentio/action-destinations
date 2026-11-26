@@ -42,6 +42,7 @@ Object {
     "$viewport": "-62074548073267.2x-62074548073267.2",
     "testType": "UM[e12E",
   },
+  "session_id": "UM[e12E",
   "timestamp": "2024-06-01T12:00:00.000Z",
 }
 `;
@@ -55,6 +56,7 @@ Object {
     "$lib": "altertable-segment",
     "testType": "UM[e12E",
   },
+  "session_id": "UM[e12E",
   "timestamp": "2024-06-01T12:00:00.000Z",
 }
 `;

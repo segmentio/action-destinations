@@ -27,6 +27,15 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.properties'
       }
     },
+    session_id: {
+      label: 'Session ID',
+      description: 'The session ID, set by the Altertable Session Plugin',
+      type: 'string',
+      required: false,
+      default: {
+        '@path': '$.integrations.Altertable.session_id'
+      }
+    },
     ...commonFields,
     enable_batching: {
       label: 'Enable Batching',

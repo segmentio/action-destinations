@@ -7,6 +7,7 @@ export type BaseJSON = {
 }
 
 export type EventJSON = BaseJSON & {
+  session_id?: string
   event: string
   properties: Context & Record<string, unknown>
 }

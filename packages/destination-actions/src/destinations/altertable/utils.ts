@@ -102,6 +102,7 @@ function buildTrackJSON(settings: Settings, payload: EventPayload): EventJSON {
     distinct_id: userId || anonymousId,
     anonymous_id: userId && anonymousId ? anonymousId : undefined,
     device_id,
+    session_id: payload.session_id,
     event: payload.event,
     properties: {
       ...contextProps,

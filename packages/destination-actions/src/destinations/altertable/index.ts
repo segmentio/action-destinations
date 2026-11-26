@@ -51,6 +51,13 @@ const destination: DestinationDefinition<Settings> = {
   },
   presets: [
     {
+      name: 'Browser Session Tracking',
+      subscribe: 'type = "track" or type = "identify" or type = "page" or type = "group" or type = "alias"',
+      partnerAction: 'sessionId',
+      mapping: {},
+      type: 'automatic'
+    },
+    {
       name: 'Track',
       subscribe: 'type = "track"',
       partnerAction: 'event',

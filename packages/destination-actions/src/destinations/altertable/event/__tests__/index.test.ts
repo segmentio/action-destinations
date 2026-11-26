@@ -40,17 +40,62 @@ describe('Altertable.event', () => {
     expect(responses[0].status).toBe(200)
     const payload = JSON.parse(responses[0].options.body as string)
     expect(payload).toMatchObject({
-        anonymous_id: "anonId1234",
-        device_id: "test-device-id",
-        distinct_id: "user1234",
-        environment: "test-environment",
-        event: "Test Event",
-        properties: {
-            $lib: "altertable-segment",
-            testProperty: "test-value"
-        },
-        timestamp: "2026-01-05T09:35:42.275Z"
+      anonymous_id: 'anonId1234',
+      device_id: 'test-device-id',
+      distinct_id: 'user1234',
+      environment: 'test-environment',
+      event: 'Test Event',
+      properties: {
+        $lib: 'altertable-segment',
+        testProperty: 'test-value'
+      },
+      timestamp: '2026-01-05T09:35:42.275Z'
     })
+  })
+
+  it('should send the session ID set by the Altertable Session Plugin', async () => {
+    const event = createTestEvent({
+      context: {},
+      integrations: {
+        Altertable: {
+          session_id: 'session-abc'
+        }
+      }
+    })
+
+    nock(endpoint).post('/track').reply(200, {})
+
+    const responses = await testDestination.testAction('event', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: apiKey,
+        endpoint: endpoint,
+        environment: environment
+      }
+    })
+
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload.session_id).toBe('session-abc')
+  })
+
+  it('should not send a session ID when the event has none', async () => {
+    const event = createTestEvent({ context: {} })
+
+    nock(endpoint).post('/track').reply(200, {})
+
+    const responses = await testDestination.testAction('event', {
+      event,
+      useDefaultMappings: true,
+      settings: {
+        apiKey: apiKey,
+        endpoint: endpoint,
+        environment: environment
+      }
+    })
+
+    const payload = JSON.parse(responses[0].options.body as string)
+    expect(payload).not.toHaveProperty('session_id')
   })
 
   it('should throw error if required fields are missing', async () => {

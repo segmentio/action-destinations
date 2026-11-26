@@ -12,6 +12,10 @@ export interface Payload {
     [k: string]: unknown
   }
   /**
+   * The session ID, set by the Altertable Session Plugin
+   */
+  session_id?: string
+  /**
    * The ID of the user
    */
   userId: string
