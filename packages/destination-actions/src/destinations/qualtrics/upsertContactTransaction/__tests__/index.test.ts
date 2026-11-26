@@ -243,4 +243,53 @@ describe('upsertContactTransaction', () => {
       mailingListId: MAILING_LIST_ID
     })
   })
+
+  describe('datacenter validation', () => {
+    const event = createTestEvent({
+      userId: CONTACT_INFO.extRef,
+      traits: {
+        contactId: CONTACT_ID,
+        directoryId: DIRECTORY_ID,
+        mailingListId: MAILING_LIST_ID,
+        transactionData: TRANSACTION_DATA,
+        transactionDate: TRANSACTION_DATE
+      }
+    })
+    const mapping = {
+      directoryId: { '@path': '$.traits.directoryId' },
+      mailingListId: { '@path': '$.traits.mailingListId' },
+      contactId: { '@path': '$.traits.contactId' },
+      transactionData: { '@path': '$.traits.transactionData' },
+      transactionDate: { '@path': '$.traits.transactionDate' }
+    }
+
+    it.each(['a.b', 'attacker.com/path?x=', 'attacker.com@legitimate'])(
+      'rejects datacenter %j and sends no request',
+      async (datacenter) => {
+        await expect(
+          testDestination.testAction('upsertContactTransaction', {
+            event,
+            settings: { ...SETTINGS, datacenter },
+            useDefaultMappings: true,
+            mapping
+          })
+        ).rejects.toThrowError(/Invalid datacenter ID/)
+      }
+    )
+
+    it('accepts a valid datacenter', async () => {
+      nock(`https://${SETTINGS.datacenter}.qualtrics.com`)
+        .post(`/API/v3/directories/${DIRECTORY_ID}/transactions`)
+        .reply(200, {})
+
+      const response = await testDestination.testAction('upsertContactTransaction', {
+        event,
+        settings: SETTINGS,
+        useDefaultMappings: true,
+        mapping
+      })
+
+      expect(response[0].status).toBe(200)
+    })
+  })
 })

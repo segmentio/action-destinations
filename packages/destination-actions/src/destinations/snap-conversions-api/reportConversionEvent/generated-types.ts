@@ -295,6 +295,10 @@ export interface Payload {
     suggested_hotels?: string
   }
   /**
+   * A custom label for the event, sent to Snapchat as custom_data.event_tag. It can be used as a rule key when defining Custom Conversions in Snapchat Events Manager.
+   */
+  event_tag?: string
+  /**
    * The Data Processing Options to send to Snapchat. If set to true, Segment will send an array to Snapchat indicating events should be processed with Limited Data Use (LDU) restrictions.
    */
   data_processing_options?: boolean
@@ -359,10 +363,6 @@ export interface Payload {
    * Deprecated. Use Action Source field.
    */
   event_conversion_type?: string
-  /**
-   * Deprecated. No longer supported.
-   */
-  event_tag?: string
   /**
    * Deprecated. Use Event Name field.
    */

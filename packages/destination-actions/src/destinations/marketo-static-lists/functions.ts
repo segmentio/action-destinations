@@ -8,8 +8,8 @@ import {
 } from '@segment/actions-core'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kit/types'
 import { Settings } from './generated-types'
-import { Payload as AddToListPayload } from './addToList/generated-types'
-import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
+import { Payload as AddToListActionPayload } from './addToList/generated-types'
+import { Payload as RemoveFromListActionPayload } from './removeFromList/generated-types'
 import {
   CSV_LIMIT,
   BULK_IMPORT_ENDPOINT,
@@ -29,6 +29,10 @@ import {
   GET_LIST_ENDPOINT
 } from './constants'
 import { JSONLikeObject } from '@segment/actions-core'
+
+// Sync List shares these helpers but has no batch_size field; none of them read it.
+type AddToListPayload = Omit<AddToListActionPayload, 'batch_size'>
+type RemoveFromListPayload = Omit<RemoveFromListActionPayload, 'batch_size'>
 
 // Keep only the scheme and host from the endpoint
 // Marketo UI shows endpoint with trailing "/rest", which we don't want

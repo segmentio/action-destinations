@@ -81,7 +81,7 @@ export function createRedditPayloadV3(
 
       const cleanEventSourceUrl = clean(event_source_url ?? '')
       const cleanedClickId = clean(click_id)
-      const userObj = getUser(user, data_processing_options, screen_dimensions)
+      const userObj = getUser(user, data_processing_options, screen_dimensions, true)
       const hasMatchKey = userObj !== undefined && MATCH_KEYS.some((key) => userObj[key] !== undefined)
 
       if (!cleanedClickId && !hasMatchKey) {

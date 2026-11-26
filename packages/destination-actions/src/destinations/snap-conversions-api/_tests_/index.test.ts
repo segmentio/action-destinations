@@ -264,6 +264,61 @@ describe('Snap Conversions API ', () => {
       })
     })
 
+    describe('event_tag', () => {
+      const mapEventTag = { '@path': '$.properties.event_tag' }
+
+      it('should send event_tag in custom_data', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: mapEventTag }
+        })
+
+        expect(data.custom_data.event_tag).toBe('back-to-school')
+        expect(data.event_tag).toBeUndefined()
+      })
+
+      it('should send event_tag alongside the other custom_data fields', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: {
+            event_name: 'PURCHASE',
+            action_source: 'WEB',
+            event_tag: mapEventTag,
+            custom_data: { order_id: 'A1234', currency: 'USD', value: 15 }
+          }
+        })
+
+        expect(data.custom_data).toEqual({
+          currency: 'USD',
+          event_tag: 'back-to-school',
+          order_id: 'A1234',
+          value: 15
+        })
+      })
+
+      it('should trim event_tag', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: '  back-to-school  ' }
+        })
+
+        expect(data.custom_data.event_tag).toBe('back-to-school')
+      })
+
+      it.each(['', '   '])('should omit event_tag when it is %j', async (value) => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: value }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+      })
+
+      it('should omit event_tag when it is not mapped', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB' }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+      })
+    })
+
     it('should handle a mobile app event conversion type', async () => {
       const { data } = await reportConversionEvent({
         mapping: {

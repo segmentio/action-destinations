@@ -548,6 +548,7 @@ const buildCustomData = (payload: Payload) => {
   const preferred_neighborhoods = emptyStringToUndefined(custom_data?.preferred_neighborhoods)
   const preferred_star_ratings = emptyStringToUndefined(custom_data?.preferred_star_ratings)
   const suggested_hotels = emptyStringToUndefined(custom_data?.suggested_hotels)
+  const event_tag = emptyStringToUndefined(payload?.event_tag)
 
   const dta_fields = {
     checkin_date,
@@ -584,6 +585,7 @@ const buildCustomData = (payload: Payload) => {
     search_string,
     sign_up_method,
     value,
+    event_tag,
     ...dta_fields
   })
 }

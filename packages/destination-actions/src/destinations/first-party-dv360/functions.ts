@@ -2,13 +2,14 @@ import { Features, IntegrationError, RequestClient, StatsContext } from '@segmen
 import { Payload } from './addToAudContactInfo/generated-types'
 import { Payload as DeviceIdPayload } from './addToAudMobileDeviceId/generated-types'
 import { processHashing } from '../../lib/hashing-utils'
+import { EditCustomerMatchResponse } from './types'
 import { FIRST_PARTY_DV360_API_VERSION, FIRST_PARTY_DV360_CANARY_API_VERSION } from './versioning-info'
 
 export const API_VERSION = FIRST_PARTY_DV360_API_VERSION
 export const CANARY_API_VERSION = FIRST_PARTY_DV360_CANARY_API_VERSION
 export const FLAGON_NAME = 'first-party-dv360-canary-version'
 
-const DV360API = `https://displayvideo.googleapis.com/`
+export const DV360API = `https://displayvideo.googleapis.com/`
 const CONSENT_STATUS_GRANTED = 'CONSENT_STATUS_GRANTED' // Define consent status
 
 export function getApiVersion(features?: Features, statsContext?: StatsContext): string {
@@ -19,99 +20,8 @@ export function getApiVersion(features?: Features, statsContext?: StatsContext):
   return version
 }
 
-function getAudienceEndpoint(version: string, advertiserId: string, audienceId?: string): string {
-  if (audienceId) {
-    return DV360API + `${version}/firstPartyAndPartnerAudiences/` + `${audienceId}?advertiserId=${advertiserId}`
-  } else {
-    return DV360API + `${version}/firstPartyAndPartnerAudiences` + `?advertiserId=${advertiserId}`
-  }
-}
-
 export function getEditCustomerMatchMembersEndpoint(version: string, audienceId: string): string {
   return DV360API + `${version}/firstPartyAndPartnerAudiences/` + audienceId + ':editCustomerMatchMembers'
-}
-
-interface createAudienceRequestParams {
-  advertiserId: string
-  audienceName: string
-  description?: string
-  membershipDurationDays: string
-  audienceType: string
-  appId?: string
-  token?: string
-  features?: Features
-  statsContext?: StatsContext
-}
-
-interface getAudienceParams {
-  advertiserId: string
-  audienceId: string
-  token?: string
-  features?: Features
-  statsContext?: StatsContext
-}
-
-interface DV360editCustomerMatchResponse {
-  firstPartyAndPartnerAudienceId?: string
-  error: [
-    {
-      code: string
-      message: string
-      status: string
-    }
-  ]
-}
-
-export const createAudienceRequest = (
-  request: RequestClient,
-  params: createAudienceRequestParams
-): Promise<Response> => {
-  const {
-    advertiserId,
-    audienceName,
-    description,
-    membershipDurationDays,
-    audienceType,
-    appId,
-    token,
-    features,
-    statsContext
-  } = params
-
-  const version = getApiVersion(features, statsContext)
-  const endpoint = getAudienceEndpoint(version, advertiserId)
-
-  return request(endpoint, {
-    method: 'POST',
-    headers: {
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      'Content-Type': 'application/json; charset=utf-8'
-    },
-    json: {
-      displayName: audienceName,
-      audienceType: audienceType,
-      membershipDurationDays: membershipDurationDays,
-      description: description,
-      audienceSource: 'AUDIENCE_SOURCE_UNSPECIFIED',
-      firstPartyAndPartnerAudienceType: 'TYPE_FIRST_PARTY',
-      appId: appId
-    }
-  })
-}
-
-export const getAudienceRequest = (request: RequestClient, params: getAudienceParams): Promise<Response> => {
-  const { advertiserId, audienceId, token, features, statsContext } = params
-
-  const version = getApiVersion(features, statsContext)
-  const endpoint = getAudienceEndpoint(version, advertiserId, audienceId)
-
-  return request(endpoint, {
-    method: 'GET',
-    headers: {
-      ...(token ? { authorization: `Bearer ${token}` } : {}),
-      'Content-Type': 'application/json; charset=utf-8'
-    }
-  })
 }
 
 export async function editDeviceMobileIds(
@@ -149,7 +59,7 @@ export async function editDeviceMobileIds(
     ...(operation === 'add' ? { addedMobileDeviceIdList: mobileDeviceIdList } : {}),
     ...(operation === 'remove' ? { removedMobileDeviceIdList: mobileDeviceIdList } : {})
   })
-  const response = await request<DV360editCustomerMatchResponse>(endpoint, {
+  const response = await request<EditCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8'
@@ -160,7 +70,7 @@ export async function editDeviceMobileIds(
   if (!response.data || !responseAudienceId) {
     statsContext?.statsClient?.incr('addCustomerMatchMembers.error', allMobileDeviceIds.length, statsContext?.tags)
     throw new IntegrationError(
-      `API returned error: ${response.data?.error || 'Unknown error'}`,
+      `API returned error: ${response.data?.error?.message || 'Unknown error'}`,
       'API_REQUEST_ERROR',
       400
     )
@@ -229,7 +139,7 @@ export async function editContactInfo(
   const requestPayload = buildRequestPayload(advertiserId, contactInfoList, operation)
   const version = getApiVersion(features, statsContext)
   const endpoint = getEditCustomerMatchMembersEndpoint(version, audienceId)
-  const response = await request<DV360editCustomerMatchResponse>(endpoint, {
+  const response = await request<EditCustomerMatchResponse>(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: requestPayload

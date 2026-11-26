@@ -1,3 +1,4 @@
+import { PayloadValidationError } from '@segment/actions-core'
 import dayjs from '../../lib/dayjs'
 import isPlainObject from 'lodash/isPlainObject'
 import { fullFormats } from 'ajv-formats/dist/formats'
@@ -115,9 +116,34 @@ type Identifiers = {
   secondary?: Identifiers
 }
 
+// Segment libraries that run on the end user's device. For these, `context.ip` is
+// stamped by Segment from the client request and is the person's own address.
+// Server-side libraries (analytics-node, analytics-python, ...) and the HTTP API
+// carry the sending server's address instead, so their IP is not forwarded by default.
+const CLIENT_SIDE_LIBRARIES = [
+  'analytics.js',
+  'analytics-ios',
+  'analytics-android',
+  'analytics-swift',
+  'analytics-kotlin',
+  'analytics-react-native',
+  'analytics-flutter'
+]
+
+export const isClientSideLibrary = (library?: string): boolean => {
+  if (!library) {
+    return false
+  }
+  const name = library.trim().toLowerCase()
+  return CLIENT_SIDE_LIBRARIES.some((client) => name === client || name.startsWith(`${client}-`))
+}
+
 type BasePayload = {
   anonymous_id?: string
   convert_timestamp?: boolean
+  customer_ip?: string
+  forward_server_ip?: boolean
+  source_library?: string
   email?: string
   object_id?: string
   object_type_id?: string
@@ -128,7 +154,19 @@ type BasePayload = {
 }
 
 export const buildPayload = <Payload extends BasePayload>({ action, type, payload }: RequestPayload<Payload>) => {
-  const { convert_timestamp, person_id, anonymous_id, email, object_id, object_type_id, timestamp, ...data } = payload
+  const {
+    convert_timestamp,
+    customer_ip,
+    forward_server_ip,
+    source_library,
+    person_id,
+    anonymous_id,
+    email,
+    object_id,
+    object_type_id,
+    timestamp,
+    ...data
+  } = payload
   let rest = data
 
   // Remove batching configuration fields that shouldn't be sent to Customer.io
@@ -154,12 +192,20 @@ export const buildPayload = <Payload extends BasePayload>({ action, type, payloa
     identifiers?: Identifiers
     type: string
     action: string
+    customer_ip?: string
     object_id?: string
     object_type_id?: string
   } = {
     type,
     action,
     ...rest
+  }
+
+  // Customer.io reads the IP for geolocation from the root of identify requests only.
+  // Forward it when the event came from a client-side library, or when the user has
+  // explicitly opted in for server-side sources.
+  if (action === 'identify' && customer_ip && (isClientSideLibrary(source_library) || forward_server_ip === true)) {
+    body.customer_ip = customer_ip
   }
 
   if (anonymous_id) {
@@ -201,6 +247,34 @@ export const resolveIdentifiers = ({
     return { email: email as string }
   } else if (anonymous_id) {
     return { anonymous_id: anonymous_id as string }
+  }
+}
+
+type IdentifierFields = {
+  anonymous_id?: unknown
+  email?: unknown
+  object_id?: unknown
+  object_type_id?: unknown
+  person_id?: unknown
+}
+
+// Feature flag that turns on the fail-fast identifier check in `perform`. Off by default so the
+// rollout can be controlled and rolled back without a code change.
+export const VALIDATE_IDENTIFIERS_FLAG = 'customerio-validate-identifiers'
+
+// Throws a non-retryable PayloadValidationError when a payload would be sent to Customer.io without any
+// identifiers. Uses the same resolution rules as `buildPayload` (via `resolveIdentifiers`), so it only rejects payloads
+// the Track API would also reject.
+// `acceptedFields` are the labels of the identifier fields on the calling action, used to build an actionable message.
+export const validateIdentifiers = (payload: IdentifierFields, acceptedFields: string[]): void => {
+  const { anonymous_id, email, object_id, object_type_id, person_id } = payload
+
+  if (!resolveIdentifiers({ anonymous_id, email, object_id, object_type_id, person_id })) {
+    throw new PayloadValidationError(
+      `Customer.io requires an identifier, but none was found in the payload. Map a value to at least one of: ${acceptedFields.join(
+        ', '
+      )}.`
+    )
   }
 }
 

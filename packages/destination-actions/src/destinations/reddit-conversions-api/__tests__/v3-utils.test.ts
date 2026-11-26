@@ -312,6 +312,29 @@ describe('getMetadata', () => {
 })
 
 describe('createRedditPayloadV3', () => {
+  it('converts a Base64 SHA-256 email to hex in the v3 event user', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payload = buildPayload({ user: { email: '/42YGfwOEr8NJIkuRZh+JJoo3Og2qFytYOKOqqjG2XY=' } })
+
+    const result = createRedditPayloadV3([payload], settings, multiStatusResponse, false)
+
+    expect(result.data.events[0].user?.email).toBe('ff8d9819fc0e12bf0d24892e45987e249a28dce836a85cad60e28eaaa8c6d976')
+  })
+
+  it('marks an event with an invalid email as failed with a 400 in a batch, without failing the others', () => {
+    const multiStatusResponse = new MultiStatusResponse()
+    const payloads = [
+      buildPayload({ user: { email: 'not-an-email-or-hash' } }),
+      buildPayload({ user: { email: '/42YGfwOEr8NJIkuRZh+JJoo3Og2qFytYOKOqqjG2XY=' } })
+    ]
+
+    const result = createRedditPayloadV3(payloads, settings, multiStatusResponse, true)
+
+    expect(result.data.events).toHaveLength(1)
+    expect(multiStatusResponse.getResponseAtIndex(0).value()).toMatchObject({ status: 400 })
+    expect(multiStatusResponse.getResponseAtIndex(1).value()).toMatchObject({ status: 200 })
+  })
+
   it('builds a v3 event item for a single valid standardEvent payload and marks it success', () => {
     const multiStatusResponse = new MultiStatusResponse()
     const payload = buildPayload({
