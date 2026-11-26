@@ -21,9 +21,10 @@ const storageFallback: SessionStorage = {
   set: (key: string, value: string) => window.localStorage.setItem(key, value)
 }
 
-function readStorage(storage: SessionStorage, key: string): unknown {
+function readStorage(storage: SessionStorage, key: string): string | null {
   try {
-    return storage.get(key)
+    const value = storage.get(key)
+    return typeof value === 'string' && value ? value : null
   } catch {
     return null
   }
@@ -38,18 +39,15 @@ function writeStorage(storage: SessionStorage, key: string, value: string): void
 }
 
 function generateSessionId(): string {
-  if (typeof globalThis.crypto?.randomUUID === 'function') {
-    try {
-      return `${sessionIdPrefix}-${globalThis.crypto.randomUUID()}`
-    } catch {
-      // Fall back to Math.random() below
-    }
+  try {
+    return `${sessionIdPrefix}-${crypto.randomUUID()}`
+  } catch {
+    return `${sessionIdPrefix}-${Math.random().toString(36).substring(2)}`
   }
-  return `${sessionIdPrefix}-${Math.random().toString(36).substring(2)}`
 }
 
-function shouldRenewSession(lastEventAt: unknown, now: Date): boolean {
-  if (typeof lastEventAt !== 'string' || lastEventAt === '') {
+function shouldRenewSession(lastEventAt: string | null, now: Date): boolean {
+  if (!lastEventAt) {
     return true
   }
   const lastEventTime = new Date(lastEventAt).getTime()
@@ -60,10 +58,8 @@ function resolveSessionId(storage: SessionStorage, now: Date): string {
   const storedId = readStorage(storage, storageSessionIdKey)
   const lastEventAt = readStorage(storage, storageLastEventAtKey)
 
-  let sessionId: string
-  if (typeof storedId === 'string' && storedId !== '' && !shouldRenewSession(lastEventAt, now)) {
-    sessionId = storedId
-  } else {
+  let sessionId = storedId
+  if (!sessionId || shouldRenewSession(lastEventAt, now)) {
     sessionId = generateSessionId()
     writeStorage(storage, storageSessionIdKey, sessionId)
   }
