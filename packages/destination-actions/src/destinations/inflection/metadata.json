@@ -1,0 +1,1242 @@
+{
+  "slug": "actions-inflection",
+  "name": "Inflection (Actions)",
+  "mode": "cloud",
+  "description": "Send Segment track, identify and group events to Inflection to activate growth campaigns.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "apiKey": {
+        "label": "API Key",
+        "description": "Your Inflection API key. In Inflection, go to Connections, then Data Connections, then Add new connection. Under CDP, select Segment, then create the API key.",
+        "type": "password",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "environment": {
+        "label": "Environment",
+        "description": "The Inflection environment to send events to. API keys are specific to each environment.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Production",
+            "value": "production"
+          },
+          {
+            "label": "Testing",
+            "value": "testing"
+          }
+        ],
+        "default": "production",
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "track": {
+      "title": "Track",
+      "description": "Send a track event to Inflection.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": {
+        "default": "mirror",
+        "label": "Sync Mode",
+        "description": "Specify how Segment should sync data to Inflection when connected to a database Source.",
+        "choices": [
+          {
+            "value": "add",
+            "label": "Add - triggers when a row is added"
+          },
+          {
+            "value": "update",
+            "label": "Update - triggers when a row is updated"
+          },
+          {
+            "value": "upsert",
+            "label": "Upsert - triggers when a row is added or updated"
+          },
+          {
+            "value": "delete",
+            "label": "Delete - triggers when a row is deleted"
+          },
+          {
+            "value": "mirror",
+            "label": "Mirror - triggers when a row is added, updated, or deleted"
+          }
+        ]
+      },
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The unique identifier of the user.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The Segment anonymous ID of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event": {
+          "label": "Event Name",
+          "description": "The name of the event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.event"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "Message ID",
+          "description": "The unique ID of the Segment event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "groupId": {
+          "label": "Group ID",
+          "description": "The unique identifier of the group the user belongs to.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "nestedValueHandling": {
+          "label": "Nested Value Handling",
+          "description": "How to send objects and arrays nested inside the properties or traits.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "objectHandling": "stringify",
+            "arrayHandling": "stringify"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "objectHandling": {
+              "label": "Object Handling",
+              "description": "Stringify sends the object as a JSON string. Flatten sends one field per key, named parent_key (for example address_city).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "stringify",
+              "choices": [
+                {
+                  "label": "Stringify as JSON",
+                  "value": "stringify"
+                },
+                {
+                  "label": "Flatten into separate fields",
+                  "value": "flatten"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "arrayHandling": {
+              "label": "Array Handling",
+              "description": "Stringify sends the array as a JSON string. Flatten sends one field per item, named parent_0, parent_1. Join sends a single comma-separated string.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "stringify",
+              "choices": [
+                {
+                  "label": "Stringify as JSON",
+                  "value": "stringify"
+                },
+                {
+                  "label": "Flatten into separate fields",
+                  "value": "flatten"
+                },
+                {
+                  "label": "Join into a comma-separated string",
+                  "value": "join"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "properties": {
+          "label": "Properties",
+          "description": "Properties of the event.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audienceDetails": {
+          "label": "Audience Details",
+          "description": "Send audience membership as a regular boolean trait or property named after the audience. Engage audiences are sent automatically. For Reverse ETL, enter an Audience Name.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "audienceName": {
+              "@path": "$.context.personas.computation_key"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "audienceName": {
+              "label": "Audience Name",
+              "description": "The name of the trait or property to send. By default this is the Engage audience key, which is the snake_cased audience name. Enter a value to override it.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audienceMembership": {
+              "label": "Audience Membership",
+              "description": "Whether the user is in the audience. If you leave this unset, Segment uses the Engage membership, or the Sync Mode for Reverse ETL.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "engageAudienceKey": {
+          "label": "Engage Audience Key",
+          "description": "The key of the Engage audience. Used to avoid sending the audience twice when the name is overridden.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "identify": {
+      "title": "Identify",
+      "description": "Send an identify event to Inflection to create or update a contact.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"identify\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": {
+        "default": "mirror",
+        "label": "Sync Mode",
+        "description": "Specify how Segment should sync data to Inflection when connected to a database Source.",
+        "choices": [
+          {
+            "value": "add",
+            "label": "Add - triggers when a row is added"
+          },
+          {
+            "value": "update",
+            "label": "Update - triggers when a row is updated"
+          },
+          {
+            "value": "upsert",
+            "label": "Upsert - triggers when a row is added or updated"
+          },
+          {
+            "value": "delete",
+            "label": "Delete - triggers when a row is deleted"
+          },
+          {
+            "value": "mirror",
+            "label": "Mirror - triggers when a row is added, updated, or deleted"
+          }
+        ]
+      },
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The unique identifier of the user.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The Segment anonymous ID of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "Message ID",
+          "description": "The unique ID of the Segment event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "email": {
+          "label": "Email",
+          "description": "The email address of the user.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits.email"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": "email",
+          "additionalProperties": false
+        },
+        "nestedValueHandling": {
+          "label": "Nested Value Handling",
+          "description": "How to send objects and arrays nested inside the properties or traits.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "objectHandling": "stringify",
+            "arrayHandling": "stringify"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "objectHandling": {
+              "label": "Object Handling",
+              "description": "Stringify sends the object as a JSON string. Flatten sends one field per key, named parent_key (for example address_city).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "stringify",
+              "choices": [
+                {
+                  "label": "Stringify as JSON",
+                  "value": "stringify"
+                },
+                {
+                  "label": "Flatten into separate fields",
+                  "value": "flatten"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "arrayHandling": {
+              "label": "Array Handling",
+              "description": "Stringify sends the array as a JSON string. Flatten sends one field per item, named parent_0, parent_1. Join sends a single comma-separated string.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "stringify",
+              "choices": [
+                {
+                  "label": "Stringify as JSON",
+                  "value": "stringify"
+                },
+                {
+                  "label": "Flatten into separate fields",
+                  "value": "flatten"
+                },
+                {
+                  "label": "Join into a comma-separated string",
+                  "value": "join"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "Traits of the user.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "audienceDetails": {
+          "label": "Audience Details",
+          "description": "Send audience membership as a regular boolean trait or property named after the audience. Engage audiences are sent automatically. For Reverse ETL, enter an Audience Name.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "audienceName": {
+              "@path": "$.context.personas.computation_key"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "audienceName": {
+              "label": "Audience Name",
+              "description": "The name of the trait or property to send. By default this is the Engage audience key, which is the snake_cased audience name. Enter a value to override it.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "audienceMembership": {
+              "label": "Audience Membership",
+              "description": "Whether the user is in the audience. If you leave this unset, Segment uses the Engage membership, or the Sync Mode for Reverse ETL.",
+              "type": "boolean",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "engageAudienceKey": {
+          "label": "Engage Audience Key",
+          "description": "The key of the Engage audience. Used to avoid sending the audience twice when the name is overridden.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.personas.computation_key"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": true,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "group": {
+      "title": "Group",
+      "description": "Send a group event to Inflection to link a user to an organization.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"group\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "userId": {
+          "label": "User ID",
+          "description": "The unique identifier of the user.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.userId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "anonymousId": {
+          "label": "Anonymous ID",
+          "description": "The Segment anonymous ID of the user.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.anonymousId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "messageId": {
+          "label": "Message ID",
+          "description": "The unique ID of the Segment event.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "timestamp": {
+          "label": "Timestamp",
+          "description": "The timestamp of the event.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "groupId": {
+          "label": "Group ID",
+          "description": "The unique identifier of the group.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.groupId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "nestedValueHandling": {
+          "label": "Nested Value Handling",
+          "description": "How to send objects and arrays nested inside the properties or traits.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "objectHandling": "stringify",
+            "arrayHandling": "stringify"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "objectHandling": {
+              "label": "Object Handling",
+              "description": "Stringify sends the object as a JSON string. Flatten sends one field per key, named parent_key (for example address_city).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "stringify",
+              "choices": [
+                {
+                  "label": "Stringify as JSON",
+                  "value": "stringify"
+                },
+                {
+                  "label": "Flatten into separate fields",
+                  "value": "flatten"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "arrayHandling": {
+              "label": "Array Handling",
+              "description": "Stringify sends the array as a JSON string. Flatten sends one field per item, named parent_0, parent_1. Join sends a single comma-separated string.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": "stringify",
+              "choices": [
+                {
+                  "label": "Stringify as JSON",
+                  "value": "stringify"
+                },
+                {
+                  "label": "Flatten into separate fields",
+                  "value": "flatten"
+                },
+                {
+                  "label": "Join into a comma-separated string",
+                  "value": "join"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "object",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "traits": {
+          "label": "Traits",
+          "description": "Traits of the group.",
+          "type": "object",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.traits"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "presets": [
+    {
+      "name": "Track",
+      "type": "automatic",
+      "partnerAction": "track",
+      "subscribe": "type = \"track\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "event": {
+          "@path": "$.event"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "groupId": {
+          "@path": "$.context.groupId"
+        },
+        "nestedValueHandling": {
+          "objectHandling": "stringify",
+          "arrayHandling": "stringify"
+        },
+        "properties": {
+          "@path": "$.properties"
+        },
+        "audienceDetails": {
+          "audienceName": {
+            "@path": "$.context.personas.computation_key"
+          }
+        },
+        "engageAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Identify",
+      "type": "automatic",
+      "partnerAction": "identify",
+      "subscribe": "type = \"identify\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "email": {
+          "@path": "$.traits.email"
+        },
+        "nestedValueHandling": {
+          "objectHandling": "stringify",
+          "arrayHandling": "stringify"
+        },
+        "traits": {
+          "@path": "$.traits"
+        },
+        "audienceDetails": {
+          "audienceName": {
+            "@path": "$.context.personas.computation_key"
+          }
+        },
+        "engageAudienceKey": {
+          "@path": "$.context.personas.computation_key"
+        }
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Group",
+      "type": "automatic",
+      "partnerAction": "group",
+      "subscribe": "type = \"group\"",
+      "mapping": {
+        "userId": {
+          "@path": "$.userId"
+        },
+        "anonymousId": {
+          "@path": "$.anonymousId"
+        },
+        "messageId": {
+          "@path": "$.messageId"
+        },
+        "timestamp": {
+          "@path": "$.timestamp"
+        },
+        "groupId": {
+          "@path": "$.groupId"
+        },
+        "nestedValueHandling": {
+          "objectHandling": "stringify",
+          "arrayHandling": "stringify"
+        },
+        "traits": {
+          "@path": "$.traits"
+        }
+      },
+      "eventSlug": null
+    }
+  ]
+}
