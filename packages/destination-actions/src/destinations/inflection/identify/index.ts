@@ -4,14 +4,16 @@ import type { Payload } from './generated-types'
 import {
   anonymousId,
   audienceDetails,
+  email,
   engageAudienceKey,
   messageId,
   nestedValueHandling,
   syncMode,
   timestamp,
+  traits,
   userId
 } from '../fields'
-import { buildAttributes, optionalString, requiredString, send } from '../functions'
+import { buildIdentifyJSON, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Identify',
@@ -23,38 +25,19 @@ const action: ActionDefinition<Settings, Payload> = {
     anonymousId,
     messageId,
     timestamp,
-    email: {
-      label: 'Email',
-      description: 'The email address of the user.',
-      type: 'string',
-      format: 'email',
-      required: true,
-      default: { '@path': '$.traits.email' }
-    },
+    email,
     nestedValueHandling,
-    traits: {
-      label: 'Traits',
-      description: 'Traits of the user.',
-      type: 'object',
-      defaultObjectUI: 'keyvalue',
-      default: { '@path': '$.traits' }
-    },
+    traits,
     audienceDetails,
     engageAudienceKey
   },
   perform: (request, { settings, payload, audienceMembership }) => {
-    const anonymousId = optionalString(payload.anonymousId)
-    return send(request, settings, {
-      type: 'identify',
-      userId: requiredString(payload.userId, 'User ID'),
-      messageId: requiredString(payload.messageId, 'Message ID'),
-      timestamp: payload.timestamp,
-      traits: {
-        ...buildAttributes(payload.traits, payload, audienceMembership, 'email'),
-        email: requiredString(payload.email, 'Email')
-      },
-      ...(anonymousId ? { anonymousId } : {})
-    })
+    const { email, messageId } = payload
+
+    const validEmail = requiredString(email, 'Email')
+    const validMessageId = requiredString(messageId, 'Message ID')
+
+    return send(request, settings, buildIdentifyJSON(payload, validEmail, validMessageId, audienceMembership))
   }
 }
 

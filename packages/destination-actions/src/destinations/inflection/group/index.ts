@@ -30,19 +30,25 @@ const action: ActionDefinition<Settings, Payload> = {
     }
   },
   perform: (request, { settings, payload }) => {
-    const anonymousId = optionalString(payload.anonymousId)
-    const traits = flattenValues(payload.traits, {
-      objects: payload.nestedValueHandling?.objectHandling,
-      arrays: payload.nestedValueHandling?.arrayHandling
+    const { userId, groupId, messageId, timestamp, anonymousId, traits, nestedValueHandling } = payload
+
+    const validUserId = requiredString(userId, 'User ID')
+    const validGroupId = requiredString(groupId, 'Group ID')
+    const validMessageId = requiredString(messageId, 'Message ID')
+    const validAnonymousId = optionalString(anonymousId)
+    const flatTraits = flattenValues(traits, {
+      objects: nestedValueHandling?.objectHandling,
+      arrays: nestedValueHandling?.arrayHandling
     })
+
     return send(request, settings, {
       type: 'group',
-      userId: requiredString(payload.userId, 'User ID'),
-      groupId: requiredString(payload.groupId, 'Group ID'),
-      messageId: requiredString(payload.messageId, 'Message ID'),
-      timestamp: payload.timestamp,
-      ...(anonymousId ? { anonymousId } : {}),
-      ...(traits ? { traits } : {})
+      userId: validUserId,
+      groupId: validGroupId,
+      messageId: validMessageId,
+      timestamp,
+      ...(validAnonymousId ? { anonymousId: validAnonymousId } : {}),
+      ...(flatTraits ? { traits: flatTraits } : {})
     })
   }
 }

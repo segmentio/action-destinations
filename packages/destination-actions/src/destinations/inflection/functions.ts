@@ -10,6 +10,7 @@ import {
   TESTING_URL
 } from './constants'
 import type {
+  IdentifyJSON,
   MaybeAudiencePayload,
   Audience,
   FlatRecord,
@@ -89,7 +90,10 @@ export function flattenValues(
   return entries.length > 0 ? Object.fromEntries(entries) : undefined
 }
 
-function getAudience({ audienceDetails }: MaybeAudiencePayload, resolvedMembership?: boolean): Audience | undefined {
+function getAudience(
+  audienceDetails: MaybeAudiencePayload['audienceDetails'],
+  resolvedMembership?: boolean
+): Audience | undefined {
   const audienceName = optionalString(audienceDetails?.audienceName)
   const audienceMembership = audienceDetails?.audienceMembership ?? resolvedMembership
   return audienceName && typeof audienceMembership === 'boolean' ? { audienceName, audienceMembership } : undefined
@@ -101,11 +105,13 @@ export function buildAttributes(
   resolvedMembership?: boolean,
   reservedKey?: string
 ): FlatRecord | undefined {
-  const audience = getAudience(payload, resolvedMembership)
-  const engageKey = optionalString(payload.engageAudienceKey)
+  const { audienceDetails, engageAudienceKey, nestedValueHandling } = payload
+
+  const audience = getAudience(audienceDetails, resolvedMembership)
+  const engageKey = optionalString(engageAudienceKey)
   const flattened = flattenValues(traitsOrProperties, {
-    objects: payload.nestedValueHandling?.objectHandling,
-    arrays: payload.nestedValueHandling?.arrayHandling
+    objects: nestedValueHandling?.objectHandling,
+    arrays: nestedValueHandling?.arrayHandling
   })
 
   const attributes = Object.entries({
@@ -118,6 +124,28 @@ export function buildAttributes(
   })
 
   return attributes.length > 0 ? Object.fromEntries(attributes) : undefined
+}
+
+export function buildIdentifyJSON(
+  payload: MaybeAudiencePayload,
+  email: string,
+  messageId: string,
+  audienceMembership?: boolean
+): IdentifyJSON {
+  const { userId, timestamp, anonymousId, traits } = payload
+
+  const validUserId = requiredString(userId, 'User ID')
+  const validAnonymousId = optionalString(anonymousId)
+  const attributes = buildAttributes(traits, payload, audienceMembership, 'email')
+
+  return {
+    type: 'identify',
+    userId: validUserId,
+    messageId,
+    timestamp,
+    traits: { ...attributes, email },
+    ...(validAnonymousId ? { anonymousId: validAnonymousId } : {})
+  }
 }
 
 export function send(request: RequestClient, settings: Settings, json: InflectionJSON) {

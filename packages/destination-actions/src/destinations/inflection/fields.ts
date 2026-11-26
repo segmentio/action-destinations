@@ -40,6 +40,31 @@ export const groupId: InputField = {
   default: { '@path': '$.context.groupId' }
 }
 
+export const email: InputField = {
+  label: 'Email',
+  description: 'The email address of the user.',
+  type: 'string',
+  format: 'email',
+  required: true,
+  default: { '@path': '$.traits.email' }
+}
+
+export const traits: InputField = {
+  label: 'Traits',
+  description: 'Traits of the user.',
+  type: 'object',
+  defaultObjectUI: 'keyvalue',
+  default: { '@path': '$.traits' }
+}
+
+export const sendIdentify: InputField = {
+  label: 'Send Identify First',
+  description:
+    'If enabled and an email is present, Segment sends an identify call with the email and traits before the track call, so Inflection can attach the event to the user profile.',
+  type: 'boolean',
+  default: false
+}
+
 export const audienceDetails: InputField = {
   label: 'Audience Details',
   description:

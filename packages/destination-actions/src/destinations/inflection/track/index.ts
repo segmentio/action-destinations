@@ -4,15 +4,18 @@ import type { Payload } from './generated-types'
 import {
   anonymousId,
   audienceDetails,
+  email,
   engageAudienceKey,
   groupId,
   messageId,
   nestedValueHandling,
+  sendIdentify,
   syncMode,
   timestamp,
+  traits,
   userId
 } from '../fields'
-import { buildAttributes, optionalString, requiredString, send } from '../functions'
+import { buildAttributes, buildIdentifyJSON, optionalString, requiredString, send } from '../functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Track',
@@ -32,6 +35,9 @@ const action: ActionDefinition<Settings, Payload> = {
     messageId,
     timestamp,
     groupId,
+    sendIdentify,
+    email: { ...email, required: false, default: { '@path': '$.context.traits.email' } },
+    traits: { ...traits, default: { '@path': '$.context.traits' } },
     nestedValueHandling,
     properties: {
       label: 'Properties',
@@ -43,19 +49,34 @@ const action: ActionDefinition<Settings, Payload> = {
     audienceDetails,
     engageAudienceKey
   },
-  perform: (request, { settings, payload, audienceMembership }) => {
-    const anonymousId = optionalString(payload.anonymousId)
-    const groupId = optionalString(payload.groupId)
-    const properties = buildAttributes(payload.properties, payload, audienceMembership)
+  perform: async (request, { settings, payload, audienceMembership }) => {
+    const { userId, event, messageId, timestamp, email, anonymousId, groupId, sendIdentify, properties } = payload
+
+    const validUserId = requiredString(userId, 'User ID')
+    const validEvent = requiredString(event, 'Event Name')
+    const validMessageId = requiredString(messageId, 'Message ID')
+    const validEmail = optionalString(email)
+    const validAnonymousId = optionalString(anonymousId)
+    const validGroupId = optionalString(groupId)
+    const attributes = buildAttributes(properties, payload, audienceMembership)
+
+    if (sendIdentify && validEmail) {
+      await send(
+        request,
+        settings,
+        buildIdentifyJSON(payload, validEmail, `${validMessageId}-identify`, audienceMembership)
+      )
+    }
+
     return send(request, settings, {
       type: 'track',
-      userId: requiredString(payload.userId, 'User ID'),
-      event: requiredString(payload.event, 'Event Name'),
-      messageId: requiredString(payload.messageId, 'Message ID'),
-      timestamp: payload.timestamp,
-      ...(anonymousId ? { anonymousId } : {}),
-      ...(properties ? { properties } : {}),
-      ...(groupId ? { context: { groupId } } : {})
+      userId: validUserId,
+      event: validEvent,
+      messageId: validMessageId,
+      timestamp,
+      ...(validAnonymousId ? { anonymousId: validAnonymousId } : {}),
+      ...(attributes ? { properties: attributes } : {}),
+      ...(validGroupId ? { context: { groupId: validGroupId } } : {})
     })
   }
 }

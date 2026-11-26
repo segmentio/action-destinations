@@ -66,6 +66,84 @@ describe('Inflection', () => {
     })
   })
 
+  describe('track with identify first', () => {
+    const run = async (event: object, mapping: object = {}) => {
+      nock(PRODUCTION_URL).post('/').times(2).reply(200, {})
+      return testDestination.testAction('track', {
+        settings,
+        event: createTestEvent({
+          type: 'track',
+          event: 'Signed Up',
+          userId: '583',
+          messageId: 'msg-1',
+          timestamp,
+          properties: { plan: 'pro' },
+          context: { traits: { email: 'a@b.com', city: 'Dublin' } },
+          ...event
+        }),
+        useDefaultMappings: true,
+        mapping: { sendIdentify: true, ...mapping }
+      })
+    }
+
+    it('sends identify then track', async () => {
+      const responses = await run({})
+
+      expect(responses).toHaveLength(2)
+      expect(responses[0].options.json).toMatchObject({
+        type: 'identify',
+        userId: '583',
+        messageId: 'msg-1-identify',
+        timestamp,
+        traits: { city: 'Dublin', email: 'a@b.com' }
+      })
+      expect(responses[1].options.json).toMatchObject({ type: 'track', messageId: 'msg-1', event: 'Signed Up' })
+    })
+
+    it('sends only track when the toggle is off', async () => {
+      const responses = await run({}, { sendIdentify: false })
+      expect(responses).toHaveLength(1)
+      expect(responses[0].options.json).toMatchObject({ type: 'track' })
+    })
+
+    it('sends only track when there is no email', async () => {
+      const responses = await run({ context: { traits: { city: 'Dublin' } } })
+      expect(responses).toHaveLength(1)
+      expect(responses[0].options.json).toMatchObject({ type: 'track' })
+    })
+
+    it('does not send track when the identify call fails', async () => {
+      nock(PRODUCTION_URL).post('/').reply(500, {})
+      await expect(
+        createTestIntegration(Destination).testAction('track', {
+          settings,
+          event: createTestEvent({
+            type: 'track',
+            event: 'Signed Up',
+            userId: '583',
+            timestamp,
+            context: { traits: { email: 'a@b.com' } }
+          }),
+          useDefaultMappings: true,
+          mapping: { sendIdentify: true }
+        })
+      ).rejects.toThrow()
+      expect(nock.pendingMocks()).toHaveLength(0)
+    })
+
+    it('sends the audience on both calls', async () => {
+      const responses = await run({
+        context: {
+          traits: { email: 'a@b.com' },
+          personas: { computation_class: 'audience', computation_key: 'vip' }
+        },
+        properties: { audience_key: 'vip', vip: true }
+      })
+      expect((responses[0].options.json as { traits: object }).traits).toMatchObject({ vip: true })
+      expect((responses[1].options.json as { properties: object }).properties).toMatchObject({ vip: true })
+    })
+  })
+
   describe('identify', () => {
     it('merges email into traits and stringifies nested values', async () => {
       nock(PRODUCTION_URL).post('/').reply(200, {})

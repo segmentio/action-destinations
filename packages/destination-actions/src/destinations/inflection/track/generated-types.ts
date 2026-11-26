@@ -26,6 +26,20 @@ export interface Payload {
    */
   groupId?: string
   /**
+   * If enabled and an email is present, Segment sends an identify call with the email and traits before the track call, so Inflection can attach the event to the user profile.
+   */
+  sendIdentify?: boolean
+  /**
+   * The email address of the user.
+   */
+  email?: string
+  /**
+   * Traits of the user.
+   */
+  traits?: {
+    [k: string]: unknown
+  }
+  /**
    * How to send objects and arrays nested inside the properties or traits.
    */
   nestedValueHandling?: {
