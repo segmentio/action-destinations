@@ -1,4 +1,4 @@
-import type { ActionDefinition, DependsOnConditions } from '@segment/actions-core'
+import type { ActionDefinition, InputField } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
@@ -17,7 +17,7 @@ import {
 } from '../fields'
 import { buildAttributes, buildIdentifyJSON, optionalString, requiredString, send } from '../functions'
 
-const identifyDependency: DependsOnConditions = {
+const identifyDependency: InputField['depends_on'] = {
   conditions: [{ fieldKey: 'sendIdentify', operator: 'is', value: true }]
 }
 
