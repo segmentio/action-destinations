@@ -34,7 +34,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      expect(json).toMatchSnapshot({ messageID: expect.any(String) })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()
@@ -68,7 +68,7 @@ describe(`Testing snapshot for ${destinationSlug}'s ${actionSlug} destination ac
 
     try {
       const json = JSON.parse(rawBody)
-      expect(json).toMatchSnapshot()
+      expect(json).toMatchSnapshot({ messageID: expect.any(String) })
       return
     } catch (err) {
       expect(rawBody).toMatchSnapshot()

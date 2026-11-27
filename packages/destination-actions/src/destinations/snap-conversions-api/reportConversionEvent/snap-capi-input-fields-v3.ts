@@ -5,14 +5,17 @@ const action_source: InputField = {
   description: 'This field allows you to specify where your conversions occurred.',
   type: 'string',
   choices: [
-    { label: 'EMAIL', value: 'email' },
-    { label: 'WEBSITE', value: 'website' },
-    { label: 'APP', value: 'app' },
-    { label: 'PHONE CALL', value: 'phone_call' },
-    { label: 'CHAT', value: 'chat' },
-    { label: 'PHYSICAL STORE', value: 'physical_store' },
-    { label: 'SYSTEM GENERATED', value: 'system_generated' },
-    { label: 'OTHER', value: 'other' }
+    { label: 'WEB', value: 'WEB' },
+    { label: 'MOBILE_APP', value: 'MOBILE_APP' },
+    { label: 'OFFLINE', value: 'OFFLINE' },
+    { label: 'WEBSITE (Legacy, sent as WEB)', value: 'website' },
+    { label: 'APP (Legacy, sent as MOBILE_APP)', value: 'app' },
+    { label: 'EMAIL (Legacy, sent as OFFLINE)', value: 'email' },
+    { label: 'PHONE CALL (Legacy, sent as OFFLINE)', value: 'phone_call' },
+    { label: 'CHAT (Legacy, sent as OFFLINE)', value: 'chat' },
+    { label: 'PHYSICAL STORE (Legacy, sent as OFFLINE)', value: 'physical_store' },
+    { label: 'SYSTEM GENERATED (Legacy, sent as OFFLINE)', value: 'system_generated' },
+    { label: 'OTHER (Legacy, sent as OFFLINE)', value: 'other' }
   ]
 }
 
@@ -606,6 +609,13 @@ const event_source_url: InputField = {
   }
 }
 
+const event_tag: InputField = {
+  label: 'Event Tag',
+  description:
+    'A custom label for the event, sent to Snapchat as custom_data.event_tag. It can be used as a rule key when defining Custom Conversions in Snapchat Events Manager.',
+  type: 'string'
+}
+
 const event_time: InputField = {
   label: 'Event Timestamp',
   description:
@@ -672,6 +682,7 @@ const snap_capi_input_fields_v3 = {
   user_data,
   app_data,
   custom_data,
+  event_tag,
   data_processing_options,
   data_processing_options_country,
   data_processing_options_state,

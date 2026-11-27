@@ -6,7 +6,7 @@ export interface Payload {
    */
   profile: {
     /**
-     * The user's email to send to Klavio.
+     * The user's email to send to Klaviyo.
      */
     email?: string
     phone_number?: string

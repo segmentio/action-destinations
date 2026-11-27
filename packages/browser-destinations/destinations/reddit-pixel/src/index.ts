@@ -14,6 +14,17 @@ declare global {
   }
 }
 
+const singleProductMapping = {
+  '@arrayPath': [
+    '$.properties',
+    {
+      category: { '@path': '$.category' },
+      id: { '@path': '$.product_id' },
+      name: { '@path': '$.name' }
+    }
+  ]
+}
+
 export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = {
   name: 'Reddit Pixel',
   slug: 'actions-reddit-pixel',
@@ -38,7 +49,8 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
       partnerAction: 'reportWebEvent',
       mapping: {
         ...defaultValues(reportWebEvent.fields),
-        tracking_type: 'ViewContent'
+        tracking_type: 'ViewContent',
+        products: singleProductMapping
       },
       type: 'automatic'
     },
@@ -59,6 +71,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'AddToCart',
+        products: singleProductMapping,
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
           itemCount: { '@path': '$.properties.quantity' },
@@ -74,6 +87,7 @@ export const destination: BrowserDestinationDefinition<Settings, RedditPixel> = 
       mapping: {
         ...defaultValues(reportWebEvent.fields),
         tracking_type: 'AddToWishlist',
+        products: singleProductMapping,
         event_metadata: {
           currency: { '@path': '$.properties.currency' },
           itemCount: { '@path': '$.properties.quantity' },

@@ -34,13 +34,74 @@
         "default": null,
         "depends_on": null
       },
-      "audienceDescription": {
-        "label": "Description",
-        "description": "A brief description about your audience.",
+      "existingAudienceId": {
+        "label": "Existing Audience ID",
+        "description": "Optional. To sync to an audience which already exists in Facebook, paste the Facebook Custom Audience ID here and Segment will connect to that audience instead of creating a new one. The Description and Audience Label settings are ignored when this field is populated. Leave this field blank to create a new Facebook Custom Audience.",
         "type": "string",
-        "required": true,
+        "required": false,
         "multiple": false,
         "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "audienceDescription": {
+        "label": "Description",
+        "description": "A brief description about your audience. Only applies when Segment creates a new audience; ignored when an Existing Audience ID is provided.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      },
+      "audienceLabel": {
+        "label": "Audience Label",
+        "description": "Optionally categorize this audience with one of Meta's predefined labels. Only applies when Segment creates a new audience; ignored when an Existing Audience ID is provided, and a label added here later does not apply to an audience which already exists.",
+        "type": "string",
+        "required": false,
+        "multiple": false,
+        "choices": [
+          {
+            "label": "Qualified Leads",
+            "value": "QUALIFIED_LEADS"
+          },
+          {
+            "label": "Disqualified Leads",
+            "value": "DISQUALIFIED_LEADS"
+          },
+          {
+            "label": "App Users",
+            "value": "APP_USERS"
+          },
+          {
+            "label": "Trial Users",
+            "value": "TRIAL_USERS"
+          },
+          {
+            "label": "Engaged Users",
+            "value": "ENGAGED_USERS"
+          },
+          {
+            "label": "High Value Customers",
+            "value": "HIGH_VALUE_CUSTOMERS"
+          },
+          {
+            "label": "Low Value Customers",
+            "value": "LOW_VALUE_CUSTOMERS"
+          },
+          {
+            "label": "At Risk",
+            "value": "AT_RISK"
+          },
+          {
+            "label": "Disengaged",
+            "value": "DISENGAGED"
+          },
+          {
+            "label": "General Customers",
+            "value": "GENERAL_CUSTOMERS"
+          }
+        ],
         "default": null,
         "depends_on": null
       }

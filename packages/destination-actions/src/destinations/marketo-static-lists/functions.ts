@@ -8,8 +8,8 @@ import {
 } from '@segment/actions-core'
 import { ActionDestinationErrorResponseType } from '@segment/actions-core/destination-kit/types'
 import { Settings } from './generated-types'
-import { Payload as AddToListPayload } from './addToList/generated-types'
-import { Payload as RemoveFromListPayload } from './removeFromList/generated-types'
+import { Payload as AddToListActionPayload } from './addToList/generated-types'
+import { Payload as RemoveFromListActionPayload } from './removeFromList/generated-types'
 import {
   CSV_LIMIT,
   BULK_IMPORT_ENDPOINT,
@@ -30,6 +30,10 @@ import {
 } from './constants'
 import { JSONLikeObject } from '@segment/actions-core'
 
+// Sync List shares these helpers but has no batch_size field; none of them read it.
+type AddToListPayload = Omit<AddToListActionPayload, 'batch_size'>
+type RemoveFromListPayload = Omit<RemoveFromListActionPayload, 'batch_size'>
+
 // Keep only the scheme and host from the endpoint
 // Marketo UI shows endpoint with trailing "/rest", which we don't want
 export function formatEndpoint(endpoint: string) {
@@ -41,7 +45,7 @@ export async function addToList(
   settings: Settings,
   payload: AddToListPayload,
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   // If the list ID is provided in the hook outputs, use it
   const list_id = hookOutputs?.id ?? payload.external_id
@@ -86,7 +90,7 @@ export async function addToListBatch(
   settings: Settings,
   payloads: AddToListPayload[],
   statsContext?: StatsContext,
-  hookOutputs?: { id: string; name: string }
+  hookOutputs?: { id?: string; name?: string }
 ) {
   // If the list ID is provided in the hook outputs, use it
   const list_id = hookOutputs?.id ?? payloads[0].external_id
@@ -154,10 +158,14 @@ export async function removeFromList(
   request: RequestClient,
   settings: Settings,
   payload: RemoveFromListPayload,
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  hookOutputs?: { id?: string; name?: string }
 ) {
-  if (!payload.external_id) {
-    throw new IntegrationError('No "external_id" found in payload', ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
+  // If the list ID is provided in the hook outputs, use it
+  const list_id = hookOutputs?.id ?? payload.external_id
+
+  if (!list_id) {
+    throw new IntegrationError('No list ID found in payload', ErrorCodes.PAYLOAD_VALIDATION_FAILED, 400)
   }
 
   const api_endpoint = formatEndpoint(settings.api_endpoint)
@@ -186,7 +194,7 @@ export async function removeFromList(
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
   const deleteLeadsUrl =
-    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', payload.external_id).replace('idsToDelete', leadIds)
+    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {
@@ -208,13 +216,17 @@ export async function removeFromListBatch(
   request: RequestClient,
   settings: Settings,
   payloads: RemoveFromListPayload[],
-  statsContext?: StatsContext
+  statsContext?: StatsContext,
+  hookOutputs?: { id?: string; name?: string }
 ) {
-  if (!payloads[0].external_id) {
+  // If the list ID is provided in the hook outputs, use it
+  const list_id = hookOutputs?.id ?? payloads[0].external_id
+
+  if (!list_id) {
     return buildMultiStatusErrorResponse(payloads.length, {
       status: 400,
       errortype: ErrorCodes.PAYLOAD_VALIDATION_FAILED,
-      errormessage: 'No "external_id" found in payload'
+      errormessage: 'No list ID found in payload'
     })
   }
 
@@ -248,7 +260,7 @@ export async function removeFromListBatch(
   const leadIds = extractLeadIds(getLeadsResponse.data.result)
 
   const deleteLeadsUrl =
-    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', payloads[0].external_id).replace('idsToDelete', leadIds)
+    api_endpoint + REMOVE_USERS_ENDPOINT.replace('listId', list_id).replace('idsToDelete', leadIds)
 
   // DELETE lead ids from list in Marketo
   const deleteLeadsResponse = await request<MarketoDeleteLeadsResponse>(deleteLeadsUrl, {

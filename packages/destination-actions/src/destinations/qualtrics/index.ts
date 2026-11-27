@@ -6,6 +6,7 @@ import addContactToXmd from './addContactToXmd'
 import upsertContactTransaction from './upsertContactTransaction'
 import triggerXflowWorkflow from './triggerXflowWorkflow'
 import QualtricsApiClient from './qualtricsApiClient'
+import { validateDatacenter } from './utils'
 
 const destination: DestinationDefinition<Settings> = {
   name: 'Qualtrics',
@@ -31,7 +32,9 @@ const destination: DestinationDefinition<Settings> = {
       }
     },
     testAuthentication: async (request: RequestClient, input) => {
-      const apiClient = new QualtricsApiClient(input.settings.datacenter, input.settings.apiToken, request)
+      const datacenter = input.settings.datacenter || 'iad1'
+      validateDatacenter(datacenter)
+      const apiClient = new QualtricsApiClient(datacenter, input.settings.apiToken, request)
       const response = await apiClient.whoaAmI()
       return response.userName !== undefined
     }

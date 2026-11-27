@@ -62,6 +62,14 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
         "The domain from which you serve the mbox. Adobe Target recommends setting this value to your company's top-level domain.",
       type: 'string',
       required: true
+    },
+    library_url: {
+      label: 'Self-Hosted at.js URL',
+      description:
+        "The URL of a self-hosted `at.js` library to load instead of downloading it from Adobe's admin endpoint. Adobe rate-limits the admin download endpoint, so high-traffic sites should host their own copy of `at.js` (see [Adobe docs](https://experienceleague.adobe.com/en/docs/target-dev/developer/client-side/at-js-implementation/deploy-at-js/implement-target-without-a-tag-manager)). When set, this URL is loaded as-is and the Client Code, Admin number, and ATJS Version settings are ignored.",
+      type: 'string',
+      format: 'uri',
+      required: false
     }
   },
 
@@ -69,7 +77,9 @@ export const destination: BrowserDestinationDefinition<Settings, Adobe> = {
     initScript(settings)
 
     const targetUrl = 'testandtarget.omniture.com/admin/rest/v1/libraries/atjs/download'
-    const atjsUrl = `https://admin${settings.admin_number}.${targetUrl}?client=${settings.client_code}&version=${settings.version}`
+    const atjsUrl = settings.library_url?.trim()
+      ? settings.library_url
+      : `https://admin${settings.admin_number}.${targetUrl}?client=${settings.client_code}&version=${settings.version}`
 
     await deps.loadScript(atjsUrl)
     await deps.resolveWhen(() => Object.prototype.hasOwnProperty.call(window, 'adobe'), 100)

@@ -20,7 +20,7 @@ const action: ActionDefinition<Settings, Payload> = {
         email: {
           label: 'Email',
           type: 'string',
-          description: `The user's email to send to Klavio.`,
+          description: `The user's email to send to Klaviyo.`,
           format: 'email'
         },
         phone_number: {

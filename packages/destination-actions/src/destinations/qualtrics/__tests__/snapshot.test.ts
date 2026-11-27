@@ -35,7 +35,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: settingsData,
+        settings: { ...settingsData, datacenter: 'testdc' },
         auth: undefined
       })
 
@@ -69,7 +69,7 @@ describe(`Testing snapshot for ${destinationSlug} destination:`, () => {
       const responses = await testDestination.testAction(actionSlug, {
         event: event,
         mapping: event.properties,
-        settings: settingsData,
+        settings: { ...settingsData, datacenter: 'testdc' },
         auth: undefined
       })
 

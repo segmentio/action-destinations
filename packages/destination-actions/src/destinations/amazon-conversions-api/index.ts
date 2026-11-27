@@ -88,7 +88,7 @@ const destination: DestinationDefinition<Settings> = {
   presets: [
     {
       name: 'Add to Shopping Cart',
-      subscribe: 'type = "track" AND event = "Product Added"',
+      subscribe: 'type = "track" and event = "Product Added"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -98,7 +98,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Application',
-      subscribe: 'type = "track" AND event = "Application Submitted"',
+      subscribe: 'type = "track" and event = "Application Submitted"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -108,7 +108,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Checkout',
-      subscribe: 'type = "track" AND event = "Checkout Started"',
+      subscribe: 'type = "track" and event = "Checkout Started"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -118,7 +118,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Contact',
-      subscribe: 'type = "track" AND event = "Callback Started"',
+      subscribe: 'type = "track" and event = "Callback Started"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -128,7 +128,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Lead',
-      subscribe: 'type = "track" AND event = "Lead Generated"',
+      subscribe: 'type = "track" and event = "Lead Generated"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -138,7 +138,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Off Amazon Purchases',
-      subscribe: 'type = "track" AND event = "Order Completed"',
+      subscribe: 'type = "track" and event = "Order Completed"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -148,7 +148,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Mobile App First Start',
-      subscribe: 'type = "track" AND event = "Application Opened"',
+      subscribe: 'type = "track" and event = "Application Opened"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -168,7 +168,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Search',
-      subscribe: 'type = "track" AND event = "Products Searched"',
+      subscribe: 'type = "track" and event = "Products Searched"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -178,7 +178,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Sign Up',
-      subscribe: 'type = "track" AND event = "Signed Up"',
+      subscribe: 'type = "track" and event = "Signed Up"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -188,7 +188,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Subscribe',
-      subscribe: 'type = "track" AND event = "Subscription Created"',
+      subscribe: 'type = "track" and event = "Subscription Created"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
@@ -198,7 +198,7 @@ const destination: DestinationDefinition<Settings> = {
     },
     {
       name: 'Other',
-      subscribe: 'type = "track" AND event = "Other"',
+      subscribe: 'type = "track" and event = "Other"',
       partnerAction: 'trackConversion',
       mapping: {
         ...defaultValues(trackConversion.fields),
