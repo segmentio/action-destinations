@@ -28,6 +28,7 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
+    "component-test": "jest -c jest.ct.config.js",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {
