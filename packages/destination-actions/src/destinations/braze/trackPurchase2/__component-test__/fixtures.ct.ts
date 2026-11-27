@@ -1,13 +1,13 @@
 /**
- * E2E fixtures for Braze `trackPurchase2` (`POST /users/track`, `purchases`).
+ * Component test fixtures for Braze `trackPurchase2` (`POST /users/track`, `purchases`).
  *
  * One event expands into one purchase per product, so these check the expansion count Braze
  * reports, and the batch path's own rejections: an event with no products, and one with more
  * products than Braze takes in a request (413, PAYLOAD_TOO_LARGE).
  */
 import type { SegmentEvent } from '@segment/actions-core'
-import type { E2EFixture } from '../../../../lib/e2e/types'
-import { createE2EEvent } from '../../../../lib/e2e/helpers'
+import type { CTFixture } from '../../../../lib/component-test/types'
+import { createCTEvent } from '../../../../lib/component-test/helpers'
 import { MAX_BATCH_SIZE } from '../../constants'
 
 const ADD = { __segment_internal_sync_mode: 'add' }
@@ -15,12 +15,12 @@ const ADD = { __segment_internal_sync_mode: 'add' }
 const product = (id: string, price: number) => ({ product_id: id, price, quantity: 1, currency: 'USD' })
 
 const order = (userId: string, products: ReturnType<typeof product>[]): SegmentEvent =>
-  createE2EEvent('track', 'Order Completed', {
+  createCTEvent('track', 'Order Completed', {
     userId,
     properties: { order_id: '$guid:order', products }
   })
 
-const fixtures: E2EFixture[] = [
+const fixtures: CTFixture[] = [
   {
     description: 'order with one product is recorded as one purchase',
     mode: 'single',
@@ -67,7 +67,7 @@ const fixtures: E2EFixture[] = [
     description: 'product with a string price fails validation before any request',
     mode: 'single',
     subscribe: 'event = "Order Completed"',
-    event: createE2EEvent('track', 'Order Completed', {
+    event: createCTEvent('track', 'Order Completed', {
       userId: 'e2e-braze-buyer-err-001',
       properties: { products: [{ product_id: 'e2e-sku-1', price: 'free' }] }
     }),

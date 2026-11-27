@@ -1,12 +1,12 @@
-// The Braze E2E suites through InProcessAdapter, with Braze's REST API mocked by nock.
+// The Braze component test suites through InProcessAdapter, with Braze's REST API mocked by nock.
 import nock from 'nock'
-import { InProcessAdapter } from '../../../lib/e2e/adapters/in-process'
-import { buildInvocation } from '../../../lib/e2e/invocation'
-import { runSuites } from '../../../lib/e2e/run'
-import { suites as brazeSuites } from '../__e2e__'
+import { InProcessAdapter } from '../../../lib/component-test/adapters/in-process'
+import { buildInvocation } from '../../../lib/component-test/invocation'
+import { runSuites } from '../../../lib/component-test/run'
+import { suites as brazeSuites } from '../__component-test__'
 
 describe('InProcessAdapter on the Braze suites', () => {
-  const brazeEnv = { E2E_BRAZE_API_KEY: 'test-key', E2E_BRAZE_ENDPOINT: 'https://rest.iad-01.braze.com' }
+  const brazeEnv = { CT_BRAZE_API_KEY: 'test-key', CT_BRAZE_ENDPOINT: 'https://rest.iad-01.braze.com' }
   // Answers as Braze's REST API does: 401 for an unknown key, else 201 with a count per array sent.
   type BrazeBody = Record<string, unknown[] | undefined>
   function reply(this: { req: { headers: Record<string, string | string[]> } }, _uri: string, body: BrazeBody) {

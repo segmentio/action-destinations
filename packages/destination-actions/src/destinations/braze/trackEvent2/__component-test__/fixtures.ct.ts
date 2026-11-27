@@ -1,26 +1,26 @@
 /**
- * E2E fixtures for Braze `trackEvent2` (`POST /users/track`, `events`).
+ * Component test fixtures for Braze `trackEvent2` (`POST /users/track`, `events`).
  *
  * Covers single, batch and batchWithMultistatus sends, a mixed batch judged per event; both sync modes; and our rejections before
  * any request: Ajv validation, an action's own IntegrationError code, a batch's per-event
  * multistatus errors, and an invalid subscription.
  *
- * Fixtures import from lib/e2e/helpers and types, not the lib/e2e index: the index loads the
- * registry, which loads these files.
+ * Fixtures import from lib/component-test/helpers and types, not the lib/component-test index:
+ * the index loads the registry, which loads these files.
  */
-import type { E2EFixture } from '../../../../lib/e2e/types'
-import { createE2EEvent } from '../../../../lib/e2e/helpers'
+import type { CTFixture } from '../../../../lib/component-test/types'
+import { createCTEvent } from '../../../../lib/component-test/helpers'
 
 const ADD = { __segment_internal_sync_mode: 'add' }
 const UPDATE = { __segment_internal_sync_mode: 'update' }
 
 const track = (name: string, userId: string, properties: Record<string, string | number> = {}) =>
-  createE2EEvent('track', name, { userId, properties })
+  createCTEvent('track', name, { userId, properties })
 
 // `time` defaults to $.receivedAt; these events drop it.
 const noReceivedAt = { receivedAt: undefined }
 
-const fixtures: E2EFixture[] = [
+const fixtures: CTFixture[] = [
   {
     description: 'single track event is accepted by Braze /users/track',
     mode: 'single',
@@ -49,7 +49,7 @@ const fixtures: E2EFixture[] = [
     description: 'track event identified by user alias only is accepted',
     mode: 'single',
     subscribe: 'type = "track"',
-    event: createE2EEvent('track', 'E2E Braze Alias Event', {
+    event: createCTEvent('track', 'E2E Braze Alias Event', {
       anonymousId: 'e2e-braze-anon-001'
     }),
     mapping: {
@@ -87,8 +87,8 @@ const fixtures: E2EFixture[] = [
     subscribe: 'type = "track"',
     events: [
       track('E2E Braze Mixed Valid', 'e2e-braze-mixed-001'),
-      createE2EEvent('track', 'E2E Braze Mixed No User', {}),
-      createE2EEvent('track', 'E2E Braze Mixed No Time', { userId: 'e2e-braze-mixed-003', ...noReceivedAt })
+      createCTEvent('track', 'E2E Braze Mixed No User', {}),
+      createCTEvent('track', 'E2E Braze Mixed No Time', { userId: 'e2e-braze-mixed-003', ...noReceivedAt })
     ],
     mapping: ADD,
     expect: {
@@ -114,7 +114,7 @@ const fixtures: E2EFixture[] = [
     description: 'track event with no receivedAt fails validation of the required time field',
     mode: 'single',
     subscribe: 'type = "track"',
-    event: createE2EEvent('track', 'E2E Braze No Time', { userId: 'e2e-braze-user-err-001', ...noReceivedAt }),
+    event: createCTEvent('track', 'E2E Braze No Time', { userId: 'e2e-braze-user-err-001', ...noReceivedAt }),
     mapping: ADD,
     expect: {
       status: 'error',
@@ -128,7 +128,7 @@ const fixtures: E2EFixture[] = [
     description: 'track event with no user identifier is rejected by the action before any request',
     mode: 'single',
     subscribe: 'type = "track"',
-    event: createE2EEvent('track', 'E2E Braze No User', {}),
+    event: createCTEvent('track', 'E2E Braze No User', {}),
     mapping: ADD,
     expect: {
       status: 'error',
@@ -166,8 +166,8 @@ const fixtures: E2EFixture[] = [
     mode: 'batch',
     subscribe: 'type = "track"',
     events: [
-      createE2EEvent('track', 'E2E Braze Batch No Time A', { userId: 'e2e-braze-user-err-005', ...noReceivedAt }),
-      createE2EEvent('track', 'E2E Braze Batch No Time B', { userId: 'e2e-braze-user-err-006', ...noReceivedAt })
+      createCTEvent('track', 'E2E Braze Batch No Time A', { userId: 'e2e-braze-user-err-005', ...noReceivedAt }),
+      createCTEvent('track', 'E2E Braze Batch No Time B', { userId: 'e2e-braze-user-err-006', ...noReceivedAt })
     ],
     mapping: ADD,
     expect: { status: 'error', errorType: 'PAYLOAD_VALIDATION_FAILED', httpStatus: 400 }

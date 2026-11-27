@@ -1,17 +1,17 @@
 /**
- * E2E fixtures for Braze `updateUserProfile2` (`POST /users/track`, `attributes`).
+ * Component test fixtures for Braze `updateUserProfile2` (`POST /users/track`, `attributes`).
  *
  * The action supports only the `update` sync mode, so `add` is rejected by the action itself.
  */
-import type { E2EFixture } from '../../../../lib/e2e/types'
-import { createE2EEvent } from '../../../../lib/e2e/helpers'
+import type { CTFixture } from '../../../../lib/component-test/types'
+import { createCTEvent } from '../../../../lib/component-test/helpers'
 
 const UPDATE = { __segment_internal_sync_mode: 'update' }
 
 const identify = (userId: string, traits: Record<string, string | number | boolean>) =>
-  createE2EEvent('identify', undefined, { userId, traits })
+  createCTEvent('identify', undefined, { userId, traits })
 
-const fixtures: E2EFixture[] = [
+const fixtures: CTFixture[] = [
   {
     description: 'identify with standard and custom traits updates one profile',
     mode: 'single',
@@ -56,7 +56,7 @@ const fixtures: E2EFixture[] = [
     description: 'identify with no user identifier is rejected before any request',
     mode: 'single',
     subscribe: 'type = "identify"',
-    event: createE2EEvent('identify', undefined, { anonymousId: 'e2e-braze-anon-err-001', traits: { e2e_plan: 'x' } }),
+    event: createCTEvent('identify', undefined, { anonymousId: 'e2e-braze-anon-err-001', traits: { e2e_plan: 'x' } }),
     mapping: UPDATE,
     expect: { status: 'error', errorType: 'Missing required fields', httpStatus: 400 }
   }
