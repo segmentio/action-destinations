@@ -51,14 +51,15 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
+  performBatch: (request, { payload: payloads, settings, features }) => {
     return sendBatch(
       request,
       payloads.map((payload) => ({
         action: 'delete_relationships',
         settings,
         ...mapPayload(payload)
-      }))
+      })),
+      features
     )
   },
 

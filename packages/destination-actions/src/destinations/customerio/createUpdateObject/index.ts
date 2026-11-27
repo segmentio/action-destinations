@@ -2,6 +2,7 @@ import type { ActionDefinition } from '@segment/actions-core'
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import {
+  BATCH_MULTISTATUS_FLAG,
   convertAttributeTimestamps,
   sendSingle,
   sendBatch,
@@ -10,8 +11,6 @@ import {
   VALIDATE_IDENTIFIERS_FLAG
 } from '../utils'
 import { eventProperties } from '../customerio-properties'
-
-type Action = 'identify' | 'identify_anonymous'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Create or Update Object',
@@ -98,33 +97,29 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
-    const payloadsByAction: Record<Action, Record<string, unknown>[]> = {
-      identify: [],
-      identify_anonymous: []
-    }
-
-    for (const payload of payloads) {
+  performBatch: (request, { payload: payloads, settings, features }) => {
+    const entries = payloads.map((payload) => {
       const { action, body } = mapPayload(payload)
 
-      payloadsByAction[action as Action].push(body)
+      return { action, payload: body, settings, type: 'object' }
+    })
+
+    if (features?.[BATCH_MULTISTATUS_FLAG]) {
+      // Send `identify` and `identify_anonymous` entries in a single batch request, preserving the
+      // original payload order so the per-entry multi-status response lines up with `payloads`.
+      return sendBatch(request, entries, features)
     }
 
-    return Promise.all([
-      sendBatch(
-        request,
-        payloadsByAction.identify.map((payload) => ({ action: 'identify', payload, settings, type: 'object' }))
-      ),
-      sendBatch(
-        request,
-        payloadsByAction.identify_anonymous.map((payload) => ({
-          action: 'identify_anonymous',
-          payload,
-          settings,
-          type: 'object'
-        }))
+    // Without the flag, send one batch request per action, as before multi-status handling was added.
+    return Promise.all(
+      (['identify', 'identify_anonymous'] as const).map((action) =>
+        sendBatch(
+          request,
+          entries.filter((entry) => entry.action === action),
+          features
+        )
       )
-    ])
+    )
   },
 
   perform: (request, { payload, settings, features }) => {
