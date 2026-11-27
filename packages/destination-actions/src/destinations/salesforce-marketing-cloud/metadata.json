@@ -37,7 +37,7 @@
       },
       "client_secret": {
         "label": "Client Secret",
-        "description": "Your Salesforce Marketing Cloud client secret. The client secret is issued when you create an API integration in Installed Packages.",
+        "description": "Your Salesforce Marketing Cloud client secret from Setup > Installed Packages. Secrets expire every 180 days (pre-March 25, 2026 secrets expire Sept 30, 2026), which will stop event delivery. To rotate seamlessly, paste a staged secret here, wait at least 1 hour to verify successful delivery, then activate it in SFMC. See [Rotate an OAuth 2.0 Client Secret](https://developer.salesforce.com/docs/marketing/marketing-cloud/guide/rotate-oauth2-secret.html).",
         "type": "password",
         "required": true,
         "multiple": false,

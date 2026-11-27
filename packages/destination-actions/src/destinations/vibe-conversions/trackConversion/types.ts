@@ -11,11 +11,9 @@ export interface ConversionEventRequest {
   // Vibe pixel ID associated with the advertiser (from settings).
   aid: string
   // UNIX timestamp of the event in milliseconds.
-  ts?: number
-  // IP address of the user (IPv4). Required if `em` is absent.
-  ip?: string
-  // User email address. Required if `ip` is absent.
-  em?: string
+  ts: number
+  // IP address of the user (IPv4).
+  ip: string
   // Event data serialized to a JSON string.
   ed?: string
   // Google Analytics ID for cross-platform attribution.

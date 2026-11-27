@@ -20,7 +20,11 @@ export function getImportApiCredential(settings: Settings, features?: Features):
   if (features && features[FLAGS.PROJECT_TOKEN_AUTH]) {
     return settings.projectToken
   }
-  return settings.apiSecret ?? settings.projectToken
+  // Settings may provide an empty string for apiSecret; treat that as missing and fall back to
+  // the project token. This is intentionally more specific than `??`.
+  return typeof settings.apiSecret === 'string' && settings.apiSecret.length > 0
+    ? settings.apiSecret
+    : settings.projectToken
 }
 
 export enum StrictMode {

@@ -61,6 +61,8 @@ export interface MSMultiStatusResponse {
       propertyName: string
       attemptedValue: unknown
       errorMessage: string
+      errorCode?: string
+      isWarning?: boolean
     }>
   }
   traceId: string

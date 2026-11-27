@@ -1,4 +1,15 @@
-import { convertValidTimestamp, resolveIdentifiers, isIsoDate } from '../utils'
+import { PayloadValidationError } from '@segment/actions-core'
+import {
+  buildPayload,
+  convertAttributeTimestamps,
+  convertValidTimestamp,
+  isClientSideLibrary,
+  resolveIdentifiers,
+  isIsoDate,
+  validateIdentifiers
+} from '../utils'
+
+type IdentifierFields = Parameters<typeof validateIdentifiers>[0]
 
 describe('isIsoDate', () => {
   it('should return true for valid ISO date with fractional seconds from 1-9 digits', () => {
@@ -35,6 +46,32 @@ describe('isIsoDate', () => {
     expect(isIsoDate('2023-13-25')).toBe(false) // invalid month
     expect(isIsoDate('2023-12-32')).toBe(false) // invalid day
     expect(isIsoDate('2023-12-25T25:30:45')).toBe(false) // invalid hour
+  })
+
+  describe('when Date.parse rejects long fractional seconds (STRATCONN-4121 prod runtime)', () => {
+    // Mocks prod's Date.parse, which rejects >5-digit fractional seconds locally accepted.
+    const realParse = Date.parse
+
+    beforeEach(() => {
+      jest.spyOn(Date, 'parse').mockImplementation((value: string) => {
+        const fraction = /\.(\d+)/.exec(value)
+        return fraction && fraction[1].length > 5 ? NaN : realParse(value)
+      })
+    })
+
+    afterEach(() => jest.restoreAllMocks())
+
+    it('should return true for a 7-digit fractional second timestamp', () => {
+      expect(isIsoDate('2024-08-14T20:36:48.6527521Z')).toBe(true)
+    })
+
+    it('should return true for a 9-digit fractional second timestamp', () => {
+      expect(isIsoDate('2024-08-14T20:36:48.652752100Z')).toBe(true)
+    })
+
+    it('should still return true for a standard 3-digit millisecond timestamp', () => {
+      expect(isIsoDate('2024-08-14T20:36:48.652Z')).toBe(true)
+    })
   })
 })
 
@@ -83,5 +120,231 @@ describe('resolveIdentifiers', () => {
 describe('convertValidTimestamp', () => {
   it('should leave decimal unix timestamps unchanged', () => {
     expect(convertValidTimestamp('1712345678.123')).toBe('1712345678.123')
+  })
+
+  it('should convert a 7-digit fractional second ISO timestamp to unix', () => {
+    expect(convertValidTimestamp('2024-08-14T20:36:48.6527521Z')).toBe(1723667808)
+  })
+})
+
+describe('convertAttributeTimestamps — sub-millisecond fractional seconds (STRATCONN-4121)', () => {
+  const realParse = Date.parse
+
+  beforeEach(() => {
+    jest.spyOn(Date, 'parse').mockImplementation((value: string) => {
+      const fraction = /\.(\d+)/.exec(value)
+      return fraction && fraction[1].length > 5 ? NaN : realParse(value)
+    })
+  })
+
+  afterEach(() => jest.restoreAllMocks())
+
+  it('converts a 7-digit fractional second timestamp when Date.parse rejects long fractions (prod runtime)', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.6527521Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('converts a 9-digit fractional second timestamp when Date.parse rejects long fractions (prod runtime)', () => {
+    const result = convertAttributeTimestamps({ ts: '2024-08-14T20:36:48.652752100Z' })
+    expect(result.ts).toBe(1723667808)
+  })
+
+  it('still converts a standard 3-digit millisecond timestamp', () => {
+    const result = convertAttributeTimestamps({ createdat: '2024-08-14T20:36:48.652Z' })
+    expect(result.createdat).toBe(1723667808)
+  })
+
+  it('leaves non-date strings unchanged', () => {
+    const result = convertAttributeTimestamps({ name: 'Acme Corp' })
+    expect(result.name).toBe('Acme Corp')
+  })
+
+  it('converts a 5-digit fractional second timestamp and dates nested in an object', () => {
+    const result = convertAttributeTimestamps({
+      createdat: '2024-08-14T20:36:48.65275Z',
+      address: {
+        movedinat: '2023-01-01T00:00:00Z',
+        movedoutat: '2024-08-14T20:36:48.652Z'
+      }
+    })
+    expect(result.createdat).toBe(1723667808)
+    expect(result.address.movedinat).toBe(1672531200)
+    expect(result.address.movedoutat).toBe(1723667808)
+  })
+})
+
+describe('isClientSideLibrary', () => {
+  it('should be true for Segment web and mobile libraries', () => {
+    for (const name of [
+      'analytics.js',
+      'analytics-ios',
+      'analytics-android',
+      'analytics-swift',
+      'analytics-kotlin',
+      'analytics-react-native',
+      'analytics-flutter',
+      'Analytics.js',
+      'analytics-swift-consumer'
+    ]) {
+      expect(isClientSideLibrary(name)).toBe(true)
+    }
+  })
+
+  it('should be false for server-side libraries, the HTTP API, and unknown values', () => {
+    for (const name of [
+      'analytics-node',
+      'analytics-python',
+      'analytics-go',
+      'analytics-java',
+      'analytics-ruby',
+      'analytics-php',
+      'analytics.NET',
+      'analytics-csharp',
+      'unknown',
+      '',
+      undefined
+    ]) {
+      expect(isClientSideLibrary(name)).toBe(false)
+    }
+  })
+})
+
+describe('buildPayload', () => {
+  const settings = {}
+
+  it('should add customer_ip to the root of identify requests from client-side libraries', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics.js',
+        attributes: { name: 'Test' }
+      }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'identify',
+      customer_ip: '203.0.113.9',
+      attributes: { name: 'Test' },
+      identifiers: { id: 'abc123' }
+    })
+  })
+
+  it('should drop customer_ip for server-side libraries by default', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics-node',
+        forward_server_ip: false,
+        attributes: { name: 'Test' }
+      }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'identify',
+      attributes: { name: 'Test' },
+      identifiers: { id: 'abc123' }
+    })
+  })
+
+  it('should drop customer_ip when the library is unknown', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: { person_id: 'abc123', customer_ip: '203.0.113.9', attributes: { name: 'Test' } }
+    })
+
+    expect(body).not.toHaveProperty('customer_ip')
+  })
+
+  it('should add customer_ip for server-side libraries when forward_server_ip is enabled', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'identify',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics-node',
+        forward_server_ip: true,
+        attributes: { name: 'Test' }
+      }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'identify',
+      customer_ip: '203.0.113.9',
+      attributes: { name: 'Test' },
+      identifiers: { id: 'abc123' }
+    })
+  })
+
+  it('should not add customer_ip to other actions', () => {
+    const body = buildPayload({
+      settings,
+      type: 'person',
+      action: 'event',
+      payload: {
+        person_id: 'abc123',
+        customer_ip: '203.0.113.9',
+        source_library: 'analytics.js',
+        forward_server_ip: true,
+        name: 'purchase'
+      }
+    })
+
+    expect(body).toEqual({
+      type: 'person',
+      action: 'event',
+      name: 'purchase',
+      identifiers: { id: 'abc123' }
+    })
+  })
+})
+
+describe('validateIdentifiers', () => {
+  const fields = ['Person ID', 'Email Address', 'Anonymous ID']
+
+  const valid: [string, IdentifierFields][] = [
+    ['a person id', { person_id: 'user_123' }],
+    ['a cio_ prefixed person id', { person_id: 'cio_123' }],
+    ['an email in the person id', { person_id: 'test@example.com' }],
+    ['an email', { email: 'test@example.com' }],
+    ['an anonymous id', { anonymous_id: 'anon_123' }],
+    ['an object id without an object type id', { object_id: 'obj_123' }],
+    ['an object id with an object type id', { object_id: 'obj_123', object_type_id: '2' }]
+  ]
+  valid.forEach(([description, payload]) => {
+    it(`should not throw when the payload has ${description}`, () => {
+      expect(() => validateIdentifiers(payload, fields)).not.toThrow()
+    })
+  })
+
+  const invalid: [string, IdentifierFields][] = [
+    ['no identifier fields', {}],
+    ['empty identifier fields', { person_id: '', email: '', anonymous_id: '', object_id: '' }],
+    ['undefined identifier fields', { person_id: undefined, email: undefined, anonymous_id: undefined }]
+  ]
+  invalid.forEach(([description, payload]) => {
+    it(`should throw a PayloadValidationError when the payload has ${description}`, () => {
+      expect(() => validateIdentifiers(payload, fields)).toThrow(PayloadValidationError)
+    })
+  })
+
+  it('should name the accepted identifier fields in the error message', () => {
+    expect(() => validateIdentifiers({}, fields)).toThrow(
+      'Customer.io requires an identifier, but none was found in the payload. Map a value to at least one of: Person ID, Email Address, Anonymous ID.'
+    )
   })
 })

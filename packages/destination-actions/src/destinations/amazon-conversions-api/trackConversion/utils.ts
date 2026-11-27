@@ -139,7 +139,8 @@ export function smartHash(value: string, normalizeFunction?: (value: string) => 
 export async function sendEventsRequest<ImportConversionEventsResponse>(
   request: RequestClient,
   settings: Settings,
-  eventData: EventData | EventData[]
+  eventData: EventData | EventData[],
+  throwHttpErrors = false
 ): Promise<ModifiedResponse<ImportConversionEventsResponse>> {
   // Ensure eventData is always an array
   const events = Array.isArray(eventData) ? eventData : [eventData]
@@ -155,7 +156,7 @@ export async function sendEventsRequest<ImportConversionEventsResponse>(
         'Amazon-Ads-AccountId': settings.advertiserId,
         'Amazon-Ads-ClientId': process.env.ACTIONS_AMAZON_CONVERSIONS_API_CLIENT_ID || ''
       },
-      throwHttpErrors: false
+      throwHttpErrors
     }
   )
 }

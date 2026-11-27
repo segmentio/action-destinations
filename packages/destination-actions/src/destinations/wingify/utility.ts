@@ -8,7 +8,8 @@ const namespace = '11e13cd7-6c48-53ec-8679-7e9c752273c5'
 export const hosts: { [key: string]: string } = {
   US: 'https://collect.wingify.net',
   EU: 'https://collect.wingify.net/eu01',
-  AS: 'https://collect.wingify.net/as01'
+  AS: 'https://collect.wingify.net/as01',
+  AU: 'https://collect.wingify.net/au01'
 }
 
 function uuidv5(name: string, namespace: string): string {

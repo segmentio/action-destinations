@@ -35,6 +35,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -81,6 +82,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -126,6 +128,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -173,6 +176,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -227,6 +231,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId,
             created_at: dayjs(timestamp).unix(),
@@ -256,6 +261,67 @@ describe('CustomerIO', () => {
         })
       })
 
+      it('should convert a 7-digit fractional second timestamp in the request sent to Customer.io, even when Date.parse rejects long fractions (prod runtime, STRATCONN-4121)', async () => {
+        // Locally, Date.parse accepts fractional seconds of any length, so this test would
+        // pass even without the fix. In Segment's prod runtime, Date.parse returns NaN once
+        // there are more than 5 fractional digits, which is what caused the customer's bug.
+        // Mock it to behave like prod here so the test actually exercises that condition.
+        const realParse = Date.parse
+        jest.spyOn(Date, 'parse').mockImplementation((value: string) => {
+          const fraction = /\.(\d+)/.exec(value)
+          return fraction && fraction[1].length > 5 ? NaN : realParse(value)
+        })
+
+        try {
+          const userId = 'abc123'
+          const anonymousId = 'unknown_123'
+          const timestamp = '2024-08-14T20:36:48.652Z'
+          const traits = {
+            full_name: 'Test User',
+            email: 'test@example.com',
+            createdat: '2024-08-14T20:36:48.6527521Z',
+            address: {
+              updatedat: '2024-08-14T20:36:48.6527521Z',
+              city: 'New York',
+              zip: 10001
+            }
+          }
+          const event = createTestEvent({
+            userId,
+            anonymousId,
+            timestamp,
+            traits
+          })
+          const response = await action('createUpdatePerson', {
+            event,
+            settings,
+            useDefaultMappings: true
+          })
+
+          expect(response).toEqual({
+            action: 'identify',
+            customer_ip: '8.8.8.8',
+            attributes: {
+              ...traits,
+              anonymous_id: anonymousId,
+              email: traits.email,
+              createdat: 1723667808,
+              address: {
+                ...traits.address,
+                updatedat: 1723667808
+              }
+            },
+            identifiers: {
+              id: userId
+            },
+            timestamp: 1723667808,
+            type: 'person'
+          })
+        } finally {
+          jest.restoreAllMocks()
+        }
+      })
+
       it("should not convert created_at if it's invalid", async () => {
         const userId = 'abc123'
         const timestamp = dayjs.utc().toISOString()
@@ -275,6 +341,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId,
             created_at: testTimestamps.created_at
@@ -306,6 +373,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId,
             created_at: testTimestamps.created_at
@@ -337,6 +405,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: event.anonymousId
@@ -381,6 +450,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -420,6 +490,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -464,6 +535,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -520,6 +592,7 @@ describe('CustomerIO', () => {
         delete traits.object_type_id
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             ...traits,
             anonymous_id: anonymousId,
@@ -557,6 +630,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: event.anonymousId
           },
@@ -597,6 +671,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
@@ -652,6 +727,7 @@ describe('CustomerIO', () => {
 
         expect(response).toEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
@@ -714,6 +790,7 @@ describe('CustomerIO', () => {
 
         expect(response).toStrictEqual({
           action: 'identify',
+          customer_ip: '8.8.8.8',
           attributes: {
             anonymous_id: anonymousId,
             created_at: dayjs.utc(timestamp).unix(),
@@ -736,6 +813,135 @@ describe('CustomerIO', () => {
           timestamp: dayjs.utc(timestamp).unix(),
           type: 'person'
         })
+      })
+
+      it('should send context.ip as customer_ip at the root of the request', async () => {
+        const userId = 'abc123'
+        const ip = '203.0.113.9'
+        const event = createTestEvent({
+          userId,
+          traits: { email: 'test@example.com' },
+          context: { ip, library: { name: 'analytics.js', version: '2.11.1' } }
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toMatchObject({
+          action: 'identify',
+          customer_ip: ip,
+          identifiers: {
+            id: userId
+          },
+          type: 'person'
+        })
+        expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should not send customer_ip if context.ip is absent', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: {}
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).not.toHaveProperty('customer_ip')
+        expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should send customer_ip for events from Segment mobile libraries', async () => {
+        const ip = '203.0.113.9'
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip, library: { name: 'analytics-swift', version: '1.6.0' } }
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).toMatchObject({ action: 'identify', customer_ip: ip })
+      })
+
+      it('should not send customer_ip for events from Segment server-side libraries by default', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip: '203.0.113.9', library: { name: 'analytics-node', version: '6.2.0' } }
+        })
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).not.toHaveProperty('customer_ip')
+        expect(response).not.toHaveProperty('forward_server_ip')
+        expect(response).not.toHaveProperty('source_library')
+        expect(response.attributes).not.toHaveProperty('customer_ip')
+      })
+
+      it('should not send customer_ip when the event has no library (HTTP API)', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip: '203.0.113.9' }
+        })
+        delete event.context?.library
+
+        const response = await action('createUpdatePerson', {
+          event,
+          settings,
+          useDefaultMappings: true
+        })
+
+        expect(response).not.toHaveProperty('customer_ip')
+      })
+
+      it('should send customer_ip for server-side libraries when forward_server_ip is enabled', async () => {
+        const ip = '203.0.113.9'
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip, library: { name: 'analytics-node', version: '6.2.0' } }
+        })
+
+        const mapping = { ...getDefaultMappings('createUpdatePerson'), forward_server_ip: true }
+
+        const response = await action('createUpdatePerson', { event, mapping, settings })
+
+        expect(response).toMatchObject({ action: 'identify', customer_ip: ip })
+        expect(response).not.toHaveProperty('forward_server_ip')
+        expect(response).not.toHaveProperty('source_library')
+      })
+
+      it('should not send customer_ip if the field is unmapped', async () => {
+        const event = createTestEvent({
+          userId: 'abc123',
+          traits: { email: 'test@example.com' },
+          context: { ip: '203.0.113.9' }
+        })
+
+        const mapping = getDefaultMappings('createUpdatePerson')
+        delete mapping.customer_ip
+
+        const response = await action('createUpdatePerson', { event, mapping, settings })
+
+        expect(response).not.toHaveProperty('customer_ip')
+        expect(response.attributes).not.toHaveProperty('customer_ip')
       })
     })
   })

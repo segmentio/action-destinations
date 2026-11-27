@@ -110,7 +110,7 @@
           "label": "Timestamp",
           "description": "Timestamp of the event, in ISO 8601 format or UNIX milliseconds. Must be within the last 7 days. Sent to Vibe as UNIX milliseconds.",
           "type": "datetime",
-          "required": false,
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -134,9 +134,9 @@
         },
         "ip": {
           "label": "IP Address",
-          "description": "IP address of the user who performed the action. Must be IPv4. Required if Email is not provided.",
+          "description": "IP address of the user who performed the action. Must be IPv4.",
           "type": "string",
-          "required": false,
+          "required": true,
           "multiple": false,
           "allowNull": false,
           "dynamic": false,
@@ -156,42 +156,6 @@
           "disabledInputMethods": null,
           "displayMode": null,
           "format": null,
-          "additionalProperties": false
-        },
-        "em": {
-          "label": "Email",
-          "description": "User email address. Required if IP Address is not provided.",
-          "type": "string",
-          "required": false,
-          "multiple": false,
-          "allowNull": false,
-          "dynamic": false,
-          "default": {
-            "@if": {
-              "exists": {
-                "@path": "$.context.traits.email"
-              },
-              "then": {
-                "@path": "$.context.traits.email"
-              },
-              "else": {
-                "@path": "$.properties.email"
-              }
-            }
-          },
-          "choices": null,
-          "placeholder": null,
-          "properties": null,
-          "category": null,
-          "depends_on": null,
-          "readOnly": null,
-          "hidden": null,
-          "minimum": null,
-          "maximum": null,
-          "defaultObjectUI": null,
-          "disabledInputMethods": null,
-          "displayMode": null,
-          "format": "email",
           "additionalProperties": false
         },
         "ed": {
@@ -369,19 +333,6 @@
         "ip": {
           "@path": "$.context.ip"
         },
-        "em": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.traits.email"
-            },
-            "then": {
-              "@path": "$.context.traits.email"
-            },
-            "else": {
-              "@path": "$.properties.email"
-            }
-          }
-        },
         "ed": {
           "purchase_id": {
             "@path": "$.properties.purchase_id"
@@ -415,19 +366,6 @@
         "ip": {
           "@path": "$.context.ip"
         },
-        "em": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.traits.email"
-            },
-            "then": {
-              "@path": "$.context.traits.email"
-            },
-            "else": {
-              "@path": "$.properties.email"
-            }
-          }
-        },
         "ed": {
           "purchase_id": {
             "@path": "$.properties.purchase_id"
@@ -460,19 +398,6 @@
         },
         "ip": {
           "@path": "$.context.ip"
-        },
-        "em": {
-          "@if": {
-            "exists": {
-              "@path": "$.context.traits.email"
-            },
-            "then": {
-              "@path": "$.context.traits.email"
-            },
-            "else": {
-              "@path": "$.properties.email"
-            }
-          }
         },
         "ed": {
           "purchase_id": {

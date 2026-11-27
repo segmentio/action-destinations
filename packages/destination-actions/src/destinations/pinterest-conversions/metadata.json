@@ -3237,7 +3237,7 @@
       "name": "Add Payment Info",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Payment Info Entered\"",
+      "subscribe": "type = \"track\" and event = \"Payment Info Entered\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -3435,7 +3435,7 @@
       "name": "Add to Cart",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Product Added\"",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -3633,7 +3633,7 @@
       "name": "Add to Wishlist",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Product Added to Wishlist\"",
+      "subscribe": "type = \"track\" and event = \"Product Added to Wishlist\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -3831,7 +3831,7 @@
       "name": "App Install",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Application Installed\"",
+      "subscribe": "type = \"track\" and event = \"Application Installed\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -4029,7 +4029,7 @@
       "name": "App Open",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Application Opened\"",
+      "subscribe": "type = \"track\" and event = \"Application Opened\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -4227,7 +4227,7 @@
       "name": "Checkout",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Order Completed\"",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -4425,7 +4425,7 @@
       "name": "Initiate Checkout",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Checkout Started\"",
+      "subscribe": "type = \"track\" and event = \"Checkout Started\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -4623,7 +4623,7 @@
       "name": "Lead",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Generate Lead\"",
+      "subscribe": "type = \"track\" and event = \"Generate Lead\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -5019,7 +5019,7 @@
       "name": "Search",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Products Searched\"",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -5217,7 +5217,7 @@
       "name": "Sign Up",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Signed Up\"",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -5415,7 +5415,7 @@
       "name": "Start Trial",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Trial Started\"",
+      "subscribe": "type = \"track\" and event = \"Trial Started\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -5613,7 +5613,7 @@
       "name": "Subscribe",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Subscription Created\"",
+      "subscribe": "type = \"track\" and event = \"Subscription Created\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -5811,7 +5811,7 @@
       "name": "View Category",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Product Category Viewed\"",
+      "subscribe": "type = \"track\" and event = \"Product Category Viewed\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -6009,7 +6009,7 @@
       "name": "View Content",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Product Viewed\"",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",
@@ -6207,7 +6207,7 @@
       "name": "Watch Video",
       "type": "automatic",
       "partnerAction": "reportConversionEvent",
-      "subscribe": "type = \"track\" AND event = \"Product Video Watched\"",
+      "subscribe": "type = \"track\" and event = \"Product Video Watched\"",
       "mapping": {
         "data_format": "latest",
         "action_source": "web",

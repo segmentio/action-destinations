@@ -102,7 +102,7 @@ describe('Snap Conversions API ', () => {
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
       expect(currency).toBe('USD')
       expect(value).toBe(15)
-      expect(action_source).toBe('website')
+      expect(action_source).toBe('WEB')
       // app_data is only defined when action_source is app
       expect(app_data).toBeUndefined()
 
@@ -137,7 +137,7 @@ describe('Snap Conversions API ', () => {
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
       expect(currency).toBe('USD')
       expect(value).toBe(15)
-      expect(action_source).toBe('website')
+      expect(action_source).toBe('WEB')
       // app_data is only defined when action_source is app
       expect(app_data).toBeUndefined()
     })
@@ -199,6 +199,126 @@ describe('Snap Conversions API ', () => {
       expect(app_data).toBeUndefined()
     })
 
+    describe('action_source normalization', () => {
+      beforeEach(() => {
+        nock.cleanAll()
+        nock(/.*/).post(/.*/).reply(200).persist()
+      })
+
+      it.each([
+        ['WEB', 'WEB'],
+        ['MOBILE_APP', 'MOBILE_APP'],
+        ['OFFLINE', 'OFFLINE'],
+        ['website', 'WEB'],
+        ['app', 'MOBILE_APP'],
+        ['email', 'OFFLINE'],
+        ['phone_call', 'OFFLINE'],
+        ['chat', 'OFFLINE'],
+        ['physical_store', 'OFFLINE'],
+        ['system_generated', 'OFFLINE'],
+        ['other', 'OFFLINE']
+      ])('should send action_source %s as %s', async (value, expected) => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_type: 'PURCHASE', action_source: value }
+        })
+        expect(data.action_source).toBe(expected)
+      })
+
+      it.each([
+        ['WEB', 'WEB'],
+        ['MOBILE_APP', 'MOBILE_APP'],
+        ['OFFLINE', 'OFFLINE']
+      ])('should fall back to event_conversion_type %s and send %s', async (eventConversionType, expected) => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_type: 'PURCHASE', event_conversion_type: eventConversionType }
+        })
+        expect(data.action_source).toBe(expected)
+      })
+
+      it('should prefer action_source over event_conversion_type', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_type: 'PURCHASE', action_source: 'app', event_conversion_type: 'WEB' }
+        })
+        expect(data.action_source).toBe('MOBILE_APP')
+      })
+
+      it('should route WEB, website and OFFLINE to the pixel_id endpoint', async () => {
+        for (const value of ['WEB', 'website', 'OFFLINE']) {
+          const { url } = await reportConversionEvent({
+            event: { ...testEvent, properties: {} },
+            mapping: { event_type: 'PURCHASE', action_source: value }
+          })
+          expect(url).toBe('https://tr.snapchat.com/v3/pixel123/events?access_token=access123')
+        }
+      })
+
+      it('should route MOBILE_APP and app to the snap_app_id endpoint', async () => {
+        for (const value of ['MOBILE_APP', 'app']) {
+          const { url, data } = await reportConversionEvent({
+            event: { ...testEvent, properties: {} },
+            mapping: { event_type: 'PURCHASE', action_source: value }
+          })
+          expect(url).toBe('https://tr.snapchat.com/v3/test123/events?access_token=access123')
+          expect(data.action_source).toBe('MOBILE_APP')
+        }
+      })
+    })
+
+    describe('event_tag', () => {
+      const mapEventTag = { '@path': '$.properties.event_tag' }
+
+      it('should send event_tag in custom_data', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: mapEventTag }
+        })
+
+        expect(data.custom_data.event_tag).toBe('back-to-school')
+        expect(data.event_tag).toBeUndefined()
+      })
+
+      it('should send event_tag alongside the other custom_data fields', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: {
+            event_name: 'PURCHASE',
+            action_source: 'WEB',
+            event_tag: mapEventTag,
+            custom_data: { order_id: 'A1234', currency: 'USD', value: 15 }
+          }
+        })
+
+        expect(data.custom_data).toEqual({
+          currency: 'USD',
+          event_tag: 'back-to-school',
+          order_id: 'A1234',
+          value: 15
+        })
+      })
+
+      it('should trim event_tag', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: '  back-to-school  ' }
+        })
+
+        expect(data.custom_data.event_tag).toBe('back-to-school')
+      })
+
+      it.each(['', '   '])('should omit event_tag when it is %j', async (value) => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB', event_tag: value }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+      })
+
+      it('should omit event_tag when it is not mapped', async () => {
+        const { data } = await reportConversionEvent({
+          mapping: { event_name: 'PURCHASE', action_source: 'WEB' }
+        })
+
+        expect(data.custom_data?.event_tag).toBeUndefined()
+      })
+    })
+
     it('should handle a mobile app event conversion type', async () => {
       const { data } = await reportConversionEvent({
         mapping: {
@@ -227,7 +347,7 @@ describe('Snap Conversions API ', () => {
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
       expect(currency).toBe('USD')
       expect(value).toBe(15)
-      expect(action_source).toBe('app')
+      expect(action_source).toBe('MOBILE_APP')
       expect(extinfo).toEqual([
         'i2',
         '',
@@ -306,7 +426,7 @@ describe('Snap Conversions API ', () => {
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
       expect(currency).toBe('USD')
       expect(value).toBe(15)
-      expect(action_source).toBe('app')
+      expect(action_source).toBe('MOBILE_APP')
       expect(app_id).toBe('123')
       expect(advertiser_tracking_enabled).toBe(0)
     })
@@ -352,7 +472,7 @@ describe('Snap Conversions API ', () => {
       expect(event_time).toBe(1652368875449)
       expect(em[0]).toBe('cc779c04191c2e736d89e45c11339c8382832bcaf70383f7df94e3d08ba7a6d9')
       expect(ph).toBeUndefined()
-      expect(action_source).toBe('website')
+      expect(action_source).toBe('WEB')
     })
 
     it('should handle event with phone as only Snap identifier', async () => {
@@ -377,7 +497,7 @@ describe('Snap Conversions API ', () => {
       expect(event_name).toBe('PURCHASE')
       expect(event_time).toBe(1652368875449)
       expect(ph[0]).toBe('dc008fda46e2e64002cf2f82a4906236282d431c4f75e5b60bfe79fc48546383')
-      expect(action_source).toBe('website')
+      expect(action_source).toBe('WEB')
     })
 
     it('should handle event with advertising_id as only Snap identifier', async () => {
@@ -406,7 +526,7 @@ describe('Snap Conversions API ', () => {
       expect(event_name).toBe('PURCHASE')
       expect(event_time).toBe(1652368875449)
       expect(madid).toBe(advertisingId)
-      expect(action_source).toBe('website')
+      expect(action_source).toBe('WEB')
     })
 
     it('should handle event with ip and user_agent as only Snap identifiers', async () => {
@@ -431,7 +551,7 @@ describe('Snap Conversions API ', () => {
       expect(client_user_agent).toBe(
         'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
       )
-      expect(action_source).toBe('website')
+      expect(action_source).toBe('WEB')
     })
 
     it('should always use the pixel id in settings for web events', async () => {
@@ -558,7 +678,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(action_source).toEqual('app')
+      expect(action_source).toEqual('MOBILE_APP')
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
       expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
@@ -676,7 +796,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(action_source).toEqual('app')
+      expect(action_source).toEqual('MOBILE_APP')
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
       expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
@@ -784,7 +904,7 @@ describe('Snap Conversions API ', () => {
         }
       })
 
-      expect(action_source).toEqual('app')
+      expect(action_source).toEqual('MOBILE_APP')
       expect(event_name).toEqual('PURCHASE')
       expect(event_id).toEqual(testEvent.messageId)
       expect(event_source_url).toEqual(testEvent.context?.page?.url ?? '')
