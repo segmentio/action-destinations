@@ -2,6 +2,10 @@
 
 export interface Payload {
   /**
+   * Unique identifier of the Segment message. SalesWings registers an event only once even if Segment delivers the same message more than once.
+   */
+  messageID?: string
+  /**
    * Permanent identifier of a Segment user the event is attributed to.
    */
   userID?: string
@@ -13,6 +17,10 @@ export interface Payload {
    * URL associated with the event.
    */
   url: string
+  /**
+   * Title of the page associated with the event.
+   */
+  title?: string
   /**
    * Referrer URL associated with the event.
    */

@@ -1,6 +1,6 @@
+import { mockWorkerAndXMLHttpRequest, subscriptions } from '../test_utilities'
 import { Analytics, Context } from '@segment/analytics-next'
 import plugins, { destination } from '../index'
-import { mockWorkerAndXMLHttpRequest, subscriptions } from '../test_utilities'
 import Logrocket from 'logrocket'
 
 jest.mock('logrocket')

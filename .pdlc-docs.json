@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "docs": {
+    "PIR: [SEV3] INC 20659 — actions-s3 payload validation failures &amp; malformed CSV headers::PIR": {
+      "docId": "1DrEpDtG-O5f78gn_OzieRKZxHAKNo__faO45b2Yn7QI",
+      "url": "https://docs.google.com/document/d/1DrEpDtG-O5f78gn_OzieRKZxHAKNo__faO45b2Yn7QI/edit",
+      "lastPublished": "2026-09-18T06:26:00.756Z"
+    },
+    "RFO #20659 - Data Delivery Failures and File Format Errors for the Amazon S3 (Actions) Destination::RFO": {
+      "docId": "1ph2nA9YD_7PtlGaTjhuqZHiUyyU10NWGnaIWFTyYWQw",
+      "url": "https://docs.google.com/document/d/1ph2nA9YD_7PtlGaTjhuqZHiUyyU10NWGnaIWFTyYWQw/edit",
+      "lastPublished": "2026-09-18T12:46:00.352Z"
+    }
+  }
+}

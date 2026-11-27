@@ -1,7 +1,7 @@
 import type { Settings } from '../generated-types'
 import type { Payload } from './generated-types'
 import { ActionDefinition } from '@segment/actions-core'
-import { sendBatch, sendSingle } from '../utils'
+import { sendBatch, sendSingle, validateIdentifiers, VALIDATE_IDENTIFIERS_FLAG } from '../utils'
 import { eventProperties } from '../customerio-properties'
 
 const action: ActionDefinition<Settings, Payload> = {
@@ -93,6 +93,31 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'boolean',
       default: true
     },
+    customer_ip: {
+      label: 'IP Address',
+      description:
+        "The person's IP address. Customer.io uses it to derive geolocation attributes (city, region, country, timezone) when geolocation is enabled in your workspace. Defaults to `context.ip`. Only forwarded for events from Segment's web and mobile libraries, where `context.ip` is the end user's address; events from server-side libraries are skipped unless **Forward IP from server-side sources** is enabled.",
+      type: 'string',
+      default: {
+        '@path': '$.context.ip'
+      }
+    },
+    forward_server_ip: {
+      label: 'Forward IP from server-side sources',
+      description:
+        "Send the IP Address for events from Segment's server-side libraries too. Only enable this if your server sets `context.ip` to the end user's address; otherwise Customer.io would geolocate people to your server's location.",
+      type: 'boolean',
+      default: false
+    },
+    source_library: {
+      label: 'Segment Library',
+      description: 'The Segment library that sent the event. Used to decide whether the IP Address is forwarded.',
+      type: 'string',
+      unsafe_hidden: true,
+      default: {
+        '@path': '$.context.library.name'
+      }
+    },
     object_type_id: {
       label: 'Object Type Id',
       description:
@@ -116,8 +141,13 @@ const action: ActionDefinition<Settings, Payload> = {
     )
   },
 
-  perform: (request, { payload, settings }) => {
-    return sendSingle(request, { action: 'identify', payload: mapPayload(payload), settings, type: 'person' })
+  perform: (request, { payload, settings, features }) => {
+    const body = mapPayload(payload)
+    if (features && features[VALIDATE_IDENTIFIERS_FLAG]) {
+      validateIdentifiers(body, ['Person ID', 'Email Address', 'Anonymous ID'])
+    }
+
+    return sendSingle(request, { action: 'identify', payload: body, settings, type: 'person' })
   }
 }
 

@@ -1,0 +1,3797 @@
+{
+  "slug": "actions-applovin-conversions-api",
+  "name": "AppLovin Conversions API",
+  "mode": "cloud",
+  "description": "Send Segment events to the AppLovin Conversions API.",
+  "authentication": {
+    "scheme": "custom",
+    "fields": {
+      "pixel_id": {
+        "label": "Event Key",
+        "description": "Your AppLovin Event Key, found in the AppLovin Ads Manager under Keys. AppLovin's API documentation calls this the pixel ID, but it is the same value.",
+        "type": "string",
+        "required": true,
+        "multiple": false,
+        "choices": null,
+        "default": null,
+        "depends_on": null
+      }
+    }
+  },
+  "audienceConfig": null,
+  "actions": {
+    "sendEvent": {
+      "title": "Send Event",
+      "description": "Send an event to the AppLovin Conversions API.",
+      "platform": "cloud",
+      "defaultSubscription": "type = \"track\" or type = \"page\"",
+      "hidden": false,
+      "hasPerformBatch": true,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {
+        "name": {
+          "label": "Event Name",
+          "description": "The AppLovin event to send.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": [
+            {
+              "label": "page_view",
+              "value": "page_view"
+            },
+            {
+              "label": "view_item",
+              "value": "view_item"
+            },
+            {
+              "label": "add_to_cart",
+              "value": "add_to_cart"
+            },
+            {
+              "label": "remove_from_cart",
+              "value": "remove_from_cart"
+            },
+            {
+              "label": "view_cart",
+              "value": "view_cart"
+            },
+            {
+              "label": "begin_checkout",
+              "value": "begin_checkout"
+            },
+            {
+              "label": "add_payment_info",
+              "value": "add_payment_info"
+            },
+            {
+              "label": "purchase",
+              "value": "purchase"
+            },
+            {
+              "label": "generate_lead",
+              "value": "generate_lead"
+            },
+            {
+              "label": "login",
+              "value": "login"
+            },
+            {
+              "label": "sign_up",
+              "value": "sign_up"
+            },
+            {
+              "label": "search",
+              "value": "search"
+            },
+            {
+              "label": "subscribe",
+              "value": "subscribe"
+            },
+            {
+              "label": "app_open",
+              "value": "app_open"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_time": {
+          "label": "Event Time",
+          "description": "When the event occurred. Must be in ISO 8601 format. Segment converts it to a Unix timestamp in milliseconds before sending to AppLovin. AppLovin rejects events more than 730 days old or more than 1 hour in the future.",
+          "type": "datetime",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.timestamp"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "event_source_url": {
+          "label": "Event Source URL",
+          "description": "The full URL of the page where the event occurred. Include it for web events, including events sent server-side. It can be omitted for app events.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.context.page.url"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "dedupe_id": {
+          "label": "Dedupe ID",
+          "description": "A unique ID for this event. AppLovin uses it to de-duplicate this event against the same event sent by the AppLovin Pixel, so it must match the dedupe ID on the Pixel event for the same conversion.",
+          "type": "string",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.messageId"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "user_data": {
+          "label": "User Data",
+          "description": "User and device details used by AppLovin to match the event to a user. Required: ALEID, IP Address, User Agent, Event Source, and at least one of ALART, AXWRT, Client ID, Email, Phone or User ID. All other fields are optional. Email and phone are normalized and SHA-256 hashed before sending. ALEID, ALART and AXWRT are populated automatically by the AppLovin Conversions API Plugins destination.",
+          "type": "object",
+          "required": true,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "aleid": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.AppLovin Conversions Api.aleid"
+                },
+                "then": {
+                  "@path": "$.integrations.AppLovin Conversions Api.aleid"
+                },
+                "else": {
+                  "@path": "$.properties.aleid"
+                }
+              }
+            },
+            "alart": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.AppLovin Conversions Api.alart"
+                },
+                "then": {
+                  "@path": "$.integrations.AppLovin Conversions Api.alart"
+                },
+                "else": {
+                  "@path": "$.properties.alart"
+                }
+              }
+            },
+            "axwrt": {
+              "@if": {
+                "exists": {
+                  "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+                },
+                "then": {
+                  "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+                },
+                "else": {
+                  "@path": "$.properties.axwrt"
+                }
+              }
+            },
+            "client_id": {
+              "@path": "$.anonymousId"
+            },
+            "client_ip_address": {
+              "@path": "$.context.ip"
+            },
+            "client_user_agent": {
+              "@path": "$.context.userAgent"
+            },
+            "email": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.email"
+                },
+                "then": {
+                  "@path": "$.properties.email"
+                },
+                "else": {
+                  "@path": "$.context.traits.email"
+                }
+              }
+            },
+            "esi": {
+              "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+            },
+            "phone": {
+              "@if": {
+                "exists": {
+                  "@path": "$.properties.phone"
+                },
+                "then": {
+                  "@path": "$.properties.phone"
+                },
+                "else": {
+                  "@path": "$.context.traits.phone"
+                }
+              }
+            },
+            "user_id": {
+              "@path": "$.userId"
+            },
+            "ifa": {
+              "@path": "$.context.device.advertisingId"
+            },
+            "idfv": {
+              "@path": "$.context.device.id"
+            },
+            "os": {
+              "@path": "$.context.os.name"
+            }
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "aleid": {
+              "label": "ALEID",
+              "description": "Required. The aleid query parameter that AppLovin adds to your website URL after a user clicks an ad. Also stored in the _axeid cookie.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "client_ip_address": {
+              "label": "IP Address",
+              "description": "Required. The public IP address of the user. IPv4 is preferred.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "client_user_agent": {
+              "label": "User Agent",
+              "description": "Required. The user agent of the browser or device.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "esi": {
+              "label": "Event Source",
+              "description": "Required. Where the event came from.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": [
+                {
+                  "label": "Web",
+                  "value": "web"
+                },
+                {
+                  "label": "App",
+                  "value": "app"
+                }
+              ],
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "alart": {
+              "label": "ALART",
+              "description": "The alart query parameter that AppLovin adds to your URL after an ad click, used to attribute app users. Also stored in the _axart cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "axwrt": {
+              "label": "AXWRT",
+              "description": "The axwrt value set by the AppLovin Pixel, stored in the _axwrt cookie. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "client_id": {
+              "label": "Client ID",
+              "description": "A stable first-party identifier for the user. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "email": {
+              "label": "Email",
+              "description": "The user's email address. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "phone": {
+              "label": "Phone",
+              "description": "The user's phone number, including the country code. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "user_id": {
+              "label": "User ID",
+              "description": "Your unique customer identifier. Must be at least 6 characters. Shorter values are ignored. At least one of ALART, AXWRT, Client ID, Email, Phone or User ID is required.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "country_code": {
+              "label": "Country Code",
+              "description": "The ISO 3166 billing country code.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "ifa": {
+              "label": "Advertising ID",
+              "description": "The IDFA or GAID of the device.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "idfv": {
+              "label": "Vendor ID",
+              "description": "The iOS identifier for vendor (IDFV).",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "os": {
+              "label": "Operating System",
+              "description": "The operating system of the device. Accepted values are ios, android, macos, windows and desktop_os. Segment values such as iOS, iPadOS, Android, macOS and Windows are converted automatically (case-insensitive); anything else is sent as desktop_os.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "sid": {
+              "label": "Session ID",
+              "description": "A session identifier.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "us_zip": {
+              "label": "US ZIP",
+              "description": "The billing ZIP code for US users. Only the first 5 characters are sent. If both US ZIP and Non US ZIP are provided, US ZIP is used.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "non_us_zip": {
+              "label": "Non US ZIP",
+              "description": "The billing postal code for users outside the US. Sent as provided.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "items": {
+          "label": "Items",
+          "description": "The products involved in the event. Quantity is required for add_to_cart, remove_from_cart and purchase events.",
+          "type": "object",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_item"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_to_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "remove_from_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "begin_checkout"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "multiple": true,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@arrayPath": [
+              "$.properties.products",
+              {
+                "item_id": {
+                  "@path": "$.product_id"
+                },
+                "item_name": {
+                  "@path": "$.name"
+                },
+                "item_brand": {
+                  "@path": "$.brand"
+                },
+                "item_variant_id": {
+                  "@path": "$.variant"
+                },
+                "image_url": {
+                  "@path": "$.image_url"
+                },
+                "price": {
+                  "@path": "$.price"
+                },
+                "quantity": {
+                  "@path": "$.quantity"
+                }
+              }
+            ]
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": {
+            "item_id": {
+              "label": "Item ID",
+              "description": "The ID of the item.",
+              "type": "string",
+              "required": true,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_name": {
+              "label": "Item Name",
+              "description": "The name of the item.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_brand": {
+              "label": "Item Brand",
+              "description": "The brand of the item.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_variant_id": {
+              "label": "Item Variant ID",
+              "description": "A unique ID for the variant of the item, such as a size or color.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "item_category_id": {
+              "label": "Item Category ID",
+              "description": "The numeric category ID from AppLovin's supported category list, for example 1 for Animals & Pet Supplies. Must be an integer, not a category name. See the full list: https://support.applovin.com/en/growth/promoting-your-websites/track-and-optimize/events-and-objects#category-ids",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "image_url": {
+              "label": "Image URL",
+              "description": "URL of an image of the item, ending in .png, .jpg or .jpeg.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "price": {
+              "label": "Price",
+              "description": "The unit price of the item. Use the discounted price if a discount applies.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "quantity": {
+              "label": "Quantity",
+              "description": "The quantity of the item.",
+              "type": "integer",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "discount": {
+              "label": "Discount",
+              "description": "The discount applied to a single unit.",
+              "type": "number",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            },
+            "affiliation": {
+              "label": "Affiliation",
+              "description": "The supplier, company or store associated with the item.",
+              "type": "string",
+              "required": false,
+              "multiple": false,
+              "allowNull": false,
+              "dynamic": false,
+              "default": null,
+              "choices": null,
+              "placeholder": null,
+              "properties": null,
+              "category": null,
+              "depends_on": null,
+              "readOnly": null,
+              "hidden": null,
+              "minimum": null,
+              "maximum": null,
+              "defaultObjectUI": null,
+              "disabledInputMethods": null,
+              "displayMode": null,
+              "format": null,
+              "additionalProperties": false
+            }
+          },
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_item"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_to_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "remove_from_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "begin_checkout"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_payment_info"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": "keyvalue",
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "currency": {
+          "label": "Currency",
+          "description": "The three-letter ISO 4217 currency code, for example USD. Required for begin_checkout, purchase and generate_lead.",
+          "type": "string",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "begin_checkout"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "generate_lead"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.currency"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_item"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_to_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "remove_from_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "begin_checkout"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_payment_info"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "generate_lead"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "subscribe"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": 3,
+          "maximum": 3,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "value": {
+          "label": "Value",
+          "description": "The monetary value of the event. For purchase this is the subtotal before tax and shipping. Required for begin_checkout, purchase and generate_lead.",
+          "type": "number",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "begin_checkout"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "generate_lead"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.value"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_item"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_to_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "remove_from_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "view_cart"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "begin_checkout"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_payment_info"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "generate_lead"
+              },
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "subscribe"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "transaction_id": {
+          "label": "Transaction ID",
+          "description": "The unique ID of the transaction.",
+          "type": "string",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.order_id"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "shipping": {
+          "label": "Shipping",
+          "description": "The shipping cost. Use 0 if there is none.",
+          "type": "number",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.shipping"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "tax": {
+          "label": "Tax",
+          "description": "The tax amount. Use 0 if there is none.",
+          "type": "number",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.tax"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "is_new_customer": {
+          "label": "Is New Customer",
+          "description": "Whether the customer is new. Only send if you are not using the AppLovin Shopify app or uploading order history data.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": null,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "purchase"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "payment_type": {
+          "label": "Payment Type",
+          "description": "The payment method used.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.payment_method"
+          },
+          "choices": [
+            {
+              "label": "credit_card",
+              "value": "credit_card"
+            },
+            {
+              "label": "deferred",
+              "value": "deferred"
+            },
+            {
+              "label": "redeemable",
+              "value": "redeemable"
+            },
+            {
+              "label": "payment_on_delivery",
+              "value": "payment_on_delivery"
+            },
+            {
+              "label": "wallet",
+              "value": "wallet"
+            },
+            {
+              "label": "other",
+              "value": "other"
+            }
+          ],
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "add_payment_info"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "search_term": {
+          "label": "Search Term",
+          "description": "The term the user searched for.",
+          "type": "string",
+          "required": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "search"
+              }
+            ]
+          },
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.query"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "search"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "sign_up_method": {
+          "label": "Sign Up Method",
+          "description": "The registration method used.",
+          "type": "string",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": {
+            "@path": "$.properties.method"
+          },
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": {
+            "match": "any",
+            "conditions": [
+              {
+                "fieldKey": "name",
+                "operator": "is",
+                "value": "sign_up"
+              }
+            ]
+          },
+          "readOnly": null,
+          "hidden": null,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "enable_batching": {
+          "label": "Batch Data",
+          "description": "When enabled, Segment sends events to AppLovin in batches.",
+          "type": "boolean",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": true,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": false,
+          "minimum": null,
+          "maximum": null,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        },
+        "batch_size": {
+          "label": "Batch Size",
+          "description": "Maximum number of events to include in each batch. AppLovin accepts up to 100 per request.",
+          "type": "number",
+          "required": false,
+          "multiple": false,
+          "allowNull": false,
+          "dynamic": false,
+          "default": 100,
+          "choices": null,
+          "placeholder": null,
+          "properties": null,
+          "category": null,
+          "depends_on": null,
+          "readOnly": null,
+          "hidden": false,
+          "minimum": 1,
+          "maximum": 100,
+          "defaultObjectUI": null,
+          "disabledInputMethods": null,
+          "displayMode": null,
+          "format": null,
+          "additionalProperties": false
+        }
+      }
+    },
+    "applovinPlugin": {
+      "title": "AppLovin Browser Plugin",
+      "description": "Enriches Segment payloads with identifiers from the AppLovin Pixel and AppLovin ad clicks.",
+      "platform": "web",
+      "defaultSubscription": "type = \"track\" or type = \"identify\" or type = \"page\" or type = \"group\" or type = \"alias\"",
+      "hidden": false,
+      "hasPerformBatch": false,
+      "syncMode": null,
+      "hooks": null,
+      "dynamicFields": null,
+      "fields": {}
+    }
+  },
+  "presets": [
+    {
+      "name": "AppLovin Browser Plugin",
+      "type": "automatic",
+      "partnerAction": "applovinPlugin",
+      "subscribe": "type = \"track\" or type = \"identify\" or type = \"group\" or type = \"page\" or type = \"alias\"",
+      "mapping": {},
+      "eventSlug": null
+    },
+    {
+      "name": "Page View",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"page\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "page_view"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "View Item",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Product Viewed\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "view_item"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add to Cart",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Product Added\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "add_to_cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Remove from Cart",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Product Removed\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "remove_from_cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "View Cart",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Cart Viewed\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "view_cart"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Begin Checkout",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Checkout Started\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "begin_checkout"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Add Payment Info",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Payment Info Entered\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "add_payment_info"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Purchase",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Order Completed\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.properties.order_id"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@if": {
+            "exists": {
+              "@path": "$.properties.subtotal"
+            },
+            "then": {
+              "@path": "$.properties.subtotal"
+            },
+            "else": {
+              "@path": "$.properties.value"
+            }
+          }
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "purchase"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Search",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Products Searched\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "search"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Sign Up",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Signed Up\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "sign_up"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Login",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Signed In\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "login"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Generate Lead",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Lead Generated\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "generate_lead"
+      },
+      "eventSlug": null
+    },
+    {
+      "name": "Subscribe",
+      "type": "automatic",
+      "partnerAction": "sendEvent",
+      "subscribe": "type = \"track\" and event = \"Subscription Created\"",
+      "mapping": {
+        "event_time": {
+          "@path": "$.timestamp"
+        },
+        "event_source_url": {
+          "@path": "$.context.page.url"
+        },
+        "dedupe_id": {
+          "@path": "$.messageId"
+        },
+        "user_data": {
+          "aleid": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.aleid"
+              },
+              "else": {
+                "@path": "$.properties.aleid"
+              }
+            }
+          },
+          "alart": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.alart"
+              },
+              "else": {
+                "@path": "$.properties.alart"
+              }
+            }
+          },
+          "axwrt": {
+            "@if": {
+              "exists": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "then": {
+                "@path": "$.integrations.AppLovin Conversions Api.axwrt"
+              },
+              "else": {
+                "@path": "$.properties.axwrt"
+              }
+            }
+          },
+          "client_id": {
+            "@path": "$.anonymousId"
+          },
+          "client_ip_address": {
+            "@path": "$.context.ip"
+          },
+          "client_user_agent": {
+            "@path": "$.context.userAgent"
+          },
+          "email": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.email"
+              },
+              "then": {
+                "@path": "$.properties.email"
+              },
+              "else": {
+                "@path": "$.context.traits.email"
+              }
+            }
+          },
+          "esi": {
+            "@liquid": "{% if context.device.type %}app{% else %}web{% endif %}"
+          },
+          "phone": {
+            "@if": {
+              "exists": {
+                "@path": "$.properties.phone"
+              },
+              "then": {
+                "@path": "$.properties.phone"
+              },
+              "else": {
+                "@path": "$.context.traits.phone"
+              }
+            }
+          },
+          "user_id": {
+            "@path": "$.userId"
+          },
+          "ifa": {
+            "@path": "$.context.device.advertisingId"
+          },
+          "idfv": {
+            "@path": "$.context.device.id"
+          },
+          "os": {
+            "@path": "$.context.os.name"
+          }
+        },
+        "items": {
+          "@arrayPath": [
+            "$.properties.products",
+            {
+              "item_id": {
+                "@path": "$.product_id"
+              },
+              "item_name": {
+                "@path": "$.name"
+              },
+              "item_brand": {
+                "@path": "$.brand"
+              },
+              "item_variant_id": {
+                "@path": "$.variant"
+              },
+              "image_url": {
+                "@path": "$.image_url"
+              },
+              "price": {
+                "@path": "$.price"
+              },
+              "quantity": {
+                "@path": "$.quantity"
+              }
+            }
+          ]
+        },
+        "currency": {
+          "@path": "$.properties.currency"
+        },
+        "value": {
+          "@path": "$.properties.value"
+        },
+        "transaction_id": {
+          "@path": "$.properties.order_id"
+        },
+        "shipping": {
+          "@path": "$.properties.shipping"
+        },
+        "tax": {
+          "@path": "$.properties.tax"
+        },
+        "payment_type": {
+          "@path": "$.properties.payment_method"
+        },
+        "search_term": {
+          "@path": "$.properties.query"
+        },
+        "sign_up_method": {
+          "@path": "$.properties.method"
+        },
+        "enable_batching": true,
+        "batch_size": 100,
+        "name": "subscribe"
+      },
+      "eventSlug": null
+    }
+  ]
+}

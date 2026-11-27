@@ -79,7 +79,7 @@ const send = async (
   let listName: string | undefined = undefined
 
   const client = new Client(request, objectType)
-  const validPayloads = validate(payloads, flag)
+  const validPayloads = validate(payloads, flag, syncMode)
 
   if (flag) {
     listName = getListName(payloads[0])

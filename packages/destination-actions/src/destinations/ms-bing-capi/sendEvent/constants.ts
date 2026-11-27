@@ -1,5 +1,7 @@
 export const API_URL = `https://capi.uet.microsoft.com/v1/`
 
+export const ROOT_CONTINUE_ON_VALIDATION_ERROR_FLAG = 'ms-bing-capi-root-continue-on-validation-error'
+
 export const CURRENCY_ISO_CODES = new Set([
   'AED',
   'AFN',

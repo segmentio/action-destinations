@@ -1,3 +1,13 @@
+import { InvalidAuthenticationError } from '@segment/actions-core'
+
+export function validateDatacenter(datacenter: string): void {
+  if (!/^[a-zA-Z0-9_-]+$/.test(datacenter)) {
+    throw new InvalidAuthenticationError(
+      'Invalid datacenter ID. Datacenter must contain only alphanumeric characters and hyphens.'
+    )
+  }
+}
+
 export function parsedEmbeddedData(
   data: { [key: string]: unknown } | undefined
 ): Record<string, string | number | boolean> {

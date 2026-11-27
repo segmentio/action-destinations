@@ -90,6 +90,48 @@ const action: ActionDefinition<Settings, Payload> = {
         '@path': '$.userId'
       }
     },
+    outputReference: {
+      label: 'Output Reference',
+      type: 'string',
+      description:
+        'Optional, for gateways only. Requires Gateway Support. Identifies an Avo gateway output. Leave this field empty unless Avo asks you to set it.',
+      required: false
+    },
+    originHint: {
+      label: 'Origin Hint',
+      type: 'string',
+      description:
+        'Optional. Requires Gateway Support. Names the source that produced each event, such as "ios-app", so Avo can tell apart apps flowing through a gateway. See https://www.avo.app/docs/inspector/connect-inspector-to-segment-gateway.',
+      required: false
+    },
+    context: {
+      label: 'Context',
+      type: 'object',
+      description: 'Requires Gateway Support. The event context, used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.context' }
+    },
+    originalTimestamp: {
+      label: 'Original Timestamp',
+      type: 'string',
+      description: 'Requires Gateway Support. Used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.originalTimestamp' }
+    },
+    sentAt: {
+      label: 'Sent At',
+      type: 'string',
+      description: 'Requires Gateway Support. Used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.sentAt' }
+    },
+    receivedAt: {
+      label: 'Received At',
+      type: 'string',
+      description: 'Requires Gateway Support. Used by Gateway Inspection Scope.',
+      required: false,
+      default: { '@path': '$.receivedAt' }
+    },
     batch_size: {
       label: 'Batch Size',
       description: 'Maximum number of events to include in each batch. Actual batch sizes may be lower.',

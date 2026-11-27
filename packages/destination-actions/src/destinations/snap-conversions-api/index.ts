@@ -27,7 +27,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'ADD_BILLING',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -38,7 +38,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'ADD_CART',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -49,7 +49,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'ADD_TO_WISHLIST',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -60,7 +60,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'APP_INSTALL',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -71,7 +71,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'LIST_VIEW',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -82,7 +82,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'APP_OPEN',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -93,7 +93,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'LOGIN',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -104,7 +104,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'PAGE_VIEW',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -115,7 +115,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'PURCHASE',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -126,7 +126,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'SEARCH',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -137,7 +137,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'SHARE',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -148,7 +148,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'SIGN_UP',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -159,7 +159,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'START_CHECKOUT',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
@@ -170,7 +170,7 @@ const presets: DestinationDefinition['presets'] = [
     partnerAction: 'reportConversionEvent',
     mapping: {
       event_name: 'VIEW_CONTENT',
-      action_source: 'website',
+      action_source: 'WEB',
       ...DEFAULT_VALS
     },
     type: 'automatic'
