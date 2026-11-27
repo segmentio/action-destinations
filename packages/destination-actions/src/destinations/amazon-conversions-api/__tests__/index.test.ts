@@ -50,7 +50,7 @@ describe('Amazon Conversions API Destination', () => {
       // Check preset configurations
       expect(addToCartPreset?.partnerAction).toBe('trackConversion')
       expect(addToCartPreset?.mapping?.eventType).toBe('ADD_TO_SHOPPING_CART')
-      expect((addToCartPreset as any)?.subscribe).toBe('type = "track" AND event = "Product Added"')
+      expect((addToCartPreset as any)?.subscribe).toBe('type = "track" and event = "Product Added"')
 
       expect(pageViewPreset?.partnerAction).toBe('trackConversion')
       expect(pageViewPreset?.mapping?.eventType).toBe('PAGE_VIEW')
@@ -58,7 +58,7 @@ describe('Amazon Conversions API Destination', () => {
 
       expect(signUpPreset?.partnerAction).toBe('trackConversion')
       expect(signUpPreset?.mapping?.eventType).toBe('SIGN_UP')
-      expect((signUpPreset as any)?.subscribe).toBe('type = "track" AND event = "Signed Up"')
+      expect((signUpPreset as any)?.subscribe).toBe('type = "track" and event = "Signed Up"')
     })
 
     it('should have presets for all supported event types', () => {

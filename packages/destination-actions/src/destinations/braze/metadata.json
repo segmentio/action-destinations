@@ -1598,7 +1598,7 @@
     },
     "trackPurchase": {
       "title": "Track Purchase",
-      "description": "Records purchases in Braze. Consider using the **\"Order Placed (beta)\"** mapping instead, which uses Braze's newer, preferred method that maps to Braze's [Ecommerce Recommended Order Placed event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events/?tab=ecommerce.order_placed).",
+      "description": "Records purchases in Braze. Consider using the **\"Order Placed\"** mapping instead, which uses Braze's newer, preferred method that maps to Braze's [Ecommerce Recommended Order Placed event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events/?tab=ecommerce.order_placed).",
       "platform": "cloud",
       "defaultSubscription": "event = \"Order Completed\"",
       "hidden": false,
@@ -2849,7 +2849,7 @@
     },
     "trackPurchase2": {
       "title": "Track Purchase V2",
-      "description": "Records purchases in Braze. Consider using the **\"Order Placed (beta)\"** mapping instead, which uses Braze's newer, preferred method that maps to Braze's [Ecommerce Recommended Order Placed event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events/?tab=ecommerce.order_placed).",
+      "description": "Records purchases in Braze. Consider using the **\"Order Placed\"** mapping instead, which uses Braze's newer, preferred method that maps to Braze's [Ecommerce Recommended Order Placed event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events/?tab=ecommerce.order_placed).",
       "platform": "cloud",
       "defaultSubscription": "event = \"Order Completed\"",
       "hidden": false,
@@ -5966,7 +5966,7 @@
     },
     "ecommerce": {
       "title": "Ecommerce Event (multi product)",
-      "description": "(Beta) Send a multi product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.",
+      "description": "Send a multi product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
@@ -7924,7 +7924,7 @@
     },
     "ecommerceSingleProduct": {
       "title": "Ecommerce Event (single product)",
-      "description": "(Beta) Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.",
+      "description": "Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.",
       "platform": "cloud",
       "defaultSubscription": null,
       "hidden": false,
@@ -10478,7 +10478,7 @@
       "eventSlug": null
     },
     {
-      "name": "Order Placed (beta)",
+      "name": "Order Placed",
       "type": "automatic",
       "partnerAction": "ecommerce",
       "subscribe": "event = \"Order Completed\"",
@@ -10617,7 +10617,7 @@
       "eventSlug": null
     },
     {
-      "name": "Checkout Started (beta)",
+      "name": "Checkout Started",
       "type": "automatic",
       "partnerAction": "ecommerce",
       "subscribe": "event = \"Checkout Started\"",
@@ -10756,7 +10756,7 @@
       "eventSlug": null
     },
     {
-      "name": "Order Refunded (beta)",
+      "name": "Order Refunded",
       "type": "automatic",
       "partnerAction": "ecommerce",
       "subscribe": "event = \"Order Refunded\"",
@@ -10895,7 +10895,7 @@
       "eventSlug": null
     },
     {
-      "name": "Order Cancelled (beta)",
+      "name": "Order Cancelled",
       "type": "automatic",
       "partnerAction": "ecommerce",
       "subscribe": "event = \"Order Cancelled\"",
@@ -11034,7 +11034,7 @@
       "eventSlug": null
     },
     {
-      "name": "Product Viewed (beta)",
+      "name": "Product Viewed",
       "type": "automatic",
       "partnerAction": "ecommerceSingleProduct",
       "subscribe": "event = \"Product Viewed\"",
@@ -11163,7 +11163,7 @@
       "eventSlug": null
     },
     {
-      "name": "Product Added (beta)",
+      "name": "Product Added",
       "type": "automatic",
       "partnerAction": "ecommerce",
       "subscribe": "event = \"Product Added\"",
@@ -11292,7 +11292,7 @@
       "eventSlug": null
     },
     {
-      "name": "Product Removed (beta)",
+      "name": "Product Removed",
       "type": "automatic",
       "partnerAction": "ecommerce",
       "subscribe": "event = \"Product Removed\"",

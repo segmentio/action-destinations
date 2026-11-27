@@ -10,7 +10,7 @@ import { send } from '../ecommerce/functions'
 
 const action: ActionDefinition<Settings, Payload> = {
   title: 'Ecommerce Event (single product)',
-  description: '(Beta) Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.',
+  description: 'Send a single product [Ecommerce Recommended event](https://www.braze.com/docs/user_guide/data/activation/custom_data/recommended_events/ecommerce_events) to Braze.',
   fields: {
     ...commonFields,
     catalog_type,
