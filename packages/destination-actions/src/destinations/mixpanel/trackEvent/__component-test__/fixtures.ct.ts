@@ -66,6 +66,7 @@ const fixtures: CTFixture[] = [
       properties: { order_id: '$guid:order', revenue: 42 }
     }),
     mapping: {},
+    features: { 'actions-mixpanel-project-token-auth': true },
     expect: { status: 'success' }
   },
   {
@@ -83,6 +84,7 @@ const fixtures: CTFixture[] = [
       })
     ],
     mapping: {},
+    features: { 'actions-mixpanel-project-token-auth': true },
     expect: { status: 'success' }
   },
   {
@@ -100,7 +102,7 @@ const fixtures: CTFixture[] = [
       })
     ],
     mapping: {},
-    features: { 'mixpanel-multistatus': true },
+    features: { 'mixpanel-multistatus': true, 'actions-mixpanel-project-token-auth': true },
     expect: { status: 'success' }
   }
 ]

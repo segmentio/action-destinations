@@ -1,7 +1,7 @@
 /**
  * Local component test run: every registered suite through the InProcessAdapter, against live partner sandboxes.
  *
- *   CT_MIXPANEL_PROJECT_TOKEN=... CT_MIXPANEL_API_SECRET=... yarn cloud component-test
+ *   CT_MIXPANEL_PROJECT_TOKEN=... yarn cloud component-test
  *
  * CT_DESTINATIONS=mixpanel,webhook   only these destination folders
  * CT_CONCURRENCY=4                   suites in parallel
