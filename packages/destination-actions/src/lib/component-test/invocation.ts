@@ -1,12 +1,12 @@
 import { defaultValues } from '@segment/actions-core'
 import type { JSONObject, RefreshAccessTokenResult } from '@segment/actions-core'
-import type { E2EInvocation } from './adapters/types'
+import type { CTInvocation } from './adapters/types'
 import { resolveDynamicValues, resolveSettings } from './resolve'
-import type { E2EFixture, E2EHookValues, E2ESuite } from './types'
+import type { CTFixture, CTHookValues, CTSuite } from './types'
 
-export interface E2EInvocationState {
+export interface CTInvocationState {
   /** The suite's and fixture's `before` values, for '$before:<key>'. */
-  values?: E2EHookValues
+  values?: CTHookValues
   /** Tokens refreshed earlier in the run, written over `settings.oauth`. */
   tokens?: RefreshAccessTokenResult
 }
@@ -34,14 +34,14 @@ export function withRefreshedTokens(
  * already carries the defaults. One guid cache spans events and mapping, so '$guid:<name>' agrees.
  */
 export function buildInvocation(
-  suite: E2ESuite,
-  fixture: E2EFixture,
+  suite: CTSuite,
+  fixture: CTFixture,
   env: NodeJS.ProcessEnv,
-  state: E2EInvocationState = {}
-): E2EInvocation {
+  state: CTInvocationState = {}
+): CTInvocation {
   const action = suite.definition.actions[suite.action]
   if (!action) {
-    throw new Error(`E2E: ${suite.destination} has no action "${suite.action}".`)
+    throw new Error(`Component test: ${suite.destination} has no action "${suite.action}".`)
   }
   const guidCache = new Map<string, string>()
   const mapping = { ...defaultValues(action.fields), ...fixture.mapping } as JSONObject

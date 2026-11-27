@@ -1,7 +1,7 @@
-import type { E2EExchange, E2EObservation, E2EObservedError } from './adapters/types'
-import type { E2EExecutionMode, E2EExpectation, E2EMultistatusExpectation, E2EResponseChecks } from './types'
+import type { CTExchange, CTObservation, CTObservedError } from './adapters/types'
+import type { CTExecutionMode, CTExpectation, CTMultistatusExpectation, CTResponseChecks } from './types'
 
-export interface E2EVerdict {
+export interface CTVerdict {
   passed: boolean
   reason?: string
 }
@@ -30,9 +30,9 @@ function partialMatch(actual: unknown, expected: unknown): boolean {
   return actual === expected
 }
 
-const fail = (reason: string): E2EVerdict => ({ passed: false, reason })
+const fail = (reason: string): CTVerdict => ({ passed: false, reason })
 
-function checkBody(body: unknown, expectation: E2EResponseChecks): E2EVerdict {
+function checkBody(body: unknown, expectation: CTResponseChecks): CTVerdict {
   if (expectation.bodyContains && !stringify(body).includes(expectation.bodyContains)) {
     return fail(`response body does not contain "${expectation.bodyContains}": ${stringify(body).slice(0, 300)}`)
   }
@@ -46,7 +46,7 @@ function checkBody(body: unknown, expectation: E2EResponseChecks): E2EVerdict {
 }
 
 /** The exchange a fixture judges: the last one matching its selector, or the last of all. */
-function selectExchange(exchanges: E2EExchange[], expectation: E2EResponseChecks): E2EExchange | undefined {
+function selectExchange(exchanges: CTExchange[], expectation: CTResponseChecks): CTExchange | undefined {
   const { method, url } = expectation.exchange ?? {}
   const matches = exchanges.filter(
     (exchange) =>
@@ -57,7 +57,7 @@ function selectExchange(exchanges: E2EExchange[], expectation: E2EResponseChecks
 }
 
 /** Why no exchange was selected: none matched the selector, or `fallback` when none was sent. */
-function noExchange(exchanges: E2EExchange[], expectation: E2EResponseChecks, fallback: string): string {
+function noExchange(exchanges: CTExchange[], expectation: CTResponseChecks, fallback: string): string {
   if (exchanges.length === 0 || !expectation.exchange) return fallback
   const sent = exchanges.map((exchange) => `${exchange.method} ${exchange.url}`).join(', ')
   return `no partner request matched ${stringify(expectation.exchange)}; sent ${sent}`
@@ -65,7 +65,7 @@ function noExchange(exchanges: E2EExchange[], expectation: E2EResponseChecks, fa
 
 const OAUTH_REFRESH_FAILED = 'OAUTH_REFRESH_FAILED'
 
-function describeError(error: E2EObservedError, refreshFailed?: boolean): string {
+function describeError(error: CTObservedError, refreshFailed?: boolean): string {
   const detail = `${error.type} (${error.status ?? 'no status'}): ${error.message}`
   return refreshFailed || error.type === OAUTH_REFRESH_FAILED
     ? `OAuth refresh failed: re-authorize the sandbox app or check refreshAccessToken. ${detail}`
@@ -73,12 +73,12 @@ function describeError(error: E2EObservedError, refreshFailed?: boolean): string
 }
 
 /** What the fixture sent, for the rules that hold whatever the expectation. */
-export interface E2EValidateContext {
-  mode: E2EExecutionMode
+export interface CTValidateContext {
+  mode: CTExecutionMode
   eventCount: number
 }
 
-function checkMultistatus(expectation: E2EMultistatusExpectation, observation: E2EObservation): E2EVerdict {
+function checkMultistatus(expectation: CTMultistatusExpectation, observation: CTObservation): CTVerdict {
   const { error, multistatus } = observation
   if (error) return fail(`expected per-event results, got ${describeError(error, observation.refreshFailed)}`)
   if (!multistatus) return fail('expected per-event results, but the batch returned none')
@@ -122,10 +122,10 @@ function checkMultistatus(expectation: E2EMultistatusExpectation, observation: E
  * performBatch to have returned a MultiStatusResponse where the adapter can tell.
  */
 export function validate(
-  expectation: E2EExpectation,
-  observation: E2EObservation,
-  context?: E2EValidateContext
-): E2EVerdict {
+  expectation: CTExpectation,
+  observation: CTObservation,
+  context?: CTValidateContext
+): CTVerdict {
   const { exchanges, error, multistatus } = observation
 
   if (context && context.mode !== 'single' && multistatus && multistatus.length !== context.eventCount) {

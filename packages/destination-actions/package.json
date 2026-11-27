@@ -28,7 +28,7 @@
     "postclean": "rm -rf dist",
     "prepublishOnly": "yarn build",
     "test": "jest",
-    "e2e": "jest -c jest.e2e.config.js",
+    "component-test": "jest -c jest.ct.config.js",
     "typecheck": "tsc -p tsconfig.build.json --noEmit"
   },
   "devDependencies": {

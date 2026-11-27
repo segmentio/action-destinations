@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import type { E2EHookValues, E2ESettingsObject, E2ESettingsSecretValue } from './types'
+import type { CTHookValues, CTSettingsObject, CTSettingsSecretValue } from './types'
 
 const BEFORE = '$before:'
 
@@ -14,14 +14,14 @@ const BEFORE = '$before:'
 export function resolveDynamicValues<T>(
   value: T,
   guidCache: Map<string, string> = new Map(),
-  beforeValues: E2EHookValues = {}
+  beforeValues: CTHookValues = {}
 ): T {
   if (typeof value === 'string') {
     if (value === '$now') return new Date().toISOString() as unknown as T
     if (value === '$guid') return randomUUID() as unknown as T
     if (value.startsWith(BEFORE)) {
       const key = value.slice(BEFORE.length)
-      if (!(key in beforeValues)) throw new Error(`E2E: no before hook returned "${key}" (for '${value}').`)
+      if (!(key in beforeValues)) throw new Error(`Component test: no before hook returned "${key}" (for '${value}').`)
       return beforeValues[key] as unknown as T
     }
     if (value.startsWith('$guid:')) {
@@ -49,7 +49,7 @@ export function resolveDynamicValues<T>(
 }
 
 /** The '$before:<key>' keys a value references that `beforeValues` lacks. */
-export function missingBeforeKeys(value: unknown, beforeValues: E2EHookValues): string[] {
+export function missingBeforeKeys(value: unknown, beforeValues: CTHookValues): string[] {
   const missing = new Set<string>()
   const walk = (v: unknown) => {
     if (typeof v === 'string') {
@@ -62,14 +62,14 @@ export function missingBeforeKeys(value: unknown, beforeValues: E2EHookValues): 
   return [...missing]
 }
 
-function isSecret(value: unknown): value is E2ESettingsSecretValue {
+function isSecret(value: unknown): value is CTSettingsSecretValue {
   return !!value && typeof value === 'object' && '$env' in value
 }
 
 /** The `{ $env }` names in a settings object that `env` does not set. */
-export function missingSecrets(settings: E2ESettingsObject, env: NodeJS.ProcessEnv): string[] {
+export function missingSecrets(settings: CTSettingsObject, env: NodeJS.ProcessEnv): string[] {
   const missing: string[] = []
-  const walk = (obj: E2ESettingsObject) => {
+  const walk = (obj: CTSettingsObject) => {
     for (const value of Object.values(obj)) {
       if (isSecret(value)) {
         if (!env[value.$env]) missing.push(value.$env)
@@ -83,15 +83,15 @@ export function missingSecrets(settings: E2ESettingsObject, env: NodeJS.ProcessE
 }
 
 /** Resolve `{ $env: 'NAME' }` secret markers in a settings object from `env`. Throws on an unset name. */
-export function resolveSettings(settings: E2ESettingsObject, env: NodeJS.ProcessEnv): Record<string, unknown> {
-  const resolve = (obj: E2ESettingsObject): Record<string, unknown> => {
+export function resolveSettings(settings: CTSettingsObject, env: NodeJS.ProcessEnv): Record<string, unknown> {
+  const resolve = (obj: CTSettingsObject): Record<string, unknown> => {
     const out: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(obj)) {
       if (isSecret(value)) {
         const resolved = env[value.$env]
         if (!resolved) {
           throw new Error(
-            `E2E: environment variable "${value.$env}" is not set or empty (needed for setting "${key}").`
+            `Component test: environment variable "${value.$env}" is not set or empty (needed for setting "${key}").`
           )
         }
         out[key] = resolved

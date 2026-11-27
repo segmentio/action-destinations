@@ -1,14 +1,14 @@
 /**
- * Local E2E run: every registered suite through the InProcessAdapter, against live partner sandboxes.
+ * Local component test run: every registered suite through the InProcessAdapter, against live partner sandboxes.
  *
- *   E2E_MIXPANEL_PROJECT_TOKEN=... E2E_MIXPANEL_API_SECRET=... yarn cloud e2e
+ *   CT_MIXPANEL_PROJECT_TOKEN=... CT_MIXPANEL_API_SECRET=... yarn cloud component-test
  *
- * E2E_DESTINATIONS=mixpanel,webhook   only these destination folders
- * E2E_CONCURRENCY=4                   suites in parallel
- * E2E_REPORT=/tmp/e2e.json            also write the JSON report
+ * CT_DESTINATIONS=mixpanel,webhook   only these destination folders
+ * CT_CONCURRENCY=4                   suites in parallel
+ * CT_REPORT=/tmp/component-test.json also write the JSON report
  */
 import { writeFileSync } from 'node:fs'
-import { InProcessAdapter, formatSummary, runSuites, suites } from '../../src/lib/e2e'
+import { InProcessAdapter, formatSummary, runSuites, suites } from '../../src/lib/component-test'
 
 const list = (value?: string) =>
   value
@@ -17,11 +17,11 @@ const list = (value?: string) =>
     .filter(Boolean)
 
 test(
-  'E2E suites',
+  'Component test suites',
   async () => {
     const report = await runSuites(new InProcessAdapter(), suites, {
-      destinations: list(process.env.E2E_DESTINATIONS),
-      concurrency: process.env.E2E_CONCURRENCY ? Number(process.env.E2E_CONCURRENCY) : undefined,
+      destinations: list(process.env.CT_DESTINATIONS),
+      concurrency: process.env.CT_CONCURRENCY ? Number(process.env.CT_CONCURRENCY) : undefined,
       onTokenRefresh: (destination, tokens) => {
         // eslint-disable-next-line no-console
         console.log(`${destination}: OAuth tokens refreshed`)
@@ -29,7 +29,7 @@ test(
         if (tokens.refreshToken) throw new Error('a refresh token came back; update the stored secret if it changed')
       }
     })
-    if (process.env.E2E_REPORT) writeFileSync(process.env.E2E_REPORT, JSON.stringify(report, null, 2))
+    if (process.env.CT_REPORT) writeFileSync(process.env.CT_REPORT, JSON.stringify(report, null, 2))
     // eslint-disable-next-line no-console
     console.log(formatSummary(report))
     expect(report.exitCode).toBe(0)

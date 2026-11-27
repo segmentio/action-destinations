@@ -1,23 +1,23 @@
-// Event builders for E2E fixtures. Ported from action-destinations PR #3829 (was in
-// packages/core); kept outside core alongside the E2E framework. SegmentEvent / JSONValue
+// Event builders for component test fixtures. Ported from action-destinations PR #3829 (was in
+// packages/core); kept outside core alongside the component test framework. SegmentEvent / JSONValue
 // come from the published core package.
 import type { SegmentEvent, JSONValue } from '@segment/actions-core'
 import type {
-  E2EAudienceEventBase,
-  E2EEngageAudienceEventOptions,
-  E2EEngageAudienceEvent,
-  E2EJourneysV1AudienceEventOptions,
-  E2EJourneysV1AudienceTrackEvent,
-  E2EJourneysV2AudienceEventOptions,
-  E2EJourneysV2AudienceTrackEvent,
-  E2ERetlAudienceEventOptions,
-  E2ERetlAudienceTrackEvent
+  CTAudienceEventBase,
+  CTEngageAudienceEventOptions,
+  CTEngageAudienceEvent,
+  CTJourneysV1AudienceEventOptions,
+  CTJourneysV1AudienceTrackEvent,
+  CTJourneysV2AudienceEventOptions,
+  CTJourneysV2AudienceTrackEvent,
+  CTRetlAudienceEventOptions,
+  CTRetlAudienceTrackEvent
 } from './types'
 
 /*
  * Regular Segment Connections event
  */
-export function createE2EEvent(
+export function createCTEvent(
   type: SegmentEvent['type'],
   name?: string,
   overrides?: Partial<Omit<SegmentEvent, 'type' | 'event' | 'name' | 'messageId' | 'timestamp'>>
@@ -46,7 +46,7 @@ export function createE2EEvent(
 
   if (name) {
     throw new Error(
-      `createE2EEvent: "name" is not supported for "${type}" events. Only track, page, and screen accept a name.`
+      `createCTEvent: "name" is not supported for "${type}" events. Only track, page, and screen accept a name.`
     )
   }
 
@@ -59,7 +59,7 @@ export function createE2EEvent(
   }
 }
 
-function buildAudienceEventBase(options: E2EAudienceEventBase) {
+function buildAudienceEventBase(options: CTAudienceEventBase) {
   const {
     computationKey,
     computationId,
@@ -93,13 +93,13 @@ function buildAudienceEventBase(options: E2EAudienceEventBase) {
  * Engage Audience event
  * Supports identify and track events
  */
-export function createE2EEngageAudienceEvent<ComputationKey extends string>(
-  options: E2EEngageAudienceEventOptions<ComputationKey>
-): E2EEngageAudienceEvent<ComputationKey> {
+export function createCTEngageAudienceEvent<ComputationKey extends string>(
+  options: CTEngageAudienceEventOptions<ComputationKey>
+): CTEngageAudienceEvent<ComputationKey> {
   const { type, action, computationKey, eventName, email, enrichedTraits } = options
 
   if (type === 'identify' && eventName) {
-    throw new Error('createE2EEngageAudienceEvent: "eventName" is not supported for identify events.')
+    throw new Error('createCTEngageAudienceEvent: "eventName" is not supported for identify events.')
   }
 
   const membership = action === 'add'
@@ -125,7 +125,7 @@ export function createE2EEngageAudienceEvent<ComputationKey extends string>(
     })
   }
 
-  return event as E2EEngageAudienceEvent<ComputationKey>
+  return event as CTEngageAudienceEvent<ComputationKey>
 }
 
 /*
@@ -133,9 +133,9 @@ export function createE2EEngageAudienceEvent<ComputationKey extends string>(
  * All Journeys V1 events enter the user to the audience, never remove them.
  * Only track events supported
  */
-export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
-  options: E2EJourneysV1AudienceEventOptions<ComputationKey>
-): E2EJourneysV1AudienceTrackEvent<ComputationKey> {
+export function createCTJourneysV1AudienceEvent<ComputationKey extends string>(
+  options: CTJourneysV1AudienceEventOptions<ComputationKey>
+): CTJourneysV1AudienceTrackEvent<ComputationKey> {
   const {
     computationKey,
     computationId,
@@ -170,7 +170,7 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
     }
   }
 
-  return event as E2EJourneysV1AudienceTrackEvent<ComputationKey>
+  return event as CTJourneysV1AudienceTrackEvent<ComputationKey>
 }
 
 /*
@@ -179,9 +179,9 @@ export function createE2EJourneysV1AudienceEvent<ComputationKey extends string>(
  * the membership boolean (true = entering the step / add, false = exiting / remove).
  * Only track events supported.
  */
-export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
-  options: E2EJourneysV2AudienceEventOptions<ComputationKey>
-): E2EJourneysV2AudienceTrackEvent<ComputationKey> {
+export function createCTJourneysV2AudienceEvent<ComputationKey extends string>(
+  options: CTJourneysV2AudienceEventOptions<ComputationKey>
+): CTJourneysV2AudienceTrackEvent<ComputationKey> {
   const {
     action = 'add',
     computationKey,
@@ -231,7 +231,7 @@ export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
     }
   }
 
-  return event as E2EJourneysV2AudienceTrackEvent<ComputationKey>
+  return event as CTJourneysV2AudienceTrackEvent<ComputationKey>
 }
 
 /*
@@ -239,9 +239,9 @@ export function createE2EJourneysV2AudienceEvent<ComputationKey extends string>(
  * Same payload structure as Engage track events but uses RETL-specific event names: 'new', 'updated', 'deleted'
  * Only track events supported
  */
-export function createE2ERetlAudienceEvent<ComputationKey extends string>(
-  options: E2ERetlAudienceEventOptions<ComputationKey>
-): E2ERetlAudienceTrackEvent<ComputationKey> {
+export function createCTRetlAudienceEvent<ComputationKey extends string>(
+  options: CTRetlAudienceEventOptions<ComputationKey>
+): CTRetlAudienceTrackEvent<ComputationKey> {
   const { eventName, enrichedTraits } = options
   const base = buildAudienceEventBase(options)
 
@@ -254,5 +254,5 @@ export function createE2ERetlAudienceEvent<ComputationKey extends string>(
     }
   }
 
-  return event as E2ERetlAudienceTrackEvent<ComputationKey>
+  return event as CTRetlAudienceTrackEvent<ComputationKey>
 }

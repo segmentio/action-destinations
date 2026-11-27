@@ -1,12 +1,12 @@
 import { createRequestClient, Destination, getAuthData } from '@segment/actions-core'
 import type { ExecuteInput, JSONObject, RefreshAccessTokenResult } from '@segment/actions-core'
-import type { E2EHookContext, E2ESuite } from './types'
+import type { CTHookContext, CTSuite } from './types'
 
 /**
  * The context a suite's or fixture's hook gets: resolved settings, and a request client built the
  * way core builds an action's, from the destination's extendRequest. It does not refresh OAuth tokens.
  */
-export function hookContext(suite: E2ESuite, settings: Record<string, unknown>, runId: string): E2EHookContext {
+export function hookContext(suite: CTSuite, settings: Record<string, unknown>, runId: string): CTHookContext {
   const { subscription: _subscription, oauth: _oauth, ...destinationSettings } = settings
   const input = {
     settings: destinationSettings,
@@ -18,7 +18,7 @@ export function hookContext(suite: E2ESuite, settings: Record<string, unknown>, 
 }
 
 /** Whether the suite or any fixture has a hook. */
-export function hasHooks(suite: E2ESuite): boolean {
+export function hasHooks(suite: CTSuite): boolean {
   return Boolean(suite.before || suite.after || suite.fixtures.some((fixture) => fixture.before || fixture.after))
 }
 
@@ -27,7 +27,7 @@ export function hasHooks(suite: E2ESuite): boolean {
  * with a stale stored access token. Undefined when the suite has no refresh token to use.
  */
 export async function refreshForHooks(
-  suite: E2ESuite,
+  suite: CTSuite,
   settings: Record<string, unknown>
 ): Promise<RefreshAccessTokenResult | undefined> {
   const oauth = settings.oauth as Record<string, unknown> | undefined

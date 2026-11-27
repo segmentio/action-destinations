@@ -1,10 +1,10 @@
 // Contract test: runs the core through a fake adapter, so it fails if the core starts depending on
-// anything an adapter (in-process here, or integrations' own) does not provide through E2EAdapter.
+// anything an adapter (in-process here, or integrations' own) does not provide through CTAdapter.
 import type { DestinationDefinition } from '@segment/actions-core'
-import { E2ESetupError } from '../adapters/types'
-import type { E2EAdapter, E2EInvocation, E2EObservation } from '../adapters/types'
+import { CTSetupError } from '../adapters/types'
+import type { CTAdapter, CTInvocation, CTObservation } from '../adapters/types'
 import { formatSummary, runSuites } from '../run'
-import type { E2EFixture, E2ESuite } from '../types'
+import type { CTFixture, CTSuite } from '../types'
 
 const definition: DestinationDefinition<Record<string, unknown>> = {
   name: 'Fake',
@@ -25,7 +25,7 @@ const definition: DestinationDefinition<Record<string, unknown>> = {
 
 const ok = { exchanges: [{ method: 'POST', url: 'https://fake.test/send', status: 200, body: { ok: true } }] }
 
-const fixture = (description: string, overrides: Partial<E2EFixture> = {}): E2EFixture =>
+const fixture = (description: string, overrides: Partial<CTFixture> = {}): CTFixture =>
   ({
     description,
     mode: 'single',
@@ -34,27 +34,27 @@ const fixture = (description: string, overrides: Partial<E2EFixture> = {}): E2EF
     mapping: { extra: '$guid:id' },
     expect: { status: 'success' },
     ...overrides
-  } as E2EFixture)
+  } as CTFixture)
 
-const suite = (destination: string, fixtures: E2EFixture[]): E2ESuite => ({
+const suite = (destination: string, fixtures: CTFixture[]): CTSuite => ({
   destination,
   action: 'send',
   definition,
-  config: { settings: { apiKey: { $env: 'E2E_FAKE_KEY' }, region: 'us' } },
+  config: { settings: { apiKey: { $env: 'CT_FAKE_KEY' }, region: 'us' } },
   fixtures
 })
 
-class FakeAdapter implements E2EAdapter {
+class FakeAdapter implements CTAdapter {
   readonly name = 'fake'
-  calls: E2EInvocation[] = []
-  constructor(private reply: (invocation: E2EInvocation, call: number) => E2EObservation | Promise<E2EObservation>) {}
-  async run(invocation: E2EInvocation) {
+  calls: CTInvocation[] = []
+  constructor(private reply: (invocation: CTInvocation, call: number) => CTObservation | Promise<CTObservation>) {}
+  async run(invocation: CTInvocation) {
     this.calls.push(invocation)
     return this.reply(invocation, this.calls.length)
   }
 }
 
-const env = { E2E_FAKE_KEY: 'secret' }
+const env = { CT_FAKE_KEY: 'secret' }
 const opts = { env, backoffMs: 0 }
 
 describe('runSuites', () => {
@@ -168,16 +168,16 @@ describe('runSuites', () => {
     const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, env: {} })
 
     expect(report.exitCode).toBe(2)
-    expect(report.setupErrors).toEqual(['fake/send: missing environment variables E2E_FAKE_KEY'])
+    expect(report.setupErrors).toEqual(['fake/send: missing environment variables CT_FAKE_KEY'])
     expect(adapter.calls).toHaveLength(0)
   })
 
   it('treats an empty secret as missing', async () => {
     const adapter = new FakeAdapter(() => ok)
-    const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, env: { E2E_FAKE_KEY: '' } })
+    const report = await runSuites(adapter, [suite('fake', [fixture('a')])], { ...opts, env: { CT_FAKE_KEY: '' } })
 
     expect(report.exitCode).toBe(2)
-    expect(report.setupErrors).toEqual(['fake/send: missing environment variables E2E_FAKE_KEY'])
+    expect(report.setupErrors).toEqual(['fake/send: missing environment variables CT_FAKE_KEY'])
     expect(adapter.calls).toHaveLength(0)
   })
 
@@ -210,9 +210,9 @@ describe('runSuites', () => {
     expect(report.setupErrors).toEqual(['no suites registered for destination "nope"', 'no suites to run'])
   })
 
-  it('stops a suite on E2ESetupError from the adapter and exits 2', async () => {
+  it('stops a suite on CTSetupError from the adapter and exits 2', async () => {
     const adapter = new FakeAdapter(() => {
-      throw new E2ESetupError('integrations is unreachable at http://localhost:3000')
+      throw new CTSetupError('integrations is unreachable at http://localhost:3000')
     })
     const report = await runSuites(adapter, [suite('fake', [fixture('a'), fixture('b')])], opts)
 
@@ -243,7 +243,7 @@ describe('runSuites', () => {
           { type: 'track', event: 'b' }
         ],
         expect: { status: 'multistatus', items: Array.from({ length: items }, () => ({ status: '2xx' })) }
-      } as Partial<E2EFixture>)
+      } as Partial<CTFixture>)
     const report = await runSuites(
       new FakeAdapter(() => ({ ...ok, multistatus: [{ status: 200 }, { status: 200 }] })),
       [
@@ -271,7 +271,7 @@ describe('runSuites', () => {
     it('runs before and after around the fixtures and resolves $before markers on every attempt', async () => {
       const calls: string[] = []
       const adapter = new FakeAdapter((_, call) => (call === 1 ? { exchanges: [] } : ok))
-      const hooked: E2ESuite = {
+      const hooked: CTSuite = {
         ...suite('fake', [
           fixture('a', {
             event: { type: 'track', event: '$before:name', userId: '$before:user' },
@@ -325,7 +325,7 @@ describe('runSuites', () => {
     it('makes a failed before or an unknown $before key a setup error, skipping only that fixture after', async () => {
       const calls: string[] = []
       const adapter = new FakeAdapter(() => ok)
-      const failing: E2ESuite = {
+      const failing: CTSuite = {
         ...suite('fake', [
           fixture('broken before', {
             before: async () => {
@@ -403,9 +403,9 @@ describe('runSuites', () => {
   it('shares refreshed OAuth tokens across suites on the same credentials, and reports them', async () => {
     const tokens = { accessToken: 'fresh-access', refreshToken: 'fresh-refresh' }
     const adapter = new FakeAdapter((_, call) => (call === 1 ? { ...ok, refreshedTokens: tokens } : ok))
-    const oauthSuite = (destination: string): E2ESuite => ({
+    const oauthSuite = (destination: string): CTSuite => ({
       ...suite(destination, [fixture('a')]),
-      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
+      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'CT_FAKE_KEY' } } } }
     })
     const refreshed: [string, unknown][] = []
     await runSuites(adapter, [oauthSuite('one'), oauthSuite('one'), oauthSuite('two')], {
@@ -430,9 +430,9 @@ describe('runSuites', () => {
       if (call === 2) return { ...ok, refreshedTokens: { accessToken: 'second' } }
       return ok
     })
-    const oauthSuite: E2ESuite = {
+    const oauthSuite: CTSuite = {
       ...suite('one', [fixture('a'), fixture('b'), fixture('c')]),
-      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
+      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'CT_FAKE_KEY' } } } }
     }
     await runSuites(adapter, [oauthSuite], opts)
 
@@ -444,9 +444,9 @@ describe('runSuites', () => {
   })
 
   it('awaits onTokenRefresh after a fixture refresh, and a lost rotated refresh token is a setup error', async () => {
-    const oauthSuite: E2ESuite = {
+    const oauthSuite: CTSuite = {
       ...suite('one', [fixture('a'), fixture('b')]),
-      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_KEY' } } } }
+      config: { settings: { oauth: { access_token: 'stale', refresh_token: { $env: 'CT_FAKE_KEY' } } } }
     }
     const reply = (tokens: { accessToken: string; refreshToken?: string }) =>
       new FakeAdapter((_, call) => (call === 1 ? { ...ok, refreshedTokens: tokens } : ok))

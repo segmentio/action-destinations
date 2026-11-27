@@ -1,5 +1,5 @@
 /**
- * E2E fixtures for Mixpanel `trackEvent` (the Import Events API, `/import`).
+ * Component test fixtures for Mixpanel `trackEvent` (the Import Events API, `/import`).
  *
  * Inspired by action-destinations PR #3829's mixpanel fixtures, trimmed to a pilot set that
  * exercises the framework end to end:
@@ -13,13 +13,13 @@
  *  - `success` (batchWithMultistatus) — the same batch with per-item multistatus enabled; every
  *                item must come back 2xx.
  *
- * Fixtures import from lib/e2e/helpers and types, not the lib/e2e index: the index loads the
+ * Fixtures import from lib/component-test/helpers and types, not the lib/component-test index: the index loads the
  * registry, which loads these files.
  */
-import type { E2EFixture } from '../../../../lib/e2e/types'
-import { createE2EEvent } from '../../../../lib/e2e/helpers'
+import type { CTFixture } from '../../../../lib/component-test/types'
+import { createCTEvent } from '../../../../lib/component-test/helpers'
 
-const fixtures: E2EFixture[] = [
+const fixtures: CTFixture[] = [
   {
     description: 'track event with no event name is rejected by our validation before any request',
     mode: 'single',
@@ -61,7 +61,7 @@ const fixtures: E2EFixture[] = [
     description: 'single valid track event is accepted by Mixpanel /import',
     mode: 'single',
     subscribe: 'type = "track"',
-    event: createE2EEvent('track', 'E2E Product Purchased', {
+    event: createCTEvent('track', 'E2E Product Purchased', {
       userId: 'e2e-user-success-001',
       properties: { order_id: '$guid:order', revenue: 42 }
     }),
@@ -73,11 +73,11 @@ const fixtures: E2EFixture[] = [
     mode: 'batch',
     subscribe: 'type = "track"',
     events: [
-      createE2EEvent('track', 'E2E Batch Event A', {
+      createCTEvent('track', 'E2E Batch Event A', {
         userId: 'e2e-user-batch-001',
         properties: { seq: 'a' }
       }),
-      createE2EEvent('track', 'E2E Batch Event B', {
+      createCTEvent('track', 'E2E Batch Event B', {
         userId: 'e2e-user-batch-002',
         properties: { seq: 'b' }
       })
@@ -90,11 +90,11 @@ const fixtures: E2EFixture[] = [
     mode: 'batchWithMultistatus',
     subscribe: 'type = "track"',
     events: [
-      createE2EEvent('track', 'E2E Multistatus Event A', {
+      createCTEvent('track', 'E2E Multistatus Event A', {
         userId: 'e2e-user-multistatus-001',
         properties: { seq: 'a' }
       }),
-      createE2EEvent('track', 'E2E Multistatus Event B', {
+      createCTEvent('track', 'E2E Multistatus Event B', {
         userId: 'e2e-user-multistatus-002',
         properties: { seq: 'b' }
       })

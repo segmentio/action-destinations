@@ -1,15 +1,15 @@
 import { randomUUID } from 'node:crypto'
 import type { RefreshAccessTokenResult } from '@segment/actions-core'
-import { E2ESetupError } from './adapters/types'
-import type { E2EAdapter, E2EObservation } from './adapters/types'
+import { CTSetupError } from './adapters/types'
+import type { CTAdapter, CTObservation } from './adapters/types'
 import { hasHooks, hookContext, refreshForHooks } from './hooks'
 import { buildInvocation, withRefreshedTokens } from './invocation'
 import { missingBeforeKeys, missingSecrets, resolveSettings } from './resolve'
-import type { E2EFixture, E2EFixtureCleanup, E2EHookValues, E2EResult, E2ESuite } from './types'
+import type { CTFixture, CTFixtureCleanup, CTHookValues, CTResult, CTSuite } from './types'
 import { validate } from './validate'
 
 /** Excuses failures until `expires`. Without `action` / `fixture`, it covers the whole destination or action. */
-export interface E2EQuarantineEntry {
+export interface CTQuarantineEntry {
   destination: string
   action?: string
   /** The fixture's `description`. */
@@ -19,7 +19,7 @@ export interface E2EQuarantineEntry {
   reason?: string
 }
 
-export interface E2ERunOptions {
+export interface CTRunOptions {
   /** Only these destination folders. Unknown names are a setup error. */
   destinations?: string[]
   /** Suites run in parallel up to this. Defaults to 4. */
@@ -28,24 +28,24 @@ export interface E2ERunOptions {
   defaultRetries?: number
   /** First retry delay in ms, doubled each attempt. Defaults to 250. */
   backoffMs?: number
-  quarantine?: E2EQuarantineEntry[]
+  quarantine?: CTQuarantineEntry[]
   /** Where `{ $env }` settings come from. Defaults to process.env. */
   env?: NodeJS.ProcessEnv
   /** Clock for quarantine expiry. Defaults to now. */
   now?: Date
   /** Handed to hooks for naming partner resources. Defaults to a fresh short id. */
   runId?: string
-  onResult?: (result: E2EResult) => void
+  onResult?: (result: CTResult) => void
   /** Called with each refresh's tokens, so a harness can save a rotated refresh token. Awaited; a throw is a setup error when the refresh token changed (it would be lost), otherwise a warning. */
   onTokenRefresh?: (destination: string, tokens: RefreshAccessTokenResult) => void | Promise<void>
 }
 
-export interface E2EReport {
+export interface CTReport {
   adapter: string
   runId: string
   startedAt: string
   ms: number
-  results: E2EResult[]
+  results: CTResult[]
   setupErrors: string[]
   /** Failed `after` hooks and onTokenRefresh calls; the exit code is unaffected. */
   warnings: string[]
@@ -55,7 +55,7 @@ export interface E2EReport {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-function isQuarantined(suite: E2ESuite, fixture: E2EFixture, entries: E2EQuarantineEntry[], now: Date): boolean {
+function isQuarantined(suite: CTSuite, fixture: CTFixture, entries: CTQuarantineEntry[], now: Date): boolean {
   return entries.some(
     (entry) =>
       entry.destination === suite.destination &&
@@ -65,7 +65,7 @@ function isQuarantined(suite: E2ESuite, fixture: E2EFixture, entries: E2EQuarant
   )
 }
 
-function selectSuites(suites: E2ESuite[], options: E2ERunOptions, setupErrors: string[]): E2ESuite[] {
+function selectSuites(suites: CTSuite[], options: CTRunOptions, setupErrors: string[]): CTSuite[] {
   let selected = suites
   if (options.destinations?.length) {
     const known = new Set(suites.map((suite) => suite.destination))
@@ -81,7 +81,7 @@ function selectSuites(suites: E2ESuite[], options: E2ERunOptions, setupErrors: s
 const message = (err: unknown) => (err as Error)?.message ?? String(err)
 
 /** Tokens one set of OAuth credentials has refreshed to, shared by every suite that uses them. */
-interface E2EAuthState {
+interface CTAuthState {
   tokens?: RefreshAccessTokenResult
   hookRefresh?: Promise<void>
   /** The refresh token in the suite's stored settings. */
@@ -89,7 +89,7 @@ interface E2EAuthState {
 }
 
 /** A fixture that can't be judged as written, or undefined. */
-function fixtureProblem(fixture: E2EFixture): string | undefined {
+function fixtureProblem(fixture: CTFixture): string | undefined {
   if (fixture.expect.status !== 'multistatus') return undefined
   if (fixture.mode !== 'batchWithMultistatus') return `a multistatus expectation needs mode 'batchWithMultistatus'`
   if (fixture.expect.items.length !== fixture.events.length) {
@@ -102,11 +102,7 @@ function fixtureProblem(fixture: E2EFixture): string | undefined {
  * Run suites through any adapter. Fixtures inside a suite run in order; suites run in parallel.
  * The core owns scoping, preflight, hooks, retries, quarantine and the exit code; the adapter only sends.
  */
-export async function runSuites(
-  adapter: E2EAdapter,
-  suites: E2ESuite[],
-  options: E2ERunOptions = {}
-): Promise<E2EReport> {
+export async function runSuites(adapter: CTAdapter, suites: CTSuite[], options: CTRunOptions = {}): Promise<CTReport> {
   const started = Date.now()
   const env = options.env ?? process.env
   const now = options.now ?? new Date()
@@ -114,7 +110,7 @@ export async function runSuites(
   const runId = options.runId ?? randomUUID().slice(0, 8)
   const setupErrors: string[] = []
   const warnings: string[] = []
-  const results: E2EResult[] = []
+  const results: CTResult[] = []
 
   const selected = selectSuites(suites, options, setupErrors)
   for (const entry of options.quarantine ?? []) {
@@ -145,7 +141,7 @@ export async function runSuites(
   })
 
   /** Store a refresh's tokens, then hand them to onTokenRefresh. */
-  const refreshed = async (destination: string, auth: E2EAuthState, tokens: RefreshAccessTokenResult) => {
+  const refreshed = async (destination: string, auth: CTAuthState, tokens: RefreshAccessTokenResult) => {
     const previous = auth.tokens?.refreshToken ?? auth.storedRefreshToken
     // A refresh that returns no refresh token keeps the last rotated one, as core's updateOAuthSettings does.
     auth.tokens = { ...tokens, refreshToken: tokens.refreshToken ?? auth.tokens?.refreshToken }
@@ -160,23 +156,23 @@ export async function runSuites(
     }
   }
 
-  const failedOutcome = (suite: E2ESuite, fixture: E2EFixture) =>
+  const failedOutcome = (suite: CTSuite, fixture: CTFixture) =>
     isQuarantined(suite, fixture, options.quarantine ?? [], now) ? 'quarantined' : 'failed'
 
-  /** Attempts one fixture, reusing and updating the run's refreshed tokens. Rethrows E2ESetupError. */
+  /** Attempts one fixture, reusing and updating the run's refreshed tokens. Rethrows CTSetupError. */
   const runFixture = async (
-    suite: E2ESuite,
-    fixture: E2EFixture,
-    values: E2EHookValues,
-    auth: E2EAuthState
-  ): Promise<{ result: E2EResult; observation?: E2EObservation }> => {
+    suite: CTSuite,
+    fixture: CTFixture,
+    values: CTHookValues,
+    auth: CTAuthState
+  ): Promise<{ result: CTResult; observation?: CTObservation }> => {
     const fixtureStarted = Date.now()
     const retries = fixture.retries ?? suite.retries ?? options.defaultRetries ?? 0
     const expectation = fixture.expect
     let attempts = 0
     let reason: string | undefined
     let passed = false
-    let observation: E2EObservation | undefined
+    let observation: CTObservation | undefined
 
     while (!passed && attempts <= retries) {
       if (attempts > 0) await sleep(backoffMs * 2 ** (attempts - 1))
@@ -195,12 +191,12 @@ export async function runSuites(
         passed = verdict.passed
         reason = verdict.reason
       } catch (err) {
-        if (err instanceof E2ESetupError) throw err
+        if (err instanceof CTSetupError) throw err
         reason = `adapter threw: ${message(err)}`
       }
     }
 
-    const result: E2EResult = {
+    const result: CTResult = {
       suite: `${suite.destination}/${suite.action}`,
       fixture: fixture.description,
       outcome: passed ? 'passed' : failedOutcome(suite, fixture),
@@ -215,8 +211,8 @@ export async function runSuites(
 
   // Keyed by destination and stored refresh token, so suites on the same credentials share tokens.
   // Only the refresh before hooks is deduplicated; fixtures that hit a 401 at once each refresh.
-  const authStates = new Map<string, E2EAuthState>()
-  const authFor = (destination: string, settings: Record<string, unknown>): E2EAuthState => {
+  const authStates = new Map<string, CTAuthState>()
+  const authFor = (destination: string, settings: Record<string, unknown>): CTAuthState => {
     const refreshToken = (settings.oauth as Record<string, unknown> | undefined)?.refresh_token
     if (typeof refreshToken !== 'string') return {}
     const key = `${destination}\0${refreshToken}`
@@ -225,26 +221,26 @@ export async function runSuites(
     return state
   }
 
-  const record = (result: E2EResult) => {
+  const record = (result: CTResult) => {
     results.push(result)
     options.onResult?.(result)
   }
 
   /** False, with a setup error, for a fixture that can't be judged as written. */
-  const wellFormed = (label: string, fixture: E2EFixture) => {
+  const wellFormed = (label: string, fixture: CTFixture) => {
     const problem = fixtureProblem(fixture)
     if (problem) setupErrors.push(`${label} › ${fixture.description}: ${problem}`)
     return !problem
   }
 
-  const runSuite = async (suite: E2ESuite) => {
+  const runSuite = async (suite: CTSuite) => {
     const label = `${suite.destination}/${suite.action}`
     const settings = resolveSettings(suite.config.settings, env)
     const auth = authFor(suite.destination, settings)
     // Hooks see the latest refreshed tokens too.
     const context = () => hookContext(suite, withRefreshedTokens(settings, auth.tokens), runId)
-    let suiteValues: E2EHookValues = {}
-    const cleanups: E2EFixtureCleanup[] = []
+    let suiteValues: CTHookValues = {}
+    const cleanups: CTFixtureCleanup[] = []
 
     // Hooks can call the partner before any fixture has refreshed the stored access token.
     if (hasHooks(suite) && !auth.tokens) {
@@ -291,8 +287,8 @@ export async function runSuites(
         if (!wellFormed(label, fixture)) continue
         let values = suiteValues
         let beforeFailed = false
-        let observation: E2EObservation | undefined
-        let outcome: E2EResult['outcome'] | undefined
+        let observation: CTObservation | undefined
+        let outcome: CTResult['outcome'] | undefined
         try {
           if (fixture.before) {
             try {
@@ -368,7 +364,7 @@ export async function runSuites(
 }
 
 /** A plain-text summary of a report, for a terminal or a CI log. */
-export function formatSummary(report: E2EReport): string {
+export function formatSummary(report: CTReport): string {
   const lines = report.results.map((result) => {
     const mark = result.outcome === 'passed' ? 'PASS' : result.outcome === 'quarantined' ? 'QUAR' : 'FAIL'
     const detail = result.reason ? `\n       ${result.reason}` : ''
@@ -376,7 +372,7 @@ export function formatSummary(report: E2EReport): string {
   })
   for (const error of report.setupErrors) lines.push(`SETUP ${error}`)
   for (const warning of report.warnings) lines.push(`WARN  ${warning}`)
-  const count = (outcome: E2EResult['outcome']) => report.results.filter((result) => result.outcome === outcome).length
+  const count = (outcome: CTResult['outcome']) => report.results.filter((result) => result.outcome === outcome).length
   lines.push(
     `${count('passed')} passed, ${count('failed')} failed, ${count('quarantined')} quarantined, ` +
       `${report.setupErrors.length} setup error(s), ${report.warnings.length} warning(s) · adapter ${report.adapter} · exit ${report.exitCode}`

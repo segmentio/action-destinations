@@ -2,7 +2,7 @@
 import nock from 'nock'
 import { MultiStatusResponse } from '@segment/actions-core'
 import type { DestinationDefinition } from '@segment/actions-core'
-import type { E2EFixture, E2ESuite } from '../types'
+import type { CTFixture, CTSuite } from '../types'
 import { InProcessAdapter } from '../adapters/in-process'
 import { buildInvocation } from '../invocation'
 import { runSuites } from '../run'
@@ -44,14 +44,14 @@ const fakeApi: DestinationDefinition<{ apiKey: string }> = {
   }
 }
 
-const env = { E2E_FAKE_API_KEY: 'secret' }
+const env = { CT_FAKE_API_KEY: 'secret' }
 const event = (name?: string) => ({
   type: 'track',
   ...(name ? { event: name } : {}),
   messageId: '$guid',
   timestamp: '$now'
 })
-const fixture = (description: string, rest: Partial<E2EFixture>): E2EFixture =>
+const fixture = (description: string, rest: Partial<CTFixture>): CTFixture =>
   ({
     description,
     mode: 'single',
@@ -59,12 +59,12 @@ const fixture = (description: string, rest: Partial<E2EFixture>): E2EFixture =>
     event: event(description),
     mapping: {},
     ...rest
-  } as E2EFixture)
-const apiSuite = (fixtures: E2EFixture[]): E2ESuite => ({
+  } as CTFixture)
+const apiSuite = (fixtures: CTFixture[]): CTSuite => ({
   destination: 'fake-api',
   action: 'send',
   definition: fakeApi,
-  config: { settings: { apiKey: { $env: 'E2E_FAKE_API_KEY' } } },
+  config: { settings: { apiKey: { $env: 'CT_FAKE_API_KEY' } } },
   fixtures
 })
 
@@ -83,13 +83,13 @@ const batch = fixture('batch', {
   mode: 'batch',
   events: [event('a'), event('b')],
   expect: { status: 'success' }
-} as Partial<E2EFixture>)
+} as Partial<CTFixture>)
 const multistatus = fixture('multistatus', {
   mode: 'batchWithMultistatus',
   events: [event('a'), event('b')],
   features: { 'fake-multistatus': true },
   expect: { status: 'success' }
-} as Partial<E2EFixture>)
+} as Partial<CTFixture>)
 
 // The adapter must send resolved settings and the mapped payload: `name` and `id` come from field defaults.
 type Sent = { name?: unknown; id?: unknown }
@@ -187,18 +187,18 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
       }
     }
   }
-  const env = { E2E_FAKE_REFRESH: 'long-lived' }
-  const oauthSuite = (fixtures: E2ESuite['fixtures'], extra: Partial<E2ESuite> = {}): E2ESuite => ({
+  const env = { CT_FAKE_REFRESH: 'long-lived' }
+  const oauthSuite = (fixtures: CTSuite['fixtures'], extra: Partial<CTSuite> = {}): CTSuite => ({
     destination: 'fake-oauth',
     action: 'send',
     definition,
     config: {
-      settings: { region: 'eu', oauth: { access_token: 'stale', refresh_token: { $env: 'E2E_FAKE_REFRESH' } } }
+      settings: { region: 'eu', oauth: { access_token: 'stale', refresh_token: { $env: 'CT_FAKE_REFRESH' } } }
     },
     fixtures,
     ...extra
   })
-  const send = (description: string, expect: E2ESuite['fixtures'][number]['expect']) =>
+  const send = (description: string, expect: CTSuite['fixtures'][number]['expect']) =>
     ({
       description,
       mode: 'single',
@@ -206,7 +206,7 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
       event: { type: 'track', event: description, messageId: '$guid', timestamp: '$now' },
       mapping: {},
       expect
-    } as E2ESuite['fixtures'][number])
+    } as CTSuite['fixtures'][number])
 
   afterEach(() => nock.cleanAll())
 
@@ -325,7 +325,7 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
     nock('https://auth.fake.test').post('/token').reply(400, { error: 'invalid_grant' })
     const broken = {
       ...send('c', { status: 'multistatus', items: [{ status: '2xx' }] })
-    } as E2ESuite['fixtures'][number]
+    } as CTSuite['fixtures'][number]
     const withBroken = await runSuites(new InProcessAdapter(), [{ ...hooked, fixtures: [broken] }], { env, quarantine })
     expect(withBroken.exitCode).toBe(2)
     expect(withBroken.results).toEqual([])
@@ -401,7 +401,7 @@ describe('OAuth refresh and hooks through InProcessAdapter', () => {
       ...send('batch refresh fails', { status: 'error', errorType: 'OAUTH_REFRESH_FAILED' }),
       mode: 'batchWithMultistatus',
       events: [{ type: 'track', event: 'a', messageId: '$guid', timestamp: '$now' }]
-    } as unknown as E2ESuite['fixtures'][number]
+    } as unknown as CTSuite['fixtures'][number]
     const report = await runSuites(
       new InProcessAdapter(),
       [{ ...oauthSuite([fixture]), definition: batchDefinition }],

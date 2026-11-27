@@ -1,4 +1,4 @@
-# E2E (component) test framework
+# Component test framework
 
 Runs a cloud-mode destination's fixtures **live** against a real partner sandbox, no `nock`
 mocks. Unit tests prove our code matches our mock; these prove the live partner accepts what the
@@ -12,61 +12,61 @@ both places.
 ## Layout
 
 ```
-src/lib/e2e/
-  types.ts          # fixtures, expectations, E2ESuite, E2EResult
-  helpers.ts        # createE2EEvent + Engage/Journeys/RETL event builders
+src/lib/component-test/
+  types.ts          # fixtures, expectations, CTSuite, CTResult
+  helpers.ts        # createCTEvent + Engage/Journeys/RETL event builders
   resolve.ts        # { $env } settings and $now / $guid / $before markers
-  invocation.ts     # buildInvocation: fixture -> adapter-neutral E2EInvocation
+  invocation.ts     # buildInvocation: fixture -> adapter-neutral CTInvocation
   hooks.ts          # the context before / after hooks get
   validate.ts       # expectation vs observation, no jest
   run.ts            # runSuites(adapter, suites, opts): scope, preflight, concurrency, retries, quarantine, exit code
   registry.ts       # every onboarded destination's suites
   adapters/
-    types.ts        # E2EAdapter, E2EInvocation, E2EObservation, E2ESetupError
+    types.ts        # CTAdapter, CTInvocation, CTObservation, CTSetupError
     in-process.ts   # InProcessAdapter (local runs and the integrations gate's first pass)
   index.ts          # what the integrations harness imports
 
-src/destinations/<dest>/__e2e__/index.ts                # config (settings via { $env }) + suites
-src/destinations/<dest>/<action>/__e2e__/*.e2e.ts       # default-export E2EFixture[]
-test/e2e/live.e2e.ts                                    # local entry: registry through InProcessAdapter
+src/destinations/<dest>/__component-test__/index.ts           # config (settings via { $env }) + suites
+src/destinations/<dest>/<action>/__component-test__/*.ct.ts  # default-export CTFixture[]
+test/component-test/live.ct.ts                               # local entry: registry through InProcessAdapter
 ```
 
 ## Onboarding a destination
 
-1. Add `<dest>/<action>/__e2e__/*.e2e.ts`, each `export default` an `E2EFixture[]`.
-2. Add `<dest>/__e2e__/index.ts` with its `config` and `export const suites: E2ESuite[]`, one per action.
+1. Add `<dest>/<action>/__component-test__/*.ct.ts`, each `export default` a `CTFixture[]`.
+2. Add `<dest>/__component-test__/index.ts` with its `config` and `export const suites: CTSuite[]`, one per action.
 3. Add one import line to `registry.ts`.
 
-Fixture files import from `lib/e2e/helpers` and `lib/e2e/types`, not the `lib/e2e` index: the
+Fixture files import from `lib/component-test/helpers` and `lib/component-test/types`, not the `lib/component-test` index: the
 index loads the registry, which loads the fixtures. Fixtures hold no secrets, only
-`{ $env: 'E2E_<DEST>_<KEY>' }` names. Partner resource IDs (catalog, audience) aren't secrets and
-live as constants in `<dest>/__e2e__/index.ts`. Event builders set `timestamp` and `receivedAt` to `$now`. A fixture's `description` is its result ID, so
+`{ $env: 'CT_<DEST>_<KEY>' }` names. Partner resource IDs (catalog, audience) aren't secrets and
+live as constants in `<dest>/__component-test__/index.ts`. Event builders set `timestamp` and `receivedAt` to `$now`. A fixture's `description` is its result ID, so
 keep it unique within its action.
 
 ## Running
 
 ```bash
-# from the repo root, with the destination's E2E_* variables exported
-yarn cloud e2e
+# from the repo root, with the destination's CT_* variables exported
+yarn cloud component-test
 
-E2E_DESTINATIONS=mixpanel,webhook   # only these destination folders
-E2E_CONCURRENCY=4                   # suites in parallel
-E2E_REPORT=/tmp/e2e.json            # also write the JSON report
+CT_DESTINATIONS=mixpanel,webhook   # only these destination folders
+CT_CONCURRENCY=4                   # suites in parallel
+CT_REPORT=/tmp/component-test.json # also write the JSON report
 ```
 
-Once the `action-destinations-e2e` chamber service exists, `chamber exec action-destinations-e2e -- yarn cloud e2e`
+Once the `action-destinations-component-test` chamber service exists, `chamber exec action-destinations-component-test -- yarn cloud component-test`
 supplies them instead. A suite whose variables are missing
-is a setup error (report `exitCode` 2), never a silent skip. Webhook needs none. Locally `yarn e2e`
-fails on any non-zero `exitCode`; the summary and `E2E_REPORT` say which. `yarn cloud test` never runs
-these: the live entry has its own jest config, `jest.e2e.config.js`, without the nock setup that
+is a setup error (report `exitCode` 2), never a silent skip. Webhook needs none. Locally `yarn component-test`
+fails on any non-zero `exitCode`; the summary and `CT_REPORT` say which. `yarn cloud test` never runs
+these: the live entry has its own jest config, `jest.ct.config.js`, without the nock setup that
 blocks network access.
 
 ## Writing an adapter
 
-Implement `E2EAdapter` and call `runSuites(adapter, suites, opts)`. The core hands the adapter an
-`E2EInvocation`: settings with secrets resolved, the events with markers resolved, the
+Implement `CTAdapter` and call `runSuites(adapter, suites, opts)`. The core hands the adapter a
+`CTInvocation`: settings with secrets resolved, the events with markers resolved, the
 `subscribe` FQL, and the mapping with the action's field defaults overlaid by the fixture's, as a
-stored subscription carries it. The adapter sends it and returns an `E2EObservation`:
+stored subscription carries it. The adapter sends it and returns a `CTObservation`:
 
 - `exchanges`: the partner request/response pairs (`url`, `method`, response `status` and `body`).
 - `error`: what our code threw, as the Segment error code integrations reports (for example
@@ -81,7 +81,7 @@ stored subscription carries it. The adapter sends it and returns an `E2EObservat
 - `refreshFailed`: the destination's `refreshAccessToken` threw or returned nothing. Core reports a
   throw as the token request's own error, so the report needs this to name the cause.
 
-Throw `E2ESetupError` when the target itself is unusable. `InProcessAdapter` calls
+Throw `CTSetupError` when the target itself is unusable. `InProcessAdapter` calls
 `destination.onEvent` / `onBatch` with the subscription in settings, the same entry points
 integrations uses, and maps errors the way integrations does.
 
@@ -120,7 +120,7 @@ attempt) and `$before:<key>` (a value a `before` hook returned), resolved in eve
 
 Suites and fixtures can set `before` and `after` to create and delete quick partner resources.
 Slow or async resources are created in the sandbox by hand and kept as constants in
-`<dest>/__e2e__/index.ts`.
+`<dest>/__component-test__/index.ts`.
 
 ```
 suite.before(ctx)                                   → S

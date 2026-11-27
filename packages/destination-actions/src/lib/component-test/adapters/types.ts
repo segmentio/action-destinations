@@ -1,15 +1,15 @@
 // The seam between the runner core and whatever executes a fixture. The core builds an
-// E2EInvocation and judges the E2EObservation; an adapter only sends and reports. The in-process
+// CTInvocation and judges the CTObservation; an adapter only sends and reports. The in-process
 // adapter lives here; integrations implements its own against its CloudEvents route.
 import type { JSONObject, RefreshAccessTokenResult, SegmentEvent } from '@segment/actions-core'
-import type { E2EExecutionMode, E2ESuite } from '../types'
+import type { CTExecutionMode, CTSuite } from '../types'
 
 /** Everything needed to run one fixture, already resolved, independent of how it is sent. */
-export interface E2EInvocation {
+export interface CTInvocation {
   /** The destination definition's slug, e.g. 'actions-mixpanel'. */
   slug: string
   action: string
-  mode: E2EExecutionMode
+  mode: CTExecutionMode
   /** One event for 'single', otherwise the batch. Dynamic markers are resolved. */
   events: SegmentEvent[]
   /** Destination settings with `{ $env }` markers resolved, and tokens refreshed earlier in the run. No subscription. */
@@ -21,21 +21,21 @@ export interface E2EInvocation {
 }
 
 /** One partner HTTP exchange. `status` and `body` are the partner's response. */
-export interface E2EExchange {
+export interface CTExchange {
   method: string
   url: string
   status: number
   body: unknown
 }
 
-export interface E2EObservedError {
+export interface CTObservedError {
   /** Segment error code, as integrations reports it (e.g. 'PAYLOAD_VALIDATION_FAILED'). */
   type: string
   message: string
   status?: number
 }
 
-export interface E2EMultiStatusItem {
+export interface CTMultiStatusItem {
   status: number
   errortype?: string
   errormessage?: string
@@ -43,10 +43,10 @@ export interface E2EMultiStatusItem {
 }
 
 /** What happened, in terms both adapters can observe. */
-export interface E2EObservation {
-  exchanges: E2EExchange[]
-  error?: E2EObservedError
-  multistatus?: E2EMultiStatusItem[]
+export interface CTObservation {
+  exchanges: CTExchange[]
+  error?: CTObservedError
+  multistatus?: CTMultiStatusItem[]
   /**
    * Whether the action's performBatch returned a MultiStatusResponse. Core turns any other return
    * into per-event results that copy one status. Unset when performBatch threw or never ran, or the
@@ -65,20 +65,20 @@ export interface E2EObservation {
   refreshFailed?: boolean
 }
 
-export interface E2EAdapter {
+export interface CTAdapter {
   /** 'in-process' here; integrations names its own. Recorded in the report. */
   readonly name: string
   /**
-   * Send one invocation and report what happened. Throw E2ESetupError when the target itself is
+   * Send one invocation and report what happened. Throw CTSetupError when the target itself is
    * unusable (e.g. unreachable); any other throw counts as a fixture failure.
    */
-  run(invocation: E2EInvocation, suite: E2ESuite): Promise<E2EObservation>
+  run(invocation: CTInvocation, suite: CTSuite): Promise<CTObservation>
 }
 
 /** A problem with the run's setup rather than with a destination: makes the run exit 2. */
-export class E2ESetupError extends Error {
+export class CTSetupError extends Error {
   constructor(message: string) {
     super(message)
-    this.name = 'E2ESetupError'
+    this.name = 'CTSetupError'
   }
 }

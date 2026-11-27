@@ -1,9 +1,9 @@
 import { Destination, MultiStatusResponse } from '@segment/actions-core'
 import type { DecoratedResponse, JSONObject, RefreshAccessTokenResult, Result } from '@segment/actions-core'
-import type { E2ESuite } from '../types'
-import type { E2EAdapter, E2EExchange, E2EInvocation, E2EObservation, E2EObservedError } from './types'
+import type { CTSuite } from '../types'
+import type { CTAdapter, CTExchange, CTInvocation, CTObservation, CTObservedError } from './types'
 
-function toExchange(response: DecoratedResponse): E2EExchange {
+function toExchange(response: DecoratedResponse): CTExchange {
   return {
     method: response.request?.method ?? String(response.options?.method ?? ''),
     url: response.request?.url ?? response.url,
@@ -15,7 +15,7 @@ function toExchange(response: DecoratedResponse): E2EExchange {
 // Mirrors integrations' createActionDestination send(): HTTP errors take the response status as
 // their code, and Ajv / ValidationError become PAYLOAD_VALIDATION_FAILED, which is not retried (400).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toObservedError(err: any): E2EObservedError {
+function toObservedError(err: any): CTObservedError {
   const isValidation = err?.name === 'AggregateAjvError' || err?.name === 'ValidationError'
   const status: number | undefined = err?.response?.status ?? err?.status ?? (isValidation ? 400 : undefined)
   const type = isValidation ? 'PAYLOAD_VALIDATION_FAILED' : err?.code ?? (status ? String(status) : err?.name)
@@ -26,10 +26,10 @@ function toObservedError(err: any): E2EObservedError {
  * Runs a fixture through the destination definition in this process, via the same
  * `onEvent` / `onBatch` entry points integrations calls, with the subscription in settings.
  */
-export class InProcessAdapter implements E2EAdapter {
+export class InProcessAdapter implements CTAdapter {
   readonly name = 'in-process'
 
-  async run(invocation: E2EInvocation, suite: E2ESuite): Promise<E2EObservation> {
+  async run(invocation: CTInvocation, suite: CTSuite): Promise<CTObservation> {
     // A fresh Destination per run, so `responses` holds only this fixture's exchanges. It is built
     // from a copy that records what performBatch returned and whether a token refresh failed;
     // patching the shared definition would leak into suites running at the same time.

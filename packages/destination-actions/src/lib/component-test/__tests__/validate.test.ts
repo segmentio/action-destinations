@@ -1,4 +1,4 @@
-import type { E2EMultiStatusItem } from '../adapters/types'
+import type { CTMultiStatusItem } from '../adapters/types'
 import { validate } from '../validate'
 
 const exchange = (status: number, body: unknown = {}) => ({ method: 'POST', url: 'https://fake.test', status, body })
@@ -138,7 +138,7 @@ describe('validate', () => {
     })
 
     it('fails on a different count, status, type, message or reporter', () => {
-      const withItem = (item: E2EMultiStatusItem) => ({ ...observation, multistatus: [{ status: 200 }, item] })
+      const withItem = (item: CTMultiStatusItem) => ({ ...observation, multistatus: [{ status: 200 }, item] })
       expect(validate(expectation, { ...observation, multistatus: [{ status: 200 }] }).reason).toBe(
         'expected 2 per-event result(s), got 1'
       )
