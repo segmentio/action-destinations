@@ -122,7 +122,7 @@ const action: ActionDefinition<Settings, Payload> = {
     ...eventProperties
   },
 
-  performBatch: (request, { payload: payloads, settings }) => {
+  performBatch: (request, { payload: payloads, settings, features }) => {
     const options = payloads.map((payload) => ({
       action: 'identify',
       payload: buildRequestPayload(payload),
@@ -130,7 +130,7 @@ const action: ActionDefinition<Settings, Payload> = {
       type: 'person'
     }))
 
-    return sendBatch(request, options)
+    return sendBatch(request, options, features)
   },
 
   perform: (request, { payload, settings }) => {
