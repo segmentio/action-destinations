@@ -8,6 +8,7 @@
 import type { CTDestinationConfig, CTSuite } from '../../../lib/component-test/types'
 import definition from '..'
 import trackEventFixtures from '../trackEvent/__component-test__/fixtures.ct'
+import nonStrictFixtures from '../trackEvent/__component-test__/non-strict.ct'
 
 export const config: CTDestinationConfig = {
   settings: {
@@ -17,6 +18,11 @@ export const config: CTDestinationConfig = {
   }
 }
 
+export const nonStrictConfig: CTDestinationConfig = {
+  settings: { ...config.settings, strictMode: '0' }
+}
+
 export const suites: CTSuite[] = [
-  { destination: 'mixpanel', action: 'trackEvent', definition, config, fixtures: trackEventFixtures }
+  { destination: 'mixpanel', action: 'trackEvent', definition, config, fixtures: trackEventFixtures },
+  { destination: 'mixpanel', action: 'trackEvent', definition, config: nonStrictConfig, fixtures: nonStrictFixtures }
 ]
