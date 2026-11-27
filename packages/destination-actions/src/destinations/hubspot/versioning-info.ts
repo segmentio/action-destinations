@@ -12,6 +12,6 @@ export const HUBSPOT_CRM_ASSOCIATIONS_API_VERSION = 'v4'
 
 /** HUBSPOT_OAUTH_API_VERSION
  * HubSpot OAuth API version.
- * API reference: https://developers.hubspot.com/docs/api-reference/auth-oauth-v1/tokens/post-oauth-v1-token
+ * API reference: https://developers.hubspot.com/docs/api-reference/latest/authentication/manage-oauth-tokens
  */
-export const HUBSPOT_OAUTH_API_VERSION = 'v1'
+export const HUBSPOT_OAUTH_API_VERSION = '2026-03'

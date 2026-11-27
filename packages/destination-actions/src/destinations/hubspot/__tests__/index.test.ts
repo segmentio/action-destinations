@@ -5,6 +5,13 @@ import { HUBSPOT_BASE_URL } from '../properties'
 
 const testDestination = createTestIntegration(Definition)
 
+const oauthData = {
+  refreshToken: 'refresh-token',
+  accessToken: 'access-token',
+  clientId: 'client-id',
+  clientSecret: 'client-secret'
+}
+
 describe('HubSpot Cloud Mode (Actions)', () => {
   describe('testAuthentication', () => {
     it('should validate authentication inputs', async () => {
@@ -21,6 +28,17 @@ describe('HubSpot Cloud Mode (Actions)', () => {
       await expect(testDestination.testAuthentication(authData)).rejects.toThrowError(
         new Error('Credentials are invalid: 401 Unauthorized')
       )
+    })
+  })
+
+  describe('refreshAccessToken', () => {
+    it('should use the 2026-03 endpoint', async () => {
+      nock(HUBSPOT_BASE_URL)
+        .post('/oauth/2026-03/token')
+        .reply(200, { access_token: 'new-access-token' })
+
+      const result = await testDestination.refreshAccessToken({}, oauthData)
+      expect(result).toEqual({ accessToken: 'new-access-token' })
     })
   })
 })
